@@ -17,6 +17,7 @@ import numpy as np
 import scipy
 import itertools
 from six.moves import zip
+import collections
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -96,6 +97,83 @@ class Deformation(SquareTensor):
         f = np.identity(3)
         f[matrixpos] += amt
         return cls(f)
+
+
+class DeformedStructureSet(collections.Sequence):
+    """
+    class that generates a set of independently deformed structures that
+    can be used to calculate linear stress-strain response
+    """
+
+    def __init__(self, rlxd_str, nd=0.01, ns=0.08,
+                 num_norm=4, num_shear=4, symmetry=False):
+        """
+        constructs the deformed geometries of a structure.  Generates
+        m + n deformed structures according to the supplied parameters.
+
+        Args:
+            rlxd_str (structure): structure to undergo deformation, if
+                fitting elastic tensor is desired, should be a geometry
+                optimized structure
+            nd (float): maximum perturbation applied to normal deformation
+            ns (float): maximum perturbation applied to shear deformation
+            num_norm (int): number of deformation structures to generate for
+                normal deformation, must be even
+            num_shear (int): number of deformation structures to generate for
+                shear deformation, must be even
+        """
+
+        if num_norm % 2 != 0:
+            raise ValueError("Number of normal deformations (num_norm)"
+                             " must be even.")
+        if num_shear % 2 != 0:
+            raise ValueError("Number of shear deformations (num_shear)"
+                             " must be even.")
+
+        norm_deformations = np.linspace(-nd, nd, num=num_norm + 1)
+        norm_deformations = norm_deformations[norm_deformations.nonzero()]
+        shear_deformations = np.linspace(-ns, ns, num=num_shear + 1)
+        shear_deformations = shear_deformations[shear_deformations.nonzero()]
+
+        self.undeformed_structure = rlxd_str
+        self.deformations = []
+        self.def_structs = []
+
+        # Generate deformations
+        for ind in [(0, 0), (1, 1), (2, 2)]:
+            for amount in norm_deformations:
+                defo = Deformation.from_index_amount(ind, amount)
+                self.deformations.append(defo)
+
+        for ind in [(0, 1), (0, 2), (1, 2)]:
+            for amount in shear_deformations:
+                defo = Deformation.from_index_amount(ind, amount)
+                self.deformations.append(defo)
+
+        # Perform symmetry reduction if specified
+        if symmetry:
+            self.sym_dict = symmetry_reduce(self.deformations, self.undeformed_structure)
+            self.deformations = list(self.sym_dict.keys())
+        self.def_structs = [defo.apply_to_structure(rlxd_str)
+                            for defo in self.deformations]
+
+    def __iter__(self):
+        return iter(self.def_structs)
+    
+    def __len__(self):
+        return len(self.def_structs)
+
+    def __getitem__(self, ind):
+        return self.def_structs[ind]
+
+    def as_strain_dict(self):
+        """
+        Returns dictionary of deformed structures indexed by independent
+        strain objects in accordance with legacy behavior of elasticity
+        package
+        """
+        strains = [IndependentStrain(defo) for defo in self.deformations]
+        return dict(zip(strains, self.def_structs))
 
 
 class Strain(SquareTensor):

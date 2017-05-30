@@ -31,12 +31,16 @@ class XYZTest(unittest.TestCase):
 
     def setUp(self):
         coords = [[0.000000, 0.000000, 0.000000],
-              [0.000000, 0.000000, 1.089000],
-              [1.026719, 0.000000, -0.363000],
-              [-0.513360, -0.889165, -0.363000],
-              [-0.513360, 0.889165, -0.363000]]
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+        coords2 = [[x + 10.0 for x in atom] for atom in coords]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
+        self.multi_mols = [Molecule(["C", "H", "H", "H", "H"], coords)
+                           for coords in [coords, coords2]]
         self.xyz = XYZ(self.mol)
+        self.multi_xyz = XYZ(self.multi_mols)
 
     def test_str(self):
         ans = """5
@@ -47,6 +51,24 @@ H 1.026719 0.000000 -0.363000
 H -0.513360 -0.889165 -0.363000
 H -0.513360 0.889165 -0.363000"""
         self.assertEqual(str(self.xyz), ans)
+
+        mxyz = XYZ(self.multi_mols, coord_precision=3)
+        mxyz_text = str(mxyz)
+        ans_multi = """5
+H4 C1
+C 0.000 0.000 0.000
+H 0.000 0.000 1.089
+H 1.027 0.000 -0.363
+H -0.513 -0.889 -0.363
+H -0.513 0.889 -0.363
+5
+H4 C1
+C 10.000 10.000 10.000
+H 10.000 10.000 11.089
+H 11.027 10.000 9.637
+H 9.487 9.111 9.637
+H 9.487 10.889 9.637"""
+        self.assertEqual(mxyz_text, ans_multi)
 
     def test_from_string(self):
         ans = """5
@@ -74,6 +96,17 @@ C 1.16730636786 -1.38166622735 -2.77112970359e-06
         mol = xyz.molecule
         self.assertTrue(abs(mol[0].z) < 1e-5)
         self.assertTrue(abs(mol[1].z) < 1e-5)
+
+    def test_from_file(self):
+        filepath = os.path.join(test_dir, 'multiple_frame_xyz.xyz')
+        mxyz = XYZ.from_file(filepath)
+        self.assertEqual(len(mxyz.all_molecules), 302)
+        self.assertEqual(list(mxyz.all_molecules[0].cart_coords[0]),
+                         [0.20303525080000001, 2.8569761204000002, 0.44737723190000001])
+        self.assertEqual(list(mxyz.all_molecules[-1].cart_coords[-1]),
+                         [5.5355550720000002, 0.0282305931, -0.30993102189999999])
+        self.assertEqual(list(mxyz.molecule.cart_coords[-1]),
+                         [5.5355550720000002, 0.0282305931, -0.30993102189999999])
 
     def test_init_from_structure(self):
         filepath = os.path.join(test_dir, 'POSCAR')

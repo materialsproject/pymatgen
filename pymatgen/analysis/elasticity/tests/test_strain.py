@@ -152,5 +152,54 @@ class StrainTest(PymatgenTest):
         for defo in upper, symm:
             self.assertArrayAlmostEqual(defo.green_lagrange_strain, strain)
 
+
+class DeformedStructureSetTest(PymatgenTest):
+    def setUp(self):
+        self.structure = self.get_structure("Sn")
+        self.default_dss = DeformedStructureSet(self.structure)
+
+    def test_init(self):
+        with self.assertRaises(ValueError):
+            DeformedStructureSet(self.structure, num_norm=5)
+        with self.assertRaises(ValueError):
+            DeformedStructureSet(self.structure, num_shear=5)
+        self.assertEqual(self.structure, self.default_dss.undeformed_structure)
+        # Test symmetry
+        dss_symm = DeformedStructureSet(self.structure, symmetry=True)
+        # Should be 4 strains for normal, 2 for shear (since +/- shear
+        # are symmetrically equivalent)
+        self.assertEqual(len(dss_symm), 6)
+
+    def test_as_strain_dict(self):
+        strain_dict = self.default_dss.as_strain_dict()
+        for i, def_struct in enumerate(self.default_dss):
+            test_strain = IndependentStrain(self.default_dss.deformations[i])
+            strain_keys = [strain for strain in list(strain_dict.keys())
+                           if (strain == test_strain).all()]
+            self.assertEqual(len(strain_keys), 1)
+            self.assertEqual(self.default_dss.def_structs[i],
+                             strain_dict[strain_keys[0]])
+
+
+class IndependentStrainTest(PymatgenTest):
+    def setUp(self):
+        self.ind_strain = IndependentStrain([[1, 0.1, 0],
+                                             [0, 1, 0],
+                                             [0, 0, 1]])
+        self.ind_strain_2 = IndependentStrain([[1, 0, 0],
+                                               [0, 1.1, 0],
+                                               [0, 0, 1]])
+
+    def test_new(self):
+        with self.assertRaises(ValueError):
+            IndependentStrain([[0.1, 0.1, 0],
+                               [0, 0, 0],
+                               [0, 0, 0]])
+
+    def test_properties(self):
+        self.assertEqual(self.ind_strain.ij, (0, 1))
+        self.assertEqual(self.ind_strain_2.ij, (1, 1))
+
+
 if __name__ == '__main__':
     unittest.main()

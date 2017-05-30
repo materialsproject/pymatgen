@@ -2,10 +2,10 @@ from __future__ import absolute_import
 
 import unittest
 import math
-import json
 import os
 
 import numpy as np
+from monty.serialization import loadfn
 from pymatgen.analysis.elasticity.tensors import *
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -139,8 +139,7 @@ class TensorTest(PymatgenTest):
 
         self.structure = self.get_structure('BaNiO3')
         ieee_file_path = os.path.join(test_dir, "ieee_conversion_data.json")
-        with open(ieee_file_path) as f:
-            self.ieee_data = json.load(f)
+        self.ieee_data = loadfn(ieee_file_path)
 
     def test_new(self):
         bad_2 = np.zeros((4, 4))
@@ -231,14 +230,12 @@ class TensorTest(PymatgenTest):
     def test_convert_to_ieee(self):
         for entry in self.ieee_data:
             xtal = entry['xtal']
+            struct = entry['structure']
             orig = Tensor(entry['original_tensor'])
             ieee = Tensor(entry['ieee_tensor'])
-            struct = Structure.from_dict(entry['structure'])
             diff = np.max(abs(ieee - orig.convert_to_ieee(struct)))
-            err_msg = "{} IEEE conversion failed with max diff {}. Numpy version: {}".format(
-                xtal, diff, np.__version__)
-            print(ieee)
-            print(orig.convert_to_ieee(struct))
+            err_msg = "{} IEEE conversion failed with max diff {}. "\
+                      "Numpy version: {}".format(xtal, diff, np.__version__)
             self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
                                         err_msg=err_msg, decimal=3)
 
@@ -336,8 +333,7 @@ class TensorCollectionTest(PymatgenTest):
         self.diff_rank = TensorCollection([np.ones([3]*i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
         ieee_file_path = os.path.join(test_dir, "ieee_conversion_data.json")
-        with open(ieee_file_path) as f:
-            self.ieee_data = json.load(f)
+        self.ieee_data = loadfn(ieee_file_path)
 
     def list_based_function_check(self, attribute, coll, *args, **kwargs):
         """
@@ -404,7 +400,7 @@ class TensorCollectionTest(PymatgenTest):
         for entry in self.ieee_data[:2]:
             xtal = entry['xtal']
             tc = TensorCollection([entry['original_tensor']]*3)
-            struct = Structure.from_dict(entry['structure'])
+            struct = entry['structure']
             self.list_based_function_check("convert_to_ieee", tc, struct)
 
         # from_voigt

@@ -9,6 +9,7 @@ import re
 import itertools
 import warnings
 import logging
+import math
 
 import six
 import numpy as np
@@ -48,7 +49,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Jul 16, 2012"
-
 
 
 logger = logging.getLogger(__name__)
@@ -101,13 +101,14 @@ class Poscar(MSONable):
     .. attribute:: predictor_corrector
 
         Predictor corrector coordinates and derivatives for each site; i.e.
-        a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
+        a list of three 1x3 arrays for each site (typically read in from a MD 
+        CONTCAR).
 
     .. attribute:: predictor_corrector_preamble
 
-        Predictor corrector preamble contains the predictor-corrector key, POTIM,
-        and thermostat parameters that precede the site-specic predictor corrector
-        data in MD CONTCAR
+        Predictor corrector preamble contains the predictor-corrector key,
+        POTIM, and thermostat parameters that precede the site-specic predictor 
+        corrector data in MD CONTCAR
 
     .. attribute:: temperature
 
@@ -231,11 +232,12 @@ class Poscar(MSONable):
                     try:
                         potcar = Potcar.from_file(os.path.join(dirname, f))
                         names = [sym.split("_")[0] for sym in potcar.symbols]
-                        [get_el_sp(n) for n in names] # ensure valid names
+                        [get_el_sp(n) for n in names]  # ensure valid names
                     except:
                         names = None
         with zopen(filename, "rt") as f:
-            return Poscar.from_string(f.read(), names, read_velocities=read_velocities)
+            return Poscar.from_string(f.read(), names,
+                                      read_velocities=read_velocities)
 
     @staticmethod
     def from_string(data, default_names=None, read_velocities=True):
@@ -276,7 +278,8 @@ class Poscar(MSONable):
                 chunks[0] = "\n" + chunks[0]
         except IndexError:
             raise ValueError("Empty POSCAR")
-            #Parse positions
+
+        # Parse positions
         lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]
         scale = float(lines[1])
@@ -297,20 +300,26 @@ class Poscar(MSONable):
         except ValueError:
             vasp5_symbols = True
             symbols = lines[5].split()
-            # Atoms and number of atoms in POSCAR written with vasp appear on multiple lines when atoms of the
-            # same type are not grouped together and more than 20 groups are then defined ...
-            # Example :
-            # Cr16 Fe35 Ni2
-            #    1.00000000000000
-            #      8.5415010000000002   -0.0077670000000000   -0.0007960000000000
-            #     -0.0077730000000000    8.5224019999999996    0.0105580000000000
-            #     -0.0007970000000000    0.0105720000000000    8.5356889999999996
-            #    Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Ni   Fe   Cr   Fe   Cr
-            #    Fe   Ni   Fe   Cr   Fe
-            #      1     1     2     4     2     1     1     1     2     1     1     1     4     1     1     1     5     3     6     1
-            #      2     1     3     2     5
-            # Direct
-            #   ...
+
+            """
+            Atoms and number of atoms in POSCAR written with vasp appear on 
+            multiple lines when atoms of the same type are not grouped together 
+            and more than 20 groups are then defined ...
+            
+            Example :
+            
+            Cr16 Fe35 Ni2
+               1.00000000000000
+                 8.5415010000000002   -0.0077670000000000   -0.0007960000000000
+                -0.0077730000000000    8.5224019999999996    0.0105580000000000
+                -0.0007970000000000    0.0105720000000000    8.5356889999999996
+               Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Ni   Fe   Cr   Fe   Cr
+               Fe   Ni   Fe   Cr   Fe
+                 1     1     2     4     2     1     1     1     2     1     1     1     4     1     1     1     5     3     6     1
+                 2     1     3     2     5
+            Direct
+              ...
+            """
             nlines_symbols = 1
             for nlines_symbols in range(1, 11):
                 try:
@@ -322,7 +331,8 @@ class Poscar(MSONable):
                 symbols.extend(lines[iline_symbols].split())
             natoms = []
             iline_natoms_start = 5+nlines_symbols
-            for iline_natoms in range(iline_natoms_start, iline_natoms_start+nlines_symbols):
+            for iline_natoms in range(iline_natoms_start,
+                                      iline_natoms_start+nlines_symbols):
                 natoms.extend([int(i) for i in lines[iline_natoms].split()])
             atomic_symbols = list()
             for i in range(len(natoms)):
@@ -371,8 +381,8 @@ class Poscar(MSONable):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * natoms[i])
                 warnings.warn("Elements in POSCAR cannot be determined. "
-                              "Defaulting to false names {}."
-                    .format(" ".join(atomic_symbols)))
+                              "Defaulting to false names %s." %
+                              " ".join(atomic_symbols))
 
         # read the atomic coordinates
         coords = []
@@ -408,7 +418,8 @@ class Poscar(MSONable):
                 # First line in chunk is a key in CONTCAR
                 # Second line is POTIM
                 # Third line is the thermostat parameters
-                predictor_corrector_preamble = lines[0] + "\n" + lines[1]+"\n" + lines[2]
+                predictor_corrector_preamble = (lines[0] + "\n" + lines[1]
+                                                + "\n" + lines[2])
                 # Rest is three sets of parameters, each set contains
                 # x, y, z predictor-corrector parameters for every atom in orde
                 lines = lines[3:]
@@ -491,8 +502,9 @@ class Poscar(MSONable):
                     for z in pred[:,col]:
                         lines.append(" ".join([format_str.format(i) for i in z]))
             else:
-                warnings.warn("Preamble information missing or corrupt. " +
-                              "Writing Poscar with no predictor corrector data.")
+                warnings.warn(
+                    "Preamble information missing or corrupt. " 
+                    "Writing Poscar with no predictor corrector data.")
 
         return "\n".join(lines) + "\n"
 
@@ -551,20 +563,20 @@ class Poscar(MSONable):
         # mean 0 variance 1
         velocities = np.random.randn(len(self.structure), 3)
 
-        #in AMU, (N,1) array
+        # in AMU, (N,1) array
         atomic_masses = np.array([site.specie.atomic_mass.to("kg")
                                   for site in self.structure])
         dof = 3 * len(self.structure) - 3
 
-        #scale velocities due to atomic masses
-        #mean 0 std proportional to sqrt(1/m)
+        # scale velocities due to atomic masses
+        # mean 0 std proportional to sqrt(1/m)
         velocities /= atomic_masses[:, np.newaxis] ** (1 / 2)
 
-        #remove linear drift (net momentum)
+        # remove linear drift (net momentum)
         velocities -= np.average(atomic_masses[:, np.newaxis] * velocities,
                                  axis=0) / np.average(atomic_masses)
 
-        #scale velocities to get correct temperature
+        # scale velocities to get correct temperature
         energy = np.sum(1 / 2 * atomic_masses *
                         np.sum(velocities ** 2, axis=1))
         scale = (temperature * dof / (2 * energy / const.k)) ** (1 / 2)
@@ -602,8 +614,8 @@ class Incar(dict, MSONable):
         """
         super(Incar, self).__init__()
         if params:
-            if params.get("MAGMOM") and (params.get("LSORBIT") or \
-                    params.get("LNONCOLLINEAR")):
+            if params.get("MAGMOM") and (params.get("LSORBIT") or
+                                         params.get("LNONCOLLINEAR")):
                 val = []
                 for i in range(len(params["MAGMOM"])//3):
                     val.append(params["MAGMOM"][i*3:(i+1)*3])
@@ -732,7 +744,8 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL", "LANGEVIN_GAMMA")
+        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL", "LANGEVIN_GAMMA",
+                     "QUAD_EFG")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
                      "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
@@ -750,13 +763,16 @@ class Incar(dict, MSONable):
         try:
             if key in list_keys:
                 output = []
-                toks = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
+                toks = re.findall(
+                    r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
                 for tok in toks:
                     if tok[2] and "3" in tok[0]:
                         output.extend(
-                            [smart_int_or_float(tok[2])] * int(tok[0]) * int(tok[1]))
+                            [smart_int_or_float(tok[2])] * int(tok[0])
+                            * int(tok[1]))
                     elif tok[1]:
-                        output.extend([smart_int_or_float(tok[1])] * int(tok[0]))
+                        output.extend([smart_int_or_float(tok[1])] *
+                                      int(tok[0]))
                     else:
                         output.append(smart_int_or_float(tok[0]))
                 return output
@@ -778,7 +794,7 @@ class Incar(dict, MSONable):
         except ValueError:
             pass
 
-        #Not in standard keys. We will try a hirerachy of conversions.
+        # Not in standard keys. We will try a hierarchy of conversions.
         try:
             val = int(val)
             return val
@@ -1029,26 +1045,16 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = "pymatgen generated KPOINTS with grid density = " + \
-            "{} / atom".format(kppa)
+        comment = "pymatgen 4.7.6+ generated KPOINTS with grid density = " + \
+            "%.0f / atom" % kppa
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [int(round(mult / l)) for l in lengths]
-        if all([k <= 1 for k in num_div]):
-            return Kpoints(comment, 0, Kpoints.supported_modes.Gamma,
-                           [[1, 1, 1]], [0, 0, 0])
-
-        #ensure that numDiv[i] > 0
-        num_div = [i if i > 0 else 1 for i in num_div]
+        num_div = [int(math.floor(max(mult / l, 1))) for l in lengths]
 
         is_hexagonal = latt.is_hexagonal()
-
-        # VASP documentation recommends to use even grids for n <= 8 and odd
-        # grids for n > 8.
-        num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
         has_odd = any([i % 2 == 1 for i in num_div])
         if has_odd or is_hexagonal or force_gamma:
@@ -1091,7 +1097,7 @@ class Kpoints(MSONable):
 
         style = Kpoints.supported_modes.Gamma
 
-        comment = "pymatgen generated KPOINTS with grid density = " + \
+        comment = "pymatgen 4.7.6+ generated KPOINTS with grid density = " + \
                   "{} / atom".format(kppa)
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
@@ -1114,8 +1120,9 @@ class Kpoints(MSONable):
             Kpoints
         """
         vol = structure.lattice.reciprocal_lattice.volume
-        kppa = int(round(kppvol * vol * structure.num_sites))
-        return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
+        kppa = kppvol * vol * structure.num_sites
+        return Kpoints.automatic_density(structure, kppa,
+                                         force_gamma=force_gamma)
 
     @staticmethod
     def automatic_linemode(divisions, ibz):
@@ -1189,8 +1196,8 @@ class Kpoints(MSONable):
         if style == "a":
             return Kpoints.automatic(int(lines[3]))
 
-        coord_pattern = re.compile(r'^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+'
-                                   r'([\d+\.\-Ee]+)')
+        coord_pattern = re.compile(r'^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+'
+                                   r'([\d+.\-Ee]+)')
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style == "g" or style == "m":
@@ -1220,7 +1227,7 @@ class Kpoints(MSONable):
             style = Kpoints.supported_modes.Line_mode
             kpts = []
             labels = []
-            patt = re.compile(r'([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)'
+            patt = re.compile(r'([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)'
                               r'\s*!*\s*(.*)')
             for i in range(4, len(lines)):
                 line = lines[i]
@@ -1251,7 +1258,7 @@ class Kpoints(MSONable):
             else:
                 labels.append(None)
         try:
-            #Deal with tetrahedron method
+            # Deal with tetrahedron method
             if lines[3 + num_kpts].strip().lower()[0] == "t":
                 toks = lines[4 + num_kpts].split()
                 tet_number = int(toks[0])
@@ -1280,6 +1287,9 @@ class Kpoints(MSONable):
         """
         with zopen(filename, "wt") as f:
             f.write(self.__str__())
+
+    def __repr__(self):
+        return self.__str__()
 
     def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style.name]
@@ -1352,7 +1362,7 @@ def parse_string(s):
 
 
 def parse_bool(s):
-    m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", s)
+    m = re.match(r"^\.?([TFtf])[A-Za-z]*\.?", s)
     if m:
         if m.group(1) == "T" or m.group(1) == "t":
             return True
@@ -1362,7 +1372,7 @@ def parse_bool(s):
 
 
 def parse_float(s):
-    return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", s).group(0))
+    return float(re.search(r"^-?\d*\.?\d*[eE]?-?\d*", s).group(0))
 
 
 def parse_int(s):
@@ -1454,7 +1464,7 @@ class PotcarSingle(object):
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
 
-        #Vasp parses header in vasprun.xml and this differs from the titel
+        # Vasp parses header in vasprun.xml and this differs from the titel
         self.header = data.split("\n")[0].strip()
 
         search_lines = re.search(r"(?s)(parameters from PSCTR are:"
@@ -1468,7 +1478,7 @@ class PotcarSingle(object):
 
         PSCTR = OrderedDict()
 
-        array_search = re.compile(r"(-*[0-9\.]+)")
+        array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
         descriptions = []
         atomic_configuration = re.search(r"Atomic configuration\s*\n?"
@@ -1508,17 +1518,16 @@ class PotcarSingle(object):
         if descriptions:
             PSCTR['OrbitalDescriptions'] = tuple(descriptions)
 
-        RRKJ_kinetic_energy_string = re.search(r"(?s)Error from kinetic "
-                                               r"energy argument \(eV\)\s*\n"
-                                               r"(.*?)END of PSCTR-controll"
-                                               r" parameters",
-                                               search_lines)
-        RRKJ_array = []
-        for line in RRKJ_kinetic_energy_string.group(1).splitlines():
+        rrkj_kinetic_energy_string = re.search(
+            r"(?s)Error from kinetic energy argument \(eV\)\s*\n"
+            r"(.*?)END of PSCTR-controll parameters",
+            search_lines)
+        rrkj_array = []
+        for line in rrkj_kinetic_energy_string.group(1).splitlines():
             if "=" not in line:
-                RRKJ_array += parse_list(line.strip('\n'))
-        if RRKJ_array:
-            PSCTR['RRKJ'] = tuple(RRKJ_array)
+                rrkj_array += parse_list(line.strip('\n'))
+        if rrkj_array:
+            PSCTR['RRKJ'] = tuple(rrkj_array)
 
         PSCTR.update(self.keywords)
         self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x: x[0]))
@@ -1555,12 +1564,12 @@ class PotcarSingle(object):
         funcdir = PotcarSingle.functional_dir[functional]
         d = SETTINGS.get("PMG_VASP_PSP_DIR")
         if d is None:
-            raise ValueError("No POTCAR for %s with functional %s found. "
-                             "Please set the PMG_VASP_PSP_DIR environment in "
-                             ".pmgrc.yaml, or you may need to set "
-                             "PMG_DEFAULT_FUNCTIONAL to PBE_52 or PBE_54 if you "
-                             "are using newer psps from VASP." % (symbol,
-                                                                  functional))
+            raise ValueError(
+                "No POTCAR for %s with functional %s found. "
+                "Please set the PMG_VASP_PSP_DIR environment in "
+                ".pmgrc.yaml, or you may need to set "
+                "PMG_DEFAULT_FUNCTIONAL to PBE_52 or PBE_54 if you "
+                "are using newer psps from VASP." % (symbol, functional))
         paths_to_try = [os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
                         os.path.join(d, funcdir, symbol, "POTCAR")]
         for p in paths_to_try:
