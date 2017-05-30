@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v4.7.7
+------
+* Magnetic symmetry and CIF support. (Horton)
+* Improved PWSCF Input file generation.
+* Misc bug fixes.
+
 v4.7.6
 ------
 * Fix serious bug in PointGroupAnalyzer that resulted in wrong point groups assigned to non-centered molecules.

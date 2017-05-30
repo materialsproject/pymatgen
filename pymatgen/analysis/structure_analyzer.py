@@ -851,8 +851,8 @@ class OrderParameters(object):
     """
 
     __supported_types = (
-            "cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", "q6",
-            "reg_tri", "sq", "sq_pyr", "tri_bipyr")
+            "cn", "lin", "bent", "tet", "tetalt", "oct", "octalt", "bcc",
+            "q2", "q4", "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -1023,6 +1023,16 @@ class OrderParameters(object):
                                          " parameter is zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][0])
+            elif t == "tetalt":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i].append(1.0 / 0.0667)
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for"
+                                         " tetrahedral order"
+                                         " parameter is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][0])
             elif t == "oct":
                 if len(loc_parameters[i]) < 4:
                     tmpparas[i].append(8.0 * pi / 9.0)
@@ -1056,6 +1066,30 @@ class OrderParameters(object):
                         warn("Shift constant outside [0,1[.")
                     tmpparas[i].append(loc_parameters[i][3])
                     tmpparas[i].append(1.0 / (1.0 - loc_parameters[i][3]))
+            elif t == "octalt":
+                if len(loc_parameters[i]) < 3:
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(1.0 / 0.0667)
+                    tmpparas[i].append(1.0 / 0.0556)
+                else:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] >= 180.0:
+                        warn("Threshold value for south pole"
+                             " configurations in octahedral order"
+                             " parameter outside ]0,180[")
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
+                    if loc_parameters[i][1] == 0.0:
+                        raise ValueError("Gaussian width for south pole"
+                                         " configurations in octahedral"
+                                         " order parameter is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][1])
+                    if loc_parameters[i][2] == 0.0:
+                        raise ValueError("Gaussian width for equatorial"
+                                         " configurations in octahedral"
+                                         " order parameter is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][2])
             elif t == "bcc":
                 if len(loc_parameters[i]) < 2:
                     tmpparas[i].append(8.0 * pi / 9.0)
@@ -1140,7 +1174,7 @@ class OrderParameters(object):
             # self._computerjks: compute vectors from non-centeral atom j
             #                    to any non-central atom k.
             if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
-                    t == "tri_bipyr":
+                    t == "tri_bipyr" or t == "tetalt" or t == "octalt":
                 self._computerijs = self._geomops = True
             if t == "reg_tri" or t =="sq":
                 self._computerijs = self._computerjks = self._geomops2 = True
@@ -1838,11 +1872,11 @@ class OrderParameters(object):
                                 tmp = self._paras[i][1] * (
                                     thetak * ipi - self._paras[i][0])
                                 ops[i] += exp(-0.5 * tmp * tmp)
-                            elif t == "tet":
+                            elif t == "tet" or t == "tetalt":
                                 tmp = self._paras[i][0] * (
                                     thetak * ipi - tetangoverpi)
                                 gaussthetak[i] = math.exp(-0.5 * tmp * tmp)
-                            elif t == "oct":
+                            elif t == "oct" or t == "octalt":
                                 if thetak >= self._paras[i][0]:
                                     # k is south pole to j
                                     tmp = self._paras[i][1] * (
@@ -1889,6 +1923,12 @@ class OrderParameters(object):
                                             ops[i] += gaussthetak[i] * math.exp(
                                                 -0.5 * tmp * tmp) * math.cos(
                                                 3.0 * phi)
+                                        elif t == "tetalt":
+                                            tmp = self._paras[i][0] * (
+                                                thetam * ipi - tetangoverpi)
+                                            tmp2 = math.cos(1.5 * phi)
+                                            ops[i] += gaussthetak[i] * math.exp(
+                                                -0.5 * tmp * tmp) * tmp2 * tmp2
                                         elif t == "oct":
                                             if thetak < self._paras[i][0] and \
                                                             thetam < \
@@ -1901,6 +1941,15 @@ class OrderParameters(object):
                                                               math.exp(
                                                                   -0.5 * tmp2 * tmp2) - \
                                                               self._paras[i][3])
+                                        elif t == "octalt":
+                                            if thetak < self._paras[i][0] and \
+                                                    thetam < self._paras[i][0]:
+                                                tmp = math.cos(2.0 * phi)
+                                                tmp2 = self._paras[i][2] * (
+                                                        thetam * ipi - 0.5)
+                                                ops[i] += tmp * tmp * \
+                                                        math.exp(
+                                                        -0.5 * tmp2 * tmp2)
                                         elif t == "bcc" and j < k:
                                             if thetak < self._paras[i][0]:
                                                 if thetak > piover2:
@@ -1933,10 +1982,10 @@ class OrderParameters(object):
                 elif t == "bent":
                     ops[i] = ops[i] / float(nneigh * (
                             nneigh - 1)) if nneigh > 1 else None
-                elif t == "tet":
+                elif t == "tet" or t == "tetalt":
                     ops[i] = ops[i] / float(nneigh * (nneigh - 1) * (
                             nneigh - 2)) if nneigh > 2 else None
-                elif t == "oct":
+                elif t == "oct" or t == "octalt":
                     ops[i] = ops[i] / float(nneigh * (3 + (nneigh - 2) * (
                             nneigh - 3))) if nneigh > 3 else None
                 elif t == "bcc":

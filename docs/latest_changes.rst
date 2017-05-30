@@ -1,9 +1,8 @@
 Change log
 ==========
 
-v4.7.6
+v4.7.7
 ------
-* Fix serious bug in PointGroupAnalyzer that resulted in wrong point groups assigned to non-centered molecules.
-* Useful get_structure_from_mp at the root level for quick retrieval of common structures for analysis.
-* More efficient kpoint grids.
+* Magnetic symmetry and CIF support. (Horton)
+* Improved PWSCF Input file generation.
 * Misc bug fixes.
