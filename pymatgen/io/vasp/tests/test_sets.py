@@ -77,6 +77,11 @@ class MITMPRelaxSetTest(unittest.TestCase):
         s = Structure(lattice, ['Si', 'Si', 'Fe'], coords)
         self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
 
+        # Check that it works even when oxidatino states are present. Was a bug
+        # previously.
+        s = Structure(lattice, ['Si4+', 'Si4+', 'Fe2+'], coords)
+        self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
+
     def test_get_incar(self):
 
         incar = self.mpset.incar
