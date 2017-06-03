@@ -169,15 +169,18 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertEqual(len(slab), 6)
         self.assertEqual(len(slab_non_prim), len(slab) * 4)
 
-        #Some randomized testing of cell vectors
+        # Some randomized testing of cell vectors
         for i in range(1, 231):
             i = random.randint(1, 230)
             sg = SpaceGroup.from_int_number(i)
             if sg.crystal_system == "hexagonal" or (sg.crystal_system == \
-                    "trigonal" and sg.symbol.endswith("H")):
+                    "trigonal" and (sg.symbol.endswith("H") or
+                    sg.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
+                                        153, 154, 156, 157, 158, 159, 162, 163,
+                                        164, 165])):
                 latt = Lattice.hexagonal(5, 10)
             else:
-                #Cubic lattice is compatible with all other space groups.
+                # Cubic lattice is compatible with all other space groups.
                 latt = Lattice.cubic(5)
             s = Structure.from_spacegroup(i, latt, ["H"], [[0, 0, 0]])
             miller = (0, 0, 0)
