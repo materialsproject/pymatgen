@@ -1474,7 +1474,10 @@ class PotcarSingle(object):
         self.keywords = {}
         for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)",
                                    search_lines, flags=re.MULTILINE):
-            self.keywords[key] = self.parse_functions[key](val)
+            try:
+                self.keywords[key] = self.parse_functions[key](val)
+            except KeyError:
+                warnings.warn("Ignoring unknown variable type %s" % key)
 
         PSCTR = OrderedDict()
 
