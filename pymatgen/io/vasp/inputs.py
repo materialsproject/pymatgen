@@ -1531,11 +1531,12 @@ class PotcarSingle(object):
             r"(.*?)END of PSCTR-controll parameters",
             search_lines)
         rrkj_array = []
-        for line in rrkj_kinetic_energy_string.group(1).splitlines():
-            if "=" not in line:
-                rrkj_array += parse_list(line.strip('\n'))
-        if rrkj_array:
-            PSCTR['RRKJ'] = tuple(rrkj_array)
+        if rrkj_kinetic_energy_string:
+            for line in rrkj_kinetic_energy_string.group(1).splitlines():
+                if "=" not in line:
+                    rrkj_array += parse_list(line.strip('\n'))
+            if rrkj_array:
+                PSCTR['RRKJ'] = tuple(rrkj_array)
 
         PSCTR.update(self.keywords)
         self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x: x[0]))
