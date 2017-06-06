@@ -1427,6 +1427,7 @@ class PotcarSingle(object):
                        "wi": {"name": "Wigner Interpoloation", "class": "LDA"}}
 
     parse_functions = {"LULTRA": parse_bool,
+                       "LUNSCR": parse_bool,
                        "LCOR": parse_bool,
                        "LPAW": parse_bool,
                        "EATOM": parse_float,
@@ -1437,6 +1438,7 @@ class PotcarSingle(object):
                        "RWIGS": parse_float,
                        "ENMAX": parse_float,
                        "ENMIN": parse_float,
+                       "EMMIN": parse_float,
                        "EAUG": parse_float,
                        "DEXC": parse_float,
                        "RMAX": parse_float,
