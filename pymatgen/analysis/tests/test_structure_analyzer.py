@@ -11,7 +11,7 @@ import os
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
     oxide_type, sulfide_type, OrderParameters, average_coordination_number, \
-    VoronoiAnalyzer
+    VoronoiAnalyzer, JMolCoordFinder, get_dimensionality
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
@@ -56,6 +56,45 @@ class VoronoiAnalyzerTest(PymatgenTest):
                                               most_frequent_polyhedra=10)
         self.assertIn(('[1 3 4 7 1 0 0 0]', 3),
                       ensemble, "Cannot find the right polyhedron in ensemble.")
+
+
+class JMolCoordFinderTest(PymatgenTest):
+
+    def test_get_coordination_number(self):
+        s = self.get_structure('LiFePO4')
+
+        # test the default coordination finder
+        finder = JMolCoordFinder()
+        nsites_checked = 0
+
+        for site_idx, site in enumerate(s):
+            if site.specie == Element("Li"):
+                self.assertEqual(finder.get_coordination_number(s, site_idx), 0)
+                nsites_checked += 1
+            elif site.specie == Element("Fe"):
+                self.assertEqual(finder.get_coordination_number(s, site_idx), 6)
+                nsites_checked += 1
+            elif site.specie == Element("P"):
+                self.assertEqual(finder.get_coordination_number(s, site_idx), 4)
+                nsites_checked += 1
+        self.assertEqual(nsites_checked, 12)
+
+        # test a user override that would cause Li to show up as 6-coordinated
+        finder = JMolCoordFinder({"Li": 1})
+        self.assertEqual(finder.get_coordination_number(s, 0), 6)
+
+        # verify get_coordinated_sites function works
+        self.assertEqual(len(finder.get_coordinated_sites(s, 0)), 6)
+
+
+class GetDimensionalityTest(PymatgenTest):
+
+    def test_get_dimensionality(self):
+        s = self.get_structure('LiFePO4')
+        self.assertEqual(get_dimensionality(s), 3)
+
+        s = self.get_structure('Graphite')
+        self.assertEqual(get_dimensionality(s), 2)
 
 
 class RelaxationAnalyzerTest(unittest.TestCase):
@@ -331,6 +370,20 @@ class OrderParametersTest(PymatgenTest):
             [14.75, 15.25, 15], [15.25, 14.75, 15], [15.25, 15.25, 15]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.pentagonal_planar = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]), ["Xe", "F", "F", "F", "F", "F"],
+            [[0, -1.6237, 0], [1.17969, 0, 0], [-1.17969, 0, 0], \
+            [1.90877, -2.24389, 0], [-1.90877, -2.24389, 0], [0, -3.6307, 0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        self.trigonal_bipyramidal = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]), ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
+            [[0, 0, 0], [0, 0, 2.14], [0, 2.02, 0],
+            [1.74937, -1.01, 0], [-1.74937, -1.01, 0], [0, 0, -2.14]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
 
     def test_init(self):
         self.assertIsNotNone(OrderParameters(["cn"], [[]], 0.99))
@@ -338,9 +391,9 @@ class OrderParametersTest(PymatgenTest):
     def test_get_order_parameters(self):
         # Set up everything.
         op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
-                "q6", "reg_tri", "sq", "sq_pyr"]
-        op_paras = [[], [], [], [], [], [], [], [], [], [], [], []]
-        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], []]
+                "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr"]
+        op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], []]
+        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], []]
         ops_044 = OrderParameters(op_types, op_paras, 0.44)
         ops_071 = OrderParameters(op_types, op_paras, 0.71)
         ops_087 = OrderParameters(op_types, op_paras, 0.87)
@@ -422,9 +475,20 @@ class OrderParametersTest(PymatgenTest):
         op_vals = ops_101.get_order_parameters(self.square, 0)
         self.assertAlmostEqual(int(op_vals[10] * 1000), 1000)
 
+        # Pentagonal planar.
+        op_vals = ops_101.get_order_parameters(
+                self.pentagonal_planar.sites, 0, indeces_neighs=[1,2,3,4,5])
+        self.assertAlmostEqual(int(op_vals[12] * 1000), 100)
+
         # Square pyramid motif.
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
-        self.assertAlmostEqual(int(op_vals[11] * 1000), 999)
+        self.assertAlmostEqual(int(op_vals[11] * 1000 + 0.5), 1000)
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 500)
+
+        # Trigonal bipyramidal.
+        op_vals = ops_101.get_order_parameters(
+                self.trigonal_bipyramidal.sites, 0, indeces_neighs=[1,2,3,4,5])
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 1000)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[1])

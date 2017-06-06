@@ -78,21 +78,18 @@ several advantages over other codes out there:
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means
-   that pymatgen is continuously being improved. We have a policy of
-   attributing any code you contribute to any publication you choose.
-   Contributing to pymatgen means your research becomes more visible, which
-   translates to greater impact.
+   that pymatgen is continuously being improved. We will attribute any code you
+   contribute to any publication you specify. Contributing to pymatgen means
+   your research becomes more visible, which translates to greater impact.
 4. **It is fast.** Many of the core numerical methods in pymatgen have been
-   optimized by vectorizing in numpy. This means that coordinate
+   optimized by vectorizing in numpy/scipy. This means that coordinate
    manipulations are extremely fast and are in fact comparable to codes
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 5. **It will be around.** Pymatgen is not a pet research project. It is used in
    the well-established Materials Project. It is also actively being developed
-   and maintained by the Materials Virtual Lab, the ABINIT group and many other
-   research groups. The plan is to make sure pymatgen will stand the test of
-   time and be the de facto analysis code for most materials and structural
-   analysis.
+   and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
+   other research groups.
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
 as Python 3.x. For developers working to add new features to pymatgen, this
@@ -132,9 +129,9 @@ Pip
     Before installing pymatgen, you may need to first install a few critical
     dependencies manually.
 
-    1. It is highly recommended that you use Python>=2.7.9 or >=3.5+. In
+    1. It is highly recommended that you use Python>=2.7.9 or latest 3.x. In
        fact, unless you are very sure you have dependencies that require Python
-       2, it is highly recommended that you use Python >=3.5+.
+       2, it is highly recommended that you use latest Python 3.x.
     2. Installation has been tested to be most successful with gcc. Use gcc
        where possible and do "export CC=gcc" prior to installation.
     3. Numpy's distutils is needed to compile the spglib and pyhull
@@ -338,6 +335,10 @@ some quick examples of the core capabilities and objects:
     >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
     >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]
+    >>>
+    >>> # If you set up your .pmgrc.yaml with your Materials Project API key
+    >>> # You can now easily grab structures from the Materials Project.
+    >>> lifepo4 = mg.get_structure_from_mp("LiFePO4")
 
 The above illustrates only the most basic capabilities of pymatgen. Users are
 strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below).

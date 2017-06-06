@@ -4,6 +4,18 @@
 
 from __future__ import division, unicode_literals
 
+from math import pi, sqrt, log
+from datetime import datetime
+from copy import deepcopy, copy
+from warnings import warn
+import bisect
+
+import numpy as np
+from scipy.special import erfc
+from scipy.misc import comb
+
+import scipy.constants as constants
+
 """
 This module provides classes for calculating the ewald sum of a structure.
 """
@@ -16,18 +28,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Aug 1 2012"
-
-from math import pi, sqrt, log
-from datetime import datetime
-from copy import deepcopy, copy
-from warnings import warn
-import bisect
-
-import numpy as np
-from scipy.special import erfc
-from scipy.misc import comb
-
-import scipy.constants as constants
 
 
 class EwaldSummation(object):
@@ -364,11 +364,19 @@ class EwaldSummation(object):
         return self._eta
 
     def __str__(self):
-        output = ["Real = " + str(self.real_space_energy),
+        if self._compute_forces:
+            output = ["Real = " + str(self.real_space_energy),
                   "Reciprocal = " + str(self.reciprocal_space_energy),
                   "Point = " + str(self.point_energy),
                   "Total = " + str(self.total_energy),
-                  "Forces:\n" + str(self.forces)]
+                  "Forces:\n" + str(self.forces)
+                  ]           
+        else:
+            output = ["Real = " + str(self.real_space_energy),
+                  "Reciprocal = " + str(self.reciprocal_space_energy),
+                  "Point = " + str(self.point_energy),
+                  "Total = " + str(self.total_energy),
+                  "Forces were not computed"]
         return "\n".join(output)
 
 

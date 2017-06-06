@@ -332,10 +332,10 @@ class DictSet(VaspInputSet):
         """
         Gets the default number of electrons for a given structure.
         """
-        n = 0
-        for ps in self.potcar:
-            n += self.structure.composition[ps.element] * ps.ZVAL
-        return n
+        return int(round(
+            sum([self.structure.composition.element_composition[ps.element]
+                 * ps.ZVAL
+                 for ps in self.potcar])))
 
     @property
     def kpoints(self):
@@ -444,7 +444,8 @@ class MPHSERelaxSet(DictSet):
 class MPStaticSet(MPRelaxSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
-                 lepsilon=False, lcalcpol=False, reciprocal_density=100, **kwargs):
+                 lepsilon=False, lcalcpol=False, reciprocal_density=100,
+                 **kwargs):
         """
         Run a static calculation.
 
@@ -454,12 +455,18 @@ class MPStaticSet(MPRelaxSet):
             prev_kpoints (Kpoints): Kpoints from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
             reciprocal_density (int): For static calculations,
-                we usually set the reciprocal density by voluyme. This is a
+                we usually set the reciprocal density by volume. This is a
                 convenience arg to change that, rather than using
-                user_kpoints_settings. Defaults to 100.
+                user_kpoints_settings. Defaults to 100, which is ~50% more than
+                that of standard relaxation calculations.
             \\*\\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
+        if isinstance(prev_incar, six.string_types):
+            prev_incar = Incar.from_file(prev_incar)
+        if isinstance(prev_kpoints, six.string_types):
+            prev_kpoints = Kpoints.from_file(prev_kpoints)
+
         self.prev_incar = prev_incar
         self.prev_kpoints = prev_kpoints
         self.reciprocal_density = reciprocal_density
@@ -691,8 +698,9 @@ class MPHSEBSSet(MPHSERelaxSet):
                                                      sym_prec=0)
 
         added_kpoints = []
-        bs = vasprun.get_band_structure()
+
         if mode.lower() == "gap":
+            bs = vasprun.get_band_structure()
             vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
             if vbm:
                 added_kpoints.append(vbm.frac_coords)
@@ -722,7 +730,7 @@ class MPNonSCFSet(MPRelaxSet):
 
         Args:
             structure (Structure): Structure to compute
-            prev_incar (Incar): Incar file from previous run.
+            prev_incar (Incar/string): Incar file from previous run.
             mode (str): Line or Uniform mode supported.
             nedos (int): nedos parameter. Default to 601.
             reciprocal_density (int): density of k-mesh by reciprocal
@@ -733,6 +741,8 @@ class MPNonSCFSet(MPRelaxSet):
             \\*\\*kwargs: kwargs supported by MPVaspInputSet.
         """
         super(MPNonSCFSet, self).__init__(structure, **kwargs)
+        if isinstance(prev_incar, six.string_types):
+            prev_incar = Incar.from_file(prev_incar)
         self.prev_incar = prev_incar
         self.kwargs = kwargs
         self.nedos = nedos

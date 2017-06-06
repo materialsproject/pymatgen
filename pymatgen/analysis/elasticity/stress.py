@@ -85,7 +85,7 @@ class Stress(SquareTensor):
         calculates the first Piola-Kirchoff stress
 
         Args:
-            def_gradient (3x3 array-like): deformation gradient tensor
+            def_grad (3x3 array-like): deformation gradient tensor
         """
         if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
@@ -98,7 +98,7 @@ class Stress(SquareTensor):
         calculates the second Piola-Kirchoff stress
 
         Args:
-            f (3x3 array-like): rate of deformation tensor
+            def_grad (3x3 array-like): rate of deformation tensor
         """
 
         def_grad = SquareTensor(def_grad)
