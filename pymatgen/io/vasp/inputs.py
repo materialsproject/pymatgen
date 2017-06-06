@@ -1507,19 +1507,22 @@ class PotcarSingle(object):
                                        r"(.*?)Error from kinetic"
                                        r" energy argument \(eV\)",
                                        search_lines)
-        for line in description_string.group(1).splitlines():
-            description = array_search.findall(line)
-            if description:
-                descriptions.append(self.Description(int(description[0]),
-                                                     float(description[1]),
-                                                     int(description[2]),
-                                                     float(description[3]),
-                                                     int(description[4]) if
-                                                     len(description) > 4
-                                                     else None,
-                                                     float(description[5]) if
-                                                     len(description) > 4
-                                                     else None))
+        descriptions = []
+        if description_string:
+            for line in description_string.group(1).splitlines():
+                description = array_search.findall(line)
+                if description:
+                    descriptions.append(self.Description(int(description[0]),
+                                                         float(description[1]),
+                                                         int(description[2]),
+                                                         float(description[3]),
+                                                         int(description[4]) if
+                                                         len(description) > 4
+                                                         else None,
+                                                         float(description[5]) if
+                                                         len(description) > 4
+                                                         else None))
+
         if descriptions:
             PSCTR['OrbitalDescriptions'] = tuple(descriptions)
 
