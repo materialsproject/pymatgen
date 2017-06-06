@@ -1507,7 +1507,6 @@ class PotcarSingle(object):
                                        r"(.*?)Error from kinetic"
                                        r" energy argument \(eV\)",
                                        search_lines)
-        descriptions = []
         if description_string:
             for line in description_string.group(1).splitlines():
                 description = array_search.findall(line)
@@ -1563,8 +1562,16 @@ class PotcarSingle(object):
 
     @staticmethod
     def from_file(filename):
-        with zopen(filename, "rt") as f:
-            return PotcarSingle(f.read())
+        try:
+            with zopen(filename, "rt") as f:
+                return PotcarSingle(f.read())
+        except UnicodeDecodeError:
+            warnings.warn("POTCAR contains invalid unicode errors. "
+                          "We will attempt to read it by ignoring errors.")
+            import codecs
+            with codecs.open(filename, "r", encoding="utf-8",
+                             errors="ignore") as f:
+                return PotcarSingle(f.read())
 
     @staticmethod
     def from_symbol_and_functional(symbol, functional=None):
@@ -1718,8 +1725,17 @@ class Potcar(list, MSONable):
 
     @staticmethod
     def from_file(filename):
-        with zopen(filename, "rt") as reader:
-            fdata = reader.read()
+        try:
+            with zopen(filename, "rt") as f:
+                fdata = f.read()
+        except UnicodeDecodeError:
+            warnings.warn("POTCAR contains invalid unicode errors. "
+                          "We will attempt to read it by ignoring errors.")
+            import codecs
+            with codecs.open(filename, "r", encoding="utf-8",
+                             errors="ignore") as f:
+                fdata = f.read()
+
         potcar = Potcar()
         potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)",
                                     re.S).findall(fdata)
