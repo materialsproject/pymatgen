@@ -1275,10 +1275,13 @@ class BoltztrapAnalyzer(object):
             for doping in result_doping:
                 for temp in result_doping[doping]:
                     for i in range(len(self.doping[doping])):
-                        result_doping[doping][temp].append(np.linalg.inv(
-                            np.array(self._cond_doping[doping][temp][i])) * \
-                                                           self.doping[doping][
-                                                               i] * 10 ** 6 * e ** 2 / m_e)
+                        try:
+                            result_doping[doping][temp].append(np.linalg.inv(
+                                np.array(self._cond_doping[doping][temp][i])) * \
+                                                               self.doping[doping][
+                                                                   i] * 10 ** 6 * e ** 2 / m_e)
+                        except np.linalg.LinAlgError:
+                            pass
         else:
             result = {t: [] for t in self._seebeck}
             for temp in result:
