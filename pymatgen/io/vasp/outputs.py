@@ -809,7 +809,7 @@ class Vasprun(MSONable):
     def update_potcar_spec(self, path):
         def get_potcar_in_path(p):
             for fn in os.listdir(os.path.abspath(p)):
-                if 'POTCAR' in fn:
+                if fn.startswith('POTCAR'):
                     pc = Potcar.from_file(os.path.join(p, fn))
                     if {d.header for d in pc} == \
                             {sym for sym in self.potcar_symbols}:
