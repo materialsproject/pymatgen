@@ -378,7 +378,7 @@ class Element(Enum):
 
         # Store key variables for quick access
         self.Z = d["Atomic no"]
-        self.X = d.get("X", 0)
+        self.X = d.get("X")
         at_r = d.get("Atomic radius", "no data")
         if str(at_r).startswith("no data"):
             self.atomic_radius = None
