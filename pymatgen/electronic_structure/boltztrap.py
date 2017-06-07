@@ -1988,10 +1988,23 @@ class BoltztrapAnalyzer(object):
         vol = data.get('vol')
         warning = data.get('warning')
 
-        return BoltztrapAnalyzer(gap, mu_steps, cond, seebeck, kappa, hall,
-                                 doping, mu_doping, seebeck_doping,
-                                 cond_doping, kappa_doping, hall_doping, dos,
-                                 dos_partial, carrier_conc, vol, warning)
+        return BoltztrapAnalyzer(gap=gap,
+                                 mu_steps=mu_steps,
+                                 cond=cond,
+                                 seebeck=seebeck,
+                                 kappa=kappa,
+                                 hall=hall,
+                                 doping=doping,
+                                 mu_doping=mu_doping,
+                                 seebeck_doping=seebeck_doping,
+                                 cond_doping=cond_doping,
+                                 kappa_doping=kappa_doping,
+                                 hall_doping=hall_doping,
+                                 dos=dos,
+                                 dos_partial=dos_partial,
+                                 carrier_conc=carrier_conc,
+                                 vol=vol,
+                                 warning=warning)
 
 
 def read_cube_file(filename):
