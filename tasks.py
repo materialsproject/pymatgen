@@ -111,7 +111,7 @@ def setver(ctx):
     lines = []
     with open("setup.py", "rt") as f:
         for l in f:
-            lines.append(re.sub(r'version=([^,]+),', 'version="%s"' % newver,
+            lines.append(re.sub(r'version=([^,]+),', 'version="%s",' % newver,
                                 l.rstrip()))
     with open("setup.py", "wt") as f:
         f.write("\n".join(lines))
