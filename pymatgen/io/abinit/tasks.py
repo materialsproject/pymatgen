@@ -1677,7 +1677,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Can only reset tasks that are done.
         # One should be able to reset 'Submitted' tasks (sometimes, they are not in the queue
         # and we want to restart them)
-        if self.status != self.S_SUB and self.status < self.S_DONE: return 1
+        #if self.status != self.S_SUB and self.status < self.S_DONE: return 1
 
         # Remove output files otherwise the EventParser will think the job is still running
         self.output_file.remove()
@@ -1951,30 +1951,28 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             scheduler_parser.parse()
 
             if scheduler_parser.errors:
+                # Store the queue errors in the task
                 self.queue_errors = scheduler_parser.errors
-                # the queue errors in the task
-                msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
-                # self.history.critical(msg)
-                return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
+                msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
+                return self.set_status(self.S_QCRITICAL, msg=msg)
+
             elif lennone(qerr_info) > 0:
                 # if only qout_info, we are not necessarily in QCRITICAL state,
                 # since there will always be info in the qout file
-                msg = 'found unknown messages in the queue error: %s' % str(qerr_info)
-                logger.history.info(msg)
-                print(msg)
-                # self.num_waiting += 1
-                # if self.num_waiting > 1000:
-                rt = self.datetimes.get_runtime().seconds
-                tl = self.manager.qadapter.timelimit
-                if rt > tl:
-                    msg += 'set to error : runtime (%s) exceded walltime (%s)' % (rt, tl)
-                    print(msg)
-                    return self.set_status(self.S_ERROR, msg=msg)
+                self.history.info('found unknown messages in the queue error: %s' % str(qerr_info))
+                #try:
+                #    rt = self.datetimes.get_runtime().seconds
+                #except:
+                #    rt = -1.0
+                #tl = self.manager.qadapter.timelimit
+                #if rt > tl:
+                #    msg += 'set to error : runtime (%s) exceded walltime (%s)' % (rt, tl)
+                #    print(msg)
+                #    return self.set_status(self.S_ERROR, msg=msg)
                 # The job may be killed or crashed but we don't know what happened
                 # It may also be that an innocent message was written to qerr, so we wait for a while
                 # it is set to QCritical, we will attempt to fix it by running on more resources
-
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
