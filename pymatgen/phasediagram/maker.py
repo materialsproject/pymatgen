@@ -192,12 +192,6 @@ class PhaseDiagram(MSONable):
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
     @property
-    @deprecated(message="PhaseDiagram.simplices is deprecated. "
-                "Use PhaseDiagram.simplexes instead")
-    def simplices(self):
-        return [s._coords for s in self.simplexes]
-
-    @property
     def all_entries_hulldata(self):
         data = []
         for entry in self.all_entries:
