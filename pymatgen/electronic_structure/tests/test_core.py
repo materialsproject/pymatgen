@@ -127,6 +127,9 @@ class MagmomTest(unittest.TestCase):
         self.assertTrue(np.allclose(magmom.moment, [0.93969262, 0.0, 1.65797986]))
         self.assertTrue(np.allclose(magmom.get_moment_relative_to_crystal_axes(lattice), moment))
 
-
+    def test_equality(self):
+        self.assertTrue(Magmom([1, 1, 1]) == Magmom([1, 1, 1]))
+        self.assertFalse(Magmom([1, 1, 2]) == Magmom([1, 1, 1]))
+        
 if __name__ == '__main__':
     unittest.main()
