@@ -4,9 +4,10 @@
 
 from __future__ import division, unicode_literals
 
-"""
-Created on Jul 26, 2012
-"""
+import unittest
+
+from pymatgen.core.bonds import CovalentBond, get_bond_length
+from pymatgen.core.sites import Site
 
 
 __author__ = "Shyue Ping Ong"
@@ -15,11 +16,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 26, 2012"
-
-import unittest
-
-from pymatgen.core.bonds import CovalentBond, get_bond_length
-from pymatgen.core.sites import Site
 
 
 class CovalentBondTest(unittest.TestCase):
@@ -46,11 +42,11 @@ class CovalentBondTest(unittest.TestCase):
 class FuncTest(unittest.TestCase):
 
     def test_get_bond_length(self):
-        self.assertEqual(get_bond_length("C", "C", 1), 1.54)
-        self.assertEqual(get_bond_length("C", "C", 2), 1.34)
-        self.assertEqual(get_bond_length("C", "H", 1), 1.08)
+        self.assertAlmostEqual(get_bond_length("C", "C", 1), 1.54)
+        self.assertAlmostEqual(get_bond_length("C", "C", 2), 1.34)
+        self.assertAlmostEqual(get_bond_length("C", "H", 1), 1.08)
         self.assertEqual(get_bond_length("C", "H", 2), None)
+        self.assertAlmostEqual(get_bond_length("C", "Br", 1), 1.85)
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

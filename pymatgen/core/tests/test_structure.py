@@ -1152,8 +1152,11 @@ class MoleculeTest(PymatgenTest):
                             "C", "H"], coords)
         benzene.substitute(1, sub)
         self.assertEqual(benzene.formula, "H8 C7")
-        #Carbon attached should be in plane.
+        # Carbon attached should be in plane.
         self.assertAlmostEqual(benzene[11].coords[2], 0)
+        benzene[14] = "Br"
+        benzene.substitute(13, sub)
+        self.assertEqual(benzene.formula, "H9 C8 Br1")
 
     def test_to_from_file_string(self):
         for fmt in ["xyz", "json", "g03"]:

@@ -3118,8 +3118,8 @@ class Molecule(IMolecule, collections.MutableSequence):
                    directionality to connect the atoms.
                 2. A string name. The molecule will be obtained from the
                    relevant template in functional_groups.json.
-            bond_order: A specified bond order to calculate the bond length
-                between the attached functional group and the nearest
+            bond_order (int): A specified bond order to calculate the bond
+                length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
         """
 
@@ -3130,8 +3130,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             # is not the site being substituted.
             for inn, dist2 in self.get_neighbors(nn, 3):
                 if inn != self[index] and \
-                                dist2 < 1.2 * get_bond_length(nn.specie,
-                                                              inn.specie):
+                        dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
                     all_non_terminal_nn.append((nn, dist))
                     break
 
@@ -3164,8 +3163,8 @@ class Molecule(IMolecule, collections.MutableSequence):
         if bl is not None:
             func_grp = func_grp.copy()
             vec = func_grp[0].coords - func_grp[1].coords
-            func_grp[0] = "X", func_grp[1].coords + bl / np.linalg.norm(vec) \
-                          * vec
+            vec /= np.linalg.norm(vec)
+            func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
 
         # Align X to the origin.
         x = func_grp[0]

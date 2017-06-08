@@ -8,8 +8,7 @@ __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__date__ = "May 27 2017"
-__version__ = "4.7.7"
+__version__ = "2017.06.08"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
@@ -46,10 +45,10 @@ def get_structure_from_mp(formula):
     """
     Convenience method to get a crystal from the Materials Project database via
     the API. Requires PMG_MAPI_KEY to be set.
-    
+
     Args:
         formula (str): A formula
-    
+
     Returns:
         (Structure) The lowest energy structure in Materials Project with that
             formula.
