@@ -97,12 +97,12 @@ def publish(ctx):
 
 @task
 def setver(ctx):
-    ver = str(datetime.datetime.today().date()).replace("-", ".")
+    newver = str(datetime.datetime.today().date()).replace("-", ".")
     lines = []
     with open("pymatgen/__init__.py", "rt") as f:
         for l in f:
             if "__version__" in l:
-                lines.append('__version__ = "%s"' % ver)
+                lines.append('__version__ = "%s"' % newver)
             else:
                 lines.append(l.rstrip())
     with open("pymatgen/__init__.py", "wt") as f:
@@ -111,7 +111,7 @@ def setver(ctx):
     lines = []
     with open("setup.py", "rt") as f:
         for l in f:
-            lines.append(re.sub(r'version=([^,]+),', 'version="%s"' % ver,
+            lines.append(re.sub(r'version=([^,]+),', 'version="%s"' % newver,
                                 l.rstrip()))
     with open("setup.py", "wt") as f:
         f.write("\n".join(lines))
@@ -161,6 +161,7 @@ def release_github(ctx):
 
 @task
 def update_changelog(ctx):
+
     output = subprocess.check_output(["git", "log", "--pretty=format:%s",
                                       "v%s..HEAD" % ver])
     lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]
@@ -168,7 +169,9 @@ def update_changelog(ctx):
         contents = f.read()
     l = "=========="
     toks = contents.split(l)
-    toks.insert(-1, "\n\nvXXXX\n--------\n" + "\n".join(lines))
+    newver = str(datetime.datetime.today().date()).replace("-", ".")
+    head = "\n\nv%s\n-----------\n" % newver
+    toks.insert(-1, head + "\n".join(lines))
     with open("CHANGES.rst", "w") as f:
         f.write(toks[0] + l + "".join(toks[1:]))
 
