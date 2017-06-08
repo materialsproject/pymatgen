@@ -19,7 +19,6 @@ Submodules
    pymatgen.core.libxcfunc
    pymatgen.core.operations
    pymatgen.core.periodic_table
-   pymatgen.core.physical_constants
    pymatgen.core.sites
    pymatgen.core.structure
    pymatgen.core.surface
