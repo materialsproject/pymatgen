@@ -142,7 +142,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
                                                    "vasprun.xml.bz2"]:
                         filepath = fname
                         break
-                    if re.search("relax2", fname):
+                    if re.search(r"relax2", fname):
                         filepath = fname
                         break
                     filepath = fname
@@ -239,16 +239,16 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         """
                         for fname in files:
                             if fnmatch.fnmatch(os.path.basename(fname),
-                                               "{}(\.gz|\.bz2)*"
+                                               r"{}(\.gz|\.bz2)*"
                                                .format(filename)):
                                 files_to_parse[filename] = fname
                                 break
                             if fname == "POSCAR" and \
-                                    re.search("relax1", fname):
+                                    re.search(r"relax1", fname):
                                 files_to_parse[filename] = fname
                                 break
                             if (fname in ("CONTCAR", "OSZICAR") and
-                                    re.search("relax2", fname)):
+                                    re.search(r"relax2", fname)):
                                 files_to_parse[filename] = fname
                                 break
                             files_to_parse[filename] = fname

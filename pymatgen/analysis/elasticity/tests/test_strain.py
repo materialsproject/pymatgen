@@ -127,11 +127,7 @@ class StrainTest(PymatgenTest):
 
 class DeformedStructureSetTest(PymatgenTest):
     def setUp(self):
-        lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                           [1.9200989668, 3.3257101909, 0.00],
-                           [0.00, -2.2171384943, 3.1355090603]])
-        self.structure = Structure(lattice, ["Si", "Si"], [[0, 0, 0],
-                                                           [0.75, 0.5, 0.75]])
+        self.structure = self.get_structure("Sn")
         self.default_dss = DeformedStructureSet(self.structure)
 
     def test_init(self):
@@ -140,6 +136,11 @@ class DeformedStructureSetTest(PymatgenTest):
         with self.assertRaises(ValueError):
             DeformedStructureSet(self.structure, num_shear=5)
         self.assertEqual(self.structure, self.default_dss.undeformed_structure)
+        # Test symmetry
+        dss_symm = DeformedStructureSet(self.structure, symmetry=True)
+        # Should be 4 strains for normal, 2 for shear (since +/- shear
+        # are symmetrically equivalent)
+        self.assertEqual(len(dss_symm), 6)
 
     def test_as_strain_dict(self):
         strain_dict = self.default_dss.as_strain_dict()

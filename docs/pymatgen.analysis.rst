@@ -11,6 +11,7 @@ Subpackages
     pymatgen.analysis.defects
     pymatgen.analysis.diffraction
     pymatgen.analysis.elasticity
+    pymatgen.analysis.ferroelectricity
     pymatgen.analysis.hhi
     pymatgen.analysis.pourbaix
 

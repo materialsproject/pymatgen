@@ -10,8 +10,9 @@ import json
 import os
 import unittest
 
+import sys
 from pymatgen import Molecule
-from pymatgen.io.qchem import QcTask, QcInput, QcOutput
+from pymatgen.io.qchem import QcTask, QcInput, QcOutput, QcNucVeloc
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = 'xiaohuiqu'
@@ -292,6 +293,25 @@ $end
                               ("H", "6-31g*"), ("cl", "6-31+g*")])
         self.assertEqual(str(qctask), ans_mixed)
         self.elementary_io_verify(ans_mixed, qctask)
+
+    def test_velocities(self):
+        qctask = QcTask.from_file(
+            os.path.join(test_dir, "qc_aimd",
+                         "mg2dig_nvt_langevin.inp"))
+        qcnv = QcNucVeloc(
+            os.path.join(test_dir, "qc_aimd",
+                         "NucVeloc.velocities"))
+        velocities = qcnv.velocities[-1]
+        qctask.set_velocities(velocities)
+        qc_text = str(qctask)
+        vel_text = qc_text[qc_text.index("$velocity"):]
+        self.assertEqual(vel_text.split("\n")[1].strip(),
+                         "8.97607E-05    9.45576E-06   -2.39705E-04")
+        self.assertEqual(len(vel_text.split("\n")), 66)
+        self.assertEqual(vel_text.split("\n")[-4].strip(),
+                         "9.05272E-05    1.11329E-03   -9.17663E-04")
+        qctask2 = QcTask.from_string(qc_text)
+        self.elementary_io_verify(qc_text, qctask2)
 
     def test_opt_constraint_str(self):
         opt_coords = [[-1.8438708, 1.7639844, 0.0036111],
@@ -2167,6 +2187,14 @@ $end
                           0.341061]
         self.assertEqual(qcout.data[0]['charges']['chelpg'], chelpg_charges)
 
+    @unittest.skipIf(sys.platform not in ["linux", 'darwin'],
+                     "Skip unix file path test on Windows")
+    def test_scr_dir(self):
+        filename = os.path.join(test_dir, 'chelpg_charges.qcout')
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]['scratch_dir'],
+                         "/Users/xiaohuiqu/scratch/qchem7101")
+
     def test_no_message_scf_opt_fail(self):
         so_failfile = os.path.join(test_dir, 'scf_opt_no_message_fail.qcout')
         so_failqcout = QcOutput(so_failfile)
@@ -2523,6 +2551,23 @@ ENDCONSTRAINT"""
                         optional_params={"opt": stre_d})
         stre_text_2 = "\n".join(qctask._format_opt())
         self.assertEqual(stre_text_2, stre_text)
+
+class TestQcNucVeloc(PymatgenTest):
+
+    def test_parse(self):
+        qcnv = QcNucVeloc(os.path.join(test_dir, "qc_aimd", "NucVeloc.velocities"))
+        self.assertEqual(len(qcnv.step_times), 302)
+        self.assertEqual(qcnv.step_times[-1], 14.56168)
+        self.assertEqual(len(qcnv.velocities), 302)
+        self.assertEqual(qcnv.velocities[0][0],
+                         (1.42192e-05, 6.65659e-05, 5.22453e-05))
+        self.assertEqual(qcnv.velocities[0][-1],
+                         (-6.52039e-06, -0.000213074, -0.000769596))
+        self.assertEqual(qcnv.velocities[-1][0],
+                         (8.976072e-05, 9.455759e-06, -0.0002397046))
+        self.assertEqual(qcnv.velocities[-1][-1],
+                         (9.052722e-05, 0.001113288, -0.0009176628))
+
 
 if __name__ == "__main__":
     unittest.main()

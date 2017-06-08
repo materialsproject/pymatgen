@@ -8,8 +8,10 @@ import numpy as np
 import re
 from math import sin, cos, pi, sqrt
 import string
+import warnings
 
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.util.string import transformation_to_string
 
 from monty.json import MSONable
 
@@ -397,32 +399,9 @@ class SymmOp(MSONable):
         # test for invalid rotation matrix
         if not np.all(np.isclose(self.rotation_matrix,
                                  np.round(self.rotation_matrix))):
-            raise ValueError('Rotation matrix must be integer')
+            warnings.warn('Rotation matrix should be integer')
 
-        for r, t in zip(self.rotation_matrix, self.translation_vector):
-            symbols = []
-            for val, axis in zip(r, xyz):
-                val = int(round(val))
-                if val == 1:
-                    if symbols:
-                        symbols.append('+')
-                    symbols.append(axis)
-                elif val == -1:
-                    symbols.append('-' + axis)
-                elif val > 1:
-                    if symbols:
-                        symbols.append('+')
-                    symbols.append(str(val) + axis)
-                elif val < -1:
-                    symbols.append(str(val) + axis)
-            import fractions
-            f = fractions.Fraction(float(t)).limit_denominator()
-            if abs(f) > 1e-6:
-                if f > 0:
-                    symbols.append('+')
-                symbols.append(str(f))
-            strings.append("".join(symbols))
-        return ', '.join(strings)
+        return transformation_to_string(self.rotation_matrix, translation_vec=self.translation_vector, delim=", ")
 
     @staticmethod
     def from_xyz_string(xyz_string):
@@ -436,8 +415,8 @@ class SymmOp(MSONable):
         rot_matrix = np.zeros((3, 3))
         trans = np.zeros(3)
         toks = xyz_string.strip().replace(" ", "").lower().split(",")
-        re_rot = re.compile("([+-]?)([\d\.]*)/?([\d\.]*)([x-z])")
-        re_trans = re.compile("([+-]?)([\d\.]+)/?([\d\.]*)(?![x-z])")
+        re_rot = re.compile(r"([+-]?)([\d\.]*)/?([\d\.]*)([x-z])")
+        re_trans = re.compile(r"([+-]?)([\d\.]+)/?([\d\.]*)(?![x-z])")
         for i, tok in enumerate(toks):
             # build the rotation matrix
             for m in re_rot.finditer(tok):

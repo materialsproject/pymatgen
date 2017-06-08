@@ -294,7 +294,7 @@ class CifTransmuter(StandardTransmuter):
         structure_data = []
         read_data = False
         for line in lines:
-            if re.match("^\s*data", line):
+            if re.match(r"^\s*data", line):
                 structure_data.append([])
                 read_data = True
             if read_data:
@@ -395,7 +395,7 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set=MPRelaxSet,
             programs.
     """
     for i, s in enumerate(transformed_structures):
-        formula = re.sub("\s+", "", s.final_structure.formula)
+        formula = re.sub(r"\s+", "", s.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(s)
             dirname = os.path.join(output_dir, subdir,

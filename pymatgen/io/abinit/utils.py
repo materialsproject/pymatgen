@@ -387,7 +387,7 @@ class Directory(object):
         where `path` is the path of the last TIM?_DEN file and step is the iteration number.
         Returns None if the directory does not contain TIM?_DEN files.
         """
-        regex = re.compile("out_TIM(\d+)_DEN(.nc)?$")
+        regex = re.compile(r"out_TIM(\d+)_DEN(.nc)?$")
 
         timden_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
         if not timden_paths: return None
@@ -410,7 +410,7 @@ class Directory(object):
         e.g. out_1WF4. This method scans the files in the directories and returns a list of namedtuple
         Each named tuple gives the `path` of the 1FK file and the `pertcase` index.
         """
-        regex = re.compile("out_1WF(\d+)(\.nc)?$")
+        regex = re.compile(r"out_1WF(\d+)(\.nc)?$")
 
         wf_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
         if not wf_paths: return None
@@ -433,7 +433,7 @@ class Directory(object):
         e.g. out_DEN1. This method scans the files in the directories and returns a list of namedtuple
         Each named tuple gives the `path` of the 1DEN file and the `pertcase` index.
         """
-        regex = re.compile("out_DEN(\d+)(\.nc)?$")
+        regex = re.compile(r"out_DEN(\d+)(\.nc)?$")
         den_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
         if not den_paths: return None
 
@@ -553,8 +553,8 @@ class FilepathFixer(object):
         # a static method _fix_EXTNAME
         self.regs = regs = {}
         import re
-        regs["1WF"] = re.compile("(\w+_)1WF(\d+)(\.nc)?$")
-        regs["1DEN"] = re.compile("(\w+_)1DEN(\d+)(\.nc)?$")
+        regs["1WF"] = re.compile(r"(\w+_)1WF(\d+)(\.nc)?$")
+        regs["1DEN"] = re.compile(r"(\w+_)1DEN(\d+)(\.nc)?$")
 
     @staticmethod
     def _fix_1WF(match):

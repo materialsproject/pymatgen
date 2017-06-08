@@ -455,7 +455,7 @@ class DiffusionAnalyzer(MSONable):
             plt.plot(plot_dt, self.msd_components[:, 2], 'b')
             plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
         plt.xlabel("Timestep ({})".format(unit))
-        plt.ylabel("MSD ($\AA^2$)")
+        plt.ylabel("MSD ($\\AA^2$)")
         plt.tight_layout()
         return plt
 
@@ -523,7 +523,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial structure from which the current set of displacements
                 are computed.
-            \*\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
+            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         p, l = [], []
@@ -580,7 +580,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial stricture from which the current set of displacements
                 are computed.
-            \*\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
+            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
                 Examples include smoothed, min_obs, avg_nsteps.
         """
 
@@ -648,7 +648,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial structure from which the current set of displacements
                 are computed.
-            \*\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
+            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         if ncores is not None and len(filepaths) > 1:
@@ -816,7 +816,7 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
             from DiffusionAnalyzer.diffusivity).
         diffusivity_errors ([float]): A sequence of errors for the
             diffusivities. If None, no error bar is plotted.
-        \*\*kwargs:
+        \\*\\*kwargs:
             Any keyword args supported by matplotlib.pyplot.plot.
 
     Returns:

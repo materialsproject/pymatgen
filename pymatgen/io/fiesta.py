@@ -33,10 +33,10 @@ __date__ = "24/5/15"
 class Nwchem2Fiesta(MSONable):
     """
     To run NWCHEM2FIESTA inside python:
-
-	If nwchem.nw is the input, nwchem.out the output, and structure.movecs the
-	"movecs" file, the syntax to run NWCHEM2FIESTA is: NWCHEM2FIESTA
-	nwchem.nw  nwchem.nwout  structure.movecs > log_n2f
+    
+    If nwchem.nw is the input, nwchem.out the output, and structure.movecs the
+    "movecs" file, the syntax to run NWCHEM2FIESTA is: NWCHEM2FIESTA
+    nwchem.nw  nwchem.nwout  structure.movecs > log_n2f
     """
 
     def __init__(self, folder, filename="nwchem", log_file="log_n2f"):
@@ -182,13 +182,13 @@ class Basis_set_reader(object):
 
     def _parse_file(self, input):
 
-        lmax_nnlo_patt = re.compile("\s* (\d+) \s+ (\d+) \s+ \# .* ",
+        lmax_nnlo_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ \# .* ",
                                     re.VERBOSE)
 
-        nl_orbital_patt = re.compile("\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* ",
+        nl_orbital_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* ",
                                      re.VERBOSE)
 
-        coef_alpha_patt = re.compile("\s* ([-\d.\D]+) \s+ ([-\d.\D]+) \s* ",
+        coef_alpha_patt = re.compile(r"\s* ([-\d.\D]+) \s+ ([-\d.\D]+) \s* ",
                                      re.VERBOSE)
 
         preamble = []
@@ -359,7 +359,7 @@ class FiestaInput(MSONable):
         :return: set the "do_bse" variable to one in cell.in
         """
 
-        if BSE_dump == True:
+        if BSE_dump:
             self.BSE_TDDFT_options.update(do_bse=1, do_tddft=0)
         else:
             self.BSE_TDDFT_options.update(do_bse=0, do_tddft=0)
@@ -701,7 +701,7 @@ class FiestaOutput(object):
         with zopen(filename) as f:
             data = f.read()
 
-        chunks = re.split("GW Driver iteration", data)
+        chunks = re.split(r"GW Driver iteration", data)
 
         # preamble: everything before the first GW Driver iteration
         preamble = chunks.pop(0)
@@ -712,17 +712,17 @@ class FiestaOutput(object):
     def _parse_job(self, output):
 
         GW_BANDS_results_patt = re.compile(
-            "^<it.*  \| \s+ (\D+\d*) \s+ \| \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \| "
-            " \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \|"
-            " \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ", re.VERBOSE)
+            r"^<it.*  \| \s+ (\D+\d*) \s+ \| \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \| "
+            r" \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \|"
+            r" \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ", re.VERBOSE)
 
         GW_GAPS_results_patt = re.compile(
-            "^<it.*  \| \s+ Egap_KS \s+ = \s+ ([-\d.]+) \s+ \| \s+ Egap_QP \s+ = \s+ ([-\d.]+) \s+ \| "
-            " \s+ Egap_QP \s+ = \s+ ([-\d.]+) \s+ \|", re.VERBOSE)
+            r"^<it.*  \| \s+ Egap_KS \s+ = \s+ ([-\d.]+) \s+ \| \s+ Egap_QP \s+ = \s+ ([-\d.]+) \s+ \| "
+            r" \s+ Egap_QP \s+ = \s+ ([-\d.]+) \s+ \|", re.VERBOSE)
 
-        end_patt = re.compile("\s*program returned normally\s*")
+        end_patt = re.compile(r"\s*program returned normally\s*")
 
-        total_time_patt = re.compile("\s*total \s+ time: \s+  ([\d.]+) .*",
+        total_time_patt = re.compile(r"\s*total \s+ time: \s+  ([\d.]+) .*",
                                      re.VERBOSE)
 
         error_defs = {
@@ -794,12 +794,12 @@ class BSEOutput(object):
     def _parse_job(self, output):
 
         BSE_exitons_patt = re.compile(
-            "^exiton \s+ (\d+)  : \s+  ([\d.]+) \( \s+ ([-\d.]+) \) \s+ \| .*  ",
+            r"^exiton \s+ (\d+)  : \s+  ([\d.]+) \( \s+ ([-\d.]+) \) \s+ \| .*  ",
             re.VERBOSE)
 
-        end_patt = re.compile("\s*program returned normally\s*")
+        end_patt = re.compile(r"\s*program returned normally\s*")
 
-        total_time_patt = re.compile("\s*total \s+ time: \s+  ([\d.]+) .*",
+        total_time_patt = re.compile(r"\s*total \s+ time: \s+  ([\d.]+) .*",
                                      re.VERBOSE)
 
         error_defs = {
