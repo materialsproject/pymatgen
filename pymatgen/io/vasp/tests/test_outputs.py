@@ -496,6 +496,17 @@ class OutcarTest(unittest.TestCase):
         self.assertEqual(len(outcar.frequencies), len(outcar.dielectric_tensor_function))
         np.testing.assert_array_equal( outcar.dielectric_tensor_function[0], outcar.dielectric_tensor_function[0].transpose() )
 
+    def test_freq_dielectric_vasp544(self):
+        filepath = os.path.join(test_dir, "OUTCAR.LOPTICS.vasp544")
+        outcar = Outcar(filepath)
+        outcar.read_freq_dielectric()
+        self.assertAlmostEqual(outcar.frequencies[0], 0)
+        self.assertAlmostEqual(outcar.frequencies[-1], 39.63964)
+        self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 12.769435+0j)
+        self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0], 0.828615+0.016594j)
+        self.assertEqual(len(outcar.frequencies), len(outcar.dielectric_tensor_function))
+        np.testing.assert_array_equal( outcar.dielectric_tensor_function[0], outcar.dielectric_tensor_function[0].transpose())
+
     def test_read_elastic_tensor(self):
         filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")
         outcar = Outcar(filepath)

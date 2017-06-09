@@ -13,7 +13,9 @@ import datetime
 from invoke import task
 
 from monty.os import cd
-from pymatgen import __version__ as ver
+from pymatgen import __version__ as CURRENT_VER
+
+NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
 
 
 """
@@ -96,13 +98,12 @@ def publish(ctx):
 
 
 @task
-def setver(ctx):
-    newver = str(datetime.datetime.today().date()).replace("-", ".")
+def set_ver(ctx):
     lines = []
     with open("pymatgen/__init__.py", "rt") as f:
         for l in f:
             if "__version__" in l:
-                lines.append('__version__ = "%s"' % newver)
+                lines.append('__version__ = "%s"' % NEW_VER)
             else:
                 lines.append(l.rstrip())
     with open("pymatgen/__init__.py", "wt") as f:
@@ -111,7 +112,7 @@ def setver(ctx):
     lines = []
     with open("setup.py", "rt") as f:
         for l in f:
-            lines.append(re.sub(r'version=([^,]+),', 'version="%s",' % newver,
+            lines.append(re.sub(r'version=([^,]+),', 'version="%s",' % NEW_VER,
                                 l.rstrip()))
     with open("setup.py", "wt") as f:
         f.write("\n".join(lines))
@@ -127,7 +128,7 @@ def update_coverage(ctx):
 
 @task
 def merge_stable(ctx):
-    ctx.run("git commit -a -m \"v%s release\"" % ver)
+    ctx.run("git commit -a -m \"v%s release\"" % NEW_VER)
     ctx.run("git push")
     ctx.run("git checkout stable")
     ctx.run("git pull")
@@ -145,7 +146,7 @@ def release_github(ctx):
     toks = desc.split("\n")
     desc = "\n".join(toks[:-1]).strip()
     payload = {
-        "tag_name": "v" + ver,
+        "tag_name": "v" + NEW_VER,
         "target_commitish": "master",
         "name": "v" + ver,
         "body": desc,
@@ -169,8 +170,7 @@ def update_changelog(ctx):
         contents = f.read()
     l = "=========="
     toks = contents.split(l)
-    newver = str(datetime.datetime.today().date()).replace("-", ".")
-    head = "\n\nv%s\n-----------\n" % newver
+    head = "\n\nv%s\n-----------\n" % NEW_VER
     toks.insert(-1, head + "\n".join(lines))
     with open("CHANGES.rst", "w") as f:
         f.write(toks[0] + l + "".join(toks[1:]))
@@ -179,14 +179,14 @@ def update_changelog(ctx):
 @task
 def log_ver(ctx):
     filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public",
-                            "pymatgen", ver)
+                            "pymatgen", NEW_VER)
     with open(filepath, "w") as f:
         f.write("Release")
 
 
 @task
 def release(ctx, notest=False):
-    setver(ctx)
+    set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
     publish(ctx)
