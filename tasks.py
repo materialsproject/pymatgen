@@ -9,6 +9,7 @@ import webbrowser
 import requests
 import re
 import subprocess
+import datetime
 from invoke import task
 
 from monty.os import cd
@@ -42,9 +43,9 @@ def make_doc(ctx):
     with open("docs/latest_changes.rst", "w") as f:
         f.write(changes)
 
-    #with cd("examples"):
-    #    ctx.run("jupyter nbconvert --to html *.ipynb")
-    #    ctx.run("mv *.html ../docs/_static")
+    with cd("examples"):
+       ctx.run("jupyter nbconvert --to html *.ipynb")
+       ctx.run("mv *.html ../docs/_static")
     with cd("docs"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
@@ -95,11 +96,27 @@ def update_doc(ctx):
 def publish(ctx):
     ctx.run("python setup.py release")
 
+
 @task
 def setver(ctx):
-    ctx.run("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup"
-          .format(ver))
-    ctx.run("mv newsetup setup.py")
+    newver = str(datetime.datetime.today().date()).replace("-", ".")
+    lines = []
+    with open("pymatgen/__init__.py", "rt") as f:
+        for l in f:
+            if "__version__" in l:
+                lines.append('__version__ = "%s"' % newver)
+            else:
+                lines.append(l.rstrip())
+    with open("pymatgen/__init__.py", "wt") as f:
+        f.write("\n".join(lines))
+
+    lines = []
+    with open("setup.py", "rt") as f:
+        for l in f:
+            lines.append(re.sub(r'version=([^,]+),', 'version="%s",' % newver,
+                                l.rstrip()))
+    with open("setup.py", "wt") as f:
+        f.write("\n".join(lines))
 
 
 @task
@@ -146,6 +163,7 @@ def release_github(ctx):
 
 @task
 def update_changelog(ctx):
+
     output = subprocess.check_output(["git", "log", "--pretty=format:%s",
                                       "v%s..HEAD" % ver])
     lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]
@@ -153,7 +171,9 @@ def update_changelog(ctx):
         contents = f.read()
     l = "=========="
     toks = contents.split(l)
-    toks.insert(-1, "\n\nvXXXX\n--------\n" + "\n".join(lines))
+    newver = str(datetime.datetime.today().date()).replace("-", ".")
+    head = "\n\nv%s\n-----------\n" % newver
+    toks.insert(-1, head + "\n".join(lines))
     with open("CHANGES.rst", "w") as f:
         f.write(toks[0] + l + "".join(toks[1:]))
 

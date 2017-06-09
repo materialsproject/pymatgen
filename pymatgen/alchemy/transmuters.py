@@ -69,19 +69,6 @@ class StandardTransmuter(object):
                 self.append_transformation(trans,
                                            extend_collection=extend_collection)
 
-    def get_transformed_structures(self):
-        """
-        Returns all TransformedStructures.
-
-        .. deprecated:: v2.1.0
-
-            Use transformed_structures attribute instead. Will be removed in
-            next version.
-        """
-        warnings.warn("Use transformed_structures attribute instead.",
-                      DeprecationWarning)
-        return self.transformed_structures
-
     def __getitem__(self, index):
         return self.transformed_structures[index]
 

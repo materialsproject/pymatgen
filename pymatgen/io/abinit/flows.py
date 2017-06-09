@@ -686,20 +686,6 @@ class Flow(Node, NodeContainer, MSONable):
                         else:
                             yield task
 
-    @deprecated(message="show_inpvars will be removed in pymatgen 4.0. Use show_inputs")
-    def show_inpvars(self, *varnames):
-        from abipy.htc.variable import InputVariable
-        lines = []
-        app = lines.append
-
-        for task in self.iflat_tasks():
-            app(str(task))
-            for name in varnames:
-                value = task.input.get(name)
-                app(str(InputVariable(name, value)))
-
-        return "\n".join(lines)
-
     def abivalidate_inputs(self):
         """
         Run ABINIT in dry mode to validate all the inputs of the flow.
