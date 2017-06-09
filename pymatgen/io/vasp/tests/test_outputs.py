@@ -502,8 +502,8 @@ class OutcarTest(unittest.TestCase):
         outcar.read_freq_dielectric()
         self.assertAlmostEqual(outcar.frequencies[0], 0)
         self.assertAlmostEqual(outcar.frequencies[-1], 39.63964)
-        self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 12.72448+58.746491j)
-        self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0], 0.828642+0.01573j)
+        self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 12.769435+0j)
+        self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0], 0.828615+0.016594j)
         self.assertEqual(len(outcar.frequencies), len(outcar.dielectric_tensor_function))
         np.testing.assert_array_equal( outcar.dielectric_tensor_function[0], outcar.dielectric_tensor_function[0].transpose())
 
