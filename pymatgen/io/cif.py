@@ -905,7 +905,7 @@ class CifParser(object):
                     raise NotImplementedError('Disordered magnetic structures not currently supported.')
 
         if coord_to_species.items():
-            for species, group in groupby(
+            for comp, group in groupby(
                     sorted(list(coord_to_species.items()), key=lambda x: x[1]),
                     key=lambda x: x[1]):
                 tmp_coords = [site[0] for site in group]
