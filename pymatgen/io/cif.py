@@ -884,7 +884,8 @@ class CifParser(object):
                     coord_to_species[match] += comp
                     coord_to_magmoms[match] = None  # disordered magnetic not currently supported
 
-        sum_occu = [sum(c.values()) for c in coord_to_species.values()]
+        sum_occu = [sum(c.values()) for c in coord_to_species.values()
+                    if not set(c.elements) == {Element("O"), Element("H")}]
         if any([o > 1 for o in sum_occu]):
             warnings.warn("Some occupancies (%s) sum to > 1! If they are within "
                           "the tolerance, they will be rescaled." % str(sum_occu))
