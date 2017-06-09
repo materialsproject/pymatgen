@@ -98,7 +98,7 @@ def publish(ctx):
 
 
 @task
-def setver(ctx):
+def set_ver(ctx):
     lines = []
     with open("pymatgen/__init__.py", "rt") as f:
         for l in f:
@@ -186,7 +186,7 @@ def log_ver(ctx):
 
 @task
 def release(ctx, notest=False):
-    setver(ctx)
+    set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
     publish(ctx)
