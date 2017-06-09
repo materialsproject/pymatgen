@@ -75,7 +75,7 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None,
 
 
 @deprecated(pretty_plot, "get_publication_quality_plot has been renamed "
-                         "pretty_plot. This stub will be removed in pmg 5.0.")
+                         "pretty_plot. This stub will be removed in pmg 2018.01.01.")
 def get_publication_quality_plot(*args, **kwargs):
     return pretty_plot(*args, **kwargs)
 

@@ -101,7 +101,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_spacegroup has been renamed "
                         "get_space_group_operations. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_space_group(self):
         """
         Get the SpacegroupOperations for the Structure.
@@ -113,7 +113,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_spacegroup_symbol has been renamed "
                         "get_space_group_symbol. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_space_group_symbol(self):
         """
         Get the spacegroup symbol (e.g., Pnma) for structure.
@@ -125,7 +125,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_spacegroup_number has been renamed "
                         "get_space_group_number. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_space_group_number(self):
         """
         Get the international spacegroup number (e.g., 62) for structure.
@@ -175,7 +175,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_point_group has been renamed "
                         "get_point_group_symbol. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_point_group(self):
         return self.get_point_group_symbol()
 
