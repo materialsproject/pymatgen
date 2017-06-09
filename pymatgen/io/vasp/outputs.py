@@ -1571,7 +1571,7 @@ class Outcar(MSONable):
         """
         header_pattern = r"\s+frequency dependent\s+IMAGINARY " \
                          r"DIELECTRIC FUNCTION \(independent particle, " \
-                         r"no local field effects\)\s*"
+                         r"no local field effects\)(\sdensity-density)*"
         row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 7)
 
         lines = []
