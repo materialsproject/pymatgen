@@ -281,6 +281,14 @@ loop_
         parser = CifParser(os.path.join(test_dir, 'site_type_symbol_test.cif'))
         self.assertEqual(parser.get_structures()[0].formula, "Ge0.4 Sb0.4 Te1")
 
+    def test_implicit_hydrogen(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            parser = CifParser(os.path.join(test_dir, 'Senegalite_implicit_hydrogen.cif'))
+            for s in parser.get_structures():
+                self.assertEqual(s.formula, "Al8 P4 O32")
+                self.assertEqual(sum(s.site_properties['implicit_hydrogens']), 20)
+
     def test_CifParserSpringerPauling(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
