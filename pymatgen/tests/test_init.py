@@ -1,7 +1,7 @@
 import unittest
 
 import os
-import yaml
+import ruamel.yaml as yaml
 from pymatgen import SETTINGS_FILE, _load_pmg_settings, get_structure_from_mp
 import warnings
 

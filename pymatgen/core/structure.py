@@ -1452,7 +1452,7 @@ class IStructure(SiteCollection, MSONable):
             else:
                 return XSF(self).to_string()
         else:
-            import yaml
+            import ruamel.yaml as yaml
 
             try:
                 from yaml import CSafeDumper as Dumper
@@ -1507,7 +1507,7 @@ class IStructure(SiteCollection, MSONable):
             d = json.loads(input_string)
             s = Structure.from_dict(d)
         elif fmt == "yaml":
-            import yaml
+            import ruamel.yaml as yaml
             d = yaml.load(input_string)
             s = Structure.from_dict(d)
         elif fmt == "xsf":
@@ -2085,7 +2085,7 @@ class IMolecule(SiteCollection, MSONable):
             else:
                 return json.dumps(self.as_dict())
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
-            import yaml
+            import ruamel.yaml as yaml
 
             try:
                 from yaml import CSafeDumper as Dumper
@@ -2136,7 +2136,7 @@ class IMolecule(SiteCollection, MSONable):
             d = json.loads(input_string)
             return cls.from_dict(d)
         elif fmt == "yaml":
-            import yaml
+            import ruamel.yaml as yaml
 
             try:
                 from yaml import CSafeDumper as Dumper, CLoader as Loader

@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 
 import six
-import yaml
+import ruamel.yaml as yaml
 import os
 
 """
