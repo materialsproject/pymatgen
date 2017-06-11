@@ -425,7 +425,7 @@ class EventsParser(object):
                     #print("got doc.tag", doc.tag,"--")
                     try:
                         #print(doc.text)
-                        event = yaml.safe_load(doc.text)
+                        event = yaml.load(doc.text)
                         #print(event.yaml_tag, type(event))
                     except:
                         #raise

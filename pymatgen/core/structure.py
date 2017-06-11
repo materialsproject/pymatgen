@@ -1455,10 +1455,10 @@ class IStructure(SiteCollection, MSONable):
             import ruamel.yaml as yaml
             if filename:
                 with zopen(filename, "wt") as f:
-                    yaml.dump(self.as_dict(), f)
+                    yaml.safe_dump(self.as_dict(), f)
                 return
             else:
-                return yaml.dump(self.as_dict())
+                return yaml.safe_dump(self.as_dict())
 
         if filename:
             writer.write_file(filename)
@@ -2084,9 +2084,9 @@ class IMolecule(SiteCollection, MSONable):
 
             if filename:
                 with zopen(fname, "wt", encoding='utf8') as f:
-                    return yaml.dump(self.as_dict(), f)
+                    return yaml.safe_dump(self.as_dict(), f)
             else:
-                return yaml.dump(self.as_dict())
+                return yaml.safe_dump(self.as_dict())
 
         else:
             m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
