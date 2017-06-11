@@ -37,7 +37,7 @@ class ParseTimestr(PymatgenTest):
 
 @unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class QadapterTest(PymatgenTest):
-    QDICT = yaml.load("""\
+    QDICT = yaml.safe_load("""\
 priority: 1
 queue:
     qtype: slurm
@@ -168,7 +168,7 @@ hardware:
 @unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class ShellAdapterTest(PymatgenTest):
     """Test suite for Shell adapter."""
-    QDICT = yaml.load("""\
+    QDICT = yaml.safe_load("""\
 priority: 1
 queue:
     qname: localhost
@@ -217,7 +217,7 @@ source ~/env1.sh
 @unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class SlurmAdapterTest(PymatgenTest):
     """Test suite for Slurm adapter."""
-    QDICT = yaml.load("""\
+    QDICT = yaml.safe_load("""\
 priority: 5
 queue:
   qtype: slurm
@@ -302,7 +302,7 @@ mpirun -n 4 executable < stdin > stdout 2> stderr
 @unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class PbsProadapterTest(PymatgenTest):
     """Test suite for PbsPro adapter."""
-    QDICT = yaml.load("""\
+    QDICT = yaml.safe_load("""\
 priority: 1
 queue:
     qtype: pbspro
@@ -320,7 +320,7 @@ hardware:
     sockets_per_node: 2
     cores_per_socket: 4
     mem_per_node: 8 Gb""")
-    QDICT_SHARED = yaml.load("""\
+    QDICT_SHARED = yaml.safe_load("""\
 priority: 1
 queue:
     qtype: pbspro
@@ -341,7 +341,7 @@ hardware:
     sockets_per_node: 2
     cores_per_socket: 12
     mem_per_node: 48000 Mb""")
-    QDICT_EXCLUSIVE = yaml.load("""\
+    QDICT_EXCLUSIVE = yaml.safe_load("""\
 priority: 1
 queue:
     qtype: pbspro

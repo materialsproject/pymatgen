@@ -73,7 +73,7 @@ class AbinitEvent(yaml.YAMLObject):
     1) We use YamlTokenizer to extract the documents from the output file
     2) If we have a tag that ends with "Warning", "Error", "Bug", "Comment
        we know we have encountered a new ABINIT event
-    3) We parse the document with yaml.load(doc.text) and we get the object
+    3) We parse the document with yaml.safe_load(doc.text) and we get the object
 
     Note that:
         # --- and ... become reserved words (whey they are placed at
@@ -81,7 +81,7 @@ class AbinitEvent(yaml.YAMLObject):
           the end of YAML documents.
 
         # All the possible events should subclass `AbinitEvent` and define
-          the class attribute yaml_tag so that yaml.load will know how to
+          the class attribute yaml_tag so that yaml.safe_load will know how to
           build the instance.
     """
     color = None
@@ -425,7 +425,7 @@ class EventsParser(object):
                     #print("got doc.tag", doc.tag,"--")
                     try:
                         #print(doc.text)
-                        event = yaml.load(doc.text)
+                        event = yaml.safe_load(doc.text)
                         #print(event.yaml_tag, type(event))
                     except:
                         #raise

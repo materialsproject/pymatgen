@@ -83,7 +83,7 @@ def plottable_from_outfile(filepath):
     # without having to parse the input. Possible approach: YAML doc
     #with YamlTokenizer(filepath) as r:
     #    doc = r.next_doc_with_tag("!CalculationType")
-    #    d = yaml.load(doc.text_notag)
+    #    d = yaml.safe_load(doc.text_notag)
     #    calc_type = d["calculation_type"]
 
     #ctype2class = {
@@ -572,7 +572,7 @@ def yaml_read_kpoints(filename, doc_tag="!Kpoints"):
     """Read the K-points from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
-        d = yaml.load(doc.text_notag)
+        d = yaml.safe_load(doc.text_notag)
 
         return np.array(d["reduced_coordinates_of_qpoints"])
 
@@ -581,7 +581,7 @@ def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
     """Read the list of irreducible perturbations from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
-        d = yaml.load(doc.text_notag)
+        d = yaml.safe_load(doc.text_notag)
 
         return [AttrDict(**pert) for pert in d["irred_perts"]]
         #return d["irred_perts"]
@@ -641,4 +641,4 @@ class YamlDoc(object):
 
     def as_dict(self):
         """Use Yaml to parse the text (without the tag) and returns a dictionary."""
-        return yaml.load(self.text_notag)
+        return yaml.safe_load(self.text_notag)

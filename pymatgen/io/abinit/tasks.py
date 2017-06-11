@@ -233,7 +233,7 @@ class ParalHintsParser(object):
         with abiinspect.YamlTokenizer(filename) as r:
             doc = r.next_doc_with_tag("!Autoparal")
             try:
-                d = yaml.load(doc.text_notag)
+                d = yaml.safe_load(doc.text_notag)
                 return ParalHints(info=d["info"], confs=d["configurations"])
             except:
                 import traceback
@@ -601,7 +601,7 @@ batch_adapter:
         """Read the configuration parameters from the Yaml file filename."""
         try:
             with open(filename, "r") as fh:
-                return cls.from_dict(yaml.load(fh))
+                return cls.from_dict(yaml.safe_load(fh))
         except Exception as exc:
             print("Error while reading TaskManager parameters from %s\n" % filename)
             raise
@@ -609,7 +609,7 @@ batch_adapter:
     @classmethod
     def from_string(cls, s):
         """Create an instance from string s containing a YAML dictionary."""
-        return cls.from_dict(yaml.load(s))
+        return cls.from_dict(yaml.safe_load(s))
 
     @classmethod
     def as_manager(cls, obj):

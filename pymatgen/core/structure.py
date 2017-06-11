@@ -1453,17 +1453,12 @@ class IStructure(SiteCollection, MSONable):
                 return XSF(self).to_string()
         else:
             import ruamel.yaml as yaml
-
-            try:
-                from yaml import CSafeDumper as Dumper
-            except ImportError:
-                from yaml import SafeDumper as Dumper
             if filename:
                 with zopen(filename, "wt") as f:
-                    yaml.dump(self.as_dict(), f, Dumper=Dumper)
+                    yaml.dump(self.as_dict(), f)
                 return
             else:
-                return yaml.dump(self.as_dict(), Dumper=Dumper)
+                return yaml.dump(self.as_dict())
 
         if filename:
             writer.write_file(filename)
@@ -1508,7 +1503,7 @@ class IStructure(SiteCollection, MSONable):
             s = Structure.from_dict(d)
         elif fmt == "yaml":
             import ruamel.yaml as yaml
-            d = yaml.load(input_string)
+            d = yaml.safe_load(input_string)
             s = Structure.from_dict(d)
         elif fmt == "xsf":
             s = XSF.from_string(input_string).structure
@@ -2087,15 +2082,11 @@ class IMolecule(SiteCollection, MSONable):
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
             import ruamel.yaml as yaml
 
-            try:
-                from yaml import CSafeDumper as Dumper
-            except ImportError:
-                from yaml import SafeDumper as Dumper
             if filename:
                 with zopen(fname, "wt", encoding='utf8') as f:
-                    return yaml.dump(self.as_dict(), f, Dumper=Dumper)
+                    return yaml.dump(self.as_dict(), f)
             else:
-                return yaml.dump(self.as_dict(), Dumper=Dumper)
+                return yaml.dump(self.as_dict())
 
         else:
             m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
@@ -2137,12 +2128,7 @@ class IMolecule(SiteCollection, MSONable):
             return cls.from_dict(d)
         elif fmt == "yaml":
             import ruamel.yaml as yaml
-
-            try:
-                from yaml import CSafeDumper as Dumper, CLoader as Loader
-            except ImportError:
-                from yaml import SafeDumper as Dumper, Loader
-            d = yaml.load(input_string, Loader=Loader)
+            d = yaml.safe_load(input_string)
             return cls.from_dict(d)
         else:
             from pymatgen.io.babel import BabelMolAdaptor
