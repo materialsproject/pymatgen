@@ -599,6 +599,40 @@ class OutcarTest(unittest.TestCase):
                           [-1.9406, 73.7484, 1.0000]):
             self.assertAlmostEqual(x1, x2)
 
+    def test_cs_raw_tensors(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        unsym_tensors = outcar.read_cs_raw_symmetrized_tensors()
+        self.assertEqual(unsym_tensors[0],
+                         [[-145.814605, -4.263425, 0.000301],
+                          [4.263434, -145.812238, -8.7e-05],
+                          [0.000136, -0.000189, -142.794068]])
+        self.assertEqual(unsym_tensors[29],
+                         [[287.789318, -53.799325, 30.900024],
+                          [-53.799571, 225.668117, -17.839598],
+                          [3.801103, -2.195218, 88.896756]])
+
+    def test_cs_g0_contribution(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        g0_contrib = outcar.read_cs_g0_contribution()
+        self.assertEqual(g0_contrib,
+                         [[-8.773535, 9e-06, 1e-06],
+                          [1.7e-05, -8.773536, -0.0792],
+                          [-6e-06, -0.008328, -9.320237]])
+
+    def test_cs_core_contribution(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        core_contrib = outcar.read_cs_core_contribution()
+        self.assertEqual(core_contrib,
+                         {'Mg': -412.8248405,
+                          'C': -200.5098812,
+                          'O': -271.0766979})
+
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr", "efg", "AlPO4", "OUTCAR")
         outcar = Outcar(filename)

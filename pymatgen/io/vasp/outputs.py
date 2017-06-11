@@ -1298,6 +1298,25 @@ class Outcar(MSONable):
 
         Chemical Shift on each ion as a tuple of ChemicalShiftNotation, e.g.,
         (cs1, cs2, ...)
+        
+    .. attribute:: unsym_cs_tensor
+
+        Unsymmetrized Chemical Shift tensor matrixes on each ion as a list.
+        e.g.,
+        [[[sigma11, sigma12, sigma13],
+          [sigma21, sigma22, sigma23],
+          [sigma31, sigma32, sigma33]],
+          ...
+         [[sigma11, sigma12, sigma13],
+          [sigma21, sigma22, sigma23],
+          [sigma31, sigma32, sigma33]]]
+          
+    .. attribute:: unsym_cs_tensor 
+        G=0 contribution to chemical shift. 2D rank 3 matrix
+    
+    .. attribute:: cs_core_contribution
+       Core contribution to chemical shift. dict. e.g.,
+       {'Mg': -412.8, 'C': -200.5, 'O': -271.1}
 
     .. attribute:: efg
 
@@ -1640,6 +1659,89 @@ class Outcar(MSONable):
                 cs.append(tensor)
             all_cs[name] = tuple(cs)
         self.data["chemical_shifts"] = all_cs
+
+
+    def read_cs_g0_contribution(self):
+        """
+            Parse the  G0 contribution of NMR chemical shift.
+
+            Returns:
+            G0 contribution matrix as list of list. 
+        """
+        header_pattern = r'^\s+G\=0 CONTRIBUTION TO CHEMICAL SHIFT \(field along BDIR\)\s+$\n' \
+                         r'^\s+-{50,}$\n' \
+                         r'^\s+BDIR\s+X\s+Y\s+Z\s*$\n' \
+                         r'^\s+-{50,}\s*$\n'
+        row_pattern = r'(?:\d+)\s+' + r'\s+'.join([r'([-]?\d+\.\d+)'] * 3)
+        footer_pattern = r'\s+-{50,}\s*$'
+        self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
+                                last_one_only=True, attribute_name="cs_g0_contribution")
+        return self.data["cs_g0_contribution"]
+
+
+    def read_cs_core_contribution(self):
+        """
+            Parse the core contribution of NMR chemical shift.
+
+            Returns:
+            G0 contribution matrix as list of list. 
+        """
+        header_pattern = r'^\s+Core NMR properties\s*$\n' \
+                         r'\n' \
+                         r'^\s+typ\s+El\s+Core shift \(ppm\)\s*$\n' \
+                         r'^\s+-{20,}$\n'
+        row_pattern = r'\d+\s+(?P<element>[A-Z][a-z]?\w?)\s+(?P<shift>[-]?\d+\.\d+)'
+        footer_pattern = r'\s+-{20,}\s*$'
+        self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=str,
+                                last_one_only=True, attribute_name="cs_core_contribution")
+        core_contrib = {d['element']: float(d['shift'])
+                        for d in self.data["cs_core_contribution"]}
+        self.data["cs_core_contribution"] = core_contrib
+        return self.data["cs_core_contribution"]
+
+
+    def read_cs_raw_symmetrized_tensors(self):
+        """
+        Parse the matrix form of NMR tensor before corrected to table.
+        
+        Returns:
+        nsymmetrized tensors list in the order of atoms. 
+        """
+        header_pattern = r"\s+-{50,}\s+" \
+                         r"\s+Absolute Chemical Shift tensors\s+" \
+                         r"\s+-{50,}$"
+        first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
+        row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"]*3)
+        unsym_footer_pattern = "^\s+SYMMETRIZED TENSORS\s+$"
+
+        with zopen(self.filename, 'rt') as f:
+            text = f.read()
+        unsym_table_pattern_text = header_pattern + first_part_pattern + \
+                                   r"(?P<table_body>.+)" + unsym_footer_pattern
+        table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
+        rp = re.compile(row_pattern)
+        m = table_pattern.search(text)
+        if m:
+            table_text = m.group("table_body")
+            micro_header_pattern = r"ion\s+\d+"
+            micro_table_pattern_text = micro_header_pattern + r"\s*^(?P<table_body>(?:\s*" + \
+                                       row_pattern + r")+)\s+"
+            micro_table_pattern = re.compile(micro_table_pattern_text, re.MULTILINE | re.DOTALL)
+            unsym_tensors = []
+            for mt in micro_table_pattern.finditer(table_text):
+                table_body_text = mt.group("table_body")
+                tensor_matrix = []
+                for line in table_body_text.rstrip().split("\n"):
+                    ml = rp.search(line)
+                    processed_line = [float(v) for v in ml.groups()]
+                    tensor_matrix.append(processed_line)
+                unsym_tensors.append(tensor_matrix)
+            self.data["unsym_cs_tensor"] = unsym_tensors
+            return unsym_tensors
+        else:
+            raise ValueError("NMR UNSYMMETRIZED TENSORS is not found")
+
+
 
     def read_nmr_efg(self):
         """
