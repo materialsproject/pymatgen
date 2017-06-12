@@ -24,8 +24,8 @@ class TestLammpsInput(unittest.TestCase):
             "NVT", os.path.join(test_dir, "NVT.json"),
             data_filename=os.path.join(test_dir, "nvt.data"),
             is_forcefield=True)
-        cls.lammps_input = DictLammpsInput.from_file("peptide", "./test_files/in.peptide",
-                                               lammps_data="./test_files/data.peptide",
+        cls.lammps_input = DictLammpsInput.from_file("peptide", os.path.join(test_dir, "in.peptide"),
+                                               lammps_data=os.path.join(test_dir, "data.peptide"),
                                                data_filename="data.peptide",
                                                is_forcefield=True)
 
