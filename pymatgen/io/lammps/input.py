@@ -5,7 +5,7 @@
 from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
-This module implements classes for generating Lammps input.
+This module implements classes for reading and generating Lammps input.
 
 For the ease of management we divide LAMMPS input into 2 files:
 
@@ -29,8 +29,8 @@ from monty.json import MSONable, MontyDecoder
 
 from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
 
-__author__ = "Kiran Mathew"
-__email__ = "kmathew@lbl.gov"
+__author__ = "Kiran Mathew, Brandon Wood"
+__email__ = "kmathew@lbl.gov, b.wood@berkeley.edu"
 __credits__ = "Navnidhi Rajput"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -133,6 +133,47 @@ class DictLammpsInput(MSONable):
             else:
                 lammps_data = LammpsData.from_file(lammps_data)
         return DictLammpsInput(name, config_dict, lammps_data=lammps_data,
+                               data_filename=data_filename,
+                               user_lammps_settings=user_lammps_settings)
+
+    @staticmethod
+    def read_lammps_input(name, in_filename, lammps_data=None, data_filename="in.data",
+                          user_lammps_settings={}, is_forcefield=False):
+        """
+        Read lammps input and data files.
+
+        Args:
+            name(string): name for the simulation
+            in_filename(string): path to lammps input file
+            lammps_data(string): path to lammps data file
+            data_filename(string): name of the lammps data file
+            user_lammps_setting(dict): User lammps settings
+            is_forcefield(bool): whether the data file has forcefield and
+                topology info in it. This is required only if lammps_data is
+                a path to the data file instead of a data object
+
+        Returns:
+            DictLammpsInput
+        """
+        with open(in_filename, 'r') as f:
+            content = f.read().splitlines()
+        content_dict = OrderedDict()
+        for line in content:
+            if line and not line.startswith("#"):
+                spt_line = (line.split(None, 1))
+                if spt_line[0] in content_dict:
+                    if isinstance(content_dict[spt_line[0]], list):
+                        content_dict[spt_line[0]].append(spt_line[1])
+                    else:
+                        content_dict[spt_line[0]] = [content_dict[spt_line[0]], spt_line[1]]
+                else:
+                    content_dict[spt_line[0]] = spt_line[1]
+        if isinstance(lammps_data, six.string_types):
+            if is_forcefield:
+                lammps_data = LammpsForceFieldData.from_file(lammps_data)
+            else:
+                lammps_data = LammpsData.from_file(lammps_data)
+        return DictLammpsInput(name, content_dict, lammps_data=lammps_data,
                                data_filename=data_filename,
                                user_lammps_settings=user_lammps_settings)
 
