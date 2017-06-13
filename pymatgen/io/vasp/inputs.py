@@ -1183,7 +1183,13 @@ class Kpoints(MSONable):
             gap_distance (float): auto-detection threshold for
                 non-periodicity (in slabs, nanowires, etc.)
             remove_symmetry (string): optional flag to control
-                symmetry options.
+                symmetry options, can be none, structural, 
+                time_reversal, or all
+            include_gamma (string or bool): whether to include
+                gamma point
+            header (string): "verbose" or "simple", denotes
+                the verbosity of the header
+            incar (Incar): incar object to upload
         """
         config = locals()
         config.pop("structure", "incar")
