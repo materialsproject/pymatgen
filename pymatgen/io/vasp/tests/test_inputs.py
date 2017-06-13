@@ -565,6 +565,11 @@ Cartesian
         self.assertEqual(kpoints.kpts, [[1, 1, 1]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
+        si = PymatgenTest.get_structure("Si")
+        file_name = os.path.join(test_dir, 'INCAR')
+        incar = Incar.from_file(file_name)
+        kpoints = Kpoints.get_from_wmm(si, incar=incar)
+
     def test_as_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
         d = k.as_dict()
