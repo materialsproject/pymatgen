@@ -54,8 +54,8 @@ def get_chgint_plot(args):
                  finder.get_symmetrized_structure().equivalent_sites]
         atom_ind = [s.sites.index(site) for site in sites]
 
-    from pymatgen.util.plotting_utils import get_publication_quality_plot
-    plt = get_publication_quality_plot(12, 8)
+    from pymatgen.util.plotting import pretty_plot
+    plt = pretty_plot(12, 8)
     for i in atom_ind:
         d = chgcar.get_integrated_diff(i, args.radius, 30)
         plt.plot(d[:, 0], d[:, 1],

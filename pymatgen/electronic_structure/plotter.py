@@ -17,7 +17,7 @@ from monty.json import jsanitize
 from pymatgen import Element
 from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.util.plotting_utils import get_publication_quality_plot, \
+from pymatgen.util.plotting import pretty_plot, \
     add_fig_kwargs, get_ax3d_fig_plt
 
 from pymatgen.core.units import Energy
@@ -140,7 +140,7 @@ class DosPlotter(object):
         y = None
         alldensities = []
         allenergies = []
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
 
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
@@ -418,7 +418,7 @@ class BSPlotter(object):
             smooth_tol (float) : tolerance for fitting spline to band data.
                 Default is None such that no tolerance will be used.
         """
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
         try:
@@ -627,7 +627,7 @@ class BSPlotter(object):
                         label0 = "$" + label0 + "$"
                     tick_labels.pop()
                     tick_distance.pop()
-                    tick_labels.append(label0 + "$\mid$" + label1)
+                    tick_labels.append(label0 + "$\\mid$" + label1)
                 else:
                     if c.label.startswith("\\") or c.label.find("_") != -1:
                         tick_labels.append("$" + c.label + "$")
@@ -637,7 +637,7 @@ class BSPlotter(object):
                 previous_branch = this_branch
         return {'distance': tick_distance, 'label': tick_labels}
 
-    def plot_compare(self, other_plotter):
+    def plot_compare(self, other_plotter, legend=True):
         """
         plot two band structure for comparison. One is in red the other in blue
         (no difference in spins). The two band structures need to be defined
@@ -652,6 +652,7 @@ class BSPlotter(object):
 
         """
         # TODO: add exception if the band structures are not compatible
+        import matplotlib.lines as mlines
         plt = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
@@ -660,11 +661,23 @@ class BSPlotter(object):
             for d in range(len(data_orig['distances'])):
                 plt.plot(data_orig['distances'][d],
                          [e[str(Spin.up)][i] for e in data['energy']][d],
-                         'r-', linewidth=band_linewidth)
-        if other_plotter._bs.is_spin_polarized:
-            plt.plot(data_orig['distances'],
-                     [e for e in data['energy'][i][str(Spin.down)]],
-                     'r-', linewidth=band_linewidth)
+                         'c-', linewidth=band_linewidth)
+                if other_plotter._bs.is_spin_polarized:
+                    plt.plot(data_orig['distances'][d],
+                             [e[str(Spin.down)][i] for e in data['energy']][d],
+                             'm--', linewidth=band_linewidth)
+        if legend:
+            handles = [mlines.Line2D([], [], linewidth=2,
+                                     color='b', label='bs 1 up'),
+                       mlines.Line2D([], [], linewidth=2,
+                                     color='r', label='bs 1 down', linestyle="--"),
+                       mlines.Line2D([], [], linewidth=2,
+                                     color='c', label='bs 2 up'),
+                       mlines.Line2D([], [], linewidth=2,
+                                     color='m', linestyle="--",
+                                     label='bs 2 down')]
+
+            plt.legend(handles=handles)
         return plt
 
     def plot_brillouin(self):
@@ -750,7 +763,7 @@ class BSPlotterProjected(BSPlotter):
         fig_number = sum([len(v) for v in dictio.values()])
         proj = self._get_projections_by_branches(dictio)
         data = self.bs_plot_data(zero_to_efermi)
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         e_min = -4
         e_max = 4
         if self._bs.is_metal():
@@ -833,7 +846,7 @@ class BSPlotterProjected(BSPlotter):
                                                   for e in
                                                   self._bs.structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         e_min = -4
         e_max = 4
         if self._bs.is_metal():
@@ -925,7 +938,7 @@ class BSPlotterProjected(BSPlotter):
             {e.symbol: ['s', 'p', 'd']
              for e in self._bs.structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
 
         spins = [Spin.up]
         if self._bs.is_spin_polarized:
@@ -1017,7 +1030,7 @@ class BSPlotterProjected(BSPlotter):
                         for anum in dictpa[elt]:
                             edict[elt + str(anum)] = {}
                             for morb in dictio[elt]:
-                                edict[elt + str(anum)][morb] = proj[Spin.up][i][j][Orbital(setos[morb])][anum-1]
+                                edict[elt + str(anum)][morb] = proj[Spin.up][i][j][setos[morb]][anum-1]
                     proj_br[-1][str(Spin.up)][i].append(edict)
 
             if self._bs.is_spin_polarized:
@@ -1028,7 +1041,7 @@ class BSPlotterProjected(BSPlotter):
                             for anum in dictpa[elt]:
                                 edict[elt + str(anum)] = {}
                                 for morb in dictio[elt]:
-                                    edict[elt + str(anum)][morb] = proj[Spin.down][i][j][Orbital(setos[morb])][anum-1]
+                                    edict[elt + str(anum)][morb] = proj[Spin.up][i][j][setos[morb]][anum-1]
                         proj_br[-1][str(Spin.down)][i].append(edict)
 
         # Adjusting  projections for plot
@@ -1312,9 +1325,9 @@ class BSPlotterProjected(BSPlotter):
                   "A smaller number or a plot with selected symmetry lines (selected_branches) might be better.\n"
                   % str(number_figs))
         import math
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        from pymatgen.util.plotting import pretty_plot
         band_linewidth = 0.5
-        plt = get_publication_quality_plot(w_h_size[0], w_h_size[1])
+        plt = pretty_plot(w_h_size[0], w_h_size[1])
         proj_br_d, dictio_d, dictpa_d, branches = self._get_projections_by_branches_patom_pmorb(dictio, dictpa,
                                                     sum_atoms, sum_morbs, selected_branches)
         data = self.bs_plot_data(zero_to_efermi)
@@ -1906,10 +1919,11 @@ class BSPlotterProjected(BSPlotter):
 
         return plt, shift
 
-class BSDOSPlotter():
+
+class BSDOSPlotter(object):
     """
-    A joint, aligned band structure and density of states plot. Contributions from Jan Pohls
-    as well as the online example from Germain Salvato-Vallverdu:
+    A joint, aligned band structure and density of states plot. Contributions 
+    from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
     http://gvallver.perso.univ-pau.fr/?p=587
     """
 
@@ -1917,7 +1931,7 @@ class BSDOSPlotter():
                  vb_energy_range=4, cb_energy_range=4, fixed_cb_energy=False,
                  egrid_interval=1, font="Times New Roman", axis_fontsize=20,
                  tick_fontsize=15, legend_fontsize=14, bs_legend="best",
-                 dos_legend="best", rgb_legend=True):
+                 dos_legend="best", rgb_legend=True, fig_size=(11, 8.5)):
 
         """
         Instantiate plotter settings.
@@ -1937,6 +1951,7 @@ class BSDOSPlotter():
             bs_legend (str): matplotlib string location for legend or None
             dos_legend (str): matplotlib string location for legend or None
             rgb_legend (bool): (T/F) whether to draw RGB triangle/bar for element proj.
+            fig_size(tuple): dimensions of figure size (width, height)
         """
         self.bs_projection = bs_projection
         self.dos_projection = dos_projection
@@ -1951,17 +1966,20 @@ class BSDOSPlotter():
         self.bs_legend = bs_legend
         self.dos_legend = dos_legend
         self.rgb_legend = rgb_legend
+        self.fig_size = fig_size
 
     def get_plot(self, bs, dos):
         """
         Get a matplotlib plot object.
         Args:
-            bs (BandStructure): the bandstructure to plot. Projection data must exist for projected plots.
-            dos (Dos): the Dos to plot. Projection data must exist (i.e., CompleteDos) for projected plots.
+            bs (BandStructureSymmLine): the bandstructure to plot. Projection 
+                data must exist for projected plots.
+            dos (Dos): the Dos to plot. Projection data must exist (i.e., 
+                CompleteDos) for projected plots.
 
         Returns:
-            a matplotlib plt object on which you can call commands like show() and savefig()
-
+            matplotlib.pyplot object on which you can call commands like show() 
+            and savefig()
         """
         import matplotlib.lines as mlines
         from matplotlib.gridspec import GridSpec
@@ -1976,9 +1994,10 @@ class BSDOSPlotter():
 
         if bs_projection and bs_projection.lower() == "elements" and \
                 (len(elements) not in [2, 3] or not bs.get_projection_on_elements()):
-            warnings.warn("Cannot get element projected data; either the projection data "
-                          "doesn't exist, or you don't have a compound with exactly 2 or 3"
-                          " unique elements.")
+            warnings.warn(
+                "Cannot get element projected data; either the projection data "
+                "doesn't exist, or you don't have a compound with exactly 2 or 3"
+                " unique elements.")
             bs_projection = None
 
         # specify energy range of plot
@@ -2028,7 +2047,7 @@ class BSDOSPlotter():
 
         # set up bs and dos plot
         gs = GridSpec(1, 2, width_ratios=[2, 1])
-        fig = mplt.figure(figsize=(11, 8.5))
+        fig = mplt.figure(figsize=self.fig_size)
         fig.patch.set_facecolor('white')
         bs_ax = mplt.subplot(gs[0])
         dos_ax = mplt.subplot(gs[1])
@@ -2401,7 +2420,7 @@ class BoltztrapPlotter(object):
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim[0], xlim[1])
-        plt.ylabel("Seebeck \n coefficient  ($\mu$V/K)", fontsize=30.0)
+        plt.ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
@@ -2430,13 +2449,13 @@ class BoltztrapPlotter(object):
         self._plot_bg_limits()
         self._plot_doping(temp)
         if output == 'eig':
-            plt.legend(['$\sigma_1$', '$\sigma_2$', '$\sigma_3$'])
+            plt.legend(['$\\Sigma_1$', '$\\Sigma_2$', '$\\Sigma_3$'])
         if xlim is None:
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim)
         plt.ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
-        plt.ylabel("conductivity,\n $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
+        plt.ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
@@ -2470,7 +2489,7 @@ class BoltztrapPlotter(object):
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim)
-        plt.ylabel("Power factor, ($\mu$W/(mK$^2$))", fontsize=30.0)
+        plt.ylabel("Power factor, ($\\mu$W/(mK$^2$))", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
@@ -2508,6 +2527,505 @@ class BoltztrapPlotter(object):
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
         return plt
+
+    def plot_seebeck_temp(self, doping='all', output='average'):
+        """
+        Plot the Seebeck coefficient in function of temperature for different 
+        doping levels.
+
+        Args:
+            dopings: the default 'all' plots all the doping levels in the analyzer.
+                     Specify a list of doping levels if you want to plot only some.
+            output: with 'average' you get an average of the three directions
+                    with 'eigs' you get all the three directions.
+        Returns:
+            a matplotlib object
+        """
+
+        import matplotlib.pyplot as plt
+        if output == 'average':
+            sbk = self._bz.get_seebeck(output='average')
+        elif output == 'eigs':
+            sbk = self._bz.get_seebeck(output='eigs')
+            
+        plt.figure(figsize=(22,14))
+        tlist = np.sort(sbk['n'].keys())
+        doping = self._bz.doping['n'] if doping == 'all' else doping
+        for i,dt in enumerate(['n','p']):
+            plt.subplot(121+i)
+            for dop in doping:
+                d = self._bz.doping[dt].index(dop)
+                sbk_temp =[]
+                for temp in tlist:
+                    sbk_temp.append(sbk[dt][temp][d])
+                if output == 'average':
+                    plt.plot(tlist,sbk_temp,marker='s',label=str(dop)+' $cm^{-3}$')
+                elif output == 'eigs':
+                    for xyz in range(3):
+                        plt.plot(tlist,zip(*sbk_temp)[xyz],marker='s',
+                                 label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
+            plt.title(dt+'-type',fontsize=20)
+            if i == 0:
+                plt.ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
+            plt.xlabel('Temperature (K)', fontsize=30.0)
+
+            p = 'lower right' if i == 0 else ''
+            plt.legend(loc=p,fontsize=15)
+            plt.grid()
+            plt.xticks(fontsize=25)
+            plt.yticks(fontsize=25)
+        
+        plt.tight_layout()
+
+        return plt
+
+    def plot_conductivity_temp(self, doping='all', output='average', relaxation_time=1e-14):
+        """
+        Plot the conductivity in function of temperature for different doping levels.
+
+        Args:
+            dopings: the default 'all' plots all the doping levels in the analyzer.
+                     Specify a list of doping levels if you want to plot only some.
+            output: with 'average' you get an average of the three directions
+                    with 'eigs' you get all the three directions.
+            relaxation_time: specify a constant relaxation time value
+        
+        Returns:
+            a matplotlib object
+        """
+        import matplotlib.pyplot as plt
+        import matplotlib.ticker as mtick
+        
+        if output == 'average':
+            cond = self._bz.get_conductivity(relaxation_time=relaxation_time,output='average')
+        elif output == 'eigs':
+            cond = self._bz.get_conductivity(relaxation_time=relaxation_time,output='eigs')
+            
+        plt.figure(figsize=(22,14))
+        tlist = np.sort(cond['n'].keys())
+        doping = self._bz.doping['n'] if doping == 'all' else doping
+        for i,dt in enumerate(['n','p']):
+            plt.subplot(121+i)
+            for dop in doping:
+                d = self._bz.doping[dt].index(dop)
+                cond_temp =[]
+                for temp in tlist:
+                    cond_temp.append(cond[dt][temp][d])
+                if output == 'average':
+                    plt.plot(tlist,cond_temp,marker='s',label=str(dop)+' $cm^{-3}$')
+                elif output == 'eigs':
+                    for xyz in range(3):
+                        plt.plot(tlist,zip(*cond_temp)[xyz],marker='s',
+                                 label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
+            plt.title(dt+'-type',fontsize=20)
+            if i == 0:
+                plt.ylabel("conductivity $\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
+            plt.xlabel('Temperature (K)', fontsize=30.0)
+
+            p = '' # 'lower right' if i == 0 else ''
+            plt.legend(loc=p,fontsize=15)
+            plt.grid()
+            plt.xticks(fontsize=25)
+            plt.yticks(fontsize=25)
+            plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+            
+        plt.tight_layout()
+
+        return plt
+
+    def plot_power_factor_temp(self, doping='all', output='average', relaxation_time=1e-14):
+        """
+        Plot the Power Factor in function of temperature for different doping levels.
+
+        Args:
+            dopings: the default 'all' plots all the doping levels in the analyzer.
+                     Specify a list of doping levels if you want to plot only some.
+            output: with 'average' you get an average of the three directions
+                    with 'eigs' you get all the three directions.
+            relaxation_time: specify a constant relaxation time value
+        
+        Returns:
+            a matplotlib object
+        """
+        
+        import matplotlib.pyplot as plt
+        if output == 'average':
+            pf = self._bz.get_power_factor(relaxation_time=relaxation_time,output='average')
+        elif output == 'eigs':
+            pf = self._bz.get_power_factor(relaxation_time=relaxation_time,output='eigs')
+            
+        plt.figure(figsize=(22,14))
+        tlist = np.sort(pf['n'].keys())
+        doping = self._bz.doping['n'] if doping == 'all' else doping
+        for i,dt in enumerate(['n','p']):
+            plt.subplot(121+i)
+            for dop in doping:
+                d = self._bz.doping[dt].index(dop)
+                pf_temp =[]
+                for temp in tlist:
+                    pf_temp.append(pf[dt][temp][d])
+                if output == 'average':
+                    plt.plot(tlist,pf_temp,marker='s',label=str(dop)+' $cm^{-3}$')
+                elif output == 'eigs':
+                    for xyz in range(3):
+                        plt.plot(tlist,zip(*pf_temp)[xyz],marker='s',
+                                 label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
+            plt.title(dt+'-type',fontsize=20)
+            if i == 0:
+                plt.ylabel("Power Factor ($\\mu$W/(mK$^2$))", fontsize=30.0)
+            plt.xlabel('Temperature (K)', fontsize=30.0)
+
+            p = '' #'lower right' if i == 0 else ''
+            plt.legend(loc=p,fontsize=15)
+            plt.grid()
+            plt.xticks(fontsize=25)
+            plt.yticks(fontsize=25)
+            plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+            
+        plt.tight_layout()
+        return plt
+
+    def plot_zt_temp(self, doping='all', output='average', relaxation_time=1e-14):
+        """
+        Plot the figure of merit zT in function of temperature for different doping levels.
+
+        Args:
+            dopings: the default 'all' plots all the doping levels in the analyzer.
+                     Specify a list of doping levels if you want to plot only some.
+            output: with 'average' you get an average of the three directions
+                    with 'eigs' you get all the three directions.
+            relaxation_time: specify a constant relaxation time value
+        
+        Returns:
+            a matplotlib object
+        """
+        
+        import matplotlib.pyplot as plt
+        if output == 'average':
+            zt = self._bz.get_zt(relaxation_time=relaxation_time,output='average')
+        elif output == 'eigs':
+            zt = self._bz.get_zt(relaxation_time=relaxation_time,output='eigs')
+            
+        plt.figure(figsize=(22,14))
+        tlist = np.sort(zt['n'].keys())
+        doping = self._bz.doping['n'] if doping == 'all' else doping
+        for i,dt in enumerate(['n','p']):
+            plt.subplot(121+i)
+            for dop in doping:
+                d = self._bz.doping[dt].index(dop)
+                zt_temp =[]
+                for temp in tlist:
+                    zt_temp.append(zt[dt][temp][d])
+                if output == 'average':
+                    plt.plot(tlist,zt_temp,marker='s',label=str(dop)+' $cm^{-3}$')
+                elif output == 'eigs':
+                    for xyz in range(3):
+                        plt.plot(tlist,zip(*zt_temp)[xyz],marker='s',
+                                 label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
+            plt.title(dt+'-type',fontsize=20)
+            if i == 0:
+                plt.ylabel("zT", fontsize=30.0)
+            plt.xlabel('Temperature (K)', fontsize=30.0)
+
+            p = '' #'lower right' if i == 0 else ''
+            plt.legend(loc=p,fontsize=15)
+            plt.grid()
+            plt.xticks(fontsize=25)
+            plt.yticks(fontsize=25)
+        
+        plt.tight_layout()
+        return plt
+    
+    def plot_eff_mass_temp(self, doping='all', output='average'):
+        """
+        Plot the average effective mass in function of temperature 
+        for different doping levels.
+
+        Args:
+            dopings: the default 'all' plots all the doping levels in the analyzer.
+                     Specify a list of doping levels if you want to plot only some.
+            output: with 'average' you get an average of the three directions
+                    with 'eigs' you get all the three directions.
+
+        Returns:
+            a matplotlib object
+        """
+        
+        import matplotlib.pyplot as plt
+        if output == 'average':
+            em = self._bz.get_average_eff_mass(output='average')
+        elif output == 'eigs':
+            em = self._bz.get_average_eff_mass(output='eigs')
+            
+        plt.figure(figsize=(22,14))
+        tlist = np.sort(em['n'].keys())
+        doping = self._bz.doping['n'] if doping == 'all' else doping
+        for i,dt in enumerate(['n','p']):
+            plt.subplot(121+i)
+            for dop in doping:
+                d = self._bz.doping[dt].index(dop)
+                em_temp =[]
+                for temp in tlist:
+                    em_temp.append(em[dt][temp][d])
+                if output == 'average':
+                    plt.plot(tlist,em_temp,marker='s',label=str(dop)+' $cm^{-3}$')
+                elif output == 'eigs':
+                    for xyz in range(3):
+                        plt.plot(tlist,zip(*em_temp)[xyz],marker='s',
+                                 label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
+            plt.title(dt+'-type',fontsize=20)
+            if i == 0:
+                plt.ylabel("Effective mass (m$_e$)", fontsize=30.0)
+            plt.xlabel('Temperature (K)', fontsize=30.0)
+
+            p = '' #'lower right' if i == 0 else ''
+            plt.legend(loc=p,fontsize=15)
+            plt.grid()
+            plt.xticks(fontsize=25)
+            plt.yticks(fontsize=25)
+            
+        plt.tight_layout()
+        return plt
+
+    
+    def plot_seebeck_dop(self, temps='all', output='average'):
+        """
+        Plot the Seebeck in function of doping levels for different temperatures.
+
+        Args:
+            temps: the default 'all' plots all the temperatures in the analyzer.
+                   Specify a list of temperatures if you want to plot only some.
+            output: with 'average' you get an average of the three directions
+                    with 'eigs' you get all the three directions.
+
+        Returns:
+            a matplotlib object
+        """        
+
+        import matplotlib.pyplot as plt
+        if output == 'average':
+            sbk = self._bz.get_seebeck(output='average')
+        elif output == 'eigs':
+            sbk = self._bz.get_seebeck(output='eigs')
+        
+        tlist = np.sort(sbk['n'].keys()) if temps=='all' else temps
+        plt.figure(figsize=(22,14))
+        for i,dt in enumerate(['n','p']):
+            plt.subplot(121+i)
+            for temp in tlist:
+                if output == 'eigs':
+                    for xyz in range(3):
+                        plt.semilogx(self._bz.doping[dt],zip(*sbk[dt][temp])[xyz],
+                                     marker='s',label=str(xyz)+' '+str(temp)+' K')
+                elif output == 'average':
+                    plt.semilogx(self._bz.doping[dt],sbk[dt][temp],
+                                 marker='s',label=str(temp)+' K')
+            plt.title(dt+'-type',fontsize=20)
+            if i == 0:
+                plt.ylabel("Seebeck coefficient ($\\mu$V/K)", fontsize=30.0)
+            plt.xlabel('Doping concentration (cm$^{-3}$)', fontsize=30.0)
+
+            p = 'lower right' if i == 0 else ''
+            plt.legend(loc=p,fontsize=15)
+            plt.grid()
+            plt.xticks(fontsize=25)
+            plt.yticks(fontsize=25)
+        
+        plt.tight_layout()
+        
+        return plt
+        
+
+    def plot_conductivity_dop(self, temps='all', output='average', relaxation_time=1e-14):
+        """
+        Plot the conductivity in function of doping levels for different temperatures.
+
+        Args:
+            temps: the default 'all' plots all the temperatures in the analyzer.
+                   Specify a list of temperatures if you want to plot only some.
+            output: with 'average' you get an average of the three directions
+                    with 'eigs' you get all the three directions.
+            relaxation_time: specify a constant relaxation time value
+        
+        Returns:
+            a matplotlib object
+        """        
+        import matplotlib.pyplot as plt
+        if output == 'average':
+            cond = self._bz.get_conductivity(relaxation_time=relaxation_time,output='average')
+        elif output == 'eigs':
+            cond = self._bz.get_conductivity(relaxation_time=relaxation_time,output='eigs')
+        
+        tlist = np.sort(cond['n'].keys()) if temps=='all' else temps
+        plt.figure(figsize=(22,14))
+        for i,dt in enumerate(['n','p']):
+            plt.subplot(121+i)
+            for temp in tlist:
+                if output == 'eigs':
+                    for xyz in range(3):
+                        plt.semilogx(self._bz.doping[dt],zip(*cond[dt][temp])[xyz],
+                                     marker='s',label=str(xyz)+' '+str(temp)+' K')
+                elif output == 'average':
+                    plt.semilogx(self._bz.doping[dt],cond[dt][temp],
+                                 marker='s',label=str(temp)+' K')
+            plt.title(dt+'-type',fontsize=20)
+            if i == 0:
+                plt.ylabel("conductivity $\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
+            plt.xlabel('Doping concentration ($cm^{-3}$)', fontsize=30.0)
+            plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+            plt.legend(fontsize=15)
+            plt.grid()
+            plt.xticks(fontsize=25)
+            plt.yticks(fontsize=25)
+        
+        plt.tight_layout()
+        
+        return plt
+
+    def plot_power_factor_dop(self, temps='all', output='average', relaxation_time=1e-14):
+        """
+        Plot the Power Factor in function of doping levels for different temperatures.
+
+        Args:
+            temps: the default 'all' plots all the temperatures in the analyzer.
+                   Specify a list of temperatures if you want to plot only some.
+            output: with 'average' you get an average of the three directions
+                    with 'eigs' you get all the three directions.
+            relaxation_time: specify a constant relaxation time value
+        
+        Returns:
+            a matplotlib object
+        """        
+        import matplotlib.pyplot as plt
+        if output == 'average':
+            pf = self._bz.get_power_factor(relaxation_time=relaxation_time,output='average')
+        elif output == 'eigs':
+            pf = self._bz.get_power_factor(relaxation_time=relaxation_time,output='eigs')
+        
+        tlist = np.sort(pf['n'].keys()) if temps=='all' else temps
+        plt.figure(figsize=(22,14))
+        for i,dt in enumerate(['n','p']):
+            plt.subplot(121+i)
+            for temp in tlist:
+                if output == 'eigs':
+                    for xyz in range(3):
+                        plt.semilogx(self._bz.doping[dt],zip(*pf[dt][temp])[xyz],
+                                     marker='s',label=str(xyz)+' '+str(temp)+' K')
+                elif output == 'average':
+                    plt.semilogx(self._bz.doping[dt],pf[dt][temp],
+                                 marker='s',label=str(temp)+' K')
+            plt.title(dt+'-type',fontsize=20)
+            if i == 0:
+                plt.ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
+            plt.xlabel('Doping concentration ($cm^{-3}$)', fontsize=30.0)
+            plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+            p = '' #'lower right' if i == 0 else ''
+            plt.legend(loc=p,fontsize=15)
+            plt.grid()
+            plt.xticks(fontsize=25)
+            plt.yticks(fontsize=25)
+        
+        plt.tight_layout()
+        
+        return plt
+
+
+    def plot_zt_dop(self, temps='all', output='average', relaxation_time=1e-14):
+        """
+        Plot the figure of merit zT in function of doping levels for different temperatures.
+
+        Args:
+            temps: the default 'all' plots all the temperatures in the analyzer.
+                   Specify a list of temperatures if you want to plot only some.
+            output: with 'average' you get an average of the three directions
+                    with 'eigs' you get all the three directions.
+            relaxation_time: specify a constant relaxation time value
+        
+        Returns:
+            a matplotlib object
+        """        
+        import matplotlib.pyplot as plt
+        if output == 'average':
+            zt = self._bz.get_zt(relaxation_time=relaxation_time,output='average')
+        elif output == 'eigs':
+            zt = self._bz.get_zt(relaxation_time=relaxation_time,output='eigs')
+        
+        tlist = np.sort(zt['n'].keys()) if temps=='all' else temps
+        plt.figure(figsize=(22,14))
+        for i,dt in enumerate(['n','p']):
+            plt.subplot(121+i)
+            for temp in tlist:
+                if output == 'eigs':
+                    for xyz in range(3):
+                        plt.semilogx(self._bz.doping[dt],zip(*zt[dt][temp])[xyz],
+                                     marker='s',label=str(xyz)+' '+str(temp)+' K')
+                elif output == 'average':
+                    plt.semilogx(self._bz.doping[dt],zt[dt][temp],
+                                 marker='s',label=str(temp)+' K')
+            plt.title(dt+'-type',fontsize=20)
+            if i == 0:
+                plt.ylabel("zT", fontsize=30.0)
+            plt.xlabel('Doping concentration ($cm^{-3}$)', fontsize=30.0)
+
+            p = 'lower right' if i == 0 else ''
+            plt.legend(loc=p,fontsize=15)
+            plt.grid()
+            plt.xticks(fontsize=25)
+            plt.yticks(fontsize=25)
+        
+        plt.tight_layout()
+        
+        return plt
+
+    def plot_eff_mass_dop(self, temps='all', output='average'):
+        """
+        Plot the average effective mass in function of doping levels 
+        for different temperatures.
+
+        Args:
+            temps: the default 'all' plots all the temperatures in the analyzer.
+                   Specify a list of temperatures if you want to plot only some.
+            output: with 'average' you get an average of the three directions
+                    with 'eigs' you get all the three directions.
+            relaxation_time: specify a constant relaxation time value
+        
+        Returns:
+            a matplotlib object
+        """
+        
+        import matplotlib.pyplot as plt
+        if output == 'average':
+            em = self._bz.get_average_eff_mass(output='average')
+        elif output == 'eigs':
+            em = self._bz.get_average_eff_mass(output='eigs')
+        
+        tlist = np.sort(em['n'].keys()) if temps=='all' else temps
+        plt.figure(figsize=(22,14))
+        for i,dt in enumerate(['n','p']):
+            plt.subplot(121+i)
+            for temp in tlist:
+                if output == 'eigs':
+                    for xyz in range(3):
+                        plt.semilogx(self._bz.doping[dt],zip(*em[dt][temp])[xyz],
+                                     marker='s',label=str(xyz)+' '+str(temp)+' K')
+                elif output == 'average':
+                    plt.semilogx(self._bz.doping[dt],em[dt][temp],
+                                 marker='s',label=str(temp)+' K')
+            plt.title(dt+'-type',fontsize=20)
+            if i == 0:
+                plt.ylabel("Effective mass (m$_e$)", fontsize=30.0)
+            plt.xlabel('Doping concentration ($cm^{-3}$)', fontsize=30.0)
+
+            p = 'lower right' if i == 0 else ''
+            plt.legend(loc=p,fontsize=15)
+            plt.grid()
+            plt.xticks(fontsize=25)
+            plt.yticks(fontsize=25)
+        
+        plt.tight_layout()
+        
+        return plt
+
 
     def plot_dos(self, sigma=0.05):
         """
@@ -2924,7 +3442,7 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
 
 @add_fig_kwargs
-def plot_brillouin_zone_from_kpath(kpath, **kwargs):
+def plot_brillouin_zone_from_kpath(kpath, ax=None, **kwargs):
 
     """
     Gives the plot (as a matplotlib object) of the symmetry line path in
@@ -2932,15 +3450,16 @@ def plot_brillouin_zone_from_kpath(kpath, **kwargs):
 
     Args:
         kpath (HighSymmKpath): a HighSymmKPath object
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
         **kwargs: provided by add_fig_kwargs decorator
 
     Returns:
-        a matplotlib figure and matplotlib_ax
+        matplotlib figure
 
     """
     lines = [[kpath.kpath['kpoints'][k] for k in p]
              for p in kpath.kpath['path']]
-    return plot_brillouin_zone(bz_lattice=kpath.prim_rec, lines=lines,
+    return plot_brillouin_zone(bz_lattice=kpath.prim_rec, lines=lines, ax=ax,
                                labels=kpath.kpath['kpoints'], **kwargs)
 
 
@@ -2965,7 +3484,7 @@ def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None,
         kwargs: provided by add_fig_kwargs decorator
 
     Returns:
-        matplotlib figure and matplotlib ax
+        matplotlib figure
     """
 
     fig, ax = plot_lattice_vectors(bz_lattice, ax=ax)
@@ -2997,7 +3516,8 @@ def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None,
     return fig
 
 
-def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None, coords_are_cartesian=False, **kwargs):
+def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None, 
+                   coords_are_cartesian=False, arrows = False, **kwargs):
     """
     Plots a 3D ellipsoid rappresenting the Hessian matrix in input.
     Useful to get a graphical visualization of the effective mass
@@ -3054,5 +3574,14 @@ def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None, coords_a
     # add the ellipsoid to the current axes
     ax, fig, plt = get_ax3d_fig_plt(ax)
     ax.plot_wireframe(x, y, z,  **kwargs)
+    
+    if arrows:
+        color=('b','g','r')
+        em=np.zeros((3,3))
+        for i in range(3):
+            em[i,:] = rotation[i,:]/np.linalg.norm(rotation[i,:])
+        for i in range(3):
+            ax.quiver3D(center[0],center[1],center[2],em[i,0],em[i,1],em[i,2],pivot='tail',
+                        arrow_length_ratio=0.2,length=radii[i]*rescale,color=color[i])
 
     return fig, ax

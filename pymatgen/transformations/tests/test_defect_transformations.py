@@ -82,6 +82,9 @@ class SubstitutionDefectTransformationTest(unittest.TestCase):
             self.assertIn(sc['structure'].composition.formula,
                           ["Li16 O16", "Na1 Li15 O16", "Li16 S1 O15"])
 
+    def test_str_repr(self):
+        s = str(SubstitutionDefectTransformation({"Mg": "Al"}, [1,1,1]))
+
 
 class AntisiteDefectTransformationTest(unittest.TestCase):
 

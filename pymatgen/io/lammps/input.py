@@ -5,7 +5,7 @@
 from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
-This module implements classes for generating Lammps input.
+This module implements classes for reading and generating Lammps input.
 
 For the ease of management we divide LAMMPS input into 2 files:
 
@@ -29,8 +29,8 @@ from monty.json import MSONable, MontyDecoder
 
 from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
 
-__author__ = "Kiran Mathew"
-__email__ = "kmathew@lbl.gov"
+__author__ = "Kiran Mathew, Brandon Wood"
+__email__ = "kmathew@lbl.gov, b.wood@berkeley.edu"
 __credits__ = "Navnidhi Rajput"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -102,11 +102,11 @@ class DictLammpsInput(MSONable):
             print("Data file: {}".format(self.data_filename))
             self.lammps_data.write_data_file(filename=self.data_filename)
 
-    @staticmethod
-    def from_file(name, filename, lammps_data=None, data_filename="in.data",
+    @classmethod
+    def from_file(cls, name, filename, lammps_data=None, data_filename="in.data",
                   user_lammps_settings={}, is_forcefield=False):
         """
-        Read in the input settings from json file as ordereddict.
+        Reads lammps style and JSON style input files putting the settings in an ordered dict (config_dict).
         Note: with monty.serialization.loadfn the order of paramters in the
         json file is not preserved
 
@@ -124,15 +124,31 @@ class DictLammpsInput(MSONable):
         Returns:
             DictLammpsInput
         """
-        with open(filename) as f:
-            config_dict = json.load(f, object_pairs_hook=OrderedDict)
+        try:
+            with open(filename) as f:
+                config_dict = json.load(f, object_pairs_hook=OrderedDict)
+        except ValueError:
+            with open(filename, 'r') as f:
+                data = f.read().splitlines()
+            config_dict = OrderedDict()
+            for line in data:
+                if line and not line.startswith("#"):
+                    spt_line = (line.split(None, 1))
+                    if spt_line[0] in config_dict:
+                        if isinstance(config_dict[spt_line[0]], list):
+                            config_dict[spt_line[0]].append(spt_line[1])
+                        else:
+                            config_dict[spt_line[0]] = [config_dict[spt_line[0]], spt_line[1]]
+                    else:
+                        config_dict[spt_line[0]] = spt_line[1]
+
         lammps_data = lammps_data
         if isinstance(lammps_data, six.string_types):
             if is_forcefield:
                 lammps_data = LammpsForceFieldData.from_file(lammps_data)
             else:
                 lammps_data = LammpsData.from_file(lammps_data)
-        return DictLammpsInput(name, config_dict, lammps_data=lammps_data,
+        return cls(name, config_dict, lammps_data=lammps_data,
                                data_filename=data_filename,
                                user_lammps_settings=user_lammps_settings)
 

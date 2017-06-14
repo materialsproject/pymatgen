@@ -6,10 +6,11 @@ import os
 
 import numpy as np
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.coord_utils import in_coord_list, in_coord_list_pbc
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.analysis.adsorption import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen import Structure, Lattice
+from pymatgen import Structure, Lattice, Molecule
 import json
 from six.moves import zip
 
@@ -67,6 +68,24 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         sites = self.asf_110.find_adsorption_sites()
         self.assertEqual(len(sites['all']), 4)
         sites = self.asf_211.find_adsorption_sites()
+
+    def test_generate_adsorption_structures(self):
+        co = Molecule("CO", [[0, 0, 0], [0, 0, 1.23]])
+        structures = self.asf_111.generate_adsorption_structures(co, repeat=[2, 2, 1])
+        self.assertEqual(len(structures), 4)
+        sites = self.asf_111.find_adsorption_sites()
+        # Check repeat functionality
+        self.assertEqual(len([site for site in structures[0] if 
+                              site.properties['surface_properties'] != 'adsorbate']),
+                         4*len(self.asf_111.slab))
+        for n, structure in enumerate(structures):
+            self.assertArrayAlmostEqual(structure[-2].coords, sites['all'][n])
+        find_args = {"positions":["hollow"]}
+        structures_hollow = self.asf_111.\
+                generate_adsorption_structures(co, find_args=find_args)
+        self.assertEqual(len(structures_hollow), len(sites['hollow']))
+        for n, structure in enumerate(structures_hollow):
+            self.assertTrue(in_coord_list(sites['hollow'], structure[-2].coords))
 
     def test_functions(self):
         slab = self.slab_dict["111"]

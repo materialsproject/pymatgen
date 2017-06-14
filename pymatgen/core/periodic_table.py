@@ -13,7 +13,7 @@ from enum import Enum
 
 from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
-from pymatgen.util.string_utils import formula_double_format
+from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
 
 """
@@ -378,7 +378,7 @@ class Element(Enum):
 
         # Store key variables for quick access
         self.Z = d["Atomic no"]
-        self.X = d.get("X", 0)
+
         at_r = d.get("Atomic radius", "no data")
         if str(at_r).startswith("no data"):
             self.atomic_radius = None
@@ -386,6 +386,17 @@ class Element(Enum):
             self.atomic_radius = Length(at_r, "ang")
         self.atomic_mass = Mass(d["Atomic mass"], "amu")
         self._data = d
+
+    @property
+    def X(self):
+        if "X" in self._data:
+            return self._data["X"]
+        else:
+            warnings.warn("No electronegativity for %s. Setting to infinity. "
+                          "This has no physical meaning, and is mainly done to "
+                          "avoid errors caused by the code expecting a float."
+                          % self.symbol)
+            return float("inf")
 
     def __getattr__(self, item):
         if item in ["mendeleev_no", "electrical_resistivity",

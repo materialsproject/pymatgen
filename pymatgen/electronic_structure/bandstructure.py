@@ -288,7 +288,7 @@ class BandStructure(object):
                                 orb_i][k]
         return result
 
-    def is_metal(self):
+    def is_metal(self, efermi_tol=1e-4):
         """
         Check if the band structure indicates a metal by looking if the fermi
         level crosses a band.
@@ -298,8 +298,8 @@ class BandStructure(object):
         """
         for spin, values in self.bands.items():
             for i in range(self.nb_bands):
-                if np.any(values[i, :] < self.efermi) and \
-                        np.any(values[i, :] > self.efermi):
+                if np.any(values[i, :] - self.efermi < -efermi_tol) and \
+                        np.any(values[i, :] - self.efermi > efermi_tol):
                     return True
         return False
 
@@ -391,7 +391,7 @@ class BandStructure(object):
         index = None
         kpointcbm = None
         for spin, v in self.bands.items():
-            for i, j in zip(*np.where(v > self.efermi)):
+            for i, j in zip(*np.where(v >= self.efermi)):
                 if v[i, j] < max_tmp:
                     max_tmp = float(v[i, j])
                     index = j
@@ -430,7 +430,7 @@ class BandStructure(object):
             A dict {"energy","direct","transition"}:
             "energy": band gap energy
             "direct": A boolean telling if the gap is direct or not
-            "transition": kpoint labels of the transition (e.g., "\Gamma-X")
+            "transition": kpoint labels of the transition (e.g., "\\Gamma-X")
         """
         if self.is_metal():
             return {"energy": 0.0, "direct": False, "transition": None}
@@ -593,7 +593,7 @@ class BandStructure(object):
 class BandStructureSymmLine(BandStructure, MSONable):
     """
     This object stores band structures along selected (symmetry) lines in the
-    Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
+    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
     "branches".
 
     Args:
@@ -705,7 +705,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         Returns:
             A list of dictionaries [{"name","start_index","end_index","index"}]
             indicating all branches in which the k_point is. It takes into
-            account the fact that one kpoint (e.g., \Gamma) can be in several
+            account the fact that one kpoint (e.g., \\Gamma) can be in several
             branches
         """
         to_return = []

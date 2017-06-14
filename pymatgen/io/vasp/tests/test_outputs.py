@@ -40,10 +40,10 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class VasprunTest(unittest.TestCase):
 
+
     def test_bad_vasprun(self):
         self.assertRaises(ET.ParseError,
                           Vasprun, os.path.join(test_dir, "bad_vasprun.xml"))
-
 
         with warnings.catch_warnings(record=True) as w:
             # Cause all warnings to always be triggered.
@@ -280,30 +280,32 @@ class VasprunTest(unittest.TestCase):
             ['PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE'])
 
     def test_get_band_structure(self):
-        filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
-        vasprun = Vasprun(filepath,
-                          parse_projected_eigen=True, parse_potcar_file=False)
-        bs = vasprun.get_band_structure(kpoints_filename=
-                                        os.path.join(test_dir,
-                                                     'KPOINTS_Si_bands'))
-        cbm = bs.get_cbm()
-        vbm = bs.get_vbm()
-        self.assertEqual(cbm['kpoint_index'], [13], "wrong cbm kpoint index")
-        self.assertAlmostEqual(cbm['energy'], 6.2301, "wrong cbm energy")
-        self.assertEqual(cbm['band_index'], {Spin.up: [4], Spin.down: [4]},
-                         "wrong cbm bands")
-        self.assertEqual(vbm['kpoint_index'], [0, 63, 64])
-        self.assertAlmostEqual(vbm['energy'], 5.6158, "wrong vbm energy")
-        self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3],
-                                             Spin.down: [1, 2, 3]},
-                         "wrong vbm bands")
-        self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
-        self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
+            vasprun = Vasprun(filepath,
+                              parse_projected_eigen=True, parse_potcar_file=False)
+            bs = vasprun.get_band_structure(kpoints_filename=
+                                            os.path.join(test_dir,
+                                                         'KPOINTS_Si_bands'))
+            cbm = bs.get_cbm()
+            vbm = bs.get_vbm()
+            self.assertEqual(cbm['kpoint_index'], [13], "wrong cbm kpoint index")
+            self.assertAlmostEqual(cbm['energy'], 6.2301, "wrong cbm energy")
+            self.assertEqual(cbm['band_index'], {Spin.up: [4], Spin.down: [4]},
+                             "wrong cbm bands")
+            self.assertEqual(vbm['kpoint_index'], [0, 63, 64])
+            self.assertAlmostEqual(vbm['energy'], 5.6158, "wrong vbm energy")
+            self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3],
+                                                 Spin.down: [1, 2, 3]},
+                             "wrong vbm bands")
+            self.assertEqual(vbm['kpoint'].label, "\\Gamma", "wrong vbm label")
+            self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
 
-        projected = bs.get_projection_on_elements()
-        self.assertAlmostEqual(projected[Spin.up][0][0]["Si"], 0.4238)
-        projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
-        self.assertAlmostEqual(projected[Spin.up][0][0]["Si"]["s"], 0.4238)
+            projected = bs.get_projection_on_elements()
+            self.assertAlmostEqual(projected[Spin.up][0][0]["Si"], 0.4238)
+            projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
+            self.assertAlmostEqual(projected[Spin.up][0][0]["Si"]["s"], 0.4238)
 
     def test_sc_step_overflow(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')
@@ -382,12 +384,14 @@ class VasprunTest(unittest.TestCase):
                                                {"titel": "PAW_PBE O 08Apr2002", "hash": None}])
 
     def test_parsing_chemical_shift_calculations(self):
-        filepath = os.path.join(test_dir, "nmr", "cs", "basic",
-                                'vasprun.xml.chemical_shift.scstep')
-        vasprun = Vasprun(filepath)
-        nestep = len(vasprun.ionic_steps[-1]['electronic_steps'])
-        self.assertEqual(nestep, 10)
-        self.assertTrue(vasprun.converged)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            filepath = os.path.join(test_dir, "nmr", "cs", "basic",
+                                    'vasprun.xml.chemical_shift.scstep')
+            vasprun = Vasprun(filepath)
+            nestep = len(vasprun.ionic_steps[-1]['electronic_steps'])
+            self.assertEqual(nestep, 10)
+            self.assertTrue(vasprun.converged)
 
 
 class OutcarTest(unittest.TestCase):
@@ -455,6 +459,25 @@ class OutcarTest(unittest.TestCase):
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
 
+    def test_polarization(self):
+        filepath = os.path.join(test_dir, "OUTCAR.BaTiO3.polar")
+        outcar = Outcar(filepath)
+        self.assertEqual(outcar.spin, True)
+        self.assertEqual(outcar.noncollinear, False)
+        self.assertAlmostEqual(outcar.p_ion[0], 0.0)
+        self.assertAlmostEqual(outcar.p_ion[1],0.0)
+        self.assertAlmostEqual(outcar.p_ion[2], -5.56684)
+        self.assertAlmostEqual(outcar.p_sp1[0], 2.00068)
+        self.assertAlmostEqual(outcar.p_sp2[0], -2.00044)
+        self.assertAlmostEqual(outcar.p_elec[0], 0.00024)
+        self.assertAlmostEqual(outcar.p_elec[1], 0.00019)
+        self.assertAlmostEqual(outcar.p_elec[2], 3.61674)
+
+    def test_pseudo_zval(self):
+        filepath = os.path.join(test_dir, "OUTCAR.BaTiO3.polar")
+        outcar = Outcar(filepath)
+        self.assertDictEqual({'Ba': 10.00, 'Ti': 10.00, 'O': 6.00}, outcar.zval_dict)
+
     def test_dielectric(self):
         filepath = os.path.join(test_dir, "OUTCAR.dielectric")
         outcar = Outcar(filepath)
@@ -471,6 +494,18 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 8.96938800)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0], 7.36167000e-01 +1.53800000e-03j)
         self.assertEqual(len(outcar.frequencies), len(outcar.dielectric_tensor_function))
+        np.testing.assert_array_equal( outcar.dielectric_tensor_function[0], outcar.dielectric_tensor_function[0].transpose() )
+
+    def test_freq_dielectric_vasp544(self):
+        filepath = os.path.join(test_dir, "OUTCAR.LOPTICS.vasp544")
+        outcar = Outcar(filepath)
+        outcar.read_freq_dielectric()
+        self.assertAlmostEqual(outcar.frequencies[0], 0)
+        self.assertAlmostEqual(outcar.frequencies[-1], 39.63964)
+        self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 12.769435+0j)
+        self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0], 0.828615+0.016594j)
+        self.assertEqual(len(outcar.frequencies), len(outcar.dielectric_tensor_function))
+        np.testing.assert_array_equal( outcar.dielectric_tensor_function[0], outcar.dielectric_tensor_function[0].transpose())
 
     def test_read_elastic_tensor(self):
         filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")
@@ -564,6 +599,40 @@ class OutcarTest(unittest.TestCase):
                           [-1.9406, 73.7484, 1.0000]):
             self.assertAlmostEqual(x1, x2)
 
+    def test_cs_raw_tensors(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        unsym_tensors = outcar.read_cs_raw_symmetrized_tensors()
+        self.assertEqual(unsym_tensors[0],
+                         [[-145.814605, -4.263425, 0.000301],
+                          [4.263434, -145.812238, -8.7e-05],
+                          [0.000136, -0.000189, -142.794068]])
+        self.assertEqual(unsym_tensors[29],
+                         [[287.789318, -53.799325, 30.900024],
+                          [-53.799571, 225.668117, -17.839598],
+                          [3.801103, -2.195218, 88.896756]])
+
+    def test_cs_g0_contribution(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        g0_contrib = outcar.read_cs_g0_contribution()
+        self.assertEqual(g0_contrib,
+                         [[-8.773535, 9e-06, 1e-06],
+                          [1.7e-05, -8.773536, -0.0792],
+                          [-6e-06, -0.008328, -9.320237]])
+
+    def test_cs_core_contribution(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        core_contrib = outcar.read_cs_core_contribution()
+        self.assertEqual(core_contrib,
+                         {'Mg': -412.8248405,
+                          'C': -200.5098812,
+                          'O': -271.0766979})
+
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr", "efg", "AlPO4", "OUTCAR")
         outcar = Outcar(filename)
@@ -601,7 +670,7 @@ class BSVasprunTest(unittest.TestCase):
         self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3],
                                              Spin.down: [1, 2, 3]},
                          "wrong vbm bands")
-        self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
+        self.assertEqual(vbm['kpoint'].label, "\\Gamma", "wrong vbm label")
         self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
 
 

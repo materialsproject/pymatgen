@@ -192,12 +192,6 @@ class PhaseDiagram(MSONable):
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
     @property
-    @deprecated(message="PhaseDiagram.simplices is deprecated. "
-                "Use PhaseDiagram.simplexes instead")
-    def simplices(self):
-        return [s._coords for s in self.simplexes]
-
-    @property
     def all_entries_hulldata(self):
         data = []
         for entry in self.all_entries:
@@ -282,7 +276,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
     the grand potential, which can be written as the Legendre transform of the
     Gibbs free energy as follows
 
-    Grand potential = G - u\ :sub:`X` N\ :sub:`X`\
+    Grand potential = G - u_X N_X
 
     The algorithm is based on the work in the following papers:
 

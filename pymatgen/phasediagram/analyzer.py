@@ -9,15 +9,6 @@ This module provides classes for analyzing phase diagrams.
 """
 
 from six.moves import zip
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "May 16, 2012"
-
 import numpy as np
 import itertools
 import collections
@@ -26,10 +17,17 @@ from monty.functools import lru_cache
 from monty.dev import deprecated
 
 from pymatgen.core.composition import Composition
-from pymatgen.phasediagram.maker import PhaseDiagram, \
-    GrandPotentialPhaseDiagram, get_facets
+from pymatgen.phasediagram.maker import PhaseDiagram, get_facets
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.util.coord_utils import Simplex
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "May 16, 2012"
 
 
 class PDAnalyzer(object):
@@ -245,6 +243,11 @@ class PDAnalyzer(object):
         c1 = self._pd.pd_coords(comp1)
         c2 = self._pd.pd_coords(comp2)
 
+        # none of the projections work if c1 == c2, so just return *copies*
+        # of the inputs
+        if np.all(c1 == c2):
+            return[comp1.copy(), comp2.copy()]
+
         intersections = [c1, c2]
         for sc in self._pd.simplexes:
             intersections.extend(sc.line_intersection(c1, c2))
@@ -299,45 +302,23 @@ class PDAnalyzer(object):
         if element not in self._pd.elements:
             raise ValueError("get_transition_chempots can only be called with"
                              " elements in the phase diagram.")
-        chempots = self.get_transition_chempots(element)
-        stable_entries = self._pd.stable_entries
         gccomp = Composition({el: amt for el, amt in comp.items()
                               if el != element})
         elref = self._pd.el_refs[element]
         elcomp = Composition(element.symbol)
-        prev_decomp = []
         evolution = []
 
-        def are_same_decomp(decomp1, decomp2):
-            for comp in decomp2:
-                if comp not in decomp1:
-                    return False
-            return True
-
-        for c in chempots:
-            gcpd = GrandPotentialPhaseDiagram(
-                stable_entries, {element: c - 1e-5}, self._pd.elements
-            )
-            analyzer = PDAnalyzer(gcpd)
-            gcdecomp = analyzer.get_decomposition(gccomp)
-            decomp = [gcentry.original_entry.composition
-                      for gcentry, amt in gcdecomp.items()
-                      if amt > comp_tol]
-            decomp_entries = [gcentry.original_entry
-                              for gcentry, amt in gcdecomp.items()
-                              if amt > comp_tol]
-
-            if not are_same_decomp(prev_decomp, decomp):
-                if elcomp not in decomp:
-                    decomp.insert(0, elcomp)
-                rxn = Reaction([comp], decomp)
-                rxn.normalize_to(comp)
-                prev_decomp = decomp
-                amt = -rxn.coeffs[rxn.all_comp.index(elcomp)]
-                evolution.append({'chempot': c,
-                                  'evolution': amt,
-                                  'element_reference': elref,
-                                  'reaction': rxn, 'entries': decomp_entries})
+        for cc in self.get_critical_compositions(elcomp, gccomp)[1:]:
+            decomp_entries = self.get_decomposition(cc).keys()
+            decomp = [k.composition for k in decomp_entries]
+            rxn = Reaction([comp], decomp + [elcomp])
+            rxn.normalize_to(comp)
+            c = self.get_composition_chempots(cc + elcomp * 1e-5)[element]
+            amt = -rxn.coeffs[rxn.all_comp.index(elcomp)]
+            evolution.append({'chempot': c,
+                              'evolution': amt,
+                              'element_reference': elref,
+                              'reaction': rxn, 'entries': decomp_entries})
         return evolution
 
     def get_chempot_range_map(self, elements, referenced=True, joggle=True):

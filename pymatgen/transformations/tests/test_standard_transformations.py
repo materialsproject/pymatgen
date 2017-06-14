@@ -316,7 +316,8 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         l = Lattice.cubic(5)
         s = Structure(l, sp, c)
         test_site = PeriodicSite("Si4+", c[2], l)
-        s = SymmetrizedStructure(s, 'not_real', [0, 1, 1, 2, 2])
+        s = SymmetrizedStructure(s, 'not_real', [0, 1, 1, 2, 2],
+                                 ["a", "b", "b", "c", "c"])
         output = t.apply_transformation(s)
         self.assertTrue(test_site in output.sites)
 

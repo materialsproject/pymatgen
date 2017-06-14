@@ -20,7 +20,6 @@ import numpy as np
 
 from pprint import pprint
 from six.moves import map, StringIO
-from pymatgen.util.io_utils import AtomicFile
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
@@ -32,16 +31,18 @@ from monty.pprint import draw_tree
 from monty.termcolor import cprint, colored, cprint_map, get_terminal_size
 from monty.inspect import find_top_pyfile
 from monty.dev import deprecated
-from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
 from monty.json import MSONable
+from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
 from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.core.units import Memory
+from pymatgen.util.io_utils import AtomicFile
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 from . import wrappers
 from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageCollector, check_spectator
 from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
 from .utils import File, Directory, Editor
 from .abiinspect import yaml_read_irred_perts
-from .works import NodeContainer, Work, BandStructureWork, PhononWork, BecWork, G0W0Work, QptdmWork
+from .works import NodeContainer, Work, BandStructureWork, PhononWork, BecWork, G0W0Work, QptdmWork, DteWork
 from .events import EventsParser # autodoc_event_handlers
 
 
@@ -684,20 +685,6 @@ class Flow(Node, NodeContainer, MSONable):
                             yield task, wi, ti
                         else:
                             yield task
-
-    @deprecated(message="show_inpvars will be removed in pymatgen 4.0. Use show_inputs")
-    def show_inpvars(self, *varnames):
-        from abipy.htc.variable import InputVariable
-        lines = []
-        app = lines.append
-
-        for task in self.iflat_tasks():
-            app(str(task))
-            for name in varnames:
-                value = task.input.get(name)
-                app(str(InputVariable(name, value)))
-
-        return "\n".join(lines)
 
     def abivalidate_inputs(self):
         """
@@ -1574,7 +1561,6 @@ class Flow(Node, NodeContainer, MSONable):
         Build dirs and file of the `Flow` and save the object in pickle format.
         Returns 0 if success
 
-
         Args:
             abivalidate: If True, all the input files are validate by calling
                 the abinit parser. If the validation fails, ValueError is raise.
@@ -1854,11 +1840,11 @@ class Flow(Node, NodeContainer, MSONable):
         Return 0 if success
         """
         if self.finalized:
-            self.history.warning("Calling finalize on an alrady finalized flow.")
+            self.history.warning("Calling finalize on an already finalized flow.")
             return 1
 
-        self.history.warning("Calling flow.finalize.")
-        self.finalized = False
+        self.history.info("Calling flow.finalize.")
+        self.finalized = True
 
         if self.has_db:
             self.history.info("Saving results in database.")
@@ -2148,11 +2134,20 @@ class Flow(Node, NodeContainer, MSONable):
     #    if check_status: self.check_status()
     #    return abirobot(flow=self, ext=ext, nids=nids):
 
-    def plot_networkx(self, mode="network", with_edge_labels=False,
+    @add_fig_kwargs
+    def plot_networkx(self, mode="network", with_edge_labels=False, ax=None,
                       node_size="num_cores", node_label="name_class", layout_type="spring", **kwargs):
         """
         Use networkx to draw the flow with the connections among the nodes and
         the status of the tasks.
+
+        Args:
+            mode: `networkx` to show connections, `status` to group tasks by status.
+            with_edge_labels: True to draw edge labels.
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            node_size: By default, the size of the node is proportional to the number of cores used.
+            node_label: By default, the task class is used to label node.
+            layout_type: Get positions for all nodes using `layout_type`. e.g. pos = nx.spring_layout(g)
 
         .. warning::
 
@@ -2185,18 +2180,18 @@ class Flow(Node, NodeContainer, MSONable):
 
         labels = {task: make_node_label(task) for task in g.nodes()}
 
-        import matplotlib.pyplot as plt
+        ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         # Select plot type.
         if mode == "network":
             nx.draw_networkx(g, pos, labels=labels,
                              node_color=[task.color_rgb for task in g.nodes()],
                              node_size=[make_node_size(task) for task in g.nodes()],
-                             width=1, style="dotted", with_labels=True)
+                             width=1, style="dotted", with_labels=True, ax=ax)
 
             # Draw edge labels
             if with_edge_labels:
-                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels)
+                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, ax=ax)
 
         elif mode == "status":
             # Group tasks by status.
@@ -2212,27 +2207,27 @@ class Flow(Node, NodeContainer, MSONable):
                                        nodelist=tasks,
                                        node_color=node_color,
                                        node_size=[make_node_size(task) for task in tasks],
-                                       alpha=0.5,
+                                       alpha=0.5, ax=ax
                                        #label=str(status),
                                        )
 
             # Draw edges.
-            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=True) # edge_color='r')
+            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=True, ax=ax) # edge_color='r')
 
             # Draw labels
-            nx.draw_networkx_labels(g, pos, labels, font_size=12)
+            nx.draw_networkx_labels(g, pos, labels, font_size=12, ax=ax)
 
             # Draw edge labels
             if with_edge_labels:
-                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels)
+                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, ax=ax)
                 #label_pos=0.5, font_size=10, font_color='k', font_family='sans-serif', font_weight='normal',
                 # alpha=1.0, bbox=None, ax=None, rotate=True, **kwds)
 
         else:
-            raise ValueError("Unknown value for mode: %s" % mode)
+            raise ValueError("Unknown value for mode: %s" % str(mode))
 
-        plt.axis('off')
-        plt.show()
+        ax.axis("off")
+        return fig
 
 
 class G0W0WithQptdmFlow(Flow):
@@ -2485,9 +2480,84 @@ class PhononFlow(Flow):
             if np.allclose(qpt, 0) and with_becs:
                 ph_work = BecWork.from_scf_task(scf_task)
             else:
-                ph_work = PhononWork.from_scf_task(scf_task, qpt=qpt)
+                ph_work = PhononWork.from_scf_task(scf_task, qpoints=qpt)
 
             flow.register_work(ph_work)
+
+        if allocate: flow.allocate()
+
+        return flow
+
+    def open_final_ddb(self):
+        """
+        Open the DDB file located in the output directory of the flow.
+
+        Return:
+            :class:`DdbFile` object, None if file could not be found or file is not readable.
+        """
+        ddb_path = self.outdir.has_abiext("DDB")
+        if not ddb_path:
+            if self.status == self.S_OK:
+                logger.critical("%s reached S_OK but didn't produce a GSR file in %s" % (self, self.outdir))
+            return None
+
+        from abipy.dfpt.ddb import DdbFile
+        try:
+            return DdbFile(ddb_path)
+        except Exception as exc:
+            logger.critical("Exception while reading DDB file at %s:\n%s" % (ddb_path, str(exc)))
+            return None
+
+    def finalize(self):
+        """This method is called when the flow is completed."""
+        # Merge all the out_DDB files found in work.outdir.
+        ddb_files = list(filter(None, [work.outdir.has_abiext("DDB") for work in self]))
+
+        # Final DDB file will be produced in the outdir of the work.
+        out_ddb = self.outdir.path_in("out_DDB")
+        desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
+
+        mrgddb = wrappers.Mrgddb(manager=self.manager, verbose=0)
+        mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
+        print("Final DDB file available at %s" % out_ddb)
+
+        # Call the method of the super class.
+        retcode = super(PhononFlow, self).finalize()
+        #print("retcode", retcode)
+        #if retcode != 0: return retcode
+        return retcode
+
+
+class NonLinearCoeffFlow(Flow):
+    """
+    1) One workflow for the GS run.
+
+    2) nqpt works for electric field calculations. Each work contains
+       nirred tasks where nirred is the number of irreducible perturbations
+       for that particular q-point.
+    """
+    @classmethod
+    def from_scf_input(cls, workdir, scf_input, manager=None, allocate=True):
+        """
+        Create a `NonlinearFlow` for second order susceptibility calculations from an `AbinitInput` defining a ground-state run.
+
+        Args:
+            workdir: Working directory of the flow.
+            scf_input: :class:`AbinitInput` object with the parameters for the GS-SCF run.
+            manager: :class:`TaskManager` object. Read from `manager.yml` if None.
+            allocate: True if the flow should be allocated before returning.
+
+        Return:
+            :class:`NonlinearFlow` object.
+        """
+        flow = cls(workdir, manager=manager)
+
+        flow.register_scf_task(scf_input)
+        scf_task = flow[0][0]
+
+        nl_work = DteWork.from_scf_task(scf_task)
+
+        flow.register_work(nl_work)
 
         if allocate: flow.allocate()
 
@@ -2528,10 +2598,13 @@ class PhononFlow(Flow):
         print("Final DDB file available at %s" % out_ddb)
 
         # Call the method of the super class.
-        retcode = super(PhononFlow, self).finalize()
+        retcode = super(NonLinearCoeffFlow, self).finalize()
         print("retcode", retcode)
         #if retcode != 0: return retcode
         return retcode
+
+# Alias for compatibility reasons. For the time being, DO NOT REMOVE
+nonlinear_coeff_flow = NonLinearCoeffFlow
 
 
 def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False,
@@ -2702,7 +2775,7 @@ def phonon_conv_flow(workdir, scf_input, qpoints, params, manager=None, allocate
             work = flow.register_scf_task(gs_inp)
 
             # Add the PhononWork connected to this scf_task.
-            flow.register_work(PhononWork.from_scf_task(work[0], qpt=qpt))
+            flow.register_work(PhononWork.from_scf_task(work[0], qpoints=qpt))
 
     if allocate: flow.allocate()
     return flow

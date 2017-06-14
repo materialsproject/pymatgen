@@ -101,7 +101,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_spacegroup has been renamed "
                         "get_space_group_operations. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_space_group(self):
         """
         Get the SpacegroupOperations for the Structure.
@@ -113,7 +113,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_spacegroup_symbol has been renamed "
                         "get_space_group_symbol. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_space_group_symbol(self):
         """
         Get the spacegroup symbol (e.g., Pnma) for structure.
@@ -125,7 +125,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_spacegroup_number has been renamed "
                         "get_space_group_number. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_space_group_number(self):
         """
         Get the international spacegroup number (e.g., 62) for structure.
@@ -175,7 +175,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_point_group has been renamed "
                         "get_point_group_symbol. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_point_group(self):
         return self.get_point_group_symbol()
 
@@ -267,13 +267,18 @@ class SpacegroupAnalyzer(object):
         """
         d = spglib.get_symmetry(self._cell, symprec=self._symprec,
                                 angle_tolerance=self._angle_tol)
-        # Sometimes spglib returns small translation vectors, e.g. [1e-4, 2e-4, 1e-4]
-        # (these are in fractional coordinates, so should be small denominator fractions)
+        # Sometimes spglib returns small translation vectors, e.g.
+        # [1e-4, 2e-4, 1e-4]
+        # (these are in fractional coordinates, so should be small denominator
+        # fractions)
         trans = []
         for t in d["translations"]:
-            trans.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
+            trans.append([float(Fraction.from_float(c).limit_denominator(1000))
+                          for c in t])
         trans = np.array(trans)
-        trans[np.abs(trans) == 1] = 0  # fractional translations of 1 are more simply 0
+
+        # fractional translations of 1 are more simply 0
+        trans[np.abs(trans) == 1] = 0
         return d["rotations"], trans
 
     def get_symmetry_operations(self, cartesian=False):
@@ -334,7 +339,8 @@ class SpacegroupAnalyzer(object):
                                   self.get_space_group_number(),
                                   self.get_symmetry_operations())
         return SymmetrizedStructure(self._structure, sg,
-                                    ds["equivalent_atoms"])
+                                    ds["equivalent_atoms"],
+                                    ds["wyckoffs"])
 
     def get_refined_structure(self):
         """
@@ -551,8 +557,7 @@ class SpacegroupAnalyzer(object):
             transf = np.eye(3, 3)
 
         elif latt_type == "monoclinic":
-            #you want to keep the c axis where it is
-            #to keep the C- settings
+            # You want to keep the c axis where it is to keep the C- settings
 
             if self.get_space_group_operations().int_symbol.startswith("C"):
                 transf = np.zeros(shape=(3, 3))
@@ -849,13 +854,13 @@ class PointGroupAnalyzer(object):
         else:
             inertia_tensor = np.zeros((3, 3))
             total_inertia = 0
-            for site in self.mol:
+            for site in self.centered_mol:
                 c = site.coords
                 wt = site.species_and_occu.weight
                 for i in range(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2
                                                   + c[(i + 2) % 3] ** 2)
-                for i, j in itertools.combinations(list(range(3)), 2):
+                for i, j in [(0, 1), (1, 2), (0, 2)]:
                     inertia_tensor[i, j] += -wt * c[i] * c[j]
                     inertia_tensor[j, i] += -wt * c[j] * c[i]
                 total_inertia += wt * np.dot(c, c)
@@ -876,7 +881,6 @@ class PointGroupAnalyzer(object):
 
             self.rot_sym = []
             self.symmops = [SymmOp(np.eye(4))]
-
             if eig_zero:
                 logger.debug("Linear molecule detected")
                 self._proc_linear()
@@ -926,9 +930,10 @@ class PointGroupAnalyzer(object):
             ind = 0
         else:
             ind = 1
-
+        logger.debug("Eigenvalues = %s." % self.eigvals)
         unique_axis = self.principal_axes[ind]
         self._check_rot_sym(unique_axis)
+        logger.debug("Rotation symmetries = %s" % self.rot_sym)
         if len(self.rot_sym) > 0:
             self._check_perpendicular_r2_axis(unique_axis)
 
@@ -1126,7 +1131,7 @@ class PointGroupAnalyzer(object):
 
     def _find_spherical_axes(self):
         """
-        Looks for R5, R4, R3 and R2 axes in speherical top molecules.  Point
+        Looks for R5, R4, R3 and R2 axes in spherical top molecules.  Point
         group T molecules have only one unique 3-fold and one unique 2-fold
         axis. O molecules have one unique 4, 3 and 2-fold axes. I molecules
         have a unique 5-fold axis.
@@ -1184,9 +1189,7 @@ class PointGroupAnalyzer(object):
         for site in self.centered_mol:
             coord = symmop.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
-            if not (len(ind) == 1 and
-                            self.centered_mol[ind[0]].species_and_occu
-                            == site.species_and_occu):
+            if not (len(ind) == 1 and self.centered_mol[ind[0]].species_and_occu == site.species_and_occu):
                 return False
         return True
 
@@ -1297,16 +1300,15 @@ class SpacegroupOperations(list):
                 if test_site.is_periodic_image(site, symm_prec, False):
                     return True
             return False
+
         for op in self:
             newsites2 = [PeriodicSite(site.species_and_occu,
                                       op.operate(site.frac_coords),
                                       site.lattice) for site in sites2]
-            ismapping = True
             for site in newsites2:
                 if not in_sites(site):
-                    ismapping = False
                     break
-            if ismapping:
+            else:
                 return True
         return False
 
@@ -1341,20 +1343,4 @@ class PointGroupOperations(list):
 
     def __repr__(self):
         return self.__str__()
-
-
-if __name__ == "__main__":
-    from pymatgen.io.vasp import Vasprun
-    v = Vasprun("../../test_files/vasprun.xml")
-    a = SpacegroupAnalyzer(v.final_structure)
-    print(v.actual_kpoints)
-    import spglib
-
-    shift = (1, 1, 1)
-    mapping, grid = spglib.get_ir_reciprocal_mesh(
-        np.array([1, 1, 3]), a._cell, is_shift=shift)
-    mapping = list(mapping)
-    grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / [1, 1, 3]
-    print(grid)
-    wts = a.get_kpoint_weights(v.actual_kpoints)
 

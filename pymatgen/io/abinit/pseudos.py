@@ -29,7 +29,7 @@ from pymatgen.analysis.eos import EOS
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.serializers.json_coders import pmg_serialize
-from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
 logger = logging.getLogger(__name__)
 
@@ -1426,7 +1426,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         ax.grid(True)
         ax.set_xlabel("r [Bohr]")
-        ax.set_ylabel("$r\phi,\\, r\\tilde\phi\, [Bohr]^{-\\frac{1}{2}}$")
+        ax.set_ylabel("$r\\phi,\\, r\\tilde\\phi\\, [Bohr]^{-\\frac{1}{2}}$")
 
         ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
         #ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
@@ -1455,7 +1455,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         title = kwargs.pop("title", "Projectors")
         ax.grid(True)
         ax.set_xlabel('r [Bohr]')
-        ax.set_ylabel("$r\\tilde p\, [Bohr]^{-\\frac{1}{2}}$")
+        ax.set_ylabel("$r\\tilde p\\, [Bohr]^{-\\frac{1}{2}}$")
 
         ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
         #ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))

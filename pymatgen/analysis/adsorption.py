@@ -29,7 +29,6 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
 from pymatgen.core.surface import generate_all_slabs
 
-from matplotlib import pyplot as plt
 from matplotlib import patches
 from matplotlib.path import Path
 
@@ -423,8 +422,8 @@ class AdsorbateSiteFinder(object):
         new_sp['selective_dynamics'] = sd_list
         return slab.copy(site_properties = new_sp)
 
-    def generate_adsorption_structures(self, molecule, repeat = None, 
-                                       min_lw = 5.0, reorient = True):
+    def generate_adsorption_structures(self, molecule, repeat=None, min_lw=5.0,
+                                       reorient = True, find_args={}):
         """
         Function that generates all adsorption structures for a given
         molecular adsorbate.  Can take repeat argument or minimum
@@ -435,13 +434,17 @@ class AdsorbateSiteFinder(object):
             repeat (3-tuple or list): repeat argument for supercell generation
             min_lw (float): minimum length and width of the slab, only used
                 if repeat is None
+            reorient (bool): flag on whether or not to reorient adsorbate
+                along the miller index
+            find_args (dict): dictionary of arguments to be passed to the
+                call to self.find_adsorption_sites, e.g. {"distance":2.0}
         """
         if repeat is None:
             xrep = np.ceil(min_lw / np.linalg.norm(self.slab.lattice.matrix[0]))
             yrep = np.ceil(min_lw / np.linalg.norm(self.slab.lattice.matrix[1]))
             repeat = [xrep, yrep, 1]
         structs = []
-        for coords in self.find_adsorption_sites():
+        for coords in self.find_adsorption_sites(**find_args)['all']:
             structs.append(self.add_adsorbate(
                 molecule, coords, repeat=repeat, reorient=reorient))
         return structs
@@ -505,7 +508,7 @@ colors = loadfn(os.path.join(os.path.dirname(vis.__file__),
 color_dict = {el:[j / 256.001 for j in colors["Jmol"][el]] 
               for el in colors["Jmol"].keys()}
 
-def plot_slab(slab, ax=None, scale=0.8, repeat=5, window=1.5,
+def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
               draw_unit_cell=True, decay = 0.2, adsorption_sites=True):
     """
     Function that helps visualize the slab in a 2-D plot, for
@@ -521,9 +524,6 @@ def plot_slab(slab, ax=None, scale=0.8, repeat=5, window=1.5,
         draw_unit_cell (bool): flag indicating whether or not to draw cell
         decay (float): how the alpha-value decays along the z-axis
     """
-    if not ax:
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
     orig_slab = slab.copy()
     slab = reorient_z(slab)
     orig_cell = slab.lattice.matrix.copy()
@@ -570,7 +570,9 @@ def plot_slab(slab, ax=None, scale=0.8, repeat=5, window=1.5,
     ax.set_aspect("equal")
     center = corner + lattsum / 2.
     extent = np.max(lattsum)
-    lim = zip(center-extent*window, center+extent*window)
-    ax.set_xlim(lim[0])
-    ax.set_ylim(lim[1])
+    lim_array = [center-extent*window, center+extent*window]
+    x_lim = [ele[0] for ele in lim_array]
+    y_lim = [ele[1] for ele in lim_array]
+    ax.set_xlim(x_lim)
+    ax.set_ylim(y_lim)
     return ax

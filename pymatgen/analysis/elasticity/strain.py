@@ -12,10 +12,10 @@ generating deformed structure sets for further calculations.
 """
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.elasticity.tensors import SquareTensor, voigt_map
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.elasticity.tensors import SquareTensor, symmetry_reduce
 import numpy as np
 from six.moves import zip
+import collections
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -43,21 +43,21 @@ class Deformation(SquareTensor):
                 representing the deformation gradient
         """
         obj = super(Deformation, cls).__new__(cls, deformation_gradient)
-
         return obj.view(cls)
 
-    def check_independent(self):
+    def is_independent(self, tol=1e-8):
         """
-        checks to determine whether the deformation matrix represents an
-        independent deformation, raises a ValueError if not.  If so, returns
-        the indices of the deformation gradient entry representing the
-        independent component
+        checks to determine whether the deformation is independent
         """
-        indices = list(zip(*np.asarray(self - np.eye(3)).nonzero()))
-        if len(indices) != 1:
-            raise ValueError("One and only one independent deformation"
-                             "must be applied.")
-        return indices[0]
+        return len(self.get_perturbed_indices(tol)) == 1
+    
+    def get_perturbed_indices(self, tol=1e-8):
+        """
+        Gets indices of perturbed elements of the deformation gradient,
+        i. e. those that differ from the identity
+        """
+        indices = list(zip(*np.where(abs(self - np.eye(3)) > tol)))
+        return indices
 
     @property
     def green_lagrange_strain(self):
@@ -97,7 +97,7 @@ class Deformation(SquareTensor):
         return cls(f)
 
 
-class DeformedStructureSet(object):
+class DeformedStructureSet(collections.Sequence):
     """
     class that generates a set of independently deformed structures that
     can be used to calculate linear stress-strain response
@@ -115,9 +115,9 @@ class DeformedStructureSet(object):
                 optimized structure
             nd (float): maximum perturbation applied to normal deformation
             ns (float): maximum perturbation applied to shear deformation
-            m (int): number of deformation structures to generate for
+            num_norm (int): number of deformation structures to generate for
                 normal deformation, must be even
-            n (int): number of deformation structures to generate for
+            num_shear (int): number of deformation structures to generate for
                 shear deformation, must be even
         """
 
@@ -150,39 +150,19 @@ class DeformedStructureSet(object):
 
         # Perform symmetry reduction if specified
         if symmetry:
-            sga = SpacegroupAnalyzer(self.undeformed_structure, symprec=0.1)
-            symm_ops = sga.get_symmetry_operations(cartesian=True)
-            self.deformations = symm_reduce(symm_ops, self.deformations)
-
+            self.sym_dict = symmetry_reduce(self.deformations, self.undeformed_structure)
+            self.deformations = list(self.sym_dict.keys())
         self.def_structs = [defo.apply_to_structure(rlxd_str)
                             for defo in self.deformations]
 
-    def symm_reduce(self, symm_ops, deformation_list, tolerance=1e-2):
-        """
-        Checks list of deformation gradient tensors for symmetrical
-        equivalents and returns a new list with reduntant ones removed
-
-        Args:
-            symm_ops (list of SymmOps): list of SymmOps objects with which
-                to check the list of deformation tensors for duplicates
-            deformation_list (list of Deformations): list of deformation
-                gradient objects to check for duplicates
-            tolerance (float): tolerance for assigning equal defo. gradients
-        """
-        unique_defos = []
-        for defo in deformation_list:
-            in_unique = False
-            for op in symm_ops:
-                if np.any([(np.abs(defo - defo.transform(symm_op)) < tol).all()
-                           for unique_defo in unique_defos]):
-                    in_unique = True
-                    break
-            if not in_unique:
-                unique_defos += [defo]
-        return unique_defos
-
     def __iter__(self):
         return iter(self.def_structs)
+    
+    def __len__(self):
+        return len(self.def_structs)
+
+    def __getitem__(self, ind):
+        return self.def_structs[ind]
 
     def as_strain_dict(self):
         """
@@ -262,17 +242,7 @@ class Strain(SquareTensor):
         """
         eps = self - 1/3*np.trace(self)*np.identity(3)
 
-        return np.sqrt(np.dot(eps.voigt,eps.voigt)*2/3)
-
-    @property
-    def independent_deformation(self):
-        """
-        determines whether the deformation matrix represents an
-        independent deformation, raises a value error if not.
-        Returns the index of the deformation gradient corresponding
-        to the independent deformation
-        """
-        return self._dfm.check_independent()
+        return np.sqrt(np.dot(eps.voigt, eps.voigt)*2/3)
 
 
 class IndependentStrain(Strain):
@@ -283,7 +253,7 @@ class IndependentStrain(Strain):
     emulate the legacy behavior.
     """
 
-    def __new__(cls, deformation_gradient):
+    def __new__(cls, deformation_gradient, tol=1e-8):
         """
         Create an Independent Strain object.  Note that the constructor uses
         __new__ rather than __init__ according to the standard method of
@@ -296,27 +266,37 @@ class IndependentStrain(Strain):
             deformation_gradient (3x3 array-like): the 3x3 array-like
                 representing the deformation gradient
         """
-
-        obj=Strain.from_deformation(deformation_gradient).view(cls)
-        (obj._i, obj._j)=obj.independent_deformation
+        deformation_gradient = Deformation(deformation_gradient)
+        if not deformation_gradient.is_independent(tol):
+            raise ValueError("IndependentStrain must be constructed from "
+                             "an independent deformation gradient")
+        obj = Strain.from_deformation(deformation_gradient).view(cls)
+        (obj._i, obj._j) = obj._dfm.get_perturbed_indices(tol=tol)[0]
         return obj
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
-        self._dfm=getattr(obj, "_dfm", None)
-        self._i=getattr(obj, "_i", None)
-        self._j=getattr(obj, "_j", None)
+        self._dfm = getattr(obj, "_dfm", None)
+        self._i = getattr(obj, "_i", None)
+        self._j = getattr(obj, "_j", None)
 
     @property
-    def i(self):
-        return self._i
+    def ij(self):
+        """
+        Convenience method to return independent indices
+        """
+        return self._i, self._j
 
-    @property
-    def j(self):
-        return self._j
 
 def convert_strain_to_deformation(strain):
+    """
+    This function converts a strain to a deformation gradient that will
+    produce that strain
+    
+    Args:
+        strain (3x3 array-like): strain matrix
+    """
     strain = SquareTensor(strain)
     ftdotf = 2*strain + np.eye(3)
     eigs, eigvecs = np.linalg.eigh(ftdotf)

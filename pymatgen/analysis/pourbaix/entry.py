@@ -4,6 +4,19 @@
 
 from __future__ import division, unicode_literals
 
+import re
+import math
+import csv
+
+from six.moves import zip
+from monty.string import unicode2str
+
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Composition
+from monty.json import MSONable
+from pymatgen.core.ion import Ion
+from pymatgen.phasediagram.entries import PDEntry
+
 """
 Module which defines basic entries for each ion and oxide to compute a
 Pourbaix diagram
@@ -18,18 +31,6 @@ __email__ = "sjayaram@mit.edu"
 __status__ = "Development"
 __date__ = "December 10, 2012"
 
-import re
-import math
-import csv
-
-from six.moves import map, zip
-from monty.string import unicode2str
-
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Composition
-from monty.json import MSONable
-from pymatgen.core.ion import Ion
-from pymatgen.phasediagram.entries import PDEntry
 
 PREFAC = 0.0591
 

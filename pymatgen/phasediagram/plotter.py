@@ -23,8 +23,8 @@ import numpy as np
 import itertools
 
 from pymatgen.phasediagram.analyzer import PDAnalyzer
-from pymatgen.util.string_utils import latexify
-from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.string import latexify
+from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.coord_utils import in_coord_list
 
 
@@ -125,8 +125,8 @@ class PDPlotter(object):
         Draws the phase diagram using Matplotlib and show it.
 
         Args:
-            \*args: Passed to get_plot.
-            \*\*kwargs: Passed to get_plot.
+            \\*args: Passed to get_plot.
+            \\*\\*kwargs: Passed to get_plot.
         """
         self.get_plot(*args, **kwargs).show()
 
@@ -140,7 +140,7 @@ class PDPlotter(object):
         machines have matplotlib installed, I have done it this way.
         """
 
-        plt = get_publication_quality_plot(8, 6)
+        plt = pretty_plot(8, 6)
         from matplotlib.font_manager import FontProperties
         if ordering is None:
             (lines, labels, unstable) = self.pd_plot_data
@@ -400,7 +400,7 @@ class PDPlotter(object):
             A matplotlib plot object.
         """
 
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         analyzer = PDAnalyzer(self._pd)
         chempot_ranges = analyzer.get_chempot_range_map(
             elements, referenced=referenced)
@@ -481,9 +481,9 @@ class PDPlotter(object):
                          horizontalalignment="center",
                          verticalalignment="center", fontsize=22)
 
-        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)"
+        plt.xlabel("$\\mu_{{{0}}} - \\mu_{{{0}}}^0$ (eV)"
                    .format(el0.symbol))
-        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)"
+        plt.ylabel("$\\mu_{{{0}}} - \\mu_{{{0}}}^0$ (eV)"
                    .format(el1.symbol))
         plt.tight_layout()
         return plt

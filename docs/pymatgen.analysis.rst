@@ -11,6 +11,7 @@ Subpackages
     pymatgen.analysis.defects
     pymatgen.analysis.diffraction
     pymatgen.analysis.elasticity
+    pymatgen.analysis.ferroelectricity
     pymatgen.analysis.hhi
     pymatgen.analysis.pourbaix
 
@@ -30,6 +31,7 @@ Submodules
    pymatgen.analysis.nmr
    pymatgen.analysis.path_finder
    pymatgen.analysis.piezo
+   pymatgen.analysis.quasiharmonic
    pymatgen.analysis.reaction_calculator
    pymatgen.analysis.structure_analyzer
    pymatgen.analysis.structure_matcher

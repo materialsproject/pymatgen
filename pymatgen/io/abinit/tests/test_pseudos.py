@@ -48,6 +48,8 @@ class PseudoTestCase(PymatgenTest):
         """Test norm-conserving pseudopotentials"""
         for symbol, pseudos in self.nc_pseudos.items():
             for pseudo in pseudos:
+                assert repr(pseudo)
+                assert str(pseudo)
                 self.assertTrue(pseudo.isnc)
                 self.assertFalse(pseudo.ispaw)
                 self.assertEqual(pseudo.Z, 14)
@@ -87,6 +89,8 @@ class PseudoTestCase(PymatgenTest):
 
         # Test PseudoTable.
         table = PseudoTable(self.nc_pseudos["Si"])
+        assert repr(table)
+        assert str(table)
         self.assertTrue(table.allnc)
         self.assertTrue(not table.allpaw)
         self.assertFalse(not table.is_complete)
@@ -101,6 +105,9 @@ class PseudoTestCase(PymatgenTest):
     def test_pawxml_pseudos(self):
         """Test O.GGA_PBE-JTH-paw.xml."""
         oxygen = Pseudo.from_file(ref_file("O.GGA_PBE-JTH-paw.xml"))
+        assert repr(oxygen)
+        assert str(oxygen)
+        assert isinstance(oxygen.as_dict(), dict)
 
         self.assertTrue(oxygen.ispaw)
         self.assertTrue(oxygen.symbol == "O" and
@@ -132,6 +139,9 @@ class PseudoTestCase(PymatgenTest):
         Test the ONCVPSP Ge pseudo (scalar relativistic version).
         """
         ger = Pseudo.from_file(ref_file("ge.oncvpsp"))
+        assert repr(ger)
+        assert str(ger)
+        assert isinstance(ger.as_dict(), dict)
         ger.as_tmpfile()
 
         self.assertTrue(ger.symbol == "Ge")
@@ -153,6 +163,8 @@ class PseudoTestCase(PymatgenTest):
         Test the ONCVPSP Pb pseudo (relativistic version with SO).
         """
         pb = Pseudo.from_file(ref_file("Pb-d-3_r.psp8"))
+        repr(pb)
+        str(pb)
 
         # Data persistence
         self.serialize_with_pickle(pb, test_eq=False)
@@ -173,6 +185,7 @@ class PseudoTableTest(PymatgenTest):
     def test_methods(self):
         """Test PseudoTable methods"""
         table = PseudoTable(ref_files("14si.pspnc",  "14si.4.hgh", "14-Si.LDA.fhi"))
+        assert str(table)
         assert len(table) == 3
         for pseudo in table:
             assert pseudo.isnc
