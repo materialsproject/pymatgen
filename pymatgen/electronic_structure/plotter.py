@@ -1396,7 +1396,7 @@ class BSPlotterProjected(BSPlotter):
                                  + e_max)
                     else:
                         plt.ylim(ylim)
-                    plt.title(elt + "_" + numa + "_" + str(o))
+                    plt.title(elt + " " + numa + " " + str(o))
 
         return plt
 
