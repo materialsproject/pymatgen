@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import os
 import warnings
-import yaml
+import ruamel.yaml as yaml
 
 __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
@@ -17,7 +17,7 @@ SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 def _load_pmg_settings():
     try:
         with open(SETTINGS_FILE, "rt") as f:
-            d = yaml.load(f)
+            d = yaml.safe_load(f)
     except IOError:
         # If there are any errors, default to using environment variables
         # if present.

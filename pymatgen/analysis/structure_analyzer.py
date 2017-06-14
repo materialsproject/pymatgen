@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 
 import six
-import yaml
+import ruamel.yaml as yaml
 import os
 
 """
@@ -163,7 +163,7 @@ class JMolCoordFinder:
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                   "bonds_jmol_ob.yaml")
         with open(bonds_file, 'r') as f:
-            self.el_radius = yaml.load(f)
+            self.el_radius = yaml.safe_load(f)
 
         # update any user preference elemental radii
         if el_radius_updates:

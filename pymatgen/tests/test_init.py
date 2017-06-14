@@ -1,7 +1,7 @@
 import unittest
 
 import os
-import yaml
+import ruamel.yaml as yaml
 from pymatgen import SETTINGS_FILE, _load_pmg_settings, get_structure_from_mp
 import warnings
 
@@ -11,7 +11,7 @@ class SettingsTestCase(unittest.TestCase):
         SETTINGS = _load_pmg_settings()
         if os.path.exists(SETTINGS_FILE):
             with open(SETTINGS_FILE, "rt") as f:
-                d = yaml.load(f)
+                d = yaml.safe_load(f)
                 for k, v in d.items():
                     self.assertEqual(v, SETTINGS[k])
         else:

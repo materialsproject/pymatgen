@@ -525,9 +525,9 @@ class BSPlotter(object):
         self._maketicks(plt)
 
         # Main X and Y Labels
-        plt.xlabel(r'$\\mathrm{Wave\ Vector}$', fontsize=30)
-        ylabel = r'$\\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi \
-            else r'$\\mathrm{Energy\ (eV)}$'
+        plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
+        ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi \
+            else r'$\mathrm{Energy\ (eV)}$'
         plt.ylabel(ylabel, fontsize=30)
 
         # Draw Fermi energy, only if not the zero

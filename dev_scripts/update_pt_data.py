@@ -6,6 +6,9 @@ Created on Nov 15, 2011
 '''
 
 from __future__ import division
+import json
+import ruamel.yaml as yaml
+import re
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -14,9 +17,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Nov 15, 2011"
 
-import json
-import yaml
-import re
+
 
 
 def test_yaml():

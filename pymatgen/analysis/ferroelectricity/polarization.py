@@ -13,7 +13,7 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.cif import CifWriter
 from pymatgen.core.lattice import Lattice
 import numpy as np
-import yaml
+import ruamel.yaml as yaml
 
 """
 This module provides the classes needed to analyze the change in polarization
