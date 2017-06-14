@@ -91,7 +91,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
-    raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+    raise ValueError("Don't know how to construct a Lattice from dict:\n%s" % pformat(d))
 
 
 def structure_from_abivars(cls=None, *args, **kwargs):

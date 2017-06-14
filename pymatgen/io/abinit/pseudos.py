@@ -137,6 +137,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             return "<%s at %s>" % (self.__class__.__name__, self.filepath)
 
     def __str__(self):
+        return self.to_string()
+
+    def to_string(self, verbose=0):
         """String representation."""
         lines = []
         app = lines.append
@@ -152,11 +155,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             app("  radius for non-linear core correction: %s" % self.nlcc_radius)
 
         if self.has_hints:
-            hint_normal = self.hint_for_accuracy()
-            if hint_normal is not None:
-                app("  hint for normal accuracy: %s" % str(hint_normal))
-        else:
-                app("  hints on cutoff-energy are not available")
+            for accuracy in ("low", "normal", "high"):
+                hint = self.hint_for_accuracy(accuracy=accuracy)
+                app("  hint for %s accuracy: %s" % (accuracy, str(hint)))
 
         return "\n".join(lines)
 
@@ -541,6 +542,12 @@ class Hint(object):
     def __init__(self, ecut, pawecutdg=None):
         self.ecut = ecut
         self.pawecutdg = ecut if pawecutdg is None else pawecutdg
+
+    def __str__(self):
+        if self.pawecutdg is not None:
+            return "ecut: %s, pawecutdg: %s" % (self.ecut, self.pawecutdg)
+        else:
+            return "ecut: %s" % (self.ecut)
 
     @pmg_serialize
     def as_dict(self):
