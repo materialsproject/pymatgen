@@ -332,7 +332,7 @@ class LammpsRun(object):
             velocity.append(tmp_mol)
         return np.array(velocity)
 
-
+#TODO write parser for one and multi thermo_styles
 class LammpsLog(object):
     """
     Parser for LAMMPS log file.
@@ -341,47 +341,68 @@ class LammpsLog(object):
     def __init__(self, log_file="log.lammps"):
         """
         Args:
-            log_file (string): path to the loag file
+            log_file (string): path to the log file
         """
         self.log_file = log_file
         self._parse_log()
 
     def _parse_log(self):
         """
-        Parse the log file for the thermodynamic data.
+        Parse the log file for run and thermodynamic data.
         Sets the thermodynamic data as a structured numpy array with field names
-        taken from the the thermo_style command.
+        taken from the custom thermo_style command. thermo_style one and multi
+        are not supported yet
         """
+
         thermo_data = []
+        fixes = []
+        d_build = None
         thermo_pattern = None
         with open(self.log_file, 'r') as logfile:
             for line in logfile:
                 # timestep, the unit depedns on the 'units' command
                 time = re.search(r'timestep\s+([0-9]+)', line)
-                if time and not thermo_data:
+                if time and not d_build:
                     self.timestep = float(time.group(1))
                 # total number md steps
                 steps = re.search(r'run\s+([0-9]+)', line)
-                if steps and not thermo_data:
+                if steps and not d_build:
                     self.nmdsteps = int(steps.group(1))
+                # simulation info
+                fix = re.search(r'fix.+', line)
+                if fix and not d_build:
+                    fixes.append(fix.group())
+                # dangerous builds
+                danger = re.search(r'Dangerous builds\s+([0-9]+)', line)
+                if danger and not d_build:
+                    self.d_builds = int(steps.group(1))
                 # logging interval
                 thermo = re.search(r'thermo\s+([0-9]+)', line)
-                if thermo and not thermo_data:
+                if thermo and not d_build:
                     self.interval = float(thermo.group(1))
                 # thermodynamic data, set by the thermo_style command
                 fmt = re.search(r'thermo_style.+', line)
-                if fmt and not thermo_data:
+                if fmt and not d_build:
+                    thermo_type = fmt.group().split()[1]
                     fields = fmt.group().split()[2:]
-                    thermo_pattern_string = r"\s*([0-9eE\.+-]+)" + "".join(
-                        [r"\s+([0-9eE\.+-]+)" for _ in range(len(fields) - 1)])
-                    thermo_pattern = re.compile(thermo_pattern_string)
+                    no_parse = ["one", "multi"]
+                    if thermo_type in no_parse:
+                        thermo_data.append("cannot parse thermo_style")
+                    else:
+                        thermo_pattern_string = r"\s*([0-9eE\.+-]+)" + "".join(
+                            [r"\s+([0-9eE\.+-]+)" for _ in range(len(fields) - 1)])
+                        thermo_pattern = re.compile(thermo_pattern_string)
                 if thermo_pattern:
                     if thermo_pattern.search(line):
                         m = thermo_pattern.search(line)
                         thermo_data.append(
                             tuple([float(x) for i, x in enumerate(m.groups())]))
-        thermo_data_dtype = np.dtype([(str(fld), np.float64) for fld in fields])
-        self.thermo_data = np.array(thermo_data, dtype=thermo_data_dtype)
+        if isinstance(thermo_data[0], str):
+            self.thermo_data = np.array(thermo_data)
+        else:
+            thermo_data_dtype = np.dtype([(str(fld), np.float64) for fld in fields])
+            self.thermo_data = np.array(thermo_data, dtype=thermo_data_dtype)
+        self.fixes = fixes
 
 
 def pbc_wrap(array, box_lengths):
