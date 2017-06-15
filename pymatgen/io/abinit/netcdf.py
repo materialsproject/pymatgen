@@ -5,6 +5,7 @@
 from __future__ import unicode_literals, division, print_function
 
 import os.path
+import warnings
 
 from monty.dev import requires, deprecated
 from monty.collections import AttrDict
@@ -36,8 +37,16 @@ __all__ = [
 
 try:
     import netCDF4
-except ImportError:
+except ImportError as exc:
     netCDF4 = None
+    warnings.warn("""\
+`import netCDF4` failed with the following error:
+
+%s
+
+Please install netcdf4 with `conda install netcdf4`
+If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`
+and use `pip install netcdf4`""" % str(exc))
 
 
 def _asreader(file, cls):
@@ -108,10 +117,6 @@ class NetcdfReader(object):
             self.rootgrp.close()
         except Exception as exc:
             logger.warning("Exception %s while trying to close %s" % (exc, self.path))
-
-    #@staticmethod
-    #def pathjoin(*args):
-    #    return "/".join(args)
 
     def walk_tree(self, top=None):
         """

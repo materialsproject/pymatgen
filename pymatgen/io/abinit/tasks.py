@@ -2458,10 +2458,13 @@ class AbinitTask(Task):
         return cls(input, workdir=workdir, manager=manager)
 
     @classmethod
-    def temp_shell_task(cls, inp, workdir=None, manager=None):
+    def temp_shell_task(cls, inp, mpi_procs=1, workdir=None, manager=None):
         """
         Build a Task with a temporary workdir. The task is executed via the shell with 1 MPI proc.
         Mainly used for invoking Abinit to get important parameters needed to prepare the real task.
+
+        Args:
+            mpi_procs: Number of MPI processes to use.
         """
         # Build a simple manager to run the job in a shell subprocess
         import tempfile
@@ -2469,7 +2472,7 @@ class AbinitTask(Task):
         if manager is None: manager = TaskManager.from_user_config()
 
         # Construct the task and run it
-        task = cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+        task = cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=mpi_procs))
         task.set_name('temp_shell_task')
         return task
 
@@ -4318,13 +4321,14 @@ class AnaddbTask(Task):
         super(AnaddbTask, self).__init__(input=anaddb_input, workdir=workdir, manager=manager, deps=deps)
 
     @classmethod
-    def temp_shell_task(cls, inp, ddb_node,
+    def temp_shell_task(cls, inp, ddb_node, mpi_procs=1,
                         gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
         """
         Build a :class:`AnaddbTask` with a temporary workdir. The task is executed via
         the shell with 1 MPI proc. Mainly used for post-processing the DDB files.
 
         Args:
+            mpi_procs: Number of MPI processes to use.
             anaddb_input: string with the anaddb variables.
             ddb_node: The node that will produce the DDB file. Accept :class:`Task`, :class:`Work` or filepath.
 
@@ -4338,7 +4342,7 @@ class AnaddbTask(Task):
         # Construct the task and run it
         return cls(inp, ddb_node,
                    gkk_node=gkk_node, md_node=md_node, ddk_node=ddk_node,
-                   workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+                   workdir=workdir, manager=manager.to_shell_manager(mpi_procs=mpi_procs))
 
     @property
     def executable(self):

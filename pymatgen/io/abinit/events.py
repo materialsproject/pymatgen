@@ -425,7 +425,7 @@ class EventsParser(object):
                     #print("got doc.tag", doc.tag,"--")
                     try:
                         #print(doc.text)
-                        event = yaml.load(doc.text)
+                        event = yaml.load(doc.text)   # Don't use safe_load here!
                         #print(event.yaml_tag, type(event))
                     except:
                         #raise
@@ -438,7 +438,7 @@ class EventsParser(object):
                             message += "Traceback:\n %s" % straceback()
 
                         if "error" in doc.tag.lower():
-                            print("It seems an error", doc.tag)
+                            print("It seems an error. doc.tag:", doc.tag)
                             event = AbinitYamlError(message=message, src_file=__file__, src_line=0)
                         else:
                             event = AbinitYamlWarning(message=message, src_file=__file__, src_line=0)

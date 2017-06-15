@@ -151,8 +151,8 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     if len(typat) != len(coords):
         raise ValueError("len(typat) != len(coords):\ntypat: %s\ncoords: %s" % (typat, coords))
 
-    # Note Fortran --> C indexing
-    #znucl_type = np.rint(znucl_type)
+    # Note conversion to int and Fortran --> C indexing
+    typat = np.array(typat, dtype=np.int)
     species = [znucl_type[typ-1] for typ in typat]
 
     return cls(lattice, species, coords, validate_proximity=False,
