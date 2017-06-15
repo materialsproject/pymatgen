@@ -730,9 +730,10 @@ class SlabGenerator(object):
             ([Slab]) List of all possible terminations of a particular surface.
             Slabs are sorted by the # of bonds broken.
         """
-
-        bonds = self.sort_ions(bonds)
-        polyhedrons_to_move = self.sort_ions(polyhedrons_to_move)
+        if bonds:
+            bonds = self.sort_ions(bonds)
+        if polyhedrons_to_move:
+            polyhedrons_to_move = self.sort_ions(polyhedrons_to_move)
         c_ranges = set()
 
         slabs = []
@@ -811,6 +812,10 @@ class SlabGenerator(object):
                     negate_dipole=True, tol_dipole_per_unit_area=1e-3,
                     termination_tol=0.00001, lateral_reconstruct=False):
 
+        modded_slabs = []
+
+        # Enumerate all the different type of "sites" to move. Sites to
+        # be moved around can be single elements, polyhedrons, or bonds
         sites_to_move = []
         for site in self.parent:
             if site.species_string not in sites_to_move:
@@ -818,6 +823,8 @@ class SlabGenerator(object):
         if polyhedrons_to_move:
             sites_to_move.extend(list(polyhedrons_to_move.keys()))
 
+        # Find if there are already any viable slabs
+        #  by just using the default algorithm
         correct_slabs = []
         for slab in all_slabs:
             if not slab.is_polar():
@@ -826,7 +833,7 @@ class SlabGenerator(object):
         if correct_slabs:
             return correct_slabs
 
-        modded_slabs = []
+
         for species_to_move in sites_to_move:
             slabs = copy.deepcopy(all_slabs)
 
@@ -834,7 +841,8 @@ class SlabGenerator(object):
                 el = species_to_move[0]
             else:
                 el = species_to_move
-            bound_atom = list(bonds.keys())[0][0]  # The center of the polyhedron
+            if bonds:
+                bound_atom = list(bonds.keys())[0][0]  # The center of the polyhedron
             # This algorithm will only move
             # around one species at a time
 
@@ -846,10 +854,11 @@ class SlabGenerator(object):
                 c_dist_el = [s.frac_coords[2] for s in slab if s.species_string == el]
                 c_dist = [s.frac_coords[2] for s in slab]
 
-                if min(c_dist_el) > list(bonds.values())[0] + min(c_dist):
-                    continue
-                if max(c_dist_el) < max(c_dist) - list(bonds.values())[0]:
-                    continue
+                if bonds:
+                    if min(c_dist_el) > list(bonds.values())[0] + min(c_dist):
+                        continue
+                    if max(c_dist_el) < max(c_dist) - list(bonds.values())[0]:
+                        continue
 
                 surfaces.append(slab)
 
@@ -890,16 +899,17 @@ class SlabGenerator(object):
                         if el_site + termination_tol > s.frac_coords[2] > el_site - termination_tol:
                             # Make sure the site we want to move/remove is
                             # not bonded to anything we don't want to break
-                            if el in list(bonds.keys())[0]:
-                                neighbors = slab.get_neighbors(s, list(bonds.values())[0])
-                                neighbor_specs = [nn.species_string for nn, d in neighbors]
-                                if any(unbreak in neighbor_specs for unbreak in list(bonds.keys())[0]):
-                                    # If it is bonded to something we don't want to
-                                    # break, do we want to move the entire polyhedron?
-                                    if type(species_to_move).__name__ != "tuple":
-                                        continue
-                                    if list(bonds.keys())[0] != species_to_move:
-                                        continue
+                            if bonds:
+                                if el in list(bonds.keys())[0]:
+                                    neighbors = slab.get_neighbors(s, list(bonds.values())[0])
+                                    neighbor_specs = [nn.species_string for nn, d in neighbors]
+                                    if any(unbreak in neighbor_specs for unbreak in list(bonds.keys())[0]):
+                                        # If it is bonded to something we don't want to
+                                        # break, do we want to move the entire polyhedron?
+                                        if type(species_to_move).__name__ != "tuple":
+                                            continue
+                                        if list(bonds.keys())[0] != species_to_move:
+                                            continue
 
                             # Are we moving a single species or are we
                             # moving a group of atoms bonded to each other?
@@ -914,23 +924,24 @@ class SlabGenerator(object):
                                 for nn in neighbors:
                                     # If the vertex ions are same ions making up an unbreakable
                                     # polyhedron, check if its part of that polyhedron
-                                    if nn[0].species_string == list(bonds.keys())[0][1]:
-                                        unbreak_neighbors = slab.get_neighbors(nn[0],
-                                                                               list(bonds.values())[0],
-                                                                               include_index=True)
-                                        unbreak_species = [nnn[0].species_string for \
-                                                           nnn in unbreak_neighbors]
+                                    if bonds:
+                                        if nn[0].species_string == list(bonds.keys())[0][1]:
+                                            unbreak_neighbors = slab.get_neighbors(nn[0],
+                                                                                   list(bonds.values())[0],
+                                                                                   include_index=True)
+                                            unbreak_species = [nnn[0].species_string for \
+                                                               nnn in unbreak_neighbors]
 
-                                        # If vertex confirmed connected to an unbreakable
-                                        # polyhedron, and we are not currently moving
-                                        # this unbreakable polyhedron, do not move
-                                        if (bound_atom in unbreak_species) and \
-                                                (list(bonds.keys())[0] != species_to_move):
-                                            continue
+                                            # If vertex confirmed connected to an unbreakable
+                                            # polyhedron, and we are not currently moving
+                                            # this unbreakable polyhedron, do not move
+                                            if (bound_atom in unbreak_species) and \
+                                                    (list(bonds.keys())[0] != species_to_move):
+                                                continue
+                                            else:
+                                                group_remove.append(nn[2])
                                         else:
                                             group_remove.append(nn[2])
-                                    else:
-                                        group_remove.append(nn[2])
 
                                 group_remove.append(i)  # Don't forget to move the center of the polyhedron
                                 # Add group of sites to remove
@@ -997,7 +1008,11 @@ class SlabGenerator(object):
                 warnings.warn("WARNING: None type found when using"
                               "SpaceGroupAnalyzer leading to a TypeError!")
         s = StructureMatcher()
-        unique = [ss[0] for ss in s.group_structures(fixed_slabs)]
+
+        try:
+            unique = [ss[0] for ss in s.group_structures(fixed_slabs)]
+        except IndexError:
+            unique = fixed_slabs
 
         return unique
 
