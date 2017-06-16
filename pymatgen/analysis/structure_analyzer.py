@@ -605,7 +605,7 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
 
 def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
                        min_slab_size=5, min_vacuum_size=5,
-                       standardize=True):
+                       standardize=True, bonds=None):
 
     """
     This method returns whether a structure is 3D, 2D (layered), or 1D (linear 
@@ -626,6 +626,11 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
         standardize (bool): whether to standardize the structure before 
             analysis. Set to False only if you already have the structure in a 
             convention where layers / chains will be along low <hkl> indexes.
+        bonds ({(specie1, specie2): max_bond_dist}: bonds are
+                specified as a dict of tuples: float of specie1, specie2
+                and the max bonding distance. For example, PO4 groups may be
+                defined as {("P", "O"): 3}. Otherwise, JMolCoordFinder is
+                used.
 
     Returns: (int) the dimensionality of the structure - 1 (molecules/chains), 
         2 (layered), or 3 (3D)
@@ -635,7 +640,8 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
         structure = SpacegroupAnalyzer(structure).\
             get_conventional_standard_structure()
 
-    bonds = get_max_bond_lengths(structure)
+    if not bonds:
+        bonds = get_max_bond_lengths(structure)
 
     num_surfaces = 0
     for h in range(max_hkl):
