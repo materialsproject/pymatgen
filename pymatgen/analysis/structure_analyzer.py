@@ -635,7 +635,7 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
         structure = SpacegroupAnalyzer(structure).\
             get_conventional_standard_structure()
 
-    bonds = get_max_bond_lengths(structure)
+    bonds = get_max_bond_lengths(structure, el_radius_updates)
 
     num_surfaces = 0
     for h in range(max_hkl):
