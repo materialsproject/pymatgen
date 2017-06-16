@@ -8,6 +8,7 @@ import re
 from io import open
 
 import numpy as np
+from monty.json import MSONable, MontyDecoder
 
 from pymatgen.core.periodic_table import _pt_data
 from pymatgen.core.structure import Molecule
@@ -344,6 +345,7 @@ class LammpsLog(object):
             log_file (string): path to the log file
         """
         self.log_file = log_file
+
         self._parse_log()
 
     def _parse_log(self):
@@ -375,7 +377,7 @@ class LammpsLog(object):
                 # dangerous builds
                 danger = re.search(r'Dangerous builds\s+([0-9]+)', line)
                 if danger and not d_build:
-                    self.d_builds = int(steps.group(1))
+                    d_build = int(steps.group(1))
                 # logging interval
                 thermo = re.search(r'thermo\s+([0-9]+)', line)
                 if thermo and not d_build:
@@ -398,11 +400,13 @@ class LammpsLog(object):
                         thermo_data.append(
                             tuple([float(x) for i, x in enumerate(m.groups())]))
         if isinstance(thermo_data[0], str):
-            self.thermo_data = np.array(thermo_data)
+            self.thermo_data = [thermo_data]
         else:
-            thermo_data_dtype = np.dtype([(str(fld), np.float64) for fld in fields])
-            self.thermo_data = np.array(thermo_data, dtype=thermo_data_dtype)
+            # numpy arrays are easier to reshape, previously we used np.array with dtypes
+            self.thermo_data = {fields[i]: [thermo_data[j][i] for j in range(len(thermo_data))]
+                                for i in range(len(fields))}
         self.fixes = fixes
+        self.dangerous_builds = d_build
 
 
 def pbc_wrap(array, box_lengths):
