@@ -117,7 +117,11 @@ def _parse_v_parameters(val_type, val, filename, param_name):
 
 
 def _parse_varray(elem):
-    return [[_vasprun_float(i) for i in v.text.split()] for v in elem]
+    if elem.get("type", None) == 'logical':
+        m = [[True if i=='T' else False for i in v.text.split()] for v in elem]
+    else:
+        m = [[_vasprun_float(i) for i in v.text.split()] for v in elem]
+    return m
 
 
 def _parse_from_incar(filename, key):
@@ -995,7 +999,12 @@ class Vasprun(MSONable):
     def _parse_structure(self, elem):
         latt = _parse_varray(elem.find("crystal").find("varray"))
         pos = _parse_varray(elem.find("varray"))
-        return Structure(latt, self.atomic_symbols, pos)
+        struct = Structure(latt, self.atomic_symbols, pos)
+        sdyn = elem.find("varray/[@name='selective']")
+        if sdyn:
+            struct.add_site_property('selective_dynamics',
+                                     _parse_varray(sdyn))
+        return struct
 
     def _parse_diel(self, elem):
         imag = [[float(l) for l in r.text.split()]
