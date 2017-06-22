@@ -269,6 +269,12 @@ class VasprunTest(unittest.TestCase):
         self.assertRaises(ValueError, Vasprun,
                           os.path.join(test_dir, 'vasprun.xml.wrong_sp'))
 
+    def test_selective_dynamics(self):
+        vsd = Vasprun(os.path.join(test_dir, 'vasprun.xml.indirect.gz'))
+        np.testing.assert_array_equal(
+                vsd.final_structure.site_properties.get('selective_dynamics'), 
+                [[True]*3, [False]*3], "Selective dynamics parsing error")
+
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath,

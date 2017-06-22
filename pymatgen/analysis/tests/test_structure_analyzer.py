@@ -96,6 +96,10 @@ class GetDimensionalityTest(PymatgenTest):
         s = self.get_structure('Graphite')
         self.assertEqual(get_dimensionality(s), 2)
 
+    def test_get_dimensionality_with_bonds(self):
+        s = self.get_structure('CsCl')
+        self.assertEqual(get_dimensionality(s), 1)
+        self.assertEqual(get_dimensionality(s, bonds={("Cs", "Cl"): 3.7}), 3)
 
 class RelaxationAnalyzerTest(unittest.TestCase):
     def setUp(self):
@@ -362,7 +366,7 @@ class OrderParametersTest(PymatgenTest):
             [[15, 15, 15.707], [14.75, 14.75, 15], [14.75, 15.25, 15], \
             [15.25, 14.75, 15], [15.25, 15.25, 15]],
             validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=True, site_properties=None) 
+            coords_are_cartesian=True, site_properties=None)
         self.square_pyramid = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]), ["H", "H", "H", "H", "H", "H"],
