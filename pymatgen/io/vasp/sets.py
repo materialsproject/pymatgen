@@ -349,6 +349,9 @@ class DictSet(VaspInputSet):
         """
         settings = self.user_kpoints_settings or self.config_dict["KPOINTS"]
 
+        if isinstance(settings, Kpoints):
+            return settings
+
         # If grid_density is in the kpoints_settings use
         # Kpoints.automatic_density
         if settings.get('grid_density'):
