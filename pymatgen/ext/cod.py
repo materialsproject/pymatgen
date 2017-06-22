@@ -5,7 +5,8 @@
 import requests
 from pymatgen import Structure
 import subprocess
-import tabulate
+from monty.dev import requires
+from monty.os.path import which
 import re
 
 """
@@ -28,12 +29,17 @@ class COD(object):
     def __init__(self):
         pass
 
+    @requires(which("mysql"), "mysql must be installed to use this query.")
     def get_cod_ids(self, formula):
         """
+        Args:
+            formula (str): Formula.
 
-        :param formula:
-        :return:
+        Returns:
+            List of cod ids.
         """
+        # TODO: Remove dependency on external mysql call.
+
         query = 'select file from data where formula="Li"'
         r = subprocess.check_output(["mysql", "-u", "cod_reader", "-h",
                                      "www.crystallography.net", "-e",
@@ -47,6 +53,16 @@ class COD(object):
         return cod_ids
 
     def get_structure_by_id(self, cod_id, **kwargs):
+        """
+        Queries the COD for a structure.
+
+        Args:
+            cod_id (int): COD id.
+            kwargs: All kwargs supported by Structure.from_str.
+
+        Returns:
+            A Structure.
+        """
         r = requests.get("http://www.crystallography.net/cod/%s.cif" % cod_id)
         return Structure.from_str(r.text, fmt="cif", **kwargs)
 
