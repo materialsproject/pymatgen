@@ -38,6 +38,7 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
 
 """
 This module implements representations of slabs and surfaces, as well as
@@ -144,11 +145,14 @@ class Slab(Structure):
         self.shift = shift
         self.scale_factor = scale_factor
         self.energy = energy
+
         super(Slab, self).__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
+
+#         self.surface_sites = self.get_surface_sites()
 
     def get_orthogonal_c_slab(self):
         """
@@ -453,6 +457,46 @@ class Slab(Structure):
             site_properties=s.site_properties, energy=d["energy"]
         )
 
+    def get_cn_dict_ouc(self):
+
+        cn_dict = {}
+        ucell = self.oriented_unit_cell
+        v = VoronoiCoordFinder(ucell)
+        for i, site in enumerate(ucell):
+            if ucell[i].species_string not in cn_dict.keys():
+                cn_dict[ucell[i].species_string] = []
+            cn = v.get_coordination_number(i)
+            cn = round(cn, 5)
+            if cn not in cn_dict[ucell[i].species_string]:
+                cn_dict[ucell[i].species_string].append(cn)
+
+        return cn_dict
+
+    def get_surface_sites(self):
+
+        cn_dict = self.get_cn_dict_ouc()
+
+        v = VoronoiCoordFinder(self.structure)
+        surface_sites = []
+        for i, site in enumerate(self.structure):
+            try:
+                cn = round(v.get_coordination_number(i), 5)
+                if cn not in cn_dict[site.species_string]:
+                    surface_sites.append([site, i])
+            except RuntimeError:
+                surface_sites.append([site, i])
+
+        return surface_sites
+
+    def is_surface_site(self, index):
+
+        surface_index = [i for site, i in
+                         self.surface_sites]
+
+        if index in surface_index:
+            return True
+        else:
+            return False
 
 class SlabGenerator(object):
     """
