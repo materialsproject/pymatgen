@@ -1397,3 +1397,81 @@ def reduce_vector(vector):
     vector = tuple([int(i / d) for i in vector])
 
     return vector
+
+
+### to be added in surface_analysis ###
+
+def center_slab(slab):
+    indices = [i for i, site in enumerate(slab)]
+    ave_c = np.mean([site.frac_coords[2] for site in slab])
+    slab.translate_sites(indices, [0, 0, abs(0.5 - ave_c)])
+    return slab
+
+
+def bb_manual(slab, bonds, top=True):
+    # check if slab is centered, this
+    # only works with centered slabs
+    slab_pos = np.mean([site.frac_coords[2] for site in slab])
+    if 0.55 < slab_pos or 0.45 > slab_pos:
+        slab = center_slab(slab)
+
+    broken_bonds = {}
+    for bond in bonds.keys():
+
+        # First we check the cn of the bulk for each type of bond
+        cn = bulk_coordination(slab, bonds[bond], bond)
+
+        # Next we use the cn of the bulk as
+        # reference to find the number of broken bonds
+        center_ion = bond[0]
+        nbb = 0
+        for site in slab:
+            if str(site.specie) == center_ion:
+                nn = slab.get_neighbors(site, bonds[bond],
+                                        include_index=True)
+
+                def count_nbb(nbb):
+                    slab_cn = 0
+                    for n in nn:
+                        if str(n[0].specie) == bond[1]:
+                            slab_cn += 1
+                    nbb += cn - slab_cn
+                    return nbb
+
+                if top and site.frac_coords[2] > 0.5:
+                    nbb = count_nbb(nbb)
+                if not top and site.frac_coords[2] < 0.5:
+                    nbb = count_nbb(nbb)
+
+        broken_bonds[bond] = nbb / slab.surface_area
+
+    return broken_bonds
+
+
+def bulk_coordination(slab, bondlength, bond):
+
+    # If bond is list of 2 species, we find
+    # coordination for the first specie relative
+    # to the second only. If list of one species,
+    # find coordination for all neighbors
+    print(bond)
+    center_ion = bond[0]
+    mean_cn = []
+    ucell = slab.oriented_unit_cell
+    for site in ucell:
+        cn = 0
+        if site.species_string == center_ion:
+            nn = ucell.get_neighbors(site, bondlength,
+                                     include_index=True)
+
+            for n in nn:
+                if type(bond).__name__ == "list":
+                    if n[0].species_string == bond[1]:
+                        cn += 1
+                else:
+                    cn += 1
+
+            mean_cn.append(cn)
+
+    return min(mean_cn)
+
