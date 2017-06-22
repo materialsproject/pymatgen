@@ -25,7 +25,7 @@ __date__ = "Jun 9, 2012"
 
 class CODTest(unittest.TestCase):
 
-    @unittest.SkipIf(not which("mysql"), "No mysql.")
+    @unittest.skipIf(not which("mysql"), "No mysql.")
     def test_get_cod_ids(self):
         ids = COD().get_cod_ids("Li2O")
         print(ids)
