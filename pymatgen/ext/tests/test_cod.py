@@ -6,7 +6,7 @@ from __future__ import division, unicode_literals
 
 import unittest
 
-from pymatgen.ext.cod import get_structure
+from pymatgen.ext.cod import COD
 
 
 """
@@ -24,9 +24,14 @@ __date__ = "Jun 9, 2012"
 
 class CODTest(unittest.TestCase):
 
-    def test_get_structure(self):
-        s = get_structure(2002926)
+    def test_get_cod_ids(self):
+        ids = COD().get_cod_ids("Li2O")
+        print(ids)
+
+    def test_get_structure_by_id(self):
+        s = COD().get_structure_by_id(2002926)
         self.assertEqual(s.formula, "Be8 H64 N16 F32")
+
 
 
 if __name__ == "__main__":

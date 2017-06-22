@@ -68,10 +68,6 @@ def get_structure_from_mp(formula):
         (Structure) The lowest energy structure in Materials Project with that
             formula.
     """
-    if not SETTINGS.get("PMG_MAPI_KEY"):
-        raise RuntimeError("PMG_MAPI_KEY must be set in .pmgrc.yaml to use this "
-                           "function.")
-
     m = MPRester()
     entries = m.get_entries(formula, inc_structure=True)
     if len(entries) == 0:
