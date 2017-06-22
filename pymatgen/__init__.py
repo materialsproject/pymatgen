@@ -41,6 +41,21 @@ def _load_pmg_settings():
 SETTINGS = _load_pmg_settings()
 
 
+# Order of imports is important on some systems to avoid
+# failures when loading shared libraries.
+# import spglib
+# from . import optimization, util
+# del(spglib, optimization, util)
+
+# Useful aliases for commonly used objects and modules.
+# Allows from pymatgen import <class> for quick usage.
+
+from pymatgen.core import *
+from .electronic_structure.core import Spin, Orbital
+from .ext.matproj import MPRester
+from monty.json import MontyEncoder, MontyDecoder, MSONable
+
+
 def get_structure_from_mp(formula):
     """
     Convenience method to get a crystal from the Materials Project database via
@@ -57,29 +72,13 @@ def get_structure_from_mp(formula):
         raise RuntimeError("PMG_MAPI_KEY must be set in .pmgrc.yaml to use this "
                            "function.")
 
-    from pymatgen.matproj.rest import MPRester
     m = MPRester()
     entries = m.get_entries(formula, inc_structure=True)
     if len(entries) == 0:
         raise ValueError("No structure with formula %s in Materials Project!" %
                          formula)
     elif len(entries) > 1:
-        warnings.warn("%d structures with formula %s found in Materials Project."
-                      "The lowest energy structure will be returned." %
+        warnings.warn("%d structures with formula %s found in Materials "
+                      "Project. The lowest energy structure will be returned." %
                       (len(entries), formula))
     return min(entries, key=lambda e: e.energy_per_atom).structure
-
-
-# Order of imports is important on some systems to avoid
-# failures when loading shared libraries.
-# import spglib
-# from . import optimization, util
-# del(spglib, optimization, util)
-
-# Useful aliases for commonly used objects and modules.
-# Allows from pymatgen import <class> for quick usage.
-
-from pymatgen.core import *
-from .electronic_structure.core import Spin, Orbital
-from .matproj.rest import MPRester
-from monty.json import MontyEncoder, MontyDecoder, MSONable
