@@ -10,7 +10,6 @@ import itertools
 import warnings
 import logging
 import math
-import requests
 
 import six
 import numpy as np
