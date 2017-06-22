@@ -21,7 +21,6 @@ from hashlib import md5
 from monty.io import zopen
 from monty.os.path import zpath
 from monty.json import MontyDecoder
-from monty.tempfile import ScratchDir
 
 from enum import Enum
 from tabulate import tabulate
