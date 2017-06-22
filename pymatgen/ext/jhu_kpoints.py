@@ -2,6 +2,11 @@
 This module creates an interface to the JHU kpoints servlet
 """
 
+import requests
+from monty.tempfile import ScratchDir
+
+from pymatgen.io.vasp.inputs import Kpoints
+
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2017, The Materials Project"
 __maintainer__ = "Joseph Montoya"
@@ -9,9 +14,9 @@ __email__ = "montoyjh@lbl.gov"
 __date__ = "June 22, 2017"
 
 
-def get_from_wmm(structure, min_distance=0, min_total_kpoints=1, 
-                 kppra=None, gap_distance=7, remove_symmetry=None, 
-                 include_gamma="auto", header="simple", incar=None):
+def get_kpoints(structure, min_distance=0, min_total_kpoints=1, 
+                kppra=None, gap_distance=7, remove_symmetry=None, 
+                include_gamma="auto", header="simple", incar=None):
     """
     Get kpoints object from JHU servlet, per Wisesa-McGill-Mueller
     methodology.  Refer to http://muellergroup.jhu.edu/K-Points.html
@@ -59,5 +64,3 @@ def get_from_wmm(structure, min_distance=0, min_total_kpoints=1,
         r = requests.post(url, files=files)
 
     return Kpoints.from_string(r.text)
-
-
