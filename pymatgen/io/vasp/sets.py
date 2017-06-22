@@ -208,9 +208,9 @@ class DictSet(VaspInputSet):
             of two ways, e.g. either {"LDAUU":{"O":{"Fe":5}}} to set LDAUU
             for Fe to 5 in an oxide, or {"LDAUU":{"Fe":5}} to set LDAUU to
             5 regardless of the input structure.
-        user_kpoints_settings (dict): Allow user to override kpoints setting by
-            supplying a dict. E.g., {"reciprocal_density": 1000}. Default is
-            None.
+        user_kpoints_settings (Kpoints or dict): Allow user to override kpoints 
+            setting by supplying a dict or Kpoints object. 
+            E.g., {"reciprocal_density": 1000}. Default is None.
         constrain_total_magmom (bool): Whether to constrain the total magmom
             (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
             species. Defaults to False.
