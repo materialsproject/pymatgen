@@ -24,7 +24,7 @@ from pymatgen.analysis.defects.point_defects import Vacancy
 from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.io.vasp import Kpoints
 from pymatgen.io.vasp import Vasprun
-from pymatgen.matproj.rest import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.defects.dilute_solution_model import \
             compute_defect_density, solute_defect_density

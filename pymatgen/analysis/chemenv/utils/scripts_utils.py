@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 
 
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.io.cif import CifParser
 try:
     import vtk
