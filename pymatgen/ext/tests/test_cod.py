@@ -5,6 +5,7 @@
 from __future__ import division, unicode_literals
 
 import unittest
+from monty.os.path import which
 
 from pymatgen.ext.cod import COD
 
@@ -24,6 +25,7 @@ __date__ = "Jun 9, 2012"
 
 class CODTest(unittest.TestCase):
 
+    @unittest.SkipIf(not which("mysql"), "No mysql.")
     def test_get_cod_ids(self):
         ids = COD().get_cod_ids("Li2O")
         print(ids)
