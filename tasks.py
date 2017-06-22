@@ -148,7 +148,7 @@ def release_github(ctx):
     payload = {
         "tag_name": "v" + NEW_VER,
         "target_commitish": "master",
-        "name": "v" + ver,
+        "name": "v" + NEW_VER,
         "body": desc,
         "draft": False,
         "prerelease": False
