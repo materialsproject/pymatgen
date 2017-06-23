@@ -14,7 +14,30 @@ from pymatgen.util.string import formula_double_format
 
 """
 This module provides classes to interface with the Crystallography Open 
-Database.
+Database. If you use data from the COD, please cite the following works (as
+stipulated by the COD developers)::
+
+    Merkys, A., Vaitkus, A., Butkus, J., Okulič-Kazarinas, M., Kairys, V. & 
+    Gražulis, S. (2016) "COD::CIF::Parser: an error-correcting CIF parser for 
+    the Perl language". Journal of Applied Crystallography 49. 
+    
+    Gražulis, S., Merkys, A., Vaitkus, A. & Okulič-Kazarinas, M. (2015) 
+    "Computing stoichiometric molecular composition from crystal structures". 
+    Journal of Applied Crystallography 48, 85-91.
+    
+    Gražulis, S., Daškevič, A., Merkys, A., Chateigner, D., Lutterotti, L., 
+    Quirós, M., Serebryanaya, N. R., Moeck, P., Downs, R. T. & LeBail, A. 
+    (2012) "Crystallography Open Database (COD): an open-access collection of 
+    crystal structures and platform for world-wide collaboration". Nucleic 
+    Acids Research 40, D420-D427.
+    
+    Grazulis, S., Chateigner, D., Downs, R. T., Yokochi, A. T., Quiros, M., 
+    Lutterotti, L., Manakova, E., Butkus, J., Moeck, P. & Le Bail, A. (2009) 
+    "Crystallography Open Database – an open-access collection of crystal 
+    structures". J. Appl. Cryst. 42, 726-729.
+    
+    Downs, R. T. & Hall-Wallace, M. (2003) "The American Mineralogist Crystal
+    Structure Database". American Mineralogist 88, 247-250.
 """
 
 __author__ = "Shyue Ping Ong"
