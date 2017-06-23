@@ -9,7 +9,6 @@ see http://muellergroup.jhu.edu/K-Points.html.
 
 import requests
 from monty.tempfile import ScratchDir
-from StringIO import StringIO
 
 from pymatgen.io.vasp.inputs import Kpoints
 
