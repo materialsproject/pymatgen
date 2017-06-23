@@ -645,7 +645,7 @@ class ElasticTensorExpansion(TensorCollection):
     def get_compliance_expansion(self):
         """
         """
-        #TODO: this should have a general form...
+        #TODO: this might have a general form
         if not self.order <= 4:
             raise ValueError("Compliance tensor expansion only "
                              "supported for fourth-order and lower")
@@ -654,12 +654,15 @@ class ElasticTensorExpansion(TensorCollection):
         ce_exp.append(np.einsum(einstring, -ce_exp[-1], self[1], 
                                 ce_exp[-1], ce_exp[-1]))
         if self.order == 4:
-            einstring_3 = "ijklmn,klab,mncdef->ijabcdef"
-            temp = 2*np.einsum(einstring_3, self[1], ce_exp[-2], ce_exp[-1])
-            einstring_4 = "ijklmnop,klab,mncd,opef->ijabcdef"
-            temp += np.einsum(einstring_4, self[2], ce_exp[-2], 
-                              ce_exp[-2], ce_exp[-2])
-            temp = np.einsum("xyij,ijabcdef->xyabcdef", ce_exp[-2], temp)
+            # Four terms in the Fourth-Order compliance tensor
+            einstring_1 = "pqab,cdij,efkl,ghmn,abcdefgh"
+            tensors_1 = [ce_exp[0]]*4 + [self[-1]]
+            temp = -np.einsum(einstring_1, *tensors_1)
+            einstring_2 = "pqab,abcdef,cdijmn,efkl"
+            einstring_3 = "pqab,abcdef,efklmn,cdij"
+            einstring_4 = "pqab,abcdef,cdijkl,efmn"
+            for es in [einstring_2, einstring_3, einstring_4]:
+                temp -= np.einsum(es, ce_exp[0], self[-2], ce_exp[1], ce_exp[0])
             ce_exp.append(temp)
         return TensorCollection(ce_exp)
 
