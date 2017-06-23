@@ -1049,9 +1049,6 @@ Gd1 5.05 5.05 0.0"""
 
     def test_write(self):
 
-        s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
-        cw = CifWriter(s_ncl, write_magmoms=True)
-
         cw_ref_string = """# generated using pymatgen
 data_GdB4
 _symmetry_space_group_name_H-M   'P 1'
@@ -1108,8 +1105,82 @@ loop_
   Gd3  5.05  -5.05  0.0
   Gd4  -5.05  -5.05  0.0
 """
+        s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
 
+        cw = CifWriter(s_ncl, write_magmoms=True)
         self.assertEqual(cw.__str__(), cw_ref_string)
+
+        # from list-type magmoms
+        list_magmoms = [list(m) for m in s_ncl.site_properties['magmom']]
+
+        # float magmoms (magnitude only)
+        float_magmoms = [float(m) for m in s_ncl.site_properties['magmom']]
+
+        s_ncl.add_site_property('magmom', list_magmoms)
+        cw = CifWriter(s_ncl, write_magmoms=True)
+        self.assertEqual(cw.__str__(), cw_ref_string)
+
+        s_ncl.add_site_property('magmom', float_magmoms)
+        cw = CifWriter(s_ncl, write_magmoms=True)
+
+        cw_ref_string_magnitudes = """# generated using pymatgen
+data_GdB4
+_symmetry_space_group_name_H-M   'P 1'
+_cell_length_a   7.13160000
+_cell_length_b   7.13160000
+_cell_length_c   4.05050000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   GdB4
+_chemical_formula_sum   'Gd4 B16'
+_cell_volume   206.007290027
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Gd  Gd1  1  0.317460  0.817460  0.000000  1.0
+  Gd  Gd2  1  0.182540  0.317460  0.000000  1.0
+  Gd  Gd3  1  0.817460  0.682540  0.000000  1.0
+  Gd  Gd4  1  0.682540  0.182540  0.000000  1.0
+  B  B5  1  0.000000  0.000000  0.202900  1.0
+  B  B6  1  0.500000  0.500000  0.797100  1.0
+  B  B7  1  0.000000  0.000000  0.797100  1.0
+  B  B8  1  0.500000  0.500000  0.202900  1.0
+  B  B9  1  0.175900  0.038000  0.500000  1.0
+  B  B10  1  0.962000  0.175900  0.500000  1.0
+  B  B11  1  0.038000  0.824100  0.500000  1.0
+  B  B12  1  0.675900  0.462000  0.500000  1.0
+  B  B13  1  0.324100  0.538000  0.500000  1.0
+  B  B14  1  0.824100  0.962000  0.500000  1.0
+  B  B15  1  0.538000  0.675900  0.500000  1.0
+  B  B16  1  0.462000  0.324100  0.500000  1.0
+  B  B17  1  0.086700  0.586700  0.500000  1.0
+  B  B18  1  0.413300  0.086700  0.500000  1.0
+  B  B19  1  0.586700  0.913300  0.500000  1.0
+  B  B20  1  0.913300  0.413300  0.500000  1.0
+loop_
+ _atom_site_moment_label
+ _atom_site_moment_crystalaxis_x
+ _atom_site_moment_crystalaxis_y
+ _atom_site_moment_crystalaxis_z
+  Gd1  0.0  0.0  7.14177848998
+  Gd2  0.0  0.0  7.14177848998
+  Gd3  0.0  0.0  -7.14177848998
+  Gd4  0.0  0.0  -7.14177848998
+"""
+
+        self.assertEqual(cw.__str__(), cw_ref_string_magnitudes)
 
     def test_bibtex(self):
 
