@@ -1475,3 +1475,39 @@ def bulk_coordination(slab, bondlength, bond):
 
     return min(mean_cn)
 
+
+def slab_filter(slabs, bonds):
+    # first filter out non equal surfaces
+    equal_surface_slabs = []
+    for slab in slabs:
+        bbtop = bb_manual(slab, bonds, top=True)
+        bbbottom = bb_manual(slab, bonds, top=False)
+        equal_surfs = [bbtop[bond] == bbbottom[bond] for bond in bonds.keys()]
+        if all(equal_surfs):
+            equal_surface_slabs.append(slab)
+
+    # second, group slabs with same surface coordination
+    slabs_dict = {}
+    for slab in equal_surface_slabs:
+        bb = bb_manual(slab, bonds, top=True)
+        bbs = tuple(bb.values())
+        if bbs not in slabs_dict.keys():
+            slabs_dict[bbs] = []
+        slabs_dict[bbs].append(slab)
+
+    # third, filter out slabs with same surface
+    # coordination, giving preference to symmetric slabs
+    unique_terminations = []
+    for bbs in slabs_dict.keys():
+        sym_slab = None
+
+        for slab in slabs_dict[bbs]:
+            if slab.is_symmetric():
+                sym_slab = slab
+                break
+        if not sym_slab:
+            unique_terminations.append(slab)
+        else:
+            unique_terminations.append(sym_slab)
+
+    return unique_terminations
