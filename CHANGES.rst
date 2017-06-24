@@ -1,6 +1,14 @@
 Change log
 ==========
 
+v2017.6.24
+----------
+* New package pymatgen.ext supporting external interfaces. Materials Project
+  REST interface has been moved to pymatgen.ext.matproj. Two new interfaces have
+  been added: i) Support for John Hopkin's Mueller group's efficient k-point
+  servelet. ii) Support for Crystallography Open Database structure queries and
+  downloads.
+
 v2017.6.22
 ----------
 * Speed up pmg load times.
