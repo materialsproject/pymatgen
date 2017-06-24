@@ -8,6 +8,9 @@ see http://muellergroup.jhu.edu/K-Points.html.
 """
 
 import requests
+import tempfile
+import shutil
+import os
 from monty.tempfile import ScratchDir
 
 from pymatgen.io.vasp.inputs import Kpoints
@@ -55,27 +58,33 @@ def get_kpoints(structure, min_distance=0, min_total_kpoints=1,
     precalc = precalc.replace('REMOVESYMMETRY', 'REMOVE_SYMMETRY')
     precalc = precalc.replace('TIMEREVERSAL', 'TIME_REVERSAL')
     url = "http://muellergroup.jhu.edu:8080/PreCalcServer/PreCalcServlet"
-    with ScratchDir(".") as temp_dir:
-        precalc_file = open("PRECALC", 'w+')
-        poscar_file = open("POSCAR", 'w+')
-        incar_file = open("INCAR", 'w+')
-        
-        precalc_file.write(precalc)
-        poscar_file.write(structure.to("POSCAR"))
-        files = [("fileupload", precalc_file),
-                 ("fileupload", poscar_file)]
-        if incar:
-            incar_file.write(incar.get_string())
-            files.append(("fileupload", incar_file))
-        
-        precalc_file.seek(0)
-        poscar_file.seek(0)
-        incar_file.seek(0)
-        
-        r = requests.post(url, files=files)
-        
-        precalc_file.close()
-        poscar_file.close()
-        incar_file.close()
+    temp_dir_name = tempfile.mkdtemp()
+    cwd = os.getcwd()
+    os.chdir(temp_dir_name)
+
+    precalc_file = open("PRECALC", 'w+')
+    poscar_file = open("POSCAR", 'w+')
+    incar_file = open("INCAR", 'w+')
     
+    precalc_file.write(precalc)
+    poscar_file.write(structure.to("POSCAR"))
+    files = [("fileupload", precalc_file),
+             ("fileupload", poscar_file)]
+    if incar:
+        incar_file.write(incar.get_string())
+        files.append(("fileupload", incar_file))
+    
+    precalc_file.seek(0)
+    poscar_file.seek(0)
+    incar_file.seek(0)
+    
+    r = requests.post(url, files=files)
+    
+    precalc_file.close()
+    poscar_file.close()
+    incar_file.close()
+    os.chdir(cwd)
+
+    shutil.rmtree(temp_dir_name)
+
     return Kpoints.from_string(r.text)
