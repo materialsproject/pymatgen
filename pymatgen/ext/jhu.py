@@ -83,8 +83,9 @@ def get_kpoints(structure, min_distance=0, min_total_kpoints=1,
     precalc_file.close()
     poscar_file.close()
     incar_file.close()
+    kpoints = Kpoints.from_string(r.text)
     os.chdir(cwd)
 
     shutil.rmtree(temp_dir_name)
 
-    return Kpoints.from_string(r.text)
+    return kpoints
