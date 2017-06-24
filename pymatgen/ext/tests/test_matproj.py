@@ -8,7 +8,7 @@ import unittest
 import os
 
 from pymatgen import SETTINGS
-from pymatgen.matproj.rest import MPRester, MPRestError
+from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -102,13 +102,13 @@ class MPResterTest(unittest.TestCase):
             "mp-540081"), "mp-19017")
 
     def test_get_materials_id_references(self):
-        # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
+        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_get_materials_id_references
         m = MPRester()
         data = m.get_materials_id_references('mp-123')
         self.assertTrue(len(data) > 1000)
 
     def test_find_structure(self):
-        # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
+        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_find_structure
         m = MPRester()
         ciffile = os.path.join(test_dir, 'Fe3O4.cif')
         data = m.find_structure(ciffile)

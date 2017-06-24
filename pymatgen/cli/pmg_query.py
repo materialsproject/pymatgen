@@ -8,7 +8,7 @@ from __future__ import division, unicode_literals, print_function
 #TODO: Replace with proper module doc.
 """
 
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 import json
 from monty.serialization import dumpfn
 import re

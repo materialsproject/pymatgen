@@ -1,10 +1,10 @@
 Change log
 ==========
 
-v2017.06.08
------------
-* Switch to date-based version for pymatgen.
-* Electronegativities now available for all elements except for He, Ne and
-  Ar, which are set to infinity with a warning.
-* Bond lengths are now set to sum of atomic radii with warning if not available.
-* Bug fixes to boltztrap, symmetry for trigonal-hex systems, etc.
+v2017.6.22
+----------
+* Speed up pmg load times.
+* Selective dynamics parsing for Vasprun (Joseph Montaya)
+* Allow element radius updates in get_dimensionality (Viet-Anh Ha).
+* Dielectric function parse for vasp 5.4.4 (Zhenbin Wang).
+* Parsing for CIF implicit hydrogens (Xiaohui Qu).

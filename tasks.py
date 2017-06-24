@@ -148,7 +148,7 @@ def release_github(ctx):
     payload = {
         "tag_name": "v" + NEW_VER,
         "target_commitish": "master",
-        "name": "v" + ver,
+        "name": "v" + NEW_VER,
         "body": desc,
         "draft": False,
         "prerelease": False
@@ -164,13 +164,13 @@ def release_github(ctx):
 def update_changelog(ctx):
 
     output = subprocess.check_output(["git", "log", "--pretty=format:%s",
-                                      "v%s..HEAD" % ver])
+                                      "v%s..HEAD" % CURRENT_VER])
     lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]
     with open("CHANGES.rst") as f:
         contents = f.read()
     l = "=========="
     toks = contents.split(l)
-    head = "\n\nv%s\n-----------\n" % NEW_VER
+    head = "\n\nv%s\n" % NEW_VER + "-" * (len(NEW_VER) + 1) + "\n"
     toks.insert(-1, head + "\n".join(lines))
     with open("CHANGES.rst", "w") as f:
         f.write(toks[0] + l + "".join(toks[1:]))
