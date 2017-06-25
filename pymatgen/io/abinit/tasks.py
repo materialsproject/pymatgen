@@ -55,6 +55,7 @@ __all__ = [
     "SigmaTask",
     "OpticTask",
     "AnaddbTask",
+    "EphTask",
 ]
 
 import logging
@@ -3642,6 +3643,44 @@ class EphTask(AbinitTask):
     Class for electron-phonon calculations.
     """
     color_rgb = np.array((255, 128, 0)) / 255
+
+    def make_links(self):
+        """Replace the default behaviour of make_links"""
+
+        for dep in self.deps:
+            if dep.exts == ["1DEN"]:
+                phonon_task = dep.node
+
+                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
+                rfdir   = list(phonon_task.input["rfdir"])
+                rfatpol = list(phonon_task.input["rfatpol"])
+
+                if rfatpol[0] != rfatpol[1]:
+                    raise RuntimeError("Only one atom should be specifned in rfdir but rfatpol is %d %d" % tuple(rfatpol) )
+                rfatpol = rfatpol[0]-1
+
+                if rfdir.count(1) != 1:
+                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
+
+                idir = rfdir.index(1) + 1
+                natoms = len(phonon_task.input.structure)
+                den_case = idir +  3 * rfatpol
+
+                #TODO: make this a bit nicer (only for testing ATM)
+                out_den = dep.node.outdir.path_in("out_DEN%d.nc" % den_case)
+                infile = self.indir.path_in("in_DEN.nc")
+                os.symlink(out_den, infile)
+
+            elif dep.exts == ["WFK"]:
+                gs_task = dep.node
+                out_wfk = gs_task.outdir.has_abiext("WFK")
+                if not out_wfk:
+                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+
+                os.symlink(out_wfk, self.indir.path_in("in_WFK.nc"))
+
+            else:
+                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
 
 
 class ManyBodyTask(AbinitTask):
