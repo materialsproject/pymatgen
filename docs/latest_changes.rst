@@ -9,4 +9,4 @@ v2017.6.24
 * Two new interfaces have been added: i) Support for John Hopkin's Mueller 
   group's efficient k-point servelet (J Montaya). ii) Support for
   Crystallography Open Database structure queries and downloads. (S. P. Ong).
-  See `examples`_ page for usage.
+  See the examples page for usage in getting structures from online sources.
