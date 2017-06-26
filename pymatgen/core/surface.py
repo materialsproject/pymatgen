@@ -271,6 +271,16 @@ class Slab(Structure):
         unique = [ss[0] for ss in s.group_structures(slabs)]
         return unique
 
+    def get_primitive_slab(self, tolerance=0.25):
+        """
+        Returns the primitive slab
+        """
+        primitive = self.get_primitive_structure(tolerance=tolerance)
+        return Slab(primitive.lattice, primitive.species,
+                    primitive.frac_coords, self.miller_index,
+                    self.oriented_unit_cell, self.shift,
+                    self.scale_factor)
+
     def is_symmetric(self, symprec=0.1):
         """
         Checks if slab is symmetric, i.e., contains inversion symmetry.
@@ -283,6 +293,31 @@ class Slab(Structure):
         """
         sg = SpacegroupAnalyzer(self, symprec=symprec)
         return sg.is_laue_class()
+
+
+    def are_surfaces_equal(self):
+
+        surfsites = self.get_surface_sites()
+        species = [s[0].specie for s in surfsites]
+        coords = [s[0].frac_coords for s in surfsites]
+        surface = Structure(self.lattice, species, coords)
+        a = SpacegroupAnalyzer(surface)
+        symm_structure = a.get_symmetrized_structure()
+
+        equal_surf_sites, total = [], 0
+        for equ in symm_structure.equivalent_sites:
+            top, bottom = 0, 0
+            for s in equ:
+                total += 1
+                if s.frac_coords[2] > 0.5:
+                    top += 1
+                else:
+                    bottom += 1
+            equal_surf_sites.append(top == bottom)
+        equal_surf_sites.append(total == len(surface))
+
+
+        return all(equal_surf_sites)
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -389,6 +424,7 @@ class Slab(Structure):
         Returns the slab as a Structure object
         """
         return Structure(self.lattice, self.species, self.frac_coords)
+
 
     def add_adsorbate_atom(self, indices, specie, distance):
         """
@@ -1454,7 +1490,7 @@ def bulk_coordination(slab, bondlength, bond):
     # coordination for the first specie relative
     # to the second only. If list of one species,
     # find coordination for all neighbors
-    print(bond)
+
     center_ion = bond[0]
     mean_cn = []
     ucell = slab.oriented_unit_cell
