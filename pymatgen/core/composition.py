@@ -390,6 +390,17 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         return self.get_reduced_formula_and_factor()[0]
 
     @property
+    def hill_formula(self):
+        c = self.element_composition
+        elements = sorted([el.symbol for el in c.keys()])
+        if "C" in elements:
+            elements = ["C"] + [el for el in elements if el != "C"]
+
+        formula = ["%s%s" % (el, formula_double_format(c[el]) if c[el] != 1 else "")
+                   for el in elements]
+        return " ".join(formula)
+
+    @property
     def elements(self):
         """
         Returns view of elements in Composition.

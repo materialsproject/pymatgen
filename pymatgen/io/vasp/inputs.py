@@ -1383,7 +1383,11 @@ def parse_list(s):
     return [float(y) for y in re.split(r"\s+", s.strip()) if not y.isalpha()]
 
 
-@cached_class
+Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
+OrbitalDescription = namedtuple('OrbitalDescription',
+                                ['l', 'E', 'Type', "Rcut", "Type2", "Rcut2"])
+
+
 class PotcarSingle(object):
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
@@ -1458,11 +1462,6 @@ class PotcarSingle(object):
                        "RRKJ": parse_list,
                        "GGA": parse_list}
 
-    Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
-    Description = namedtuple('OrbitalDescription', ['l', 'E',
-                                                    'Type', "Rcut",
-                                                    "Type2", "Rcut2"])
-
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
 
@@ -1511,16 +1510,12 @@ class PotcarSingle(object):
             for line in description_string.group(1).splitlines():
                 description = array_search.findall(line)
                 if description:
-                    descriptions.append(self.Description(int(description[0]),
-                                                         float(description[1]),
-                                                         int(description[2]),
-                                                         float(description[3]),
-                                                         int(description[4]) if
-                                                         len(description) > 4
-                                                         else None,
-                                                         float(description[5]) if
-                                                         len(description) > 4
-                                                         else None))
+                    descriptions.append(
+                        OrbitalDescription(
+                            int(description[0]), float(description[1]),
+                            int(description[2]), float(description[3]),
+                            int(description[4]) if len(description) > 4 else None,
+                            float(description[5]) if len(description) > 4 else None))
 
         if descriptions:
             PSCTR['OrbitalDescriptions'] = tuple(descriptions)
@@ -1655,7 +1650,7 @@ class PotcarSingle(object):
                 for item in v:
                     if isinstance(item, float):
                         hash_str += "{:.3f}".format(item)
-                    elif isinstance(item, (self.Orbital, self.Description)):
+                    elif isinstance(item, (Orbital, OrbitalDescription)):
                         for item_v in item:
                             if isinstance(item_v, (int, str)):
                                 hash_str += "{}".format(item_v)

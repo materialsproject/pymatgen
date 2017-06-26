@@ -78,7 +78,7 @@ class COD(object):
         # Standardize formula to the version used by COD.
 
         sql = 'select file from data where formula="- %s -"' % \
-            get_std_formula(formula)
+            Composition(formula).hill_formula
         text = self.query(sql).split("\n")
         cod_ids = []
         for l in text:
@@ -119,7 +119,7 @@ class COD(object):
         """
         structures = []
         sql = 'select file, sg from data where formula="- %s -"' % \
-              get_std_formula(formula)
+              Composition(formula).hill_formula
         text = self.query(sql).split("\n")
         text.pop(0)
         for l in text:
@@ -131,11 +131,3 @@ class COD(object):
                 structures.append({"structure": s, "cod_id": int(cod_id),
                                    "sg": sg})
         return structures
-
-
-def get_std_formula(formula):
-    c = Composition(formula).element_composition
-    values = sorted(c.items(), key=lambda x: x[0].symbol)
-    std_formula = ["%s%s" % (k, formula_double_format(v) if v != 1 else "")
-                   for k, v in values]
-    return " ".join(std_formula)

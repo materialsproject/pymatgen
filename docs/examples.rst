@@ -16,6 +16,8 @@ Basic functionality
   <_static/Plotting%20the%20electronic%20structure%20of%20Fe.html>`_
 * `Using Compatibility's explain method
   <_static/Explanation%20of%20Corrections.html>`_
+* `Getting structures from online sources
+  <_static/Getting%20crystal%20structures%20from%20online%20sources.html>`_
 
 Working with Materials API
 --------------------------
