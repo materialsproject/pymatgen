@@ -394,8 +394,11 @@ class ElasticTensor(NthOrderElasticTensor):
         return (1. - 2. / 3. * self.g_vrh / self.k_vrh) / \
                (2. + 2. / 3. * self.g_vrh / self.k_vrh)
 
-    def green_kristoffel(self, n):
-        return self.einsum_sequence([n, n], "ijkl,i,l")
+    def green_kristoffel(self, u):
+        """
+        Returns the Green-Kristoffel tensor for a second-order tensor
+        """
+        return self.einsum_sequence([u, u], "ijkl,i,l")
 
     @property
     def property_dict(self):
@@ -553,7 +556,7 @@ class ElasticTensorExpansion(TensorCollection):
     def omega(self, structure, n, u):
         # I'm not convinced this is correct
         # Should it be primitive cell?
-        l0 = np.dot(np.sum(structure.lattice.matrix(axis=0)), n)
+        l0 = np.dot(np.sum(structure.lattice.matrix, axis=0), n)
         l0 *= 1e-10 # in A
         weight = structure.composition.weight * 1.66054e-27 # in kg
         vol = structure.volume * 1e-30 # in m^3
@@ -567,12 +570,23 @@ class ElasticTensorExpansion(TensorCollection):
         pass
 
     def get_ggt(self, n, u):
-        gk = self.green_kristoffel(n, u)
+        """
+        Gets the Generalized Gruneisen tensor for a given
+        third-order elastic tensor expansion.
+
+        Args:
+            n (3x1 array-like): normal mode direction
+            u (3x1 array-like): polarization direction
+        """
+        gk = self[0].einsum_sequence([n, u, n, u])
         result =  -(2*gk*np.outer(u, u) + self[0].einsum_sequence([n, n]) \
             + self[1].einsum_sequence([n, u, n, u])) / (2*gk)
         return result
 
-    def get_tgt(self, structure=None, temperature = None, grid=[20, 20, 20]):
+    def get_tgt(self, temperature = None, structure=None, grid=[20, 20, 20]):
+        """
+        Gets the 
+        """
         if temperature and not structure:
             raise ValueError("If using temperature input, you must also "
                              "include structure")
@@ -644,6 +658,8 @@ class ElasticTensorExpansion(TensorCollection):
 
     def get_compliance_expansion(self):
         """
+        Gets a compliance tensor expansion from
+        the elastic tensor expansion.
         """
         #TODO: this might have a general form
         if not self.order <= 4:
@@ -667,6 +683,11 @@ class ElasticTensorExpansion(TensorCollection):
         return TensorCollection(ce_exp)
 
     def get_strain_from_stress(self, stress):
+        """
+        Gets the strain from a stress state according
+        to the compliance expansion corresponding to the
+        tensor expansion.
+        """
         compl_exp = self.get_compliance_expansion()
         strain = 0
         for n, compl in enumerate(compl_exp):
@@ -674,6 +695,14 @@ class ElasticTensorExpansion(TensorCollection):
         return strain
 
     def get_effective_ecs(self, strain, order=2):
+        """
+        Returns the effective elastic constants
+        from the elastic tensor expansion.
+
+        Args:
+            strain (Strain or 3x3 array-like): strain condition
+                under which to calculate the effective constants
+        """
         ec_sum = 0
         for n, ecs in enumerate(self[order-2:]):
             ec_sum += ecs.einsum_sequence([strain] * n) / factorial(n)
@@ -681,7 +710,12 @@ class ElasticTensorExpansion(TensorCollection):
 
     def get_wallace_tensor(self, tau):
         """
-        tau (3x3 array-like): stress at which to evaluate the wallace tensor
+        Gets the Wallace Tensor for determining yield strength
+        criteria.
+
+        Args:
+            tau (3x3 array-like): stress at which to evaluate
+                the wallace tensor
         """
         b = 0.5 * (np.einsum("ml,kn->klmn",tau, np.eye(3)) + \
                    np.einsum("km,ln->klmn",tau, np.eye(3)) + \
@@ -694,20 +728,40 @@ class ElasticTensorExpansion(TensorCollection):
 
     def get_symmetric_wallace_tensor(self, tau):
         """
+        Gets the symmetrized wallace tensor for determining
+        yield strength criteria.
 
+        Args:
+            tau (3x3 array-like): stress at which to evaluate
+                the wallace tensor. 
         """
         wallace = self.get_wallace_tensor(tau)
         return Tensor(0.5 * (wallace + np.transpose(wallace, [2, 3, 0, 1])))
 
     def get_stability_criteria(self, s, n):
         """
+        Gets the stability criteria from the symmetric
+        Wallace tensor from an input vector and stress
+        value.
+
+        Args:
+            s (float): Stress value at which to evaluate
+                the stability criteria
+            n (3x1 array-like): direction of the applied
+                stress
         """
+        n = get_uvec(n)
         stress = s * np.outer(n, n)
         sym_wallace = self.get_symmetric_wallace_tensor(stress)
         return np.linalg.det(sym_wallace.voigt)
 
     def get_yield_stress(self, n):
         """
+        Gets the yield stress for a given direction
+
+        Args:
+            n (3x1 array-like): direction for which to find the
+                yield stress
         """
         # TODO: root finding could be more robust
         comp = root(self.get_stability_criteria, -1, args=n)

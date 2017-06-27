@@ -253,18 +253,21 @@ class ElasticTensorExpansionTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.pk_stresses[0], calc_stress, decimal=2)
 
     def test_energy_density(self):
-        self.exp.energy_density(self.strains[0])
+        edensity = self.exp.energy_density(self.strains[0])
+        self.assertAlmostEqual(edensity, 1.36363099e-5)
 
     def test_gruneisen(self):
         # Get GGT
         ggt = self.exp_cu.get_ggt([1, 0, 0], [0, 1, 0])
-
+        self.assertArrayAlmostEqual(
+                np.eye(3)*np.array([4.92080537, 4.2852349, -0.7147651]), ggt)
         # Get TGT
         tgt = self.exp_cu.get_tgt()
+        self.assertArrayAlmostEqual(tgt, np.eye(3)*2.59631832)
 
         # Get heat capacity
         c = self.exp_cu.get_heat_capacity(300, self.cu, [1, 0, 0], [0, 1, 0])
-
+        
         # Get Gruneisen parameter
         gp = self.exp_cu.get_gruneisen_parameter()
         gpt = self.exp_cu.get_gruneisen_parameter(temperature=300, structure=self.cu)
