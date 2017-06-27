@@ -492,6 +492,12 @@ class MPStaticSet(MPRelaxSet):
         if self.lepsilon:
             incar["IBRION"] = 8
             incar["LEPSILON"] = True
+
+            # LPEAD=T: numerical evaluation of overlap integral prevents
+            # LRF_COMMUTATOR errors and can lead to better expt. agreement
+            # but produces slightly different results
+            incar["LPEAD"] = True
+
             # Note that DFPT calculations MUST unset NSW. NSW = 0 will fail
             # to output ionic.
             incar.pop("NSW", None)
