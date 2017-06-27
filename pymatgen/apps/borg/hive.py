@@ -4,6 +4,27 @@
 
 from __future__ import division, unicode_literals
 
+
+import abc
+import os
+import re
+import glob
+import logging
+import fnmatch
+import json
+import warnings
+
+import six
+from six.moves import zip
+
+from monty.io import zopen
+from pymatgen.io.vasp.inputs import Incar, Potcar, Poscar
+from pymatgen.io.vasp.outputs import Vasprun, Oszicar, Dynmat
+from pymatgen.io.gaussian import GaussianOutput
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
+from monty.json import MSONable
+
 """
 This module define the various drones used to assimilate data.
 """
@@ -16,24 +37,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 18, 2012"
 
-import abc
-import os
-import re
-import glob
-import logging
-import fnmatch
-import json
-
-import six
-from six.moves import zip
-
-from monty.io import zopen
-from pymatgen.io.vasp.inputs import Incar, Potcar, Poscar
-from pymatgen.io.vasp.outputs import Vasprun, Oszicar, Dynmat
-from pymatgen.io.gaussian import GaussianOutput
-from pymatgen.entries.computed_entries import ComputedEntry, \
-    ComputedStructureEntry
-from monty.json import MSONable
 
 logger = logging.getLogger(__name__)
 
@@ -128,24 +131,11 @@ class VaspToComputedEntryDrone(AbstractDrone):
             if len(vasprun_files) == 1:
                 filepath = vasprun_files[0]
             elif len(vasprun_files) > 1:
-                """
-                This is a bit confusing, since there maybe be multi-steps. By
-                default, assimilate will try to find a file simply named
-                vasprun.xml, vasprun.xml.bz2, or vasprun.xml.gz.  Failing which
-                it will try to get a relax2 from an aflow style run if
-                possible. Or else, a randomly chosen file containing
-                vasprun.xml is chosen.
-                """
-                for fname in vasprun_files:
-                    if os.path.basename(fname) in ["vasprun.xml",
-                                                   "vasprun.xml.gz",
-                                                   "vasprun.xml.bz2"]:
-                        filepath = fname
-                        break
-                    if re.search(r"relax2", fname):
-                        filepath = fname
-                        break
-                    filepath = fname
+                # Since multiple files are ambiguous, we will always read
+                # the one that it the last one alphabetically.
+                filepath = sorted(vasprun_files)[-1]
+                warnings.warn("%d vasprun.xml.* found. %s is being parsed." %
+                              (len(vasprun_files), filepath))
 
         try:
             vasprun = Vasprun(filepath)
@@ -221,7 +211,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 for filename in (
                     "INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"
                 ):
-                    files = glob.glob(os.path.join(path, filename + "*"))
+                    files = sorted(glob.glob(os.path.join(path, filename + "*")))
                     if len(files) < 1:
                         continue
                     if len(files) == 1 or filename == "INCAR" or \
@@ -229,29 +219,17 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         files_to_parse[filename] = files[-1]\
                             if filename == "POTCAR" else files[0]
                     elif len(files) > 1:
-                        """
-                        This is a bit confusing, since there maybe be
-                        multiple steps. By default, assimilate will try to find
-                        a file simply named filename, filename.bz2, or
-                        filename.gz.  Failing which it will try to get a relax2
-                        from a custodian double relaxation style run if
-                        possible. Or else, a random file is chosen.
-                        """
-                        for fname in files:
-                            if fnmatch.fnmatch(os.path.basename(fname),
-                                               r"{}(\.gz|\.bz2)*"
-                                               .format(filename)):
-                                files_to_parse[filename] = fname
-                                break
-                            if fname == "POSCAR" and \
-                                    re.search(r"relax1", fname):
-                                files_to_parse[filename] = fname
-                                break
-                            if (fname in ("CONTCAR", "OSZICAR") and
-                                    re.search(r"relax2", fname)):
-                                files_to_parse[filename] = fname
-                                break
-                            files_to_parse[filename] = fname
+                        # Since multiple files are ambiguous, we will always
+                        # use the first one for POSCAR and the last one
+                        # alphabetically for CONTCAR and OSZICAR.
+
+                        if filename == "POSCAR":
+                            files_to_parse[filename] = files[0]
+                        else:
+                            files_to_parse[filename] = files[-1]
+                        warnings.warn(
+                            "%d files found. %s is being parsed." %
+                            (len(files), files_to_parse[filename]))
 
             poscar, contcar, incar, potcar, oszicar, dynmat = [None]*6
             if 'POSCAR' in files_to_parse:
