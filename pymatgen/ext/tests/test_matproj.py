@@ -180,6 +180,9 @@ class MPResterTest(unittest.TestCase):
                                           property_data=["cif"])
         self.assertIn("cif", entries[0].data)
 
+        for e in self.rester.get_entries("CdO2", inc_structure=False):
+            self.assertIsNotNone(e.data["oxide_type"])
+
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
