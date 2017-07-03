@@ -309,7 +309,7 @@ class MPRester(object):
         # TODO: This is a very hackish way of doing this. It should be fixed
         # on the REST end.
         params = ["run_type", "is_hubbard", "pseudo_potential", "hubbards",
-                  "potcar_symbols"]
+                  "potcar_symbols", "oxide_type"]
         if compatible_only:
             props = ["energy", "unit_cell_formula", "task_id"] + params
             if property_data:
@@ -332,7 +332,9 @@ class MPRester(object):
                 d["potcar_symbols"] = [
                     "%s %s" % (d["pseudo_potential"]["functional"], l)
                     for l in d["pseudo_potential"]["labels"]]
-                data = {k: d[k] for k in property_data} if property_data else None
+                data = {"oxide_type": d["oxide_type"]}
+                if property_data:
+                    data.update({k: d[k] for k in property_data})
                 if not inc_structure:
                     e = ComputedEntry(d["unit_cell_formula"], d["energy"],
                                       parameters={k: d[k] for k in params},
@@ -412,7 +414,8 @@ class MPRester(object):
             ComputedEntry or ComputedStructureEntry object.
         """
         data = self.get_entries(material_id, compatible_only=compatible_only,
-                                inc_structure=inc_structure, property_data=property_data)
+                                inc_structure=inc_structure,
+                                property_data=property_data)
         return data[0]
 
     def get_dos_by_material_id(self, material_id):

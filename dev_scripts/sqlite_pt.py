@@ -1,6 +1,7 @@
 import json
-import yaml
+import ruamel.yaml as yaml
 import sqlite3
+from monty.serialization import loadfn
 
 
 def main():
@@ -63,9 +64,17 @@ def load_yaml():
     with open("periodic_table.yaml") as f:
         return yaml.load(f)
 
+def cload_yaml():
+    with open("periodic_table.yaml") as f:
+        return yaml.load(f, Loader=yaml.CSafeLoader)
+
+def monty_load_yaml():
+    return loadfn("periodic_table.yaml")
+
 if __name__ == "__main__":
     import timeit
     n = 20
     print(timeit.timeit("load_sql()", setup="from __main__ import load_sql", number=n))
     print(timeit.timeit("load_json()", setup="from __main__ import load_json", number=n))
-    # print(timeit.timeit("load_yaml()", setup="from __main__ import load_yaml", number=n))
+    print(timeit.timeit("cload_yaml()", setup="from __main__ import cload_yaml", number=n))
+    print(timeit.timeit("monty_load_yaml()", setup="from __main__ import monty_load_yaml", number=n))
