@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2017.7.4
+---------
+* Bug fixes for oxide corrections for MP queried entries, and pickling of Potcars.
+* Default to LPEAD=T for LEPSILON=T. 
+
 v2017.6.24
 ----------
 * New package pymatgen.ext supporting external interfaces. Materials Project
