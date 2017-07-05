@@ -437,22 +437,4 @@ class DiffFitTest(PymatgenTest):
             self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
 
 if __name__ == '__main__':
-    """
-    with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
-        toec_dict = json.load(f)
-    cu = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.623),
-                                            ["Cu"], [[0]*3])
-    # Fourth-order
-    indices = [(0,0,0,0), (0,0,0,1), (0,0,1,1), (0,0,1,2), 
-                   (0,0,3,3), (0,0,5,5), (0,1,5,5), (0,2,5,5), 
-                   (0,3,4,5), (4,4,5,5), (5,5,5,5)]
-    values = [11936., 6834., 6602., -98., 135., 6628., -308.,
-              5736., -417., -191., 5088.]
-    cu_c4 = Tensor.from_values_indices(values, indices, structure=cu,
-                                       populate=True, verbose=True)
-    toec_dict["Cu_fourth_order"] = cu_c4.voigt.tolist()
-    from monty.serialization import dumpfn
-    dumpfn(toec_dict, os.path.join(test_dir, 'test_toec_data.json'))
-    stop
-    """
     unittest.main()
