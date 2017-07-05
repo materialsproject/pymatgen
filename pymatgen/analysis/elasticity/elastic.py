@@ -551,14 +551,6 @@ class ElasticTensorExpansion(TensorCollection):
         return sum([c.energy_density(strain, convert_GPa_to_eV)
                     for c in self])
 
-
-
-    def sound_velocity(self, n, u):
-        """
-        Get sound velocity
-        """
-        pass
-
     def get_ggt(self, n, u):
         """
         Gets the Generalized Gruneisen tensor for a given
