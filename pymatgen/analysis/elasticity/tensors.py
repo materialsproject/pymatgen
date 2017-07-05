@@ -140,25 +140,27 @@ class Tensor(np.ndarray):
                                                    [0., 0., 0.])
         return self.transform(sop)
 
-    def einsum_sequence(self, other_tensors, einsum_string=None):
+    def einsum_sequence(self, other_arrays, einsum_string=None):
         """
         Calculates the result of an einstein summation expression
         """
-        if not isinstance(other_tensors, list):
+        if not isinstance(other_arrays, list):
             raise ValueError("other tensors must be list of "
                              "tensors or tensor input")
-        other_tensors = TensorCollection(other_tensors)
 
+        other_arrays = [np.array(a) for a in other_arrays]
         if not einsum_string:
+            #other_tensors = TensorCollection(other_tensors)
             lc = string.ascii_lowercase
             einsum_string = lc[:self.rank]
             other_indices = ''
-            idx = self.rank - sum(other_tensors.ranks) 
-            for length in other_tensors.ranks:
+            other_ranks = [len(a.shape) for a in other_arrays]
+            idx = self.rank - sum(other_ranks)
+            for length in other_ranks:
                 einsum_string += ',' + lc[idx:idx + length]
                 idx += length
 
-        einsum_args = [self] + list(other_tensors)
+        einsum_args = [self] + list(other_arrays)
         return np.einsum(einsum_string, *einsum_args)
 
     @property
