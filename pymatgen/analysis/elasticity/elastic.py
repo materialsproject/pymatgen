@@ -13,11 +13,13 @@ from pymatgen.core.operations import SymmOp
 from scipy.misc import factorial
 from scipy.integrate import quad
 from scipy.optimize import root
+from monty.serialization import loadfn
 from collections import OrderedDict
 import numpy as np
 import warnings
 import itertools
 import string
+import os
 
 import sympy as sp
 import quadpy
@@ -572,7 +574,7 @@ class ElasticTensorExpansion(TensorCollection):
             + self[1].einsum_sequence([n, u, n, u])) / (2*gk)
         return result
 
-    def get_tgt(self, temperature = None, structure=None, quadrature=None):
+    def get_tgt(self, temperature = None, structure=None, quad=None):
         """
         Gets the thermodynamic Gruneisen tensor (TGT) by via an
         integration of the GGT weighted by the directional heat
@@ -588,16 +590,21 @@ class ElasticTensorExpansion(TensorCollection):
             structure (float): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
-            quadrature (quadpy object): quadrature for integration,
-                defaults to quadpy.sphere.Lebedev(19)
+            quad (dict): quadrature for integration, should be
+                dictionary with "points" and "weights" keys defaults 
+                to quadpy.sphere.Lebedev(19) as read from file
         """
         if temperature and not structure:
             raise ValueError("If using temperature input, you must also "
                              "include structure")
 
-        quad = quadrature or quadpy.sphere.Lebedev(19)
+        if not quad:
+            quad = loadfn(os.path.join(os.path.dirname(__file__),
+                                       "quad_data.json"))
+        points = quad['points']
+        weights = quad['weights']
         num, denom, c = np.zeros((3, 3)), 0, 1
-        for p, w in zip(quad.points, quad.weights):
+        for p, w in zip(points, weights):
             gk = ElasticTensor(self[0]).green_kristoffel(p)
             rho_wsquareds, us = np.linalg.eigh(gk)
             us = [u / np.linalg.norm(u) for u in np.transpose(us)]
@@ -611,7 +618,7 @@ class ElasticTensorExpansion(TensorCollection):
         return num / denom
 
     def get_gruneisen_parameter(self, temperature=None, structure=None,
-                                quadrature=None):
+                                quad=None):
         """
         Gets the single average gruneisen parameter from the TGT.
 
@@ -621,10 +628,11 @@ class ElasticTensorExpansion(TensorCollection):
             structure (float): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
-            quadrature (quadpy object): quadrature for integration,
-                defaults to quadpy.sphere.Lebedev(19)
+            quad (dict): quadrature for integration, should be
+                dictionary with "points" and "weights" keys defaults 
+                to quadpy.sphere.Lebedev(19) as read from file
         """
-        return np.trace(self.get_tgt(temperature, structure, quadrature)) / 3.
+        return np.trace(self.get_tgt(temperature, structure, quad)) / 3.
 
     def get_heat_capacity(self, temperature, structure, n, u):
         """
