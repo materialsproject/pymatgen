@@ -7,9 +7,10 @@ import os
 
 import numpy as np
 from pymatgen.analysis.elasticity.elastic import * 
-from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain, Deformation
+from pymatgen.analysis.elasticity.strain import Strain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
+from pymatgen import Structure, Lattice
 from scipy.misc import central_diff_weights
 import warnings
 import json
@@ -63,14 +64,16 @@ class ElasticTensorTest(PymatgenTest):
         filepath = os.path.join(test_dir, 'Sn_def_stress.json')
         with open(filepath) as f:
             self.def_stress_dict = json.load(f)
+        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+            self.toec_dict = json.load(f)
         self.structure = self.get_structure("Sn")
 
         warnings.simplefilter("always")
 
     def test_properties(self):
         # compliance tensor
-        self.assertArrayAlmostEqual(np.linalg.inv(self.elastic_tensor_1.voigt),
-                                    self.elastic_tensor_1.compliance_tensor)
+        ct = ComplianceTensor.from_voigt(np.linalg.inv(self.elastic_tensor_1.voigt))
+        self.assertArrayAlmostEqual(ct, self.elastic_tensor_1.compliance_tensor)
         # KG average properties
         self.assertAlmostEqual(38.49111111111, self.elastic_tensor_1.k_voigt)
         self.assertAlmostEqual(22.05866666666, self.elastic_tensor_1.g_voigt)
@@ -97,6 +100,22 @@ class ElasticTensorTest(PymatgenTest):
         self.assertAlmostEqual(prop_dict["homogeneous_poisson"], 0.26579965576)
         for k, v in prop_dict.items():
             self.assertAlmostEqual(getattr(self.elastic_tensor_1, k), v)
+
+    def test_directional_elastic_mod(self):
+        self.assertAlmostEqual(self.elastic_tensor_1.directional_elastic_mod([1, 0, 0]),
+                               self.elastic_tensor_1.voigt[0, 0])
+        self.assertAlmostEqual(self.elastic_tensor_1.directional_elastic_mod([1, 1, 1]),
+                               73.624444444)
+
+    def test_compliance_tensor(self):
+        stress = self.elastic_tensor_1.calculate_stress([0.01] + [0]*5)
+        comp = self.elastic_tensor_1.compliance_tensor
+        strain = Strain(comp.einsum_sequence([stress]))
+        self.assertArrayAlmostEqual(strain.voigt, [0.01] + [0]*5)
+
+    def test_directional_poisson_ratio(self):
+        v_12 = self.elastic_tensor_1.directional_poisson_ratio([1, 0, 0], [0, 1, 0])
+        self.assertAlmostEqual(v_12, 0.321, places=3)
 
     def test_structure_based_methods(self):
         # trans_velocity
@@ -166,20 +185,12 @@ class ElasticTensorTest(PymatgenTest):
                                          [0, 0, 0, 0, 26.35, 0],
                                          [0, 0, 0, 0, 0, 26.35]])
 
-    def test_from_stress_dict(self):
-        stress_dict = dict(list(zip([IndependentStrain(def_matrix) for def_matrix
-                                in self.def_stress_dict['deformations']],
-                                [Stress(stress_matrix) for stress_matrix
-                                in self.def_stress_dict['stresses']])))
-        minimal_sd = {k:v for k, v in stress_dict.items() 
-                      if (abs(k[k.ij] - 0.015) < 1e-10
-                      or  abs(k[k.ij] - 0.01005) < 1e-10)}
-        with warnings.catch_warnings(record = True):
-            et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
-            et_from_minimal_sd = ElasticTensor.from_stress_dict(minimal_sd)
-        self.assertArrayAlmostEqual(et_from_sd.voigt_symmetrized.round(2),
-                                    self.elastic_tensor_1)
-        self.assertAlmostEqual(50.63394169, et_from_minimal_sd[0,0,0,0])
+    def test_from_independent_strains(self):
+        strains = self.toec_dict["strains"]
+        stresses = self.toec_dict["stresses"]
+        with warnings.catch_warnings(record=True) as w:
+            et = ElasticTensor.from_independent_strains(strains, stresses)
+        self.assertArrayAlmostEqual(et.voigt, self.toec_dict["C2_raw"], decimal=-1)
 
     def test_energy_density(self):
 
@@ -212,6 +223,20 @@ class ElasticTensorExpansionTest(PymatgenTest):
         self.c2 = self.data_dict["C2_raw"]
         self.c3 = self.data_dict["C3_raw"]
         self.exp = ElasticTensorExpansion.from_voigt([self.c2, self.c3])
+        self.cu = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.623),
+                                            ["Cu"], [[0]*3])
+        indices = [(0, 0), (0, 1), (3, 3)]
+        values = [167.8, 113.5, 74.5]
+        cu_c2 = ElasticTensor.from_values_indices(values, indices, structure=self.cu,
+                                                  populate=True)
+        indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2),
+                   (0, 3, 3), (0, 5, 5), (3, 4, 5)]
+        values = [-1507., -965., -71., -7., -901., 45.]
+        cu_c3 = Tensor.from_values_indices(values, indices, structure=self.cu, 
+                                           populate=True)
+        self.exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
+        cu_c4 = Tensor.from_voigt(self.data_dict["Cu_fourth_order"])
+        self.exp_cu_4 = ElasticTensorExpansion([cu_c2, cu_c3, cu_c4])
 
     def test_init(self):
         cijkl = Tensor.from_voigt(self.c2)
@@ -228,7 +253,64 @@ class ElasticTensorExpansionTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.pk_stresses[0], calc_stress, decimal=2)
 
     def test_energy_density(self):
-        self.exp.energy_density(self.strains[0])
+        edensity = self.exp.energy_density(self.strains[0])
+        self.assertAlmostEqual(edensity, 1.36363099e-5)
+
+    def test_gruneisen(self):
+        # Get GGT
+        ggt = self.exp_cu.get_ggt([1, 0, 0], [0, 1, 0])
+        self.assertArrayAlmostEqual(
+                np.eye(3)*np.array([4.92080537, 4.2852349, -0.7147651]), ggt)
+        # Get TGT
+        tgt = self.exp_cu.get_tgt()
+        self.assertArrayAlmostEqual(tgt, np.eye(3)*2.59631832)
+
+        # Get heat capacity
+        c = self.exp_cu.get_heat_capacity(300, self.cu, [1, 0, 0], [0, 1, 0])
+        
+        # Get Gruneisen parameter
+        gp = self.exp_cu.get_gruneisen_parameter()
+        self.assertAlmostEqual(gp, 2.59631832)
+        gpt = self.exp_cu.get_gruneisen_parameter(temperature=200, structure=self.cu)
+
+    def test_thermal_expansion_coeff(self):
+        #TODO get rid of duplicates
+        alpha_dp = self.exp_cu.thermal_expansion_coeff(self.cu, 300, 
+                                                       mode="dulong-petit")
+        alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300, 
+                                                          mode="debye")
+        self.assertArrayAlmostEqual(21.4533472e-06 * np.eye(3), alpha_debye)
+
+    def test_get_compliance_expansion(self):
+        ce_exp = self.exp_cu.get_compliance_expansion()
+        et_comp = ElasticTensorExpansion(ce_exp)
+        strain_orig = Strain.from_voigt([0.01, 0, 0, 0, 0, 0])
+        stress = self.exp_cu.calculate_stress(strain_orig)
+        strain_revert = et_comp.calculate_stress(stress)
+        self.assertArrayAlmostEqual(strain_orig, strain_revert, decimal=4)
+
+    def test_get_effective_ecs(self):
+        # Ensure zero strain is same as SOEC
+        test_zero = self.exp_cu.get_effective_ecs(np.zeros((3, 3)))
+        self.assertArrayAlmostEqual(test_zero, self.exp_cu[0])
+        s = np.zeros((3, 3))
+        s[0, 0] = 0.02
+        test_2percent = self.exp_cu.get_effective_ecs(s)
+        diff = test_2percent - test_zero
+        self.assertArrayAlmostEqual(self.exp_cu[1].einsum_sequence([s]), diff)
+
+    def test_get_strain_from_stress(self):
+        strain = Strain.from_voigt([0.05, 0, 0, 0, 0, 0])
+        stress3 = self.exp_cu.calculate_stress(strain)
+        strain_revert3 = self.exp_cu.get_strain_from_stress(stress3)
+        self.assertArrayAlmostEqual(strain, strain_revert3, decimal=2)
+        # fourth order
+        stress4 = self.exp_cu_4.calculate_stress(strain)
+        strain_revert4 = self.exp_cu_4.get_strain_from_stress(stress4)
+        self.assertArrayAlmostEqual(strain, strain_revert4, decimal=2)
+
+    def test_get_yield_stress(self):
+        ys = self.exp_cu_4.get_yield_stress([1, 0, 0])
 
 
 class NthOrderElasticTensorTest(PymatgenTest):
@@ -329,6 +411,7 @@ class DiffFitTest(PymatgenTest):
         strain_states = np.eye(6).tolist()
         m2, abs = generate_pseudo(strain_states, order=2)
         m3, abs = generate_pseudo(strain_states, order=3)
+        m4, abs = generate_pseudo(strain_states, order=4)
 
     def test_fit(self):
         cdf = diff_fit(self.strains, self.pk_stresses,
