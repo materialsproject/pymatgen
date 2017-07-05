@@ -6,7 +6,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.elasticity.tensors import Tensor
 from pymatgen.analysis.elasticity.strain import Strain, Deformation,\
-        convert_strain_to_deformation
+        convert_strain_to_deformation, DeformedStructureSet
 from pymatgen.util.testing import PymatgenTest
 import numpy as np
 import warnings
