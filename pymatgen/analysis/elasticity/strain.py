@@ -105,8 +105,8 @@ class DeformedStructureSet(collections.Sequence):
     can be used to calculate linear stress-strain response
     """
 
-    def __init__(self, rlxd_str, nd=0.01, ns=0.08,
-                 num_norm=4, num_shear=4, symmetry=False):
+    def __init__(self, rlxd_str, norm_strains=[-0.01, -0.005, 0.005, 0.01],
+                 shear_strains=[-0.06, -0.03, 0.03, 0.06], symmetry=False):
         """
         constructs the deformed geometries of a structure.  Generates
         m + n deformed structures according to the supplied parameters.
@@ -115,25 +115,12 @@ class DeformedStructureSet(collections.Sequence):
             rlxd_str (structure): structure to undergo deformation, if
                 fitting elastic tensor is desired, should be a geometry
                 optimized structure
-            nd (float): maximum perturbation applied to normal deformation
-            ns (float): maximum perturbation applied to shear deformation
-            num_norm (int): number of deformation structures to generate for
-                normal deformation, must be even
-            num_shear (int): number of deformation structures to generate for
-                shear deformation, must be even
+            norm_strains (list of floats): strain values to apply
+                to each normal mode.
+            shear_strains (list of floats): strain values to apply
+                to each shear mode.
+            symmetry (bool): whether or not to use symmetry reduction.
         """
-
-        if num_norm % 2 != 0:
-            raise ValueError("Number of normal deformations (num_norm)"
-                             " must be even.")
-        if num_shear % 2 != 0:
-            raise ValueError("Number of shear deformations (num_shear)"
-                             " must be even.")
-
-        norm_deformations = np.linspace(-nd, nd, num=num_norm + 1)
-        norm_deformations = norm_deformations[norm_deformations.nonzero()]
-        shear_deformations = np.linspace(-ns, ns, num=num_shear + 1)
-        shear_deformations = shear_deformations[shear_deformations.nonzero()]
 
         self.undeformed_structure = rlxd_str
         self.deformations = []
@@ -141,14 +128,14 @@ class DeformedStructureSet(collections.Sequence):
 
         # Generate deformations
         for ind in [(0, 0), (1, 1), (2, 2)]:
-            for amount in norm_deformations:
-                defo = Deformation.from_index_amount(ind, amount)
-                self.deformations.append(defo)
+            for amount in norm_strains:
+                strain = Strain.from_index_amount(ind, amount)
+                self.deformations.append(strain.deformation_matrix)
 
         for ind in [(0, 1), (0, 2), (1, 2)]:
-            for amount in shear_deformations:
-                defo = Deformation.from_index_amount(ind, amount)
-                self.deformations.append(defo)
+            for amount in shear_strains:
+                strain = Strain.from_index_amount(ind, amount)
+                self.deformations.append(strain.deformation_matrix)
 
         # Perform symmetry reduction if specified
         if symmetry:
