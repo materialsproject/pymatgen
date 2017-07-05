@@ -5,6 +5,7 @@
 from __future__ import division, unicode_literals
 
 import os
+import warnings
 import six
 from six.moves import filter, map
 
@@ -251,6 +252,11 @@ class AnionCorrection(Correction):
                         correction += self.oxide_correction["oxide"] * \
                                       comp["O"]
                 else:
+                    warnings.warn(
+                        "No structure or oxide_type parameter present. Note"
+                        "that peroxide/superoxide corrections are not as "
+                        "reliable and relies only on detection of special"
+                        "formulas, e.g., Li2O2.")
                     rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
                         correction += self.oxide_correction["peroxide"] * \

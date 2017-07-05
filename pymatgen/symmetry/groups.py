@@ -37,7 +37,7 @@ def get_symm_data(name):
     global SYMM_DATA
     if SYMM_DATA is None:
         SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__),
-                                        "symm_data.yaml"))
+                                        "symm_data.json"))
     return SYMM_DATA[name]
 
 
@@ -185,7 +185,7 @@ class SpaceGroup(SymmetryGroup):
         Order of Space Group
     """
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__),
-                                   "symm_ops.yaml"))
+                                   "symm_ops.json"))
     SG_SYMBOLS = set(get_symm_data("space_group_encoding").keys())
     for op in SYMM_OPS:
         op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])
@@ -379,8 +379,12 @@ class SpaceGroup(SymmetryGroup):
             a = abc[0]
             return check(abc, [a, a, a], tol) and\
                 check(angles, [90, 90, 90], angle_tol)
-        elif crys_system == "hexagonal" or (crys_system == "trigonal" and
-                                            self.symbol.endswith("H")):
+        elif crys_system == "hexagonal" or (
+                crys_system == "trigonal" and (
+                    self.symbol.endswith("H") or
+                    self.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
+                                        153, 154, 156, 157, 158, 159, 162, 163,
+                                        164, 165])):
             a = abc[0]
             return check(abc, [a, a, None], tol)\
                 and check(angles, [90, 90, 120], angle_tol)

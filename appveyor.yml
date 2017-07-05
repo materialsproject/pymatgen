@@ -1,3 +1,6 @@
+services:
+  - mysql
+
 branches:
   except:
     - gh-pages

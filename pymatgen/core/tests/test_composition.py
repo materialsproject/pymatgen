@@ -89,6 +89,12 @@ class CompositionTest(PymatgenTest):
         self.assertRaises(TypeError, self.comp[0].__getitem__, "Hello")
         self.assertRaises(TypeError, self.comp[0].__getitem__, "Vac")
 
+    def test_hill_formula(self):
+        c = Composition("CaCO3")
+        self.assertEqual(c.hill_formula, "C Ca O3")
+        c = Composition("C2H5OH")
+        self.assertEqual(c.hill_formula, "C2 H6 O")
+
     def test_init_(self):
         self.assertRaises(CompositionError, Composition, {"H": -0.1})
         f = {'Fe': 4, 'Li': 4, 'O': 16, 'P': 4}

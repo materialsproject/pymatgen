@@ -525,9 +525,9 @@ class BSPlotter(object):
         self._maketicks(plt)
 
         # Main X and Y Labels
-        plt.xlabel(r'$\\mathrm{Wave\ Vector}$', fontsize=30)
-        ylabel = r'$\\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi \
-            else r'$\\mathrm{Energy\ (eV)}$'
+        plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
+        ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi \
+            else r'$\mathrm{Energy\ (eV)}$'
         plt.ylabel(ylabel, fontsize=30)
 
         # Draw Fermi energy, only if not the zero
@@ -1409,7 +1409,7 @@ class BSPlotterProjected(BSPlotter):
                                  + e_max)
                     else:
                         plt.ylim(ylim)
-                    plt.title(elt + "_" + numa + "_" + str(o))
+                    plt.title(elt + " " + numa + " " + str(o))
 
         return plt
 
@@ -1519,6 +1519,7 @@ class BSPlotterProjected(BSPlotter):
                                 raise ValueError("The invalid orbital '%s' was put into sum_orbs['%s']." % (orb, elt))
                             else:
                                 sum_morbs[elt] = individual_orbs[dictio[elt][0]]
+                                dictio[elt] = individual_orbs[dictio[elt][0]]
             else:
                 duplicate = copy.deepcopy(dictio[elt])
                 for orb in dictio[elt]:
