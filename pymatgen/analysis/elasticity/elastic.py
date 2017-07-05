@@ -20,6 +20,7 @@ import itertools
 import string
 
 import sympy as sp
+import quadpy
 
 """
 This module provides a class used to describe the elastic tensor,
@@ -549,19 +550,7 @@ class ElasticTensorExpansion(TensorCollection):
         return sum([c.energy_density(strain, convert_GPa_to_eV)
                     for c in self])
 
-    def green_kristoffel(self, n, u):
-        # TODO: do these need to be normalized?
-        return self[0].einsum_sequence([n, u, n, u])
 
-    def omega(self, structure, n, u):
-        # I'm not convinced this is correct
-        # Should it be primitive cell?
-        l0 = np.dot(np.sum(structure.lattice.matrix, axis=0), n)
-        l0 *= 1e-10 # in A
-        weight = structure.composition.weight * 1.66054e-27 # in kg
-        vol = structure.volume * 1e-30 # in m^3
-        vel = (1e9 * self.green_kristoffel(n, u) / (weight / vol)) ** 0.5
-        return vel / l0
 
     def sound_velocity(self, n, u):
         """
@@ -583,63 +572,113 @@ class ElasticTensorExpansion(TensorCollection):
             + self[1].einsum_sequence([n, u, n, u])) / (2*gk)
         return result
 
-    def get_tgt(self, temperature = None, structure=None, grid=[20, 20, 20]):
+    def get_tgt(self, temperature = None, structure=None, quadrature=None):
         """
-        Gets the 
+        Gets the thermodynamic Gruneisen tensor (TGT) by via an
+        integration of the GGT weighted by the directional heat
+        capacity.
+        
+        See refs:
+            R. N. Thurston and K. Brugger, Phys. Rev. 113, A1604 (1964).
+            K. Brugger Phys. Rev. 137, A1826 (1965).
+
+        Args:
+            temperature (float): Temperature in kelvin, if not specified
+                will return non-cv-normalized value
+            structure (float): Structure to be used in directional heat
+                capacity determination, only necessary if temperature
+                is specified
+            quadrature (quadpy object): quadrature for integration,
+                defaults to quadpy.sphere.Lebedev(19)
         """
         if temperature and not structure:
             raise ValueError("If using temperature input, you must also "
                              "include structure")
-        """
-        agrid, xyzs = euler_angle_grid_quick(*grid)
-        da, db, dg = [np.diff(agrid[i], axis=i)[0][0][0] for i in range(3)]
-        xyzs = xyzs.reshape((np.prod(xyzs.shape[:-2]), 3, 3))
-        a_elts = np.sin(agrid[1].ravel())*da*db
-        """
-        import os
-        MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-        led = np.loadtxt(os.path.join(MODULE_DIR, "led131.txt"))
-        ts, ps, ws = np.transpose(led)
-        num = np.zeros((3, 3))
-        denom = 0
-        c = 1
-        for w, t, p in zip(ws, ts, ps):
-            xyz = get_trans(t, p, 0, angle_in_radians=False)
-            n = xyz[2]
-            gk = ElasticTensor(self[0]).green_kristoffel(n)
+
+        quad = quadrature or quadpy.sphere.Lebedev(19)
+        num, denom, c = np.zeros((3, 3)), 0, 1
+        for p, w in zip(quad.points, quad.weights):
+            gk = ElasticTensor(self[0]).green_kristoffel(p)
             rho_wsquareds, us = np.linalg.eigh(gk)
             us = [u / np.linalg.norm(u) for u in np.transpose(us)]
-            norms = [np.dot(n, u) for u in us]
+            norms = [np.dot(p, u) for u in us]
             for u in us:
-                # TODO: check this
+                # TODO: this should be benchmarked 
                 if temperature:
-                    c = self.get_heat_capacity(temperature, structure, n, u)
-                num += c*self.get_ggt(n, u) * w
+                    c = self.get_heat_capacity(temperature, structure, p, u)
+                num += c*self.get_ggt(p, u) * w
                 denom += c * w
         return num / denom
 
-    def get_gruneisen_parameter(self, temperature=None, structure=None, 
-                                grid=[20, 20, 20]):
+    def get_gruneisen_parameter(self, temperature=None, structure=None,
+                                quadrature=None):
         """
+        Gets the single average gruneisen parameter from the TGT.
+
+        Args:
+            temperature (float): Temperature in kelvin, if not specified
+                will return non-cv-normalized value
+            structure (float): Structure to be used in directional heat
+                capacity determination, only necessary if temperature
+                is specified
+            quadrature (quadpy object): quadrature for integration,
+                defaults to quadpy.sphere.Lebedev(19)
         """
-        return np.trace(self.get_tgt(temperature, structure, grid)) / 3.
+        return np.trace(self.get_tgt(temperature, structure, quadrature)) / 3.
 
     def get_heat_capacity(self, temperature, structure, n, u):
         """
+        Gets the directional heat capacity for a higher order tensor
+        expansion as a function of direction and polarization.
+
+        Args:
+            temperature (float): Temperature in kelvin
+            structure (float): Structure to be used in directional heat
+                capacity determination
+            n (3x1 array-like): direction for Cv determination
+            u (3x1 array-like): polarization direction, note that
+                no attempt for verification of eigenvectors is made
         """
-        # TODO: maybe works for at least
         k = 1.38065e-23
         kt = k*temperature
         hbar_w = 1.05457e-34*self.omega(structure, n, u)
         c = k * (hbar_w / kt) ** 2
         c *= np.exp(hbar_w / kt) / (np.exp(hbar_w / kt) - 1)**2
-        return c*6.022e23
+        return c * 6.022e23
+
+    def omega(self, structure, n, u):
+        """
+        Finds directional frequency contribution to the heat
+        capacity from direction and polarization
+
+        Args:
+            structure (float): Structure to be used in directional heat
+                capacity determination
+            n (3x1 array-like): direction for Cv determination
+            u (3x1 array-like): polarization direction, note that
+                no attempt for verification of eigenvectors is made
+        """
+        l0 = np.dot(np.sum(structure.lattice.matrix, axis=0), n)
+        l0 *= 1e-10 # in A
+        weight = structure.composition.weight * 1.66054e-27 # in kg
+        vol = structure.volume * 1e-30 # in m^3
+        vel = (1e9 * self[0].einsum_sequence([n, u, n, u]) \
+                / (weight / vol)) ** 0.5
+        return vel / l0
 
     def thermal_expansion_coeff(self, structure, temperature, mode="debye"):
         """
-        Thermal expansion coefficient
+        Gets thermal expansion coefficient from third-order constants.
+        
+        Args:
+            temperature (float): Temperature in kelvin, if not specified
+                will return non-cv-normalized value
+            structure (float): Structure to be used in directional heat
+                capacity determination, only necessary if temperature
+                is specified
+            mode (string): mode for finding average heat-capacity,
+                current supported modes are 'debye' and 'dulong-petit'
         """
-        #TODO move Cv to ElasticTensor
         soec = ElasticTensor(self[0])
         v0 = (structure.volume * 1e-30 / structure.num_sites)
         if mode == "debye":
@@ -651,15 +690,13 @@ class ElasticTensorExpansion(TensorCollection):
             cv = 3 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
         if mode == "dulong-petit":
             cv = 3 * 8.314
-        # j/mol*K * 
-        # Why divided by 3?
         alpha = self.get_tgt() * cv / (soec.k_vrh * 1e9 * v0 * 6.022e23)
         return alpha
 
     def get_compliance_expansion(self):
         """
-        Gets a compliance tensor expansion from
-        the elastic tensor expansion.
+        Gets a compliance tensor expansion from the elastic
+        tensor expansion.
         """
         #TODO: this might have a general form
         if not self.order <= 4:
@@ -702,6 +739,7 @@ class ElasticTensorExpansion(TensorCollection):
         Args:
             strain (Strain or 3x3 array-like): strain condition
                 under which to calculate the effective constants
+            order (int): order of the ecs to be returned
         """
         ec_sum = 0
         for n, ecs in enumerate(self[order-2:]):
@@ -768,44 +806,8 @@ class ElasticTensorExpansion(TensorCollection):
         tens = root(self.get_stability_criteria, 1, args=n)
         return (comp.x, tens.x)
 
-def get_trans(alpha, beta, gamma, angle_in_radians=True):
-    sop1 = SymmOp.from_axis_angle_and_translation(
-            [0, 0, 1], alpha, angle_in_radians=angle_in_radians)
-    sop2 = SymmOp.from_axis_angle_and_translation(
-            [1, 0, 0], beta, angle_in_radians=angle_in_radians)
-    sop3 = SymmOp.from_axis_angle_and_translation(
-            [0, 0, 1], gamma, angle_in_radians=angle_in_radians)
-    return np.dot(sop3.rotation_matrix, np.dot(sop2.rotation_matrix, sop1.rotation_matrix))
 
-def euler_angle_grid(na=21, nb=21, ng=21):
-    mesh = np.meshgrid(np.linspace(0, 2*np.pi, na, endpoint=False),
-                       np.linspace(0, np.pi, nb, endpoint=False),
-                       np.linspace(0, 2*np.pi, ng, endpoint=False))
-    grid = [get_trans(a, b, g) for a, b, g
-            in zip(mesh[0].ravel(), mesh[1].ravel(), mesh[2].ravel())]
-    return np.array(grid).reshape(mesh[0].shape + (3, 3))
-
-def euler_angle_grid_quick(na=20, nb=20, ng=20):
-    avec = np.linspace(0, 2*np.pi, na, endpoint=False)
-    bvec = np.linspace(0, np.pi, nb, endpoint=False)
-    gvec = np.linspace(0, 2*np.pi, ng, endpoint=False)
-    a, b, g = np.meshgrid(avec, bvec, gvec, indexing='ij')
-    sina, cosa = np.sin(a), np.cos(a)
-    sinb, cosb = np.sin(b), np.cos(b)
-    sing, cosg = np.sin(g), np.cos(g)
-    grid = np.zeros((na, nb, ng, 3, 3))
-    grid[:, :, :, 0, 0] = cosg*cosa - cosb*sina*sing
-    grid[:, :, :, 0, 1] = -cosg*sina - cosb*cosa*sing
-    grid[:, :, :, 1, 0] = sing*cosa + cosb*sina*cosg
-    grid[:, :, :, 0, 2] = sing*sinb
-    grid[:, :, :, 2, 0] = sinb*sina
-    grid[:, :, :, 1, 1] = -sing*sina + cosb*cosa*cosg
-    grid[:, :, :, 1, 2] = -cosg*sinb
-    grid[:, :, :, 2, 1] = -sinb*cosa
-    grid[:, :, :, 2, 2] = cosb
-    return [a, b, g], grid
-
-#TODO: abstract this
+#TODO: abstract this for other tensor fitting procedures
 def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
     """
     nth order elastic constant fitting function based on 
