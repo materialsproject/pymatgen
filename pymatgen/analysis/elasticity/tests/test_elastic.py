@@ -270,8 +270,8 @@ class ElasticTensorExpansionTest(PymatgenTest):
         
         # Get Gruneisen parameter
         gp = self.exp_cu.get_gruneisen_parameter()
-        gpt = self.exp_cu.get_gruneisen_parameter(temperature=300, structure=self.cu)
-        interupt
+        self.assertAlmostEqual(gp, 2.59631832)
+        gpt = self.exp_cu.get_gruneisen_parameter(temperature=200, structure=self.cu)
 
     def test_thermal_expansion_coeff(self):
         #TODO get rid of duplicates
@@ -279,12 +279,8 @@ class ElasticTensorExpansionTest(PymatgenTest):
                                                        mode="dulong-petit")
         alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300, 
                                                           mode="debye")
-        blargh
+        self.assertArrayAlmostEqual(21.4533472e-06 * np.eye(3), alpha_debye)
 
-    def test_ideal_tensile_strain(self):
-        blargh
-        pass
-    
     def test_get_compliance_expansion(self):
         ce_exp = self.exp_cu.get_compliance_expansion()
         et_comp = ElasticTensorExpansion(ce_exp)
@@ -292,10 +288,6 @@ class ElasticTensorExpansionTest(PymatgenTest):
         stress = self.exp_cu.calculate_stress(strain_orig)
         strain_revert = et_comp.calculate_stress(stress)
         self.assertArrayAlmostEqual(strain_orig, strain_revert, decimal=4)
-
-    def test_euler_angle_grid(self):
-        agrid, vgrid = euler_angle_grid_quick()
-        blargh
 
     def test_get_effective_ecs(self):
         # Ensure zero strain is same as SOEC
@@ -306,22 +298,20 @@ class ElasticTensorExpansionTest(PymatgenTest):
         test_2percent = self.exp_cu.get_effective_ecs(s)
         diff = test_2percent - test_zero
         self.assertArrayAlmostEqual(self.exp_cu[1].einsum_sequence([s]), diff)
-        blargh
 
     def test_get_strain_from_stress(self):
         strain = Strain.from_voigt([0.05, 0, 0, 0, 0, 0])
         stress3 = self.exp_cu.calculate_stress(strain)
         strain_revert3 = self.exp_cu.get_strain_from_stress(stress3)
-        self.assertArrayAlmostEqual(strain, strain_revert3, decimal=4)
-        # Try with fourth order
+        self.assertArrayAlmostEqual(strain, strain_revert3, decimal=2)
+        # fourth order
         stress4 = self.exp_cu_4.calculate_stress(strain)
         strain_revert4 = self.exp_cu_4.get_strain_from_stress(stress4)
-        self.assertArrayAlmostEqual(strain, strain_revert4, decimal=4)
-        blargh
+        self.assertArrayAlmostEqual(strain, strain_revert4, decimal=2)
 
     def test_get_yield_stress(self):
         ys = self.exp_cu_4.get_yield_stress([1, 0, 0])
-        blargh
+
 
 class NthOrderElasticTensorTest(PymatgenTest):
     def setUp(self):
