@@ -150,7 +150,6 @@ class Tensor(np.ndarray):
 
         other_arrays = [np.array(a) for a in other_arrays]
         if not einsum_string:
-            #other_tensors = TensorCollection(other_tensors)
             lc = string.ascii_lowercase
             einsum_string = lc[:self.rank]
             other_indices = ''

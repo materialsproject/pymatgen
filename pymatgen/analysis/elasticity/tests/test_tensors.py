@@ -272,8 +272,7 @@ class TensorTest(PymatgenTest):
         self.assertArrayAlmostEqual([tb for tb in reconstructed], np.eye(6)*0.01)
 
     def test_populate(self):
-        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
-            test_data = json.load(f)
+        test_data = loadfn(os.path.join(test_dir, 'test_toec_data.json'))
 
         sn = self.get_structure("Sn") 
         vtens = np.zeros((6, 6))
