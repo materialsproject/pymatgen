@@ -14,6 +14,8 @@ generating deformed structure sets for further calculations.
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.elasticity.tensors import SquareTensor, symmetry_reduce
 import numpy as np
+import scipy
+import itertools
 from six.moves import zip
 import collections
 
@@ -103,8 +105,8 @@ class DeformedStructureSet(collections.Sequence):
     can be used to calculate linear stress-strain response
     """
 
-    def __init__(self, rlxd_str, nd=0.01, ns=0.08,
-                 num_norm=4, num_shear=4, symmetry=False):
+    def __init__(self, rlxd_str, norm_strains=[-0.01, -0.005, 0.005, 0.01],
+                 shear_strains=[-0.06, -0.03, 0.03, 0.06], symmetry=False):
         """
         constructs the deformed geometries of a structure.  Generates
         m + n deformed structures according to the supplied parameters.
@@ -113,25 +115,12 @@ class DeformedStructureSet(collections.Sequence):
             rlxd_str (structure): structure to undergo deformation, if
                 fitting elastic tensor is desired, should be a geometry
                 optimized structure
-            nd (float): maximum perturbation applied to normal deformation
-            ns (float): maximum perturbation applied to shear deformation
-            num_norm (int): number of deformation structures to generate for
-                normal deformation, must be even
-            num_shear (int): number of deformation structures to generate for
-                shear deformation, must be even
+            norm_strains (list of floats): strain values to apply
+                to each normal mode.
+            shear_strains (list of floats): strain values to apply
+                to each shear mode.
+            symmetry (bool): whether or not to use symmetry reduction.
         """
-
-        if num_norm % 2 != 0:
-            raise ValueError("Number of normal deformations (num_norm)"
-                             " must be even.")
-        if num_shear % 2 != 0:
-            raise ValueError("Number of shear deformations (num_shear)"
-                             " must be even.")
-
-        norm_deformations = np.linspace(-nd, nd, num=num_norm + 1)
-        norm_deformations = norm_deformations[norm_deformations.nonzero()]
-        shear_deformations = np.linspace(-ns, ns, num=num_shear + 1)
-        shear_deformations = shear_deformations[shear_deformations.nonzero()]
 
         self.undeformed_structure = rlxd_str
         self.deformations = []
@@ -139,14 +128,14 @@ class DeformedStructureSet(collections.Sequence):
 
         # Generate deformations
         for ind in [(0, 0), (1, 1), (2, 2)]:
-            for amount in norm_deformations:
-                defo = Deformation.from_index_amount(ind, amount)
-                self.deformations.append(defo)
+            for amount in norm_strains:
+                strain = Strain.from_index_amount(ind, amount)
+                self.deformations.append(strain.deformation_matrix)
 
         for ind in [(0, 1), (0, 2), (1, 2)]:
-            for amount in shear_deformations:
-                defo = Deformation.from_index_amount(ind, amount)
-                self.deformations.append(defo)
+            for amount in shear_strains:
+                strain = Strain.from_index_amount(ind, amount)
+                self.deformations.append(strain.deformation_matrix)
 
         # Perform symmetry reduction if specified
         if symmetry:
@@ -179,7 +168,7 @@ class Strain(SquareTensor):
     Subclass of SquareTensor that describes the Green-Lagrange strain tensor.
     """
 
-    def __new__(cls, strain_matrix, dfm=None):
+    def __new__(cls, strain_matrix, dfm=None, dfm_shape="upper"):
         """
         Create a Strain object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -194,7 +183,7 @@ class Strain(SquareTensor):
         vscale[3:] *= 2
         obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
         if dfm is None:
-            obj._dfm = convert_strain_to_deformation(obj)
+            obj._dfm = convert_strain_to_deformation(obj, dfm_shape)
         else:
             dfm = Deformation(dfm)
             gls_test = 0.5 * (np.dot(dfm.trans, dfm) - np.eye(3))
@@ -228,6 +217,32 @@ class Strain(SquareTensor):
         dfm = Deformation(deformation)
         return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)), dfm)
 
+    @classmethod
+    def from_index_amount(cls, idx, amount):
+        """
+        Like Deformation.from_index_amount, except generates
+        a strain from the zero 3x3 tensor or voigt vector with
+        the amount specified in the index location.  Ensures
+        symmetric strain.
+
+        Args:
+            idx (tuple or integer): index to be perturbed, can be voigt or 
+                full-tensor notation
+            amount (float): amount to perturb selected index
+        """
+        if np.array(idx).ndim == 0:
+            v = np.zeros(6)
+            v[idx] = amount
+            return cls.from_voigt(v)
+        elif np.array(idx).ndim == 1:
+            v = np.zeros((3, 3))
+            for i in itertools.permutations(idx):
+                v[i] = amount
+            return cls(v)
+        else:
+            raise ValueError("Index must either be 2-tuple or integer "
+                             "corresponding to full-tensor or voigt index")
+
     @property
     def deformation_matrix(self):
         """
@@ -245,63 +260,24 @@ class Strain(SquareTensor):
         return np.sqrt(np.dot(eps.voigt, eps.voigt)*2/3)
 
 
-class IndependentStrain(Strain):
-    """
-    Class for independent strains intended for use with old Materials Project
-    elasticity workflow.  Note that the default constructor constructs from
-    a deformation matrix, rather than an array representing the strain, to
-    emulate the legacy behavior.
-    """
-
-    def __new__(cls, deformation_gradient, tol=1e-8):
-        """
-        Create an Independent Strain object.  Note that the constructor uses
-        __new__ rather than __init__ according to the standard method of
-        subclassing numpy ndarrays.  Note also that, unlike the Strain class,
-        the default constructor of IndependentStrain takes the deformation
-        gradient as input, rather than an array representing the Green-Lagrange
-        strain.
-
-        Args:
-            deformation_gradient (3x3 array-like): the 3x3 array-like
-                representing the deformation gradient
-        """
-        deformation_gradient = Deformation(deformation_gradient)
-        if not deformation_gradient.is_independent(tol):
-            raise ValueError("IndependentStrain must be constructed from "
-                             "an independent deformation gradient")
-        obj = Strain.from_deformation(deformation_gradient).view(cls)
-        (obj._i, obj._j) = obj._dfm.get_perturbed_indices(tol=tol)[0]
-        return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
-        self._dfm = getattr(obj, "_dfm", None)
-        self._i = getattr(obj, "_i", None)
-        self._j = getattr(obj, "_j", None)
-
-    @property
-    def ij(self):
-        """
-        Convenience method to return independent indices
-        """
-        return self._i, self._j
-
-
-def convert_strain_to_deformation(strain):
+def convert_strain_to_deformation(strain, shape="upper"):
     """
     This function converts a strain to a deformation gradient that will
-    produce that strain
+    produce that strain.  Supports three methods:
     
     Args:
         strain (3x3 array-like): strain matrix
+        method: (string): method for determining deformation, supports
+            "upper" produces an upper triangular defo
+            "lower" produces a lower triangular defo
+            "symmetric" produces a symmetric defo
     """
     strain = SquareTensor(strain)
     ftdotf = 2*strain + np.eye(3)
-    eigs, eigvecs = np.linalg.eigh(ftdotf)
-    rotated = ftdotf.rotate(np.transpose(eigvecs))
-    rotated = rotated.round(10)
-    defo = Deformation(np.sqrt(rotated))
-    result = defo.rotate(eigvecs)
-    return result
+    if shape == "upper":
+        result = scipy.linalg.cholesky(ftdotf)
+    elif shape == "symmetric":
+        result = scipy.linalg.sqrtm(ftdotf)
+    else:
+        raise ValueError("shape must be \"upper\" or \"symmetric\"")
+    return Deformation(result)
