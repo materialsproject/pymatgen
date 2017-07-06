@@ -297,6 +297,8 @@ class Slab(Structure):
 
     def are_surfaces_equal(self):
 
+        # Check if we have same number of equivalent sites on both surfaces
+
         surfsites = self.get_surface_sites()
         species = [s[0].specie for s in surfsites]
         coords = [s[0].frac_coords for s in surfsites]
@@ -474,7 +476,7 @@ class Slab(Structure):
         d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
         d["miller_index"] = self.miller_index
         d["shift"] = self.shift
-        d["scale_factor"] = self.scale_factor
+        d["scale_factor"] = self.scale_factor.tolist()
         d["energy"] = self.energy
         return d
 
@@ -1081,8 +1083,10 @@ class SlabGenerator(object):
                 is_polar = slab.is_polar(tol_dipole_per_unit_area=tol_dipole_per_unit_area)
                 if symmetrize and not is_symmetric:
                     continue
+
                 if negate_dipole and is_polar:
                     continue
+
                 fixed_slabs.append(slab)
             except TypeError:
                 warnings.warn("WARNING: None type found when using"
@@ -1459,9 +1463,9 @@ def bb_manual(slab, bonds, top=True):
 
         # Next we use the cn of the bulk as
         # reference to find the number of broken bonds
-        center_ion = bond[0]
+        center_ion = bond[0] if type(bond[0]).__name__ == 'str' else bond[0][0]
         nbb = 0
-        for site in slab:
+        for i, site in enumerate(slab):
             if str(site.specie) == center_ion:
                 nn = slab.get_neighbors(site, bonds[bond],
                                         include_index=True)
@@ -1469,8 +1473,33 @@ def bb_manual(slab, bonds, top=True):
                 def count_nbb(nbb):
                     slab_cn = 0
                     for n in nn:
-                        if str(n[0].specie) == bond[1]:
-                            slab_cn += 1
+
+                        # If we're dealing with the coordination of a single atoms
+                        if type(bond[0]).__name__ == 'str':
+                            if len(bond) == 2:
+                                if n[0].species_string == bond[1]:
+                                    slab_cn += 1
+                            else:
+                                slab_cn += 1
+
+                        # If we're dealing with the coordination of a polyhedron
+                        else:
+                            # Check if the vertex of the polyhedron is the correct species
+                            if n[0].species_string == bond[0][1]:
+                                # Get coordinated sites with that vertex
+                                vert_n = slab.get_neighbors(slab[n[2]], bonds[bond],
+                                                            include_index=True)
+                                for nnn in vert_n:
+                                    # Check the coordinated site of vertex is
+                                    # not the center of the polyhedron
+                                    if nnn[2] == i:
+                                        continue
+                                    if len(bond) == 2:
+                                        if nnn[0].species_string == bond[1]:
+                                            slab_cn += 1
+                                    else:
+                                        slab_cn += 1
+
                     nbb += cn - slab_cn
                     return nbb
 
@@ -1486,26 +1515,49 @@ def bb_manual(slab, bonds, top=True):
 
 def bulk_coordination(slab, bondlength, bond):
 
-    # If bond is list of 2 species, we find
-    # coordination for the first specie relative
-    # to the second only. If list of one species,
-    # find coordination for all neighbors
+    # -If bond is list of 2 species, we find coordination for
+    #   the first specie relative to the second only [s1, s2]
+    # -If list of one species, find coordination for all neighbors [s]
+    # -If first item is a list, we are looking for
+    #   the coordination of a polyhedron [[s1a, s1b], s2]
+    # IMPORTANT NOTE, cannot specify the specific bondlength of your polyhedron
+    # if you are looking for the coordination of a polyhedron. The bondlength
+    # will be the same as that of the polyhedron vertex and the next species
 
-    center_ion = bond[0]
+    center_ion = bond[0] if type(bond[0]).__name__ == 'str' else bond[0][0]
     mean_cn = []
     ucell = slab.oriented_unit_cell
-    for site in ucell:
+    for i, site in enumerate(ucell):
         cn = 0
         if site.species_string == center_ion:
             nn = ucell.get_neighbors(site, bondlength,
                                      include_index=True)
 
             for n in nn:
-                if type(bond).__name__ == "list":
-                    if n[0].species_string == bond[1]:
+                # If we're dealing with the coordination of a single atoms
+                if type(bond[0]).__name__ == 'str':
+                    if len(bond) == 2:
+                        if n[0].species_string == bond[1]:
+                            cn += 1
+                    else:
                         cn += 1
+                # If we're dealing with the coordination of a polyhedron
                 else:
-                    cn += 1
+                    # Check if the vertex of the polyhedron is the correct species
+                    if n[0].species_string == bond[0][1]:
+                        # Get coordinated sites with that vertex
+                        vert_n = ucell.get_neighbors(ucell[n[2]], bondlength,
+                                                     include_index=True)
+                        for nnn in vert_n:
+                            # Check the coordinated site of vertex is
+                            # not the center of the polyhedron
+                            if nnn[2] == i:
+                                continue
+                            if len(bond) == 2:
+                                if nnn[0].species_string == bond[1]:
+                                    cn += 1
+                            else:
+                                cn += 1
 
             mean_cn.append(cn)
 
