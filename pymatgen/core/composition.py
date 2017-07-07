@@ -623,7 +623,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             if sum(x) == 0:  # charge balance condition
                 el_sum_sol = dict(zip(els, x))  # element->oxid_sum
                 # normalize oxid_sum by amount to get avg oxid state
-                sol = {el: v / el_amt[el] for el, v in el_sum_sol.iteritems()}
+                sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
                 all_sols.append(sol)  # add the solution to the list of solutions
 
         return all_sols
