@@ -294,21 +294,16 @@ class Tensor(np.ndarray):
             t[ind] = voigt_input[this_voigt_map[ind]]
         return cls(t)
 
-    def convert_to_ieee(self, structure, initial_fit=True):
+    @staticmethod
+    def get_ieee_rotation(structure):
         """
-        Given a structure associated with a tensor, attempts a
-        calculation of the tensor in IEEE format according to
+        Given a structure associated with a tensor, determines
+        the rotation matrix for IEEE conversion according to
         the 1987 IEEE standards.
 
         Args:
             structure (Structure): a structure associated with the
                 tensor to be converted to the IEEE standard
-            initial_fit (bool): flag to indicate whether initial
-                tensor is fit to the symmetry of the structure.
-                Defaults to true. Note that if false, inconsistent
-                results may be obtained due to symmetrically
-                equivalent, but distinct transformations
-                being used in different versions of spglib.
         """
 
         # Check conventional setting:
@@ -371,6 +366,25 @@ class Tensor(np.ndarray):
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
             rotation[0] = np.cross(rotation[1], rotation[2])
 
+        return rotation
+
+    def convert_to_ieee(structure, initial_fit=True):
+        """
+        Given a structure associated with a tensor, attempts a
+        calculation of the tensor in IEEE format according to
+        the 1987 IEEE standards.
+
+        Args:
+            structure (Structure): a structure associated with the
+                tensor to be converted to the IEEE standard
+            initial_fit (bool): flag to indicate whether initial
+                tensor is fit to the symmetry of the structure.
+                Defaults to true. Note that if false, inconsistent
+                results may be obtained due to symmetrically
+                equivalent, but distinct transformations
+                being used in different versions of spglib.
+        """
+        rotation = self.get_ieee_rotation(structure)
         result = self.copy()
         if initial_fit:
             result = result.fit_to_structure(structure)
@@ -682,3 +696,25 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
         if is_unique:
             unique_tdict[tensor] = []
     return unique_tdict
+
+
+def find_tkd_value(tensor, tensor_keyed_dict, **allclose_kwargs):
+    """
+    Helper function to find a value in a tensor-keyed-
+    dictionary using an approximation to the key.  This
+    is useful if rounding errors in construction occur
+    or hashing issues arise in tensor-keyed-dictionaries
+    (e. g. from symmetry_reduce).  Resolves most
+    hashing issues, and is preferable to redefining
+    eq methods in the base tensor class.
+    
+    Args:
+        tensor_key (array-like): array for finding the
+            tensor key.
+        tensor_keyed_dict (dict): dict with Tensor keys
+        allclose_kwargs (dict): dict of keyword-args
+            to pass to allclose.
+    """
+    for tkey, value in tensor_keyed_dict.items():
+        if np.allclose(tensor, tkey, **allclose_kwargs):
+            return value
