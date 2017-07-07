@@ -380,6 +380,33 @@ class CompositionTest(PymatgenTest):
         for k, v in special_formulas.items():
             self.assertEqual(Composition(k).reduced_formula, v)
 
+    def test_charge_balance_combos(self):
+        self.assertEqual(Composition("LiFeO2").charge_balance_combos(),
+                         [{"Li": 1, "Fe": 3, "O": -2}])
+
+        self.assertEqual(Composition("Fe4O5").charge_balance_combos(),
+                         [{"Fe": 2.5, "O": -2}])
+
+        # because pymatgen common oxidation states doesn't include V:3+,
+        # this doesn't work
+        self.assertEqual(Composition("V2O3").charge_balance_combos(),
+                         [])
+
+        self.assertEqual(Composition("V2O3").charge_balance_combos(
+            oxidation_override={"V": [2, 3, 4, 5]}), [{"V": 3, "O": -2}])
+
+        # can't balance b/c missing V4+
+        self.assertEqual(Composition("VO2").charge_balance_combos(
+            oxidation_override={"V": [2, 3, 5]}), [])
+
+        # missing V4+, but can balance due to additional sites
+        self.assertEqual(Composition("V2O4").charge_balance_combos(
+            oxidation_override={"V": [2, 3, 5]}), [{"V": 4, "O": -2}])
+
+        # multiple solutions - Mn/Fe = 2+/4+ or 3+/3+ or 4+/2+
+        self.assertEqual(len(Composition("MnFeO3").charge_balance_combos(
+            oxidation_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})), 3)
+
 
 class ChemicalPotentialTest(unittest.TestCase):
 

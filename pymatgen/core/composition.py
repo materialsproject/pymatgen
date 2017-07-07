@@ -575,8 +575,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 "elements": self.as_dict().keys(),
                 "nelements": len(self.as_dict().keys())}
 
-    def charge_balance_combos(self, use_common_oxidations=True,
-                              oxidation_override=None):
+    def charge_balance_combos(self, oxidation_override=None):
         """
         Checks if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
@@ -586,12 +585,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         but X2Y2 is.
 
         Args:
-            use_common_oxidations (bool): If true (default), oxidation states
-                considered for each element is pymatgen's
-                Element.common_oxidation_states. Else, default to
-                Element.oxidation_states
             oxidation_override (dict): dict of str->list to override an
-                element's possible oxidation states, e.g. {"Mn": [2,3,4]}
+                element's common oxidation states, e.g. {"V": [2,3,4,5]}
 
         Returns:
             A list of dicts - each dict reports an element symbol and average
@@ -611,13 +606,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         el_amt = self.get_el_amt_dict()
         el_sums = defaultdict(set)  # dict of element to possible oxid sums
         for el in el_amt:
-            # determine allowed oxidation states for the element
-            if oxidation_override.get(el):
-                oxids = oxidation_override[el]
-            elif use_common_oxidations:
-                oxids = Element(el).common_oxidation_states
-            else:
-                oxids = Element(el).oxidation_states
+            oxids = oxidation_override[el] if oxidation_override.get(el) \
+                else Element(el).common_oxidation_states
 
             # get all possible combinations of oxidation states
             # and sum each combination
