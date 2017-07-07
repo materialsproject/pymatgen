@@ -368,7 +368,7 @@ class Tensor(np.ndarray):
 
         return rotation
 
-    def convert_to_ieee(structure, initial_fit=True):
+    def convert_to_ieee(self, structure, initial_fit=True):
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
@@ -698,7 +698,7 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     return unique_tdict
 
 
-def find_tkd_value(tensor, tensor_keyed_dict, **allclose_kwargs):
+def get_tkd_value(tensor_keyed_dict, tensor, **allclose_kwargs):
     """
     Helper function to find a value in a tensor-keyed-
     dictionary using an approximation to the key.  This
