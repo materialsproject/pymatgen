@@ -8,7 +8,7 @@ import unittest
 import os
 
 from pymatgen import SETTINGS
-from pymatgen.matproj.rest import MPRester, MPRestError
+from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -102,13 +102,13 @@ class MPResterTest(unittest.TestCase):
             "mp-540081"), "mp-19017")
 
     def test_get_materials_id_references(self):
-        # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
+        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_get_materials_id_references
         m = MPRester()
         data = m.get_materials_id_references('mp-123')
         self.assertTrue(len(data) > 1000)
 
     def test_find_structure(self):
-        # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
+        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_find_structure
         m = MPRester()
         ciffile = os.path.join(test_dir, 'Fe3O4.cif')
         data = m.find_structure(ciffile)
@@ -179,6 +179,9 @@ class MPResterTest(unittest.TestCase):
         entries = self.rester.get_entries("Fe", compatible_only=True,
                                           property_data=["cif"])
         self.assertIn("cif", entries[0].data)
+
+        for e in self.rester.get_entries("CdO2", inc_structure=False):
+            self.assertIsNotNone(e.data["oxide_type"])
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")

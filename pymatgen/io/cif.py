@@ -801,6 +801,10 @@ class CifParser(object):
                     warnings.warn("{} parsed as {}".format(sym, v))
                 return v
 
+        def get_num_implicit_hydrogens(sym):
+            num_h = {"Wat": 2, "wat": 2, "O-H": 1}
+            return num_h.get(sym[:3], 0)
+
         lattice = self.get_lattice(data)
 
         # if magCIF, get magnetic symmetry moments and magmoms
@@ -836,8 +840,10 @@ class CifParser(object):
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
                 symbol = parse_symbol(data["_atom_site_type_symbol"][i])
+                num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][i])
             except KeyError:
                 symbol = parse_symbol(data["_atom_site_label"][i])
+                num_h = get_num_implicit_hydrogens(data["_atom_site_label"][i])
             if not symbol:
                 continue
 
@@ -867,14 +873,19 @@ class CifParser(object):
             if occu > 0:
                 coord = (x, y, z)
                 match = get_matching_coord(coord)
+                comp_d = {el: occu}
+                if num_h > 0:
+                    comp_d["H"] = num_h
+                comp = Composition(comp_d)
                 if not match:
-                    coord_to_species[coord] = Composition({el: occu})
+                    coord_to_species[coord] = comp
                     coord_to_magmoms[coord] = magmom
                 else:
-                    coord_to_species[match] += {el: occu}
+                    coord_to_species[match] += comp
                     coord_to_magmoms[match] = None  # disordered magnetic not currently supported
 
-        sum_occu = [sum(c.values()) for c in coord_to_species.values()]
+        sum_occu = [sum(c.values()) for c in coord_to_species.values()
+                    if not set(c.elements) == {Element("O"), Element("H")}]
         if any([o > 1 for o in sum_occu]):
             warnings.warn("Some occupancies (%s) sum to > 1! If they are within "
                           "the tolerance, they will be rescaled." % str(sum_occu))
@@ -882,6 +893,7 @@ class CifParser(object):
         allspecies = []
         allcoords = []
         allmagmoms = []
+        allhydrogens = []
 
         # check to see if magCIF file is disordered
         if self.feature_flags["magcif"]:
@@ -894,7 +906,7 @@ class CifParser(object):
                     raise NotImplementedError('Disordered magnetic structures not currently supported.')
 
         if coord_to_species.items():
-            for species, group in groupby(
+            for comp, group in groupby(
                     sorted(list(coord_to_species.items()), key=lambda x: x[1]),
                     key=lambda x: x[1]):
                 tmp_coords = [site[0] for site in group]
@@ -905,6 +917,15 @@ class CifParser(object):
                 else:
                     coords, magmoms = self._unique_coords(tmp_coords)
 
+                if set(comp.elements) == {Element("O"), Element("H")}:
+                    # O with implicit hydrogens
+                    im_h = comp["H"]
+                    species = Composition({"O": comp["O"]})
+                else:
+                    im_h = 0
+                    species = comp
+
+                allhydrogens.extend(len(coords) * [im_h])
                 allcoords.extend(coords)
                 allspecies.extend(len(coords) * [species])
                 allmagmoms.extend(magmoms)
@@ -916,12 +937,19 @@ class CifParser(object):
                     allspecies[i] = species / totaloccu
 
         if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
+            site_properties = dict()
+            if any(allhydrogens):
+                assert len(allhydrogens) == len(allcoords)
+                site_properties["implicit_hydrogens"] = allhydrogens
 
             if self.feature_flags["magcif"]:
-                struct = Structure(lattice, allspecies, allcoords,
-                                   site_properties={"magmom": allmagmoms})
-            else:
-                struct = Structure(lattice, allspecies, allcoords)
+                site_properties["magmom"] = allmagmoms
+
+            if len(site_properties) == 0:
+                site_properties = None
+
+            struct = Structure(lattice, allspecies, allcoords,
+                               site_properties=site_properties)
 
             struct = struct.get_sorted_structure()
 
@@ -1125,7 +1153,7 @@ class CifWriter(object):
                     atom_site_label.append("{}{}".format(sp.symbol, count))
                     atom_site_occupancy.append(occu.__str__())
 
-                    magmom = site.properties.get('magmom', Magmom(0))
+                    magmom = Magmom(site.properties.get('magmom', 0))
                     moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
                     if write_magmoms and abs(magmom) > 0:
                         atom_site_moment_label.append("{}{}".format(sp.symbol, count))

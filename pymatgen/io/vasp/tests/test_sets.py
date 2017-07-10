@@ -194,6 +194,10 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(kpoints.kpts, [[6, 10, 13]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
+        kpoints_obj = Kpoints(kpts=[[3, 3, 3]])
+        kpoints_return = MPRelaxSet(self.structure, user_kpoints_settings=kpoints_obj).kpoints
+        self.assertEqual(kpoints_return.kpts, [[3, 3, 3]])
+
         kpoints = self.mitset.kpoints
         self.assertEqual(kpoints.kpts, [[25]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Automatic)

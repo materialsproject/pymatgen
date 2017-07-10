@@ -4,20 +4,8 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module contains some utils for the main script of the chemenv package.
-"""
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
-
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.io.cif import CifParser
 try:
     import vtk
@@ -47,6 +35,19 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
 from pymatgen.core.structure import Molecule
 from collections import OrderedDict
 import numpy as np
+
+"""
+This module contains some utils for the main script of the chemenv package.
+"""
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 
 
 strategies_class_lookup = OrderedDict()
@@ -205,7 +206,7 @@ def compute_environments(chemenv_configuration):
         elif source_type == 'mp':
             if not found:
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')
-            a = MPRester(chemenv_configuration.materials_project_api_key)
+            a = MPRester()
             structure = a.get_structure_by_material_id(input_source)
         lgf.setup_structure(structure)
         print('Computing environments for {} ... '.format(structure.composition.reduced_formula))

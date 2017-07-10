@@ -1383,7 +1383,11 @@ def parse_list(s):
     return [float(y) for y in re.split(r"\s+", s.strip()) if not y.isalpha()]
 
 
-@cached_class
+Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
+OrbitalDescription = namedtuple('OrbitalDescription',
+                                ['l', 'E', 'Type', "Rcut", "Type2", "Rcut2"])
+
+
 class PotcarSingle(object):
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
@@ -1427,6 +1431,7 @@ class PotcarSingle(object):
                        "wi": {"name": "Wigner Interpoloation", "class": "LDA"}}
 
     parse_functions = {"LULTRA": parse_bool,
+                       "LUNSCR": parse_bool,
                        "LCOR": parse_bool,
                        "LPAW": parse_bool,
                        "EATOM": parse_float,
@@ -1437,6 +1442,7 @@ class PotcarSingle(object):
                        "RWIGS": parse_float,
                        "ENMAX": parse_float,
                        "ENMIN": parse_float,
+                       "EMMIN": parse_float,
                        "EAUG": parse_float,
                        "DEXC": parse_float,
                        "RMAX": parse_float,
@@ -1456,11 +1462,6 @@ class PotcarSingle(object):
                        "RRKJ": parse_list,
                        "GGA": parse_list}
 
-    Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
-    Description = namedtuple('OrbitalDescription', ['l', 'E',
-                                                    'Type', "Rcut",
-                                                    "Type2", "Rcut2"])
-
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
 
@@ -1474,7 +1475,10 @@ class PotcarSingle(object):
         self.keywords = {}
         for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)",
                                    search_lines, flags=re.MULTILINE):
-            self.keywords[key] = self.parse_functions[key](val)
+            try:
+                self.keywords[key] = self.parse_functions[key](val)
+            except KeyError:
+                warnings.warn("Ignoring unknown variable type %s" % key)
 
         PSCTR = OrderedDict()
 
@@ -1502,19 +1506,17 @@ class PotcarSingle(object):
                                        r"(.*?)Error from kinetic"
                                        r" energy argument \(eV\)",
                                        search_lines)
-        for line in description_string.group(1).splitlines():
-            description = array_search.findall(line)
-            if description:
-                descriptions.append(self.Description(int(description[0]),
-                                                     float(description[1]),
-                                                     int(description[2]),
-                                                     float(description[3]),
-                                                     int(description[4]) if
-                                                     len(description) > 4
-                                                     else None,
-                                                     float(description[5]) if
-                                                     len(description) > 4
-                                                     else None))
+        if description_string:
+            for line in description_string.group(1).splitlines():
+                description = array_search.findall(line)
+                if description:
+                    descriptions.append(
+                        OrbitalDescription(
+                            int(description[0]), float(description[1]),
+                            int(description[2]), float(description[3]),
+                            int(description[4]) if len(description) > 4 else None,
+                            float(description[5]) if len(description) > 4 else None))
+
         if descriptions:
             PSCTR['OrbitalDescriptions'] = tuple(descriptions)
 
@@ -1523,11 +1525,12 @@ class PotcarSingle(object):
             r"(.*?)END of PSCTR-controll parameters",
             search_lines)
         rrkj_array = []
-        for line in rrkj_kinetic_energy_string.group(1).splitlines():
-            if "=" not in line:
-                rrkj_array += parse_list(line.strip('\n'))
-        if rrkj_array:
-            PSCTR['RRKJ'] = tuple(rrkj_array)
+        if rrkj_kinetic_energy_string:
+            for line in rrkj_kinetic_energy_string.group(1).splitlines():
+                if "=" not in line:
+                    rrkj_array += parse_list(line.strip('\n'))
+            if rrkj_array:
+                PSCTR['RRKJ'] = tuple(rrkj_array)
 
         PSCTR.update(self.keywords)
         self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x: x[0]))
@@ -1554,8 +1557,16 @@ class PotcarSingle(object):
 
     @staticmethod
     def from_file(filename):
-        with zopen(filename, "rt") as f:
-            return PotcarSingle(f.read())
+        try:
+            with zopen(filename, "rt") as f:
+                return PotcarSingle(f.read())
+        except UnicodeDecodeError:
+            warnings.warn("POTCAR contains invalid unicode errors. "
+                          "We will attempt to read it by ignoring errors.")
+            import codecs
+            with codecs.open(filename, "r", encoding="utf-8",
+                             errors="ignore") as f:
+                return PotcarSingle(f.read())
 
     @staticmethod
     def from_symbol_and_functional(symbol, functional=None):
@@ -1639,7 +1650,7 @@ class PotcarSingle(object):
                 for item in v:
                     if isinstance(item, float):
                         hash_str += "{:.3f}".format(item)
-                    elif isinstance(item, (self.Orbital, self.Description)):
+                    elif isinstance(item, (Orbital, OrbitalDescription)):
                         for item_v in item:
                             if isinstance(item_v, (int, str)):
                                 hash_str += "{}".format(item_v)
@@ -1709,8 +1720,17 @@ class Potcar(list, MSONable):
 
     @staticmethod
     def from_file(filename):
-        with zopen(filename, "rt") as reader:
-            fdata = reader.read()
+        try:
+            with zopen(filename, "rt") as f:
+                fdata = f.read()
+        except UnicodeDecodeError:
+            warnings.warn("POTCAR contains invalid unicode errors. "
+                          "We will attempt to read it by ignoring errors.")
+            import codecs
+            with codecs.open(filename, "r", encoding="utf-8",
+                             errors="ignore") as f:
+                fdata = f.read()
+
         potcar = Potcar()
         potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)",
                                     re.S).findall(fdata)

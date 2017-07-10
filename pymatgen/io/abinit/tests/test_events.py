@@ -37,6 +37,7 @@ class EventsParserTest(PymatgenTest):
         # Analyze nscf log
         report = events.EventsParser().parse(ref_file("mgb2_nscf.log"), verbose=0)
         assert (report.num_errors, report.num_warnings, report.num_comments) == (0, 2, 0)
+        print(report)
         self.assertMSONable(report)
 
         #d = report.as_dict()

@@ -133,6 +133,13 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertFalse(sg.is_compatible(rhom))
         self.assertFalse(sg.is_compatible(hexagonal))
 
+        sg = SpaceGroup.from_int_number(165)
+        self.assertFalse(sg.is_compatible(cubic))
+        self.assertFalse(sg.is_compatible(tet))
+        self.assertFalse(sg.is_compatible(ortho))
+        self.assertFalse(sg.is_compatible(rhom))
+        self.assertTrue(sg.is_compatible(hexagonal))
+
     def test_symmops(self):
         sg = SpaceGroup("Pnma")
         op = SymmOp.from_rotation_and_translation([[1, 0, 0], [0, -1, 0],
@@ -144,7 +151,6 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertEqual(sg.int_number, 62)
         self.assertEqual(sg.order, 8)
         self.assertRaises(ValueError, SpaceGroup, "hello")
-
 
     def test_subgroup_supergroup(self):
         with warnings.catch_warnings() as w:
