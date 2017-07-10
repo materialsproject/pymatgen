@@ -84,9 +84,11 @@ class BaderAnalysis(object):
 
         Potcar object associated with POTCAR used for calculation (used for
         calculating charge transferred).
+    .. attribute: chgcar_ref
+        Chgcar reference which calculated by AECCAR0 + AECCAR2. (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
     """
 
-    def __init__(self, chgcar_filename, potcar_filename=None):
+    def __init__(self, chgcar_filename, potcar_filename=None,chgref_filename=None):
         """
         Initializes the Bader caller.
 
@@ -95,17 +97,23 @@ class BaderAnalysis(object):
             potcar_filename: Optional: the filename of the corresponding
                 POTCAR file. Used for calculating the charge transfer. If
                 None, the get_charge_transfer method will raise a ValueError.
+            chgref_filename: Optional: the filename of the reference CHGCAR, 
+                which calculated by AECCAR0 + AECCAR2. (See
+                http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
         """
         self.chgcar = Chgcar.from_file(chgcar_filename)
         self.potcar = Potcar.from_file(potcar_filename) \
             if potcar_filename is not None else None
         self.natoms = self.chgcar.poscar.natoms
         chgcarpath = os.path.abspath(chgcar_filename)
-
+        chgrefpath = os.path.abspath(chgref_filename)
         with ScratchDir(".") as temp_dir:
             shutil.copy(chgcarpath, os.path.join(temp_dir, "CHGCAR"))
-
-            rs = subprocess.Popen(["bader", "CHGCAR"],
+            args = ["bader", "CHGCAR"]
+            if chgref_filename:
+                shutil.copy(chgrefpath, os.path.join(temp_dir, "CHGCAR_ref"))
+                args += ['-ref','CHGCAR_ref']
+            rs = subprocess.Popen(args,
                                   stdout=subprocess.PIPE,
                                   stdin=subprocess.PIPE, close_fds=True)
             rs.communicate()
