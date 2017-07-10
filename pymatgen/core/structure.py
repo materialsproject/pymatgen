@@ -2750,6 +2750,92 @@ class Structure(IStructure, collections.MutableSequence):
 
         self._sites = sites
 
+    def site_property_to_specie_property(self, site_property, specie_property, transform=None):
+        """
+        Convenience method to convert a Site property to a Specie property
+        for the Specie(s) on that site.
+
+        :param site_property (str): any string, for example "bader_charge"
+        :param specie_property (str): a supported Specie property,
+        for example "oxi_state"
+        :param transform: optional function to operate on property
+        :return:
+        """
+
+        if specie_property not in Specie.supported_properties:
+            raise ValueError("Unsupported specie property.")
+
+        if site_property in self.site_properties:
+
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+
+                site_prop = site._properties[site_property]
+                if transform:
+                    site_prop = transform(site_prop)
+
+                for sp, occu in site.species_and_occu.items():
+                    sp_properties = getattr(sp, '_properties', {})
+                    sp_properties[specie_property] = site_prop
+                    sym = sp.symbol
+                    oxi_state = sp_properties.get('oxi_state', None)
+                    new_sp[Specie(sym, oxidation_state=oxi_state,
+                                  properties=sp_properties)] = occu
+
+                new_properties = site.properties
+                del new_properties[site_property]
+
+                new_site = PeriodicSite(new_sp, site.frac_coords,
+                                        self._lattice,
+                                        coords_are_cartesian=False,
+                                        properties=new_properties)
+                self._sites[i] = new_site
+
+
+
+    def specie_property_to_site_property(self, specie_property, site_property, transform=None):
+        """
+        Convenience method to convert a Specie property to a Site property,
+        will fail for disordered structures if no way to assign Site property
+        unambiguously.
+
+        :param specie_property (str): a supported Specie property,
+        for example "oxi_state"
+        :param site_property (str): any string, for example "bader_charge"
+        :param transform: optional function to operate on property
+        :return:
+        """
+
+        if specie_property not in Specie.supported_properties:
+            raise ValueError("Unsupported specie property.")
+
+        for i, site in enumerate(self._sites):
+            all_specie_props_for_site = []
+
+            for sp, occu in site.species_and_occu.items():
+                specie_prop = sp._properties.get(specie_property, None)
+                if transform:
+                    specie_prop = transform(specie_prop)
+                all_specie_props_for_site.append(specie_prop)
+
+            # if all site_props_for_site not the same, raise ValueError
+            if not all(p == all_specie_props_for_site[0] for p in all_specie_props_for_site):
+                raise ValueError("Disordered structure with different specie properties on"
+                                 "the same site, cannot convert to site property.")
+
+            new_properties = site.properties
+            new_properties[site_property] = all_specie_props_for_site[0]
+
+            new_site = PeriodicSite(site.species_and_occu, site.frac_coords,
+                                    self._lattice,
+                                    coords_are_cartesian=False,
+                                    properties=new_properties)
+            self._sites[i] = new_site
+
+        # and remove relevant property from species
+        for i, site in enumerate(self._sites):
+            for sp, occu in site.species_and_occu.items():
+                del sp._properties[specie_property]
 
 class Molecule(IMolecule, collections.MutableSequence):
     """
