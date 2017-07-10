@@ -1046,7 +1046,7 @@ class Specie(MSONable):
              "@class": self.__class__.__name__,
              "element": self.symbol,
              "oxidation_state": self.oxi_state}
-        props = self._properties
+        props = self._properties.copy()
         # we don't need to store oxidation_state twice
         # when serializing, stored separately from
         # properties for historical reasons
