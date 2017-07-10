@@ -851,18 +851,19 @@ class Specie(MSONable):
                 Specie.cache[key] = inst
         return inst
 
-    supported_properties = ("spin",)
+    supported_properties = ("oxi_state", "spin")
 
-    def __init__(self, symbol, oxidation_state, properties=None):
+    def __init__(self, symbol, oxidation_state=None, properties=None):
         self._el = Element(symbol)
-        self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        properties = properties if properties else {}
+        properties["oxi_state"] = oxidation_state
+        self._properties = properties
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
     def __getattr__(self, a):
-        # overriding getattr doens't play nice with pickle, so we
+        # overriding getattr doesn't play nice with pickle, so we
         # can't use self._properties
         p = object.__getattribute__(self, '_properties')
         if a in p:
@@ -878,7 +879,7 @@ class Specie(MSONable):
         exactly the same.
         """
         return isinstance(other, Specie) and self.symbol == other.symbol \
-            and self._oxi_state == other._oxi_state \
+            and self.oxi_state == other.oxi_state \
             and self._properties == other._properties
 
     def __ne__(self, other):
@@ -886,11 +887,11 @@ class Specie(MSONable):
 
     def __hash__(self):
         """
-        Given that all oxidation states are below 100 in absolute value, this
-        should effectively ensure that no two unequal Specie have the same
-        hash.
+        Equal Specie should have the same str representation, hence
+        should hash equally. Unequal Specie will have differnt str
+        representations.
         """
-        return self._el.Z * 1000 + int(self._oxi_state)
+        return self.__str__().__hash__()
 
     def __lt__(self, other):
         """
@@ -920,10 +921,10 @@ class Specie(MSONable):
         Ionic radius of specie. Returns None if data is not present.
         """
 
-        if self._oxi_state in self.ionic_radii:
-            return self.ionic_radii[self._oxi_state]
+        if self.oxi_state in self.ionic_radii:
+            return self.ionic_radii[self.oxi_state]
         d = self._el.data
-        oxstr = str(int(self._oxi_state))
+        oxstr = str(int(self.oxi_state))
         if oxstr in d.get("Ionic radii hs", {}):
             warnings.warn("No default ionic radius for %s. Using hs data." %
                           self)
@@ -940,7 +941,7 @@ class Specie(MSONable):
         """
         Oxidation state of Specie.
         """
-        return self._oxi_state
+        return self._properties.get("oxi_state", None)
 
     @staticmethod
     def from_string(species_string):
@@ -975,12 +976,14 @@ class Specie(MSONable):
 
     def __str__(self):
         output = self.symbol
-        if self._oxi_state >= 0:
-            output += formula_double_format(self._oxi_state) + "+"
-        else:
-            output += formula_double_format(-self._oxi_state) + "-"
+        if self.oxi_state is not None:
+            if self.oxi_state >= 0:
+                output += formula_double_format(self.oxi_state) + "+"
+            else:
+                output += formula_double_format(-self.oxi_state) + "-"
         for p, v in self._properties.items():
-            output += "%s=%s" % (p, v)
+            if p != "oxi_state":
+                output += "%s=%s" % (p, v)
         return output
 
     def get_crystal_field_spin(self, coordination="oct", spin_config="high"):
@@ -1009,7 +1012,7 @@ class Specie(MSONable):
                 "Invalid element {} for crystal field calculation.".format(
                     self.symbol))
         nelectrons = elec[-1][2] + elec[-2][2] - self.oxi_state
-        if nelectrons < 0:
+        if nelectrons < 0 or nelectrons > 10:
             raise AttributeError(
                 "Invalid oxidation state {} for element {}"
                 .format(self.oxi_state, self.symbol))
@@ -1042,9 +1045,15 @@ class Specie(MSONable):
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
              "element": self.symbol,
-             "oxidation_state": self._oxi_state}
-        if self._properties:
-            d["properties"] = self._properties
+             "oxidation_state": self.oxi_state}
+        props = self._properties
+        # we don't need to store oxidation_state twice
+        # when serializing, stored separately from
+        # properties for historical reasons
+        if "oxi_state" in props:
+            del props["oxi_state"]
+        if props:
+            d["properties"] = props
         return d
 
     @classmethod

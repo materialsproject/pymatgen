@@ -237,6 +237,10 @@ class SpecieTestCase(PymatgenTest):
         mo = Specie.from_string("Mo0+spin=4")
         self.assertEqual(mo.spin, 4)
 
+    def test_no_oxidation_state(self):
+        mo0 = Specie("Mo", None, {"spin": 5})
+        self.assertEqual(str(mo0), "Mospin=5")
+
 
 class DummySpecieTestCase(unittest.TestCase):
 
