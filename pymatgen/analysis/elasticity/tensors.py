@@ -7,9 +7,11 @@ from __future__ import division, print_function, unicode_literals, \
 
 from scipy.linalg import polar
 import numpy as np
+import sympy as sp
 import itertools
 import warnings
 import collections
+import string
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
@@ -137,6 +139,28 @@ class Tensor(np.ndarray):
         sop = SymmOp.from_rotation_and_translation(matrix,
                                                    [0., 0., 0.])
         return self.transform(sop)
+
+    def einsum_sequence(self, other_arrays, einsum_string=None):
+        """
+        Calculates the result of an einstein summation expression
+        """
+        if not isinstance(other_arrays, list):
+            raise ValueError("other tensors must be list of "
+                             "tensors or tensor input")
+
+        other_arrays = [np.array(a) for a in other_arrays]
+        if not einsum_string:
+            lc = string.ascii_lowercase
+            einsum_string = lc[:self.rank]
+            other_indices = ''
+            other_ranks = [len(a.shape) for a in other_arrays]
+            idx = self.rank - sum(other_ranks)
+            for length in other_ranks:
+                einsum_string += ',' + lc[idx:idx + length]
+                idx += length
+
+        einsum_args = [self] + list(other_arrays)
+        return np.einsum(einsum_string, *einsum_args)
 
     @property
     def symmetrized(self):
@@ -270,29 +294,17 @@ class Tensor(np.ndarray):
             t[ind] = voigt_input[this_voigt_map[ind]]
         return cls(t)
 
-    def convert_to_ieee(self, structure, initial_fit=True):
+    @staticmethod
+    def get_ieee_rotation(structure):
         """
-        Given a structure associated with a tensor, attempts a
-        calculation of the tensor in IEEE format according to
+        Given a structure associated with a tensor, determines
+        the rotation matrix for IEEE conversion according to
         the 1987 IEEE standards.
 
         Args:
             structure (Structure): a structure associated with the
                 tensor to be converted to the IEEE standard
-            initial_fit (bool): flag to indicate whether initial
-                tensor is fit to the symmetry of the structure.
-                Defaults to true. Note that if false, inconsistent
-                results may be obtained due to symmetrically
-                equivalent, but distinct transformations
-                being used in different versions of spglib.
         """
-
-        def get_uvec(v):
-            """ Gets a unit vector parallel to input vector"""
-            l = np.linalg.norm(v)
-            if l < 1e-8:
-                return v
-            return v / l
 
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
@@ -354,10 +366,142 @@ class Tensor(np.ndarray):
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
             rotation[0] = np.cross(rotation[1], rotation[2])
 
+        return rotation
+
+    def convert_to_ieee(self, structure, initial_fit=True):
+        """
+        Given a structure associated with a tensor, attempts a
+        calculation of the tensor in IEEE format according to
+        the 1987 IEEE standards.
+
+        Args:
+            structure (Structure): a structure associated with the
+                tensor to be converted to the IEEE standard
+            initial_fit (bool): flag to indicate whether initial
+                tensor is fit to the symmetry of the structure.
+                Defaults to true. Note that if false, inconsistent
+                results may be obtained due to symmetrically
+                equivalent, but distinct transformations
+                being used in different versions of spglib.
+        """
+        rotation = self.get_ieee_rotation(structure)
         result = self.copy()
         if initial_fit:
             result = result.fit_to_structure(structure)
         return result.rotate(rotation, tol=1e-2)
+
+    @classmethod
+    def from_values_indices(cls, values, indices, populate=False,
+                            structure=None, voigt_rank=None, 
+                            vsym=True, verbose=False):
+        """
+        Creates a tensor from values and indices, with options
+        for populating the remainder of the tensor.
+        
+        Args:
+            values (floats): numbers to place at indices
+            indices (array-likes): indices to place values at
+            populate (bool): whether to populate the tensor
+            structure (Structure): structure to base population
+                or fit_to_structure on
+            voigt_rank (int): full tensor rank to indicate the
+                shape of the resulting tensor.  This is necessary
+                if one provides a set of indices more minimal than
+                the shape of the tensor they want, e.g. 
+                Tensor.from_values_indices((0, 0), 100)
+            vsym (bool): whether to voigt symmetrize during the
+                optimization procedure
+        """
+        # auto-detect voigt notation
+        # TODO: refactor rank inheritance to make this easier
+        indices = np.array(indices)
+        if voigt_rank:
+            shape = ([3]*(voigt_rank % 2) + [6]*(voigt_rank // 2))
+        else:
+            shape = np.ceil(np.max(indices+1, axis=0) / 3.) * 3
+        base = np.zeros(shape.astype(int))
+        for v, idx in zip(values, indices):
+            base[tuple(idx)] = v
+        if 6 in shape:
+            obj = cls.from_voigt(base)
+        else:
+            obj = cls(base)
+        if populate:
+            assert structure, "Populate option must include structure input"
+            obj = obj.populate(structure, vsym=vsym, verbose=verbose)
+        elif structure:
+            obj = obj.fit_to_structure(structure)
+        return obj
+
+    def populate(self, structure, prec=1e-5, maxiter=200, verbose=False,
+                 precond=True, vsym=True):
+        """
+        Takes a partially populated tensor, and populates the non-zero
+        entries according to the following procedure, iterated until
+        the desired convergence (specified via prec) is achieved.
+
+        1. Find non-zero entries
+        2. Symmetrize the tensor with respect to crystal symmetry and
+           (optionally) voigt symmetry
+        3. Reset the non-zero entries of the original tensor
+        
+        Args:
+            structure (structure object)
+        """
+        if precond:
+            # Generate the guess from populated
+            sops = SpacegroupAnalyzer(structure).get_symmetry_operations()
+            guess = Tensor(np.zeros(self.shape))
+            mask = abs(self) > prec
+            guess[mask] = self[mask]
+
+            def merge(old, new):
+                gmask = np.abs(old) > prec
+                nmask = np.abs(new) > prec
+                new_mask = np.logical_not(gmask)*nmask
+                avg_mask = gmask*nmask
+                old[avg_mask] = (old[avg_mask] + new[avg_mask]) / 2.
+                old[new_mask] = new[new_mask]
+            if verbose:
+                print("Preconditioning for {} symmops".format(len(sops)))
+            for sop in sops:
+                rot = guess.transform(sop)
+                # Store non-zero entries of new that weren't previously
+                # in the guess in the guess
+                merge(guess, rot)
+            if verbose:
+                print("Preconditioning for voigt symmetry".format(len(sops)))
+            if vsym:
+                v = guess.voigt
+                perms = list(itertools.permutations(range(len(v.shape))))
+                for perm in perms:
+                    vtrans = np.transpose(v, perm)
+                    merge(v, vtrans)
+                guess = Tensor.from_voigt(v)
+        else:
+            guess = np.zeros(self.shape)
+
+        assert guess.shape == self.shape, "Guess must have same shape"
+        converged = False
+        test_new, test_old = [guess.copy()]*2
+        for i in range(maxiter):
+            test_new = test_old.fit_to_structure(structure)
+            if vsym:
+                test_new = test_new.voigt_symmetrized
+            diff = np.abs(test_old - test_new) 
+            converged = (diff < prec).all()
+            if converged:
+                break
+            test_new[mask] = self[mask]
+            test_old = test_new
+            if verbose:
+                print("Iteration {}: {}".format(i, np.max(diff)))
+        if not converged:
+            max_diff = np.max(np.abs(self - test_new))
+            warnings.warn("Warning, populated tensor is not converged "
+                          "with max diff of {}".format(max_diff))
+        return self.__class__(test_new)
+
 
 
 class TensorCollection(collections.Sequence):
@@ -397,10 +541,17 @@ class TensorCollection(collections.Sequence):
     def fit_to_structure(self, structure, symprec=0.1):
         return self.__class__([t.fit_to_structure(structure, symprec) 
                                for t in self])
+    
+    def is_fit_to_structure(self, structure, tol=1e-2):
+        return all([t.is_fit_to_structure(structure, tol) for t in self])
 
     @property
     def voigt(self):
         return [t.voigt for t in self]
+    
+    @property
+    def ranks(self):
+        return [t.rank for t in self]
 
     def is_voigt_symmetric(self, tol=1e-6):
         return all([t.is_voigt_symmetric(tol) for t in self])
@@ -506,6 +657,13 @@ class SquareTensor(Tensor):
         return polar(self, side=side)
 
 
+def get_uvec(vec):
+    """ Gets a unit vector parallel to input vector"""
+    l = np.linalg.norm(vec)
+    if l < 1e-8:
+        return vec
+    return vec / l
+
 def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     """
     Function that converts a list of tensors corresponding to a structure
@@ -538,3 +696,25 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
         if is_unique:
             unique_tdict[tensor] = []
     return unique_tdict
+
+
+def get_tkd_value(tensor_keyed_dict, tensor, **allclose_kwargs):
+    """
+    Helper function to find a value in a tensor-keyed-
+    dictionary using an approximation to the key.  This
+    is useful if rounding errors in construction occur
+    or hashing issues arise in tensor-keyed-dictionaries
+    (e. g. from symmetry_reduce).  Resolves most
+    hashing issues, and is preferable to redefining
+    eq methods in the base tensor class.
+    
+    Args:
+        tensor_key (array-like): array for finding the
+            tensor key.
+        tensor_keyed_dict (dict): dict with Tensor keys
+        allclose_kwargs (dict): dict of keyword-args
+            to pass to allclose.
+    """
+    for tkey, value in tensor_keyed_dict.items():
+        if np.allclose(tensor, tkey, **allclose_kwargs):
+            return value

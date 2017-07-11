@@ -73,7 +73,6 @@ class AdsorbateSiteFinder(object):
                 slabs that have been reoriented, but the miller vector
                 must be supplied manually
         """
-        self.mi_string = ''.join([str(i) for i in slab.miller_index])
         # get surface normal from miller index
         if mi_vec:
             self.mvec = mi_vec

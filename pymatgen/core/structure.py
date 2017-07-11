@@ -28,7 +28,7 @@ import numpy as np
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, get_el_sp
+from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -2871,7 +2871,8 @@ class Molecule(IMolecule, collections.MutableSequence):
         nelectrons = 0
         for site in self._sites:
             for sp, amt in site.species_and_occu.items():
-                nelectrons += sp.Z * amt
+                if not isinstance(sp, DummySpecie):
+                    nelectrons += sp.Z * amt
         nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:
