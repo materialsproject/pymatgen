@@ -34,6 +34,9 @@ class Site(collections.Hashable, MSONable):
     Composition is used to represent the atoms and occupancy, which allows for
     disordered site representation. Coords are given in standard cartesian
     coordinates.
+
+    All Site (and subclasses such as PeriodicSite) inherits attributes of Specie
+    if the Site is ordered. For example,
     """
 
     position_atol = 1e-5
@@ -56,7 +59,7 @@ class Site(collections.Hashable, MSONable):
                 {"magmom": 5}. Defaults to None.
         """
         if isinstance(atoms_n_occu, Composition):
-            # Compositions are immutable, so don't need to copy (much much faster)
+            # Compositions are immutable, so don't need to copy (much faster)
             self._species = atoms_n_occu
             # Kludgy lookup of private attribute, but its faster
             totaloccu = atoms_n_occu._natoms

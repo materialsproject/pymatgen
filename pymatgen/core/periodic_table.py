@@ -1113,7 +1113,7 @@ class DummySpecie(Specie):
             raise AttributeError(a)
 
     def __hash__(self):
-        return 1
+        return self.symbol.__hash__()
 
     def __eq__(self, other):
         """
@@ -1146,9 +1146,11 @@ class DummySpecie(Specie):
     @property
     def Z(self):
         """
-        DummySpecie is always assigned an atomic number of 0.
+        DummySpecie is always assigned an atomic number equal to the hash of
+        the symbol. The expectation is that someone would be an actual dummy
+        to use atomic numbers for a Dummy specie.
         """
-        return 0
+        return self.symbol.__hash__()
 
     @property
     def oxi_state(self):
@@ -1160,7 +1162,8 @@ class DummySpecie(Specie):
     @property
     def X(self):
         """
-        DummySpecie is always assigned an electronegativity of 0.
+        DummySpecie is always assigned an electronegativity of 0. The effect of
+        this is that DummySpecie are always sorted in front of actual Specie.
         """
         return 0
 
