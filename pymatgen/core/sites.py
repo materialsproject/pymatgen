@@ -34,9 +34,6 @@ class Site(collections.Hashable, MSONable):
     Composition is used to represent the atoms and occupancy, which allows for
     disordered site representation. Coords are given in standard cartesian
     coordinates.
-
-    All Site (and subclasses such as PeriodicSite) inherits attributes of Specie
-    if the Site is ordered. For example,
     """
 
     position_atol = 1e-5
@@ -205,10 +202,10 @@ class Site(collections.Hashable, MSONable):
         """
         if other is None:
             return False
-        return self._species == other._species and \
-            np.allclose(self._coords, other._coords,
-                        atol=Site.position_atol) and \
-            self._properties == other._properties
+        return (self._species == other._species and
+                np.allclose(self._coords, other._coords,
+                            atol=Site.position_atol) and
+                self._properties == other._properties)
 
     def __ne__(self, other):
         return not self.__eq__(other)
