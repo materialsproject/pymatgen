@@ -825,6 +825,23 @@ class StructureTest(PymatgenTest):
         self.assertNotEqual(s, self.structure)
         self.assertNotEqual(self.structure * 2, self.structure)
 
+    def test_swap_site_specie_properties(self):
+        s = self.structure.copy()
+        s.add_site_property('test_oxi_states', [2, 4])
+
+        print(s)
+        s.site_property_to_specie_property('test_oxi_states', 'oxi_state')
+        print(s)
+        self.assertEqual(s[0].specie.oxi_state, 2)
+        self.assertEqual(s[1].specie.oxi_state, 4)
+        self.assertFalse('test_oxi_states' in s.site_properties)
+
+        s.specie_property_to_site_property('oxi_state', 'test_oxi_states')
+        self.assertListEqual(s.site_properties['test_oxi_states'], [2, 4])
+        self.assertEqual(s[0].specie.oxi_state, None)
+        self.assertEqual(s[1].specie.oxi_state, None)
+
+
 
 class IMoleculeTest(PymatgenTest):
 
