@@ -4,6 +4,15 @@
 
 from __future__ import division, unicode_literals
 
+import numpy as np
+import pickle
+
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.sites import Site, PeriodicSite
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.composition import Composition
+
 """
 Created on Jul 17, 2012
 """
@@ -15,15 +24,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 17, 2012"
-
-import numpy as np
-import pickle
-
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.sites import Site, PeriodicSite
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.composition import Composition
 
 
 class SiteTest(PymatgenTest):
@@ -42,6 +42,11 @@ class SiteTest(PymatgenTest):
         self.assertIsInstance(self.ordered_site.specie, Element)
         self.assertEqual(self.propertied_site.magmom, 5.1)
         self.assertEqual(self.propertied_site.charge, 4.2)
+
+        # Test passthrough.
+        self.assertEqual(self.propertied_site.oxi_state, 2)
+        self.assertRaises(AttributeError, getattr, self.ordered_site,
+                          "oxi_state")
 
     def test_to_from_dict(self):
         d = self.disordered_site.as_dict()
