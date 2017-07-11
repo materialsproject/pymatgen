@@ -425,7 +425,8 @@ class EventsParser(object):
                     #print("got doc.tag", doc.tag,"--")
                     try:
                         #print(doc.text)
-                        event = yaml.load(doc.text)   # Don't use safe_load here!
+                        event = yaml.load(doc.text)   # Can't use ruamel safe_load!
+                        #yaml.load(doc.text, Loader=ruamel.yaml.Loader)
                         #print(event.yaml_tag, type(event))
                     except:
                         #raise

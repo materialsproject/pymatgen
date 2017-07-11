@@ -160,12 +160,14 @@ class XcFunc(MSONable):
         # At this point, we should have something in the form
         # name="GGA_X_PBE+GGA_C_PBE" or  name=""LDA_XC_TETER93"
         if "+" in name:
-            assert typ is None
+            if typ is not None:
+                raise ValueError("typ: `%s` but name: `%s`" % (typ, name))
             x, c = (s.strip() for s in name.split("+"))
             x, c = LibxcFunc[x], LibxcFunc[c]
             return cls(x=x, c=c)
         else:
-            assert typ is None
+            if typ is not None:
+                raise ValueError("typ: `%s` but name: `%s`" % (typ, name))
             xc = LibxcFunc[name]
             return cls(xc=xc)
 

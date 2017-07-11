@@ -25,7 +25,6 @@ from monty.itertools import iterator_from_slice
 from monty.json import MSONable, MontyDecoder
 from monty.os.path import find_exts
 from monty.string import list_strings, is_string
-from pymatgen.analysis.eos import EOS
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.serializers.json_coders import pmg_serialize
@@ -555,7 +554,7 @@ class Hint(object):
 
     @classmethod
     def from_dict(cls, d):
-        return cls(**{k: v for k,v in d.items() if not k.startswith("@")})
+        return cls(**{k: v for k, v in d.items() if not k.startswith("@")})
 
 
 def _dict_from_lines(lines, key_nums, sep=None):

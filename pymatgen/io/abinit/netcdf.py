@@ -7,7 +7,8 @@ from __future__ import unicode_literals, division, print_function
 import os.path
 import warnings
 
-from monty.dev import requires, deprecated
+from collections import OrderedDict
+from monty.dev import requires
 from monty.collections import AttrDict
 from monty.functools import lazy_property
 from pymatgen.core.units import ArrayWithUnit
@@ -98,7 +99,7 @@ class NetcdfReader(object):
 
         self.ngroups = len(list(self.walk_tree()))
 
-        #self.path2group = collections.OrderedDict()
+        #self.path2group = OrderedDict()
         #for children in self.walk_tree():
         #   for child in children:
         #       #print(child.group,  child.path)
@@ -212,7 +213,8 @@ class NetcdfReader(object):
                 return [group.dimensions[dname] for dname in dimnames]
 
         except KeyError:
-            raise self.Error("In file %s:\ndimnames %s, kwargs %s" % (self.path, dimnames, kwargs))
+            raise self.Error("In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`" %
+                             (self.path, dimnames, kwargs))
 
     def _read_variables(self, *varnames, **kwargs):
         path = kwargs.get("path", "/")
@@ -224,7 +226,8 @@ class NetcdfReader(object):
                 return [group.variables[vname] for vname in varnames]
 
         except KeyError:
-            raise self.Error("In file %s:\nvarnames %s, kwargs %s" % (self.path, varnames, kwargs))
+            raise self.Error("In file %s:\nError while reading variables: `%s` with kwargs `%s`." %
+                             (self.path, varnames, kwargs))
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
         """
@@ -280,6 +283,24 @@ class ETSF_Reader(NetcdfReader):
         ixc = int(self.read_value("ixc"))
         return XcFunc.from_abinit_ixc(ixc)
 
+    def read_abinit_hdr(self):
+        """
+        Read the variables associated to the Abinit header.
+
+        Return :class:`AbinitHeader`
+        """
+        d = {}
+        for hvar in _HDR_VARIABLES.values():
+            ncname = hvar.etsf_name if hvar.etsf_name is not None else hvar.name
+            if ncname in self.rootgrp.variables:
+                d[hvar.name] = self.read_value(ncname)
+            elif ncname in self.rootgrp.dimensions:
+                d[hvar.name] = self.read_dimvalue(ncname)
+            else:
+                raise ValueError("Cannot find `%s` in `%s`" % (ncname, self.path))
+
+        return AbinitHeader(d)
+
 
 def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     """
@@ -329,3 +350,92 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
         ncdata.close()
 
     return structure
+
+class _H(object):
+    __slots__ = ["name", "doc", "etsf_name"]
+
+    def __init__(self, name, doc, etsf_name=None):
+        self.name, self.doc, self.etsf_name = name, doc, etsf_name
+
+_HDR_VARIABLES = (
+  # Scalars
+  _H("bantot", "total number of bands (sum of nband on all kpts and spins)"),
+  _H("date", "starting date"),
+  _H("headform", "format of the header"),
+  _H("intxc", "input variable"),
+  _H("ixc", "input variable"),
+  _H("mband", "maxval(hdr%nband)", etsf_name="max_number_of_states"),
+  _H("natom", "input variable", etsf_name="number_of_atoms"),
+  _H("nkpt", "input variable", etsf_name="number_of_kpoints"),
+  _H("npsp", "input variable"),
+  _H("nspden", "input variable", etsf_name="number_of_components"),
+  _H("nspinor", "input variable", etsf_name="number_of_spinor_components"),
+  _H("nsppol", "input variable", etsf_name="number_of_spins"),
+  _H("nsym", "input variable", etsf_name="number_of_symmetry_operations"),
+  _H("ntypat", "input variable", etsf_name="number_of_atom_species"),
+  _H("occopt", "input variable"),
+  _H("pertcase", "the index of the perturbation, 0 if GS calculation"),
+  _H("usepaw", "input variable (0=norm-conserving psps, 1=paw)"),
+  _H("usewvl", "input variable (0=plane-waves, 1=wavelets)"),
+  _H("kptopt", "input variable (defines symmetries used for k-point sampling)"),
+  _H("pawcpxocc", "input variable"),
+  _H("nshiftk_orig", "original number of shifts given in input (changed in inkpts, the actual value is nshiftk)"),
+  _H("nshiftk", "number of shifts after inkpts."),
+  _H("icoulomb", "input variable."),
+  _H("ecut", "input variable", etsf_name="kinetic_energy_cutoff"),
+  _H("ecutdg", "input variable (ecut for NC psps, pawecutdg for paw)"),
+  _H("ecutsm", "input variable"),
+  _H("ecut_eff", "ecut*dilatmx**2 (dilatmx is an input variable)"),
+  _H("etot", "EVOLVING variable"),
+  _H("fermie", "EVOLVING variable", etsf_name="fermi_energy"),
+  _H("residm", "EVOLVING variable"),
+  _H("stmbias", "input variable"),
+  _H("tphysel", "input variable"),
+  _H("tsmear", "input variable"),
+  _H("nelect", "number of electrons (computed from pseudos and charge)"),
+  _H("charge", "input variable"),
+  # Arrays
+  _H("qptn", "qptn(3) the wavevector, in case of a perturbation"),
+  #_H("rprimd", "rprimd(3,3) EVOLVING variables", etsf_name="primitive_vectors"),
+  #_H(ngfft, "ngfft(3) input variable",  number_of_grid_points_vector1"
+  #_H("nwvlarr", "nwvlarr(2) the number of wavelets for each resolution.", etsf_name="number_of_wavelets"),
+  _H("kptrlatt_orig", "kptrlatt_orig(3,3) Original kptrlatt"),
+  _H("kptrlatt", "kptrlatt(3,3) kptrlatt after inkpts."),
+  _H("istwfk", "input variable istwfk(nkpt)"),
+  _H("lmn_size", "lmn_size(npsp) from psps"),
+  _H("nband", "input variable nband(nkpt*nsppol)", etsf_name="number_of_states"),
+  _H("npwarr", "npwarr(nkpt) array holding npw for each k point", etsf_name="number_of_coefficients"),
+  _H("pspcod", "pscod(npsp) from psps"),
+  _H("pspdat", "psdat(npsp) from psps"),
+  _H("pspso", "pspso(npsp) from psps"),
+  _H("pspxc", "pspxc(npsp) from psps"),
+  _H("so_psp", "input variable so_psp(npsp)"),
+  _H("symafm", "input variable symafm(nsym)"),
+  #_H(symrel="input variable symrel(3,3,nsym)",  etsf_name="reduced_symmetry_matrices"),
+  _H("typat", "input variable typat(natom)", etsf_name="atom_species"),
+  _H("kptns", "input variable kptns(nkpt, 3)", etsf_name="reduced_coordinates_of_kpoints"),
+  _H("occ", "EVOLVING variable occ(mband, nkpt, nsppol)", etsf_name="occupations"),
+  _H("tnons", "input variable tnons(nsym, 3)", etsf_name="reduced_symmetry_translations"),
+  _H("wtk", "weight of kpoints wtk(nkpt)", etsf_name="kpoint_weights"),
+  _H("shiftk_orig", "original shifts given in input (changed in inkpts)."),
+  _H("shiftk", "shiftk(3,nshiftk), shiftks after inkpts"),
+  _H("amu", "amu(ntypat) ! EVOLVING variable"),
+  #_H("xred", "EVOLVING variable xred(3,natom)", etsf_name="reduced_atom_positions"),
+  _H("zionpsp", "zionpsp(npsp) from psps"),
+  _H("znuclpsp", "znuclpsp(npsp) from psps. Note the difference between (znucl|znucltypat) and znuclpsp"),
+  _H("znucltypat", "znucltypat(ntypat) from alchemy", etsf_name="atomic_numbers"),
+  _H("codvsn", "version of the code"),
+  _H("title", "title(npsp) from psps"),
+  _H("md5_pseudos", "md5pseudos(npsp), md5 checksums associated to pseudos (read from file)"),
+  #_H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw
+)
+_HDR_VARIABLES = OrderedDict([(h.name, h) for h in _HDR_VARIABLES])
+
+
+class AbinitHeader(AttrDict):
+    """Stores the values reported in the Abinit header."""
+
+    #def __init__(self, *args, **kwargs):
+    #    super(AbinitHeader, self).__init__(*args, **kwargs)
+    #    for k, v in self.items():
+    #        v.__doc__ = _HDR_VARIABLES[k].doc

@@ -5,6 +5,7 @@
 from __future__ import unicode_literals, division, print_function
 
 import os
+import numpy as np
 
 from monty.string import list_strings
 from six.moves import map, cStringIO
@@ -75,6 +76,8 @@ class ExecWrapper(object):
         """
         qadapter = self.manager.qadapter
         if not with_mpirun: qadapter.name = None
+        if self.verbose:
+            print("Working in:", workdir)
 
         script = qadapter.get_script_str(
             job_name=self.name,
@@ -340,3 +343,39 @@ class Cut3D(ExecWrapper):
                 raise RuntimeError("The file was not converted correctly.")
 
         return self.stdout_fname, output_filepath
+
+
+class Fold2Bloch(ExecWrapper):
+    """Wrapper for fold2Bloch Fortran executable."""
+    _name = "fold2Bloch"
+
+    def unfold(self, wfkpath, folds, workdir=None):
+        import tempfile
+        workdir = tempfile.mkdtemp() if workdir is None else workdir
+
+        self.stdin_fname = None
+        self.stdout_fname, self.stderr_fname = \
+            map(os.path.join, 2 * [workdir], ["fold2bloch.stdout", "flod2bloch.stderr"])
+
+        folds = np.array(folds, dtype=np.int).flatten()
+        if len(folds) not in (3, 9):
+            raise ValueError("Expecting 3 ints or 3x3 matrix but got %s" % (str(folds)))
+        fold_arg = ":".join((str(f) for f in folds))
+        wfkpath = os.path.abspath(wfkpath)
+        if not os.path.isfile(wfkpath):
+            raise RuntimeError("WFK file `%s` does not exist" % wfkpath)
+
+        # Usage: $ fold2Bloch file_WFK x:y:z (folds)
+        retcode = self.execute(workdir, exec_args=[wfkpath, fold_arg])
+        if retcode:
+            print("stdout:")
+            print(self.stdout_data)
+            print("stderr:")
+            print(self.stderr_data)
+            raise RuntimeError("fold2bloch returned %s" % retcode)
+
+        filepaths = [f for f in os.listdir(workdir) if f.endswith("_FOLD2BLOCH.nc")]
+        if len(filepaths) != 1:
+            raise RuntimeError("Cannot find *_FOLD2BLOCH.nc file in directory: %s" % os.listdir(workdir))
+
+        return os.path.join(workdir, filepaths[0])
