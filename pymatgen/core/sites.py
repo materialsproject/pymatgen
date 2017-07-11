@@ -94,10 +94,6 @@ class Site(collections.Hashable, MSONable):
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
-        if self._is_ordered:
-            sp = list(object.__getattribute__(self, '_species'))[0]
-            if hasattr(sp, a):
-                return getattr(sp, a)
         raise AttributeError(a)
 
     def distance(self, other):

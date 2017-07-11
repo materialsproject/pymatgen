@@ -43,11 +43,6 @@ class SiteTest(PymatgenTest):
         self.assertEqual(self.propertied_site.magmom, 5.1)
         self.assertEqual(self.propertied_site.charge, 4.2)
 
-        # Test passthrough.
-        self.assertEqual(self.propertied_site.oxi_state, 2)
-        self.assertRaises(AttributeError, getattr, self.ordered_site,
-                          "oxi_state")
-
     def test_to_from_dict(self):
         d = self.disordered_site.as_dict()
         site = Site.from_dict(d)
