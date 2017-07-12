@@ -687,6 +687,11 @@ batch_adapter:
         if kwargs:
             raise ValueError("Found invalid keywords in the taskmanager file:\n %s" % str(list(kwargs.keys())))
 
+    @lazy_property
+    def abinit_build(self):
+        """:class:`AbinitBuild` object with Abinit version and options used to build the code"""
+        return AbinitBuild(manager=self)
+
     def to_shell_manager(self, mpi_procs=1):
         """
         Returns a new `TaskManager` with the same parameters as self but replace the :class:`QueueAdapter`
