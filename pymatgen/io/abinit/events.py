@@ -418,14 +418,16 @@ class EventsParser(object):
         report = EventReport(filename)
 
         w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
-
+        import warnings
+        warnings.simplefilter('ignore', yaml.error.UnsafeLoaderWarning)
         with YamlTokenizer(filename) as tokens:
             for doc in tokens:
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
                     try:
                         #print(doc.text)
-                        event = yaml.load(doc.text)
+                        event = yaml.load(doc.text)   # Can't use ruamel safe_load!
+                        #yaml.load(doc.text, Loader=ruamel.yaml.Loader)
                         #print(event.yaml_tag, type(event))
                     except:
                         #raise
@@ -438,7 +440,7 @@ class EventsParser(object):
                             message += "Traceback:\n %s" % straceback()
 
                         if "error" in doc.tag.lower():
-                            print("It seems an error", doc.tag)
+                            print("It seems an error. doc.tag:", doc.tag)
                             event = AbinitYamlError(message=message, src_file=__file__, src_line=0)
                         else:
                             event = AbinitYamlWarning(message=message, src_file=__file__, src_line=0)

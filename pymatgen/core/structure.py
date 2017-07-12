@@ -532,7 +532,7 @@ class IStructure(SiteCollection, MSONable):
 
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
-                   
+
     @classmethod
     def from_magnetic_spacegroup(cls, msg, lattice, species, coords, site_properties,
                                   transform_setting=None, coords_are_cartesian=False, tol=1e-5):
@@ -1429,7 +1429,6 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
-
 
         Returns:
             (str) if filename is None. None otherwise.
