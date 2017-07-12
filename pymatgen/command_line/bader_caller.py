@@ -85,6 +85,7 @@ class BaderAnalysis(object):
         Potcar object associated with POTCAR used for calculation (used for
         calculating charge transferred).
     .. attribute: chgcar_ref
+    
         Chgcar reference which calculated by AECCAR0 + AECCAR2. (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
     """
 

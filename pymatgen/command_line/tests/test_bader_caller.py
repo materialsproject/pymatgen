@@ -29,17 +29,17 @@ class BaderAnalysisTest(unittest.TestCase):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 'test_files')
         analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.Fe3O4"),
-                                 os.path.join(test_dir, "POTCAR.Fe3O4"))
+                                 os.path.join(test_dir, "POTCAR.Fe3O4"),
+                                 os.path.join(test_dir, "CHGCAR.Fe3O4_ref"),)
         self.assertEqual(len(analysis.data), 14)
-        self.assertAlmostEqual(analysis.data[0]["charge"], 6.1485297, 3)
+        self.assertAlmostEqual(analysis.data[0]["charge"], 6.6136782, 3)
         self.assertAlmostEqual(analysis.nelectrons, 96)
         self.assertAlmostEqual(analysis.vacuum_charge, 0)
-        ans = [-1.8515, -1.8132, -1.8132, -1.5562, -1.8132, -1.8515, 1.3369,
-               1.3378, 1.3373, 1.3374, 1.3374, 1.3369, 1.3373, 1.3378]
+        ans = [-1.3863218, -1.3812175, -1.3812175, -1.2615902, -1.3812175, -1.3862971, 1.021523, 1.024357, 1.021523, 1.021523, 1.021523, 1.021523, 1.021523, 1.024357]
         for i in range(14):
             self.assertAlmostEqual(ans[i], analysis.get_charge_transfer(i), 3)
         s = analysis.get_oxidation_state_decorated_structure()
-        self.assertAlmostEqual(s[0].specie.oxi_state, -1.8515, 3)
+        self.assertAlmostEqual(s[0].specie.oxi_state, -1.3863218, 3)
 
 
 if __name__ == '__main__':
