@@ -376,6 +376,6 @@ class Fold2Bloch(ExecWrapper):
 
         filepaths = [f for f in os.listdir(workdir) if f.endswith("_FOLD2BLOCH.nc")]
         if len(filepaths) != 1:
-            raise RuntimeError("Cannot find *_FOLD2BLOCH.nc file in directory: %s" % os.listdir(workdir))
+            raise RuntimeError("Cannot find *_FOLD2BLOCH.nc file in: %s" % str(os.listdir(workdir)))
 
         return os.path.join(workdir, filepaths[0])
