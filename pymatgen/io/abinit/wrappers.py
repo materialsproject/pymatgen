@@ -355,7 +355,7 @@ class Fold2Bloch(ExecWrapper):
 
         self.stdin_fname = None
         self.stdout_fname, self.stderr_fname = \
-            map(os.path.join, 2 * [workdir], ["fold2bloch.stdout", "flod2bloch.stderr"])
+            map(os.path.join, 2 * [workdir], ["fold2bloch.stdout", "fold2bloch.stderr"])
 
         folds = np.array(folds, dtype=np.int).flatten()
         if len(folds) not in (3, 9):
