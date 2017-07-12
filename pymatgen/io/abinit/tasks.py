@@ -1169,6 +1169,18 @@ class AbinitBuild(object):
         app("    Netcdf: %s" % self.has_netcdf)
         return "\n".join(lines)
 
+    def version_ge(self, version_string):
+        """True is Abinit version is >= version_string"""
+        return self.compare_version(version_string, ">=")
+
+    def compare_version(self, version_string, op):
+        """Compare Abinit version to `version_string` with operator `op`"""
+        from pkg_resources import parse_version
+        from monty.operator import operator_from_str
+        op = operator_from_str(op)
+        return op(parse_version(self.version), parse_version(version_string))
+
+
 
 class FakeProcess(object):
     """

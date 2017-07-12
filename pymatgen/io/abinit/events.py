@@ -418,7 +418,8 @@ class EventsParser(object):
         report = EventReport(filename)
 
         w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
-
+        import warnings
+        warnings.simplefilter('ignore', yaml.error.UnsafeLoaderWarning)
         with YamlTokenizer(filename) as tokens:
             for doc in tokens:
                 if w.match(doc.tag):
