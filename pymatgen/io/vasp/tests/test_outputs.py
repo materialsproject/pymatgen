@@ -720,8 +720,7 @@ class ChgcarTest(unittest.TestCase):
 
         filepath = os.path.join(test_dir, 'CHGCAR.Fe3O4')
         chg = Chgcar.from_file(filepath)
-        ans = [1.93313368, 3.91201473, 4.11858277, 4.1240093, 4.10634989,
-               3.38864822]
+        ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
         myans = chg.get_integrated_diff(0, 3, 6)
         self.assertTrue(np.allclose(myans[:, 1], ans))
 
