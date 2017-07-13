@@ -4,6 +4,17 @@
 
 from __future__ import division, unicode_literals
 
+import os
+import subprocess
+import shutil
+
+from six.moves import map, zip
+from pymatgen.io.vasp.outputs import Chgcar
+from pymatgen.io.vasp.inputs import Potcar
+from monty.os.path import which
+from monty.dev import requires
+from monty.tempfile import ScratchDir
+
 """
 This module implements an interface to the Henkelmann et al.'s excellent
 Fortran code for calculating a Bader charge analysis.
@@ -18,25 +29,12 @@ G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
-from six.moves import map
-from six.moves import zip
-
 __author__ = "shyuepingong"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Beta"
 __date__ = "4/5/13"
-
-import os
-import subprocess
-import shutil
-
-from pymatgen.io.vasp.outputs import Chgcar
-from pymatgen.io.vasp.inputs import Potcar
-from monty.os.path import which
-from monty.dev import requires
-from monty.tempfile import ScratchDir
 
 
 @requires(which("bader") or which("bader.exe"),
@@ -84,22 +82,25 @@ class BaderAnalysis(object):
 
         Potcar object associated with POTCAR used for calculation (used for
         calculating charge transferred).
+
     .. attribute: chgcar_ref
     
-        Chgcar reference which calculated by AECCAR0 + AECCAR2. (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
+        Chgcar reference which calculated by AECCAR0 + AECCAR2.
+        (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
     """
 
-    def __init__(self, chgcar_filename, potcar_filename=None,chgref_filename=None):
+    def __init__(self, chgcar_filename, potcar_filename=None,
+                 chgref_filename=None):
         """
         Initializes the Bader caller.
 
         Args:
-            chgcar_filename: The filename of the CHGCAR.
-            potcar_filename: Optional: the filename of the corresponding
+            chgcar_filename (str): The filename of the CHGCAR.
+            potcar_filename (str): Optional: the filename of the corresponding
                 POTCAR file. Used for calculating the charge transfer. If
                 None, the get_charge_transfer method will raise a ValueError.
-            chgref_filename: Optional: the filename of the reference CHGCAR, 
-                which calculated by AECCAR0 + AECCAR2. (See
+            chgref_filename (str): Optional. The filename of the reference
+                CHGCAR, which calculated by AECCAR0 + AECCAR2. (See
                 http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
         """
         self.chgcar = Chgcar.from_file(chgcar_filename)
@@ -113,7 +114,7 @@ class BaderAnalysis(object):
             args = ["bader", "CHGCAR"]
             if chgref_filename:
                 shutil.copy(chgrefpath, os.path.join(temp_dir, "CHGCAR_ref"))
-                args += ['-ref','CHGCAR_ref']
+                args += ['-ref', 'CHGCAR_ref']
             rs = subprocess.Popen(args,
                                   stdout=subprocess.PIPE,
                                   stdin=subprocess.PIPE, close_fds=True)
