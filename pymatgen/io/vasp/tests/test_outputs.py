@@ -40,6 +40,9 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class VasprunTest(unittest.TestCase):
 
+    def test_multiple_dielectric(self):
+        v = Vasprun(os.path.join(test_dir, "vasprun.GW0.xml"))
+        self.assertEqual(len(v.other_dielectric), 3)
 
     def test_bad_vasprun(self):
         self.assertRaises(ET.ParseError,
