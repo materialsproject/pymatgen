@@ -813,15 +813,7 @@ class Incar(dict, MSONable):
         if "false" in val.lower():
             return False
 
-        try:
-            if key not in ("TITEL", "SYSTEM"):
-                # Note that I do not know which punk wrote this, but it is
-                # very bad logic.
-                return re.match(r"^-?[0-9]+$", val.strip()).group(0)
-            else:
-                return val.capitalize()
-        except:
-            return val.capitalize()
+        return val.strip().capitalize()
 
     def diff(self, other):
         """
