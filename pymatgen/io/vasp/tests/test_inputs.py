@@ -506,6 +506,9 @@ SIGMA = 0.1"""
         self.assertIsInstance(i["EINT"], list)
         self.assertEqual(i["EINT"][0], -0.85)
 
+    def test_proc_types(self):
+        self.assertEqual(Incar.proc_val("HELLO", "-0.85 0.85"), "-0.85 0.85")
+
 
 class KpointsTest(unittest.TestCase):
 

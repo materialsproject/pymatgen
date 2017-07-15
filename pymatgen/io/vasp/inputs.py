@@ -812,9 +812,10 @@ class Incar(dict, MSONable):
 
         if "false" in val.lower():
             return False
+
         try:
             if key not in ("TITEL", "SYSTEM"):
-                return re.search(r"^-?[0-9]+", val.capitalize()).group(0)
+                return re.match(r"^-?[0-9]+$", val.strip().capitalize()).group(0)
             else:
                 return val.capitalize()
         except:
