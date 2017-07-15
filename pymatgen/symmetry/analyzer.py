@@ -64,7 +64,7 @@ class SpacegroupAnalyzer(object):
         angle_tolerance (float): Angle tolerance for symmetry finding.
     """
 
-    def __init__(self, structure, symprec=1e-3, angle_tolerance=5):
+    def __init__(self, structure, symprec=0.01, angle_tolerance=5):
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
