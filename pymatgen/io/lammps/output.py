@@ -333,7 +333,8 @@ class LammpsRun(object):
             velocity.append(tmp_mol)
         return np.array(velocity)
 
-#TODO write parser for one and multi thermo_styles
+
+# TODO write parser for one and multi thermo_styles
 class LammpsLog(object):
     """
     Parser for LAMMPS log file.
@@ -397,8 +398,7 @@ class LammpsLog(object):
                 if thermo_pattern:
                     if thermo_pattern.search(line):
                         m = thermo_pattern.search(line)
-                        thermo_data.append(
-                            tuple([float(x) for i, x in enumerate(m.groups())]))
+                        thermo_data.append(tuple([float(x) for x in m.groups()]))
         if isinstance(thermo_data[0], str):
             self.thermo_data = [thermo_data]
         else:
