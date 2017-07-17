@@ -2,10 +2,10 @@ from __future__ import absolute_import
 
 import unittest
 import math
-import json
 import os
 
 import numpy as np
+from monty.serialization import loadfn
 from pymatgen.analysis.elasticity.tensors import *
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -139,8 +139,7 @@ class TensorTest(PymatgenTest):
 
         self.structure = self.get_structure('BaNiO3')
         ieee_file_path = os.path.join(test_dir, "ieee_conversion_data.json")
-        with open(ieee_file_path) as f:
-            self.ieee_data = json.load(f)
+        self.ieee_data = loadfn(ieee_file_path)
 
     def test_new(self):
         bad_2 = np.zeros((4, 4))
@@ -199,6 +198,13 @@ class TensorTest(PymatgenTest):
         self.assertRaises(ValueError, self.non_symm.rotate, 
                           self.symm_rank2)
 
+    def test_einsum_sequence(self):
+        x = [1, 0, 0]
+        test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
+        self.assertArrayAlmostEqual([0, 27, 54], test.einsum_sequence([x]*3))
+        self.assertEqual(360, test.einsum_sequence([np.eye(3)]*2))
+        self.assertRaises(ValueError, test.einsum_sequence, Tensor(np.zeros(3)))
+
     def test_symmetrized(self):
         self.assertTrue(self.rand_rank2.symmetrized.is_symmetric())
         self.assertTrue(self.rand_rank3.symmetrized.is_symmetric())
@@ -224,14 +230,12 @@ class TensorTest(PymatgenTest):
     def test_convert_to_ieee(self):
         for entry in self.ieee_data:
             xtal = entry['xtal']
+            struct = entry['structure']
             orig = Tensor(entry['original_tensor'])
             ieee = Tensor(entry['ieee_tensor'])
-            struct = Structure.from_dict(entry['structure'])
             diff = np.max(abs(ieee - orig.convert_to_ieee(struct)))
-            err_msg = "{} IEEE conversion failed with max diff {}. Numpy version: {}".format(
-                xtal, diff, np.__version__)
-            print(ieee)
-            print(orig.convert_to_ieee(struct))
+            err_msg = "{} IEEE conversion failed with max diff {}. "\
+                      "Numpy version: {}".format(xtal, diff, np.__version__)
             self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
                                         err_msg=err_msg, decimal=3)
 
@@ -267,6 +271,65 @@ class TensorTest(PymatgenTest):
         reconstructed = sorted(reconstructed, key = lambda x: np.argmax(x))
         self.assertArrayAlmostEqual([tb for tb in reconstructed], np.eye(6)*0.01)
 
+    def test_get_tkd_value(self):
+        tbs = [Tensor.from_voigt(row) for row in np.eye(6)*0.01]
+        reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
+        tkdv = get_tkd_value(reduced, Tensor.from_values_indices([0.01], [(0, 0)]))
+        for tens_1, tens_2 in zip(tkdv, reduced[tbs[0]]):
+            self.assertAlmostEqual(tens_1, tens_2)
+
+    def test_populate(self):
+        test_data = loadfn(os.path.join(test_dir, 'test_toec_data.json'))
+
+        sn = self.get_structure("Sn") 
+        vtens = np.zeros((6, 6))
+        vtens[0, 0] = 259.31
+        vtens[0, 1] = 160.71
+        vtens[3, 3] = 73.48
+        et = Tensor.from_voigt(vtens)
+        populated = et.populate(sn, prec=1e-3).voigt.round(2)
+        self.assertAlmostEqual(populated[1, 1], 259.31)
+        self.assertAlmostEqual(populated[2, 2], 259.31)
+        self.assertAlmostEqual(populated[0, 2], 160.71)
+        self.assertAlmostEqual(populated[1, 2], 160.71)
+        self.assertAlmostEqual(populated[4, 4], 73.48)
+        self.assertAlmostEqual(populated[5, 5], 73.48)
+        # test a rank 6 example
+        vtens = np.zeros([6]*3)
+        indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), 
+                   (0, 3, 3), (0, 5, 5), (3, 4, 5)]
+        values = [-1271., -814., -50., -3., -780., -95.]
+        for v, idx in zip(values, indices):
+            vtens[idx] = v
+        toec = Tensor.from_voigt(vtens)
+        toec = toec.populate(sn, prec=1e-3, verbose=True)
+        self.assertAlmostEqual(toec.voigt[1, 1, 1], -1271)
+        self.assertAlmostEqual(toec.voigt[0, 1, 1], -814)
+        self.assertAlmostEqual(toec.voigt[0, 2, 2], -814)
+        self.assertAlmostEqual(toec.voigt[1, 4, 4], -3)
+        self.assertAlmostEqual(toec.voigt[2, 5, 5], -3)
+        self.assertAlmostEqual(toec.voigt[1, 2, 0], -50)
+        self.assertAlmostEqual(toec.voigt[4, 5, 3], -95)
+        
+        et = Tensor.from_voigt(test_data["C3_raw"]).fit_to_structure(sn)
+        new = np.zeros(et.voigt.shape)
+        for idx in indices:
+            new[idx] = et.voigt[idx]
+        new = Tensor.from_voigt(new).populate(sn)
+        self.assertArrayAlmostEqual(new, et, decimal=2)
+
+    def test_from_values_indices(self):
+        sn = self.get_structure("Sn")
+        indices = [(0, 0), (0, 1), (3, 3)]
+        values = [259.31, 160.71, 73.48]
+        et = Tensor.from_values_indices(values, indices, structure=sn, 
+                                        populate=True).voigt.round(4)
+        self.assertAlmostEqual(et[1, 1], 259.31)
+        self.assertAlmostEqual(et[2, 2], 259.31)
+        self.assertAlmostEqual(et[0, 2], 160.71)
+        self.assertAlmostEqual(et[1, 2], 160.71)
+        self.assertAlmostEqual(et[4, 4], 73.48)
+        self.assertAlmostEqual(et[5, 5], 73.48)
 
 class TensorCollectionTest(PymatgenTest):
     def setUp(self):
@@ -276,8 +339,7 @@ class TensorCollectionTest(PymatgenTest):
         self.diff_rank = TensorCollection([np.ones([3]*i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
         ieee_file_path = os.path.join(test_dir, "ieee_conversion_data.json")
-        with open(ieee_file_path) as f:
-            self.ieee_data = json.load(f)
+        self.ieee_data = loadfn(ieee_file_path)
 
     def list_based_function_check(self, attribute, coll, *args, **kwargs):
         """
@@ -344,7 +406,7 @@ class TensorCollectionTest(PymatgenTest):
         for entry in self.ieee_data[:2]:
             xtal = entry['xtal']
             tc = TensorCollection([entry['original_tensor']]*3)
-            struct = Structure.from_dict(entry['structure'])
+            struct = entry['structure']
             self.list_based_function_check("convert_to_ieee", tc, struct)
 
         # from_voigt

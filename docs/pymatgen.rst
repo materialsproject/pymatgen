@@ -14,6 +14,7 @@ Subpackages
     pymatgen.core
     pymatgen.electronic_structure
     pymatgen.entries
+    pymatgen.ext
     pymatgen.io
     pymatgen.matproj
     pymatgen.optimization

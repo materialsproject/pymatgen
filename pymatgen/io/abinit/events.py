@@ -11,7 +11,7 @@ import sys
 import os.path
 import datetime
 import collections
-import yaml
+import ruamel.yaml as yaml
 import six
 import abc
 import logging
@@ -73,7 +73,7 @@ class AbinitEvent(yaml.YAMLObject):
     1) We use YamlTokenizer to extract the documents from the output file
     2) If we have a tag that ends with "Warning", "Error", "Bug", "Comment
        we know we have encountered a new ABINIT event
-    3) We parse the document with yaml.load(doc.text) and we get the object
+    3) We parse the document with yaml.safe_load(doc.text) and we get the object
 
     Note that:
         # --- and ... become reserved words (whey they are placed at
@@ -81,7 +81,7 @@ class AbinitEvent(yaml.YAMLObject):
           the end of YAML documents.
 
         # All the possible events should subclass `AbinitEvent` and define
-          the class attribute yaml_tag so that yaml.load will know how to
+          the class attribute yaml_tag so that yaml.safe_load will know how to
           build the instance.
     """
     color = None
@@ -418,14 +418,16 @@ class EventsParser(object):
         report = EventReport(filename)
 
         w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
-
+        import warnings
+        warnings.simplefilter('ignore', yaml.error.UnsafeLoaderWarning)
         with YamlTokenizer(filename) as tokens:
             for doc in tokens:
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
                     try:
                         #print(doc.text)
-                        event = yaml.load(doc.text)
+                        event = yaml.load(doc.text)   # Can't use ruamel safe_load!
+                        #yaml.load(doc.text, Loader=ruamel.yaml.Loader)
                         #print(event.yaml_tag, type(event))
                     except:
                         #raise
@@ -438,7 +440,7 @@ class EventsParser(object):
                             message += "Traceback:\n %s" % straceback()
 
                         if "error" in doc.tag.lower():
-                            print("It seems an error", doc.tag)
+                            print("It seems an error. doc.tag:", doc.tag)
                             event = AbinitYamlError(message=message, src_file=__file__, src_line=0)
                         else:
                             event = AbinitYamlWarning(message=message, src_file=__file__, src_line=0)

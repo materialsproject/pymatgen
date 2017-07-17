@@ -3,6 +3,12 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import os
+import json
+import collections
+import warnings
+
+from pymatgen.core.periodic_table import get_el_sp
 
 """
 This class implements definitions for various kinds of bonds. Typically used in
@@ -16,13 +22,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 26, 2012"
-
-
-import os
-import json
-import collections
-
-from pymatgen.core.periodic_table import get_el_sp
 
 
 def _load_bond_length_data():
@@ -114,15 +113,18 @@ def get_bond_length(sp1, sp2, bond_order=1):
             C-C bond length, this should be set to 2. Defaults to 1.
 
     Returns:
-        Bond length in Angstrom. None if no data is available.
+        Bond length in Angstrom. If no data is available, the sum of the atomic
+        radii is used.
     """
-
-    syms = tuple(sorted([get_el_sp(sp1).symbol,
-                         get_el_sp(sp2).symbol]))
+    sp1 = get_el_sp(sp1)
+    sp2 = get_el_sp(sp2)
+    syms = tuple(sorted([sp1.symbol, sp2.symbol]))
     if syms in bond_lengths:
         all_lengths = bond_lengths[syms]
         if bond_order:
             return all_lengths.get(bond_order)
         else:
             return all_lengths.get(1)
-    return None
+    warnings.warn("No bond lengths for %s-%s found in database. Returning sum"
+                  "of atomic radius." % (sp1, sp2))
+    return sp1.atomic_radius + sp2.atomic_radius

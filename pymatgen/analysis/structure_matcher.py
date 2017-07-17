@@ -662,7 +662,7 @@ class StructureMatcher(MSONable):
                              'have more sites than struct2')
 
         # check that a valid mapping exists
-        if not self._subset and mask.shape[1] != mask.shape[0]:
+        if (not self._subset) and mask.shape[1] != mask.shape[0]:
             return None
 
         if LinearAssignment(mask).min_cost > 0:
@@ -796,8 +796,9 @@ class StructureMatcher(MSONable):
             # do quick check that compositions are compatible
             mapped_comp = Composition({sp_mapping[k]: v
                                        for k, v in s1_comp.items()})
-            if (not self._subset) and self._comparator.get_hash(mapped_comp) != \
-                                      self._comparator.get_hash(s2_comp):
+            if (not self._subset) and (
+                    self._comparator.get_hash(mapped_comp) !=
+                    self._comparator.get_hash(s2_comp)):
                 continue
 
             mapped_struct = struct1.copy()

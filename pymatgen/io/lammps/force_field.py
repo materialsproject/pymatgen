@@ -10,7 +10,7 @@ angles and dihedrals.
 """
 
 from collections import defaultdict
-import yaml
+import ruamel.yaml as yaml
 
 from monty.json import MSONable
 
@@ -65,7 +65,7 @@ class ForceField(MSONable):
             ForceField object
         """
         with open(filename, 'r') as f:
-            d = yaml.load(f)
+            d = yaml.safe_load(f)
         ff_data = defaultdict(dict)
         for coeff_key, coeff in d.items():
             for k, v in coeff.items():

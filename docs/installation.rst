@@ -317,6 +317,15 @@ installed. You can test this by going into a python terminal and trying::
 OpenBabel Mac OS X (tested on v2.3.2)
 -------------------------------------
 
+**Anaconda install**
+
+If you are using anaconda (and have pymatgen installed in your anaconda environment), you should be
+able to install openbabel with a single command::
+
+    conda install -c openbabel openbabel
+
+**Manual install**
+
 Openbabel must be compiled with python bindings for integration with pymatgen.
 Here are the steps that I took to make it work:
 

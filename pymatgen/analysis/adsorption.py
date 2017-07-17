@@ -73,7 +73,6 @@ class AdsorbateSiteFinder(object):
                 slabs that have been reoriented, but the miller vector
                 must be supplied manually
         """
-        self.mi_string = ''.join([str(i) for i in slab.miller_index])
         # get surface normal from miller index
         if mi_vec:
             self.mvec = mi_vec
@@ -570,7 +569,9 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     ax.set_aspect("equal")
     center = corner + lattsum / 2.
     extent = np.max(lattsum)
-    lim = zip(center-extent*window, center+extent*window)
-    ax.set_xlim(lim[0])
-    ax.set_ylim(lim[1])
+    lim_array = [center-extent*window, center+extent*window]
+    x_lim = [ele[0] for ele in lim_array]
+    y_lim = [ele[1] for ele in lim_array]
+    ax.set_xlim(x_lim)
+    ax.set_ylim(y_lim)
     return ax

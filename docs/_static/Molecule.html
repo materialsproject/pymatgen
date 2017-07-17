@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>Molecule</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>Molecule</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -13,8 +11,8 @@
 *
 */
 /*!
- * Bootstrap v3.3.6 (http://getbootstrap.com)
- * Copyright 2011-2015 Twitter, Inc.
+ * Bootstrap v3.3.7 (http://getbootstrap.com)
+ * Copyright 2011-2016 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
@@ -1109,7 +1107,6 @@ a:focus {
   text-decoration: underline;
 }
 a:focus {
-  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -2538,7 +2535,6 @@ select[size] {
 input[type="file"]:focus,
 input[type="radio"]:focus,
 input[type="checkbox"]:focus {
-  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -3029,7 +3025,6 @@ select[multiple].input-lg {
 .btn.focus,
 .btn:active.focus,
 .btn.active.focus {
-  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -8760,6 +8755,9 @@ body > #header .header-bar {
     margin-left: 10px;
   }
 }
+[dir="rtl"] #ipython_notebook {
+  float: right !important;
+}
 #noscript {
   width: auto;
   padding-top: 16px;
@@ -8962,8 +8960,14 @@ span#login_widget > .button .badge,
  *
  * Author: Jupyter Development Team
  */
+[dir="rtl"] #tabs li {
+  float: right;
+}
 ul#tabs {
   margin-bottom: 4px;
+}
+[dir="rtl"] ul#tabs {
+  margin-right: 0px;
 }
 ul#tabs a {
   padding-top: 6px;
@@ -8986,6 +8990,16 @@ ul.breadcrumb span {
 }
 .list_toolbar .tree-buttons {
   padding-top: 1px;
+}
+[dir="rtl"] .list_toolbar .tree-buttons {
+  float: left !important;
+}
+[dir="rtl"] .list_toolbar .pull-right {
+  padding-top: 1px;
+  float: left !important;
+}
+[dir="rtl"] .list_toolbar .pull-left {
+  float: right !important;
 }
 .dynamic-buttons {
   padding-top: 3px;
@@ -9122,6 +9136,9 @@ ul.breadcrumb span {
 #tree-selector {
   padding-right: 0px;
 }
+[dir="rtl"] #tree-selector a {
+  float: right;
+}
 #button-select-all {
   min-width: 50px;
 }
@@ -9211,6 +9228,9 @@ ul#new-menu {
   left: auto;
   right: 0;
 }
+[dir="rtl"] #new-menu {
+  text-align: right;
+}
 .kernel-menu-icon {
   padding-right: 12px;
   width: 24px;
@@ -9255,6 +9275,9 @@ ul#new-menu {
 }
 #running .panel-group .panel .panel-body .list_container .list_item:last-child {
   border-bottom: 0px;
+}
+[dir="rtl"] #running .col-sm-8 {
+  float: right !important;
 }
 .delete-button {
   display: none;
@@ -9551,6 +9574,7 @@ div.cell.selected.jupyter-soft-selected {
   }
 }
 div.inner_cell {
+  min-width: 0;
   /* Old browsers */
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -9571,11 +9595,6 @@ div.inner_cell {
   box-flex: 1;
   /* Modern browsers */
   flex: 1;
-}
-@-moz-document url-prefix() {
-  div.inner_cell {
-    overflow-x: hidden;
-  }
 }
 /* input_area and input_prompt must match in top border and margin for alignment */
 div.input_area {
@@ -11246,7 +11265,7 @@ div#pager .ui-resizable-handle::after {
 }
 .shortcut_key {
   display: inline-block;
-  width: 20ex;
+  width: 21ex;
   text-align: right;
   font-family: monospace;
 }
@@ -11558,6 +11577,7 @@ ul.typeahead-list > li > a {
   box-shadow: 0px 0px 12px 1px rgba(87, 87, 87, 0.2);
 }
 .terminal-app .terminal {
+  width: 100%;
   float: left;
   font-family: monospace;
   color: white;
@@ -11571,6 +11591,9 @@ ul.typeahead-list > li > a {
 .terminal-app .terminal dummy-screen {
   line-height: 1em;
   font-size: 14px;
+}
+.terminal-app .terminal .xterm-rows {
+  padding: 10px;
 }
 .terminal-app .terminal-cursor {
   color: black;
@@ -11631,8 +11654,10 @@ ul.typeahead-list > li > a {
 .highlight .mh { color: #666666 } /* Literal.Number.Hex */
 .highlight .mi { color: #666666 } /* Literal.Number.Integer */
 .highlight .mo { color: #666666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
 .highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
 .highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
 .highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
 .highlight .s2 { color: #BA2121 } /* Literal.String.Double */
 .highlight .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
@@ -11643,9 +11668,11 @@ ul.typeahead-list > li > a {
 .highlight .s1 { color: #BA2121 } /* Literal.String.Single */
 .highlight .ss { color: #19177C } /* Literal.String.Symbol */
 .highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #0000FF } /* Name.Function.Magic */
 .highlight .vc { color: #19177C } /* Name.Variable.Class */
 .highlight .vg { color: #19177C } /* Name.Variable.Global */
 .highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
 .highlight .il { color: #666666 } /* Literal.Number.Integer.Long */
     </style>
 <style type="text/css">
@@ -11699,9 +11726,7 @@ body {
 div#notebook {
   overflow: visible;
   border-top: none;
-}
-
-@media print {
+}@media print {
   div.cell {
     display: block;
     page-break-inside: avoid;
@@ -11722,7 +11747,7 @@ div#notebook {
 
 <!-- Loading mathjax macro -->
 <!-- Load mathjax -->
-    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
     <!-- MathJax configuration -->
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -11746,8 +11771,7 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11755,8 +11779,7 @@ div#notebook {
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11765,8 +11788,7 @@ div#notebook {
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11798,17 +11820,21 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Molecule Summary (H4 C1)
+<pre>Full Formula (H4 C1)
 Reduced Formula: H4C
 Charge = 0, Spin Mult = 1
 Sites (5)
-1 C     0.000000     0.000000     0.000000
-2 H     0.000000     0.000000     1.089000
-3 H     1.026719     0.000000    -0.363000
-4 H    -0.513360    -0.889165    -0.363000
-5 H    -0.513360     0.889165    -0.363000
+0 C     0.000000     0.000000     0.000000
+1 H     0.000000     0.000000     1.089000
+2 H     1.026719     0.000000    -0.363000
+3 H    -0.513360    -0.889165    -0.363000
+4 H    -0.513360     0.889165    -0.363000
 </pre>
 </div>
 </div>
@@ -11835,7 +11861,11 @@ Sites (5)
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>[0.0, 0.0, 0.0] C
 [0.0, 0.0, 1.089] H
@@ -11865,21 +11895,25 @@ Sites (5)
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Molecule Summary (H3 C1)
+<pre>Full Formula (H3 C1)
 Reduced Formula: H3C
 Charge = 0, Spin Mult = 2
 Sites (4)
-1 C     0.000000     0.000000     0.000000
-2 H     1.026719     0.000000    -0.363000
-3 H    -0.513360    -0.889165    -0.363000
-4 H    -0.513360     0.889165    -0.363000
-Molecule Summary (H1)
+0 C     0.000000     0.000000     0.000000
+1 H     1.026719     0.000000    -0.363000
+2 H    -0.513360    -0.889165    -0.363000
+3 H    -0.513360     0.889165    -0.363000
+Full Formula (H1)
 Reduced Formula: H2
 Charge = 0, Spin Mult = 2
 Sites (1)
-1 H     0.000000     0.000000     1.089000
+0 H     0.000000     0.000000     1.089000
 </pre>
 </div>
 </div>
@@ -11905,7 +11939,11 @@ Sites (1)
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>[(Site: H (0.0000, 0.0000, 1.0890), 1.089), (Site: H (1.0267, 0.0000, -0.3630), 1.0889999563640946), (Site: H (-0.5134, -0.8892, -0.3630), 1.0890004071739368), (Site: H (-0.5134, 0.8892, -0.3630), 1.0890004071739368)]
 </pre>
@@ -11933,7 +11971,11 @@ Sites (1)
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>[Covalent bond between [0.0, 0.0, 0.0] C and [0.0, 0.0, 1.089] H, Covalent bond between [0.0, 0.0, 0.0] C and [1.026719, 0.0, -0.363] H, Covalent bond between [0.0, 0.0, 0.0] C and [-0.51336, -0.889165, -0.363] H, Covalent bond between [0.0, 0.0, 0.0] C and [-0.51336, 0.889165, -0.363] H]
 </pre>
@@ -11963,18 +12005,24 @@ Sites (1)
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Structure Summary (H4 C1)
+<pre>Full Formula (H4 C1)
 Reduced Formula: H4C
 abc   :  10.000000  10.000000  10.000000
 angles:  90.000000  90.000000  90.000000
 Sites (5)
-1 H     0.500000     0.500000     0.608900
-2 H     0.602672     0.500000     0.463700
-3 H     0.448664     0.411083     0.463700
-4 H     0.448664     0.588917     0.463700
-5 C     0.500000     0.500000     0.500000
+  #  SP           a         b       c
+---  ----  --------  --------  ------
+  0  H     0.5       0.5       0.6089
+  1  H     0.602672  0.5       0.4637
+  2  H     0.448664  0.411083  0.4637
+  3  H     0.448664  0.588917  0.4637
+  4  C     0.5       0.5       0.5
 </pre>
 </div>
 </div>
@@ -11989,7 +12037,7 @@ Sites (5)
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Writing to XYZ files (easy to open with many molecule file viewers)</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.xyzio</span> <span class="kn">import</span> <span class="n">XYZ</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="kn">import</span> <span class="n">XYZ</span>
 <span class="n">xyz</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="n">xyz</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s2">&quot;methane.xyz&quot;</span><span class="p">)</span>
 </pre></div>
@@ -11999,8 +12047,7 @@ Sites (5)
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -12008,8 +12055,7 @@ Sites (5)
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -12023,7 +12069,7 @@ Sites (5)
 <div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.babelio</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
 <span class="kn">import</span> <span class="nn">pybel</span> <span class="kn">as</span> <span class="nn">pb</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="c1"># Create a pybel.Molecule, which simplifies a lot of access</span>
@@ -12045,7 +12091,11 @@ Sites (5)
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Canonical SMILES = C	
 
@@ -12081,26 +12131,29 @@ Inchi= InChI=1S/CH4/h1H4
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 
 <div class="output_svg output_subarea ">
 <svg height="200px" id="topsvg" version="1.1" viewBox="0 0 100 100" width="200px" x="0" xmlns="http://www.w3.org/2000/svg" xmlns:cml="http://www.xml-cml.org/schema" xmlns:xlink="http://www.w3.org/1999/xlink" y="0">
-<title>OBDepict</title>
+<title> - Open Babel Depiction</title>
 <rect fill="white" height="100" width="100" x="0" y="0"/>
-<text fill="black" font-family="sans-serif" font-size="6" text-anchor="middle" x="50" y="98"/>
 <g transform="translate(0,0)">
 <svg font-family="sans-serif" height="100" stroke="rgb(0,0,0)" stroke-linecap="round" stroke-width="2" viewBox="0 0 221.89 187.549" width="100" x="0" y="0">
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="79.0" x2="53.3" y1="120.7" y2="129.0"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="77.1" x2="51.4" y1="115.0" y2="123.3"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="155.1" y1="79.8" y2="68.8"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="133.2" y1="79.8" y2="52.9"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="160.8" y1="117.8" y2="137.9"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="169.2" y1="117.8" y2="112.2"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="142.8" y1="79.8" y2="117.8"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="120.9" y1="117.8" y2="133.7"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="99.9" x2="78.0" y1="133.7" y2="117.8"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="78.0" x2="86.4" y1="117.8" y2="92.1"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="103.4" x2="130.4" y1="79.8" y2="79.8"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="79.0" x2="53.3" y1="120.7" y2="129.0"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="77.1" x2="51.4" y1="115.0" y2="123.3"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="155.1" y1="79.8" y2="68.8"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="133.2" y1="79.8" y2="52.9"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="160.8" y1="117.8" y2="137.9"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="169.2" y1="117.8" y2="112.2"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="99.9" x2="78.0" y1="133.7" y2="117.8"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="78.0" x2="86.4" y1="117.8" y2="92.1"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="103.4" x2="130.4" y1="79.8" y2="79.8"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="142.8" y1="79.8" y2="117.8"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="120.9" y1="117.8" y2="133.7"/>
 <text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="104.402940" y="149.334547">O</text>
 <text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="34.000000" y="138.183816">O</text>
 <text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="84.402940" y="87.780876">O</text>
@@ -12110,6 +12163,7 @@ Inchi= InChI=1S/CH4/h1H4
 <text fill="rgb(191,191,191)" font-size="16" stroke="rgb(191,191,191)" stroke-width="1" x="175.889524" y="117.506669">H</text>
 </svg>
 </g>
+<text fill="black" font-family="sans-serif" font-size="18.000000" x="10.000000" y="20.000000"/>
 </svg>
 </div>
 
@@ -12119,8 +12173,7 @@ Inchi= InChI=1S/CH4/h1H4
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -12128,8 +12181,7 @@ Inchi= InChI=1S/CH4/h1H4
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -12161,7 +12213,11 @@ Inchi= InChI=1S/CH4/h1H4
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>5
 H4 C1
@@ -12170,7 +12226,7 @@ H 0.000000 0.000000 1.089000
 H 1.026719 0.000000 -0.363000
 H -0.513360 -0.889165 -0.363000
 H -0.513360 0.889165 -0.363000
-#P HF/6-31G(d)  Test
+#P HF/6-31G(d) 
 
 H4 C1
 
@@ -12193,15 +12249,15 @@ D4=119.999966
 
 
 
+
 COMPND    UNNAMED
-AUTHOR    GENERATED BY OPEN BABEL 2.3.2
-HETATM    1  C   LIG     1       0.000   0.000   0.000  1.00  0.00           C  
-HETATM    2  H   LIG     1       0.000   0.000   1.089  1.00  0.00           H  
-HETATM    3  H   LIG     1       1.027   0.000  -0.363  1.00  0.00           H  
-HETATM    4  H   LIG     1      -0.513  -0.889  -0.363  1.00  0.00           H  
-HETATM    5  H   LIG     1      -0.513   0.889  -0.363  1.00  0.00           H  
+AUTHOR    GENERATED BY OPEN BABEL 2.4.1
+HETATM    1  C   UNL     1       0.000   0.000   0.000  1.00  0.00           C  
+HETATM    2  H   UNL     1       0.000   0.000   1.089  1.00  0.00           H  
+HETATM    3  H   UNL     1       1.027   0.000  -0.363  1.00  0.00           H  
+HETATM    4  H   UNL     1      -0.513  -0.889  -0.363  1.00  0.00           H  
+HETATM    5  H   UNL     1      -0.513   0.889  -0.363  1.00  0.00           H  
 CONECT    1    3    4    5    2                                       
-CONECT    1                                                           
 CONECT    2    1                                                      
 CONECT    3    1                                                      
 CONECT    4    1                                                      
@@ -12209,15 +12265,15 @@ CONECT    5    1
 MASTER        0    0    0    0    0    0    0    0    5    0    5    0
 END
 
-Molecule Summary (H4 C1)
+Full Formula (H4 C1)
 Reduced Formula: H4C
 Charge = 0, Spin Mult = 1
 Sites (5)
-1 C     0.000000     0.000000     0.000000
-2 H     0.000000     0.000000     1.089000
-3 H     1.027000     0.000000    -0.363000
-4 H    -0.513000    -0.889000    -0.363000
-5 H    -0.513000     0.889000    -0.363000
+0 C     0.000000     0.000000     0.000000
+1 H     0.000000     0.000000     1.089000
+2 H     1.027000     0.000000    -0.363000
+3 H    -0.513000    -0.889000    -0.363000
+4 H    -0.513000     0.889000    -0.363000
 </pre>
 </div>
 </div>
@@ -12226,8 +12282,7 @@ Sites (5)
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -12241,7 +12296,7 @@ Sites (5)
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.gaussianio</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.gaussian</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
 <span class="n">gau</span> <span class="o">=</span> <span class="n">GaussianInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;methane&quot;</span><span class="p">,</span> 
                     <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-31G(d)&quot;</span><span class="p">,</span> 
                     <span class="n">route_parameters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Opt&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;SCF&quot;</span><span class="p">:</span> <span class="s2">&quot;Tight&quot;</span><span class="p">},</span>
@@ -12257,10 +12312,14 @@ Sites (5)
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>%mem=1000MW
-#P B3LYP/6-31G(d) Opt SCF=Tight Test
+#P B3LYP/6-31G(d) Opt SCF=Tight
 
 methane
 
@@ -12283,6 +12342,7 @@ D4=119.999966
 
 
 
+
 </pre>
 </div>
 </div>
@@ -12297,7 +12357,7 @@ D4=119.999966
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># A standard relaxation + SCF energy nwchem calculation input file for methane.</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.nwchemio</span> <span class="kn">import</span> <span class="n">NwTask</span><span class="p">,</span> <span class="n">NwInput</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.nwchem</span> <span class="kn">import</span> <span class="n">NwTask</span><span class="p">,</span> <span class="n">NwInput</span>
 <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;optimize&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s2">&quot;b3lyp&quot;</span><span class="p">,</span>
                     <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-31G&quot;</span><span class="p">),</span>
@@ -12318,7 +12378,11 @@ D4=119.999966
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>geometry units angstroms
  C 0.0 0.0 0.0
@@ -12330,7 +12394,7 @@ end
 
 title &#34;H4C1 dft optimize&#34;
 charge 0
-basis
+basis cartesian
  C library &#34;6-31G&#34;
  H library &#34;6-31G&#34;
 end
@@ -12342,7 +12406,7 @@ task dft optimize
 
 title &#34;H4C1 dft freq&#34;
 charge 0
-basis
+basis cartesian
  C library &#34;6-31G&#34;
  H library &#34;6-31G&#34;
 end
@@ -12354,7 +12418,7 @@ task dft freq
 
 title &#34;H4C1 dft energy&#34;
 charge 0
-basis
+basis cartesian
  C library &#34;6-311G&#34;
  H library &#34;6-311G&#34;
 end
@@ -12372,8 +12436,7 @@ task dft energy
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -12384,4 +12447,8 @@ task dft energy
     </div>
   </div>
 </body>
+
+ 
+
+
 </html>

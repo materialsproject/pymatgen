@@ -11,7 +11,7 @@ import shutil
 import collections
 import abc
 import copy
-import yaml
+import ruamel.yaml as yaml
 import six
 import numpy as np
 
@@ -233,7 +233,7 @@ class ParalHintsParser(object):
         with abiinspect.YamlTokenizer(filename) as r:
             doc = r.next_doc_with_tag("!Autoparal")
             try:
-                d = yaml.load(doc.text_notag)
+                d = yaml.safe_load(doc.text_notag)
                 return ParalHints(info=d["info"], confs=d["configurations"])
             except:
                 import traceback
@@ -601,7 +601,7 @@ batch_adapter:
         """Read the configuration parameters from the Yaml file filename."""
         try:
             with open(filename, "r") as fh:
-                return cls.from_dict(yaml.load(fh))
+                return cls.from_dict(yaml.safe_load(fh))
         except Exception as exc:
             print("Error while reading TaskManager parameters from %s\n" % filename)
             raise
@@ -609,7 +609,7 @@ batch_adapter:
     @classmethod
     def from_string(cls, s):
         """Create an instance from string s containing a YAML dictionary."""
-        return cls.from_dict(yaml.load(s))
+        return cls.from_dict(yaml.safe_load(s))
 
     @classmethod
     def as_manager(cls, obj):
@@ -686,6 +686,11 @@ batch_adapter:
 
         if kwargs:
             raise ValueError("Found invalid keywords in the taskmanager file:\n %s" % str(list(kwargs.keys())))
+
+    @lazy_property
+    def abinit_build(self):
+        """:class:`AbinitBuild` object with Abinit version and options used to build the code"""
+        return AbinitBuild(manager=self)
 
     def to_shell_manager(self, mpi_procs=1):
         """
@@ -1168,6 +1173,18 @@ class AbinitBuild(object):
         app("    MPI: %s, MPI-IO: %s, OpenMP: %s" % (self.has_mpi, self.has_mpiio, self.has_omp))
         app("    Netcdf: %s" % self.has_netcdf)
         return "\n".join(lines)
+
+    def version_ge(self, version_string):
+        """True is Abinit version is >= version_string"""
+        return self.compare_version(version_string, ">=")
+
+    def compare_version(self, version_string, op):
+        """Compare Abinit version to `version_string` with operator `op`"""
+        from pkg_resources import parse_version
+        from monty.operator import operator_from_str
+        op = operator_from_str(op)
+        return op(parse_version(self.version), parse_version(version_string))
+
 
 
 class FakeProcess(object):
@@ -1677,7 +1694,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Can only reset tasks that are done.
         # One should be able to reset 'Submitted' tasks (sometimes, they are not in the queue
         # and we want to restart them)
-        if self.status != self.S_SUB and self.status < self.S_DONE: return 1
+        #if self.status != self.S_SUB and self.status < self.S_DONE: return 1
 
         # Remove output files otherwise the EventParser will think the job is still running
         self.output_file.remove()
@@ -1951,30 +1968,28 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             scheduler_parser.parse()
 
             if scheduler_parser.errors:
+                # Store the queue errors in the task
                 self.queue_errors = scheduler_parser.errors
-                # the queue errors in the task
-                msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
-                # self.history.critical(msg)
-                return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
+                msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
+                return self.set_status(self.S_QCRITICAL, msg=msg)
+
             elif lennone(qerr_info) > 0:
                 # if only qout_info, we are not necessarily in QCRITICAL state,
                 # since there will always be info in the qout file
-                msg = 'found unknown messages in the queue error: %s' % str(qerr_info)
-                logger.history.info(msg)
-                print(msg)
-                # self.num_waiting += 1
-                # if self.num_waiting > 1000:
-                rt = self.datetimes.get_runtime().seconds
-                tl = self.manager.qadapter.timelimit
-                if rt > tl:
-                    msg += 'set to error : runtime (%s) exceded walltime (%s)' % (rt, tl)
-                    print(msg)
-                    return self.set_status(self.S_ERROR, msg=msg)
+                self.history.info('found unknown messages in the queue error: %s' % str(qerr_info))
+                #try:
+                #    rt = self.datetimes.get_runtime().seconds
+                #except:
+                #    rt = -1.0
+                #tl = self.manager.qadapter.timelimit
+                #if rt > tl:
+                #    msg += 'set to error : runtime (%s) exceded walltime (%s)' % (rt, tl)
+                #    print(msg)
+                #    return self.set_status(self.S_ERROR, msg=msg)
                 # The job may be killed or crashed but we don't know what happened
                 # It may also be that an innocent message was written to qerr, so we wait for a while
                 # it is set to QCritical, we will attempt to fix it by running on more resources
-
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
@@ -2460,10 +2475,13 @@ class AbinitTask(Task):
         return cls(input, workdir=workdir, manager=manager)
 
     @classmethod
-    def temp_shell_task(cls, inp, workdir=None, manager=None):
+    def temp_shell_task(cls, inp, mpi_procs=1, workdir=None, manager=None):
         """
         Build a Task with a temporary workdir. The task is executed via the shell with 1 MPI proc.
         Mainly used for invoking Abinit to get important parameters needed to prepare the real task.
+
+        Args:
+            mpi_procs: Number of MPI processes to use.
         """
         # Build a simple manager to run the job in a shell subprocess
         import tempfile
@@ -2471,7 +2489,7 @@ class AbinitTask(Task):
         if manager is None: manager = TaskManager.from_user_config()
 
         # Construct the task and run it
-        task = cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+        task = cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=mpi_procs))
         task.set_name('temp_shell_task')
         return task
 
@@ -4320,13 +4338,14 @@ class AnaddbTask(Task):
         super(AnaddbTask, self).__init__(input=anaddb_input, workdir=workdir, manager=manager, deps=deps)
 
     @classmethod
-    def temp_shell_task(cls, inp, ddb_node,
+    def temp_shell_task(cls, inp, ddb_node, mpi_procs=1,
                         gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
         """
         Build a :class:`AnaddbTask` with a temporary workdir. The task is executed via
         the shell with 1 MPI proc. Mainly used for post-processing the DDB files.
 
         Args:
+            mpi_procs: Number of MPI processes to use.
             anaddb_input: string with the anaddb variables.
             ddb_node: The node that will produce the DDB file. Accept :class:`Task`, :class:`Work` or filepath.
 
@@ -4340,7 +4359,7 @@ class AnaddbTask(Task):
         # Construct the task and run it
         return cls(inp, ddb_node,
                    gkk_node=gkk_node, md_node=md_node, ddk_node=ddk_node,
-                   workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+                   workdir=workdir, manager=manager.to_shell_manager(mpi_procs=mpi_procs))
 
     @property
     def executable(self):

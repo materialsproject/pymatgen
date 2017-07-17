@@ -40,6 +40,9 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class VasprunTest(unittest.TestCase):
 
+    def test_multiple_dielectric(self):
+        v = Vasprun(os.path.join(test_dir, "vasprun.GW0.xml"))
+        self.assertEqual(len(v.other_dielectric), 3)
 
     def test_bad_vasprun(self):
         self.assertRaises(ET.ParseError,
@@ -269,6 +272,12 @@ class VasprunTest(unittest.TestCase):
         self.assertRaises(ValueError, Vasprun,
                           os.path.join(test_dir, 'vasprun.xml.wrong_sp'))
 
+    def test_selective_dynamics(self):
+        vsd = Vasprun(os.path.join(test_dir, 'vasprun.xml.indirect.gz'))
+        np.testing.assert_array_equal(
+                vsd.final_structure.site_properties.get('selective_dynamics'), 
+                [[True]*3, [False]*3], "Selective dynamics parsing error")
+
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath,
@@ -496,6 +505,17 @@ class OutcarTest(unittest.TestCase):
         self.assertEqual(len(outcar.frequencies), len(outcar.dielectric_tensor_function))
         np.testing.assert_array_equal( outcar.dielectric_tensor_function[0], outcar.dielectric_tensor_function[0].transpose() )
 
+    def test_freq_dielectric_vasp544(self):
+        filepath = os.path.join(test_dir, "OUTCAR.LOPTICS.vasp544")
+        outcar = Outcar(filepath)
+        outcar.read_freq_dielectric()
+        self.assertAlmostEqual(outcar.frequencies[0], 0)
+        self.assertAlmostEqual(outcar.frequencies[-1], 39.63964)
+        self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 12.769435+0j)
+        self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0], 0.828615+0.016594j)
+        self.assertEqual(len(outcar.frequencies), len(outcar.dielectric_tensor_function))
+        np.testing.assert_array_equal( outcar.dielectric_tensor_function[0], outcar.dielectric_tensor_function[0].transpose())
+
     def test_read_elastic_tensor(self):
         filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")
         outcar = Outcar(filepath)
@@ -588,6 +608,40 @@ class OutcarTest(unittest.TestCase):
                           [-1.9406, 73.7484, 1.0000]):
             self.assertAlmostEqual(x1, x2)
 
+    def test_cs_raw_tensors(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        unsym_tensors = outcar.read_cs_raw_symmetrized_tensors()
+        self.assertEqual(unsym_tensors[0],
+                         [[-145.814605, -4.263425, 0.000301],
+                          [4.263434, -145.812238, -8.7e-05],
+                          [0.000136, -0.000189, -142.794068]])
+        self.assertEqual(unsym_tensors[29],
+                         [[287.789318, -53.799325, 30.900024],
+                          [-53.799571, 225.668117, -17.839598],
+                          [3.801103, -2.195218, 88.896756]])
+
+    def test_cs_g0_contribution(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        g0_contrib = outcar.read_cs_g0_contribution()
+        self.assertEqual(g0_contrib,
+                         [[-8.773535, 9e-06, 1e-06],
+                          [1.7e-05, -8.773536, -0.0792],
+                          [-6e-06, -0.008328, -9.320237]])
+
+    def test_cs_core_contribution(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        core_contrib = outcar.read_cs_core_contribution()
+        self.assertEqual(core_contrib,
+                         {'Mg': -412.8248405,
+                          'C': -200.5098812,
+                          'O': -271.0766979})
+
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr", "efg", "AlPO4", "OUTCAR")
         outcar = Outcar(filename)
@@ -669,8 +723,7 @@ class ChgcarTest(unittest.TestCase):
 
         filepath = os.path.join(test_dir, 'CHGCAR.Fe3O4')
         chg = Chgcar.from_file(filepath)
-        ans = [1.93313368, 3.91201473, 4.11858277, 4.1240093, 4.10634989,
-               3.38864822]
+        ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
         myans = chg.get_integrated_diff(0, 3, 6)
         self.assertTrue(np.allclose(myans[:, 1], ans))
 
