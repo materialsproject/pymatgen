@@ -34,13 +34,11 @@ class TestLammpsOutput(unittest.TestCase):
         thermo_data_ans = np.loadtxt(
             os.path.join(test_dir, "thermo_data.txt"))
         thermo_data = self.lammpsrun.lammps_log.thermo_data
-        self.assertEqual(list(thermo_data.dtype.names), fields)
+        self.assertEqual(sorted(list(thermo_data.keys())), sorted(fields))
         self.assertEqual(self.lammpsrun.lammps_log.nmdsteps + 1,
-                         thermo_data.shape[0])
-        thermo_data = thermo_data[:].view(np.float64).reshape(
-            thermo_data.shape + (-1,))
-        np.testing.assert_almost_equal(thermo_data, thermo_data_ans,
-                                       decimal=10)
+                         len(thermo_data['step']))
+        data = [thermo_data[k] for k in fields]
+        np.testing.assert_almost_equal(data, np.transpose(thermo_data_ans), decimal=10)
 
     def test_lammps_trajectory(self):
         fields = "Atoms_id atom_type x y z vx vy vz mol mass"

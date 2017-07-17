@@ -28,7 +28,7 @@ import numpy as np
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, get_el_sp
+from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -532,7 +532,7 @@ class IStructure(SiteCollection, MSONable):
 
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
-                   
+
     @classmethod
     def from_magnetic_spacegroup(cls, msg, lattice, species, coords, site_properties,
                                   transform_setting=None, coords_are_cartesian=False, tol=1e-5):
@@ -1147,7 +1147,7 @@ class IStructure(SiteCollection, MSONable):
                                           site_properties=self.site_properties))
         return structs
 
-    def get_primitive_structure(self, tolerance=0.25):
+    def get_primitive_structure(self, tolerance=0.25, use_site_props=False):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
         find the smallest possible one, so this method is recursively called
@@ -1161,15 +1161,27 @@ class IStructure(SiteCollection, MSONable):
                 particular site. For example, [0.1, 0, 0.1] in cartesian
                 coordinates will be considered to be on the same coordinates
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
+            use_site_props (bool): Whether to account for site properties in
+                differntiating sites.
 
         Returns:
             The most primitive structure found.
         """
+        def site_label(site):
+            if not use_site_props:
+                return site.species_string
+            else:
+                d = [site.species_string]
+                for k in sorted(site.properties.keys()):
+                    d.append(k + "=" + str(site.properties[k]))
+                return ", ".join(d)
+
         # group sites by species string
-        sites = sorted(self._sites, key=lambda s: s.species_string)
+        sites = sorted(self._sites, key=site_label)
+
         grouped_sites = [
             list(a[1])
-            for a in itertools.groupby(sites, key=lambda s: s.species_string)]
+            for a in itertools.groupby(sites, key=site_label)]
         grouped_fcoords = [np.array([s.frac_coords for s in g])
                            for g in grouped_sites]
 
@@ -1310,7 +1322,8 @@ class IStructure(SiteCollection, MSONable):
                                   coords_are_cartesian=False)
 
                     return s.get_primitive_structure(
-                        tolerance).get_reduced_structure()
+                        tolerance=tolerance, use_site_props=use_site_props
+                    ).get_reduced_structure()
 
         return self.copy()
 
@@ -1416,7 +1429,6 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
-
 
         Returns:
             (str) if filename is None. None otherwise.
@@ -2872,7 +2884,8 @@ class Molecule(IMolecule, collections.MutableSequence):
         nelectrons = 0
         for site in self._sites:
             for sp, amt in site.species_and_occu.items():
-                nelectrons += sp.Z * amt
+                if not isinstance(sp, DummySpecie):
+                    nelectrons += sp.Z * amt
         nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:

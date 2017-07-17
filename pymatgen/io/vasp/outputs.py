@@ -446,8 +446,8 @@ class Vasprun(MSONable):
                        elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
                         self.dielectric = self._parse_diel(elem)
                     else:
-                        self.other_dielectric[elem.attrib[
-                            "comment"]] = self._parse_diel(elem)
+                        comment = elem.attrib["comment"]
+                        self.other_dielectric[comment] = self._parse_diel(elem)
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
                     self.final_structure = self._parse_structure(elem)

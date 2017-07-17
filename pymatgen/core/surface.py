@@ -873,7 +873,7 @@ class SlabGenerator(object):
         return slab
 
 
-def get_recp_symmetry_operation(structure, symprec=0.001):
+def get_recp_symmetry_operation(structure, symprec=0.01):
     """
     Find the symmetric operations of the reciprocal lattice,
     to be used for hkl transformations
