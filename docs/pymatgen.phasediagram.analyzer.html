@@ -1,0 +1,426 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.phasediagram.analyzer module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.phasediagram.analyzer">
+<span id="pymatgen-phasediagram-analyzer-module"></span><h1>pymatgen.phasediagram.analyzer module<a class="headerlink" href="#module-pymatgen.phasediagram.analyzer" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer">
+<em class="property">class </em><code class="descname">PDAnalyzer</code><span class="sig-paren">(</span><em>pd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A class for performing analyses on Phase Diagrams.</p>
+<p>The algorithm is based on the work in the following papers:</p>
+<ol class="arabic simple">
+<li>S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
+First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
+doi:10.1021/cm702327g</li>
+<li>S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
+of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
+principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
+doi:10.1016/j.elecom.2010.01.010</li>
+</ol>
+<p>Initializes analyzer with a PhaseDiagram.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pd</strong> &#8211; Phase Diagram to analyze.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_chempot_range_map">
+<code class="descname">get_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>referenced=True</em>, <em>joggle=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_chempot_range_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a chemical potential range map for each stable entry.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>elements</strong> &#8211; Sequence of elements to be considered as independent
+variables. E.g., if you want to show the stability ranges
+of all Li-Co-O phases wrt to uLi and uO, you will supply
+[Element(&#8220;Li&#8221;), Element(&#8220;O&#8221;)]</li>
+<li><strong>referenced</strong> &#8211; If True, gives the results with a reference being the
+energy of the elemental phase. If False, gives absolute values.</li>
+<li><strong>joggle</strong> (<em>boolean</em>) &#8211; Whether to joggle the input to avoid precision
+errors.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">[simplices]}. The list of
+simplices are the sides of the N-1 dim polytope bounding the
+allowable chemical potential range of each entry.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Returns a dict of the form {entry</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_chempot_range_stability_phase">
+<code class="descname">get_chempot_range_stability_phase</code><span class="sig-paren">(</span><em>target_comp</em>, <em>open_elt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_chempot_range_stability_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_chempot_range_stability_phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a set of chemical potentials correspoding to the max and min
+chemical potential of the open element for a given composition. It is
+quite common to have for instance a ternary oxide (e.g., ABO3) for
+which you want to know what are the A and B chemical potential leading
+to the highest and lowest oxygen chemical potential (reducing and
+oxidizing conditions). This is useful for defect computations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>target_comp</strong> &#8211; A Composition object</li>
+<li><strong>open_elt</strong> &#8211; Element that you want to constrain to be max or min</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">(mu_min,mu_max)}: Chemical potentials are given in
+&#8220;absolute&#8221; values (i.e., not referenced to 0)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">{Element</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_composition_chempots">
+<code class="descname">get_composition_chempots</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_composition_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_composition_chempots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_critical_compositions">
+<code class="descname">get_critical_compositions</code><span class="sig-paren">(</span><em>comp1</em>, <em>comp2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_critical_compositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_critical_compositions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the critical compositions along the tieline between two
+compositions. I.e. where the decomposition products change.
+The endpoints are also returned.
+:param comp1, comp2: compositions that define the tieline
+:type comp1, comp2: Composition</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>list of critical compositions. All are of</dt>
+<dd>the form x * comp1 + (1-x) * comp2</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">[(<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition">Composition</a>)]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_decomp_and_e_above_hull">
+<code class="descname">get_decomp_and_e_above_hull</code><span class="sig-paren">(</span><em>entry</em>, <em>allow_negative=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_decomp_and_e_above_hull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_decomp_and_e_above_hull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the decomposition and energy above convex hull for an entry.
+Due to caching, can be much faster if entries with the same composition
+are processed together.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>entry</strong> &#8211; A PDEntry like object</li>
+<li><strong>allow_negative</strong> &#8211; Whether to allow negative e_above_hulls. Used to
+calculate equilibrium reaction energies. Defaults to False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(decomp, energy above convex hull)  Stable entries should have
+energy above hull of 0. The decomposition is provided as a dict of
+{Entry: amount}.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_decomposition">
+<code class="descname">get_decomposition</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_decomposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the decomposition at a particular composition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comp</strong> &#8211; A composition</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">amount}</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Decomposition as a dict of {Entry</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_e_above_hull">
+<code class="descname">get_e_above_hull</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_e_above_hull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_e_above_hull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the energy above convex hull for an entry</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> &#8211; A PDEntry like object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Energy above convex hull of entry. Stable entries should have
+energy above hull of 0.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_element_profile">
+<code class="descname">get_element_profile</code><span class="sig-paren">(</span><em>element</em>, <em>comp</em>, <em>comp_tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_element_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_element_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the element evolution data for a composition.
+For example, can be used to analyze Li conversion voltages by varying
+uLi and looking at the phases formed. Also can be used to analyze O2
+evolution by varying uO2.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>element</strong> &#8211; An element. Must be in the phase diagram.</li>
+<li><strong>comp</strong> &#8211; A Composition</li>
+<li><strong>comp_tol</strong> &#8211; The tolerance to use when calculating decompositions.
+Phases with amounts less than this tolerance are excluded.
+Defaults to 1e-5.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">[ {&#8216;chempot&#8217;: -10.487582010000001, &#8216;evolution&#8217;: -2.0,
+&#8216;reaction&#8217;: Reaction Object], ...]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Evolution data as a list of dictionaries of the following format</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_equilibrium_reaction_energy">
+<code class="descname">get_equilibrium_reaction_energy</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_equilibrium_reaction_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_equilibrium_reaction_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the reaction energy of a stable entry from the neighboring
+equilibrium stable entries (also known as the inverse distance to
+hull).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> &#8211; A PDEntry like object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Equilibrium reaction energy of entry. Stable entries should have
+equilibrium reaction energy &lt;= 0.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_facet_chempots">
+<code class="descname">get_facet_chempots</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_facet_chempots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_hull_energy">
+<code class="descname">get_hull_energy</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_hull_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_hull_energy" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) &#8211; Input composition</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Energy of lowest energy equilibrium at desired composition. Not
+normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.get_transition_chempots">
+<code class="descname">get_transition_chempots</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.get_transition_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.get_transition_chempots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the critical chemical potentials for an element in the Phase
+Diagram.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>element</strong> &#8211; An element. Has to be in the PD in the first place.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A sorted sequence of critical chemical potentials, from less
+negative to more negative.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.getmu_vertices_stability_phase">
+<code class="descname">getmu_vertices_stability_phase</code><span class="sig-paren">(</span><em>target_comp</em>, <em>dep_elt</em>, <em>tol_en=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/analyzer.html#PDAnalyzer.getmu_vertices_stability_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.getmu_vertices_stability_phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a set of chemical potentials corresponding to the vertices of the simplex
+in the chemical potential phase diagram.
+The simplex is built using all elements in the target_composition except dep_elt.
+The chemical potential of dep_elt is computed from the target composition energy.
+This method is useful to get the limiting conditions for
+defects computations for instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>target_comp</strong> &#8211; A Composition object</li>
+<li><strong>dep_elt</strong> &#8211; the element for which the chemical potential is computed from the energy of</li>
+<li><strong>stable phase at the target composition</strong> (<em>the</em>) &#8211; </li>
+<li><strong>tol_en</strong> &#8211; a tolerance on the energy to set</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">mu}]: An array of conditions on simplex vertices for
+which each element has a chemical potential set to a given
+value. &#8220;absolute&#8221; values (i.e., not referenced to element energies)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">[{Element</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.phasediagram.analyzer.PDAnalyzer.numerical_tol">
+<code class="descname">numerical_tol</code><em class="property"> = 1e-08</em><a class="headerlink" href="#pymatgen.phasediagram.analyzer.PDAnalyzer.numerical_tol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.phasediagram.analyzer.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

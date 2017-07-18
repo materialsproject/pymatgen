@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.zeopp module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.io.zeopp">
+<span id="pymatgen-io-zeopp-module"></span><h1>pymatgen.io.zeopp module<a class="headerlink" href="#module-pymatgen.io.zeopp" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.io.zeopp.ZeoCssr">
+<em class="property">class </em><code class="descname">ZeoCssr</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoCssr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.io.cssr.html#pymatgen.io.cssr.Cssr" title="pymatgen.io.cssr.Cssr"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.cssr.Cssr</span></code></a></p>
+<p>ZeoCssr adds extra fields to CSSR sites to conform with Zeo++
+input CSSR format. The coordinate system is rorated from xyz to zyx.
+This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
+of Zeo++ (x-axis) for structurural modifications.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; A structure to create ZeoCssr object</td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt id="pymatgen.io.zeopp.ZeoCssr.from_file">
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoCssr.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a CSSR file to a ZeoCssr object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; Filename to read from.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ZeoCssr object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.zeopp.ZeoCssr.from_string">
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoCssr.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a string representation to a ZeoCssr object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> &#8211; A string representation of a ZeoCSSR.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ZeoCssr object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.zeopp.ZeoVoronoiXYZ">
+<em class="property">class </em><code class="descname">ZeoVoronoiXYZ</code><span class="sig-paren">(</span><em>mol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoVoronoiXYZ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.io.xyz.html#pymatgen.io.xyz.XYZ" title="pymatgen.io.xyz.XYZ"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.xyz.XYZ</span></code></a></p>
+<p>Class to read Voronoi Nodes from XYZ file written by Zeo++.
+The sites have an additional column representing the voronoi node radius.
+The voronoi node radius is represented by the site property voronoi_radius.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mol</strong> &#8211; Input molecule holding the voronoi node information</td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt id="pymatgen.io.zeopp.ZeoVoronoiXYZ.from_file">
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoVoronoiXYZ.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates XYZ object from a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; XYZ filename</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">XYZ object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.zeopp.ZeoVoronoiXYZ.from_string">
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>contents</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoVoronoiXYZ.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates Zeo++ Voronoi XYZ object from a string.
+from_string method of XYZ class is being redefined.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>contents</strong> &#8211; String representing Zeo++ Voronoi XYZ file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ZeoVoronoiXYZ object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.zeopp.get_free_sphere_params">
+<code class="descname">get_free_sphere_params</code><span class="sig-paren">(</span><em>structure</em>, <em>rad_dict=None</em>, <em>probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#get_free_sphere_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_free_sphere_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze the void space in the input structure using voronoi decomposition
+Calls Zeo++ for Voronoi decomposition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
+<li><strong>rad_dict</strong> (<em>optional</em>) &#8211; Dictionary of radii of elements in structure.
+If not given, Zeo++ default values are used.
+Note: Zeo++ uses atomic radii of elements.
+For ionic structures, pass rad_dict with ionic radii</li>
+<li><strong>probe_rad</strong> (<em>optional</em>) &#8211; Sampling probe radius in Angstroms. Default is
+0.1 A</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">voronoi nodes as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure
+voronoi face centers as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.zeopp.get_high_accuracy_voronoi_nodes">
+<code class="descname">get_high_accuracy_voronoi_nodes</code><span class="sig-paren">(</span><em>structure</em>, <em>rad_dict</em>, <em>probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#get_high_accuracy_voronoi_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_high_accuracy_voronoi_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze the void space in the input structure using high accuracy
+voronoi decomposition.
+Calls Zeo++ for Voronoi decomposition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
+<li><strong>rad_dict</strong> (<em>optional</em>) &#8211; Dictionary of radii of elements in structure.
+If not given, Zeo++ default values are used.
+Note: Zeo++ uses atomic radii of elements.
+For ionic structures, pass rad_dict with ionic radii</li>
+<li><strong>probe_rad</strong> (<em>optional</em>) &#8211; Sampling probe radius in Angstroms.
+Default is 0.1 A</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">voronoi nodes as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure
+voronoi face centers as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.zeopp.get_void_volume_surfarea">
+<code class="descname">get_void_volume_surfarea</code><span class="sig-paren">(</span><em>structure</em>, <em>rad_dict=None</em>, <em>chan_rad=0.3</em>, <em>probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#get_void_volume_surfarea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_void_volume_surfarea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the volume and surface area of isolated void using Zeo++.
+Useful to compute the volume and surface area of vacant site.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> &#8211; pymatgen Structure containing vacancy</li>
+<li><strong>rad_dict</strong> (<em>optional</em>) &#8211; Dictionary with short name of elements and their
+radii.</li>
+<li><strong>chan_rad</strong> (<em>optional</em>) &#8211; Minimum channel Radius.</li>
+<li><strong>probe_rad</strong> (<em>optional</em>) &#8211; Probe radius for Monte Carlo sampling.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">floating number representing the volume of void</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.volume" title="pymatgen.analysis.wulff.WulffShape.volume">volume</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.zeopp.get_voronoi_nodes">
+<code class="descname">get_voronoi_nodes</code><span class="sig-paren">(</span><em>structure</em>, <em>rad_dict=None</em>, <em>probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#get_voronoi_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_voronoi_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze the void space in the input structure using voronoi decomposition
+Calls Zeo++ for Voronoi decomposition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
+<li><strong>rad_dict</strong> (<em>optional</em>) &#8211; Dictionary of radii of elements in structure.
+If not given, Zeo++ default values are used.
+Note: Zeo++ uses atomic radii of elements.
+For ionic structures, pass rad_dict with ionic radii</li>
+<li><strong>probe_rad</strong> (<em>optional</em>) &#8211; Sampling probe radius in Angstroms. Default is
+0.1 A</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">voronoi nodes as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure
+voronoi face centers as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.io.zeopp.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.pwscf module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.io.pwscf">
+<span id="pymatgen-io-pwscf-module"></span><h1>pymatgen.io.pwscf module<a class="headerlink" href="#module-pymatgen.io.pwscf" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.io.pwscf.PWInput">
+<em class="property">class </em><code class="descname">PWInput</code><span class="sig-paren">(</span><em>structure</em>, <em>pseudo=None</em>, <em>control=None</em>, <em>system=None</em>, <em>electrons=None</em>, <em>ions=None</em>, <em>cell=None</em>, <em>kpoints_mode='automatic'</em>, <em>kpoints_grid=(1</em>, <em>1</em>, <em>1)</em>, <em>kpoints_shift=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base input file class. Right now, only supports no symmetry and is
+very basic.</p>
+<p>Initializes a PWSCF input file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure. For spin-polarized calculation,
+properties (e.g. {&#8220;starting_magnetization&#8221;: -0.5,
+&#8220;pseudo&#8221;: &#8220;Mn.pbe-sp-van.UPF&#8221;}) on each site is needed instead of
+pseudo (dict).</li>
+<li><strong>pseudo</strong> (<em>dict</em>) &#8211; A dict of the pseudopotentials to use. Default to None.</li>
+<li><strong>control</strong> (<em>dict</em>) &#8211; Control parameters. Refer to official PWSCF doc
+on supported parameters. Default to {&#8220;calculation&#8221;: &#8220;scf&#8221;}</li>
+<li><strong>system</strong> (<em>dict</em>) &#8211; System parameters. Refer to official PWSCF doc
+on supported parameters. Default to None, which means {}.</li>
+<li><strong>electrons</strong> (<em>dict</em>) &#8211; Electron parameters. Refer to official PWSCF doc
+on supported parameters. Default to None, which means {}.</li>
+<li><strong>ions</strong> (<em>dict</em>) &#8211; Ions parameters. Refer to official PWSCF doc
+on supported parameters. Default to None, which means {}.</li>
+<li><strong>cell</strong> (<em>dict</em>) &#8211; Cell parameters. Refer to official PWSCF doc
+on supported parameters. Default to None, which means {}.</li>
+<li><strong>kpoints_mode</strong> (<em>str</em>) &#8211; Kpoints generation mode. Default to automatic.</li>
+<li><strong>kpoints_grid</strong> (<em>sequence</em>) &#8211; The kpoint grid. Default to (1, 1, 1).</li>
+<li><strong>kpoints_shift</strong> (<em>sequence</em>) &#8211; The shift for the kpoints. Defaults to
+(0, 0, 0).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt id="pymatgen.io.pwscf.PWInput.from_file">
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads an PWInput object from a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Filename for file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">PWInput object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.pwscf.PWInput.from_string">
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads an PWInput object from a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) &#8211; PWInput string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">PWInput object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.pwscf.PWInput.proc_val">
+<code class="descname">proc_val</code><span class="sig-paren">(</span><em>key</em>, <em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInput.proc_val"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.proc_val" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static helper method to convert PWINPUT parameters to proper type, e.g.,
+integers, floats, etc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> &#8211; PWINPUT parameter key</li>
+<li><strong>val</strong> &#8211; Actual value of PWINPUT parameter.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.pwscf.PWInput.write_file">
+<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the PWSCF input file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; The string filename to output to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.io.pwscf.PWInputError">
+<em class="property">exception </em><code class="descname">PWInputError</code><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInputError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">BaseException</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.pwscf.PWOutput">
+<em class="property">class </em><code class="descname">PWOutput</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="pymatgen.io.pwscf.PWOutput.final_energy">
+<code class="descname">final_energy</code><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.final_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.pwscf.PWOutput.get_celldm">
+<code class="descname">get_celldm</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWOutput.get_celldm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.get_celldm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.pwscf.PWOutput.lattice_type">
+<code class="descname">lattice_type</code><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.lattice_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.pwscf.PWOutput.patterns">
+<code class="descname">patterns</code><em class="property"> = {'energies': 'total energy\\s+=\\s+([\\d\\.\\-]+)\\sRy', 'ecut': 'kinetic\\-energy cutoff\\s+=\\s+([\\d\\.\\-]+)\\s+Ry', 'lattice_type': 'bravais\\-lattice index\\s+=\\s+(\\d+)', 'celldm1': 'celldm\\(1\\)=\\s+([\\d\\.]+)\\s', 'celldm2': 'celldm\\(2\\)=\\s+([\\d\\.]+)\\s', 'celldm3': 'celldm\\(3\\)=\\s+([\\d\\.]+)\\s', 'celldm4': 'celldm\\(4\\)=\\s+([\\d\\.]+)\\s', 'celldm5': 'celldm\\(5\\)=\\s+([\\d\\.]+)\\s', 'celldm6': 'celldm\\(6\\)=\\s+([\\d\\.]+)\\s', 'nkpts': 'number of k points=\\s+([\\d]+)'}</em><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.patterns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.pwscf.PWOutput.read_pattern">
+<code class="descname">read_pattern</code><span class="sig-paren">(</span><em>patterns</em>, <em>reverse=False</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWOutput.read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.read_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>General pattern reading. Uses monty&#8217;s regrep method. Takes the same
+arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>patterns</strong> (<em>dict</em>) &#8211; A dict of patterns, e.g.,
+{&#8220;energy&#8221;: r&#8221;energy(sigma-&gt;0)s+=s+([d-.]+)&#8221;}.</li>
+<li><strong>reverse</strong> (<em>bool</em>) &#8211; Read files in reverse. Defaults to false. Useful for
+large files, esp OUTCARs, especially when used with
+terminate_on_match.</li>
+<li><strong>terminate_on_match</strong> (<em>bool</em>) &#8211; Whether to terminate when there is at
+least one match in each key in pattern.</li>
+<li><strong>postprocess</strong> (<em>callable</em>) &#8211; A post processing function to convert all
+matches. Defaults to str, i.e., no change.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Renders accessible:</dt>
+<dd>Any attribute in patterns. For example,
+{&#8220;energy&#8221;: r&#8221;energy(sigma-&gt;0)s+=s+([d-.]+)&#8221;} will set the
+value of self.data[&#8220;energy&#8221;] = [[-1234], [-3453], ...], to the
+results from regex and postprocess. Note that the returned
+values are lists of lists, because you can grep multiple
+items on one line.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.io.pwscf.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

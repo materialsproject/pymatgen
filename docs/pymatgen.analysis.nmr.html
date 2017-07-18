@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.nmr module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.nmr">
+<span id="pymatgen-analysis-nmr-module"></span><h1>pymatgen.analysis.nmr module<a class="headerlink" href="#module-pymatgen.analysis.nmr" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation">
+<em class="property">class </em><code class="descname">NMRChemicalShiftNotation</code><span class="sig-paren">(</span><em>sigma_1</em>, <em>sigma_2</em>, <em>sigma_3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#NMRChemicalShiftNotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Helper class to convert between different chemical shift conventions
+internally using the Mehring notation. Note that this is different than the
+default notion adopted by VASP which is the Maryland notation.</p>
+<p>Three notations to describe chemical shift tensor (RK Harris; Magn. Reson.
+Chem. 2008, 46, 582–598; DOI: 10.1002/mrc.2225) are supported.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sigma_1</strong> (<em>float</em>) &#8211; chemical shift tensor principle component 1</li>
+<li><strong>sigma_2</strong> (<em>float</em>) &#8211; chemical shift tensor principle component 2</li>
+<li><strong>sigma_3</strong> (<em>float</em>) &#8211; chemical shift tensor principle component 3</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt>
+<code class="descname">sigma_11, simga_22, sigma33</code></dt>
+<dt>
+<code class="descname">principle components in Mehring notation</code></dt>
+<dd></dd></dl>
+
+<p>Authors: Xiaohui Qu</p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.HaeberlenNotation">
+<code class="descname">HaeberlenNotation</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.HaeberlenNotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">HaeberlenNotion</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.MarylandNotation">
+<em class="property">class </em><code class="descname">MarylandNotation</code><span class="sig-paren">(</span><em>sigma_iso</em>, <em>omega</em>, <em>kappa</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.MarylandNotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></p>
+<p>Create new instance of MarylandNotation(sigma_iso, omega, kappa)</p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.MarylandNotation.kappa">
+<code class="descname">kappa</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.MarylandNotation.kappa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.MarylandNotation.omega">
+<code class="descname">omega</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.MarylandNotation.omega" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.MarylandNotation.sigma_iso">
+<code class="descname">sigma_iso</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.MarylandNotation.sigma_iso" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.MehringNotation">
+<em class="property">class </em><code class="descclassname">NMRChemicalShiftNotation.</code><code class="descname">MehringNotation</code><span class="sig-paren">(</span><em>sigma_iso</em>, <em>sigma_11</em>, <em>sigma_22</em>, <em>sigma_33</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.MehringNotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></p>
+<p>Create new instance of MehringNotation(sigma_iso, sigma_11, sigma_22, sigma_33)</p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.MehringNotation.sigma_11">
+<code class="descname">sigma_11</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.MehringNotation.sigma_11" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.MehringNotation.sigma_22">
+<code class="descname">sigma_22</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.MehringNotation.sigma_22" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.MehringNotation.sigma_33">
+<code class="descname">sigma_33</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.MehringNotation.sigma_33" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.MehringNotation.sigma_iso">
+<code class="descname">sigma_iso</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.MehringNotation.sigma_iso" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.as_dict">
+<code class="descclassname">NMRChemicalShiftNotation.</code><code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#NMRChemicalShiftNotation.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.from_dict">
+<em class="property">classmethod </em><code class="descclassname">NMRChemicalShiftNotation.</code><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#NMRChemicalShiftNotation.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.from_maryland_notation">
+<em class="property">classmethod </em><code class="descclassname">NMRChemicalShiftNotation.</code><code class="descname">from_maryland_notation</code><span class="sig-paren">(</span><em>sigma_iso</em>, <em>omega</em>, <em>kappa</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#NMRChemicalShiftNotation.from_maryland_notation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.from_maryland_notation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.haeberlen_values">
+<code class="descclassname">NMRChemicalShiftNotation.</code><code class="descname">haeberlen_values</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.haeberlen_values" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Returns</em> &#8211; the Chemical shift tensor in Haeberlen Notation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.maryland_values">
+<code class="descclassname">NMRChemicalShiftNotation.</code><code class="descname">maryland_values</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.maryland_values" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Returns</em> &#8211; the Chemical shift tensor in Maryland Notation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.nmr.NMRChemicalShiftNotation.mehring_values">
+<code class="descclassname">NMRChemicalShiftNotation.</code><code class="descname">mehring_values</code><a class="headerlink" href="#pymatgen.analysis.nmr.NMRChemicalShiftNotation.mehring_values" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Returns</em> &#8211; the Chemical shift tensor in Mehring Notation</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.nmr.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

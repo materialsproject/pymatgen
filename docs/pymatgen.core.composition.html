@@ -1,0 +1,541 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.core.composition module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.core.composition">
+<span id="pymatgen-core-composition-module"></span><h1>pymatgen.core.composition module<a class="headerlink" href="#module-pymatgen.core.composition" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.core.composition.ChemicalPotential">
+<em class="property">class </em><code class="descname">ChemicalPotential</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#ChemicalPotential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.ChemicalPotential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class to represent set of chemical potentials. Can be:
+multiplied/divided by a Number
+multiplied by a Composition (returns an energy)
+added/subtracted with other ChemicalPotentials.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> (<em>*args</em><em>,</em><em></em>) &#8211; <p>any valid dict init arguments</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.core.composition.ChemicalPotential.get_energy">
+<code class="descname">get_energy</code><span class="sig-paren">(</span><em>composition</em>, <em>strict=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#ChemicalPotential.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.ChemicalPotential.get_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the energy of a composition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>composition</strong> (<a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) &#8211; input composition</li>
+<li><strong>strict</strong> (<em>bool</em>) &#8211; Whether all potentials must be specified</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.composition.Composition">
+<em class="property">class </em><code class="descname">Composition</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Hashable</span></code>, <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Mapping</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Represents a Composition, which is essentially a {element:amount} mapping
+type. Composition is written to be immutable and hashable,
+unlike a standard Python dict.</p>
+<p>Note that the key can be either an Element or a Specie. Elements and Specie
+are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and
+would be put in separate keys. This differentiation is deliberate to
+support using Composition to determine the fraction of a particular Specie.</p>
+<p>Works almost completely like a standard python dictionary, except that
+__getitem__ is overridden to return 0 when an element is not found.
+(somewhat like a defaultdict, except it is immutable).</p>
+<p>Also adds more convenience methods relevant to compositions, e.g.,
+get_fraction.</p>
+<p>It should also be noted that many Composition related functionality takes
+in a standard string as a convenient input. For example,
+even though the internal representation of a Fe2O3 composition is
+{Element(&#8220;Fe&#8221;): 2, Element(&#8220;O&#8221;): 3}, you can obtain the amount of Fe
+simply by comp[&#8220;Fe&#8221;] instead of the more verbose comp[Element(&#8220;Fe&#8221;)].</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;LiFePO4&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">))</span>
+<span class="go">0.14285714285714285</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span>
+<span class="go">7.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">reduced_formula</span>
+<span class="go">&#39;LiFePO4&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">formula</span>
+<span class="go">&#39;Li1 Fe1 P1 O4&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">get_wt_fraction</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">))</span>
+<span class="go">0.04399794666951898</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span>
+<span class="go">7.0</span>
+</pre></div>
+</div>
+<p>Very flexible Composition construction, similar to the built-in Python
+dict(). Also extended to allow simple string init.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>form supported by the Python built-in dict</strong><strong>(</strong><strong></strong><strong>) </strong><strong>function.</strong> (<em>Any</em>) &#8211; </li>
+<li><strong>A dict of either {Element/Specie</strong> (<em>1.</em>) &#8211; <p>amount},</p>
+<p>{string symbol:amount}, or {atomic number:amount} or any mixture
+of these. E.g., {Element(&#8220;Li&#8221;):2 ,Element(&#8220;O&#8221;):1},
+{&#8220;Li&#8221;:2, &#8220;O&#8221;:1}, {3:2, 8:1} all result in a Li2O composition.</p>
+</li>
+<li><strong>Keyword arg initialization</strong><strong>, </strong><strong>similar to a dict</strong><strong>, </strong><strong>e.g.</strong><strong>,</strong><strong></strong> (<em>2.</em>) &#8211; Composition(Li = 2, O = 1)</li>
+<li><strong>addition</strong><strong>, </strong><strong>the Composition constructor also allows a single</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.In" title="pymatgen.core.periodic_table.Element.In"><em>In</em></a>) &#8211; </li>
+<li><strong>as an input formula. E.g.</strong><strong>, </strong><strong>Composition</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; </li>
+<li><strong>allow_negative</strong> &#8211; Whether to allow negative compositions. This
+argument must be popped from the **kwargs due to *args
+ambiguity.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.almost_equals">
+<code class="descname">almost_equals</code><span class="sig-paren">(</span><em>other</em>, <em>rtol=0.1</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.almost_equals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.almost_equals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if compositions are equal within a tolerance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) &#8211; Other composition to check</li>
+<li><strong>rtol</strong> (<em>float</em>) &#8211; Relative tolerance</li>
+<li><strong>atol</strong> (<em>float</em>) &#8211; Absolute tolerance</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.alphabetical_formula">
+<code class="descname">alphabetical_formula</code><a class="headerlink" href="#pymatgen.core.composition.Composition.alphabetical_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a formula string, with elements sorted by alphabetically
+e.g., Fe4 Li4 O16 P4.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.amount_tolerance">
+<code class="descname">amount_tolerance</code><em class="property"> = 1e-08</em><a class="headerlink" href="#pymatgen.core.composition.Composition.amount_tolerance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Special formula handling for peroxides and certain elements. This is so
+that formula output does not write LiO instead of Li2O2 for example.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.anonymized_formula">
+<code class="descname">anonymized_formula</code><a class="headerlink" href="#pymatgen.core.composition.Composition.anonymized_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>An anonymized formula. Unique species are arranged in ordering of
+increasing amounts and assigned ascending alphabets. Useful for
+prototyping formulas. For example, all stoichiometric perovskites have
+anonymized_formula ABC3.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict with species symbol and (unreduced) amount e.g.,
+{&#8220;Fe&#8221;: 4.0, &#8220;O&#8221;:6.0} or {&#8220;Fe3+&#8221;: 4.0, &#8220;O2-&#8221;:6.0}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.average_electroneg">
+<code class="descname">average_electroneg</code><a class="headerlink" href="#pymatgen.core.composition.Composition.average_electroneg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.element_composition">
+<code class="descname">element_composition</code><a class="headerlink" href="#pymatgen.core.composition.Composition.element_composition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the composition replacing any species by the corresponding
+element.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.elements">
+<code class="descname">elements</code><a class="headerlink" href="#pymatgen.core.composition.Composition.elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns view of elements in Composition.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.formula">
+<code class="descname">formula</code><a class="headerlink" href="#pymatgen.core.composition.Composition.formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a formula string, with elements sorted by electronegativity,
+e.g., Li4 Fe4 P4 O16.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.fractional_composition">
+<code class="descname">fractional_composition</code><a class="headerlink" href="#pymatgen.core.composition.Composition.fractional_composition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the normalized composition which the number of species sum to
+1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Normalized composition which the number of species sum to 1.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.core.composition.Composition.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a composition from a dict generated by as_dict(). Strictly not
+necessary given that the standard constructor already takes in such an
+input, but this method preserves the standard pymatgen API of having
+from_dict methods to reconstitute objects generated by as_dict(). Allows
+for easier introspection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) &#8211; {symbol: amount} dict.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.get_atomic_fraction">
+<code class="descname">get_atomic_fraction</code><span class="sig-paren">(</span><em>el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_atomic_fraction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_atomic_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate atomic fraction of an Element or Specie.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> (<em>Element/Specie</em>) &#8211; Element or Specie to get fraction for.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Atomic fraction for element el in Composition</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.get_el_amt_dict">
+<code class="descname">get_el_amt_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_el_amt_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_el_amt_dict" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dict with element symbol and (unreduced) amount e.g.,
+{&#8220;Fe&#8221;: 4.0, &#8220;O&#8221;:6.0} or {&#8220;Fe3+&#8221;: 4.0, &#8220;O2-&#8221;:6.0}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.get_integer_formula_and_factor">
+<code class="descname">get_integer_formula_and_factor</code><span class="sig-paren">(</span><em>max_denominator=10000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_integer_formula_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_integer_formula_and_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates an integer formula and factor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>max_denominator</strong> (<em>int</em>) &#8211; all amounts in the el:amt dict are
+first converted to a Fraction with this maximum denominator</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A pretty normalized formula and a multiplicative factor, i.e.,
+Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.get_reduced_composition_and_factor">
+<code class="descname">get_reduced_composition_and_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_composition_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_composition_and_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a reduced composition and factor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A normalized composition and a multiplicative factor, i.e.,
+Li4Fe4P4O16 returns (Composition(&#8220;LiFePO4&#8221;), 4).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.get_reduced_formula_and_factor">
+<code class="descname">get_reduced_formula_and_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_formula_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_formula_and_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a reduced formula and factor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A pretty normalized formula and a multiplicative factor, i.e.,
+Li4Fe4P4O16 returns (LiFePO4, 4).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.get_wt_fraction">
+<code class="descname">get_wt_fraction</code><span class="sig-paren">(</span><em>el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_wt_fraction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_wt_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate weight fraction of an Element or Specie.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> (<em>Element/Specie</em>) &#8211; Element or Specie to get fraction for.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Weight fraction for element el in Composition</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.hill_formula">
+<code class="descname">hill_formula</code><a class="headerlink" href="#pymatgen.core.composition.Composition.hill_formula" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.is_element">
+<code class="descname">is_element</code><a class="headerlink" href="#pymatgen.core.composition.Composition.is_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if composition is for an element.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.num_atoms">
+<code class="descname">num_atoms</code><a class="headerlink" href="#pymatgen.core.composition.Composition.num_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of atoms in Composition. For negative amounts, sum
+of absolute values</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.core.composition.Composition.ranked_compositions_from_indeterminate_formula">
+<em class="property">static </em><code class="descname">ranked_compositions_from_indeterminate_formula</code><span class="sig-paren">(</span><em>fuzzy_formula</em>, <em>lock_if_strict=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.ranked_compositions_from_indeterminate_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.ranked_compositions_from_indeterminate_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes in a formula where capitilization might not be correctly entered,
+and suggests a ranked list of potential Composition matches.
+Author: Anubhav Jain</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fuzzy_formula</strong> (<em>str</em>) &#8211; A formula string, such as &#8220;co2o3&#8221; or &#8220;MN&#8221;,
+that may or may not have multiple interpretations</li>
+<li><strong>lock_if_strict</strong> (<em>bool</em>) &#8211; If true, a properly entered formula will
+only return the one correct interpretation. For example,
+&#8220;Co1&#8221; will only return &#8220;Co1&#8221; if true, but will return both
+&#8220;Co1&#8221; and &#8220;C1 O1&#8221; if false.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A ranked list of potential Composition matches</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.reduced_composition">
+<code class="descname">reduced_composition</code><a class="headerlink" href="#pymatgen.core.composition.Composition.reduced_composition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the reduced composition,i.e. amounts normalized by greatest
+common denominator. e.g., Composition(&#8220;FePO4&#8221;) for
+Composition(&#8220;Fe4P4O16&#8221;).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.reduced_formula">
+<code class="descname">reduced_formula</code><a class="headerlink" href="#pymatgen.core.composition.Composition.reduced_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a pretty normalized formula, i.e., LiFePO4 instead of
+Li4Fe4P4O16.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.special_formulas">
+<code class="descname">special_formulas</code><em class="property"> = {'LiO': 'Li2O2', 'NaO': 'Na2O2', 'KO': 'K2O2', 'HO': 'H2O2', 'CsO': 'Cs2O2', 'RbO': 'Rb2O2', 'O': 'O2', 'N': 'N2', 'F': 'F2', 'Cl': 'Cl2', 'H': 'H2'}</em><a class="headerlink" href="#pymatgen.core.composition.Composition.special_formulas" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.to_data_dict">
+<code class="descname">to_data_dict</code><a class="headerlink" href="#pymatgen.core.composition.Composition.to_data_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Returns</em> &#8211; A dict with many keys and values relating to Composition/Formula,
+including reduced_cell_composition, unit_cell_composition,
+reduced_cell_formula, elements and nelements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.to_reduced_dict">
+<code class="descname">to_reduced_dict</code><a class="headerlink" href="#pymatgen.core.composition.Composition.to_reduced_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Returns</em> &#8211; Dict with element symbol and reduced amount e.g.,
+{&#8220;Fe&#8221;: 2.0, &#8220;O&#8221;:3.0}</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.weight">
+<code class="descname">weight</code><a class="headerlink" href="#pymatgen.core.composition.Composition.weight" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.core.composition.CompositionError">
+<em class="property">exception </em><code class="descname">CompositionError</code><a class="reference internal" href="_modules/pymatgen/core/composition.html#CompositionError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.CompositionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Exception class for composition errors</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.core.composition.reduce_formula">
+<code class="descname">reduce_formula</code><span class="sig-paren">(</span><em>sym_amt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#reduce_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.reduce_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to reduce a sym_amt dict to a reduced formula and factor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sym_amt</strong> (<em>dict</em>) &#8211; {symbol: amount}.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(reduced_formula, factor).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.core.composition.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
