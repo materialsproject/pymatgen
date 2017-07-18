@@ -25,7 +25,8 @@ for materials analysis. These are some of the main features:
 3. Powerful analysis tools, including generation of phase diagrams, Pourbaix
    diagrams, diffusion analyses, reactions, etc.
 4. Electronic structure analyses, such as density of states and band structure.
-5. Integration with the Materials Project REST API.
+5. Integration with the Materials Project REST API, Crystallography Open
+   Database.
 
 Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
@@ -177,7 +178,7 @@ If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
 or NERSC resources in the US, the best way is to use conda to perform a local
 install. This guarantees the right version of python and all dependencies::
 
-    # Here, Python 3.5+ is assumed.
+    # Here, Python 3.6+ is assumed.
     # You can change the following to Miniconda2 if you prefer Python 2.7
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
     bash Miniconda3-latest-Linux-x86_64.sh -b
