@@ -1,0 +1,364 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.diffraction.xrd module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.diffraction.xrd">
+<span id="pymatgen-analysis-diffraction-xrd-module"></span><h1>pymatgen.analysis.diffraction.xrd module<a class="headerlink" href="#module-pymatgen.analysis.diffraction.xrd" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator">
+<em class="property">class </em><code class="descname">XRDCalculator</code><span class="sig-paren">(</span><em>wavelength='CuKa'</em>, <em>symprec=0</em>, <em>debye_waller_factors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Computes the XRD pattern of a crystal structure.</p>
+<p>This code is implemented by Shyue Ping Ong as part of UCSD&#8217;s NANO106 -
+Crystallography of Materials. The formalism for this code is based on
+that given in Chapters 11 and 12 of Structure of Materials by Marc De
+Graef and Michael E. McHenry. This takes into account the atomic
+scattering factors and the Lorentz polarization factor, but not
+the Debye-Waller (temperature) factor (for which data is typically not
+available). Note that the multiplicity correction is not needed since
+this code simply goes through all reciprocal points within the limiting
+sphere, which includes all symmetrically equivalent facets. The algorithm
+is as follows</p>
+<ol class="arabic">
+<li><p class="first">Calculate reciprocal lattice of structure. Find all reciprocal points
+within the limiting sphere given by <span class="math">\(\frac{2}{\lambda}\)</span>.</p>
+</li>
+<li><p class="first">For each reciprocal point <span class="math">\(\mathbf{g_{hkl}}\)</span> corresponding to
+lattice plane <span class="math">\((hkl)\)</span>, compute the Bragg condition
+<span class="math">\(\sin(\theta) = \frac{\lambda}{2d_{hkl}}\)</span></p>
+</li>
+<li><p class="first">Compute the structure factor as the sum of the atomic scattering
+factors. The atomic scattering factors are given by</p>
+<div class="math">
+\[f(s) = Z - 41.78214 \times s^2 \times \sum\limits_{i=1}^n a_i            \exp(-b_is^2)\]</div>
+<p>where <span class="math">\(s = \frac{\sin(\theta)}{\lambda}\)</span> and <span class="math">\(a_i\)</span>
+and <span class="math">\(b_i\)</span> are the fitted parameters for each element. The
+structure factor is then given by</p>
+<div class="math">
+\[F_{hkl} = \sum\limits_{j=1}^N f_j \exp(2\pi i \mathbf{g_{hkl}}
+\cdot \mathbf{r})\]</div>
+</li>
+<li><p class="first">The intensity is then given by the modulus square of the structure
+factor.</p>
+<div class="math">
+\[I_{hkl} = F_{hkl}F_{hkl}^*\]</div>
+</li>
+<li><p class="first">Finally, the Lorentz polarization correction factor is applied. This
+factor is given by:</p>
+<div class="math">
+\[P(\theta) = \frac{1 + \cos^2(2\theta)}
+{\sin^2(\theta)\cos(\theta)}\]</div>
+</li>
+</ol>
+<p>Initializes the XRD calculator with a given radiation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>wavelength</strong> (<em>str/float</em>) &#8211; The wavelength can be specified as either a
+float or a string. If it is a string, it must be one of the
+supported definitions in the AVAILABLE_RADIATION class
+variable, which provides useful commonly used wavelengths.
+If it is a float, it is interpreted as a wavelength in
+angstroms. Defaults to &#8220;CuKa&#8221;, i.e, Cu K_alpha radiation.</li>
+<li><strong>symprec</strong> (<em>float</em>) &#8211; Symmetry precision for structure refinement. If
+set to 0, no refinement is done. Otherwise, refinement is
+performed using spglib with provided precision.</li>
+<li><strong></strong><strong>(</strong><strong>{element symbol</strong> (<em>debye_waller_factors</em>) &#8211; float}): Allows the
+specification of Debye-Waller factors. Note that these
+factors are temperature dependent.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION">
+<code class="descname">AVAILABLE_RADIATION</code><em class="property"> = ('CuKa', 'CuKa2', 'CuKa1', 'CuKb1', 'MoKa', 'MoKa2', 'MoKa1', 'MoKb1', 'CrKa', 'CrKa2', 'CrKa1', 'CrKb1', 'FeKa', 'FeKa2', 'FeKa1', 'FeKb1', 'CoKa', 'CoKa2', 'CoKa1', 'CoKb1', 'AgKa', 'AgKa2', 'AgKa1', 'AgKb1')</em><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.SCALED_INTENSITY_TOL">
+<code class="descname">SCALED_INTENSITY_TOL</code><em class="property"> = 0.001</em><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.SCALED_INTENSITY_TOL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.TWO_THETA_TOL">
+<code class="descname">TWO_THETA_TOL</code><em class="property"> = 1e-05</em><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.TWO_THETA_TOL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.get_xrd_data">
+<code class="descname">get_xrd_data</code><span class="sig-paren">(</span><em>structure</em>, <em>scaled=True</em>, <em>two_theta_range=(0</em>, <em>90)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator.get_xrd_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.get_xrd_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the XRD data for a structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure</li>
+<li><strong>scaled</strong> (<em>bool</em>) &#8211; Whether to return scaled intensities. The maximum
+peak is set to a value of 100. Defaults to True. Use False if
+you need the absolute values to combine XRD plots.</li>
+<li><strong>two_theta_range</strong> (<em></em><em>[</em><em>float of length 2</em><em>]</em><em></em>) &#8211; Tuple for range of
+two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+None if you want all diffracted beams within the limiting
+sphere of radius 2 / wavelength.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(XRD pattern) in the form of
+[[two_theta, intensity, {(h, k, l): mult}, d_hkl], ...]
+Two_theta is in degrees. Intensity is in arbitrary units and if
+scaled (the default), has a maximum value of 100 for the highest
+peak. {(h, k, l): mult} is a dict of Miller indices for all
+diffracted lattice facets contributing to that intensity and
+their multiplicities. d_hkl is the interplanar spacing.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.get_xrd_plot">
+<code class="descname">get_xrd_plot</code><span class="sig-paren">(</span><em>structure</em>, <em>two_theta_range=(0</em>, <em>90)</em>, <em>annotate_peaks=True</em>, <em>ax=None</em>, <em>with_labels=True</em>, <em>fontsize=16</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator.get_xrd_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.get_xrd_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XRD plot as a matplotlib.pyplot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> &#8211; Input structure</li>
+<li><strong>two_theta_range</strong> (<em></em><em>[</em><em>float of length 2</em><em>]</em><em></em>) &#8211; Tuple for range of
+two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+None if you want all diffracted beams within the limiting
+sphere of radius 2 / wavelength.</li>
+<li><strong>annotate_peaks</strong> &#8211; Whether to annotate the peaks with plane
+information.</li>
+<li><strong>ax</strong> &#8211; matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>with_labels</strong> &#8211; True to add xlabels and ylabels to the plot.</li>
+<li><strong>fontsize</strong> &#8211; (int) fontsize for peak labels.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(matplotlib.pyplot)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.plot_structures">
+<code class="descname">plot_structures</code><span class="sig-paren">(</span><em>structures</em>, <em>two_theta_range=(0</em>, <em>90)</em>, <em>annotate_peaks=True</em>, <em>fontsize=6</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator.plot_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.plot_structures" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Plot XRD for multiple structures on the same figure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">structures (Structure): List of structures
+two_theta_range ([float of length 2]): Tuple for range of</p>
+<blockquote>
+<div>two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+None if you want all diffracted beams within the limiting
+sphere of radius 2 / wavelength.</div></blockquote>
+<dl class="docutils">
+<dt>annotate_peaks (bool): Whether to annotate the peaks with plane</dt>
+<dd>information.</dd>
+</dl>
+<p class="last">fontsize: (int) fontsize for peak labels.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+example: size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>tight_layout</td>
+<td>True if to call fig.tight_layout (default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.show_xrd_plot">
+<code class="descname">show_xrd_plot</code><span class="sig-paren">(</span><em>structure</em>, <em>two_theta_range=(0</em>, <em>90)</em>, <em>annotate_peaks=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator.show_xrd_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.show_xrd_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows the XRD plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure</li>
+<li><strong>two_theta_range</strong> (<em></em><em>[</em><em>float of length 2</em><em>]</em><em></em>) &#8211; Tuple for range of
+two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+None if you want all diffracted beams within the limiting
+sphere of radius 2 / wavelength.</li>
+<li><strong>annotate_peaks</strong> (<em>bool</em>) &#8211; Whether to annotate the peaks with plane
+information.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.diffraction.xrd.get_unique_families">
+<code class="descname">get_unique_families</code><span class="sig-paren">(</span><em>hkls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#get_unique_families"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.get_unique_families" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns unique families of Miller indices. Families must be permutations
+of each other.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hkls</strong> (<em></em><em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Orbital.l" title="pymatgen.io.vasp.inputs.Orbital.l"><em>l</em></a><em>]</em><em></em>) &#8211; List of Miller indices.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">multiplicity}: A dict with unique hkl and multiplicity.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">{hkl</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.diffraction.xrd.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

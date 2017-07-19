@@ -3,7 +3,12 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import unittest
+import os
 
+from pymatgen import Molecule
+from pymatgen.io.gaussian import GaussianInput, GaussianOutput
+from pymatgen.electronic_structure.core import Spin
 """
 Created on Apr 17, 2012
 """
@@ -16,12 +21,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Apr 17, 2012"
 
-import unittest
-import os
 
-from pymatgen import Molecule
-from pymatgen.io.gaussian import GaussianInput, GaussianOutput
-from pymatgen.electronic_structure.core import Spin
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "molecules")

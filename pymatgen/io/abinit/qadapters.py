@@ -1345,10 +1345,8 @@ class PbsProAdapter(QueueAdapter):
     """Adapter for PbsPro"""
     QTYPE = "pbspro"
 
-#PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
-#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
-####PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
-####PBS -l pvmem=$${pvmem}mb
+#PBS -l select=$${select}:ncpus=$${ncpus}:mem=$${mem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
+#PBS -l select=$${select}:ncpus=1:mem=$${mem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -1357,7 +1355,6 @@ class PbsProAdapter(QueueAdapter):
 #PBS -N $${job_name}
 #PBS -A $${account}
 #PBS -l select=$${select}
-#PBS -l pvmem=$${pvmem}mb
 #PBS -l walltime=$${walltime}
 #PBS -l model=$${model}
 #PBS -l place=$${place}
@@ -1381,8 +1378,7 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(PbsProAdapter, self).set_mem_per_proc(mem_mb)
-        #self.qparams["vmem"] = self.mem_per_proc
-        self.qparams["pvmem"] = self.mem_per_proc
+        #self.qparams["mem"] = self.mem_per_proc
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
@@ -1408,7 +1404,7 @@ $${qverbatim}
                 chunks = 1
                 ncpus = rest_cores
                 mpiprocs = rest_cores
-                vmem = mem_per_proc * ncpus
+                mem = mem_per_proc * ncpus
                 ompthreads = 1
 
             elif rest_cores == 0:
@@ -1417,7 +1413,7 @@ $${qverbatim}
                 chunks = num_nodes
                 ncpus = hw.cores_per_node
                 mpiprocs = hw.cores_per_node
-                vmem = ncpus * mem_per_proc
+                mem = ncpus * mem_per_proc
                 ompthreads = 1
 
             else:
@@ -1425,7 +1421,7 @@ $${qverbatim}
                 chunks = self.mpi_procs
                 ncpus = 1
                 mpiprocs = 1
-                vmem = mem_per_proc
+                mem = mem_per_proc
                 ompthreads = 1
 
         elif self.pure_omp:
@@ -1435,7 +1431,7 @@ $${qverbatim}
             chunks = 1
             ncpus = self.omp_threads
             mpiprocs = 1
-            vmem = mem_per_proc
+            mem = mem_per_proc
             ompthreads = self.omp_threads
 
         elif self.hybrid_mpi_omp:
@@ -1452,7 +1448,7 @@ $${qverbatim}
                 chunks = chunks
                 ncpus = mpiprocs * self.omp_threads
                 mpiprocs = mpiprocs
-                vmem = mpiprocs * mem_per_proc
+                mem = mpiprocs * mem_per_proc
                 ompthreads = self.omp_threads
 
             else:
@@ -1460,7 +1456,7 @@ $${qverbatim}
                 chunks=self.mpi_procs
                 ncpus=self.omp_threads
                 mpiprocs=1
-                vmem= mem_per_proc
+                mem= mem_per_proc
                 ompthreads=self.omp_threads
 
         else:
@@ -1501,8 +1497,8 @@ $${qverbatim}
                                      mpiprocs_master=mpiprocs_master, vmem_master=int(vmem_master),
                                      chunks_slaves=chunks_slaves, ncpus_slaves=ncpus_slaves,
                                      mpiprocs_slaves=mpiprocs_slaves, vmem_slaves=int(vmem_slaves))
-            s = "{chunk_master}:ncpus={ncpus_master}:vmem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
-                "{chunks_slaves}:ncpus={ncpus_slaves}:vmem={vmem_slaves}mb:" \
+            s = "{chunk_master}:ncpus={ncpus_master}:mem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
+                "{chunks_slaves}:ncpus={ncpus_slaves}:mem={vmem_slaves}mb:" \
                 "mpiprocs={mpiprocs_slaves}".format(**select_params)
             tot_ncpus = chunk_master*ncpus_master + chunks_slaves*ncpus_slaves
             if tot_ncpus != self.mpi_procs:
@@ -1510,7 +1506,7 @@ $${qverbatim}
         else:
             select_params = AttrDict(chunk_master=chunk_master, ncpus_master=ncpus_master,
                                      mpiprocs_master=mpiprocs_master, vmem_master=int(vmem_master))
-            s = "{chunk_master}:ncpus={ncpus_master}:vmem={vmem_master}mb:" \
+            s = "{chunk_master}:ncpus={ncpus_master}:mem={vmem_master}mb:" \
                 "mpiprocs={mpiprocs_master}".format(**select_params)
         if ret_dict:
             return s, select_params
@@ -1521,9 +1517,9 @@ $${qverbatim}
                                int((self.hw.mem_per_node-self.mem_per_proc-self.master_mem_overhead)
                                    / self.mem_per_proc) + 1)
         if max_ncpus_master >= self.mpi_procs:
-            chunk, ncpus, vmem, mpiprocs = 1, self.mpi_procs, self.hw.mem_per_node, self.mpi_procs
-            select_params = AttrDict(chunks=chunk, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem))
-            s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}".format(**select_params)
+            chunk, ncpus, mem, mpiprocs = 1, self.mpi_procs, self.hw.mem_per_node, self.mpi_procs
+            select_params = AttrDict(chunks=chunk, ncpus=ncpus, mpiprocs=mpiprocs, mem=int(mem))
+            s = "{chunks}:ncpus={ncpus}:mem={mem}mb:mpiprocs={mpiprocs}".format(**select_params)
             tot_ncpus = chunk*ncpus
         else:
             ncpus_left = self.mpi_procs-max_ncpus_master
@@ -1566,9 +1562,9 @@ $${qverbatim}
                                          mpiprocs_slaves=mpiprocs_slaves, vmem_slaves=int(vmem_slaves),
                                          chunk_last_slave=chunk_last_slave, ncpus_last_slave=ncpus_last_slave,
                                          vmem_last_slave=int(vmem_last_slave), mpiprocs_last_slave=mpiprocs_last_slave)
-                s = "{chunk_master}:ncpus={ncpus_master}:vmem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
-                    "{chunks_slaves}:ncpus={ncpus_per_slave}:vmem={vmem_slaves}mb:mpiprocs={mpiprocs_slaves}+" \
-                    "{chunk_last_slave}:ncpus={ncpus_last_slave}:vmem={vmem_last_slave}mb:" \
+                s = "{chunk_master}:ncpus={ncpus_master}:mem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
+                    "{chunks_slaves}:ncpus={ncpus_per_slave}:mem={vmem_slaves}mb:mpiprocs={mpiprocs_slaves}+" \
+                    "{chunk_last_slave}:ncpus={ncpus_last_slave}:mem={vmem_last_slave}mb:" \
                     "mpiprocs={mpiprocs_last_slave}".format(**select_params)
                 tot_ncpus = chunk_master*ncpus_master+chunks_slaves*ncpus_per_slave+chunk_last_slave*ncpus_last_slave
             else:
@@ -1576,8 +1572,8 @@ $${qverbatim}
                                          mpiprocs_master=mpiprocs_master, vmem_master=int(vmem_master),
                                          chunks_slaves=chunks_slaves, ncpus_per_slave=ncpus_per_slave,
                                          mpiprocs_slaves=mpiprocs_slaves, vmem_slaves=int(vmem_slaves))
-                s = "{chunk_master}:ncpus={ncpus_master}:vmem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
-                    "{chunks_slaves}:ncpus={ncpus_per_slave}:vmem={vmem_slaves}mb:" \
+                s = "{chunk_master}:ncpus={ncpus_master}:mem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
+                    "{chunks_slaves}:ncpus={ncpus_per_slave}:mem={vmem_slaves}mb:" \
                     "mpiprocs={mpiprocs_slaves}".format(**select_params)
                 tot_ncpus = chunk_master*ncpus_master + chunks_slaves*ncpus_per_slave
 
@@ -1589,13 +1585,13 @@ $${qverbatim}
 
     def _get_select_standard(self, ret_dict=False):
         if not self.has_omp:
-            chunks, ncpus, vmem, mpiprocs = self.mpi_procs, 1, self.mem_per_proc, 1
-            select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem))
-            s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}".format(**select_params)
+            chunks, ncpus, mem, mpiprocs = self.mpi_procs, 1, self.mem_per_proc, 1
+            select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, mem=int(mem))
+            s = "{chunks}:ncpus={ncpus}:mem={mem}mb:mpiprocs={mpiprocs}".format(**select_params)
         else:
-            chunks, ncpus, vmem, mpiprocs, ompthreads = self.mpi_procs, self.omp_threads, self.mem_per_proc, 1, self.omp_threads
-            select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem), ompthreads=ompthreads)
-            s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}:ompthreads={ompthreads}".format(**select_params)
+            chunks, ncpus, mem, mpiprocs, ompthreads = self.mpi_procs, self.omp_threads, self.mem_per_proc, 1, self.omp_threads
+            select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, mem=int(mem), ompthreads=ompthreads)
+            s = "{chunks}:ncpus={ncpus}:mem={mem}mb:mpiprocs={mpiprocs}:ompthreads={ompthreads}".format(**select_params)
 
         if ret_dict:
             return s, select_params
@@ -1648,7 +1644,6 @@ class TorqueAdapter(PbsProAdapter):
 #PBS -q $${queue}
 #PBS -N $${job_name}
 #PBS -A $${account}
-#PBS -l pmem=$${pmem}mb
 ####PBS -l mppwidth=$${mppwidth}
 #PBS -l nodes=$${nodes}:ppn=$${ppn}
 #PBS -l walltime=$${walltime}
@@ -1667,7 +1662,6 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         QueueAdapter.set_mem_per_proc(self, mem_mb)
-        self.qparams["pmem"] = self.mem_per_proc
         #self.qparams["mem"] = self.mem_per_proc
 
     #@property

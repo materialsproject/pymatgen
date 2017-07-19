@@ -1,0 +1,1071 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.structure_analyzer module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.structure_analyzer">
+<span id="pymatgen-analysis-structure-analyzer-module"></span><h1>pymatgen.analysis.structure_analyzer module<a class="headerlink" href="#module-pymatgen.analysis.structure_analyzer" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.JMolCoordFinder">
+<em class="property">class </em><code class="descname">JMolCoordFinder</code><span class="sig-paren">(</span><em>el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#JMolCoordFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.JMolCoordFinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Determine coordinated sites and coordination number using an emulation of
+JMol&#8217;s default autoBond() algorithm. This version of the algorithm does not
+take into account any information regarding known charge states.</p>
+<p>Initialize coordination finder parameters (atomic radii)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el_radius_updates</strong> &#8211; (dict) symbol-&gt;float to override default atomic
+radii table values</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.JMolCoordFinder.get_coordinated_sites">
+<code class="descname">get_coordinated_sites</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#JMolCoordFinder.get_coordinated_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.JMolCoordFinder.get_coordinated_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the coordinated sites for a site
+:param structure: (Structure)
+:param n: (int) index of site in the structure to analyze
+:param tol: (float) a numerical tolerance to extend search</p>
+<p>Returns: ([sites]) a list of coordinated sites</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.JMolCoordFinder.get_coordination_number">
+<code class="descname">get_coordination_number</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#JMolCoordFinder.get_coordination_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.JMolCoordFinder.get_coordination_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the coordination number of a site
+:param structure: (Structure)
+:param n: (int) index of site in the structure to get CN for
+:param tol: (float) a numerical tolerance to extend search</p>
+<p>Returns: (int) the coordination number</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.JMolCoordFinder.get_max_bond_distance">
+<code class="descname">get_max_bond_distance</code><span class="sig-paren">(</span><em>el1_sym</em>, <em>el2_sym</em>, <em>constant=0.56</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#JMolCoordFinder.get_max_bond_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.JMolCoordFinder.get_max_bond_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use JMol algorithm to determine bond length from atomic parameters
+:param el1_sym: (str) symbol of atom 1
+:param el2_sym: (str) symbol of atom 2
+:param constant: (float) factor to tune model</p>
+<p>Returns: (float) max bond length</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.OrderParameters">
+<em class="property">class </em><code class="descname">OrderParameters</code><span class="sig-paren">(</span><em>types</em>, <em>parameters=None</em>, <em>cutoff=-10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OrderParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class permits the calculation of various types of local order
+parameters.</p>
+<p>Create an OrderParameter analyzer instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>types</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a><em>]</em><em></em>) &#8211; <p>List of strings representing the types of order parameters
+to be calculated. Note that multiple mentions of the
+same type may occur. Currently available types are
+&#8220;cn&#8221;  (simple coordination number&#8212;normalized,</p>
+<blockquote>
+<div>if desired),</div></blockquote>
+<dl class="docutils">
+<dt>&#8220;lin&#8221; [Peters-style OP recognizing linear coordination</dt>
+<dd>(Zimmermann &amp; Jain, in progress, 2017)],</dd>
+<dt>&#8220;bent&#8221; [Peters-style OP recognizing bent coordination</dt>
+<dd>(Zimmermann &amp; Jain, in progress, 2017)],</dd>
+<dt>&#8220;tet&#8221; [Peters-style OP recognizing tetrahedral</dt>
+<dd>coordination (Zimmermann et al.,
+J. Am. Chem. Soc., 137, 13352-13361, 2015)],</dd>
+<dt>&#8220;oct&#8221; [Peters-style OP recognizing octahedral</dt>
+<dd>coordination (Zimmermann et al.,
+J. Am. Chem. Soc., 137, 13352-13361, 2015)],</dd>
+<dt>&#8220;bcc&#8221; [Peters-style OP recognizing local</dt>
+<dd>body-centered cubic environment (Peters,
+J. Chem. Phys., 131, 244103, 2009)],</dd>
+</dl>
+<p>&#8220;reg_tri&#8221; (OP recognizing coordination with a regular triangle),
+&#8220;sq&#8221; (OP recognizing square coordination),
+&#8220;sq_pyr&#8221; (OP recognizing square pyramidal coordination),
+&#8220;tri_bipyr&#8221; (OP recognizing trigonal bipyramidal coord.),
+&#8220;q2&#8221;  [Bond orientational order parameter (BOOP)</p>
+<blockquote>
+<div>of weight l=2 (Steinhardt et al., Phys. Rev. B,
+28, 784-805, 1983)],</div></blockquote>
+<p>&#8220;q4&#8221;  (BOOP of weight l=4),
+&#8220;q6&#8221;  (BOOP of weight l=6).</p>
+</li>
+<li><strong>parameters</strong> (<em></em><em>[</em><em></em><em>[</em><em>float</em><em>]</em><em></em><em>]</em><em></em>) &#8211; <p>2D list of floating point numbers that store
+parameters associated with the different order parameters
+that are to be calculated (1st dimension = length of
+types tuple; any 2nd dimension may be zero, in which case
+default values are used). In the following, those order
+parameters q_i are listed that require further parameters
+for their computation (values in brackets denote default
+values):</p>
+<blockquote>
+<div>&#8220;cn&#8221;:  normalizing constant (1);
+&#8220;lin&#8221;: Gaussian width in fractions of pi (180 degrees)<blockquote>
+<div>reflecting the &#8220;speed of penalizing&#8221; deviations
+away from 180 degrees of any individual
+neighbor1-center-neighbor2 configuration (0.0667);</div></blockquote>
+<dl class="docutils">
+<dt>&#8220;bent&#8221;: target angle in degrees (180);</dt>
+<dd>Gaussian width for penalizing deviations away
+from perfect target angle in fractions of pi
+(0.0667);</dd>
+<dt>&#8220;tet&#8221;: Gaussian width for penalizing deviations away</dt>
+<dd>perfecttetrahedral angle (0.0667);</dd>
+<dt>&#8220;oct&#8221;: threshold angle in degrees distinguishing a second</dt>
+<dd>neighbor to be either close to the south pole or
+close to the equator (160.0);
+Gaussian width for penalizing deviations away
+from south pole (0.0667);
+Gaussian width for penalizing deviations away
+from equator (0.0556);
+constant for shifting q_oct toward smaller
+values, which can be helpful when trying to fine-
+tune the capabilities of distinguishing between
+different environments (e.g., tet vs oct)
+given a single mutual threshold q_thresh;</dd>
+<dt>&#8220;bcc&#8221;: south-pole threshold angle as for &#8220;oct&#8221; (160.0);</dt>
+<dd>south-pole Gaussian width as for &#8220;oct&#8221; (0.0667);</dd>
+<dt>&#8220;reg_tri&#8221;: Gaussian width for penalizing angles away from</dt>
+<dd>the expected angles, given the estimated
+height-to-side ratio of the trigonal pyramid
+in which the central atom is located at the
+tip (0.0222);</dd>
+<dt>&#8220;sq&#8221;: Gaussian width for penalizing angles away from</dt>
+<dd>the expected angles, given the estimated
+height-to-diagonal ratio of the pyramid in which
+the central atom is located at the tip
+(0.0333);</dd>
+<dt>&#8220;sq_pyr&#8221;: Gaussian width in fractions of pi</dt>
+<dd>for penalizing angles away from 90 degrees
+(0.0333);
+Gaussian width in Angstrom for penalizing
+variations in neighbor distances (0.1);</dd>
+<dt>&#8220;tri_bipyr&#8221;: threshold angle to identify close to</dt>
+<dd>South pole positions (160.0, cf., oct).
+Gaussian width for penalizing deviations away
+from south pole (0.0667);
+Gaussian width for penalizing deviations away
+from equator (0.0556).</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><strong>cutoff</strong> (<em>float</em>) &#8211; Cutoff radius to determine which nearest neighbors are
+supposed to contribute to the order parameters.
+If the value is negative the neighboring sites found by
+distance and cutoff radius are further
+pruned using the get_coordinated_sites method from the
+VoronoiCoordFinder class.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.OrderParameters.compute_trigonometric_terms">
+<code class="descname">compute_trigonometric_terms</code><span class="sig-paren">(</span><em>thetas</em>, <em>phis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OrderParameters.compute_trigonometric_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.compute_trigonometric_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8221;
+Computes trigonometric terms that are required to
+calculate bond orientational order parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>thetas</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; azimuth angles of all neighbors in radians.  The list of
+azimuth angles is expected to have the same size as the list
+of polar angles; otherwise, a ValueError is raised.  Also,
+the two lists of angles have to be coherent in order. That
+is, it is expected that the order in the list of azimuth
+angles corresponds to a distinct sequence of neighbors.
+And, this sequence has to equal the sequence
+of neighbors in the list of polar angles.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.OrderParameters.get_order_parameters">
+<code class="descname">get_order_parameters</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em>, <em>indeces_neighs=None</em>, <em>tol=0.0</em>, <em>target_spec=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OrderParameters.get_order_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.get_order_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute all order parameters of site n.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; input structure.</li>
+<li><strong>n</strong> (<em>int</em>) &#8211; index of site in input structure, for which OPs are to be
+calculated.  Note that we do not use the sites iterator
+here, but directly access sites via struct[index].</li>
+<li><strong>indeces_neighs</strong> (<em></em><em>[</em><em>int</em><em>]</em><em></em>) &#8211; list of indeces of those neighbors in Structure object
+structure that are to be considered for OP computation.
+This optional argument overwrites the way neighbors are
+to be determined as defined in the constructor (i.e.,
+Voronoi coordination finder via negative cutoff radius
+vs constant cutoff radius if cutoff was positive).
+We do not use information about the underlying
+structure lattice if the neighbor indeces are explicitly
+provided.  This has two important consequences.  First,
+the input Structure object can, in fact, be a
+simple list of Site objects.  Second, no nearest images
+of neighbors are determined when providing an index list.
+Note furthermore that this neighbor
+determination type ignores the optional target_spec
+argument.</li>
+<li><strong>tol</strong> (<em>float</em>) &#8211; threshold of weight (= solid angle / maximal solid angle)
+to determine if a particular pair is
+considered neighbors; this is relevant only in the case
+when Voronoi polyhedra are used to determine coordination</li>
+<li><strong>target_spec</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) &#8211; target specie to be considered when calculating the order
+parameters of site n; None includes all species of input
+structure.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of floats representing order parameters.  Should it not be
+possible to compute a given OP for a conceptual reason, the
+corresponding entry is None instead of a float.  For Steinhardt
+et al.&#8217;s bond orientational OPs and the other geometric OPs
+(&#8220;tet&#8221;, &#8220;oct&#8221;, &#8220;bcc&#8221;), this can happen if there is a single
+neighbor around site n in the structure because that, obviously,
+does not permit calculation of angles between multiple
+neighbors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.OrderParameters.get_parameters">
+<code class="descname">get_parameters</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OrderParameters.get_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of floats that represents
+the parameters associated with calculation of the order
+parameter that was defined at the index provided.
+Attention: the parameters do not need to equal those originally
+inputted because of processing out of efficiency reasons.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) &#8211; index of order-parameter for which associated parameters
+are to be returned</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.OrderParameters.get_q2">
+<code class="descname">get_q2</code><span class="sig-paren">(</span><em>thetas=None</em>, <em>phis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OrderParameters.get_q2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.get_q2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the value of the bond orientational order parameter of
+weight l=2.  If the function is called with non-empty lists of
+polar and azimuthal angles the corresponding trigonometric terms
+are computed afresh.  Otherwise, it is expected that the
+compute_trigonometric_terms function has been just called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>thetas</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; azimuth angles of all neighbors in radians.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>bond orientational order parameter of weight l=2</dt>
+<dd><p class="first last">corresponding to the input angles thetas and phis.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">q2 (float)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.OrderParameters.get_q4">
+<code class="descname">get_q4</code><span class="sig-paren">(</span><em>thetas=None</em>, <em>phis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OrderParameters.get_q4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.get_q4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the value of the bond orientational order parameter of
+weight l=4.  If the function is called with non-empty lists of
+polar and azimuthal angles the corresponding trigonometric terms
+are computed afresh.  Otherwise, it is expected that the
+compute_trigonometric_terms function has been just called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>thetas</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; azimuth angles of all neighbors in radians.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>bond orientational order parameter of weight l=4</dt>
+<dd><p class="first last">corresponding to the input angles thetas and phis.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">q4 (float)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.OrderParameters.get_q6">
+<code class="descname">get_q6</code><span class="sig-paren">(</span><em>thetas=None</em>, <em>phis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OrderParameters.get_q6"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.get_q6" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the value of the bond orientational order parameter of
+weight l=6.  If the function is called with non-empty lists of
+polar and azimuthal angles the corresponding trigonometric terms
+are computed afresh.  Otherwise, it is expected that the
+compute_trigonometric_terms function has been just called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>thetas</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; azimuth angles of all neighbors in radians.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>bond orientational order parameter of weight l=6</dt>
+<dd><p class="first last">corresponding to the input angles thetas and phis.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">q6 (float)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.OrderParameters.get_type">
+<code class="descname">get_type</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OrderParameters.get_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.get_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return type of order-parameter at the index provided and
+represented by a short string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) &#8211; index of order-parameter for which type is to be returned</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.structure_analyzer.OrderParameters.last_nneigh">
+<code class="descname">last_nneigh</code><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.last_nneigh" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8221;
+Returns the number of neighbors encountered during the most
+recent order-parameter calculation. A value of -1 indicates that
+no such calculation has yet been performed for this instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.structure_analyzer.OrderParameters.num_ops">
+<code class="descname">num_ops</code><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.num_ops" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8221;
+Returns the number of different order parameters that are targeted
+to be calculated.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.OxideType">
+<em class="property">class </em><code class="descname">OxideType</code><span class="sig-paren">(</span><em>structure</em>, <em>relative_cutoff=1.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OxideType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OxideType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Separate class for determining oxide type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> &#8211; Input structure.</li>
+<li><strong>relative_cutoff</strong> &#8211; Relative_cutoff * act. cutoff stipulates the max.
+distance two O atoms must be from each other. Default value is
+1.1. At most 1.1 is recommended, nothing larger, otherwise the
+script cannot distinguish between superoxides and peroxides.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.OxideType.parse_oxide">
+<code class="descname">parse_oxide</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OxideType.parse_oxide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OxideType.parse_oxide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Type of oxide
+ozonide/peroxide/superoxide/hydroxide/None.
+nbonds (int): Number of peroxide/superoxide/hydroxide bonds in
+structure.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pymatgen.analysis.structure_analyzer.oxide_type" title="pymatgen.analysis.structure_analyzer.oxide_type">oxide_type</a> (str)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer">
+<em class="property">class </em><code class="descname">RelaxationAnalyzer</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>final_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class analyzes the relaxation in a calculation.</p>
+<p>Please note that the input and final structures should have the same
+ordering of sites. This is typically the case for most computational
+codes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Initial input structure to
+calculation.</li>
+<li><strong>final_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Final output structure from
+calculation.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_bond_dist_changes">
+<code class="descname">get_percentage_bond_dist_changes</code><span class="sig-paren">(</span><em>max_radius=3.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_bond_dist_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_bond_dist_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the percentage bond distance changes for each site up to a
+maximum radius for nearest neighbors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>max_radius</strong> (<em>float</em>) &#8211; Maximum radius to search for nearest
+neighbors. This radius is applied to the initial structure,
+not the final structure.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Bond distance changes as a dict of dicts. E.g.,
+{index1: {index2: 0.011, ...}}. For economy of representation, the
+index1 is always less than index2, i.e., since bonding between
+site1 and siten is the same as bonding between siten and site1,
+there is no reason to duplicate the information or computation.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_lattice_parameter_changes">
+<code class="descname">get_percentage_lattice_parameter_changes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_lattice_parameter_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_lattice_parameter_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the percentage lattice parameter changes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dict of the percentage change in lattice parameter, e.g.,
+{&#8216;a&#8217;: 0.012, &#8216;b&#8217;: 0.021, &#8216;c&#8217;: -0.031} implies a change of 1.2%,
+2.1% and -3.1% in the a, b and c lattice parameters respectively.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_volume_change">
+<code class="descname">get_percentage_volume_change</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_volume_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_volume_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the percentage volume change.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Volume change in percentage, e.g., 0.055 implies a 5.5% increase.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiAnalyzer">
+<em class="property">class </em><code class="descname">VoronoiAnalyzer</code><span class="sig-paren">(</span><em>cutoff=5.0</em>, <em>qhull_options='Qbb Qc Qz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Performs a statistical analysis of Voronoi polyhedra around each site.
+Each Voronoi polyhedron is described using Schaefli notation.
+That is a set of indices {c_i} where c_i is the number of faces with i
+number of vertices.  E.g. for a bcc crystal, there is only one polyhedron
+notation of which is [0,6,0,8,0,0,...].
+In perfect crystals, these also corresponds to the Wigner-Seitz cells.
+For distorted-crystals, liquids or amorphous structures, rather than one-type,
+there is a statistical distribution of polyhedra.
+See ref: Microstructure and its relaxation in Fe-B amorphous system
+simulated by molecular dynamics,</p>
+<blockquote>
+<div>Stepanyuk et al., J. Non-cryst. Solids (1993), 159, 80-87.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cutoff</strong> (<em>float</em>) &#8211; cutoff distance to search for neighbors of a given atom
+(default = 5.0)</li>
+<li><strong>qhull_options</strong> (<em>str</em>) &#8211; options to pass to qhull (optional)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.analyze">
+<code class="descname">analyze</code><span class="sig-paren">(</span><em>structure</em>, <em>n=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs Voronoi analysis and returns the polyhedra around atom n
+in Schlaefli notation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; structure to analyze</li>
+<li><strong>n</strong> (<em>int</em>) &#8211; index of the center atom in structure</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>&lt;c3,c4,c6,c6,c7,c8,c9,c10&gt;</dt>
+<dd><p class="first last">where c_i denotes number of facets with i vertices.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">voronoi index of n</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.analyze_structures">
+<code class="descname">analyze_structures</code><span class="sig-paren">(</span><em>structures</em>, <em>step_freq=10</em>, <em>most_frequent_polyhedra=15</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer.analyze_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.analyze_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform Voronoi analysis on a list of Structures.
+Note that this might take a significant amount of time depending on the
+size and number of structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structures</strong> (<em>list</em>) &#8211; list of Structures</li>
+<li><strong></strong><strong>(</strong><strong>float</strong> (<em>cutoff</em>) &#8211; cutoff distance around an atom to search for
+neighbors</li>
+<li><strong>step_freq</strong> (<em>int</em>) &#8211; perform analysis every step_freq steps</li>
+<li><strong>qhull_options</strong> (<em>str</em>) &#8211; options to pass to qhull</li>
+<li><strong>most_frequent_polyhedra</strong> (<em>int</em>) &#8211; this many unique polyhedra with
+highest frequences is stored.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of tuples in the form (voronoi_index,frequency)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis">
+<em class="property">static </em><code class="descname">plot_vor_analysis</code><span class="sig-paren">(</span><em>voronoi_ensemble</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer.plot_vor_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity">
+<em class="property">class </em><code class="descname">VoronoiConnectivity</code><span class="sig-paren">(</span><em>structure</em>, <em>cutoff=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Computes the solid angles swept out by the shared face of the voronoi
+polyhedron between two sites.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure</li>
+<li><strong>cutoff</strong> (<em>float</em>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.connectivity_array">
+<code class="descname">connectivity_array</code><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.connectivity_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides connectivity array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An array of shape [atomi, atomj, imagej]. atomi is
+the index of the atom in the input structure. Since the second
+atom can be outside of the unit cell, it must be described
+by both an atom index and an image index. Array data is the
+solid angle of polygon between atomi and imagej of atomj</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">connectivity</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_connections">
+<code class="descname">get_connections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity.get_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of site pairs that are Voronoi Neighbors, along
+with their real-space distances.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_sitej">
+<code class="descname">get_sitej</code><span class="sig-paren">(</span><em>site_index</em>, <em>image_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity.get_sitej"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_sitej" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assuming there is some value in the connectivity array at indices
+(1, 3, 12). sitei can be obtained directly from the input structure
+(structure[1]). sitej can be obtained by passing 3, 12 to this function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>site_index</strong> (<em>int</em>) &#8211; index of the site (3 in the example)</li>
+<li><strong>image_index</strong> (<em>int</em>) &#8211; index of the image (12 in the example)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.max_connectivity">
+<code class="descname">max_connectivity</code><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.max_connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the 2d array [sitei, sitej] that represents
+the maximum connectivity of site i to any periodic
+image of site j</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiCoordFinder">
+<em class="property">class </em><code class="descname">VoronoiCoordFinder</code><span class="sig-paren">(</span><em>structure</em>, <em>target=None</em>, <em>cutoff=10.0</em>, <em>allow_pathological=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiCoordFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiCoordFinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Uses a Voronoi algorithm to determine the coordination for each site in a
+structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure</li>
+<li><strong>target</strong> (<em></em><em>[</em><em>Element/Specie</em><em>]</em><em></em>) &#8211; A list of target species to determine
+coordination for.</li>
+<li><strong>cutoff</strong> (<em>float</em>) &#8211; Radius in Angstrom cutoff to look for coordinating
+atoms. Defaults to 10.0.</li>
+<li><strong>allow_pathological</strong> (<em>bool</em>) &#8211; whether to allow infinite vertices in
+determination of Voronoi coordination</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_coordinated_sites">
+<code class="descname">get_coordinated_sites</code><span class="sig-paren">(</span><em>n</em>, <em>tol=0</em>, <em>target=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiCoordFinder.get_coordinated_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_coordinated_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sites that are in the coordination radius of site with
+index n.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n</strong> (<em>int</em>) &#8211; Site index.</li>
+<li><strong>tol</strong> (<em>float</em>) &#8211; Weight tolerance to determine if a particular pair is
+considered a neighbor.</li>
+<li><strong>target</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a>) &#8211; Target element</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Sites coordinating input site.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_coordination_number">
+<code class="descname">get_coordination_number</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiCoordFinder.get_coordination_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_coordination_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the coordination number of site with index n.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>int</em>) &#8211; Site index</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_voronoi_polyhedra">
+<code class="descname">get_voronoi_polyhedra</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiCoordFinder.get_voronoi_polyhedra"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_voronoi_polyhedra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives a weighted polyhedra around a site. This uses the voronoi
+construction with solid angle weights.
+See ref: A Proposed Rigorous Definition of Coordination Number,
+M. O&#8217;Keeffe, Acta Cryst. (1979). A35, 772-775</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>int</em>) &#8211; Site index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dict of sites sharing a common Voronoi facet with the site
+n and their solid angle weights</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.average_coordination_number">
+<code class="descname">average_coordination_number</code><span class="sig-paren">(</span><em>structures</em>, <em>freq=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#average_coordination_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.average_coordination_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the ensemble averaged Voronoi coordination numbers
+of a list of Structures using VoronoiCoordFinder.
+Typically used for analyzing the output of a Molecular Dynamics run.
+:param structures: list of Structures.
+:type structures: list
+:param freq: sampling frequency of coordination number [every freq steps].
+:type freq: int</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dictionary of elements as keys and average coordination numbers as values.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.contains_peroxide">
+<code class="descname">contains_peroxide</code><span class="sig-paren">(</span><em>structure</em>, <em>relative_cutoff=1.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#contains_peroxide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.contains_peroxide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a structure contains peroxide anions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure.</li>
+<li><strong>relative_cutoff</strong> &#8211; The peroxide bond distance is 1.49 Angstrom.
+Relative_cutoff * 1.49 stipulates the maximum distance two O
+atoms must be to each other to be considered a peroxide.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boolean indicating if structure contains a peroxide anion.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.get_dimensionality">
+<code class="descname">get_dimensionality</code><span class="sig-paren">(</span><em>structure</em>, <em>max_hkl=2</em>, <em>el_radius_updates=None</em>, <em>min_slab_size=5</em>, <em>min_vacuum_size=5</em>, <em>standardize=True</em>, <em>bonds=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#get_dimensionality"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.get_dimensionality" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns whether a structure is 3D, 2D (layered), or 1D (linear
+chains or molecules) according to the algorithm published in Gorai, P.,
+Toberer, E. &amp; Stevanovic, V. Computational Identification of Promising
+Thermoelectric Materials Among Known Quasi-2D Binary Compounds. J. Mater.
+Chem. A 2, 4136 (2016).</p>
+<p>Note that a 1D structure detection might indicate problems in the bonding
+algorithm, particularly for ionic crystals (e.g., NaCl)</p>
+<p>Users can change the behavior of bonds detection by passing either
+el_radius_updates to update atomic radii for auto-detection of max bond
+distances, or bonds to explicitly specify max bond distances for atom pairs.
+Note that if you pass both, el_radius_updates are ignored.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> &#8211; (Structure) structure to analyze dimensionality for</li>
+<li><strong>max_hkl</strong> &#8211; (int) max index of planes to look for layers</li>
+<li><strong>el_radius_updates</strong> &#8211; (dict) symbol-&gt;float to update atomic radii</li>
+<li><strong>min_slab_size</strong> &#8211; (float) internal surface construction parameter</li>
+<li><strong>min_vacuum_size</strong> &#8211; (float) internal surface construction parameter</li>
+<li><strong>standardize</strong> (<em>bool</em>) &#8211; whether to standardize the structure before
+analysis. Set to False only if you already have the structure in a
+convention where layers / chains will be along low &lt;hkl&gt; indexes.</li>
+<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) &#8211; max_bond_dist}: bonds are
+specified as a dict of tuples: float of specie1, specie2
+and the max bonding distance. For example, PO4 groups may be
+defined as {(&#8220;P&#8221;, &#8220;O&#8221;): 3}.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns: (int) the dimensionality of the structure - 1 (molecules/chains),</dt>
+<dd>2 (layered), or 3 (3D)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.get_max_bond_lengths">
+<code class="descname">get_max_bond_lengths</code><span class="sig-paren">(</span><em>structure</em>, <em>el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#get_max_bond_lengths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.get_max_bond_lengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides max bond length estimates for a structure based on the JMol
+table and algorithms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> &#8211; (structure)</li>
+<li><strong>el_radius_updates</strong> &#8211; (dict) symbol-&gt;float to update atomic radii</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns: (dict) - (Element1, Element2) -&gt; float. The two elements are</dt>
+<dd>ordered by Z.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.gramschmidt">
+<code class="descname">gramschmidt</code><span class="sig-paren">(</span><em>vin</em>, <em>uin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#gramschmidt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.gramschmidt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns that part of the first input vector
+that is orthogonal to the second input vector.
+The output vector is not normalized.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>vin</strong> (<em>numpy array</em>) &#8211; first input vector</li>
+<li><strong>uin</strong> (<em>numpy array</em>) &#8211; second input vector</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.oxide_type">
+<code class="descname">oxide_type</code><span class="sig-paren">(</span><em>structure</em>, <em>relative_cutoff=1.1</em>, <em>return_nbonds=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#oxide_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.oxide_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure.</li>
+<li><strong>relative_cutoff</strong> (<em>float</em>) &#8211; Relative_cutoff * act. cutoff stipulates the
+max distance two O atoms must be from each other.</li>
+<li><strong>return_nbonds</strong> (<em>bool</em>) &#8211; Should number of bonds be requested?</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.solid_angle">
+<code class="descname">solid_angle</code><span class="sig-paren">(</span><em>center</em>, <em>coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#solid_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.solid_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to calculate the solid angle of a set of coords from the
+center.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>center</strong> (<em>3x1 array</em>) &#8211; Center to measure solid angle from.</li>
+<li><strong>coords</strong> (<em>Nx3 array</em>) &#8211; List of coords to determine solid angle.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The solid angle.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.sulfide_type">
+<code class="descname">sulfide_type</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#sulfide_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.sulfide_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a structure is a sulfide/polysulfide</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str) sulfide/polysulfide/sulfate</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.structure_analyzer.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
