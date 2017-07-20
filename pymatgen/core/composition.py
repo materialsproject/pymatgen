@@ -575,7 +575,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 "elements": self.as_dict().keys(),
                 "nelements": len(self.as_dict().keys())}
 
-    def charge_balance_combos(self, oxidation_override=None):
+    def oxi_state_guesses(self, oxidation_override=None):
         """
         Checks if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
