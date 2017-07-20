@@ -407,6 +407,11 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(len(Composition("MnFeO3").oxi_state_guesses(
             oxidation_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})), 3)
 
+        # multiple solutions prefers 3/3 over 2/4 or 4/2
+        self.assertEqual(Composition("MnFeO3").oxi_state_guesses(
+            oxidation_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})[0],
+                         {"Mn": 3, "Fe": 3, "O": -2})
+
         # target charge of 1
         self.assertEqual(Composition("V2O6").oxi_state_guesses(
             oxidation_override={"V": [2, 3, 4, 5]}, target_charge=-2),

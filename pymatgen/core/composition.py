@@ -628,6 +628,10 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
                 all_sols.append(sol)  # add the solution to the list of solutions
 
+        # present results with smaller sum-square charge magnitudes first
+        # note: one could use tabulated oxidation state potentials for a
+        # more accurate ranking (exercise for the reader)
+        all_sols.sort(key=lambda x: sum([v**2 for v in x.values()]))
         return all_sols
 
     @staticmethod
