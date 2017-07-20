@@ -4,6 +4,7 @@
 
 from __future__ import division, unicode_literals
 
+import sys
 import itertools
 import json
 import re
@@ -100,14 +101,15 @@ class MPRester(object):
             self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
         self.preamble = endpoint
         import requests
-        try:
-            from pybtex import __version__
-        except ImportError:
-            warnings.warn("If you query for structure data encoded using MP's "
-                          "Structure Notation Language (SNL) format and you use "
-                          "`mp_decode=True` (the default) for MPRester queries, "
-                          "you should install dependencies via "
-                          "`pip install pymatgen[matproj.snl]`.")
+        if sys.version_info[0] < 3:
+            try:
+                from pybtex import __version__
+            except ImportError:
+                warnings.warn("If you query for structure data encoded using MP's "
+                            "Structure Notation Language (SNL) format and you use "
+                            "`mp_decode=True` (the default) for MPRester queries, "
+                            "you should install dependencies via "
+                            "`pip install pymatgen[matproj.snl]`.")
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
 
