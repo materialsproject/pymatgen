@@ -1,0 +1,479 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.electronic_structure.dos">
+<span id="pymatgen-electronic-structure-dos-module"></span><h1>pymatgen.electronic_structure.dos module<a class="headerlink" href="#module-pymatgen.electronic_structure.dos" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos">
+<em class="property">class </em><code class="descname">CompleteDos</code><span class="sig-paren">(</span><em>structure</em>, <em>total_dos</em>, <em>pdoss</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.electronic_structure.dos.Dos</span></code></a></p>
+<p>This wrapper class defines a total dos, and also provides a list of PDos.
+Mainly used by pymatgen.io.vasp.Vasprun to create a complete Dos from
+a vasprun.xml file. You are unlikely to try to generate this object
+manually.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> &#8211; Structure associated with this particular DOS.</li>
+<li><strong>total_dos</strong> &#8211; total Dos for structure</li>
+<li><strong>pdoss</strong> &#8211; The pdoss are supplied as an {Site:{Orbital:{
+Spin:Densities}}}</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.structure">
+<code class="descname">structure</code><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure associated with the CompleteDos.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.pdos">
+<code class="descname">pdos</code><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.pdos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of CompleteDos.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns CompleteDos object from dict representation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_element_dos">
+<code class="descname">get_element_dos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_element_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_element_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get element projected Dos.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dos}</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of {Element</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_element_spd_dos">
+<code class="descname">get_element_spd_dos</code><span class="sig-paren">(</span><em>el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_element_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_element_spd_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get element and spd projected Dos</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> &#8211; Element in Structure.composition associated with CompleteDos</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{&#8220;S&#8221;: densities, &#8220;P&#8221;: densities, &#8220;D&#8221;: densities}}</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of {Element</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_dos">
+<code class="descname">get_site_dos</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total Dos for a site (all orbitals).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos containing summed orbital densities for site.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_orbital_dos">
+<code class="descname">get_site_orbital_dos</code><span class="sig-paren">(</span><em>site</em>, <em>orbital</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_orbital_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_orbital_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Dos for a particular orbital of a particular site.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</li>
+<li><strong>orbital</strong> &#8211; Orbital in the site.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Dos containing densities for orbital of site.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_spd_dos">
+<code class="descname">get_site_spd_dos</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_spd_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get orbital projected Dos of a particular site</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {&#8220;s&#8221;: Dos object, ...}</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of {orbital</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_t2g_eg_resolved_dos">
+<code class="descname">get_site_t2g_eg_resolved_dos</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_t2g_eg_resolved_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_t2g_eg_resolved_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the t2g, eg projected DOS for a particular site.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos, &#8220;t2g&#8221;: Dos} containing summed e_g and t2g DOS
+for the site.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">A dict {&#8220;e_g&#8221;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_spd_dos">
+<code class="descname">get_spd_dos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_spd_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get orbital projected Dos.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {&#8220;s&#8221;: Dos object, ...}</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of {orbital</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.dos.Dos">
+<em class="property">class </em><code class="descname">Dos</code><span class="sig-paren">(</span><em>efermi</em>, <em>energies</em>, <em>densities</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Basic DOS object. All other DOS objects are extended versions of this
+object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>efermi</strong> &#8211; Fermi level energy</li>
+<li><strong>energies</strong> &#8211; A sequences of energies</li>
+<li><strong></strong><strong>(</strong><strong>{Spin</strong> (<em>densities</em>) &#8211; np.array}): representing the density of states
+for each Spin.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of Dos.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.dos.Dos.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Dos object from dict representation of Dos.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_cbm_vbm">
+<code class="descname">get_cbm_vbm</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_cbm_vbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_cbm_vbm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the cbm and vbm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tol</strong> &#8211; tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> &#8211; An absolute tolerance (True) and a relative one (False)</li>
+<li><strong>spin</strong> &#8211; Possible values are None - finds the gap in the summed
+densities, Up - finds the gap in the up spin channel,
+Down - finds the gap in the down spin channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float in eV corresponding to the gap</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(cbm, vbm)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_densities">
+<code class="descname">get_densities</code><span class="sig-paren">(</span><em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_densities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the density of states for a particular spin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spin</strong> &#8211; Spin</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Returns the density of states for a particular spin. If Spin is
+None, the sum of all spins is returned.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_gap">
+<code class="descname">get_gap</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the gap.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tol</strong> &#8211; tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> &#8211; An absolute tolerance (True) and a relative one (False)</li>
+<li><strong>spin</strong> &#8211; Possible values are None - finds the gap in the summed
+densities, Up - finds the gap in the up spin channel,
+Down - finds the gap in the down spin channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">gap in eV</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_interpolated_gap">
+<code class="descname">get_interpolated_gap</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_interpolated_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_interpolated_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the gap</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tol</strong> &#8211; tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> &#8211; Set to True for an absolute tolerance and False for a
+relative one.</li>
+<li><strong>spin</strong> &#8211; Possible values are None - finds the gap in the summed
+densities, Up - finds the gap in the up spin channel,
+Down - finds the gap in the down spin channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple of floats in eV corresponding to the gap, cbm and vbm.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(gap, cbm, vbm)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_interpolated_value">
+<code class="descname">get_interpolated_value</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_interpolated_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_interpolated_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns interpolated density for a particular energy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>energy</strong> &#8211; Energy to return the density for.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_smeared_densities">
+<code class="descname">get_smeared_densities</code><span class="sig-paren">(</span><em>sigma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_smeared_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_smeared_densities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Dict representation of the densities, {Spin: densities},
+but with a Gaussian smearing of std dev sigma applied about the fermi
+level.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sigma</strong> &#8211; Std dev of Gaussian smearing function.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dict of Gaussian-smeared densities.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.dos.add_densities">
+<code class="descname">add_densities</code><span class="sig-paren">(</span><em>density1</em>, <em>density2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#add_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.add_densities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to sum two densities.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>density1</strong> &#8211; First density.</li>
+<li><strong>density2</strong> &#8211; Second density.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">density}.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Dict of {spin</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.electronic_structure.dos.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

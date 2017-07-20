@@ -1,0 +1,506 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.eos module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.eos">
+<span id="pymatgen-analysis-eos-module"></span><h1>pymatgen.analysis.eos module<a class="headerlink" href="#module-pymatgen.analysis.eos" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.eos.Birch">
+<em class="property">class </em><code class="descname">Birch</code><span class="sig-paren">(</span><em>volumes</em>, <em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#Birch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.Birch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>volumes</strong> (<em>list/numpy.array</em>) &#8211; volumes in Ang^3</li>
+<li><strong>energies</strong> (<em>list/numpy.array</em>) &#8211; energy in eV</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.eos.BirchMurnaghan">
+<em class="property">class </em><code class="descname">BirchMurnaghan</code><span class="sig-paren">(</span><em>volumes</em>, <em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#BirchMurnaghan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.BirchMurnaghan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>volumes</strong> (<em>list/numpy.array</em>) &#8211; volumes in Ang^3</li>
+<li><strong>energies</strong> (<em>list/numpy.array</em>) &#8211; energy in eV</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.eos.DeltaFactor">
+<em class="property">class </em><code class="descname">DeltaFactor</code><span class="sig-paren">(</span><em>volumes</em>, <em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#DeltaFactor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.DeltaFactor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.PolynomialEOS" title="pymatgen.analysis.eos.PolynomialEOS"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.eos.PolynomialEOS</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>volumes</strong> (<em>list/numpy.array</em>) &#8211; volumes in Ang^3</li>
+<li><strong>energies</strong> (<em>list/numpy.array</em>) &#8211; energy in eV</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.eos.DeltaFactor.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>order=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#DeltaFactor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.DeltaFactor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overriden since this eos works with volume**(2/3) instead of volume.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.eos.EOS">
+<em class="property">class </em><code class="descname">EOS</code><span class="sig-paren">(</span><em>eos_name='murnaghan'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#EOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Convenient wrapper. Retained in its original state to ensure backward
+compatibility.</p>
+<p>Fit equation of state for bulk systems.</p>
+<p>The following equations are supported:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">murnaghan</span><span class="p">:</span> <span class="n">PRB</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">5480</span> <span class="p">(</span><span class="mi">1983</span><span class="p">)</span>
+
+<span class="n">birch</span><span class="p">:</span> <span class="n">Intermetallic</span> <span class="n">compounds</span><span class="p">:</span> <span class="n">Principles</span> <span class="ow">and</span> <span class="n">Practice</span><span class="p">,</span> <span class="n">Vol</span> <span class="n">I</span><span class="p">:</span>
+    <span class="n">Principles</span><span class="o">.</span> <span class="n">pages</span> <span class="mi">195</span><span class="o">-</span><span class="mi">210</span>
+
+<span class="n">birch_murnaghan</span><span class="p">:</span> <span class="n">PRB</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">224107</span>
+
+<span class="n">pourier_tarantola</span><span class="p">:</span> <span class="n">PRB</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">224107</span>
+
+<span class="n">vinet</span><span class="p">:</span> <span class="n">PRB</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">224107</span>
+
+<span class="n">deltafactor</span>
+
+<span class="n">numerical_eos</span><span class="p">:</span> <span class="mf">10.1103</span><span class="o">/</span><span class="n">PhysRevB</span><span class="o">.</span><span class="mf">90.174107</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Usage:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">eos</span> <span class="o">=</span> <span class="n">EOS</span><span class="p">(</span><span class="n">eos_name</span><span class="o">=</span><span class="s1">&#39;murnaghan&#39;</span><span class="p">)</span>
+<span class="n">eos_fit</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">volumes</span><span class="p">,</span> <span class="n">energies</span><span class="p">)</span>
+<span class="n">eos_fit</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="pymatgen.analysis.eos.EOS.MODELS">
+<code class="descname">MODELS</code><em class="property"> = {'murnaghan': &lt;class 'pymatgen.analysis.eos.Murnaghan'&gt;, 'birch': &lt;class 'pymatgen.analysis.eos.Birch'&gt;, 'birch_murnaghan': &lt;class 'pymatgen.analysis.eos.BirchMurnaghan'&gt;, 'pourier_tarantola': &lt;class 'pymatgen.analysis.eos.PourierTarantola'&gt;, 'vinet': &lt;class 'pymatgen.analysis.eos.Vinet'&gt;, 'deltafactor': &lt;class 'pymatgen.analysis.eos.DeltaFactor'&gt;, 'numerical_eos': &lt;class 'pymatgen.analysis.eos.NumericalEOS'&gt;}</em><a class="headerlink" href="#pymatgen.analysis.eos.EOS.MODELS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.eos.EOS.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>volumes</em>, <em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#EOS.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOS.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit energies as function of volumes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>volumes</strong> (<em>list/np.array</em>) &#8211; </li>
+<li><strong>energies</strong> (<em>list/np.array</em>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">EOSBase object</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase">EOSBase</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.eos.EOSBase">
+<em class="property">class </em><code class="descname">EOSBase</code><span class="sig-paren">(</span><em>volumes</em>, <em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#EOSBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Abstract class that must be subcalssed by all equation of state
+implementations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>volumes</strong> (<em>list/numpy.array</em>) &#8211; volumes in Ang^3</li>
+<li><strong>energies</strong> (<em>list/numpy.array</em>) &#8211; energy in eV</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.analysis.eos.EOSBase.b0">
+<code class="descname">b0</code><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.b0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the bulk modulus.
+Note: the units for the bulk modulus: unit of energy/unit of volume^3.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.eos.EOSBase.b0_GPa">
+<code class="descname">b0_GPa</code><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.b0_GPa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the bulk modulus in GPa.
+Note: This assumes that the energy and volumes are in eV and Ang^3</p>
+<blockquote>
+<div>respectively</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.eos.EOSBase.b1">
+<code class="descname">b1</code><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.b1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the derivative of bulk modulus wrt pressure(dimensionless)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.eos.EOSBase.e0">
+<code class="descname">e0</code><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.e0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the min energy.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.eos.EOSBase.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#EOSBase.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do the fitting. Does least square fitting. If you want to use custom
+fitting, must override this.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.eos.EOSBase.func">
+<code class="descname">func</code><span class="sig-paren">(</span><em>volume</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#EOSBase.func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.func" title="Permalink to this definition">¶</a></dt>
+<dd><p>The equation of state function with the paramters other than volume set
+to the ones obtained from fitting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>volume</strong> (<em>list/numpy.array</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.eos.EOSBase.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>width=8</em>, <em>height=None</em>, <em>plt=None</em>, <em>dpi=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#EOSBase.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the equation of state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>width</strong> (<em>float</em>) &#8211; Width of plot in inches. Defaults to 8in.</li>
+<li><strong>height</strong> (<em>float</em>) &#8211; Height of plot in inches. Defaults to width *
+golden ratio.</li>
+<li><strong>plt</strong> (<em>matplotlib.pyplot</em>) &#8211; If plt is supplied, changes will be made
+to an existing plot. Otherwise, a new plot will be created.</li>
+<li><strong>dpi</strong> &#8211; </li>
+<li><strong>kwargs</strong> (<em>dict</em>) &#8211; additional args fed to pyplot.plot.
+supported keys: style, color, text, label</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Matplotlib plot object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.eos.EOSBase.results">
+<code class="descname">results</code><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a summary dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.eos.EOSBase.v0">
+<code class="descname">v0</code><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.v0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the minimum or the reference volume in Ang^3.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.analysis.eos.EOSError">
+<em class="property">exception </em><code class="descname">EOSError</code><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#EOSError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.eos.Murnaghan">
+<em class="property">class </em><code class="descname">Murnaghan</code><span class="sig-paren">(</span><em>volumes</em>, <em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#Murnaghan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.Murnaghan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>volumes</strong> (<em>list/numpy.array</em>) &#8211; volumes in Ang^3</li>
+<li><strong>energies</strong> (<em>list/numpy.array</em>) &#8211; energy in eV</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.eos.NumericalEOS">
+<em class="property">class </em><code class="descname">NumericalEOS</code><span class="sig-paren">(</span><em>volumes</em>, <em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#NumericalEOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.NumericalEOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.PolynomialEOS" title="pymatgen.analysis.eos.PolynomialEOS"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.eos.PolynomialEOS</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>volumes</strong> (<em>list/numpy.array</em>) &#8211; volumes in Ang^3</li>
+<li><strong>energies</strong> (<em>list/numpy.array</em>) &#8211; energy in eV</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.eos.NumericalEOS.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>min_ndata_factor=3</em>, <em>max_poly_order_factor=5</em>, <em>min_poly_order=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#NumericalEOS.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.NumericalEOS.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the input data to the &#8216;numerical eos&#8217;, the equation of state employed
+in the quasiharmonic Debye model described in the paper:
+10.1103/PhysRevB.90.174107.</p>
+<p>credits: Cormac Toher</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>min_ndata_factor</strong> (<em>int</em>) &#8211; <p>parameter that controls the minimum number
+of data points that will be used for fitting.
+minimum number of data points =</p>
+<blockquote>
+<div>total data points-2*min_ndata_factor</div></blockquote>
+</li>
+<li><strong>max_poly_order_factor</strong> (<em>int</em>) &#8211; <p>parameter that limits the max order
+of the polynomial used for fitting.
+max_poly_order = number of data points used for fitting -</p>
+<blockquote>
+<div>max_poly_order_factor</div></blockquote>
+</li>
+<li><strong>min_poly_order</strong> (<em>int</em>) &#8211; minimum order of the polynomial to be
+considered for fitting.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.eos.PolynomialEOS">
+<em class="property">class </em><code class="descname">PolynomialEOS</code><span class="sig-paren">(</span><em>volumes</em>, <em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#PolynomialEOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.PolynomialEOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<p>Derives from EOSBase. Polynomial based equations of states must subclass
+this.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>volumes</strong> (<em>list/numpy.array</em>) &#8211; volumes in Ang^3</li>
+<li><strong>energies</strong> (<em>list/numpy.array</em>) &#8211; energy in eV</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.eos.PolynomialEOS.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>order</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#PolynomialEOS.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.PolynomialEOS.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do polynomial fitting and set the parameters. Uses numpy polyfit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>order</strong> (<em>int</em>) &#8211; order of the fit polynomial</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.eos.PourierTarantola">
+<em class="property">class </em><code class="descname">PourierTarantola</code><span class="sig-paren">(</span><em>volumes</em>, <em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#PourierTarantola"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.PourierTarantola" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>volumes</strong> (<em>list/numpy.array</em>) &#8211; volumes in Ang^3</li>
+<li><strong>energies</strong> (<em>list/numpy.array</em>) &#8211; energy in eV</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.eos.Vinet">
+<em class="property">class </em><code class="descname">Vinet</code><span class="sig-paren">(</span><em>volumes</em>, <em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#Vinet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.Vinet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>volumes</strong> (<em>list/numpy.array</em>) &#8211; volumes in Ang^3</li>
+<li><strong>energies</strong> (<em>list/numpy.array</em>) &#8211; energy in eV</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.eos.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

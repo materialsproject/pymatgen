@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.babel &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.babel</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">OpenBabel interface module, which opens up access to the hundreds of file</span>
+<span class="sd">formats supported by OpenBabel. Requires openbabel with python bindings to be</span>
+<span class="sd">installed. Please consult the</span>
+<span class="sd">`openbabel documentation &lt;http://openbabel.org/wiki/Main_Page&gt;`_.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Apr 28, 2012&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">openbabel</span> <span class="k">as</span> <span class="nn">ob</span>
+    <span class="kn">import</span> <span class="nn">pybel</span> <span class="k">as</span> <span class="nn">pb</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">pb</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ob</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="BabelMolAdaptor"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor">[docs]</a><span class="k">class</span> <span class="nc">BabelMolAdaptor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adaptor serves as a bridge between OpenBabel&#39;s Molecule and pymatgen&#39;s</span>
+<span class="sd">    Molecule.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="n">pb</span> <span class="ow">and</span> <span class="n">ob</span><span class="p">,</span>
+              <span class="s2">&quot;BabelMolAdaptor requires openbabel to be installed with &quot;</span>
+              <span class="s2">&quot;Python bindings. Please get it at http://openbabel.org.&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes with pymatgen Molecule or OpenBabel&quot;s OBMol.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mol: pymatgen&#39;s Molecule or OpenBabel OBMol</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">mol</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;OpenBabel Molecule only supports ordered &quot;</span>
+                                 <span class="s2">&quot;molecules.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># For some reason, manually adding atoms does not seem to create</span>
+            <span class="c1"># the correct OBMol representation to do things like force field</span>
+            <span class="c1"># optimization. So we go through the indirect route of creating</span>
+            <span class="c1"># an XYZ file and reading in that file.</span>
+            <span class="n">obmol</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBMol</span><span class="p">()</span>
+
+            <span class="n">obmol</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBMol</span><span class="p">()</span>
+            <span class="n">obmol</span><span class="o">.</span><span class="n">BeginModify</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">mol</span><span class="p">:</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">]</span>
+                <span class="n">atomno</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">Z</span>
+                <span class="n">obatom</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBAtom</span><span class="p">()</span>
+                <span class="n">obatom</span><span class="o">.</span><span class="n">thisown</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">obatom</span><span class="o">.</span><span class="n">SetAtomicNum</span><span class="p">(</span><span class="n">atomno</span><span class="p">)</span>
+                <span class="n">obatom</span><span class="o">.</span><span class="n">SetVector</span><span class="p">(</span><span class="o">*</span><span class="n">coords</span><span class="p">)</span>
+                <span class="n">obmol</span><span class="o">.</span><span class="n">AddAtom</span><span class="p">(</span><span class="n">obatom</span><span class="p">)</span>
+                <span class="k">del</span> <span class="n">obatom</span>
+            <span class="n">obmol</span><span class="o">.</span><span class="n">ConnectTheDots</span><span class="p">()</span>
+            <span class="n">obmol</span><span class="o">.</span><span class="n">PerceiveBondOrders</span><span class="p">()</span>
+            <span class="n">obmol</span><span class="o">.</span><span class="n">SetTotalSpinMultiplicity</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">)</span>
+            <span class="n">obmol</span><span class="o">.</span><span class="n">SetTotalCharge</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+            <span class="n">obmol</span><span class="o">.</span><span class="n">Center</span><span class="p">()</span>
+            <span class="n">obmol</span><span class="o">.</span><span class="n">Kekulize</span><span class="p">()</span>
+            <span class="n">obmol</span><span class="o">.</span><span class="n">EndModify</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span> <span class="o">=</span> <span class="n">obmol</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBMol</span><span class="p">):</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span> <span class="o">=</span> <span class="n">mol</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pymatgen_mol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns pymatgen Molecule object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBMolAtomIter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">):</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">())</span>
+            <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">GetX</span><span class="p">(),</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetY</span><span class="p">(),</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetZ</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">openbabel_mol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns OpenBabel&#39;s OBMol.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span>
+
+<div class="viewcode-block" id="BabelMolAdaptor.localopt"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.localopt">[docs]</a>    <span class="k">def</span> <span class="nf">localopt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forcefield</span><span class="o">=</span><span class="s1">&#39;mmff94&#39;</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A wrapper to pybel&#39;s localopt method to optimize a Molecule.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            forcefield: Default is mmff94. Options are &#39;gaff&#39;, &#39;ghemical&#39;,</span>
+<span class="sd">                &#39;mmff94&#39;, &#39;mmff94s&#39;, and &#39;uff&#39;.</span>
+<span class="sd">            steps: Default is 500.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pbmol</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">)</span>
+        <span class="n">pbmol</span><span class="o">.</span><span class="n">localopt</span><span class="p">(</span><span class="n">forcefield</span><span class="o">=</span><span class="n">forcefield</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span> <span class="o">=</span> <span class="n">pbmol</span><span class="o">.</span><span class="n">OBMol</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pybel_mol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns Pybel&#39;s Molecule object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BabelMolAdaptor.write_file"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;xyz&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses OpenBabel to output all supported formats.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename of file to output</span>
+<span class="sd">            file_format: String specifying any OpenBabel supported formats.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mol</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mol</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file_format</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BabelMolAdaptor.from_file"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;xyz&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses OpenBabel to read a molecule from a file in all supported formats.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename of input file</span>
+<span class="sd">            file_format: String specifying any OpenBabel supported formats.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            BabelMolAdaptor object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pb</span><span class="o">.</span><span class="n">readfile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file_format</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">OBMol</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BabelMolAdaptor.from_string"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">string_data</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;xyz&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses OpenBabel to read a molecule from a string in all supported</span>
+<span class="sd">        formats.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            string_data: String containing molecule data.</span>
+<span class="sd">            file_format: String specifying any OpenBabel supported formats.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            BabelMolAdaptor object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mols</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">readstring</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file_format</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">string_data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mols</span><span class="o">.</span><span class="n">OBMol</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

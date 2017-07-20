@@ -1,0 +1,537 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.pourbaix.maker &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.pourbaix.maker</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">ConvexHull</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix.entry</span> <span class="k">import</span> <span class="n">MultiEntry</span><span class="p">,</span> <span class="n">ion_or_solid_comp_object</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module containing analysis classes which compute a pourbaix diagram given a</span>
+<span class="sd">target compound/element.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">zip</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Sai Jayaraman&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Sai Jayaraman&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;sjayaram@mit.edu&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Nov 1, 2012&quot;</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">PREFAC</span> <span class="o">=</span> <span class="mf">0.0591</span>
+<span class="n">MU_H2O</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.4583</span>
+
+
+<div class="viewcode-block" id="PourbaixDiagram"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.maker.html#pymatgen.analysis.pourbaix.maker.PourbaixDiagram">[docs]</a><span class="k">class</span> <span class="nc">PourbaixDiagram</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to create a Pourbaix diagram from entries</span>
+<span class="sd">    Args:</span>
+<span class="sd">        entries: Entries list containing both Solids and Ions</span>
+<span class="sd">        comp_dict: Dictionary of compositions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">comp_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ion_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Solid&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_solid_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Ion&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ion_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Incorrect Phase type - needs to be </span><span class="se">\</span>
+<span class="s2">                Pourbaix entry of phase type Ion/Solid&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ion_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No ion phase. Equilibrium between ion/solid &quot;</span>
+                            <span class="s2">&quot;is required to make a Pourbaix Diagram&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid_entries</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ion_entries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span> <span class="o">=</span> <span class="n">comp_dict</span>
+        <span class="k">if</span> <span class="n">comp_dict</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_multielement</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">pbx_elements</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">comp_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="p">[</span><span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span>
+                           <span class="n">ion_or_solid_comp_object</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span><span class="o">.</span><span class="n">elements</span>
+                           <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">]]:</span>
+                    <span class="n">pbx_elements</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span> <span class="o">=</span> <span class="n">pbx_elements</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="p">[</span><span class="n">comp_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">comp_dict</span><span class="p">]</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">comp_dict</span><span class="p">:</span>
+                <span class="n">comp_obj</span> <span class="o">=</span> <span class="n">ion_or_solid_comp_object</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+                <span class="n">Ai</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span><span class="p">:</span>
+                    <span class="n">Ai</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp_obj</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span>
+                <span class="n">A</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Ai</span><span class="p">)</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+            <span class="n">A</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">A</span><span class="p">],</span> <span class="n">w</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_multielement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span>
+                                      <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span>
+                                      <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">]]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="mf">1.0</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_pourbaixdiagram</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_create_conv_hull_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make data conducive to convex hull generator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multielement</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_all_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_multielement_entries</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_all_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span>
+        <span class="n">entries_to_process</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_entries</span><span class="p">:</span>
+            <span class="n">entry</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">normalization_factor</span><span class="p">)</span>
+            <span class="n">entry</span><span class="o">.</span><span class="n">correction</span> <span class="o">+=</span> <span class="p">(</span><span class="o">-</span> <span class="n">MU_H2O</span> <span class="o">*</span> <span class="n">entry</span><span class="o">.</span><span class="n">nH2O</span> <span class="o">+</span> <span class="n">entry</span><span class="o">.</span><span class="n">conc_term</span><span class="p">)</span>
+            <span class="n">entries_to_process</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qhull_entries</span> <span class="o">=</span> <span class="n">entries_to_process</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_conv_hull_data</span><span class="p">(</span><span class="n">entries_to_process</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_process_conv_hull_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries_to_process</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        From a sequence of ion+solid entries, generate the necessary data</span>
+<span class="sd">        for generation of the convex hull.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries_to_process</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">npH</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">nPhi</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">g0</span><span class="p">]</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qhull_entries</span><span class="p">),</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+        <span class="p">[</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qhull_entries</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">temp</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_process_multielement_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create entries for multi-element Pourbaix construction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">)</span>  <span class="c1"># No. of elements</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span>
+        <span class="n">el_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">comp_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">el_list</span><span class="p">]</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="c1"># generate all possible combinations of compounds</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">list_of_entries</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">))),</span> <span class="n">j</span><span class="p">))</span>
+
+        <span class="c1"># initialize processed entries</span>
+        <span class="n">processed_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        
+        <span class="c1"># for all combinations</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">entry_list</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">):</span>
+            <span class="c1"># Check if all elements in composition list are present in entry_list</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">el_list</span><span class="p">])</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">([</span><span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">entry_list</span><span class="p">]))))):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># If only one entry in entry_list, then check if the composition matches with the set composition.</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="n">entries</span><span class="p">[</span><span class="n">entry_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">dict_of_non_oh</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">]],</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">]]]))</span>
+                <span class="k">if</span> <span class="n">Composition</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">/</span> <span class="nb">min</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()])))</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> <span class="n">Composition</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">dict_of_non_oh</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="p">[</span><span class="n">dict_of_non_oh</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">/</span> <span class="nb">min</span><span class="p">([</span><span class="n">dict_of_non_oh</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dict_of_non_oh</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">dict_of_non_oh</span><span class="o">.</span><span class="n">keys</span><span class="p">()])))</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">:</span>
+                    <span class="n">processed_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MultiEntry</span><span class="p">([</span><span class="n">entry</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]))</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># matrix (rows for elements / columns for compounds)   </span>
+        
+            <span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+            <span class="n">Ab</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+
+            <span class="c1"># get the entries</span>
+            <span class="n">multi_entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">entries</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">entry_list</span><span class="p">]</span>
+
+            <span class="c1"># fill out the matrices</span>
+            <span class="c1"># for all compounds</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)):</span> 
+                <span class="n">entry</span> <span class="o">=</span> <span class="n">entries</span><span class="p">[</span><span class="n">entry_list</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
+                <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Solid&quot;</span><span class="p">:</span>
+                    <span class="n">red_fac</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">red_fac</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+                <span class="c1"># for all elements</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span> 
+                    <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">el_list</span><span class="p">)[</span><span class="n">i</span><span class="p">])]</span><span class="o">/</span><span class="n">red_fac</span>
+                    <span class="n">Ab</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+
+            <span class="c1"># fill out the b vector and the rest of the augmented matrix</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">Ab</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)]</span><span class="o">=</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    
+            <span class="c1"># get the ranks for Rouche-Capelli theorem</span>
+            <span class="c1"># rank of A cannot exceed the number of compounds</span>
+            <span class="c1"># rank of Ab (augmented) may exceed the rank of A (results in inconsistant equations)</span>
+            <span class="n">rank_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+            <span class="n">rank_Ab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Ab</span><span class="p">))</span>
+
+            <span class="c1"># if a unique solution exists </span>
+            <span class="k">if</span><span class="p">(</span><span class="n">rank_A</span> <span class="o">==</span> <span class="n">rank_Ab</span><span class="p">):</span>
+                <span class="c1"># if the number of compounds is less than the number of elements</span>
+                <span class="c1"># inevitably have linearly dependent rows</span>
+                <span class="c1"># A is a nonsquare matrix (number of compounds &lt; number of elements)</span>
+                <span class="c1"># pick the independent rows and construct a smaller square matrix</span>
+                <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">):</span>
+                    <span class="c1"># figure out the linearly dependent rows</span>
+                    <span class="n">N_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)))</span>
+
+                    <span class="c1"># initialize matrices</span>
+                    <span class="n">reduced_A</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">))]</span>
+                    <span class="n">reduced_b</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)</span>
+                
+                    <span class="c1"># find the reduced matrix with rank equal to the number of compounds</span>
+                    <span class="n">found_reduced_A</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N_list</span><span class="p">)):</span>
+                        <span class="n">row_set</span> <span class="o">=</span> <span class="n">N_list</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row_set</span><span class="p">)):</span>
+                            <span class="n">reduced_A</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">row_set</span><span class="p">[</span><span class="n">l</span><span class="p">]]</span>
+                            <span class="n">reduced_b</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">row_set</span><span class="p">[</span><span class="n">l</span><span class="p">]]</span>
+
+                        <span class="c1"># if the right matrix is found</span>
+                        <span class="k">if</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">reduced_A</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)):</span>
+                            <span class="n">found_reduced_A</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">break</span>
+                    <span class="c1"># if found a non-singular reduced matrix</span>
+                    <span class="k">if</span><span class="p">(</span><span class="n">found_reduced_A</span><span class="p">):</span>
+                        <span class="c1"># try to solve for the weights</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">reduced_A</span><span class="p">,</span><span class="n">reduced_b</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                            <span class="c1"># there cannot be any singular matrix</span>
+                            <span class="c1"># since the rank is equal to the number of compounds</span>
+                            <span class="k">if</span> <span class="s1">&#39;Singular matrix&#39;</span> <span class="ow">in</span> <span class="n">err</span><span class="o">.</span><span class="n">message</span><span class="p">:</span>
+                                <span class="k">continue</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown Error message!&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">weights</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)):</span>
+                            <span class="k">continue</span>
+
+						<span class="c1"># Remove multi-entries where weights a numerically</span>
+						<span class="c1"># insignificant</span>
+                        <span class="n">ignore</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)):</span>
+                            <span class="k">if</span> <span class="n">multi_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Solid&quot;</span> <span class="ow">and</span> <span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">1e-3</span><span class="p">:</span>
+                                <span class="n">ignore</span> <span class="o">=</span> <span class="kc">True</span>
+                                <span class="k">continue</span>
+                            <span class="k">elif</span> <span class="n">multi_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Ion&quot;</span> <span class="ow">and</span> <span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">multi_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">conc</span><span class="p">:</span>
+                                <span class="n">ignore</span> <span class="o">=</span> <span class="kc">True</span>
+                                <span class="k">continue</span>
+                        <span class="k">if</span> <span class="n">ignore</span><span class="p">:</span>
+                             <span class="k">continue</span>
+
+                        <span class="n">weights</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+                        <span class="n">weight0</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)):</span>
+                            <span class="n">weights</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/=</span> <span class="n">weight0</span>
+                        <span class="n">super_entry</span> <span class="o">=</span> <span class="n">MultiEntry</span><span class="p">(</span><span class="n">multi_entries</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+                        <span class="n">processed_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">super_entry</span><span class="p">)</span>
+
+                    <span class="c1"># if all possible reduced matrices are singular</span>
+                    <span class="c1"># linearly dependent rows, singular matrix</span>
+                    
+
+                <span class="c1"># if the number of compounds is equal to the number of elements</span>
+                <span class="k">else</span><span class="p">:</span>
+                                     
+                    <span class="c1"># try to solve for the weights</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="s1">&#39;Singular matrix&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">):</span>
+                            <span class="k">continue</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown Error message!&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">weights</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)):</span>
+                        <span class="k">continue</span>
+
+					<span class="c1"># Remove multi-entries where weights a numerically</span>
+					<span class="c1"># insignificant</span>
+                    <span class="n">ignore</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)):</span>
+                        <span class="k">if</span> <span class="n">multi_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Solid&quot;</span> <span class="ow">and</span> <span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">1e-3</span><span class="p">:</span>
+                            <span class="n">ignore</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">continue</span>
+                        <span class="k">elif</span> <span class="n">multi_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Ion&quot;</span> <span class="ow">and</span> <span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">multi_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">conc</span><span class="p">:</span>
+                            <span class="n">ignore</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">ignore</span><span class="p">:</span>
+                          <span class="k">continue</span>
+
+                    <span class="n">weights</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+                    <span class="n">weight0</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)):</span>
+                        <span class="n">weights</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/=</span> <span class="n">weight0</span>
+                    <span class="n">super_entry</span> <span class="o">=</span> <span class="n">MultiEntry</span><span class="p">(</span><span class="n">multi_entries</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+                    <span class="n">processed_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">super_entry</span><span class="p">)</span>
+
+            <span class="c1"># if rank(A) is not equal to rank(Ab) solution does not exists</span>
+
+        <span class="k">return</span> <span class="n">processed_entries</span>
+
+    <span class="k">def</span> <span class="nf">_make_pourbaixdiagram</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates entries on the convex hull in the dual space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stable_entries</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_conv_hull_data</span><span class="p">()</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">dim</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can only do elements with at-least 3 entries&quot;</span>
+                                <span class="s2">&quot; for now&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span><span class="p">)</span> <span class="o">==</span> <span class="n">dim</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_facets</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">))]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">facets_hull</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ConvexHull</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span><span class="p">)</span><span class="o">.</span><span class="n">simplices</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_facets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">facets_hull</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Final facets are</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_facets</span><span class="p">))</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Removing vertical facets...&quot;</span><span class="p">)</span>
+            <span class="n">vert_facets_removed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">facet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_facets</span><span class="p">:</span>
+                <span class="n">facetmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">facet</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">facet</span><span class="p">)))</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">facet</span><span class="p">:</span>
+                    <span class="n">facetmatrix</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span><span class="p">[</span><span class="n">vertex</span><span class="p">])</span>
+                    <span class="n">facetmatrix</span><span class="p">[</span><span class="n">count</span><span class="p">,</span> <span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">facetmatrix</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+                    <span class="n">vert_facets_removed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">facet</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Removing vertical facet : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">facet</span><span class="p">))</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Removing UCH facets by eliminating normal.z &gt;0 ...&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Find center of hull</span>
+            <span class="n">vertices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">facet</span> <span class="ow">in</span> <span class="n">vert_facets_removed</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">facet</span><span class="p">:</span>
+                    <span class="n">vertices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+            <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span><span class="p">[</span><span class="n">vertex</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                               <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">])</span>
+            <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span><span class="p">[</span><span class="n">vertex</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                               <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">])</span>
+            <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span><span class="p">[</span><span class="n">vertex</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                               <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">])</span>
+
+            <span class="c1"># Shift origin to c</span>
+            <span class="n">new_qhull_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">:</span>
+                <span class="n">new_qhull_data</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">-=</span> <span class="n">c</span>
+
+            <span class="c1"># For each facet, find normal n, find dot product with P, and</span>
+            <span class="c1"># check if this is -ve</span>
+            <span class="n">final_facets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">facet</span> <span class="ow">in</span> <span class="n">vert_facets_removed</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">new_qhull_data</span><span class="p">[</span><span class="n">facet</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">-</span> <span class="n">new_qhull_data</span><span class="p">[</span><span class="n">facet</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">b</span> <span class="o">=</span> <span class="n">new_qhull_data</span><span class="p">[</span><span class="n">facet</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">-</span> <span class="n">new_qhull_data</span><span class="p">[</span><span class="n">facet</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">new_qhull_data</span><span class="p">[</span><span class="n">facet</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="o">-</span><span class="n">n</span>
+                <span class="k">if</span> <span class="n">n</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">final_facets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">facet</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Removing UCH facet : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">facet</span><span class="p">))</span>
+            <span class="n">final_facets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">final_facets</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_facets</span> <span class="o">=</span> <span class="n">final_facets</span>
+
+        <span class="n">stable_vertices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">facet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_facets</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">facet</span><span class="p">:</span>
+                <span class="n">stable_vertices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
+                <span class="n">stable_entries</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qhull_entries</span><span class="p">[</span><span class="n">vertex</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stable_entries</span> <span class="o">=</span> <span class="n">stable_entries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertices</span> <span class="o">=</span> <span class="n">stable_vertices</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">facets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Facets of the convex hull in the form of  [[1,2,3],[4,5,6]...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_facets</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">qhull_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Data used in the convex hull operation. This is essentially a matrix of</span>
+<span class="sd">        composition data and energy per atom values created from qhull_entries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qhull_data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">qhull_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return qhull entries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qhull_entries</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stable_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the stable entries in the Pourbaix diagram.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stable_entries</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unstable_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns all unstable entries in the Pourbaix diagram</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qhull_entries</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_entries</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all entries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_entries</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return vertices of the convex hull</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertices</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unprocessed_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return unprocessed entries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
