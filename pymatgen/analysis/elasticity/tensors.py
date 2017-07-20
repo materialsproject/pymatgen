@@ -7,7 +7,6 @@ from __future__ import division, print_function, unicode_literals, \
 
 from scipy.linalg import polar
 import numpy as np
-import sympy as sp
 import itertools
 import warnings
 import collections
@@ -152,7 +151,6 @@ class Tensor(np.ndarray):
         if not einsum_string:
             lc = string.ascii_lowercase
             einsum_string = lc[:self.rank]
-            other_indices = ''
             other_ranks = [len(a.shape) for a in other_arrays]
             idx = self.rank - sum(other_ranks)
             for length in other_ranks:
@@ -411,6 +409,7 @@ class Tensor(np.ndarray):
                 Tensor.from_values_indices((0, 0), 100)
             vsym (bool): whether to voigt symmetrize during the
                 optimization procedure
+            verbose (bool): whether to populate verbosely
         """
         # auto-detect voigt notation
         # TODO: refactor rank inheritance to make this easier
@@ -447,6 +446,13 @@ class Tensor(np.ndarray):
         
         Args:
             structure (structure object)
+            prec (float): precision for determining a non-zero value
+            maxiter (int): maximum iterations for populating the tensor
+            verbose (bool): whether to populate verbosely
+            precond (bool): whether to precondition by cycling through
+                all symmops and storing new nonzero values, default True
+            vsym (bool): whether to enforce voigt symmetry, defaults
+                to True
         """
         if precond:
             # Generate the guess from populated
@@ -501,7 +507,6 @@ class Tensor(np.ndarray):
             warnings.warn("Warning, populated tensor is not converged "
                           "with max diff of {}".format(max_diff))
         return self.__class__(test_new)
-
 
 
 class TensorCollection(collections.Sequence):
@@ -664,6 +669,7 @@ def get_uvec(vec):
         return vec
     return vec / l
 
+
 def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     """
     Function that converts a list of tensors corresponding to a structure
@@ -698,7 +704,7 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     return unique_tdict
 
 
-def get_tkd_value(tensor_keyed_dict, tensor, **allclose_kwargs):
+def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs):
     """
     Helper function to find a value in a tensor-keyed-
     dictionary using an approximation to the key.  This
@@ -709,9 +715,8 @@ def get_tkd_value(tensor_keyed_dict, tensor, **allclose_kwargs):
     eq methods in the base tensor class.
     
     Args:
-        tensor_key (array-like): array for finding the
-            tensor key.
         tensor_keyed_dict (dict): dict with Tensor keys
+        tensor (Tensor): tensor to find value of in the dict
         allclose_kwargs (dict): dict of keyword-args
             to pass to allclose.
     """
