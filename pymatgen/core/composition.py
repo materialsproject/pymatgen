@@ -575,7 +575,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 "elements": self.as_dict().keys(),
                 "nelements": len(self.as_dict().keys())}
 
-    def oxi_state_guesses(self, oxidation_override=None):
+    def oxi_state_guesses(self, oxidation_override=None, target_charge=0):
         """
         Checks if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
@@ -587,6 +587,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         Args:
             oxidation_override (dict): dict of str->list to override an
                 element's common oxidation states, e.g. {"V": [2,3,4,5]}
+            target_charge (int): the desired total charge on the structure.
+                Default is 0 signifying charge balance.
 
         Returns:
             A list of dicts - each dict reports an element symbol and average
@@ -620,7 +622,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         all_sols = []  # will contain all solutions
         for x in product(*sums):
             # each x is a trial of one possible oxidation sum for each element
-            if sum(x) == 0:  # charge balance condition
+            if sum(x) == target_charge:  # charge balance condition
                 el_sum_sol = dict(zip(els, x))  # element->oxid_sum
                 # normalize oxid_sum by amount to get avg oxid state
                 sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
