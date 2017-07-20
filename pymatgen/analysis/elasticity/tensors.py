@@ -704,7 +704,7 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     return unique_tdict
 
 
-def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs):
+def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs={}):
     """
     Helper function to find a value in a tensor-keyed-
     dictionary using an approximation to the key.  This
