@@ -745,7 +745,7 @@ class Incar(dict, MSONable):
             val: Actual value of INCAR parameter.
         """
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL", "LANGEVIN_GAMMA",
-                     "QUAD_EFG")
+                     "QUAD_EFG", "EINT")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
                      "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
@@ -812,13 +812,8 @@ class Incar(dict, MSONable):
 
         if "false" in val.lower():
             return False
-        try:
-            if key not in ("TITEL", "SYSTEM"):
-                return re.search(r"^-?[0-9]+", val.capitalize()).group(0)
-            else:
-                return val.capitalize()
-        except:
-            return val.capitalize()
+
+        return val.strip().capitalize()
 
     def diff(self, other):
         """

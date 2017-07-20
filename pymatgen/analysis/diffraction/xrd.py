@@ -12,6 +12,7 @@ import numpy as np
 import json
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.plotting import pretty_plot, add_fig_kwargs
 
 """
 This module implements an XRD pattern calculator.
@@ -304,7 +305,7 @@ class XRDCalculator(object):
         return data
 
     def get_xrd_plot(self, structure, two_theta_range=(0, 90),
-                     annotate_peaks=True):
+                     annotate_peaks=True, ax=None, with_labels=True, fontsize=16):
         """
         Returns the XRD plot as a matplotlib.pyplot.
 
@@ -316,24 +317,37 @@ class XRDCalculator(object):
                 sphere of radius 2 / wavelength.
             annotate_peaks: Whether to annotate the peaks with plane
                 information.
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            with_labels: True to add xlabels and ylabels to the plot.
+            fontsize: (int) fontsize for peak labels.
 
         Returns:
             (matplotlib.pyplot)
         """
-        from pymatgen.util.plotting import pretty_plot
-        plt = pretty_plot(16, 10)
+        if ax is None:
+            from pymatgen.util.plotting import pretty_plot
+            plt = pretty_plot(16, 10)
+            ax = plt.gca()
+        else:
+            # This to maintain the type of the return value.
+            import matplotlib.pyplot as plt
+
         for two_theta, i, hkls, d_hkl in self.get_xrd_data(
                 structure, two_theta_range=two_theta_range):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 label = ", ".join([str(hkl) for hkl in hkls.keys()])
-                plt.plot([two_theta, two_theta], [0, i], color='k',
+                ax.plot([two_theta, two_theta], [0, i], color='k',
                          linewidth=3, label=label)
                 if annotate_peaks:
-                    plt.annotate(label, xy=[two_theta, i],
-                                 xytext=[two_theta, i], fontsize=16)
-        plt.xlabel(r"$2\theta$ ($^\circ$)")
-        plt.ylabel("Intensities (scaled)")
-        plt.tight_layout()
+                    ax.annotate(label, xy=[two_theta, i],
+                                 xytext=[two_theta, i], fontsize=fontsize)
+
+        if with_labels:
+            ax.set_xlabel(r"$2\theta$ ($^\circ$)")
+            ax.set_ylabel("Intensities (scaled)")
+
+        if hasattr(ax, "tight_layout"):
+            ax.tight_layout()
 
         return plt
 
@@ -353,6 +367,35 @@ class XRDCalculator(object):
         """
         self.get_xrd_plot(structure, two_theta_range=two_theta_range,
                           annotate_peaks=annotate_peaks).show()
+
+    @add_fig_kwargs
+    def plot_structures(self, structures, two_theta_range=(0, 90),
+                       annotate_peaks=True, fontsize=6, **kwargs):
+        """
+        Plot XRD for multiple structures on the same figure.
+
+        Args:
+            structures (Structure): List of structures
+            two_theta_range ([float of length 2]): Tuple for range of
+                two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+                None if you want all diffracted beams within the limiting
+                sphere of radius 2 / wavelength.
+            annotate_peaks (bool): Whether to annotate the peaks with plane
+                information.
+            fontsize: (int) fontsize for peak labels.
+        """
+        import matplotlib.pyplot as plt
+        nrows = len(structures)
+        fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True, squeeze=False)
+
+        for i, (ax, structure) in enumerate(zip(axes.ravel(), structures)):
+            self.get_xrd_plot(structure, two_theta_range=two_theta_range, annotate_peaks=annotate_peaks,
+                              fontsize=fontsize, ax=ax, with_labels=i == nrows - 1)
+            spg_symbol, spg_number = structure.get_space_group_info()
+            ax.set_title("{} {} ({}) ".format(structure.formula, spg_symbol, spg_number))
+
+        return fig
+
 
 
 def get_unique_families(hkls):

@@ -1623,10 +1623,10 @@ class StructureMotifInterstitial(Defect):
     (PyCDT, https://arxiv.org/abs/1611.07481).
     """
 
-    __supported_types = ("tet", "oct", "bcc")
+    __supported_types = ("tetalt", "octalt", "bcc")
 
     def __init__(self, struct, inter_elem,
-                 motif_types=("tet", "oct"),
+                 motif_types=("tetalt", "octalt"),
                  op_threshs=(0.3, 0.5),
                  dl=0.2, doverlap=1.0, facmaxdl=1.01, verbose=False):
         """
@@ -1676,6 +1676,7 @@ class StructureMotifInterstitial(Defect):
         self._defect_types = []
         self._defect_site_multiplicity = []
         self._defect_cns = []
+        self._defect_opvals = []
 
         rots, trans = SpacegroupAnalyzer(
                 struct)._get_symmetry()        
@@ -1730,18 +1731,18 @@ class StructureMotifInterstitial(Defect):
                                         allsites, len(allsites)-1,
                                         indeces_neighs=indeces_neighs)
                             motif_type = "unrecognized"
-                            if "tet" in motif_types:
+                            if "tetalt" in motif_types:
                                 if nneighs == 4 and \
-                                        opvals[motif_types.index("tet")] > \
-                                        op_threshs[motif_types.index("tet")]:
+                                        opvals[motif_types.index("tetalt")] > \
+                                        op_threshs[motif_types.index("tetalt")]:
                                     motif_type = "tet"
-                                    this_op = opvals[motif_types.index("tet")]
-                            if "oct" in motif_types:
+                                    this_op = opvals[motif_types.index("tetalt")]
+                            if "octalt" in motif_types:
                                 if nneighs == 6 and \
-                                        opvals[motif_types.index("oct")] > \
-                                        op_threshs[motif_types.index("oct")]:
+                                        opvals[motif_types.index("octalt")] > \
+                                        op_threshs[motif_types.index("octalt")]:
                                     motif_type = "oct"
-                                    this_op = opvals[motif_types.index("oct")]
+                                    this_op = opvals[motif_types.index("octalt")]
 
                             if motif_type != "unrecognized":
                                 cns = {}
@@ -1869,6 +1870,7 @@ class StructureMotifInterstitial(Defect):
                 self._defect_types.append(trialsites[i]["mtype"])
                 self._defect_cns.append(trialsites[i]["cns"])
                 self._defect_site_multiplicity.append(multiplicity[i])
+                self._defect_opvals.append(trialsites[i]["opval"])
 
 
     def enumerate_defectsites(self):
@@ -1902,6 +1904,16 @@ class StructureMotifInterstitial(Defect):
                     (i.e., {elem1 (string): cn1 (int), ...}).
         """
         return self._defect_cns[i]
+
+
+    def get_op_value(self, i):
+        """
+        Get order-parameter value of defect with index i.
+
+        Returns:
+            opval (float): OP value.
+        """
+        return self._defect_opvals[i]
 
 
     def make_supercells_with_defects(self, scaling_matrix):

@@ -484,14 +484,14 @@ class AbinitTimerParser(collections.Iterable):
 
         return fig
 
-    def plot_all(self, **kwargs):
+    def plot_all(self, show=True, **kwargs):
         """
         Call all plot methods provided by the parser.
         """
         figs = []; app = figs.append
-        app(self.plot_stacked_hist())
-        app(self.plot_efficiency())
-        app(self.plot_pie())
+        app(self.plot_stacked_hist(show=show))
+        app(self.plot_efficiency(show=show))
+        app(self.plot_pie(show=show))
         return figs
 
 

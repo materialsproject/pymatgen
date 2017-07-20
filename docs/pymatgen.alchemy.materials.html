@@ -1,0 +1,379 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.alchemy.materials module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.alchemy.materials">
+<span id="pymatgen-alchemy-materials-module"></span><h1>pymatgen.alchemy.materials module<a class="headerlink" href="#module-pymatgen.alchemy.materials" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.alchemy.materials.TransformedStructure">
+<em class="property">class </em><code class="descname">TransformedStructure</code><span class="sig-paren">(</span><em>structure</em>, <em>transformations=None</em>, <em>history=None</em>, <em>other_parameters=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Container object for new structures that include history of
+transformations.</p>
+<p>Each transformed structure is made up of a sequence of structures with
+associated transformation history.</p>
+<p>Initializes a transformed structure from a structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure</li>
+<li><strong>transformations</strong> (<em></em><em>[</em><em>Transformations</em><em>]</em><em></em>) &#8211; List of transformations to
+apply.</li>
+<li><strong>history</strong> (<em>list</em>) &#8211; Previous history.</li>
+<li><strong>other_parameters</strong> (<em>dict</em>) &#8211; Additional parameters to be added.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.append_filter">
+<code class="descname">append_filter</code><span class="sig-paren">(</span><em>structure_filter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.append_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.append_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure_filter</strong> (<em>StructureFilter</em>) &#8211; A filter implementating the
+AbstractStructureFilter API. Tells transmuter waht structures
+to retain.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.append_transformation">
+<code class="descname">append_transformation</code><span class="sig-paren">(</span><em>transformation</em>, <em>return_alternatives=False</em>, <em>clear_redo=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.append_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.append_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends a transformation to the TransformedStructure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>transformation</strong> &#8211; Transformation to append</li>
+<li><strong>return_alternatives</strong> &#8211; Whether to return alternative
+TransformedStructures for one-to-many transformations.
+return_alternatives can be a number, which stipulates the
+total number of structures to return.</li>
+<li><strong>clear_redo</strong> &#8211; Boolean indicating whether to clear the redo list.
+By default, this is True, meaning any appends clears the
+history of undoing. However, when using append_transformation
+to do a redo, the redo list should not be cleared to allow
+multiple redos.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict representation of the TransformedStructure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.extend_transformations">
+<code class="descname">extend_transformations</code><span class="sig-paren">(</span><em>transformations</em>, <em>return_alternatives=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.extend_transformations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.extend_transformations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extends a sequence of transformations to the TransformedStructure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>transformations</strong> &#8211; Sequence of Transformations</li>
+<li><strong>return_alternatives</strong> &#8211; Whether to return alternative
+TransformedStructures for one-to-many transformations.
+return_alternatives can be a number, which stipulates the
+total number of structures to return.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.from_cif_string">
+<em class="property">static </em><code class="descname">from_cif_string</code><span class="sig-paren">(</span><em>cif_string</em>, <em>transformations=None</em>, <em>primitive=True</em>, <em>occupancy_tolerance=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.from_cif_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_cif_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates TransformedStructure from a cif string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cif_string</strong> (<em>str</em>) &#8211; Input cif string. Should contain only one
+structure. For cifs containing multiple structures, please use
+CifTransmuter.</li>
+<li><strong>transformations</strong> (<em></em><em>[</em><em>Transformations</em><em>]</em><em></em>) &#8211; Sequence of transformations
+to be applied to the input structure.</li>
+<li><strong>primitive</strong> (<em>bool</em>) &#8211; Option to set if the primitive cell should be
+extracted. Defaults to True. However, there are certain
+instances where you might want to use a non-primitive cell,
+e.g., if you are trying to generate all possible orderings of partial removals
+or order a disordered structure.</li>
+<li><strong>occupancy_tolerance</strong> (<em>float</em>) &#8211; If total occupancy of a site is
+between 1 and occupancy_tolerance, the occupancies will be
+scaled down to 1.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">TransformedStructure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a TransformedStructure from a dict.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.from_poscar_string">
+<em class="property">static </em><code class="descname">from_poscar_string</code><span class="sig-paren">(</span><em>poscar_string</em>, <em>transformations=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.from_poscar_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_poscar_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates TransformedStructure from a poscar string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>poscar_string</strong> (<em>str</em>) &#8211; Input POSCAR string.</li>
+<li><strong>transformations</strong> (<em></em><em>[</em><em>Transformations</em><em>]</em><em></em>) &#8211; Sequence of transformations
+to be applied to the input structure.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.from_snl">
+<em class="property">classmethod </em><code class="descname">from_snl</code><span class="sig-paren">(</span><em>snl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.from_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_snl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create TransformedStructure from SNL.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>snl</strong> (<a class="reference internal" href="pymatgen.matproj.snl.html#pymatgen.matproj.snl.StructureNL" title="pymatgen.matproj.snl.StructureNL"><em>StructureNL</em></a>) &#8211; Starting snl</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">TransformedStructure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.get_vasp_input">
+<code class="descname">get_vasp_input</code><span class="sig-paren">(</span><em>vasp_input_set=&lt;class 'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.get_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.get_vasp_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns VASP input as a dict of vasp objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vasp_input_set</strong> (<em>pymatgen.io.vaspio_set.VaspInputSet</em>) &#8211; input set
+to create vasp input files from structures</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.redo_next_change">
+<code class="descname">redo_next_change</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.redo_next_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.redo_next_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redo the last undone change in the TransformedStructure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">IndexError</span></code> &#8211; If already at the latest change.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.set_parameter">
+<code class="descname">set_parameter</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.set_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.set_parameter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.structures">
+<code class="descname">structures</code><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy of all structures in the TransformedStructure. A
+structure is stored after every single transformation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.to_snl">
+<code class="descname">to_snl</code><span class="sig-paren">(</span><em>authors</em>, <em>projects=None</em>, <em>references=''</em>, <em>remarks=None</em>, <em>data=None</em>, <em>created_at=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.to_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.to_snl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.undo_last_change">
+<code class="descname">undo_last_change</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.undo_last_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.undo_last_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Undo the last change in the TransformedStructure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">IndexError</span></code> &#8211; If already at the oldest change.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.was_modified">
+<code class="descname">was_modified</code><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.was_modified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean describing whether the last transformation on the structure
+made any alterations to it one example of when this would return false
+is in the case of performing a substitution transformation on the
+structure when the specie to replace isn&#8217;t in the structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.write_vasp_input">
+<code class="descname">write_vasp_input</code><span class="sig-paren">(</span><em>vasp_input_set=&lt;class 'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</em>, <em>output_dir='.'</em>, <em>create_directory=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.write_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.write_vasp_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes VASP input to an output_dir.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>vasp_input_set</strong> &#8211; pymatgen.io.vaspio_set.VaspInputSet like object that creates
+vasp input files from structures</li>
+<li><strong>output_dir</strong> &#8211; Directory to output files</li>
+<li><strong>create_directory</strong> &#8211; Create the directory if not present. Defaults to True.</li>
+<li><strong>**kwargs</strong> &#8211; All keyword args supported by the VASP input set.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.alchemy.materials.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

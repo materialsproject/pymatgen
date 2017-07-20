@@ -296,6 +296,14 @@ class IStructureTest(PymatgenTest):
         bcc_prim = bcc_li.get_primitive_structure()
         self.assertEqual(len(bcc_prim), 1)
         self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+        bcc_li = IStructure(Lattice.cubic(4.09), ["Li"] * 2, coords,
+                            site_properties={"magmom": [1, -1]})
+        bcc_prim = bcc_li.get_primitive_structure()
+        self.assertEqual(len(bcc_prim), 1)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+        bcc_prim = bcc_li.get_primitive_structure(use_site_props=True)
+        self.assertEqual(len(bcc_prim), 2)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 90, 3)
 
         coords = [[0] * 3, [0.5] * 3, [0.25] * 3, [0.26] * 3]
         s = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)

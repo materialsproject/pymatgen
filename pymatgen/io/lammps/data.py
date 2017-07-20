@@ -599,6 +599,8 @@ class LammpsForceFieldData(LammpsData):
                                     bonds_data, angles_data, dihedrals_data,
                                     imdihedrals_data)
 
+    # TODO this needs to be rewritten more generally to include multiple coefficent styles. This could be done by
+    # parsing all the blocks individually instead of searching line by line for patterns
     @staticmethod
     def from_file(data_file):
         """
@@ -645,11 +647,15 @@ class LammpsForceFieldData(LammpsData):
         # id, type, atom_id1, atom_id2, atom_id3, atom_id4
         dihedral_data_pattern = re.compile(
             r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$')
+        impropers_pattern = re.compile(r'Impropers.+')
+        imdihedral_data_pattern = re.compile(
+            r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$')
         read_pair_coeffs = False
         read_bond_coeffs = False
         read_angle_coeffs = False
         read_dihedral_coeffs = False
         read_improper_coeffs = False
+        read_improper_data = False
         with open(data_file) as df:
             for line in df:
                 if types_pattern.search(line):
@@ -728,9 +734,14 @@ class LammpsForceFieldData(LammpsData):
                 if angle_data_pattern.search(line) and atoms_data:
                     m = angle_data_pattern.search(line)
                     angles_data.append([int(i) for i in m.groups()])
-                if dihedral_data_pattern.search(line) and atoms_data:
+                if dihedral_data_pattern.search(line) and atoms_data and not read_improper_data:
                     m = dihedral_data_pattern.search(line)
                     dihedral_data.append([int(i) for i in m.groups()])
+                if "impropers" in line.lower() and atoms_data:
+                    read_improper_data = True
+                if imdihedral_data_pattern.search(line) and atoms_data and read_improper_data:
+                    m = imdihedral_data_pattern.search(line)
+                    imdihedral_data.append([int(i) for i in m.groups()])
         return LammpsForceFieldData(box_size, atomic_masses, pair_coeffs,
                                     bond_coeffs, angle_coeffs,
                                     dihedral_coeffs, improper_coeffs,

@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.symmetry.groups module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.symmetry.groups">
+<span id="pymatgen-symmetry-groups-module"></span><h1>pymatgen.symmetry.groups module<a class="headerlink" href="#module-pymatgen.symmetry.groups" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.symmetry.groups.PointGroup">
+<em class="property">class </em><code class="descname">PointGroup</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#PointGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.groups.PointGroup" title="pymatgen.symmetry.groups.PointGroup"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.symmetry.groups.PointGroup</span></code></a></p>
+<p>Class representing a Point Group, with generators and symmetry operations.</p>
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.PointGroup.symbol">
+<code class="descname">symbol</code><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full International or Hermann-Mauguin Symbol.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.PointGroup.generators">
+<code class="descname">generators</code><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.generators" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of generator matrices. Note that 3x3 matrices are used for Point
+Groups.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.PointGroup.symmetry_ops">
+<code class="descname">symmetry_ops</code><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.symmetry_ops" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full set of symmetry operations as matrices.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.symmetry.groups.SpaceGroup">
+<em class="property">class </em><code class="descname">SpaceGroup</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#SpaceGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.groups.SpaceGroup" title="pymatgen.symmetry.groups.SpaceGroup"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.symmetry.groups.SpaceGroup</span></code></a></p>
+<p>Class representing a SpaceGroup.</p>
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.SpaceGroup.symbol">
+<code class="descname">symbol</code><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full International or Hermann-Mauguin Symbol.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.SpaceGroup.int_number">
+<code class="descname">int_number</code><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.int_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>International number</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.SpaceGroup.generators">
+<code class="descname">generators</code><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.generators" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of generator matrices. Note that 4x4 matrices are used for Space
+Groups.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.SpaceGroup.order">
+<code class="descname">order</code><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Order of Space Group</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.symmetry.groups.SymmetryGroup">
+<em class="property">class </em><code class="descname">SymmetryGroup</code><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#SymmetryGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Sequence</span></code></p>
+<dl class="method">
+<dt id="pymatgen.symmetry.groups.SymmetryGroup.is_subgroup">
+<code class="descname">is_subgroup</code><span class="sig-paren">(</span><em>supergroup</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#SymmetryGroup.is_subgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_subgroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if this group is a subgroup of the supplied group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>supergroup</strong> (<a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><em>SymmetryGroup</em></a>) &#8211; Supergroup to test.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if this group is a subgroup of the supplied group.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.symmetry.groups.SymmetryGroup.is_supergroup">
+<code class="descname">is_supergroup</code><span class="sig-paren">(</span><em>subgroup</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#SymmetryGroup.is_supergroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_supergroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if this group is a supergroup of the supplied group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subgroup</strong> (<a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><em>SymmetryGroup</em></a>) &#8211; Subgroup to test.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if this group is a supergroup of the supplied group.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.SymmetryGroup.symmetry_ops">
+<code class="descname">symmetry_ops</code><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.symmetry_ops" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.symmetry.groups.get_symm_data">
+<code class="descname">get_symm_data</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#get_symm_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.get_symm_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.symmetry.groups.in_array_list">
+<code class="descname">in_array_list</code><span class="sig-paren">(</span><em>array_list</em>, <em>a</em>, <em>tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#in_array_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.in_array_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extremely efficient nd-array comparison using numpy&#8217;s broadcasting. This
+function checks if a particular array a, is present in a list of arrays.
+It works for arrays of any size, e.g., even matrix searches.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>array_list</strong> (<em></em><em>[</em><em>array</em><em>]</em><em></em>) &#8211; A list of arrays to compare to.</li>
+<li><strong>a</strong> (<em>array</em>) &#8211; The test array for comparison.</li>
+<li><strong>tol</strong> (<em>float</em>) &#8211; The tolerance. Defaults to 1e-5. If 0, an exact match is
+done.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(bool)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.symmetry.groups.sg_symbol_from_int_number">
+<code class="descname">sg_symbol_from_int_number</code><span class="sig-paren">(</span><em>int_number</em>, <em>hexagonal=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#sg_symbol_from_int_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.sg_symbol_from_int_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtains a SpaceGroup name from its international number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>int_number</strong> (<em>int</em>) &#8211; International number.</li>
+<li><strong>hexagonal</strong> (<em>bool</em>) &#8211; For rhombohedral groups, whether to return the
+hexagonal setting (default) or rhombohedral setting.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(str) Spacegroup symbol</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.symmetry.groups.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -352,7 +352,7 @@ loop_
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        writer = CifWriter(poscar.structure, symprec=0.001)
+        writer = CifWriter(poscar.structure, symprec=0.01)
         ans = """# generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma

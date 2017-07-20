@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.util.plotting module &#8212; pymatgen 2017.7.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.util.plotting">
+<span id="pymatgen-util-plotting-module"></span><h1>pymatgen.util.plotting module<a class="headerlink" href="#module-pymatgen.util.plotting" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pymatgen.util.plotting.add_fig_kwargs">
+<code class="descname">add_fig_kwargs</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#add_fig_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.add_fig_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator that adds keyword arguments for functions returning matplotlib
+figures.</p>
+<p>The function should return either a matplotlib figure or None to signal
+some sort of error/unexpected event.
+See doc string below for the list of supported options.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.plotting.get_ax3d_fig_plt">
+<code class="descname">get_ax3d_fig_plt</code><span class="sig-paren">(</span><em>ax=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#get_ax3d_fig_plt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax3d_fig_plt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function used in plot functions supporting an optional Axes3D
+argument. If ax is None, we build the <cite>matplotlib</cite> figure and create the
+Axes3D else we return the current active figure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> object
+figure: matplotlib figure
+plt: matplotlib pyplot module.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">ax</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.plotting.get_ax_fig_plt">
+<code class="descname">get_ax_fig_plt</code><span class="sig-paren">(</span><em>ax=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#get_ax_fig_plt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax_fig_plt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function used in plot functions supporting an optional Axes argument.
+If ax is None, we build the <cite>matplotlib</cite> figure and create the Axes else
+we return the current active figure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> object
+figure: matplotlib figure
+plt: matplotlib pyplot module.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">ax</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.plotting.get_axarray_fig_plt">
+<code class="descname">get_axarray_fig_plt</code><span class="sig-paren">(</span><em>ax_array</em>, <em>nrows=1</em>, <em>ncols=1</em>, <em>sharex=False</em>, <em>sharey=False</em>, <em>squeeze=True</em>, <em>subplot_kw=None</em>, <em>gridspec_kw=None</em>, <em>**fig_kw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#get_axarray_fig_plt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.get_axarray_fig_plt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function used in plot functions that accept an optional array of Axes
+as argument. If ax_array is None, we build the <cite>matplotlib</cite> figure and
+create the array of Axes by calling plt.subplots else we return the
+current active figure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Array of <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> objects
+figure: matplotlib figure
+plt: matplotlib pyplot module.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">ax</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.plotting.pretty_plot">
+<code class="descname">pretty_plot</code><span class="sig-paren">(</span><em>width=8</em>, <em>height=None</em>, <em>plt=None</em>, <em>dpi=None</em>, <em>color_cycle=('qualitative'</em>, <em>'Set1_9')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#pretty_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a publication quality plot, with nice defaults for font sizes etc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>width</strong> (<em>float</em>) &#8211; Width of plot in inches. Defaults to 8in.</li>
+<li><strong>height</strong> (<em>float</em>) &#8211; Height of plot in inches. Defaults to width * golden
+ratio.</li>
+<li><strong>plt</strong> (<em>matplotlib.pyplot</em>) &#8211; If plt is supplied, changes will be made to an
+existing plot. Otherwise, a new plot will be created.</li>
+<li><strong>dpi</strong> (<em>int</em>) &#8211; Sets dot per inch for figure. Defaults to 300.</li>
+<li><strong>color_cycle</strong> (<em>tuple</em>) &#8211; Set the color cycle for new plots to one of the
+color sets in palettable. Defaults to a qualitative Set1_9.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Matplotlib plot object with properly sized fonts.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.plotting.pretty_plot_two_axis">
+<code class="descname">pretty_plot_two_axis</code><span class="sig-paren">(</span><em>x</em>, <em>y1</em>, <em>y2</em>, <em>xlabel=None</em>, <em>y1label=None</em>, <em>y2label=None</em>, <em>width=8</em>, <em>height=None</em>, <em>dpi=300</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#pretty_plot_two_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot_two_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
+examples. Makes it easier to create plots with different axes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>np.ndarray/list</em>) &#8211; Data for x-axis.</li>
+<li><strong>y1</strong> (<em>dict/np.ndarray/list</em>) &#8211; Data for y1 axis (left). If a dict, it will
+be interpreted as a {label: sequence}.</li>
+<li><strong>y2</strong> (<em>dict/np.ndarray/list</em>) &#8211; Data for y2 axis (right). If a dict, it will
+be interpreted as a {label: sequence}.</li>
+<li><strong>xlabel</strong> (<em>str</em>) &#8211; If not None, this will be the label for the x-axis.</li>
+<li><strong>y1label</strong> (<em>str</em>) &#8211; If not None, this will be the label for the y1-axis.</li>
+<li><strong>y2label</strong> (<em>str</em>) &#8211; If not None, this will be the label for the y2-axis.</li>
+<li><strong>width</strong> (<em>float</em>) &#8211; Width of plot in inches. Defaults to 8in.</li>
+<li><strong>height</strong> (<em>float</em>) &#8211; Height of plot in inches. Defaults to width * golden
+ratio.</li>
+<li><strong>dpi</strong> (<em>int</em>) &#8211; Sets dot per inch for figure. Defaults to 300.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib.pyplot</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.plotting.pretty_polyfit_plot">
+<code class="descname">pretty_polyfit_plot</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>deg=1</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#pretty_polyfit_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_polyfit_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to plot data with trend lines based on polynomial fit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> &#8211; Sequence of x data.</li>
+<li><strong>y</strong> &#8211; Sequence of y data.</li>
+<li><strong>deg</strong> (<em>int</em>) &#8211; Degree of polynomial. Defaults to 1.</li>
+<li><strong>xlabel</strong> (<em>str</em>) &#8211; Label for x-axis.</li>
+<li><strong>ylabel</strong> (<em>str</em>) &#8211; Label for y-axis.</li>
+<li><strong>**kwargs</strong> &#8211; Keyword args passed to pretty_plot.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib.pyplot object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.util.plotting.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

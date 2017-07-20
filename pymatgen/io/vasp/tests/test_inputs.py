@@ -411,7 +411,6 @@ class IncarTest(unittest.TestCase):
         self.assertEqual(i, self.incar)
         os.remove(tempfname)
 
-
     def test_get_string(self):
         s = self.incar.get_string(pretty=True, sort_keys=True)
         ans = """ALGO       =  Damped
@@ -488,6 +487,27 @@ TIME       =  0.4"""
         self.assertEqual(ans_string1, str(incar1))
         incar2 = Incar.from_string(ans_string1)
         self.assertEqual(ans_string1, str(incar2))
+
+    def test_types(self):
+        incar_str = """ALGO = Fast
+ECUT = 510
+EDIFF = 1e-07
+EINT = -0.85 0.85
+IBRION = -1
+ICHARG = 11
+ISIF = 3
+ISMEAR = 1
+ISPIN = 1
+LPARD = True
+NBMOD = -3
+PREC = Accurate
+SIGMA = 0.1"""
+        i = Incar.from_string(incar_str)
+        self.assertIsInstance(i["EINT"], list)
+        self.assertEqual(i["EINT"][0], -0.85)
+
+    def test_proc_types(self):
+        self.assertEqual(Incar.proc_val("HELLO", "-0.85 0.85"), "-0.85 0.85")
 
 
 class KpointsTest(unittest.TestCase):
