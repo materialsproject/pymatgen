@@ -25,7 +25,13 @@ class TestLammpsForceFieldData(unittest.TestCase):
         polymer_chain = Molecule.from_file(os.path.join(test_dir, "polymer_chain.xyz"))
         polymer_linear = Molecule.from_file(os.path.join(test_dir, "polymer_linear.xyz"))
         with open(os.path.join(test_dir, "topology_data.yaml")) as f:
-            ff_map_test_data = yaml.safe_load(f)
+            topology_data = yaml.safe_load(f)
+
+        cls.tatoms = topology_data['atoms']
+        cls.tbonds = topology_data['bonds']
+        cls.tangles = topology_data['angles']
+        cls.tdihedrals = topology_data['dihedrals']
+
         cls.polymer_matrix = Molecule.from_file(os.path.join(test_dir,"polymer_matrix.xyz"))
         charges = [-0.1187, 0.0861, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861,
                    0.0861, -0.0326, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861,
@@ -47,10 +53,6 @@ class TestLammpsForceFieldData(unittest.TestCase):
         polymer_linear.add_site_property("ff_map", ff_map)
         cls.topology = Topology.from_molecule(polymer_linear)
 
-        cls.tatoms = ff_map_test_data['atoms']
-        cls.tbonds = ff_map_test_data['bonds']
-        cls.tangles = ff_map_test_data['angles']
-        cls.tdihedrals = ff_map_test_data['dihedrals']
         cls.atoms = OrderedDict([("C2","C"), ("C3","C"), ("H2", "H"), ("H3", "H"), ("O", "O")])
         cls.bonds = OrderedDict([((u'C2', u'C2'), [222.5, 1.53]),
                              ((u'C2', u'H2'), [309.0, 1.111]),
