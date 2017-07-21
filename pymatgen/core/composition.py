@@ -575,7 +575,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 "elements": self.as_dict().keys(),
                 "nelements": len(self.as_dict().keys())}
 
-    def oxi_state_guesses(self, oxidation_override=None, target_charge=0,
+    def oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
                           all_oxidation_states=False):
         """
         Checks if the composition is charge-balanced and returns back all
@@ -586,7 +586,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         but X2Y2 is.
 
         Args:
-            oxidation_override (dict): dict of str->list to override an
+            oxi_states_override (dict): dict of str->list to override an
                 element's common oxidation states, e.g. {"V": [2,3,4,5]}
             target_charge (int): the desired total charge on the structure.
                 Default is 0 signifying charge balance.
@@ -602,7 +602,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 composition is not charge balanced, an empty list is returned.
         """
 
-        oxidation_override = oxidation_override or {}
+        oxi_states_override = oxi_states_override or {}
 
         # assert: Composition only has integer amounts
         if not all(amt == int(amt) for amt in self.values()):
@@ -614,8 +614,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         el_amt = self.get_el_amt_dict()
         el_sums = defaultdict(set)  # dict of element to possible oxid sums
         for el in el_amt:
-            if oxidation_override.get(el):
-                oxids = oxidation_override[el]
+            if oxi_states_override.get(el):
+                oxids = oxi_states_override[el]
             elif all_oxidation_states:
                 oxids = Element(el).oxidation_states
             else:

@@ -397,28 +397,28 @@ class CompositionTest(PymatgenTest):
             all_oxidation_states=True)), 4)
 
         self.assertEqual(Composition("V2O3").oxi_state_guesses(
-            oxidation_override={"V": [2, 3, 4, 5]}), [{"V": 3, "O": -2}])
+            oxi_states_override={"V": [2, 3, 4, 5]}), [{"V": 3, "O": -2}])
 
         # can't balance b/c missing V4+
         self.assertEqual(Composition("VO2").oxi_state_guesses(
-            oxidation_override={"V": [2, 3, 5]}), [])
+            oxi_states_override={"V": [2, 3, 5]}), [])
 
         # missing V4+, but can balance due to additional sites
         self.assertEqual(Composition("V2O4").oxi_state_guesses(
-            oxidation_override={"V": [2, 3, 5]}), [{"V": 4, "O": -2}])
+            oxi_states_override={"V": [2, 3, 5]}), [{"V": 4, "O": -2}])
 
         # multiple solutions - Mn/Fe = 2+/4+ or 3+/3+ or 4+/2+
         self.assertEqual(len(Composition("MnFeO3").oxi_state_guesses(
-            oxidation_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})), 3)
+            oxi_states_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})), 3)
 
         # multiple solutions prefers 3/3 over 2/4 or 4/2
         self.assertEqual(Composition("MnFeO3").oxi_state_guesses(
-            oxidation_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})[0],
+            oxi_states_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})[0],
                          {"Mn": 3, "Fe": 3, "O": -2})
 
         # target charge of 1
         self.assertEqual(Composition("V2O6").oxi_state_guesses(
-            oxidation_override={"V": [2, 3, 4, 5]}, target_charge=-2),
+            oxi_states_override={"V": [2, 3, 4, 5]}, target_charge=-2),
             [{"V": 5, "O": -2}])
 
 
