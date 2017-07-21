@@ -576,7 +576,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 "nelements": len(self.as_dict().keys())}
 
     def oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
-                          all_oxidation_states=False):
+                          all_oxi_states=False):
         """
         Checks if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
@@ -590,7 +590,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 element's common oxidation states, e.g. {"V": [2,3,4,5]}
             target_charge (int): the desired total charge on the structure.
                 Default is 0 signifying charge balance.
-            all_oxidation_states (bool): if True, an element defaults to
+            all_oxi_states (bool): if True, an element defaults to
                 all oxidation states in pymatgen Element.oxidation_states.
                 Otherwise, default is Element.common_oxidation_states. Note
                 that the full oxidation state list is *very* inclusive and
@@ -616,7 +616,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         for el in el_amt:
             if oxi_states_override.get(el):
                 oxids = oxi_states_override[el]
-            elif all_oxidation_states:
+            elif all_oxi_states:
                 oxids = Element(el).oxidation_states
             else:
                 oxids = Element(el).common_oxidation_states
