@@ -6,10 +6,9 @@ from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
 from pymatgen.analysis.elasticity.tensors import Tensor, \
-        voigt_map as vmap, TensorCollection, get_uvec
+    TensorCollection, get_uvec
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
-from pymatgen.core.operations import SymmOp
 from scipy.misc import factorial
 from scipy.integrate import quad
 from scipy.optimize import root
@@ -18,7 +17,6 @@ from collections import OrderedDict
 import numpy as np
 import warnings
 import itertools
-import string
 import os
 
 import sympy as sp
@@ -194,6 +192,7 @@ class ElasticTensor(NthOrderElasticTensor):
         Args:
             n (3-d vector): principal direction
             m (3-d vector): secondary direction orthogonal to n
+            tol (float): tolerance for testing of orthogonality
         """
         n, m = get_uvec(n), get_uvec(m)
         if not np.abs(np.dot(n, m)) < tol:
@@ -371,11 +370,12 @@ class ElasticTensor(NthOrderElasticTensor):
         return 2.9772e-11 * avg_mass**(-1./2.) * (volume / natoms) ** (-1./6.) \
             * f * self.k_vrh ** 0.5
 
-    def debye_temperature_from_sound_velocities(self, mode="VRH"):
+    def debye_temperature_from_sound_velocities(self, structure):
         """
         Estimates Debye temperature from sound velocities
         """
-        vl, vt = soec.long_v(structure), soec.trans_v(structure)
+        v0 = (structure.volume * 1e-30 / structure.num_sites)
+        vl, vt = self.long_v(structure), self.trans_v(structure)
         vm = 3**(1./3.) * (1 / vl**3 + 2 / vt**3)**(-1./3.)
         td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1./3.)
         return td
@@ -448,7 +448,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return cls.from_voigt(voigt_fit)
 
     @classmethod
-    def from_independent_strains(cls, strains, stresses, eq_stress=None, 
+    def from_independent_strains(cls, strains, stresses, eq_stress=None,
                                  vasp=False, tol=1e-10):
         """
         Constructs the elastic tensor least-squares fit of independent strains
@@ -561,8 +561,8 @@ class ElasticTensorExpansion(TensorCollection):
             u (3x1 array-like): polarization direction
         """
         gk = self[0].einsum_sequence([n, u, n, u])
-        result =  -(2*gk*np.outer(u, u) + self[0].einsum_sequence([n, n]) \
-            + self[1].einsum_sequence([n, u, n, u])) / (2*gk)
+        result = -(2*gk*np.outer(u, u) + self[0].einsum_sequence([n, n])
+                   + self[1].einsum_sequence([n, u, n, u])) / (2*gk)
         return result
 
     def get_tgt(self, temperature = None, structure=None, quad=None):
@@ -599,7 +599,6 @@ class ElasticTensorExpansion(TensorCollection):
             gk = ElasticTensor(self[0]).green_kristoffel(p)
             rho_wsquareds, us = np.linalg.eigh(gk)
             us = [u / np.linalg.norm(u) for u in np.transpose(us)]
-            norms = [np.dot(p, u) for u in us]
             for u in us:
                 # TODO: this should be benchmarked 
                 if temperature:
@@ -651,7 +650,7 @@ class ElasticTensorExpansion(TensorCollection):
         capacity from direction and polarization
 
         Args:
-            structure (float): Structure to be used in directional heat
+            structure (Structure): Structure to be used in directional heat
                 capacity determination
             n (3x1 array-like): direction for Cv determination
             u (3x1 array-like): polarization direction, note that
@@ -661,8 +660,8 @@ class ElasticTensorExpansion(TensorCollection):
         l0 *= 1e-10 # in A
         weight = structure.composition.weight * 1.66054e-27 # in kg
         vol = structure.volume * 1e-30 # in m^3
-        vel = (1e9 * self[0].einsum_sequence([n, u, n, u]) \
-                / (weight / vol)) ** 0.5
+        vel = (1e9 * self[0].einsum_sequence([n, u, n, u])
+               / (weight / vol)) ** 0.5
         return vel / l0
 
     def thermal_expansion_coeff(self, structure, temperature, mode="debye"):
@@ -672,7 +671,7 @@ class ElasticTensorExpansion(TensorCollection):
         Args:
             temperature (float): Temperature in kelvin, if not specified
                 will return non-cv-normalized value
-            structure (float): Structure to be used in directional heat
+            structure (Structure): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
             mode (string): mode for finding average heat-capacity,
@@ -684,11 +683,13 @@ class ElasticTensorExpansion(TensorCollection):
             vl, vt = soec.long_v(structure), soec.trans_v(structure)
             vm = 3**(1./3.) * (1 / vl**3 + 2 / vt**3)**(-1./3.)
             td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1./3.)
-            t_ratio = temperature / td 
+            t_ratio = temperature / td
             integrand = lambda x: (x**4 * np.exp(x)) / (np.exp(x) - 1)**2
             cv = 3 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
-        if mode == "dulong-petit":
+        elif mode == "dulong-petit":
             cv = 3 * 8.314
+        else:
+            raise ValueError("Mode must be debye or dulong-petit")
         alpha = self.get_tgt() * cv / (soec.k_vrh * 1e9 * v0 * 6.022e23)
         return alpha
 
@@ -697,13 +698,13 @@ class ElasticTensorExpansion(TensorCollection):
         Gets a compliance tensor expansion from the elastic
         tensor expansion.
         """
-        #TODO: this might have a general form
+        # TODO: this might have a general form
         if not self.order <= 4:
             raise ValueError("Compliance tensor expansion only "
                              "supported for fourth-order and lower")
         ce_exp = [ElasticTensor(self[0]).compliance_tensor]
         einstring = "ijpq,pqrsuv,rskl,uvmn->ijklmn"
-        ce_exp.append(np.einsum(einstring, -ce_exp[-1], self[1], 
+        ce_exp.append(np.einsum(einstring, -ce_exp[-1], self[1],
                                 ce_exp[-1], ce_exp[-1]))
         if self.order == 4:
             # Four terms in the Fourth-Order compliance tensor
@@ -727,7 +728,7 @@ class ElasticTensorExpansion(TensorCollection):
         compl_exp = self.get_compliance_expansion()
         strain = 0
         for n, compl in enumerate(compl_exp):
-            strain +=  compl.einsum_sequence([stress]*(n+1)) / factorial(n+1)
+            strain += compl.einsum_sequence([stress]*(n+1)) / factorial(n+1)
         return strain
 
     def get_effective_ecs(self, strain, order=2):
@@ -754,11 +755,11 @@ class ElasticTensorExpansion(TensorCollection):
             tau (3x3 array-like): stress at which to evaluate
                 the wallace tensor
         """
-        b = 0.5 * (np.einsum("ml,kn->klmn",tau, np.eye(3)) + \
-                   np.einsum("km,ln->klmn",tau, np.eye(3)) + \
-                   np.einsum("nl,km->klmn",tau, np.eye(3)) + \
-                   np.einsum("kn,lm->klmn",tau, np.eye(3)) + \
-                   -2*np.einsum("kl,mn->klmn",tau, np.eye(3)))
+        b = 0.5 * (np.einsum("ml,kn->klmn", tau, np.eye(3)) +
+                   np.einsum("km,ln->klmn", tau, np.eye(3)) +
+                   np.einsum("nl,km->klmn", tau, np.eye(3)) +
+                   np.einsum("kn,lm->klmn", tau, np.eye(3)) +
+                   -2*np.einsum("kl,mn->klmn", tau, np.eye(3)))
         strain = self.get_strain_from_stress(tau)
         b += self.get_effective_ecs(strain)
         return b

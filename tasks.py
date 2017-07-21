@@ -46,6 +46,7 @@ def make_doc(ctx):
     with cd("examples"):
        ctx.run("jupyter nbconvert --to html *.ipynb")
        ctx.run("mv *.html ../docs_rst/_static")
+
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
@@ -83,7 +84,7 @@ def make_doc(ctx):
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
         ctx.run("echo \"pymatgen.org\" > CNAME")
-        # Avoid ths use of jekyll so that _dir works as intended.
+        # Avoid the use of jekyll so that _dir works as intended.
         ctx.run("touch .nojekyll")
 
 @task
