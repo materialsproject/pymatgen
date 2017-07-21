@@ -392,6 +392,10 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition("V2O3").oxi_state_guesses(),
                          [])
 
+        # all_oxidation_states produces *many* possible responses
+        self.assertEqual(len(Composition("MnO").oxi_state_guesses(
+            all_oxidation_states=True)), 4)
+
         self.assertEqual(Composition("V2O3").oxi_state_guesses(
             oxidation_override={"V": [2, 3, 4, 5]}), [{"V": 3, "O": -2}])
 

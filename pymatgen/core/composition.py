@@ -575,7 +575,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 "elements": self.as_dict().keys(),
                 "nelements": len(self.as_dict().keys())}
 
-    def oxi_state_guesses(self, oxidation_override=None, target_charge=0):
+    def oxi_state_guesses(self, oxidation_override=None, target_charge=0,
+                          all_oxidation_states=False):
         """
         Checks if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
@@ -589,6 +590,11 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 element's common oxidation states, e.g. {"V": [2,3,4,5]}
             target_charge (int): the desired total charge on the structure.
                 Default is 0 signifying charge balance.
+            all_oxidation_states (bool): if True, an element defaults to
+                all oxidation states in pymatgen Element.oxidation_states.
+                Otherwise, default is Element.common_oxidation_states. Note
+                that the full oxidation state list is *very* inclusive and
+                can produce nonsensical results.
 
         Returns:
             A list of dicts - each dict reports an element symbol and average
@@ -608,8 +614,12 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         el_amt = self.get_el_amt_dict()
         el_sums = defaultdict(set)  # dict of element to possible oxid sums
         for el in el_amt:
-            oxids = oxidation_override[el] if oxidation_override.get(el) \
-                else Element(el).common_oxidation_states
+            if oxidation_override.get(el):
+                oxids = oxidation_override[el]
+            elif all_oxidation_states:
+                oxids = Element(el).oxidation_states
+            else:
+                oxids = Element(el).common_oxidation_states
 
             # get all possible combinations of oxidation states
             # and sum each combination
