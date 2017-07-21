@@ -533,6 +533,6 @@ Indices and tables
 .. _`PyPI`: http://pypi.python.org/pypi/pymatgen
 .. _`Github page`: https://github.com/materialsproject/pymatgen/issues
 .. _`custodian`: https://pypi.python.org/pypi/custodian
-.. _`FireWorks`: https://hackingmaterials.lbl.gov/fireworks
+.. _`FireWorks`: https://materialsproject.github.io/fireworks
 .. _`Materials Project`: https://www.materialsproject.org
 .. _`Materials Virtual Lab`: http://www.materialsvirtuallab.org
