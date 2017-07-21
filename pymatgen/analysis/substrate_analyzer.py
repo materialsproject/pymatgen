@@ -205,14 +205,50 @@ class SubstrateAnalyzer:
     elastic strain energy of the super-lattices
     """
 
-    def __init__(self, zslgen=ZSLGenerator()):
+    def __init__(self, zslgen=ZSLGenerator(), film_max_miller=1, substrate_max_miller=1):
         """
             Initializes the substrate analyzer
             Args:
                 zslgen(ZSLGenerator): Defaults to a ZSLGenerator with standard
                     tolerances, but can be fed one with custom tolerances
+                film_max_miller(int): maximum miller index to generate for film
+                    surfaces
+                substrate_max_miller(int): maximum miller index to generate for
+                    substrate surfaces
         """
         self.zsl = zslgen
+        self.film_max_miller = film_max_miller
+        self.substrate_max_miller = substrate_max_miller
+
+    def generate_surface_vectors(self,film_millers, substrate_millers):
+        """
+        Generates the film/substrate slab combinations for a set of given
+        miller indicies
+
+        Args:
+            film_millers(array): all miller indices to generate slabs for
+                film
+            substrate_millers(array): all miller indicies to generate slabs
+                for substrate
+        """
+        vector_sets = []
+
+        for f in film_millers:
+            film_slab = SlabGenerator(self.film, f, 20, 15,
+                                      primitive=False).get_slab()
+            film_vectors = reduce_vectors(film_slab.lattice.matrix[0],
+                                          film_slab.lattice.matrix[1])
+
+            for s in substrate_millers:
+                substrate_slab = SlabGenerator(self.substrate, s, 20, 15,
+                                               primitive=False).get_slab()
+                substrate_vectors = reduce_vectors(
+                    substrate_slab.lattice.matrix[0],
+                    substrate_slab.lattice.matrix[1])
+
+                vector_sets.append((film_vectors, substrate_vectors, f, s))
+
+        return vector_sets
 
     def calculate(self, film, substrate, elasticity_tensor=None,
                   film_millers=None, substrate_millers=None,
@@ -234,17 +270,35 @@ class SubstrateAnalyzer:
             ground_state_energy(float): ground state energy for the film
             lowest(bool): only consider lowest matching area for each surface
         """
+        self.film = film
+        self.substrate = substrate
 
-        for match in self.zsl.generate(film, substrate, film_millers, substrate_millers, lowest):
-            if (elasticity_tensor is not None):
-                energy, strain = self.calculate_3D_elastic_energy(
-                    film, match, elasticity_tensor, include_strain=True)
-                match["elastic_energy"] = energy
-                match["strain"] = strain
-            if (ground_state_energy is not 0):
-                match['total_energy'] = match.get('elastic_energy', 0) + ground_state_energy
+        # Generate miller indicies if none specified for film
+        if film_millers is None:
+            film_millers = sorted(get_symmetrically_distinct_miller_indices(
+                self.film, self.film_max_miller))
 
-            yield match
+        # Generate miller indicies if none specified for substrate
+        if substrate_millers is None:
+            substrate_millers = sorted(
+                get_symmetrically_distinct_miller_indices(self.substrate,
+                                                          self.substrate_max_miller))
+
+        # Check each miller index combination
+        surface_vector_sets =  self.generate_surface_vectors(film_millers,substrate_millers)
+        for [film_vectors, substrate_vectors,film_miller, substrate_miller] in surface_vector_sets:
+            for match in self.zsl(film_vectors, substrate_vectors, lowest):
+                match['film_miller'] = film_miller
+                match['sub_miller'] = substrate_miller
+                if (elasticity_tensor is not None):
+                    energy, strain = self.calculate_3D_elastic_energy(
+                        film, match, elasticity_tensor, include_strain=True)
+                    match["elastic_energy"] = energy
+                    match["strain"] = strain
+                if (ground_state_energy is not 0):
+                    match['total_energy'] = match.get('elastic_energy', 0) + ground_state_energy
+
+                yield match
 
     def calculate_3D_elastic_energy(self, film, match, elasticity_tensor=None,
                                     include_strain=False):
