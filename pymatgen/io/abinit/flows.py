@@ -1398,7 +1398,7 @@ class Flow(Node, NodeContainer, MSONable):
         sched_excfile = os.path.join(self.workdir, "_exceptions")
         if os.path.exists(sched_excfile):
             with open(sched_excfile, "r") as fh:
-                cprint("Found exceptions  raised by the scheduler", "red")
+                cprint("Found exceptions raised by the scheduler", "red")
                 cprint(fh.read(), color="red")
                 return
 
