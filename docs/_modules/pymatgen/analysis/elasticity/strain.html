@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.analysis.elasticity.strain &#8212; pymatgen 2017.7.4 documentation</title>
+    <title>pymatgen.analysis.elasticity.strain &#8212; pymatgen 2017.7.21 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.7.4',
+        VERSION:     '2017.7.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -165,24 +165,24 @@
 <span class="sd">    can be used to calculate linear stress-strain response</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rlxd_str</span><span class="p">,</span> <span class="n">norm_strains</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span>
-                 <span class="n">shear_strains</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.06</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">],</span> <span class="n">symmetry</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">norm_strains</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shear_strains</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">symmetry</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        constructs the deformed geometries of a structure.  Generates</span>
 <span class="sd">        m + n deformed structures according to the supplied parameters.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            rlxd_str (structure): structure to undergo deformation, if</span>
-<span class="sd">                fitting elastic tensor is desired, should be a geometry</span>
-<span class="sd">                optimized structure</span>
+<span class="sd">            structure (Structure): structure to undergo deformation</span>
 <span class="sd">            norm_strains (list of floats): strain values to apply</span>
 <span class="sd">                to each normal mode.</span>
 <span class="sd">            shear_strains (list of floats): strain values to apply</span>
 <span class="sd">                to each shear mode.</span>
 <span class="sd">            symmetry (bool): whether or not to use symmetry reduction.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_strains</span> <span class="o">=</span> <span class="n">norm_strains</span> <span class="ow">or</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]</span>
+        <span class="n">shear_strains</span> <span class="o">=</span> <span class="n">shear_strains</span> <span class="ow">or</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.06</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">undeformed_structure</span> <span class="o">=</span> <span class="n">rlxd_str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">undeformed_structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">deformations</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">def_structs</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -199,19 +199,20 @@
 
         <span class="c1"># Perform symmetry reduction if specified</span>
         <span class="k">if</span> <span class="n">symmetry</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sym_dict</span> <span class="o">=</span> <span class="n">symmetry_reduce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deformations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">undeformed_structure</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sym_dict</span> <span class="o">=</span> <span class="n">symmetry_reduce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deformations</span><span class="p">,</span> <span class="n">structure</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deformations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sym_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">def_structs</span> <span class="o">=</span> <span class="p">[</span><span class="n">defo</span><span class="o">.</span><span class="n">apply_to_structure</span><span class="p">(</span><span class="n">rlxd_str</span><span class="p">)</span>
-                            <span class="k">for</span> <span class="n">defo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deformations</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deformed_structures</span> <span class="o">=</span> <span class="p">[</span><span class="n">defo</span><span class="o">.</span><span class="n">apply_to_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">defo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deformations</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">def_structs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deformed_structures</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">def_structs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deformed_structures</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">def_structs</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deformed_structures</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span></div>
+
 
 <div class="viewcode-block" id="Strain"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain">[docs]</a><span class="k">class</span> <span class="nc">Strain</span><span class="p">(</span><span class="n">SquareTensor</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -303,11 +304,11 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">von_mises_strain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">         Equivalent strain to Von Mises Stress</span>
+<span class="sd">        Equivalent strain to Von Mises Stress</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">eps</span> <span class="o">=</span> <span class="bp">self</span> <span class="o">-</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">voigt</span><span class="p">,</span> <span class="n">eps</span><span class="o">.</span><span class="n">voigt</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">eps</span> <span class="o">*</span> <span class="n">eps</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="convert_strain_to_deformation"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.convert_strain_to_deformation">[docs]</a><span class="k">def</span> <span class="nf">convert_strain_to_deformation</span><span class="p">(</span><span class="n">strain</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">):</span>
@@ -317,7 +318,7 @@
 <span class="sd">    </span>
 <span class="sd">    Args:</span>
 <span class="sd">        strain (3x3 array-like): strain matrix</span>
-<span class="sd">        method: (string): method for determining deformation, supports</span>
+<span class="sd">        shape: (string): method for determining deformation, supports</span>
 <span class="sd">            &quot;upper&quot; produces an upper triangular defo</span>
 <span class="sd">            &quot;lower&quot; produces a lower triangular defo</span>
 <span class="sd">            &quot;symmetric&quot; produces a symmetric defo</span>
@@ -361,7 +362,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

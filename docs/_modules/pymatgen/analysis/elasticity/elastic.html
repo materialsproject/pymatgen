@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.analysis.elasticity.elastic &#8212; pymatgen 2017.7.4 documentation</title>
+    <title>pymatgen.analysis.elasticity.elastic &#8212; pymatgen 2017.7.21 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.7.4',
+        VERSION:     '2017.7.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -66,10 +66,9 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.tensors</span> <span class="k">import</span> <span class="n">Tensor</span><span class="p">,</span> \
-        <span class="n">voigt_map</span> <span class="k">as</span> <span class="n">vmap</span><span class="p">,</span> <span class="n">TensorCollection</span><span class="p">,</span> <span class="n">get_uvec</span>
+    <span class="n">TensorCollection</span><span class="p">,</span> <span class="n">get_uvec</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.stress</span> <span class="k">import</span> <span class="n">Stress</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.strain</span> <span class="k">import</span> <span class="n">Strain</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
 <span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">factorial</span>
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="k">import</span> <span class="n">quad</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">root</span>
@@ -78,7 +77,6 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">string</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">sympy</span> <span class="k">as</span> <span class="nn">sp</span>
@@ -254,6 +252,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            n (3-d vector): principal direction</span>
 <span class="sd">            m (3-d vector): secondary direction orthogonal to n</span>
+<span class="sd">            tol (float): tolerance for testing of orthogonality</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">get_uvec</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">get_uvec</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
@@ -431,11 +430,12 @@
         <span class="k">return</span> <span class="mf">2.9772e-11</span> <span class="o">*</span> <span class="n">avg_mass</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">volume</span> <span class="o">/</span> <span class="n">natoms</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">6.</span><span class="p">)</span> \
             <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_vrh</span> <span class="o">**</span> <span class="mf">0.5</span></div>
 
-<div class="viewcode-block" id="ElasticTensor.debye_temperature_from_sound_velocities"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature_from_sound_velocities">[docs]</a>    <span class="k">def</span> <span class="nf">debye_temperature_from_sound_velocities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;VRH&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="ElasticTensor.debye_temperature_from_sound_velocities"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature_from_sound_velocities">[docs]</a>    <span class="k">def</span> <span class="nf">debye_temperature_from_sound_velocities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimates Debye temperature from sound velocities</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">vl</span><span class="p">,</span> <span class="n">vt</span> <span class="o">=</span> <span class="n">soec</span><span class="o">.</span><span class="n">long_v</span><span class="p">(</span><span class="n">structure</span><span class="p">),</span> <span class="n">soec</span><span class="o">.</span><span class="n">trans_v</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">v0</span> <span class="o">=</span> <span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="mf">1e-30</span> <span class="o">/</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span><span class="p">)</span>
+        <span class="n">vl</span><span class="p">,</span> <span class="n">vt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_v</span><span class="p">(</span><span class="n">structure</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans_v</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
         <span class="n">vm</span> <span class="o">=</span> <span class="mi">3</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">vl</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">vt</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
         <span class="n">td</span> <span class="o">=</span> <span class="mf">1.05457e-34</span> <span class="o">/</span> <span class="mf">1.38065e-23</span> <span class="o">*</span> <span class="n">vm</span> <span class="o">*</span> <span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">v0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">td</span></div>
@@ -508,7 +508,7 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">voigt_fit</span><span class="p">)</span></div>
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ElasticTensor.from_independent_strains"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains">[docs]</a>    <span class="k">def</span> <span class="nf">from_independent_strains</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+<div class="viewcode-block" id="ElasticTensor.from_independent_strains"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains">[docs]</a>    <span class="k">def</span> <span class="nf">from_independent_strains</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                  <span class="n">vasp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs the elastic tensor least-squares fit of independent strains</span>
@@ -621,8 +621,8 @@
 <span class="sd">            u (3x1 array-like): polarization direction</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gk</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">])</span>
-        <span class="n">result</span> <span class="o">=</span>  <span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">gk</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">])</span> \
-            <span class="o">+</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">]))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">gk</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">gk</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">])</span>
+                   <span class="o">+</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">]))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">gk</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_tgt"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_tgt">[docs]</a>    <span class="k">def</span> <span class="nf">get_tgt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -659,7 +659,6 @@
             <span class="n">gk</span> <span class="o">=</span> <span class="n">ElasticTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">green_kristoffel</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
             <span class="n">rho_wsquareds</span><span class="p">,</span> <span class="n">us</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">gk</span><span class="p">)</span>
             <span class="n">us</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">us</span><span class="p">)]</span>
-            <span class="n">norms</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">us</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">us</span><span class="p">:</span>
                 <span class="c1"># TODO: this should be benchmarked </span>
                 <span class="k">if</span> <span class="n">temperature</span><span class="p">:</span>
@@ -711,7 +710,7 @@
 <span class="sd">        capacity from direction and polarization</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            structure (float): Structure to be used in directional heat</span>
+<span class="sd">            structure (Structure): Structure to be used in directional heat</span>
 <span class="sd">                capacity determination</span>
 <span class="sd">            n (3x1 array-like): direction for Cv determination</span>
 <span class="sd">            u (3x1 array-like): polarization direction, note that</span>
@@ -721,8 +720,8 @@
         <span class="n">l0</span> <span class="o">*=</span> <span class="mf">1e-10</span> <span class="c1"># in A</span>
         <span class="n">weight</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">weight</span> <span class="o">*</span> <span class="mf">1.66054e-27</span> <span class="c1"># in kg</span>
         <span class="n">vol</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="mf">1e-30</span> <span class="c1"># in m^3</span>
-        <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e9</span> <span class="o">*</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">])</span> \
-                <span class="o">/</span> <span class="p">(</span><span class="n">weight</span> <span class="o">/</span> <span class="n">vol</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.5</span>
+        <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e9</span> <span class="o">*</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">])</span>
+               <span class="o">/</span> <span class="p">(</span><span class="n">weight</span> <span class="o">/</span> <span class="n">vol</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.5</span>
         <span class="k">return</span> <span class="n">vel</span> <span class="o">/</span> <span class="n">l0</span></div>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.thermal_expansion_coeff"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.thermal_expansion_coeff">[docs]</a>    <span class="k">def</span> <span class="nf">thermal_expansion_coeff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;debye&quot;</span><span class="p">):</span>
@@ -732,7 +731,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            temperature (float): Temperature in kelvin, if not specified</span>
 <span class="sd">                will return non-cv-normalized value</span>
-<span class="sd">            structure (float): Structure to be used in directional heat</span>
+<span class="sd">            structure (Structure): Structure to be used in directional heat</span>
 <span class="sd">                capacity determination, only necessary if temperature</span>
 <span class="sd">                is specified</span>
 <span class="sd">            mode (string): mode for finding average heat-capacity,</span>
@@ -744,11 +743,13 @@
             <span class="n">vl</span><span class="p">,</span> <span class="n">vt</span> <span class="o">=</span> <span class="n">soec</span><span class="o">.</span><span class="n">long_v</span><span class="p">(</span><span class="n">structure</span><span class="p">),</span> <span class="n">soec</span><span class="o">.</span><span class="n">trans_v</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
             <span class="n">vm</span> <span class="o">=</span> <span class="mi">3</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">vl</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">vt</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
             <span class="n">td</span> <span class="o">=</span> <span class="mf">1.05457e-34</span> <span class="o">/</span> <span class="mf">1.38065e-23</span> <span class="o">*</span> <span class="n">vm</span> <span class="o">*</span> <span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">v0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
-            <span class="n">t_ratio</span> <span class="o">=</span> <span class="n">temperature</span> <span class="o">/</span> <span class="n">td</span> 
+            <span class="n">t_ratio</span> <span class="o">=</span> <span class="n">temperature</span> <span class="o">/</span> <span class="n">td</span>
             <span class="n">integrand</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
             <span class="n">cv</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mf">8.314</span> <span class="o">*</span> <span class="n">t_ratio</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="n">quad</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t_ratio</span><span class="o">**-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;dulong-petit&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;dulong-petit&quot;</span><span class="p">:</span>
             <span class="n">cv</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mf">8.314</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mode must be debye or dulong-petit&quot;</span><span class="p">)</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tgt</span><span class="p">()</span> <span class="o">*</span> <span class="n">cv</span> <span class="o">/</span> <span class="p">(</span><span class="n">soec</span><span class="o">.</span><span class="n">k_vrh</span> <span class="o">*</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="n">v0</span> <span class="o">*</span> <span class="mf">6.022e23</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">alpha</span></div>
 
@@ -757,13 +758,13 @@
 <span class="sd">        Gets a compliance tensor expansion from the elastic</span>
 <span class="sd">        tensor expansion.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#TODO: this might have a general form</span>
+        <span class="c1"># TODO: this might have a general form</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Compliance tensor expansion only &quot;</span>
                              <span class="s2">&quot;supported for fourth-order and lower&quot;</span><span class="p">)</span>
         <span class="n">ce_exp</span> <span class="o">=</span> <span class="p">[</span><span class="n">ElasticTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">compliance_tensor</span><span class="p">]</span>
         <span class="n">einstring</span> <span class="o">=</span> <span class="s2">&quot;ijpq,pqrsuv,rskl,uvmn-&gt;ijklmn&quot;</span>
-        <span class="n">ce_exp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">einstring</span><span class="p">,</span> <span class="o">-</span><span class="n">ce_exp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> 
+        <span class="n">ce_exp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">einstring</span><span class="p">,</span> <span class="o">-</span><span class="n">ce_exp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                                 <span class="n">ce_exp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ce_exp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="c1"># Four terms in the Fourth-Order compliance tensor</span>
@@ -787,7 +788,7 @@
         <span class="n">compl_exp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_compliance_expansion</span><span class="p">()</span>
         <span class="n">strain</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">compl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">compl_exp</span><span class="p">):</span>
-            <span class="n">strain</span> <span class="o">+=</span>  <span class="n">compl</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">stress</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">strain</span> <span class="o">+=</span> <span class="n">compl</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">stress</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">strain</span></div>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_effective_ecs"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_effective_ecs">[docs]</a>    <span class="k">def</span> <span class="nf">get_effective_ecs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strain</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
@@ -814,11 +815,11 @@
 <span class="sd">            tau (3x3 array-like): stress at which to evaluate</span>
 <span class="sd">                the wallace tensor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">b</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ml,kn-&gt;klmn&quot;</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span> \
-                   <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;km,ln-&gt;klmn&quot;</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span> \
-                   <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;nl,km-&gt;klmn&quot;</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span> \
-                   <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;kn,lm-&gt;klmn&quot;</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span> \
-                   <span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;kl,mn-&gt;klmn&quot;</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ml,kn-&gt;klmn&quot;</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span>
+                   <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;km,ln-&gt;klmn&quot;</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span>
+                   <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;nl,km-&gt;klmn&quot;</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span>
+                   <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;kn,lm-&gt;klmn&quot;</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span>
+                   <span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;kl,mn-&gt;klmn&quot;</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
         <span class="n">strain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_strain_from_stress</span><span class="p">(</span><span class="n">tau</span><span class="p">)</span>
         <span class="n">b</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_effective_ecs</span><span class="p">(</span><span class="n">strain</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">b</span></div>
@@ -1149,7 +1150,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

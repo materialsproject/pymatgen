@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.analysis.elasticity.tensors module &#8212; pymatgen 2017.7.4 documentation</title>
+    <title>pymatgen.analysis.elasticity.tensors module &#8212; pymatgen 2017.7.21 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.4',
+        VERSION:     '2017.7.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -252,6 +252,7 @@ the shape of the tensor they want, e.g.
 Tensor.from_values_indices((0, 0), 100)</li>
 <li><strong>vsym</strong> (<em>bool</em>) &#8211; whether to voigt symmetrize during the
 optimization procedure</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; whether to populate verbosely</li>
 </ul>
 </td>
 </tr>
@@ -365,7 +366,17 @@ the desired convergence (specified via prec) is achieved.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<em>structure object</em>) &#8211; </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<em>structure object</em>) &#8211; </li>
+<li><strong>prec</strong> (<em>float</em>) &#8211; precision for determining a non-zero value</li>
+<li><strong>maxiter</strong> (<em>int</em>) &#8211; maximum iterations for populating the tensor</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; whether to populate verbosely</li>
+<li><strong>precond</strong> (<em>bool</em>) &#8211; whether to precondition by cycling through
+all symmops and storing new nonzero values, default True</li>
+<li><strong>vsym</strong> (<em>bool</em>) &#8211; whether to enforce voigt symmetry, defaults
+to True</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -504,7 +515,7 @@ or for having a tensor expansion</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.elasticity.tensors.get_tkd_value">
-<code class="descname">get_tkd_value</code><span class="sig-paren">(</span><em>tensor_keyed_dict</em>, <em>tensor</em>, <em>**allclose_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/tensors.html#get_tkd_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.get_tkd_value" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_tkd_value</code><span class="sig-paren">(</span><em>tensor_keyed_dict</em>, <em>tensor</em>, <em>allclose_kwargs={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/tensors.html#get_tkd_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.get_tkd_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to find a value in a tensor-keyed-
 dictionary using an approximation to the key.  This
 is useful if rounding errors in construction occur
@@ -517,9 +528,8 @@ eq methods in the base tensor class.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>tensor_key</strong> (<em>array-like</em>) &#8211; array for finding the
-tensor key.</li>
 <li><strong>tensor_keyed_dict</strong> (<em>dict</em>) &#8211; dict with Tensor keys</li>
+<li><strong>tensor</strong> (<a class="reference internal" href="#pymatgen.analysis.elasticity.tensors.Tensor" title="pymatgen.analysis.elasticity.tensors.Tensor"><em>Tensor</em></a>) &#8211; tensor to find value of in the dict</li>
 <li><strong>allclose_kwargs</strong> (<em>dict</em>) &#8211; dict of keyword-args
 to pass to allclose.</li>
 </ul>
@@ -602,7 +612,7 @@ tensors as values</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
