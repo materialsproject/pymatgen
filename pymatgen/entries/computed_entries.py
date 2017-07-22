@@ -4,6 +4,14 @@
 
 from __future__ import unicode_literals
 
+import json
+
+from monty.json import MontyEncoder, MontyDecoder
+
+from pymatgen.phasediagram.entries import PDEntry
+from pymatgen.core.composition import Composition
+from monty.json import MSONable
+
 """
 This module implements equivalents of the basic ComputedEntry objects, which
 is the basic entity that can be used to perform many analyses. ComputedEntries
@@ -19,14 +27,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Apr 30, 2012"
-
-import json
-
-from monty.json import MontyEncoder, MontyDecoder
-
-from pymatgen.phasediagram.entries import PDEntry
-from pymatgen.core.composition import Composition
-from monty.json import MSONable
 
 
 class ComputedEntry(PDEntry, MSONable):
