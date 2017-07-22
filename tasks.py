@@ -189,6 +189,7 @@ def log_ver(ctx):
 
 @task
 def release(ctx, notest=False):
+    ctx.run("rm -r dist build *egg-info*")
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
