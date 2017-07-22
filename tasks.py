@@ -40,13 +40,14 @@ def make_doc(ctx):
     changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
     changes = ("-" * n).join(changes)
 
-    with open("docs/latest_changes.rst", "w") as f:
+    with open("docs_rst/latest_changes.rst", "w") as f:
         f.write(changes)
 
     with cd("examples"):
        ctx.run("jupyter nbconvert --to html *.ipynb")
-       ctx.run("mv *.html ../docs/_static")
-    with cd("docs"):
+       ctx.run("mv *.html ../docs_rst/_static")
+
+    with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
         ctx.run("rm pymatgen*.tests.*rst")
@@ -73,23 +74,25 @@ def make_doc(ctx):
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
         ctx.run("make html")
-        ctx.run("cp _static/* _build/html/_static")
+        
+        ctx.run("cp _static/* ../docs/html/_static")
+
+    with cd("docs"):
+        ctx.run("cp -r html/* .")
+        ctx.run("rm -r html")
+        ctx.run("rm -r doctrees")
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
-        ctx.run("echo \"pymatgen.org\" > _build/html/CNAME")
-        # Avoid ths use of jekyll so that _dir works as intended.
-        ctx.run("touch _build/html/.nojekyll")
-
+        ctx.run("echo \"pymatgen.org\" > CNAME")
+        # Avoid the use of jekyll so that _dir works as intended.
+        ctx.run("touch .nojekyll")
 
 @task
 def update_doc(ctx):
-    with cd("docs/_build/html/"):
-        ctx.run("git pull")
     make_doc(ctx)
-    with cd("docs/_build/html/"):
-        ctx.run("git add .")
-        ctx.run("git commit -a -m \"Update dev docs\"")
-        ctx.run("git push origin gh-pages")
+    ctx.run("git add .")
+    ctx.run("git commit -a -m \"Update dev docs\"")
+    ctx.run("git push")
 
 
 @task
@@ -186,6 +189,7 @@ def log_ver(ctx):
 
 @task
 def release(ctx, notest=False):
+    ctx.run("rm -r dist build pymatgen.egg-info")
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")

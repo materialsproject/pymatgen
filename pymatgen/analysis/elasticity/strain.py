@@ -105,24 +105,24 @@ class DeformedStructureSet(collections.Sequence):
     can be used to calculate linear stress-strain response
     """
 
-    def __init__(self, rlxd_str, norm_strains=[-0.01, -0.005, 0.005, 0.01],
-                 shear_strains=[-0.06, -0.03, 0.03, 0.06], symmetry=False):
+    def __init__(self, structure, norm_strains=None, shear_strains=None,
+                 symmetry=False):
         """
         constructs the deformed geometries of a structure.  Generates
         m + n deformed structures according to the supplied parameters.
 
         Args:
-            rlxd_str (structure): structure to undergo deformation, if
-                fitting elastic tensor is desired, should be a geometry
-                optimized structure
+            structure (Structure): structure to undergo deformation
             norm_strains (list of floats): strain values to apply
                 to each normal mode.
             shear_strains (list of floats): strain values to apply
                 to each shear mode.
             symmetry (bool): whether or not to use symmetry reduction.
         """
+        norm_strains = norm_strains or [-0.01, -0.005, 0.005, 0.01]
+        shear_strains = shear_strains or [-0.06, -0.03, 0.03, 0.06]
 
-        self.undeformed_structure = rlxd_str
+        self.undeformed_structure = structure
         self.deformations = []
         self.def_structs = []
 
@@ -139,19 +139,20 @@ class DeformedStructureSet(collections.Sequence):
 
         # Perform symmetry reduction if specified
         if symmetry:
-            self.sym_dict = symmetry_reduce(self.deformations, self.undeformed_structure)
+            self.sym_dict = symmetry_reduce(self.deformations, structure)
             self.deformations = list(self.sym_dict.keys())
-        self.def_structs = [defo.apply_to_structure(rlxd_str)
-                            for defo in self.deformations]
+        self.deformed_structures = [defo.apply_to_structure(structure)
+                                    for defo in self.deformations]
 
     def __iter__(self):
-        return iter(self.def_structs)
+        return iter(self.deformed_structures)
     
     def __len__(self):
-        return len(self.def_structs)
+        return len(self.deformed_structures)
 
     def __getitem__(self, ind):
-        return self.def_structs[ind]
+        return self.deformed_structures[ind]
+
 
 class Strain(SquareTensor):
     """
@@ -243,11 +244,11 @@ class Strain(SquareTensor):
     @property
     def von_mises_strain(self):
         """
-         Equivalent strain to Von Mises Stress
+        Equivalent strain to Von Mises Stress
         """
         eps = self - 1/3*np.trace(self)*np.identity(3)
 
-        return np.sqrt(np.dot(eps.voigt, eps.voigt)*2/3)
+        return np.sqrt(np.sum(eps * eps) * 2/3)
 
 
 def convert_strain_to_deformation(strain, shape="upper"):
@@ -257,7 +258,7 @@ def convert_strain_to_deformation(strain, shape="upper"):
     
     Args:
         strain (3x3 array-like): strain matrix
-        method: (string): method for determining deformation, supports
+        shape: (string): method for determining deformation, supports
             "upper" produces an upper triangular defo
             "lower" produces a lower triangular defo
             "symmetric" produces a symmetric defo
