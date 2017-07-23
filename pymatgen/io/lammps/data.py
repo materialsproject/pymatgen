@@ -179,8 +179,8 @@ class LammpsData(MSONable):
             for ad in input_list:
                 lines.append(" ".join([str(x) for x in ad]))
 
-    @staticmethod
-    def from_structure(input_structure, box_size, set_charge=True):
+    @classmethod
+    def from_structure(cls, input_structure, box_size, set_charge=True):
         """
         Set LammpsData from the given structure. If the input structure is
         a Structure, it is converted to a molecule. TIf the molecule doesnt fit
@@ -199,16 +199,14 @@ class LammpsData(MSONable):
         """
         if isinstance(input_structure, Structure):
             input_structure = Molecule.from_sites(input_structure.sites)
-        box_size = LammpsData.check_box_size(input_structure, box_size)
-        natoms, natom_types, atomic_masses_dict = \
-            LammpsData.get_basic_system_info(input_structure.copy())
-        atoms_data = LammpsData.get_atoms_data(input_structure,
-                                               atomic_masses_dict,
-                                               set_charge=set_charge)
-        return LammpsData(box_size, atomic_masses_dict.values(), atoms_data)
+        box_size = cls.check_box_size(input_structure, box_size)
+        natoms, natom_types, atomic_masses_dict = cls.get_basic_system_info(input_structure.copy())
+        atoms_data = cls.get_atoms_data(input_structure, atomic_masses_dict,
+                                        set_charge=set_charge)
+        return cls(box_size, atomic_masses_dict.values(), atoms_data)
 
-    @staticmethod
-    def from_file(data_file, read_charge=True):
+    @classmethod
+    def from_file(cls, data_file, read_charge=True):
         """
         Return LammpsData object from the data file.
         Note: use this to read in data files that conform with
@@ -254,7 +252,7 @@ class LammpsData(MSONable):
                     # charge, x, y, z
                     line_data.extend([float(i) for i in m.groups()[3:]])
                     atoms_data.append(line_data)
-        return LammpsData(box_size, atomic_masses, atoms_data)
+        return cls(box_size, atomic_masses, atoms_data)
 
     def as_dict(self):
         d = MSONable.as_dict(self)

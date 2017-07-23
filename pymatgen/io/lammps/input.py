@@ -53,14 +53,14 @@ class DictLammpsInput(MSONable):
     """
 
     def __init__(self, name, config_dict, lammps_data=None,
-                 data_filename="in.data", user_lammps_settings={}):
+                 data_filename="in.data", user_lammps_settings=None):
         self.name = name
         self.lines = []
         self.config_dict = config_dict
         self.lammps_data = lammps_data
         self.data_filename = data_filename
         self.config_dict["read_data"] = data_filename
-        self.user_lammps_settings = user_lammps_settings
+        self.user_lammps_settings = user_lammps_settings or None
         if self.user_lammps_settings:
             self.config_dict.update(self.user_lammps_settings)
 
@@ -104,7 +104,7 @@ class DictLammpsInput(MSONable):
 
     @classmethod
     def from_file(cls, name, filename, lammps_data=None, data_filename="in.data",
-                  user_lammps_settings={}, is_forcefield=False):
+                  user_lammps_settings=None, is_forcefield=False):
         """
         Reads lammps style and JSON style input files putting the settings in an ordered dict (config_dict).
         Note: with monty.serialization.loadfn the order of paramters in the
@@ -124,6 +124,7 @@ class DictLammpsInput(MSONable):
         Returns:
             DictLammpsInput
         """
+        user_lammps_settings = user_lammps_settings or {}
         try:
             with open(filename) as f:
                 config_dict = json.load(f, object_pairs_hook=OrderedDict)
