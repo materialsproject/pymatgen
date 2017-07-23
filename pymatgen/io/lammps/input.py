@@ -19,15 +19,10 @@ For the ease of management we divide LAMMPS input into 2 files:
             the ensemble type(NVT, NPT etc), max number of iterations etc.
 """
 
-import six
-import json   
+import json
 import os
-from functools import partial
-from collections import OrderedDict
-
-from monty.json import MSONable, MontyDecoder
-
-from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
+import string
+from collections import OrderedDict, defaultdict
 
 __author__ = "Kiran Mathew, Brandon Wood"
 __email__ = "kmathew@lbl.gov, b.wood@berkeley.edu"
@@ -36,94 +31,56 @@ __credits__ = "Navnidhi Rajput"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class DictLammpsInput(MSONable):
-    """
-    Implementation of LammpsInputSet that is initialized from a dict
-    settings. It is typically used by other LammpsInputSets for
-    initialization from json or yaml source files.
+class LammpsInputTemplate(string.Template):
+    delimiter = '$$'
 
-    Args:
-        name (str): A name for the input set.
-        config_dict (dict): The config dictionary to use.
-        lammps_data (LammpsData): LammpsData object
-        data_filename (str): name of the the lammps data file
-        user_lammps_settings (dict): User lammps settings. This allows a user
-            to override lammps settings, e.g., setting a different force field
-            or bond type.
-    """
 
-    def __init__(self, name, config_dict, lammps_data=None,
-                 data_filename="in.data", user_lammps_settings=None):
-        self.name = name
-        self.lines = []
-        self.config_dict = config_dict
-        self.lammps_data = lammps_data
-        self.data_filename = data_filename
-        self.config_dict["read_data"] = data_filename
-        self.user_lammps_settings = user_lammps_settings or None
-        if self.user_lammps_settings:
-            self.config_dict.update(self.user_lammps_settings)
+class LammpsInput(defaultdict):
+
+    defaults = {}
+
+    def __init__(self, template_file=None, **kwargs):
+        self.template_file = template_file
+        self.update(kwargs)
 
     def __str__(self):
-        """
-        string representation of the lammps input file with the
-        control parameters
-        """
-        lines = ""
-        for k1, v1 in self.config_dict.items():
-            if isinstance(v1, dict):
-                v1 = v1.values()
-            if isinstance(v1, list):
-                for x in v1:
+        if self.template_file:
+            return self.template_file_str()
+        else:
+            lines = ""
+            for k1, v1 in self.items():
+                if isinstance(v1, dict):
+                    v1 = v1.values()
+                if isinstance(v1, list):
+                    for x in v1:
+                        lines = "".join([lines, "{} ".format(k1)])
+                        lines = "".join([lines, str(x), os.linesep])
+                else:
                     lines = "".join([lines, "{} ".format(k1)])
-                    lines = "".join([lines, str(x), os.linesep])
-            else:
-                lines = "".join([lines, "{} ".format(k1)])
-                lines = "".join([lines, " {}{}".format(str(v1), os.linesep)])
-        return lines
+                    lines = "".join([lines, " {}{}".format(str(v1), os.linesep)])
+            return lines
 
-    def write_input(self, filename, data_filename=None):
-        """
-        Get the string representation of the main input file and write it.
-        Also writes the data file if the lammps_data attribute is set.
+    def template_file_str(self):
+        with open(self.template_file) as f:
+            a = LammpsInputTemplate(f.read())
 
-        Args:
-            filename (string): name of the input file
-            data_filename (string): override the data file name with this
-        """
-        if data_filename:
-            self.config_dict["read_data"] = data_filename
-            self.data_filename = data_filename
-        # write the main input file
-        with open(filename, 'w') as f:
-            f.write(self.__str__())
-        # write the data file if present
-        if self.lammps_data:
-            print("Data file: {}".format(self.data_filename))
-            self.lammps_data.write_data_file(filename=self.data_filename)
+            # set substitution dict for replacements into the template
+            subs_dict = {k: v for k, v in self.items()
+                         if v is not None}  # clean null values
+
+            for k, v in self.defaults.items():
+                subs_dict.setdefault(k, v)
+
+            # might contain unused parameters as leftover $$
+            unclean_template = a.safe_substitute(subs_dict)
+
+            clean_template = filter(lambda l: "$$" not in l,
+                                    unclean_template.split('\n'))
+
+            return '\n'.join(clean_template)
 
     @classmethod
-    def from_file(cls, name, filename, lammps_data=None, data_filename="in.data",
-                  user_lammps_settings=None, is_forcefield=False):
-        """
-        Reads lammps style and JSON style input files putting the settings in an ordered dict (config_dict).
-        Note: with monty.serialization.loadfn the order of paramters in the
-        json file is not preserved
-
-        Args:
-            filename (string): name of the file with the lamps control
-                paramters
-            lammps_data (string/LammpsData/LammpsForceFieldData): path to the
-                data file or an appropriate object
-            data_filename (string): name of the the lammps data file
-            user_lammps_settings (dict): User lammps settings
-            is_forcefield (bool): whether the data file has forcefield and
-                topology info in it. This is required only if lammps_data is
-                a path to the data file instead of a data object
-
-        Returns:
-            DictLammpsInput
-        """
+    def from_file(cls, filename, user_lammps_settings=None):
         user_lammps_settings = user_lammps_settings or {}
         try:
             with open(filename) as f:
@@ -143,39 +100,21 @@ class DictLammpsInput(MSONable):
                     else:
                         config_dict[spt_line[0]] = spt_line[1]
 
-        lammps_data = lammps_data
-        if isinstance(lammps_data, six.string_types):
-            if is_forcefield:
-                lammps_data = LammpsForceFieldData.from_file(lammps_data)
-            else:
-                lammps_data = LammpsData.from_file(lammps_data)
-        return cls(name, config_dict, lammps_data=lammps_data,
-                               data_filename=data_filename,
-                               user_lammps_settings=user_lammps_settings)
+        config_dict.update(user_lammps_settings)
+        return cls(**config_dict)
+
+    def write_file(self, filename):
+        with open(filename, 'w') as f:
+            f.write(self.__str__())
 
     def as_dict(self):
-        d = MSONable.as_dict(self)
-        if hasattr(self, "kwargs"):
-            d.update(**self.kwargs)
-        d["config_dict"] = list(self.config_dict.items())
+        d = {"template_file": self.template_file}
+        d.update(self)
         return d
 
     @classmethod
     def from_dict(cls, d):
-        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
-                   if k not in ["@module", "@class", "config_dict"]}
-        decoded["config_dict"] = OrderedDict(d["config_dict"])
-        return cls(**decoded)
+        template_file = d.pop("template_file")
+        return cls(template_file, **d)
 
 
-# NVT
-NVTLammpsInput = partial(DictLammpsInput.from_file, "NVT",
-                         os.path.join(MODULE_DIR, "NVT.json"))
-
-# NPT
-NPTLammpsInput = partial(DictLammpsInput.from_file, "NPT",
-                         os.path.join(MODULE_DIR, "NPT.json"))
-
-# NPT followed by NVT
-NPTNVTLammpsInput = partial(DictLammpsInput.from_file, "NPT_NVT",
-                            os.path.join(MODULE_DIR, "NPT_NVT.json"))
