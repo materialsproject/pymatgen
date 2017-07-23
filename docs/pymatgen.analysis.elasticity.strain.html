@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.analysis.elasticity.strain module &#8212; pymatgen 2017.7.4 documentation</title>
+    <title>pymatgen.analysis.elasticity.strain module &#8212; pymatgen 2017.7.21 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.4',
+        VERSION:     '2017.7.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -134,7 +134,7 @@ the deformation gradient</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.strain.DeformedStructureSet">
-<em class="property">class </em><code class="descname">DeformedStructureSet</code><span class="sig-paren">(</span><em>rlxd_str, norm_strains=[-0.01, -0.005, 0.005, 0.01], shear_strains=[-0.06, -0.03, 0.03, 0.06], symmetry=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#DeformedStructureSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.DeformedStructureSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">DeformedStructureSet</code><span class="sig-paren">(</span><em>structure</em>, <em>norm_strains=None</em>, <em>shear_strains=None</em>, <em>symmetry=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#DeformedStructureSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.DeformedStructureSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Sequence</span></code></p>
 <p>class that generates a set of independently deformed structures that
 can be used to calculate linear stress-strain response</p>
@@ -145,9 +145,7 @@ m + n deformed structures according to the supplied parameters.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>rlxd_str</strong> (<a class="reference internal" href="pymatgen.analysis.defects.point_defects.html#pymatgen.analysis.defects.point_defects.Defect.structure" title="pymatgen.analysis.defects.point_defects.Defect.structure"><em>structure</em></a>) &#8211; structure to undergo deformation, if
-fitting elastic tensor is desired, should be a geometry
-optimized structure</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; structure to undergo deformation</li>
 <li><strong>norm_strains</strong> (<em>list of floats</em>) &#8211; strain values to apply
 to each normal mode.</li>
 <li><strong>shear_strains</strong> (<em>list of floats</em>) &#8211; strain values to apply
@@ -240,7 +238,7 @@ produce that strain.  Supports three methods:</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>strain</strong> (<em>3x3 array-like</em>) &#8211; strain matrix</li>
-<li><strong>method</strong> &#8211; (string): method for determining deformation, supports
+<li><strong>shape</strong> &#8211; (string): method for determining deformation, supports
 &#8220;upper&#8221; produces an upper triangular defo
 &#8220;lower&#8221; produces a lower triangular defo
 &#8220;symmetric&#8221; produces a symmetric defo</li>
@@ -289,7 +287,7 @@ produce that strain.  Supports three methods:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 

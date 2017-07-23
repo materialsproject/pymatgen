@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.core.composition module &#8212; pymatgen 2017.7.4 documentation</title>
+    <title>pymatgen.core.composition module &#8212; pymatgen 2017.7.21 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.4',
+        VERSION:     '2017.7.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -385,6 +385,45 @@ Li4Fe4P4O16 returns (LiFePO4, 4).</td>
 of absolute values</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.oxi_state_guesses">
+<code class="descname">oxi_state_guesses</code><span class="sig-paren">(</span><em>oxi_states_override=None</em>, <em>target_charge=0</em>, <em>all_oxi_states=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.oxi_state_guesses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.oxi_state_guesses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the composition is charge-balanced and returns back all
+charge-balanced oxidation state combinations. Composition must have
+integer values. Note that more num_atoms in the composition gives
+more degrees of freedom. e.g., if possible oxidation states of
+element X are [2,4] and Y are [-3], then XY is not charge balanced
+but X2Y2 is.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>oxi_states_override</strong> (<em>dict</em>) &#8211; dict of str-&gt;list to override an
+element&#8217;s common oxidation states, e.g. {&#8220;V&#8221;: [2,3,4,5]}</li>
+<li><strong>target_charge</strong> (<em>int</em>) &#8211; the desired total charge on the structure.
+Default is 0 signifying charge balance.</li>
+<li><strong>all_oxi_states</strong> (<em>bool</em>) &#8211; if True, an element defaults to
+all oxidation states in pymatgen Element.oxidation_states.
+Otherwise, default is Element.common_oxidation_states. Note
+that the full oxidation state list is <em>very</em> inclusive and
+can produce nonsensical results.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><dl class="docutils">
+<dt>A list of dicts - each dict reports an element symbol and average</dt>
+<dd><p class="first last">oxidation state across all sites in that composition. If the
+composition is not charge balanced, an empty list is returned.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="staticmethod">
 <dt id="pymatgen.core.composition.Composition.ranked_compositions_from_indeterminate_formula">
 <em class="property">static </em><code class="descname">ranked_compositions_from_indeterminate_formula</code><span class="sig-paren">(</span><em>fuzzy_formula</em>, <em>lock_if_strict=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.ranked_compositions_from_indeterminate_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.ranked_compositions_from_indeterminate_formula" title="Permalink to this definition">¶</a></dt>
@@ -515,7 +554,7 @@ reduced_cell_formula, elements and nelements.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
