@@ -41,6 +41,10 @@ class LammpsRun(object):
     Parse the lammps data file, trajectory(dump) file and the log file to extract
     useful info about the system.
 
+    Note: In order to parse trajectory or dump file, the first 2 fields must be
+        the id and the atom type. There can be arbitrary number of fields after
+        that and they all will be treated as floats.
+
     Args:
         data_file (str): path to the data file
         trajectory_file (str): path to the trajectory file or dump file
