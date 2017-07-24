@@ -38,12 +38,12 @@ __credits__ = "Navnidhi Rajput, Michael Humbert"
 
 class LammpsRun(object):
     """
-    Parse the lammps data file, trajectory file and the log file to extract
+    Parse the lammps data file, trajectory(dump) file and the log file to extract
     useful info about the system.
 
     Args:
         data_file (str): path to the data file
-        trajectory_file (str): path to the trajectory file
+        trajectory_file (str): path to the trajectory file or dump file
         log_file (str): path to the log file
     """
 
@@ -69,7 +69,7 @@ class LammpsRun(object):
         timestep_label = "ITEM: TIMESTEP"
         # "ITEM: ATOMS id type ...
         traj_label_pattern = re.compile(
-            r"^\s*ITEM:\s+ATOMS\s+id\s+type\s+([A-Za-z\s]*)")
+            r"^\s*ITEM:\s+ATOMS\s+id\s+type\s+([A-Za-z0-9[\]_\s]*)")
         # default: id type x y z vx vy vz mol"
         # updated below based on the field names in the ITEM: ATOMS line
         # Note: the first 2 fields must be the id and the atom type. There can
@@ -107,9 +107,11 @@ class LammpsRun(object):
                         [float(x) for i, x in enumerate(m.groups()) if
                          i + 1 > 2])
                     trajectory.append(tuple(line_data))
+
         traj_dtype = np.dtype([(str('Atoms_id'), np.int64),
                                (str('atom_type'), np.int64)] +
                               [(str(fld), np.float64) for fld in fields])
+
         self.trajectory = np.array(trajectory, dtype=traj_dtype)
         self.timesteps = np.array(traj_timesteps, dtype=np.float64)
         for step in range(self.timesteps.size):
@@ -216,7 +218,7 @@ class LammpsRun(object):
     def get_displacements(self):
         """
         Return the initial structure and displacements for each time step.
-        Used to interface witht the DiffusionAnalyzer.
+        Used to interface with the DiffusionAnalyzer.
 
         Returns:
             Structure object, numpy array of displacements
@@ -399,12 +401,16 @@ class LammpsLog(object):
                     if thermo_pattern.search(line):
                         m = thermo_pattern.search(line)
                         thermo_data.append(tuple([float(x) for x in m.groups()]))
-        if isinstance(thermo_data[0], str):
-            self.thermo_data = [thermo_data]
-        else:
-            # numpy arrays are easier to reshape, previously we used np.array with dtypes
-            self.thermo_data = {fields[i]: [thermo_data[j][i] for j in range(len(thermo_data))]
-                                for i in range(len(fields))}
+
+        if thermo_data:
+            if isinstance(thermo_data[0], str):
+                self.thermo_data = [thermo_data]
+            else:
+                # numpy arrays are easier to reshape, previously we used np.array with dtypes
+                self.thermo_data = {
+                    fields[i]: [thermo_data[j][i] for j in range(len(thermo_data))]
+                    for i in range(len(fields))}
+
         self.fixes = fixes
         self.dangerous_builds = d_build
 
