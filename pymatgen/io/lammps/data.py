@@ -72,7 +72,7 @@ class LammpsData(MSONable):
         return '\n'.join(lines)
 
     @staticmethod
-    def check_box_size(molecule, box_size):
+    def check_box_size(molecule, box_size, translate=False):
         """
         Check the box size and if necessary translate the molecule so that
         all the sites are contained within the bounding box.
@@ -91,10 +91,12 @@ class LammpsData(MSONable):
             print("Minimum required box lengths {} larger than the provided box lengths{}. "
                   "Resetting the box size to {}".format(
                 box_lengths_req, box_lengths, box_size))
-        com = molecule.center_of_mass
-        new_com = [(side[1] + side[0]) / 2 for side in box_size]
-        translate_by = np.array(new_com) - np.array(com)
-        molecule.translate_sites(range(len(molecule)), translate_by)
+            translate = True
+        if translate:
+            com = molecule.center_of_mass
+            new_com = [(side[1] + side[0]) / 2 for side in box_size]
+            translate_by = np.array(new_com) - np.array(com)
+            molecule.translate_sites(range(len(molecule)), translate_by)
         return box_size
 
     def write_data_file(self, filename):
@@ -180,7 +182,7 @@ class LammpsData(MSONable):
                 lines.append(" ".join([str(x) for x in ad]))
 
     @classmethod
-    def from_structure(cls, input_structure, box_size, set_charge=True):
+    def from_structure(cls, input_structure, box_size, set_charge=True, translate=True):
         """
         Set LammpsData from the given structure. If the input structure is
         a Structure, it is converted to a molecule. TIf the molecule doesnt fit
@@ -199,7 +201,7 @@ class LammpsData(MSONable):
         """
         if isinstance(input_structure, Structure):
             input_structure = Molecule.from_sites(input_structure.sites)
-        box_size = cls.check_box_size(input_structure, box_size)
+        box_size = cls.check_box_size(input_structure, box_size, translate=translate)
         natoms, natom_types, atomic_masses_dict = cls.get_basic_system_info(input_structure.copy())
         atoms_data = cls.get_atoms_data(input_structure, atomic_masses_dict,
                                         set_charge=set_charge)
