@@ -12,6 +12,9 @@ import os
 from string import Template
 from collections import defaultdict
 
+from monty.json import MSONable
+
+
 __author__ = "Kiran Mathew, Brandon Wood"
 __email__ = "kmathew@lbl.gov, b.wood@berkeley.edu"
 __credits__ = "Navnidhi Rajput"
@@ -23,7 +26,7 @@ class LammpsInputFileTemplate(Template):
     delimiter = "$$"
 
 
-class LammpsInput(defaultdict):
+class LammpsInput(defaultdict, MSONable):
 
     def __init__(self, template_string, **kwargs):
         self.template_string = template_string

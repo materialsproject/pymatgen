@@ -20,7 +20,7 @@ For the ease of management we divide LAMMPS input into 2 files:
 """
 import six
 
-from monty.json import MSONable
+from monty.json import MSONable, MontyDecoder
 
 from pymatgen.io.lammps.data import LammpsForceFieldData, LammpsData
 from pymatgen.io.lammps.input import LammpsInput
@@ -37,7 +37,7 @@ class LammpsInputSet(MSONable):
 
         Args:
             name (str): A name for the input set.
-            lammps_input (dict): The config dictionary to use.
+            lammps_input (LammpsInput): The config dictionary to use.
             lammps_data (LammpsData): LammpsData object
             data_filename (str): name of the the lammps data file
             user_lammps_settings (dict): User lammps settings. This allows a user
@@ -66,6 +66,7 @@ class LammpsInputSet(MSONable):
         if data_filename:
             self.lammps_input["read_data"] = data_filename
             self.data_filename = data_filename
+        print(type(self.lammps_input))
         self.lammps_input.write_file(filename)
         # write the data file if present
         if self.lammps_data:
@@ -100,3 +101,17 @@ class LammpsInputSet(MSONable):
                 lammps_data = LammpsData.from_file(lammps_data)
         return cls(name, lammps_input, lammps_data=lammps_data,
                    data_filename=data_filename)
+
+    def as_dict(self):
+        d = MSONable.as_dict(self)
+        if hasattr(self, "kwargs"):
+            d.update(**self.kwargs)
+        d["lammps_input"] = self.lammps_input.as_dict()
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
+                   if k not in ["@module", "@class", "lammps_input"]}
+        decoded["lammps_input"] = LammpsInput.from_dict(d["lammps_input"])
+        return cls(**decoded)
