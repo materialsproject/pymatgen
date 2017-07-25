@@ -3116,7 +3116,7 @@ class Molecule(IMolecule, collections.MutableSequence):
                    neighbor to the C atom in CH3. The X-C bond indicates the
                    directionality to connect the atoms.
                 2. A string name. The molecule will be obtained from the
-                   relevant template in functional_groups.json.
+                   relevant template in func_groups.json.
             bond_order (int): A specified bond order to calculate the bond
                 length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
