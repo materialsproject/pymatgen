@@ -666,29 +666,29 @@ class BoltztrapRunner(MSONable):
 
             return path_dir
 
-        def as_dict(self):
-            return {"@module": self.__class__.__module__,
-                    "@class": self.__class__.__name__,
-                    "lpfac": self.lpfac,
-                    "bs": self.bs,
-                    "nelec": self._nelec,
-                    "dos_type": self.dos_type,
-                    "run_type": self.run_type,
-                    "band_nb": self.band_nb,
-                    "spin": self.spin,
-                    "cond_band": self.cond_band,
-                    "tauref": self.tauref,
-                    "tauexp": self.tauexp,
-                    "tauen": self.tauen,
-                    "soc": self.soc,
-                    "kpt_line": self.kpt_line,
-                    "doping": self.doping,
-                    "energy_span_around_fermi": self.energy_span_around_fermi,
-                    "scissor": self.scissor,
-                    "tmax": self.tmax,
-                    "tgrid": self.tgrid,
-                    "symprec": self._symprec
-                    }
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "lpfac": self.lpfac,
+                "bs": self.bs,
+                "nelec": self._nelec,
+                "dos_type": self.dos_type,
+                "run_type": self.run_type,
+                "band_nb": self.band_nb,
+                "spin": self.spin,
+                "cond_band": self.cond_band,
+                "tauref": self.tauref,
+                "tauexp": self.tauexp,
+                "tauen": self.tauen,
+                "soc": self.soc,
+                "kpt_line": self.kpt_line,
+                "doping": self.doping,
+                "energy_span_around_fermi": self.energy_span_around_fermi,
+                "scissor": self.scissor,
+                "tmax": self.tmax,
+                "tgrid": self.tgrid,
+                "symprec": self._symprec
+                }
 
 
 class BoltztrapError(Exception):
