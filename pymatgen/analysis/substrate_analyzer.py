@@ -317,12 +317,16 @@ class SubstrateAnalyzer:
         if elasticity_tensor is None:
             return 9999
 
+        # Get the appropriate surface structure
+        struc = SlabGenerator(self.film, match['film_miller'], 20, 15,
+                                      primitive=False).get_slab().oriented_unit_cell
+
         # Generate 3D lattice vectors for film super lattice
         film_matrix = list(match['film_sl_vecs'])
         film_matrix.append(np.cross(film_matrix[0], film_matrix[1]))
 
         # Generate 3D lattice vectors for substrate super lattice
-        # Out of place substrate super lattice has to be same length as
+        # Out of plane substrate super lattice has to be same length as
         # Film out of plane vector to ensure no extra deformation in that
         # direction
         substrate_matrix = list(match['sub_sl_vecs'])
@@ -335,7 +339,7 @@ class SubstrateAnalyzer:
 
         dfm = Deformation(transform_matrix)
 
-        strain = dfm.green_lagrange_strain.von_mises_strain
+        strain = dfm.green_lagrange_strain.von_mises_strain.convert_to_ieee(struc,initial_fit=False)
 
         energy_density = elasticity_tensor.energy_density(
             dfm.green_lagrange_strain)
