@@ -31,6 +31,10 @@ class LammpsInput(defaultdict, MSONable):
     def __init__(self, template_string, **kwargs):
         self.template_string = template_string
         self.update(kwargs)
+        # if 'read_data' is configurable, make it
+        if "read_data" not in self and self.template_string.find("read_data") >=0 :
+            self["read_data"] = self.template_string.split("read_data")[-1].split("\n")[0].expandtabs().strip()
+            self.template_string = self.template_string.replace(self["read_data"], "$${read_data}", 1)
 
     def __str__(self):
         template_string = LammpsInputFileTemplate(self.template_string)

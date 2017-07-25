@@ -63,10 +63,9 @@ class LammpsInputSet(MSONable):
             filename (string): name of the input file
             data_filename (string): override the data file name with this
         """
-        if data_filename:
+        if data_filename and ("read_data" in self.lammps_input):
             self.lammps_input["read_data"] = data_filename
             self.data_filename = data_filename
-        print(type(self.lammps_input))
         self.lammps_input.write_file(filename)
         # write the data file if present
         if self.lammps_data:
