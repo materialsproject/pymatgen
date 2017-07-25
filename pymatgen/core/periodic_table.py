@@ -419,9 +419,8 @@ class Element(Enum):
                 try:
                     val = float(val)
                 except ValueError:
-                    toks_nobracket = re.sub(r'\(.*\)', "", val)
-                    toks = toks_nobracket.replace("about", "").strip().split(
-                        " ", 1)
+                    nobracket = re.sub(r'\(.*\)', "", val)
+                    toks = nobracket.replace("about", "").strip().split(" ", 1)
                     if len(toks) == 2:
                         try:
                             if "10<sup>" in toks[1]:
@@ -430,9 +429,10 @@ class Element(Enum):
                                 toks[0] += factor
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
-                                elif item == \
-                                        "coefficient_of_linear_thermal_" \
-                                        "expansion":
+                                elif (
+                                    item ==
+                                    "coefficient_of_linear_thermal_expansion"
+                                ):
                                     unit = "K^-1"
                                 else:
                                     unit = toks[1]
