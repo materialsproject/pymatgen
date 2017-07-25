@@ -667,7 +667,7 @@ class BoltztrapRunner(MSONable):
             return path_dir
 
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
+        results =  {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "lpfac": self.lpfac,
                 "bs": self.bs,
@@ -689,6 +689,7 @@ class BoltztrapRunner(MSONable):
                 "tgrid": self.tgrid,
                 "symprec": self._symprec
                 }
+        return jsanitize(results)
 
 
 class BoltztrapError(Exception):
