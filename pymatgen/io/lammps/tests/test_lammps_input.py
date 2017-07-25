@@ -28,6 +28,10 @@ class TestLammpsInput(unittest.TestCase):
                     }
         self.lammps_input = LammpsInput.from_file(template_file, settings)
 
+    def test_read_data(self):
+        self.assertIn("read_data", self.lammps_input)
+        self.assertEqual(self.lammps_input["read_data"], "data.peptide")
+
     def test_string_rep(self):
         input_file = os.path.join(test_dir, "in.peptide")
         input_file_lines = str(self.lammps_input).split("\n")
