@@ -234,7 +234,7 @@ class LammpsRun(object):
             mol_vector_structured = \
                 self.trajectory[begin:end][:][["x", "y", "z"]]
             new_shape = mol_vector_structured.shape + (-1,)
-            mol_vector = mol_vector_structured.astype(np.float64).reshape(
+            mol_vector = mol_vector_structured.view(np.float64).reshape(
                 new_shape)
             coords = mol_vector.copy()
             if step == 0:
