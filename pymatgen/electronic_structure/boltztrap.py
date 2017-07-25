@@ -670,7 +670,7 @@ class BoltztrapRunner(MSONable):
         results =  {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "lpfac": self.lpfac,
-                "bs": self.bs,
+                "bs": self.bs.as_dict(),
                 "nelec": self._nelec,
                 "dos_type": self.dos_type,
                 "run_type": self.run_type,
