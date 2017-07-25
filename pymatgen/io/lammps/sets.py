@@ -39,7 +39,8 @@ class LammpsInputSet(MSONable):
             name (str): A name for the input set.
             lammps_input (LammpsInput): The config dictionary to use.
             lammps_data (LammpsData): LammpsData object
-            data_filename (str): name of the the lammps data file
+            data_filename (str): name of the the lammps data file.
+                Note: this will override the value for 'read_data' key in lammps_input
             user_lammps_settings (dict): User lammps settings. This allows a user
                 to override lammps settings, e.g., setting a different force field
                 or bond type.
@@ -50,23 +51,22 @@ class LammpsInputSet(MSONable):
         self.lammps_data = lammps_data
         self.data_filename = data_filename
         self.lammps_input["read_data"] = data_filename
-        self.user_lammps_settings = user_lammps_settings or None
-        if self.user_lammps_settings:
-            self.lammps_input.update(self.user_lammps_settings)
+        self.user_lammps_settings = user_lammps_settings or {}
+        self.lammps_input.update(self.user_lammps_settings)
 
-    def write_input(self, filename, data_filename=None):
+    def write_input(self, input_filename, data_filename=None):
         """
         Get the string representation of the main input file and write it.
         Also writes the data file if the lammps_data attribute is set.
 
         Args:
-            filename (string): name of the input file
+            input_filename (string): name of the input file
             data_filename (string): override the data file name with this
         """
         if data_filename and ("read_data" in self.lammps_input):
             self.lammps_input["read_data"] = data_filename
             self.data_filename = data_filename
-        self.lammps_input.write_file(filename)
+        self.lammps_input.write_file(input_filename)
         # write the data file if present
         if self.lammps_data:
             self.lammps_data.write_data_file(filename=self.data_filename)
@@ -79,20 +79,20 @@ class LammpsInputSet(MSONable):
         Returns LammpsInputSet from  input file template and input data.
 
         Args:
-            input_template (string): path to the input template file
+            input_template (string): path to the input template file.
             user_settings (dict): User lammps settings, the keys must
-                correspond to the keys in the temeplate.
+                correspond to the keys in the template.
             lammps_data (string/LammpsData/LammpsForceFieldData): path to the
                 data file or an appropriate object
-            data_filename (string): name of the the lammps data file
+            data_filename (string): name of the the lammps data file.
             is_forcefield (bool): whether the data file has forcefield and
                 topology info in it. This is required only if lammps_data is
-                a path to the data file instead of a data object
+                a path to the data file instead of a data object.
 
         Returns:
             LammpsInputSet
         """
-        lammps_input = LammpsInput(input_template, **user_settings)
+        lammps_input = LammpsInput.from_file(input_template, user_settings)
         if isinstance(lammps_data, six.string_types):
             if is_forcefield:
                 lammps_data = LammpsForceFieldData.from_file(lammps_data)
