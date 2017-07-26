@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import os
 import warnings
-#import ruamel.yaml as yaml
+import ruamel.yaml as yaml
 
 __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
