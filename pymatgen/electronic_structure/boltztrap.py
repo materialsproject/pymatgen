@@ -10,7 +10,7 @@ import logging
 
 import numpy as np
 from monty.dev import requires
-from monty.json import jsanitize
+from monty.json import jsanitize, MSONable
 from monty.os import cd
 from monty.os.path import which
 from scipy import constants
@@ -56,7 +56,7 @@ __status__ = "Development"
 __date__ = "August 23, 2013"
 
 
-class BoltztrapRunner(object):
+class BoltztrapRunner(MSONable):
     """
     This class is used to run Boltztrap on a band structure object.
 
@@ -680,6 +680,31 @@ class BoltztrapRunner(object):
                         self.lpfac) + ", energy_grid=" + str(self.energy_grid))
 
             return path_dir
+
+    def as_dict(self):
+        results =  {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "lpfac": self.lpfac,
+                "bs": self.bs.as_dict(),
+                "nelec": self._nelec,
+                "dos_type": self.dos_type,
+                "run_type": self.run_type,
+                "band_nb": self.band_nb,
+                "spin": self.spin,
+                "cond_band": self.cond_band,
+                "tauref": self.tauref,
+                "tauexp": self.tauexp,
+                "tauen": self.tauen,
+                "soc": self.soc,
+                "kpt_line": self.kpt_line,
+                "doping": self.doping,
+                "energy_span_around_fermi": self.energy_span_around_fermi,
+                "scissor": self.scissor,
+                "tmax": self.tmax,
+                "tgrid": self.tgrid,
+                "symprec": self._symprec
+                }
+        return jsanitize(results)
 
 
 class BoltztrapError(Exception):
@@ -2191,7 +2216,7 @@ def read_cube_file(filename):
         energy_data = np.append(energy_data.flatten(),last_line).reshape(n1,n2,n3)
     elif 'boltztrap_BZ.cube' in filename:
         energy_data = np.loadtxt(filename,skiprows=natoms+6).reshape(n1,n2,n3)
-    
+
     energy_data /= Energy(1, "eV").to("Ry")
 
     return energy_data

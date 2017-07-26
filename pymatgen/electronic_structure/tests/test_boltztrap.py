@@ -6,7 +6,9 @@ from __future__ import unicode_literals
 
 import unittest
 import os
-from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
+import json
+from pymatgen.electronic_structure.bandstructure import  BandStructure
+from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer, BoltztrapRunner
 from pymatgen.electronic_structure.core import Spin, OrbitalType
 from monty.serialization import loadfn
 
@@ -37,6 +39,12 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
             os.path.join(test_dir, "boltztrap/dos_dw/"), dos_spin=-1)
         cls.bz_fermi = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/fermi/"))
+
+        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"),
+                  "r", encoding='utf-8') as f:
+            d = json.load(f)
+            cls.bs = BandStructure.from_dict(d)
+            cls.btr = BoltztrapRunner(cls.bs,1)
 
     def test_properties(self):
         self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)
@@ -317,6 +325,13 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(x["n"]["value"], 0.139, 2)
         self.assertEqual(x["p"]["temperature"], 400)
         self.assertEqual(x["n"]["isotropic"], False)
+
+
+    def test_to_from_dict(self):
+        btr_dict = self.btr.as_dict()
+        s = json.dumps(btr_dict)
+        self.assertIsNotNone(s)
+        self.assertIsNotNone(btr_dict['bs'])
 
 
 if __name__ == '__main__':
