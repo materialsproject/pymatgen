@@ -31,25 +31,24 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 @unittest.skipIf(not x_trans, "No x_trans.")
 class BoltztrapAnalyzerTest(unittest.TestCase):
-    
-    @classmethod
-    def setUpClass(cls):
-        cls.bz = BoltztrapAnalyzer.from_files(
+
+    def setUp(self):
+        self.bz = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/transp/"))
-        cls.bz_bands = BoltztrapAnalyzer.from_files(
+        self.bz_bands = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/bands/"))
-        cls.bz_up = BoltztrapAnalyzer.from_files(
+        self.bz_up = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/dos_up/"), dos_spin=1)
-        cls.bz_dw = BoltztrapAnalyzer.from_files(
+        self.bz_dw = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/dos_dw/"), dos_spin=-1)
-        cls.bz_fermi = BoltztrapAnalyzer.from_files(
+        self.bz_fermi = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/fermi/"))
 
         with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"),
                   "r", encoding='utf-8') as f:
             d = json.load(f)
-            cls.bs = BandStructure.from_dict(d)
-            cls.btr = BoltztrapRunner(cls.bs,1)
+            self.bs = BandStructure.from_dict(d)
+            self.btr = BoltztrapRunner(self.bs, 1)
 
     def test_properties(self):
         self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)
@@ -330,7 +329,6 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(x["n"]["value"], 0.139, 2)
         self.assertEqual(x["p"]["temperature"], 400)
         self.assertEqual(x["n"]["isotropic"], False)
-
 
     def test_to_from_dict(self):
         btr_dict = self.btr.as_dict()
