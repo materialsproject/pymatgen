@@ -2393,7 +2393,123 @@ class BoltztrapPlotter(object):
         import matplotlib.pyplot as plt
         plt.axvline(0.0, color='k', linewidth=3.0)
         plt.axvline(self._bz.gap, color='k', linewidth=3.0)
+    
+    def plot_seebeck_eff_mass_mu(self, temps=[300], output='average', Lambda=0.5):
+        """
+        Plot respect to the chemical potential of the Seebeck effective mass calculated as explained in Ref.
+        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor 
+        from ab initio band structure calculations. 
+        npj Computational Materials 3, 8 (2017).
 
+        Args:
+            output: 'average' returns the seebeck effective mass calculated using 
+                    the average of the three diagonal components of the seebeck tensor.
+                    'tensor' returns the seebeck effective mass respect to the three 
+                    diagonal components of the seebeck tensor.
+            temps:  list of temperatures of calculated seebeck.
+            Lambda: fitting parameter used to model the scattering (0.5 means constant 
+                    relaxation time).
+        Returns:
+            a matplotlib object
+        """
+
+        import matplotlib.pyplot as plt
+        plt.figure(figsize=(9,7))
+        for T in temps:
+            sbk_mass = self._bz.get_seebeck_eff_mass(output=output, temp=T, Lambda=0.5)
+            # remove noise inside the gap
+            start = self._bz.mu_doping['p'][T][0]
+            stop = self._bz.mu_doping['n'][T][0]
+            mu_steps_1 = []
+            mu_steps_2 = []
+            sbk_mass_1 = []
+            sbk_mass_2 = []
+            for i,mu in enumerate(self._bz.mu_steps):
+                if mu <= start:
+                    mu_steps_1.append(mu)
+                    sbk_mass_1.append(sbk_mass[i])
+                elif mu >= stop:
+                    mu_steps_2.append(mu)
+                    sbk_mass_2.append(sbk_mass[i])
+                    
+            plt.plot(mu_steps_1,sbk_mass_1,label=str(T)+'K',linewidth=3.0)
+            plt.plot(mu_steps_2,sbk_mass_2, linewidth=3.0)
+            if output == 'average':
+                 plt.gca().get_lines()[1].set_c(plt.gca().get_lines()[0].get_c())
+            elif output == 'tensor':
+                plt.gca().get_lines()[3].set_c(plt.gca().get_lines()[0].get_c())
+                plt.gca().get_lines()[4].set_c(plt.gca().get_lines()[1].get_c())
+                plt.gca().get_lines()[5].set_c(plt.gca().get_lines()[2].get_c())
+                
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.ylabel("Seebeck effective mass",fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        if output == 'tensor':
+            plt.legend([str(i)+'_'+str(T)+'K' for T in temps for i in ('x','y','z')], fontsize=20)
+        elif output == 'average':
+            plt.legend(fontsize=20)
+        plt.tight_layout()
+        return plt
+
+    def plot_complexity_factor_mu(self, temps=[300], output='average', Lambda=0.5):
+        """
+        Plot respect to the chemical potential of the Fermi surface complexity 
+        factor calculated as explained in Ref.
+        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor 
+        from ab initio band structure calculations. 
+        npj Computational Materials 3, 8 (2017).
+        
+        Args:
+            output: 'average' returns the complexity factor calculated using the average
+                    of the three diagonal components of the seebeck and conductivity tensors.
+                    'tensor' returns the complexity factor respect to the three
+                    diagonal components of seebeck and conductivity tensors.
+            temps:  list of temperatures of calculated seebeck and conductivity.
+            Lambda: fitting parameter used to model the scattering (0.5 means constant 
+                    relaxation time).
+        Returns:
+            a matplotlib object
+        """
+        import matplotlib.pyplot as plt
+        plt.figure(figsize=(9,7))
+        for T in temps:
+            cmplx_fact = self._bz.get_complexity_factor(output=output,temp=T,Lambda=Lambda)
+            start = self._bz.mu_doping['p'][T][0]
+            stop = self._bz.mu_doping['n'][T][0]
+            mu_steps_1 = []
+            mu_steps_2 = []
+            cmplx_fact_1 = []
+            cmplx_fact_2 = []
+            for i,mu in enumerate(self._bz.mu_steps):
+                if mu <= start:
+                    mu_steps_1.append(mu)
+                    cmplx_fact_1.append(cmplx_fact[i])
+                elif mu >= stop:
+                    mu_steps_2.append(mu)
+                    cmplx_fact_2.append(cmplx_fact[i])
+                    
+            plt.plot(mu_steps_1,cmplx_fact_1,label=str(T)+'K',linewidth=3.0)
+            plt.plot(mu_steps_2,cmplx_fact_2, linewidth=3.0)
+            if output == 'average':
+                 plt.gca().get_lines()[1].set_c(plt.gca().get_lines()[0].get_c())
+            elif output == 'tensor':
+                plt.gca().get_lines()[3].set_c(plt.gca().get_lines()[0].get_c())
+                plt.gca().get_lines()[4].set_c(plt.gca().get_lines()[1].get_c())
+                plt.gca().get_lines()[5].set_c(plt.gca().get_lines()[2].get_c())
+
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.ylabel("Complexity Factor",fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        if output == 'tensor':
+            plt.legend([str(i)+'_'+str(T)+'K' for T in temps for i in ('x','y','z')], fontsize=20)
+        elif output == 'average':
+            plt.legend(fontsize=20)
+        plt.tight_layout()
+        return plt
+
+    
     def plot_seebeck_mu(self, temp=600, output='eig', xlim=None):
         """
         Plot the seebeck coefficient in function of Fermi level
@@ -2407,10 +2523,12 @@ class BoltztrapPlotter(object):
             a matplotlib object
         """
         import matplotlib.pyplot as plt
+        plt.figure(figsize=(9,7))
         seebeck = self._bz.get_seebeck(output=output, doping_levels=False)[
             temp]
         plt.plot(self._bz.mu_steps, seebeck,
                  linewidth=3.0)
+        
         self._plot_bg_limits()
         self._plot_doping(temp)
         if output == 'eig':
@@ -2423,6 +2541,7 @@ class BoltztrapPlotter(object):
         plt.xlabel("E-E$_f$ (eV)", fontsize=30)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
+        plt.tight_layout()
         return plt
 
     def plot_conductivity_mu(self, temp=600, output='eig',
@@ -2442,8 +2561,8 @@ class BoltztrapPlotter(object):
         """
         import matplotlib.pyplot as plt
         cond = self._bz.get_conductivity(relaxation_time=relaxation_time,
-                                         output=output, doping_levels=False)[
-            temp]
+                                output=output, doping_levels=False)[temp]
+        plt.figure(figsize=(9,7))
         plt.semilogy(self._bz.mu_steps, cond, linewidth=3.0)
         self._plot_bg_limits()
         self._plot_doping(temp)
@@ -2458,6 +2577,7 @@ class BoltztrapPlotter(object):
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
+        plt.tight_layout()
         return plt
 
     def plot_power_factor_mu(self, temp=600, output='eig',
@@ -2476,6 +2596,7 @@ class BoltztrapPlotter(object):
             a matplotlib object
         """
         import matplotlib.pyplot as plt
+        plt.figure(figsize=(9,7))
         pf = self._bz.get_power_factor(relaxation_time=relaxation_time,
                                        output=output, doping_levels=False)[
             temp]
@@ -2492,6 +2613,7 @@ class BoltztrapPlotter(object):
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
+        plt.tight_layout()
         return plt
 
     def plot_zt_mu(self, temp=600, output='eig', relaxation_time=1e-14,
@@ -2510,6 +2632,7 @@ class BoltztrapPlotter(object):
             a matplotlib object
         """
         import matplotlib.pyplot as plt
+        plt.figure(figsize=(9,7))
         zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output,
                              doping_levels=False)[temp]
         plt.plot(self._bz.mu_steps, zt, linewidth=3.0)
@@ -2525,6 +2648,7 @@ class BoltztrapPlotter(object):
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
+        plt.tight_layout()
         return plt
 
     def plot_seebeck_temp(self, doping='all', output='average'):
@@ -3103,16 +3227,18 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[], multiple_figure=T
               BoltztrapAnalyzer.fermi_surface_data
         structure: structure object of the material
         energy_levels: list of energy value of the fermi surface. 
-                        Default: max energy value + 0.01 eV
+                       By default 0 eV correspond to the VBM, as in 
+                       the plot of band structure along symmetry line.
+                       Default: max energy value + 0.01 eV
         cbm: Boolean value to specify if the considered band is 
-                a conduction band or not
+             a conduction band or not
         multiple_figure: if True a figure for each energy level will be shown.
                          If False all the surfaces will be shown in the same figure.
                          In this las case, tune the transparency factor.
         mlab_figure: provide a previous figure to plot a new surface on it.
         kpoints_dict: dictionary of kpoints to show in the plot.
-                        example: {"K":[0.5,0.0,0.5]}, 
-                        where the coords are fractional.
+                      example: {"K":[0.5,0.0,0.5]}, 
+                      where the coords are fractional.
         color: tuple (r,g,b) of integers to define the color of the surface.
         transparency_factor: list of values in the range [0,1] to tune
                              the opacity of the surfaces.

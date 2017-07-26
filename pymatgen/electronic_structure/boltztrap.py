@@ -24,6 +24,10 @@ from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.core.physical_constants import BOLTZMANN_CONST, 
+                                             PLANCK_CONSTANT,ELECTRON_CHARGE,
+                                             ELECTRON_MASS 
+
 
 """
 This module provides classes to run and analyze boltztrap on pymatgen band
@@ -133,6 +137,8 @@ class BoltztrapRunner(object):
             symprec: 1e-3 is the default in pymatgen. If the kmesh has been
                 generated using a different symprec, it has to be specified
                 to avoid a "factorization error" in BoltzTraP calculation.
+                If a kmesh that spans the whole Brillouin zone has been used,
+                or to disable all the symmetries, set symprec to None.
 
     """
 
@@ -272,17 +278,27 @@ class BoltztrapRunner(object):
                         f.write("%18.8f\n" % (float(eigs[j])))
 
     def write_struct(self, output_file):
-        sym = SpacegroupAnalyzer(self._bs.structure, symprec=self._symprec)
-
+        if self._symprec != None:
+            sym = SpacegroupAnalyzer(self._bs.structure, symprec=self._symprec)
+        elif self._symprec == None:
+            pass
+        
         with open(output_file, 'w') as f:
-            f.write("{} {}\n".format(self._bs.structure.composition.formula,
-                                     sym.get_space_group_symbol()))
+            if self._symprec != None:
+                f.write("{} {}\n".format(self._bs.structure.composition.formula,
+                                        sym.get_space_group_symbol()))
+            elif self._symprec == None:
+                f.write("{} {}\n".format(self._bs.structure.composition.formula,
+                                        "symmetries disabled"))
 
             f.write("{}\n".format("\n".join(
                 [" ".join(["%.5f" % Length(i, "ang").to("bohr") for i in row])
                  for row in self._bs.structure.lattice.matrix])))
 
-            ops = sym.get_symmetry_dataset()['rotations']
+            if self._symprec != None:
+                ops = sym.get_symmetry_dataset()['rotations'] 
+            elif self._symprec == None:
+                ops = [[[1,0,0],[0,1,0],[0,0,1]]]
             f.write("{}\n".format(len(ops)))
 
             for c in ops:
@@ -1292,6 +1308,135 @@ class BoltztrapAnalyzer(object):
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels)
+    
+    def get_seebeck_eff_mass(self, output='average', temp=300, doping_levels=False,
+                                Lambda=0.5):
+        """
+        Seebeck effective mass calculated as explained in Ref.
+        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor 
+        from ab initio band structure calculations. 
+        npj Computational Materials 3, 8 (2017).
+
+        Args:
+            output: 'average' returns the seebeck effective mass calculated using 
+                    the average of the three diagonal components of the seebeck tensor.
+                    'tensor' returns the seebeck effective mass respect to the three 
+                    diagonal components of the seebeck tensor.
+            doping_levels: False means that the seebeck effective mass is calculated
+                           for every value of the chemical potential
+                           True means that the seebeck effective mass is calculated
+                           for every value of the doping levels for both n and p types
+            temp:   temperature of calculated seebeck.
+            Lambda: fitting parameter used to model the scattering (0.5 means constant 
+                    relaxation time).
+        Returns:
+            a list of values for the seebeck effective mass w.r.t the chemical potential,
+            if doping_levels is set at False;
+            a dict with n an p keys that contain a list of values for the seebeck effective
+            mass w.r.t the doping levels, if doping_levels is set at True;
+            if 'tensor' is selected, each element of the lists is a list containing 
+            the three components of the seebeck effective mass.
+        """
+        
+        try:
+            from fdint import fdk
+        except ImportError:
+            raise BoltztrapError("fdint module not found. Please, install it.
+                                  It is needed to calculate Fermi integral quickly.")
+        
+        if doping_levels:
+            sbk_mass = {}
+            for dt in ('n','p'):
+                conc = self.doping[dt]
+                seebeck = self.get_seebeck(output=output, doping_levels=True)[dt][temp]
+                sbk_mass[dt] = []
+                for i in range(len(conc)):
+                    if output == 'average':
+                        sbk_mass[dt].append(
+                            seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i]), 
+                                                                conc[i], temp, Lambda))
+                    elif output == 'tensor':
+                        sbk_mass[dt].append([])
+                        for j in range(3):
+                            sbk_mass[dt][-1].append(
+                                seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i][j][j]),
+                                                                    conc[i], temp, Lambda))
+                
+        else:
+            seebeck = self.get_seebeck(output=output, doping_levels=False)[temp]
+            conc = self.get_carrier_concentration()[temp]
+            sbk_mass = []
+            for i in range(len(conc)):
+                if output == 'average':
+                    sbk_mass.append(
+                        seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i]), 
+                                                            conc[i], temp, Lambda))
+                elif output == 'tensor':
+                    sbk_mass.append([])
+                    for j in range(3):
+                        sbk_mass[-1].append(
+                            seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i][j][j]),
+                                                                conc[i], temp, Lambda))
+        return sbk_mass
+    
+    def get_complexity_factor(self, output='average', temp=300, doping_levels=False,
+                              Lambda=0.5):
+        """
+        Fermi surface complexity factor respect to calculated as explained in Ref.
+        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor 
+        from ab initio band structure calculations. 
+        npj Computational Materials 3, 8 (2017).
+        
+        Args:
+            output: 'average' returns the complexity factor calculated using the average
+                    of the three diagonal components of the seebeck and conductivity tensors.
+                    'tensor' returns the complexity factor respect to the three
+                    diagonal components of seebeck and conductivity tensors.
+            doping_levels: False means that the complexity factor is calculated
+                           for every value of the chemical potential
+                           True means that the complexity factor is calculated
+                           for every value of the doping levels for both n and p types
+            temp:   temperature of calculated seebeck and conductivity.
+            Lambda: fitting parameter used to model the scattering (0.5 means constant 
+                    relaxation time).
+        Returns:
+            a list of values for the complexity factor w.r.t the chemical potential,
+            if doping_levels is set at False;
+            a dict with n an p keys that contain a list of values for the complexity factor
+            w.r.t the doping levels, if doping_levels is set at True;
+            if 'tensor' is selected, each element of the lists is a list containing 
+            the three components of the complexity factor.
+        """
+        
+        if doping_levels:
+            cmplx_fact = {}
+            for dt in ('n','p'):
+                sbk_mass = self.get_seebeck_eff_mass(output, temp, True, Lambda)[dt]
+                cond_mass = self.get_average_eff_mass(output=output, doping_levels=True)[dt][temp]
+                
+                if output == 'average':
+                    cmplx_fact[dt] = [ (m_s/abs(m_c))**1.5 for m_s,m_c in zip(sbk_mass,cond_mass)]
+                elif output == 'tensor':
+                    cmplx_fact[dt] = []
+                    for i in range(len(sbk_mass)):
+                        cmplx_fact[dt].append([])
+                        for j in range(3):
+                            cmplx_fact[dt][-1].append((sbk_mass[i][j]/abs(cond_mass[i][j][j]))**1.5)
+                
+        else:
+            sbk_mass = self.get_seebeck_eff_mass(output, temp, False, Lambda)
+            cond_mass = self.get_average_eff_mass(output=output, doping_levels=False)[temp]
+            
+            if output == 'average':
+                cmplx_fact = [ (m_s/abs(m_c))**1.5 for m_s,m_c in zip(sbk_mass,cond_mass)]
+            elif output == 'tensor':
+                cmplx_fact = []
+                for i in range(len(sbk_mass)):
+                    cmplx_fact.append([])
+                    for j in range(3):
+                        cmplx_fact[-1].append((sbk_mass[i][j]/abs(cond_mass[i][j][j]))**1.5)
+            
+        return cmplx_fact
 
     def get_extreme(self, target_prop, maximize=True, min_temp=None,
                     max_temp=None, min_doping=None, max_doping=None,
@@ -1897,7 +2042,7 @@ class BoltztrapAnalyzer(object):
 
         results = {'gap': self.gap,
                    'mu_steps': self.mu_steps,
-                   'scissor': self.intrans["scissor"],
+                   'intrans': self.intrans,
                    'cond': self._cond,
                    'seebeck': self._seebeck,
                    'kappa': self._kappa,
@@ -1926,7 +2071,8 @@ class BoltztrapAnalyzer(object):
 
         def _make_float_hall(a):
             return [i for i in a[:27]]
-
+        
+        intrans = data.get('intrans')
         gap = data.get('gap')
         mu_steps = [float(d) for d in data['mu_steps']] if \
             'mu_steps' in data else None
@@ -1990,8 +2136,8 @@ class BoltztrapAnalyzer(object):
 
         return BoltztrapAnalyzer(gap, mu_steps, cond, seebeck, kappa, hall,
                                  doping, mu_doping, seebeck_doping,
-                                 cond_doping, kappa_doping, hall_doping, dos,
-                                 dos_partial, carrier_conc, vol, warning)
+                                 cond_doping, kappa_doping, hall_doping, intrans,
+                                 dos, dos_partial, carrier_conc, vol, warning)
 
 
 def read_cube_file(filename):
@@ -2111,3 +2257,41 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
         bcheck = "No nb given"
 
     return bcheck
+
+
+def seebeck_spb(eta,Lambda=0.5):
+    """
+        Seebeck analytic formula in the single parabolic model
+    """
+    return BOLTZMANN_CONST/ELECTRON_CHARGE * ((2. + Lambda) * fdk( 1.+ Lambda, eta)/ 
+                 ((1.+Lambda)*fdk(Lambda, eta))- eta) * 1e+6
+
+def eta_from_seebeck(seeb,Lambda):
+    """ 
+        It takes a value of seebeck and adjusts the analytic seebeck until it's equal
+        Returns: eta where the two seebeck coefficients are equal 
+        (reduced chemical potential)
+    """
+    from scipy.optimize import fsolve
+    out = fsolve(lambda x: (seebeck_spb(x,Lambda) - abs(seeb)) ** 2, 1.,full_output=True)
+    return out[0][0]
+
+
+def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
+    """
+        Calculate seebeck effective mass at a certain carrier concentration
+        eta in kB*T units, n in cm-3, T in K, returns mass in m0 units
+    """
+    return (2 * np.pi**2 * abs(n) * 10 ** 6 / (fdk(0.5,eta))) ** (2. / 3)\
+            / (2 * ELECTRON_MASS * BOLTZMANN_CONST * T / (PLANCK_CONSTANT/2/np.pi) ** 2)
+
+
+def seebeck_eff_mass_from_seebeck_carr(seeb, n, T, Lambda):
+    """
+        Find the chemical potential where analytic and calculated seebeck are identical
+        and then calculate the seebeck effective mass at that chemical potential and 
+        a certain carrier concentration n
+    """
+    eta = eta_from_seebeck(seeb,Lambda)
+    mass = seebeck_eff_mass_from_carr(eta, n, T, Lambda)
+    return mass

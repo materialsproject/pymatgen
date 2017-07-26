@@ -85,6 +85,44 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz_fermi.fermi_surface_data[21][79][19],
                                -1.8831911809439161, 5)
 
+    def test_get_seebeck_eff_mass(self):
+        ref = [1.956090529381193, 2.0339311618566343, 1.1529383757896965]
+        ref2 = [4258.4072823354145, 4597.0351887125289, 4238.1262696392705]
+        sbk_mass_tens_mu = self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=False, 
+                                         temp=300)[3]
+        sbk_mass_tens_dop = self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=True,
+                                         temp=300)['n'][2]
+        sbk_mass_avg_mu = self.bz.get_seebeck_eff_mass(output='average', doping_levels=False, 
+                                         temp=300)[3]
+        sbk_mass_avg_dop = self.bz.get_seebeck_eff_mass(output='average', doping_levels=True,
+                                         temp=300)['n'][2]
+        
+        for i in range(0, 3):
+            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i])
+            self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i])
+        
+        self.assertAlmostEqual(sbk_mass_avg_mu, 4361.4744008038842)
+        self.assertAlmostEqual(sbk_mass_avg_dop, 1.661553842105382)
+
+    def test_get_complexity_factor(self):
+        ref = [2.7658776815227828, 2.9826088215568403, 0.28881335881640308]
+        ref2 = [0.0112022048620205, 0.0036001049607186602, 0.0083028947173193028]
+        sbk_mass_tens_mu = self.bz.get_complexity_factor(output='tensor', doping_levels=False, 
+                                         temp=300)[3]
+        sbk_mass_tens_dop = self.bz.get_complexity_factor(output='tensor', doping_levels=True,
+                                         temp=300)['n'][2]
+        sbk_mass_avg_mu = self.bz.get_complexity_factor(output='average', doping_levels=False, 
+                                         temp=300)[3]
+        sbk_mass_avg_dop = self.bz.get_complexity_factor(output='average', doping_levels=True,
+                                         temp=300)['n'][2]
+        
+        for i in range(0, 3):
+            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i])
+            self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i])
+        
+        self.assertAlmostEqual(sbk_mass_avg_mu, 0.00628677029221)
+        self.assertAlmostEqual(sbk_mass_avg_dop, 1.12322832119)
+
     def test_get_seebeck(self):
         ref = [-768.99078999999995, -724.43919999999991, -686.84682999999973]
         for i in range(0, 3):
