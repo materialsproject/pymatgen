@@ -24,8 +24,8 @@ from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.core.physical_constants import BOLTZMANN_CONST, 
-                                             PLANCK_CONSTANT,ELECTRON_CHARGE,
+from pymatgen.core.physical_constants import BOLTZMANN_CONST, \
+                                             PLANCK_CONSTANT,ELECTRON_CHARGE, \
                                              ELECTRON_MASS 
 
 
@@ -1344,8 +1344,8 @@ class BoltztrapAnalyzer(object):
         try:
             from fdint import fdk
         except ImportError:
-            raise BoltztrapError("fdint module not found. Please, install it.
-                                  It is needed to calculate Fermi integral quickly.")
+            raise BoltztrapError("fdint module not found. Please, install it.\n"+
+                                "It is needed to calculate Fermi integral quickly.")
         
         if doping_levels:
             sbk_mass = {}
