@@ -11,6 +11,7 @@ from pymatgen.electronic_structure.bandstructure import  BandStructure
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer, BoltztrapRunner
 from pymatgen.electronic_structure.core import Spin, OrbitalType
 from monty.serialization import loadfn
+from monty.os.path import which
 
 try:
     from ase.io.cube import read_cube
@@ -22,11 +23,15 @@ try:
 except ImportError:
     fdint = None
 
+x_trans = which("x_trans")
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
+@unittest.skipIf(not x_trans, "No x_trans.")
 class BoltztrapAnalyzerTest(unittest.TestCase):
+    
     @classmethod
     def setUpClass(cls):
         cls.bz = BoltztrapAnalyzer.from_files(
