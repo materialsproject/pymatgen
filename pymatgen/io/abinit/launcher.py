@@ -6,7 +6,7 @@ from __future__ import unicode_literals, division, print_function
 
 import os
 import time
-import yaml
+import ruamel.yaml as yaml
 import pickle
 
 from collections import deque
@@ -375,14 +375,14 @@ class PyFlowScheduler(object):
     def from_file(cls, filepath):
         """Read the configuration parameters from a Yaml file."""
         with open(filepath, "rt") as fh:
-            return cls(**yaml.load(fh))
+            return cls(**yaml.safe_load(fh))
 
     @classmethod
     def from_string(cls, s):
         """Create an istance from string s containing a YAML dictionary."""
         stream = cStringIO(s)
         stream.seek(0)
-        return cls(**yaml.load(stream))
+        return cls(**yaml.safe_load(stream))
 
     @classmethod
     def from_user_config(cls):

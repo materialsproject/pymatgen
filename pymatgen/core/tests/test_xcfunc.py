@@ -72,4 +72,8 @@ class LibxcFuncTest(PymatgenTest):
         assert unknown_xc.type == "GGA+LDA"
         assert unknown_xc.name == "GGA_X_PBE+LDA_C_PW"
 
+        gga_pbe = XcFunc.from_type_name("GGA", "GGA_X_PBE+GGA_C_PBE")
+        assert gga_pbe.type == "GGA" and gga_pbe.name == "PBE"
+        assert str(gga_pbe) == "PBE"
+
 

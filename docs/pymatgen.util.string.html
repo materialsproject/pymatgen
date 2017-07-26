@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.util.string module &#8212; pymatgen 2017.7.21 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.21',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.util.string">
+<span id="pymatgen-util-string-module"></span><h1>pymatgen.util.string module<a class="headerlink" href="#module-pymatgen.util.string" title="Permalink to this headline">¶</a></h1>
+<p>This module provides utility classes for string operations.</p>
+<dl class="class">
+<dt id="pymatgen.util.string.StringColorizer">
+<em class="property">class </em><code class="descname">StringColorizer</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#StringColorizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.StringColorizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="pymatgen.util.string.StringColorizer.colours">
+<code class="descname">colours</code><em class="property"> = {'default': '', 'blue': '\x1b[01;34m', 'cyan': '\x1b[01;36m', 'green': '\x1b[01;32m', 'red': '\x1b[01;31m'}</em><a class="headerlink" href="#pymatgen.util.string.StringColorizer.colours" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.string.formula_double_format">
+<code class="descname">formula_double_format</code><span class="sig-paren">(</span><em>afloat</em>, <em>ignore_ones=True</em>, <em>tol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#formula_double_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.formula_double_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is used to make pretty formulas by formatting the amounts.
+Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>afloat</strong> (<em>float</em>) &#8211; a float</li>
+<li><strong>ignore_ones</strong> (<em>bool</em>) &#8211; if true, floats of 1 are ignored.</li>
+<li><strong>tol</strong> (<em>float</em>) &#8211; Tolerance to round to nearest int. i.e. 2.0000000001 -&gt; 2</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A string representation of the float for formulas.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.string.latexify">
+<code class="descname">latexify</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#latexify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.latexify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a latex formatted formula. E.g., Fe2O3 is transformed to
+Fe$_{2}$O$_{3}$.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> (<em>str</em>) &#8211; Input formula.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Formula suitable for display as in LaTeX with proper subscripts.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.string.latexify_spacegroup">
+<code class="descname">latexify_spacegroup</code><span class="sig-paren">(</span><em>spacegroup_symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#latexify_spacegroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.latexify_spacegroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
+P2$_{1}$/c and P-1 is converted to P$overline{1}$.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spacegroup_symbol</strong> (<em>str</em>) &#8211; A spacegroup symbol</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A latex formatted spacegroup with proper subscripts and overlines.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.string.str_delimited">
+<code class="descname">str_delimited</code><span class="sig-paren">(</span><em>results</em>, <em>header=None</em>, <em>delimiter='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#str_delimited"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.str_delimited" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a tuple of tuples, generate a delimited string form.
+&gt;&gt;&gt; results = [[&#8220;a&#8221;,&#8221;b&#8221;,&#8221;c&#8221;],[&#8220;d&#8221;,&#8221;e&#8221;,&#8221;f&#8221;],[1,2,3]]
+&gt;&gt;&gt; print(str_delimited(results,delimiter=&#8221;,&#8221;))
+a,b,c
+d,e,f
+1,2,3</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>result</strong> &#8211; 2d sequence of arbitrary types.</li>
+<li><strong>header</strong> &#8211; optional header</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Aligned string output in a table-like format.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.string.stream_has_colours">
+<code class="descname">stream_has_colours</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#stream_has_colours"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.stream_has_colours" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if stream supports colours. Python cookbook, #475186</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.string.transformation_to_string">
+<code class="descname">transformation_to_string</code><span class="sig-paren">(</span><em>matrix</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em>, <em>components=('x'</em>, <em>'y'</em>, <em>'z')</em>, <em>c=''</em>, <em>delim='</em>, <em>'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#transformation_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method. Given matrix returns string, e.g. x+2y+1/4
+:param matrix
+:param translation_vec
+:param components: either (&#8216;x&#8217;, &#8216;y&#8217;, &#8216;z&#8217;) or (&#8216;a&#8217;, &#8216;b&#8217;, &#8216;c&#8217;)
+:param c: optional additional character to print (used for magmoms)
+:param delim: delimiter
+:return: xyz string</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.util.string.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

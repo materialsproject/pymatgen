@@ -141,8 +141,17 @@ class PWInput(object):
             sub.append("/")
             out.append(",\n".join(sub))
 
+        out.append("ATOMIC_SPECIES")
+        for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
+            e = re.match(r"[A-Z][a-z]?", k).group(0)
+            if self.pseudo is not None:
+                p = v
+            else:
+                p = v['pseudo']
+            out.append("  %s  %.4f %s" % (k, Element(e).atomic_mass, p)) 
+
         out.append("ATOMIC_POSITIONS crystal")
-        if self.pseudo != None:
+        if self.pseudo is not None:
             for site in self.structure:
                 out.append("  %s %.6f %.6f %.6f" % (site.specie.symbol, site.a,
                                                     site.b, site.c))
@@ -154,15 +163,6 @@ class PWInput(object):
                     if v == site.properties:
                         name = k
                 out.append("  %s %.6f %.6f %.6f" % (name, site.a, site.b, site.c))
-
-        out.append("ATOMIC_SPECIES")
-        for k, v in site_descriptions.items():
-            e = re.match(r"[A-Z][a-z]?", k).group(0)
-            if self.pseudo != None:
-                p = v
-            else:
-                p = v['pseudo']
-            out.append("  %s  %.4f %s" % (k, Element(e).atomic_mass, p)) 
 
         out.append("K_POINTS %s" % self.kpoints_mode)
         kpt_str = ["%s" % i for i in self.kpoints_grid]
@@ -273,7 +273,7 @@ class PWInput(object):
                     kpoints_mode = mode[1]
             elif mode[0] == "structure":
                 m_l = re.match(r'(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)', line)
-                m_p = re.match(r'(\w+)\s+(-?\d+\.\d*)+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)', line)
+                m_p = re.match(r'(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)', line)
                 if m_l:
                     lattice += [ float(m_l.group(1)), float(m_l.group(2)), float(m_l.group(3)) ]
                 elif m_p:

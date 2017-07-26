@@ -296,6 +296,14 @@ class IStructureTest(PymatgenTest):
         bcc_prim = bcc_li.get_primitive_structure()
         self.assertEqual(len(bcc_prim), 1)
         self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+        bcc_li = IStructure(Lattice.cubic(4.09), ["Li"] * 2, coords,
+                            site_properties={"magmom": [1, -1]})
+        bcc_prim = bcc_li.get_primitive_structure()
+        self.assertEqual(len(bcc_prim), 1)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+        bcc_prim = bcc_li.get_primitive_structure(use_site_props=True)
+        self.assertEqual(len(bcc_prim), 2)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 90, 3)
 
         coords = [[0] * 3, [0.5] * 3, [0.25] * 3, [0.26] * 3]
         s = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
@@ -1152,8 +1160,11 @@ class MoleculeTest(PymatgenTest):
                             "C", "H"], coords)
         benzene.substitute(1, sub)
         self.assertEqual(benzene.formula, "H8 C7")
-        #Carbon attached should be in plane.
+        # Carbon attached should be in plane.
         self.assertAlmostEqual(benzene[11].coords[2], 0)
+        benzene[14] = "Br"
+        benzene.substitute(13, sub)
+        self.assertEqual(benzene.formula, "H9 C8 Br1")
 
     def test_to_from_file_string(self):
         for fmt in ["xyz", "json", "g03"]:

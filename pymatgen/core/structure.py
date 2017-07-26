@@ -28,7 +28,7 @@ import numpy as np
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, get_el_sp
+from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -532,7 +532,7 @@ class IStructure(SiteCollection, MSONable):
 
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
-                   
+
     @classmethod
     def from_magnetic_spacegroup(cls, msg, lattice, species, coords, site_properties,
                                   transform_setting=None, coords_are_cartesian=False, tol=1e-5):
@@ -1147,7 +1147,7 @@ class IStructure(SiteCollection, MSONable):
                                           site_properties=self.site_properties))
         return structs
 
-    def get_primitive_structure(self, tolerance=0.25):
+    def get_primitive_structure(self, tolerance=0.25, use_site_props=False):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
         find the smallest possible one, so this method is recursively called
@@ -1161,15 +1161,27 @@ class IStructure(SiteCollection, MSONable):
                 particular site. For example, [0.1, 0, 0.1] in cartesian
                 coordinates will be considered to be on the same coordinates
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
+            use_site_props (bool): Whether to account for site properties in
+                differntiating sites.
 
         Returns:
             The most primitive structure found.
         """
+        def site_label(site):
+            if not use_site_props:
+                return site.species_string
+            else:
+                d = [site.species_string]
+                for k in sorted(site.properties.keys()):
+                    d.append(k + "=" + str(site.properties[k]))
+                return ", ".join(d)
+
         # group sites by species string
-        sites = sorted(self._sites, key=lambda s: s.species_string)
+        sites = sorted(self._sites, key=site_label)
+
         grouped_sites = [
             list(a[1])
-            for a in itertools.groupby(sites, key=lambda s: s.species_string)]
+            for a in itertools.groupby(sites, key=site_label)]
         grouped_fcoords = [np.array([s.frac_coords for s in g])
                            for g in grouped_sites]
 
@@ -1310,7 +1322,8 @@ class IStructure(SiteCollection, MSONable):
                                   coords_are_cartesian=False)
 
                     return s.get_primitive_structure(
-                        tolerance).get_reduced_structure()
+                        tolerance=tolerance, use_site_props=use_site_props
+                    ).get_reduced_structure()
 
         return self.copy()
 
@@ -1417,7 +1430,6 @@ class IStructure(SiteCollection, MSONable):
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
 
-
         Returns:
             (str) if filename is None. None otherwise.
         """
@@ -1452,18 +1464,13 @@ class IStructure(SiteCollection, MSONable):
             else:
                 return XSF(self).to_string()
         else:
-            import yaml
-
-            try:
-                from yaml import CSafeDumper as Dumper
-            except ImportError:
-                from yaml import SafeDumper as Dumper
+            import ruamel.yaml as yaml
             if filename:
                 with zopen(filename, "wt") as f:
-                    yaml.dump(self.as_dict(), f, Dumper=Dumper)
+                    yaml.safe_dump(self.as_dict(), f)
                 return
             else:
-                return yaml.dump(self.as_dict(), Dumper=Dumper)
+                return yaml.safe_dump(self.as_dict())
 
         if filename:
             writer.write_file(filename)
@@ -1507,8 +1514,8 @@ class IStructure(SiteCollection, MSONable):
             d = json.loads(input_string)
             s = Structure.from_dict(d)
         elif fmt == "yaml":
-            import yaml
-            d = yaml.load(input_string)
+            import ruamel.yaml as yaml
+            d = yaml.safe_load(input_string)
             s = Structure.from_dict(d)
         elif fmt == "xsf":
             s = XSF.from_string(input_string).structure
@@ -2085,17 +2092,13 @@ class IMolecule(SiteCollection, MSONable):
             else:
                 return json.dumps(self.as_dict())
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
-            import yaml
+            import ruamel.yaml as yaml
 
-            try:
-                from yaml import CSafeDumper as Dumper
-            except ImportError:
-                from yaml import SafeDumper as Dumper
             if filename:
                 with zopen(fname, "wt", encoding='utf8') as f:
-                    return yaml.dump(self.as_dict(), f, Dumper=Dumper)
+                    return yaml.safe_dump(self.as_dict(), f)
             else:
-                return yaml.dump(self.as_dict(), Dumper=Dumper)
+                return yaml.safe_dump(self.as_dict())
 
         else:
             m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
@@ -2136,13 +2139,8 @@ class IMolecule(SiteCollection, MSONable):
             d = json.loads(input_string)
             return cls.from_dict(d)
         elif fmt == "yaml":
-            import yaml
-
-            try:
-                from yaml import CSafeDumper as Dumper, CLoader as Loader
-            except ImportError:
-                from yaml import SafeDumper as Dumper, Loader
-            d = yaml.load(input_string, Loader=Loader)
+            import ruamel.yaml as yaml
+            d = yaml.safe_load(input_string)
             return cls.from_dict(d)
         else:
             from pymatgen.io.babel import BabelMolAdaptor
@@ -2886,7 +2884,8 @@ class Molecule(IMolecule, collections.MutableSequence):
         nelectrons = 0
         for site in self._sites:
             for sp, amt in site.species_and_occu.items():
-                nelectrons += sp.Z * amt
+                if not isinstance(sp, DummySpecie):
+                    nelectrons += sp.Z * amt
         nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:
@@ -3117,9 +3116,9 @@ class Molecule(IMolecule, collections.MutableSequence):
                    neighbor to the C atom in CH3. The X-C bond indicates the
                    directionality to connect the atoms.
                 2. A string name. The molecule will be obtained from the
-                   relevant template in functional_groups.json.
-            bond_order: A specified bond order to calculate the bond length
-                between the attached functional group and the nearest
+                   relevant template in func_groups.json.
+            bond_order (int): A specified bond order to calculate the bond
+                length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
         """
 
@@ -3130,8 +3129,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             # is not the site being substituted.
             for inn, dist2 in self.get_neighbors(nn, 3):
                 if inn != self[index] and \
-                                dist2 < 1.2 * get_bond_length(nn.specie,
-                                                              inn.specie):
+                        dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
                     all_non_terminal_nn.append((nn, dist))
                     break
 
@@ -3164,8 +3162,8 @@ class Molecule(IMolecule, collections.MutableSequence):
         if bl is not None:
             func_grp = func_grp.copy()
             vec = func_grp[0].coords - func_grp[1].coords
-            func_grp[0] = "X", func_grp[1].coords + bl / np.linalg.norm(vec) \
-                          * vec
+            vec /= np.linalg.norm(vec)
+            func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
 
         # Align X to the origin.
         x = func_grp[0]

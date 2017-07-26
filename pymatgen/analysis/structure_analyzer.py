@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 
 import six
-import yaml
+import ruamel.yaml as yaml
 import os
 
 """
@@ -163,7 +163,7 @@ class JMolCoordFinder:
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                   "bonds_jmol_ob.yaml")
         with open(bonds_file, 'r') as f:
-            self.el_radius = yaml.load(f)
+            self.el_radius = yaml.safe_load(f)
 
         # update any user preference elemental radii
         if el_radius_updates:
@@ -605,7 +605,7 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
 
 def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
                        min_slab_size=5, min_vacuum_size=5,
-                       standardize=True):
+                       standardize=True, bonds=None):
 
     """
     This method returns whether a structure is 3D, 2D (layered), or 1D (linear 
@@ -617,6 +617,11 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
     Note that a 1D structure detection might indicate problems in the bonding
     algorithm, particularly for ionic crystals (e.g., NaCl)
     
+    Users can change the behavior of bonds detection by passing either
+    el_radius_updates to update atomic radii for auto-detection of max bond 
+    distances, or bonds to explicitly specify max bond distances for atom pairs.
+    Note that if you pass both, el_radius_updates are ignored.
+    
     Args:
         structure: (Structure) structure to analyze dimensionality for 
         max_hkl: (int) max index of planes to look for layers
@@ -626,6 +631,10 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
         standardize (bool): whether to standardize the structure before 
             analysis. Set to False only if you already have the structure in a 
             convention where layers / chains will be along low <hkl> indexes.
+        bonds ({(specie1, specie2): max_bond_dist}: bonds are
+                specified as a dict of tuples: float of specie1, specie2
+                and the max bonding distance. For example, PO4 groups may be
+                defined as {("P", "O"): 3}.
 
     Returns: (int) the dimensionality of the structure - 1 (molecules/chains), 
         2 (layered), or 3 (3D)
@@ -635,7 +644,8 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
         structure = SpacegroupAnalyzer(structure).\
             get_conventional_standard_structure()
 
-    bonds = get_max_bond_lengths(structure)
+    if not bonds:
+        bonds = get_max_bond_lengths(structure, el_radius_updates)
 
     num_surfaces = 0
     for h in range(max_hkl):

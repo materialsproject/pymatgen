@@ -117,7 +117,11 @@ def _parse_v_parameters(val_type, val, filename, param_name):
 
 
 def _parse_varray(elem):
-    return [[_vasprun_float(i) for i in v.text.split()] for v in elem]
+    if elem.get("type", None) == 'logical':
+        m = [[True if i=='T' else False for i in v.text.split()] for v in elem]
+    else:
+        m = [[_vasprun_float(i) for i in v.text.split()] for v in elem]
+    return m
 
 
 def _parse_from_incar(filename, key):
@@ -442,8 +446,8 @@ class Vasprun(MSONable):
                        elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
                         self.dielectric = self._parse_diel(elem)
                     else:
-                        self.other_dielectric[elem.attrib[
-                            "comment"]] = self._parse_diel(elem)
+                        comment = elem.attrib["comment"]
+                        self.other_dielectric[comment] = self._parse_diel(elem)
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
                     self.final_structure = self._parse_structure(elem)
@@ -618,7 +622,7 @@ class Vasprun(MSONable):
         """
         return self.parameters.get("ISPIN", 1) == 2
 
-    def get_computed_entry(self, inc_structure=False, parameters=None,
+    def get_computed_entry(self, inc_structure=True, parameters=None,
                            data=None):
         """
         Returns a ComputedStructureEntry from the vasprun.
@@ -809,7 +813,7 @@ class Vasprun(MSONable):
     def update_potcar_spec(self, path):
         def get_potcar_in_path(p):
             for fn in os.listdir(os.path.abspath(p)):
-                if 'POTCAR' in fn:
+                if fn.startswith('POTCAR'):
                     pc = Potcar.from_file(os.path.join(p, fn))
                     if {d.header for d in pc} == \
                             {sym for sym in self.potcar_symbols}:
@@ -995,7 +999,12 @@ class Vasprun(MSONable):
     def _parse_structure(self, elem):
         latt = _parse_varray(elem.find("crystal").find("varray"))
         pos = _parse_varray(elem.find("varray"))
-        return Structure(latt, self.atomic_symbols, pos)
+        struct = Structure(latt, self.atomic_symbols, pos)
+        sdyn = elem.find("varray/[@name='selective']")
+        if sdyn:
+            struct.add_site_property('selective_dynamics',
+                                     _parse_varray(sdyn))
+        return struct
 
     def _parse_diel(self, elem):
         imag = [[float(l) for l in r.text.split()]
@@ -1298,6 +1307,25 @@ class Outcar(MSONable):
 
         Chemical Shift on each ion as a tuple of ChemicalShiftNotation, e.g.,
         (cs1, cs2, ...)
+        
+    .. attribute:: unsym_cs_tensor
+
+        Unsymmetrized Chemical Shift tensor matrixes on each ion as a list.
+        e.g.,
+        [[[sigma11, sigma12, sigma13],
+          [sigma21, sigma22, sigma23],
+          [sigma31, sigma32, sigma33]],
+          ...
+         [[sigma11, sigma12, sigma13],
+          [sigma21, sigma22, sigma23],
+          [sigma31, sigma32, sigma33]]]
+          
+    .. attribute:: unsym_cs_tensor 
+        G=0 contribution to chemical shift. 2D rank 3 matrix
+    
+    .. attribute:: cs_core_contribution
+       Core contribution to chemical shift. dict. e.g.,
+       {'Mg': -412.8, 'C': -200.5, 'O': -271.1}
 
     .. attribute:: efg
 
@@ -1571,7 +1599,7 @@ class Outcar(MSONable):
         """
         header_pattern = r"\s+frequency dependent\s+IMAGINARY " \
                          r"DIELECTRIC FUNCTION \(independent particle, " \
-                         r"no local field effects\)\s*"
+                         r"no local field effects\)(\sdensity-density)*$"
         row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 7)
 
         lines = []
@@ -1640,6 +1668,89 @@ class Outcar(MSONable):
                 cs.append(tensor)
             all_cs[name] = tuple(cs)
         self.data["chemical_shifts"] = all_cs
+
+
+    def read_cs_g0_contribution(self):
+        """
+            Parse the  G0 contribution of NMR chemical shift.
+
+            Returns:
+            G0 contribution matrix as list of list. 
+        """
+        header_pattern = r'^\s+G\=0 CONTRIBUTION TO CHEMICAL SHIFT \(field along BDIR\)\s+$\n' \
+                         r'^\s+-{50,}$\n' \
+                         r'^\s+BDIR\s+X\s+Y\s+Z\s*$\n' \
+                         r'^\s+-{50,}\s*$\n'
+        row_pattern = r'(?:\d+)\s+' + r'\s+'.join([r'([-]?\d+\.\d+)'] * 3)
+        footer_pattern = r'\s+-{50,}\s*$'
+        self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
+                                last_one_only=True, attribute_name="cs_g0_contribution")
+        return self.data["cs_g0_contribution"]
+
+
+    def read_cs_core_contribution(self):
+        """
+            Parse the core contribution of NMR chemical shift.
+
+            Returns:
+            G0 contribution matrix as list of list. 
+        """
+        header_pattern = r'^\s+Core NMR properties\s*$\n' \
+                         r'\n' \
+                         r'^\s+typ\s+El\s+Core shift \(ppm\)\s*$\n' \
+                         r'^\s+-{20,}$\n'
+        row_pattern = r'\d+\s+(?P<element>[A-Z][a-z]?\w?)\s+(?P<shift>[-]?\d+\.\d+)'
+        footer_pattern = r'\s+-{20,}\s*$'
+        self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=str,
+                                last_one_only=True, attribute_name="cs_core_contribution")
+        core_contrib = {d['element']: float(d['shift'])
+                        for d in self.data["cs_core_contribution"]}
+        self.data["cs_core_contribution"] = core_contrib
+        return self.data["cs_core_contribution"]
+
+
+    def read_cs_raw_symmetrized_tensors(self):
+        """
+        Parse the matrix form of NMR tensor before corrected to table.
+        
+        Returns:
+        nsymmetrized tensors list in the order of atoms. 
+        """
+        header_pattern = r"\s+-{50,}\s+" \
+                         r"\s+Absolute Chemical Shift tensors\s+" \
+                         r"\s+-{50,}$"
+        first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
+        row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"]*3)
+        unsym_footer_pattern = "^\s+SYMMETRIZED TENSORS\s+$"
+
+        with zopen(self.filename, 'rt') as f:
+            text = f.read()
+        unsym_table_pattern_text = header_pattern + first_part_pattern + \
+                                   r"(?P<table_body>.+)" + unsym_footer_pattern
+        table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
+        rp = re.compile(row_pattern)
+        m = table_pattern.search(text)
+        if m:
+            table_text = m.group("table_body")
+            micro_header_pattern = r"ion\s+\d+"
+            micro_table_pattern_text = micro_header_pattern + r"\s*^(?P<table_body>(?:\s*" + \
+                                       row_pattern + r")+)\s+"
+            micro_table_pattern = re.compile(micro_table_pattern_text, re.MULTILINE | re.DOTALL)
+            unsym_tensors = []
+            for mt in micro_table_pattern.finditer(table_text):
+                table_body_text = mt.group("table_body")
+                tensor_matrix = []
+                for line in table_body_text.rstrip().split("\n"):
+                    ml = rp.search(line)
+                    processed_line = [float(v) for v in ml.groups()]
+                    tensor_matrix.append(processed_line)
+                unsym_tensors.append(tensor_matrix)
+            self.data["unsym_cs_tensor"] = unsym_tensors
+            return unsym_tensors
+        else:
+            raise ValueError("NMR UNSYMMETRIZED TENSORS is not found")
+
+
 
     def read_nmr_efg(self):
         """

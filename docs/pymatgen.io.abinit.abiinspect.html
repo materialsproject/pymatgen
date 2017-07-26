@@ -1,0 +1,466 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.abinit.abiinspect module &#8212; pymatgen 2017.7.21 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.21',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.io.abinit.abiinspect">
+<span id="pymatgen-io-abinit-abiinspect-module"></span><h1>pymatgen.io.abinit.abiinspect module<a class="headerlink" href="#module-pymatgen.io.abinit.abiinspect" title="Permalink to this headline">¶</a></h1>
+<p>This module provides objects to inspect the status of the Abinit tasks at run-time.
+by extracting information from the main output file (text format).</p>
+<dl class="class">
+<dt id="pymatgen.io.abinit.abiinspect.D2DEScfCycle">
+<em class="property">class </em><code class="descname">D2DEScfCycle</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#D2DEScfCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="pymatgen.io.abinit.abiinspect.ScfCycle"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.abiinspect.ScfCycle</span></code></a></p>
+<p>Result of the Phonon self-consistent cycle.</p>
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.D2DEScfCycle.MAGIC">
+<code class="descname">MAGIC</code><em class="property"> = 'iter   2DEtotal(Ha)'</em><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle.MAGIC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.D2DEScfCycle.last_etotal">
+<code class="descname">last_etotal</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle.last_etotal" title="Permalink to this definition">¶</a></dt>
+<dd><p>The 2-nd order derivative of the energy at the last iteration.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle">
+<em class="property">class </em><code class="descname">GroundStateScfCycle</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#GroundStateScfCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="pymatgen.io.abinit.abiinspect.ScfCycle"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.abiinspect.ScfCycle</span></code></a></p>
+<p>Result of the Ground State self-consistent cycle.</p>
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle.MAGIC">
+<code class="descname">MAGIC</code><em class="property"> = 'iter   Etot(hartree)'</em><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle.MAGIC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle.last_etotal">
+<code class="descname">last_etotal</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle.last_etotal" title="Permalink to this definition">¶</a></dt>
+<dd><p>The total energy at the last iteration.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.abiinspect.PhononScfCycle">
+<em class="property">class </em><code class="descname">PhononScfCycle</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#PhononScfCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.PhononScfCycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle" title="pymatgen.io.abinit.abiinspect.D2DEScfCycle"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.abiinspect.D2DEScfCycle</span></code></a></p>
+<p>Iterations of the DFPT SCF cycle for phonons.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.abiinspect.Relaxation">
+<em class="property">class </em><code class="descname">Relaxation</code><span class="sig-paren">(</span><em>cycles</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Iterable</span></code></p>
+<p>A list of <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle" title="pymatgen.io.abinit.abiinspect.GroundStateScfCycle"><code class="xref py py-class docutils literal"><span class="pre">GroundStateScfCycle</span></code></a> objects.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Forces, stresses  and crystal structures are missing.
+This object is mainly used to analyze the behavior of the Scf cycles
+during the structural relaxation. A more powerful and detailed analysis
+can be obtained by using the HIST.nc file.</p>
+</div>
+<dl class="classmethod">
+<dt id="pymatgen.io.abinit.abiinspect.Relaxation.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the object from the Abinit main output file.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.abinit.abiinspect.Relaxation.from_stream">
+<em class="property">classmethod </em><code class="descname">from_stream</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation.from_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.from_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract data from stream. Returns None if some error occurred.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.Relaxation.history">
+<code class="descname">history</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of lists with the evolution of the data as function of the relaxation step.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.Relaxation.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>axlist=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.plot" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Uses matplotlib to plot the evolution of the structural relaxation.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>axlist: List of axes. If None a new figure is produced.</dd>
+<dt>Returns:</dt>
+<dd><cite>matplotlib</cite> figure</dd>
+</dl>
+</div></blockquote>
+<p>keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+example: size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>tight_layout</td>
+<td>True if to call fig.tight_layout (default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.abiinspect.ScfCycle">
+<em class="property">class </em><code class="descname">ScfCycle</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#ScfCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Mapping</span></code></p>
+<p>It essentially consists of a dictionary mapping string
+to list of floats containing the data at the different iterations.</p>
+<dl class="classmethod">
+<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#ScfCycle.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the first occurrence of ScfCycle from file.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.from_stream">
+<em class="property">classmethod </em><code class="descname">from_stream</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#ScfCycle.from_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.from_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the first occurrence of ScfCycle from stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None if no <cite>ScfCycle</cite> entry is found.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.last_iteration">
+<code class="descname">last_iteration</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.last_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with the values of the last iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>axlist=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#ScfCycle.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.plot" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Uses matplotlib to plot the evolution of the SCF cycle. Return <cite>matplotlib</cite> figure</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>axlist: List of axes. If None a new figure is produced.</dd>
+</dl>
+<p>Returns: matplotlib figure</p>
+</div></blockquote>
+<p>keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+example: size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>tight_layout</td>
+<td>True if to call fig.tight_layout (default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.abiinspect.YamlDoc">
+<em class="property">class </em><code class="descname">YamlDoc</code><span class="sig-paren">(</span><em>text</em>, <em>lineno</em>, <em>tag=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlDoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Handy object that stores that YAML document, its main tag and the
+position inside the file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>text</strong> &#8211; String with the YAML document.</li>
+<li><strong>lineno</strong> &#8211; The line number where the document is located.</li>
+<li><strong>tag</strong> &#8211; The YAML tag associate to the document.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.YamlDoc.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlDoc.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use Yaml to parse the text (without the tag) and returns a dictionary.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.YamlDoc.lineno">
+<code class="descname">lineno</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.lineno" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.YamlDoc.tag">
+<code class="descname">tag</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.YamlDoc.text">
+<code class="descname">text</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.YamlDoc.text_notag">
+<code class="descname">text_notag</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.text_notag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the YAML text without the tag.
+Useful if we don&#8217;t have any constructor registered for the tag
+(we used the tag just to locate the document).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer">
+<em class="property">class </em><code class="descname">YamlTokenizer</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlTokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Iterator</span></code></p>
+<p>Provides context-manager support so you can use it in a with statement.</p>
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.Error">
+<code class="descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.YamlTokenizerError" title="pymatgen.io.abinit.abiinspect.YamlTokenizerError"><code class="xref py py-class docutils literal"><span class="pre">YamlTokenizerError</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.all_docs_with_tag">
+<code class="descname">all_docs_with_tag</code><span class="sig-paren">(</span><em>doc_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlTokenizer.all_docs_with_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.all_docs_with_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the documents with the specified tag.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.all_yaml_docs">
+<code class="descname">all_yaml_docs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlTokenizer.all_yaml_docs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.all_yaml_docs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list with all the YAML docs found in stream.
+Seek the stream before returning.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Assume that all the YAML docs (with the exception of the last one)
+are closed explicitely with the sentinel &#8216;...&#8217;</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlTokenizer.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.next">
+<code class="descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlTokenizer.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first YAML document in stream.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Assume that the YAML document are closed explicitely with the sentinel &#8216;...&#8217;</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.next_doc_with_tag">
+<code class="descname">next_doc_with_tag</code><span class="sig-paren">(</span><em>doc_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlTokenizer.next_doc_with_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.next_doc_with_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the next document with the specified tag. Empty string is no doc is found.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.seek">
+<code class="descname">seek</code><span class="sig-paren">(</span><em>offset</em><span class="optional">[</span>, <em>whence</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; None.  Move to new file position.<a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlTokenizer.seek"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.seek" title="Permalink to this definition">¶</a></dt>
+<dd><p>Argument offset is a byte count.  Optional argument whence defaults to
+0 (offset from start of file, offset should be &gt;= 0); other values are 1
+(move relative to current position, positive or negative), and 2 (move
+relative to end of file, usually negative, although many platforms allow
+seeking beyond the end of a file).  If the file is opened in text mode,
+only offsets returned by tell() are legal.  Use of other offsets causes
+undefined behavior.
+Note that not all file objects are seekable.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizerError">
+<em class="property">exception </em><code class="descname">YamlTokenizerError</code><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlTokenizerError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizerError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Exceptions raised by <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer" title="pymatgen.io.abinit.abiinspect.YamlTokenizer"><code class="xref py py-class docutils literal"><span class="pre">YamlTokenizer</span></code></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.abinit.abiinspect.plottable_from_outfile">
+<code class="descname">plottable_from_outfile</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#plottable_from_outfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.plottable_from_outfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function that returns a plottable object by inspecting the main output file of abinit
+Returns None if it is not able to detect the class to instantiate.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.abinit.abiinspect.straceback">
+<code class="descname">straceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#straceback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.straceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string with the traceback.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.abinit.abiinspect.yaml_read_irred_perts">
+<code class="descname">yaml_read_irred_perts</code><span class="sig-paren">(</span><em>filename</em>, <em>doc_tag='!IrredPerts'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#yaml_read_irred_perts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.yaml_read_irred_perts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the list of irreducible perturbations from file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.abinit.abiinspect.yaml_read_kpoints">
+<code class="descname">yaml_read_kpoints</code><span class="sig-paren">(</span><em>filename</em>, <em>doc_tag='!Kpoints'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#yaml_read_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.yaml_read_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the K-points from file.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.io.abinit.abiinspect.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

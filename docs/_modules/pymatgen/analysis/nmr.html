@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.nmr &#8212; pymatgen 2017.7.21 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2017.7.21',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.nmr</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A module to perform NMR data analysis/processing.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Xiaohui Qu&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2016, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Xiaohui Qu&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;xhqu1981@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Apr 17, 2016&quot;</span>
+
+
+<div class="viewcode-block" id="NMRChemicalShiftNotation"><a class="viewcode-back" href="../../../pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.NMRChemicalShiftNotation">[docs]</a><span class="k">class</span> <span class="nc">NMRChemicalShiftNotation</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper class to convert between different chemical shift conventions</span>
+<span class="sd">    internally using the Mehring notation. Note that this is different than the</span>
+<span class="sd">    default notion adopted by VASP which is the Maryland notation.</span>
+
+<span class="sd">    Three notations to describe chemical shift tensor (RK Harris; Magn. Reson.</span>
+<span class="sd">    Chem. 2008, 46, 582–598; DOI: 10.1002/mrc.2225) are supported.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sigma_1 (float): chemical shift tensor principle component 1</span>
+<span class="sd">        sigma_2 (float): chemical shift tensor principle component 2</span>
+<span class="sd">        sigma_3 (float): chemical shift tensor principle component 3</span>
+
+<span class="sd">    .. attribute:: sigma_11, simga_22, sigma33</span>
+<span class="sd">        principle components in Mehring notation</span>
+
+<span class="sd">    Authors: Xiaohui Qu</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">HaeberlenNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="n">typename</span><span class="o">=</span><span class="s2">&quot;HaeberlenNotion&quot;</span><span class="p">,</span>
+                                   <span class="n">field_names</span><span class="o">=</span><span class="s2">&quot;sigma_iso, delta_sigma, zeta, eta&quot;</span><span class="p">)</span>
+    <span class="n">MehringNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="n">typename</span><span class="o">=</span><span class="s2">&quot;MehringNotation&quot;</span><span class="p">,</span>
+                                 <span class="n">field_names</span><span class="o">=</span><span class="s2">&quot;sigma_iso, sigma_11, sigma_22, sigma_33&quot;</span><span class="p">)</span>
+    <span class="n">MarylandNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="n">typename</span><span class="o">=</span><span class="s2">&quot;MarylandNotation&quot;</span><span class="p">,</span>
+                                  <span class="n">field_names</span><span class="o">=</span><span class="s2">&quot;sigma_iso, omega, kappa&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span><span class="p">,</span> <span class="n">sigma_3</span><span class="p">):</span>
+        <span class="n">sigmas</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span><span class="p">,</span> <span class="n">sigma_3</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_33</span> <span class="o">=</span> <span class="n">sigmas</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">haeberlen_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: the Chemical shift tensor in Haeberlen Notation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sigma_iso</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma_11</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_22</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_33</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
+        <span class="n">h_order_sigmas</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_33</span><span class="p">],</span>
+                                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">sigma_iso</span><span class="p">),</span>
+                                <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">sigma_zz</span><span class="p">,</span> <span class="n">sigma_xx</span><span class="p">,</span> <span class="n">sigma_yy</span> <span class="o">=</span> <span class="n">h_order_sigmas</span>
+        <span class="n">delta_sigma</span> <span class="o">=</span> <span class="n">sigma_zz</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma_xx</span> <span class="o">+</span> <span class="n">sigma_yy</span><span class="p">)</span>
+        <span class="n">zeta</span> <span class="o">=</span> <span class="n">sigma_zz</span> <span class="o">-</span> <span class="n">sigma_iso</span>
+        <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_sigma</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">zeta</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.0E-5</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="n">sigma_yy</span> <span class="o">-</span> <span class="n">sigma_xx</span><span class="p">)</span> <span class="o">/</span> <span class="n">zeta</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HaeberlenNotation</span><span class="p">(</span><span class="n">sigma_iso</span><span class="p">,</span> <span class="n">delta_sigma</span><span class="p">,</span> <span class="n">zeta</span><span class="p">,</span> <span class="n">eta</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mehring_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: the Chemical shift tensor in Mehring Notation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sigma_iso</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma_11</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_22</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_33</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MehringNotation</span><span class="p">(</span><span class="n">sigma_iso</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_11</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">sigma_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_33</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">maryland_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: the Chemical shift tensor in Maryland Notation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sigma_iso</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma_11</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_22</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_33</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_33</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_11</span>
+        <span class="c1"># There is a typo in equation 20 from Magn. Reson. Chem. 2008, 46, 582–598, the sign is wrong.</span>
+        <span class="c1"># There correct order is presented in Solid State Nucl. Magn. Reson. 1993, 2, 285-288.</span>
+        <span class="n">kappa</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma_22</span> <span class="o">-</span> <span class="n">sigma_iso</span><span class="p">)</span> <span class="o">/</span> <span class="n">omega</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MarylandNotation</span><span class="p">(</span><span class="n">sigma_iso</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="NMRChemicalShiftNotation.from_maryland_notation"><a class="viewcode-back" href="../../../pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.NMRChemicalShiftNotation.from_maryland_notation">[docs]</a>    <span class="k">def</span> <span class="nf">from_maryland_notation</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sigma_iso</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
+        <span class="n">sigma_22</span> <span class="o">=</span> <span class="n">sigma_iso</span> <span class="o">+</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">/</span> <span class="mf">3.0</span>
+        <span class="n">sigma_11</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">sigma_iso</span> <span class="o">-</span> <span class="n">omega</span> <span class="o">-</span> <span class="n">sigma_22</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">sigma_33</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">sigma_iso</span> <span class="o">-</span> <span class="n">sigma_22</span> <span class="o">-</span> <span class="n">sigma_11</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sigma_11</span><span class="p">,</span> <span class="n">sigma_22</span><span class="p">,</span> <span class="n">sigma_33</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NMRChemicalShiftNotation.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.NMRChemicalShiftNotation.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sigma_11&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_11</span><span class="p">,</span>
+             <span class="s2">&quot;sigma_22&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_22</span><span class="p">,</span>
+             <span class="s2">&quot;sigma_33&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_33</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="NMRChemicalShiftNotation.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.NMRChemicalShiftNotation.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;sigma_11&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sigma_22&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sigma_33&quot;</span><span class="p">])</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

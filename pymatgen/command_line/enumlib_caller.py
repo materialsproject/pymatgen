@@ -4,6 +4,27 @@
 
 from __future__ import division, unicode_literals
 
+import re
+import math
+import subprocess
+import itertools
+import logging
+
+import numpy as np
+from monty.fractions import lcm
+import fractions
+
+from six.moves import reduce
+
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.periodic_table import DummySpecie
+from monty.os.path import which
+from monty.dev import requires
+from monty.tempfile import ScratchDir
+
 """
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
@@ -33,26 +54,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 16, 2012"
 
-import re
-import math
-import subprocess
-import itertools
-import logging
-
-import numpy as np
-from monty.fractions import lcm
-import fractions
-
-from six.moves import reduce
-
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.periodic_table import DummySpecie
-from monty.os.path import which
-from monty.dev import requires
-from monty.tempfile import ScratchDir
 
 logger = logging.getLogger(__name__)
 

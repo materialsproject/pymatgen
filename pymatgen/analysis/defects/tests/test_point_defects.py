@@ -574,7 +574,7 @@ class StructureMotifInterstitialTest(PymatgenTest):
                 validate_proximity=False, to_unit_cell=False,
                 coords_are_cartesian=False, site_properties=None)
         self.smi = StructureMotifInterstitial(self.silicon, "Si",
-                motif_types=["tet", "oct"],
+                motif_types=["tetalt", "octalt"],
                 op_threshs=[0.3, 0.5],
                 dl=0.4, doverlap=1.0, facmaxdl=1.01)
 

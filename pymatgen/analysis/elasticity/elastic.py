@@ -6,15 +6,18 @@ from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
 from pymatgen.analysis.elasticity.tensors import Tensor, \
-        voigt_map as vmap, TensorCollection
+    TensorCollection, get_uvec
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 from scipy.misc import factorial
+from scipy.integrate import quad
+from scipy.optimize import root
+from monty.serialization import loadfn
 from collections import OrderedDict
 import numpy as np
 import warnings
 import itertools
-import string
+import os
 
 import sympy as sp
 
@@ -70,12 +73,8 @@ class NthOrderElasticTensor(Tensor):
         if strain.shape == (6,):
             strain = Strain.from_voigt(strain)
         assert strain.shape == (3, 3), "Strain must be 3x3 or voigt-notation"
-        lc = string.ascii_lowercase[:self.rank-2]
-        lc_pairs = map(''.join, zip(*[iter(lc)]*2))
-        einsum_string = "ij" + lc + ',' + ','.join(lc_pairs) + "->ij"
-        einsum_args = [self] + [strain] * (self.order - 1)
-        stress_matrix = np.einsum(einsum_string, *einsum_args) \
-            / factorial(self.order - 1)
+        stress_matrix = self.einsum_sequence([strain]*(self.order - 1)) \
+                / factorial(self.order - 1)
         return Stress(stress_matrix)
 
     def energy_density(self, strain, convert_GPa_to_eV=True):
@@ -128,7 +127,8 @@ class ElasticTensor(NthOrderElasticTensor):
         which is the matrix inverse of the
         Voigt-notation elastic tensor
         """
-        return np.linalg.inv(self.voigt)
+        s_voigt = np.linalg.inv(self.voigt)
+        return ComplianceTensor.from_voigt(s_voigt)
 
     @property
     def k_voigt(self):
@@ -151,16 +151,16 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         returns the K_r bulk modulus
         """
-        return 1. / self.compliance_tensor[:3, :3].sum()
+        return 1. / self.compliance_tensor.voigt[:3, :3].sum()
 
     @property
     def g_reuss(self):
         """
         returns the G_r shear modulus
         """
-        return 15. / (8. * self.compliance_tensor[:3, :3].trace() -
-                      4. * np.triu(self.compliance_tensor[:3, :3]).sum() +
-                      3. * self.compliance_tensor[3:, 3:].trace())
+        return 15. / (8. * self.compliance_tensor.voigt[:3, :3].trace() -
+                      4. * np.triu(self.compliance_tensor.voigt[:3, :3]).sum() +
+                      3. * self.compliance_tensor.voigt[3:, 3:].trace())
 
     @property
     def k_vrh(self):
@@ -179,10 +179,34 @@ class ElasticTensor(NthOrderElasticTensor):
     @property
     def y_mod(self):
         """
-        Calculates Young's modulus (in SI units) using the Voigt-Reuss-Hill
-        averages of bulk and shear moduli
+        Calculates Young's modulus (in SI units) using the 
+        Voigt-Reuss-Hill averages of bulk and shear moduli
         """
         return 9.e9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh + self.g_vrh)
+
+    def directional_poisson_ratio(self, n, m, tol=1e-8):
+        """
+        Calculates the poisson ratio for a specific direction 
+        relative to a second, orthogonal direction
+
+        Args:
+            n (3-d vector): principal direction
+            m (3-d vector): secondary direction orthogonal to n
+            tol (float): tolerance for testing of orthogonality
+        """
+        n, m = get_uvec(n), get_uvec(m)
+        if not np.abs(np.dot(n, m)) < tol:
+            raise ValueError("n and m must be orthogonal")
+        v = self.compliance_tensor.einsum_sequence([n]*2 + [m]*2)
+        v *= -1 / self.compliance_tensor.einsum_sequence([n]*4)
+        return v
+
+    def directional_elastic_mod(self, n):
+        """
+        Calculates directional elastic modulus for a specific vector
+        """
+        n = get_uvec(n)
+        return self.einsum_sequence([n]*4)
 
     def trans_v(self, structure):
         """
@@ -346,6 +370,16 @@ class ElasticTensor(NthOrderElasticTensor):
         return 2.9772e-11 * avg_mass**(-1./2.) * (volume / natoms) ** (-1./6.) \
             * f * self.k_vrh ** 0.5
 
+    def debye_temperature_from_sound_velocities(self, structure):
+        """
+        Estimates Debye temperature from sound velocities
+        """
+        v0 = (structure.volume * 1e-30 / structure.num_sites)
+        vl, vt = self.long_v(structure), self.trans_v(structure)
+        vm = 3**(1./3.) * (1 / vl**3 + 2 / vt**3)**(-1./3.)
+        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1./3.)
+        return td
+
     @property
     def universal_anisotropy(self):
         """
@@ -361,6 +395,12 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         return (1. - 2. / 3. * self.g_vrh / self.k_vrh) / \
                (2. + 2. / 3. * self.g_vrh / self.k_vrh)
+
+    def green_kristoffel(self, u):
+        """
+        Returns the Green-Kristoffel tensor for a second-order tensor
+        """
+        return self.einsum_sequence([u, u], "ijkl,i,l")
 
     @property
     def property_dict(self):
@@ -408,33 +448,54 @@ class ElasticTensor(NthOrderElasticTensor):
         return cls.from_voigt(voigt_fit)
 
     @classmethod
-    def from_stress_dict(cls, stress_dict, vasp=True):
+    def from_independent_strains(cls, strains, stresses, eq_stress=None,
+                                 vasp=False, tol=1e-10):
         """
-        Constructs the elastic tensor from IndependentStrain-Stress dictionary
-        corresponding to legacy behavior of elasticity package.
-
+        Constructs the elastic tensor least-squares fit of independent strains
         Args:
-            stress_dict (dict): dictionary of stresses indexed by corresponding
-                IndependentStrain objects.
+            strains (list of Strains): list of strain objects to fit
+            stresses (list of Stresses): list of stress objects to use in fit
+                corresponding to the list of strains
+            eq_stress (Stress): equilibrium stress to use in fitting
             vasp (boolean): flag for whether the stress tensor should be
                 converted based on vasp units/convention for stress
+            tol (float): tolerance for removing near-zero elements of the
+                resulting tensor
         """
+        strain_states = [tuple(ss) for ss in np.eye(6)]
+        ss_dict = get_strain_state_dict(strains, stresses, eq_stress=eq_stress)
+        if not set(strain_states) <= set(ss_dict.keys()):
+            raise ValueError("Missing independent strain states: "
+                             "{}".format(set(strain_states) - set(ss_dict)))
+        if len(set(ss_dict.keys()) - set(strain_states)) > 0:
+            warnings.warn("Extra strain states in strain-stress pairs "
+                          "are neglected in independent strain fitting")
         c_ij = np.zeros((6, 6))
-        for i, j in itertools.product(range(6), repeat=2):
-            strains = [s for s in stress_dict.keys()
-                       if s.ij == vmap[i]]
-            xy = [(s[vmap[i]], stress_dict[s][vmap[j]]) for s in strains]
-            if len(xy) == 0:
-                raise ValueError("No ind. strains for vgt index {}".format(i))
-            elif len(xy) == 1:
-                xy += [(0, 0)]  # Fit through 0
-            c_ij[i, j] = np.polyfit(*zip(*xy), deg=1)[0]
+        for i in range(6):
+            istrains = ss_dict[strain_states[i]]["strains"]
+            istresses = ss_dict[strain_states[i]]["stresses"]
+            for j in range(6):
+                c_ij[i, j] = np.polyfit(istrains[:, i], istresses[:, j], 1)[0]
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
-        c_ij[0:, 3:] = 0.5 * c_ij[0:, 3:]  # for vgt doubling of e4,e5,e6
         c = cls.from_voigt(c_ij)
-        c = c.zeroed()
+        c = c.zeroed(tol)
         return c
+
+
+class ComplianceTensor(Tensor):
+    """
+    This class represents the compliance tensor, and exists
+    primarily to keep the voigt-conversion scheme consistent
+    since the compliance tensor has a unique vscale
+    """
+
+    def __new__(cls, s_array):
+        vscale = np.ones((6, 6))
+        vscale[3:] *= 2
+        vscale[:, 3:] *= 2
+        obj = super(ComplianceTensor, cls).__new__(cls, s_array, vscale=vscale)
+        return obj.view(cls)
 
 
 class ElasticTensorExpansion(TensorCollection):
@@ -490,7 +551,263 @@ class ElasticTensorExpansion(TensorCollection):
         return sum([c.energy_density(strain, convert_GPa_to_eV)
                     for c in self])
 
+    def get_ggt(self, n, u):
+        """
+        Gets the Generalized Gruneisen tensor for a given
+        third-order elastic tensor expansion.
 
+        Args:
+            n (3x1 array-like): normal mode direction
+            u (3x1 array-like): polarization direction
+        """
+        gk = self[0].einsum_sequence([n, u, n, u])
+        result = -(2*gk*np.outer(u, u) + self[0].einsum_sequence([n, n])
+                   + self[1].einsum_sequence([n, u, n, u])) / (2*gk)
+        return result
+
+    def get_tgt(self, temperature = None, structure=None, quad=None):
+        """
+        Gets the thermodynamic Gruneisen tensor (TGT) by via an
+        integration of the GGT weighted by the directional heat
+        capacity.
+        
+        See refs:
+            R. N. Thurston and K. Brugger, Phys. Rev. 113, A1604 (1964).
+            K. Brugger Phys. Rev. 137, A1826 (1965).
+
+        Args:
+            temperature (float): Temperature in kelvin, if not specified
+                will return non-cv-normalized value
+            structure (float): Structure to be used in directional heat
+                capacity determination, only necessary if temperature
+                is specified
+            quad (dict): quadrature for integration, should be
+                dictionary with "points" and "weights" keys defaults 
+                to quadpy.sphere.Lebedev(19) as read from file
+        """
+        if temperature and not structure:
+            raise ValueError("If using temperature input, you must also "
+                             "include structure")
+
+        if not quad:
+            quad = loadfn(os.path.join(os.path.dirname(__file__),
+                                       "quad_data.json"))
+        points = quad['points']
+        weights = quad['weights']
+        num, denom, c = np.zeros((3, 3)), 0, 1
+        for p, w in zip(points, weights):
+            gk = ElasticTensor(self[0]).green_kristoffel(p)
+            rho_wsquareds, us = np.linalg.eigh(gk)
+            us = [u / np.linalg.norm(u) for u in np.transpose(us)]
+            for u in us:
+                # TODO: this should be benchmarked 
+                if temperature:
+                    c = self.get_heat_capacity(temperature, structure, p, u)
+                num += c*self.get_ggt(p, u) * w
+                denom += c * w
+        return num / denom
+
+    def get_gruneisen_parameter(self, temperature=None, structure=None,
+                                quad=None):
+        """
+        Gets the single average gruneisen parameter from the TGT.
+
+        Args:
+            temperature (float): Temperature in kelvin, if not specified
+                will return non-cv-normalized value
+            structure (float): Structure to be used in directional heat
+                capacity determination, only necessary if temperature
+                is specified
+            quad (dict): quadrature for integration, should be
+                dictionary with "points" and "weights" keys defaults 
+                to quadpy.sphere.Lebedev(19) as read from file
+        """
+        return np.trace(self.get_tgt(temperature, structure, quad)) / 3.
+
+    def get_heat_capacity(self, temperature, structure, n, u):
+        """
+        Gets the directional heat capacity for a higher order tensor
+        expansion as a function of direction and polarization.
+
+        Args:
+            temperature (float): Temperature in kelvin
+            structure (float): Structure to be used in directional heat
+                capacity determination
+            n (3x1 array-like): direction for Cv determination
+            u (3x1 array-like): polarization direction, note that
+                no attempt for verification of eigenvectors is made
+        """
+        k = 1.38065e-23
+        kt = k*temperature
+        hbar_w = 1.05457e-34*self.omega(structure, n, u)
+        c = k * (hbar_w / kt) ** 2
+        c *= np.exp(hbar_w / kt) / (np.exp(hbar_w / kt) - 1)**2
+        return c * 6.022e23
+
+    def omega(self, structure, n, u):
+        """
+        Finds directional frequency contribution to the heat
+        capacity from direction and polarization
+
+        Args:
+            structure (Structure): Structure to be used in directional heat
+                capacity determination
+            n (3x1 array-like): direction for Cv determination
+            u (3x1 array-like): polarization direction, note that
+                no attempt for verification of eigenvectors is made
+        """
+        l0 = np.dot(np.sum(structure.lattice.matrix, axis=0), n)
+        l0 *= 1e-10 # in A
+        weight = structure.composition.weight * 1.66054e-27 # in kg
+        vol = structure.volume * 1e-30 # in m^3
+        vel = (1e9 * self[0].einsum_sequence([n, u, n, u])
+               / (weight / vol)) ** 0.5
+        return vel / l0
+
+    def thermal_expansion_coeff(self, structure, temperature, mode="debye"):
+        """
+        Gets thermal expansion coefficient from third-order constants.
+        
+        Args:
+            temperature (float): Temperature in kelvin, if not specified
+                will return non-cv-normalized value
+            structure (Structure): Structure to be used in directional heat
+                capacity determination, only necessary if temperature
+                is specified
+            mode (string): mode for finding average heat-capacity,
+                current supported modes are 'debye' and 'dulong-petit'
+        """
+        soec = ElasticTensor(self[0])
+        v0 = (structure.volume * 1e-30 / structure.num_sites)
+        if mode == "debye":
+            vl, vt = soec.long_v(structure), soec.trans_v(structure)
+            vm = 3**(1./3.) * (1 / vl**3 + 2 / vt**3)**(-1./3.)
+            td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1./3.)
+            t_ratio = temperature / td
+            integrand = lambda x: (x**4 * np.exp(x)) / (np.exp(x) - 1)**2
+            cv = 3 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
+        elif mode == "dulong-petit":
+            cv = 3 * 8.314
+        else:
+            raise ValueError("Mode must be debye or dulong-petit")
+        alpha = self.get_tgt() * cv / (soec.k_vrh * 1e9 * v0 * 6.022e23)
+        return alpha
+
+    def get_compliance_expansion(self):
+        """
+        Gets a compliance tensor expansion from the elastic
+        tensor expansion.
+        """
+        # TODO: this might have a general form
+        if not self.order <= 4:
+            raise ValueError("Compliance tensor expansion only "
+                             "supported for fourth-order and lower")
+        ce_exp = [ElasticTensor(self[0]).compliance_tensor]
+        einstring = "ijpq,pqrsuv,rskl,uvmn->ijklmn"
+        ce_exp.append(np.einsum(einstring, -ce_exp[-1], self[1],
+                                ce_exp[-1], ce_exp[-1]))
+        if self.order == 4:
+            # Four terms in the Fourth-Order compliance tensor
+            einstring_1 = "pqab,cdij,efkl,ghmn,abcdefgh"
+            tensors_1 = [ce_exp[0]]*4 + [self[-1]]
+            temp = -np.einsum(einstring_1, *tensors_1)
+            einstring_2 = "pqab,abcdef,cdijmn,efkl"
+            einstring_3 = "pqab,abcdef,efklmn,cdij"
+            einstring_4 = "pqab,abcdef,cdijkl,efmn"
+            for es in [einstring_2, einstring_3, einstring_4]:
+                temp -= np.einsum(es, ce_exp[0], self[-2], ce_exp[1], ce_exp[0])
+            ce_exp.append(temp)
+        return TensorCollection(ce_exp)
+
+    def get_strain_from_stress(self, stress):
+        """
+        Gets the strain from a stress state according
+        to the compliance expansion corresponding to the
+        tensor expansion.
+        """
+        compl_exp = self.get_compliance_expansion()
+        strain = 0
+        for n, compl in enumerate(compl_exp):
+            strain += compl.einsum_sequence([stress]*(n+1)) / factorial(n+1)
+        return strain
+
+    def get_effective_ecs(self, strain, order=2):
+        """
+        Returns the effective elastic constants
+        from the elastic tensor expansion.
+
+        Args:
+            strain (Strain or 3x3 array-like): strain condition
+                under which to calculate the effective constants
+            order (int): order of the ecs to be returned
+        """
+        ec_sum = 0
+        for n, ecs in enumerate(self[order-2:]):
+            ec_sum += ecs.einsum_sequence([strain] * n) / factorial(n)
+        return ec_sum
+
+    def get_wallace_tensor(self, tau):
+        """
+        Gets the Wallace Tensor for determining yield strength
+        criteria.
+
+        Args:
+            tau (3x3 array-like): stress at which to evaluate
+                the wallace tensor
+        """
+        b = 0.5 * (np.einsum("ml,kn->klmn", tau, np.eye(3)) +
+                   np.einsum("km,ln->klmn", tau, np.eye(3)) +
+                   np.einsum("nl,km->klmn", tau, np.eye(3)) +
+                   np.einsum("kn,lm->klmn", tau, np.eye(3)) +
+                   -2*np.einsum("kl,mn->klmn", tau, np.eye(3)))
+        strain = self.get_strain_from_stress(tau)
+        b += self.get_effective_ecs(strain)
+        return b
+
+    def get_symmetric_wallace_tensor(self, tau):
+        """
+        Gets the symmetrized wallace tensor for determining
+        yield strength criteria.
+
+        Args:
+            tau (3x3 array-like): stress at which to evaluate
+                the wallace tensor. 
+        """
+        wallace = self.get_wallace_tensor(tau)
+        return Tensor(0.5 * (wallace + np.transpose(wallace, [2, 3, 0, 1])))
+
+    def get_stability_criteria(self, s, n):
+        """
+        Gets the stability criteria from the symmetric
+        Wallace tensor from an input vector and stress
+        value.
+
+        Args:
+            s (float): Stress value at which to evaluate
+                the stability criteria
+            n (3x1 array-like): direction of the applied
+                stress
+        """
+        n = get_uvec(n)
+        stress = s * np.outer(n, n)
+        sym_wallace = self.get_symmetric_wallace_tensor(stress)
+        return np.linalg.det(sym_wallace.voigt)
+
+    def get_yield_stress(self, n):
+        """
+        Gets the yield stress for a given direction
+
+        Args:
+            n (3x1 array-like): direction for which to find the
+                yield stress
+        """
+        # TODO: root finding could be more robust
+        comp = root(self.get_stability_criteria, -1, args=n)
+        tens = root(self.get_stability_criteria, 1, args=n)
+        return (comp.x, tens.x)
+
+
+#TODO: abstract this for other tensor fitting procedures
 def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
     """
     nth order elastic constant fitting function based on 

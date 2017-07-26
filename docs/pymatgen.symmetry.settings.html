@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.symmetry.settings module &#8212; pymatgen 2017.7.21 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.21',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.symmetry.settings">
+<span id="pymatgen-symmetry-settings-module"></span><h1>pymatgen.symmetry.settings module<a class="headerlink" href="#module-pymatgen.symmetry.settings" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation">
+<em class="property">class </em><code class="descname">JonesFaithfulTransformation</code><span class="sig-paren">(</span><em>P</em>, <em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Transform between settings using matrix P and origin shift vector p,
+using same notation as reference.</p>
+<p>Should initialize using <cite>from_transformation_string</cite> in Jones
+faithful notation, given by a string specifying both a
+transformation matrix and an origin shift, with parts delimited
+by a semi-colon. Best shown by example:</p>
+<ul class="simple">
+<li><cite>a,b,c;0,0,0</cite> is the identity (no change)</li>
+<li><cite>-b+c,a+c,-a+b+c;0,0,0</cite> is R3:r to R3:h (rhombohedral to
+hexagonal setting)</li>
+<li><cite>a,b,c;-1/4,-1/4,-1/4</cite> is Pnnn:1 to Pnnn:2 (change in origin
+choice)</li>
+<li><cite>b,c,a;-1/2,-1/2,-1/2</cite> is Bbab:1 to Ccca:2 (change settin
+and origin)</li>
+</ul>
+<p>Can transform points (coords), lattices and symmetry operations.</p>
+<p>Used for transforming magnetic space groups since these are
+commonly used in multiple settings, due to needing to transform
+between magnetic and non-magnetic settings.</p>
+<p>See: International Tables for Crystallography (2016). Vol. A,
+Chapter 1.5, pp. 75–106.</p>
+<dl class="attribute">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.P">
+<code class="descname">P</code><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.P" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>return</em> &#8211; transformation matri</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.from_origin_shift">
+<em class="property">classmethod </em><code class="descname">from_origin_shift</code><span class="sig-paren">(</span><em>origin_shift='0</em>, <em>0</em>, <em>0'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.from_origin_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.from_origin_shift" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.from_transformation_string">
+<em class="property">classmethod </em><code class="descname">from_transformation_string</code><span class="sig-paren">(</span><em>transformation_string='a</em>, <em>b</em>, <em>c;0</em>, <em>0</em>, <em>0'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.from_transformation_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.from_transformation_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SpaceGroupTransformation from its transformation string.
+:param P: matrix
+:param p: origin shift vector
+:return:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.inverse">
+<code class="descname">inverse</code><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>return</em> &#8211; JonesFaithfulTransformation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.p">
+<code class="descname">p</code><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.p" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>return</em> &#8211; translation vector</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.parse_transformation_string">
+<em class="property">static </em><code class="descname">parse_transformation_string</code><span class="sig-paren">(</span><em>transformation_string='a</em>, <em>b</em>, <em>c;0</em>, <em>0</em>, <em>0'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.parse_transformation_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.parse_transformation_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_coords">
+<code class="descname">transform_coords</code><span class="sig-paren">(</span><em>coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.transform_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of co-ordinates and transforms them.
+:param coords: List of coords
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_lattice">
+<code class="descname">transform_lattice</code><span class="sig-paren">(</span><em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.transform_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a Lattice object and transforms it.
+:param lattice: Lattice
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_symmop">
+<code class="descname">transform_symmop</code><span class="sig-paren">(</span><em>symmop</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.transform_symmop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_symmop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a symmetry operation and transforms it.
+:param symmop: SymmOp or MagSymmOp
+:return:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.transformation_string">
+<code class="descname">transformation_string</code><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.transformation_string" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>return</em> &#8211; transformation string</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.symmetry.settings.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

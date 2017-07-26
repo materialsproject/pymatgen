@@ -1,0 +1,370 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.phasediagram.plotter module &#8212; pymatgen 2017.7.21 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.21',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.phasediagram.plotter">
+<span id="pymatgen-phasediagram-plotter-module"></span><h1>pymatgen.phasediagram.plotter module<a class="headerlink" href="#module-pymatgen.phasediagram.plotter" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.phasediagram.plotter.PDPlotter">
+<em class="property">class </em><code class="descname">PDPlotter</code><span class="sig-paren">(</span><em>phasediagram</em>, <em>show_unstable=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#PDPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.PDPlotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A plotter class for phase diagrams.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>phasediagram</strong> &#8211; PhaseDiagram object.</li>
+<li><strong>show_unstable</strong> (<em>float</em>) &#8211; Whether unstable phases will be plotted as
+well as red crosses. If a number &gt; 0 is entered, all phases with
+ehull &lt; show_unstable will be shown.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.phasediagram.plotter.PDPlotter.get_chempot_range_map_plot">
+<code class="descname">get_chempot_range_map_plot</code><span class="sig-paren">(</span><em>elements</em>, <em>referenced=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#PDPlotter.get_chempot_range_map_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.PDPlotter.get_chempot_range_map_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a plot of the chemical potential range _map. Currently works
+only for 3-component PDs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>elements</strong> &#8211; Sequence of elements to be considered as independent
+variables. E.g., if you want to show the stability ranges of
+all Li-Co-O phases wrt to uLi and uO, you will supply
+[Element(&#8220;Li&#8221;), Element(&#8220;O&#8221;)]</li>
+<li><strong>referenced</strong> &#8211; if True, gives the results with a reference being the
+energy of the elemental phase. If False, gives absolute values.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A matplotlib plot object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.plotter.PDPlotter.get_contour_pd_plot">
+<code class="descname">get_contour_pd_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#PDPlotter.get_contour_pd_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.PDPlotter.get_contour_pd_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a contour phase diagram plot, where phase triangles are colored
+according to degree of instability by interpolation. Currently only
+works for 3-component phase diagrams.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A matplotlib plot object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.plotter.PDPlotter.get_plot">
+<code class="descname">get_plot</code><span class="sig-paren">(</span><em>label_stable=True</em>, <em>label_unstable=True</em>, <em>ordering=None</em>, <em>energy_colormap=None</em>, <em>process_attributes=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#PDPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.PDPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.phasediagram.plotter.PDPlotter.pd_plot_data">
+<code class="descname">pd_plot_data</code><a class="headerlink" href="#pymatgen.phasediagram.plotter.PDPlotter.pd_plot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot data for phase diagram.
+2-comp - Full hull with energies
+3/4-comp - Projection into 2D or 3D Gibbs triangle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li>lines is a list of list of coordinates for lines in the PD.</li>
+<li>stable_entries is a {coordinate : entry} for each stable node</li>
+</ul>
+<p>in the phase diagram. (Each coordinate can only have one
+stable phase)
+- unstable_entries is a {entry: coordinates} for all unstable
+nodes in the phase diagram.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(lines, <a class="reference internal" href="pymatgen.analysis.pourbaix.maker.html#pymatgen.analysis.pourbaix.maker.PourbaixDiagram.stable_entries" title="pymatgen.analysis.pourbaix.maker.PourbaixDiagram.stable_entries">stable_entries</a>, <a class="reference internal" href="pymatgen.analysis.pourbaix.maker.html#pymatgen.analysis.pourbaix.maker.PourbaixDiagram.unstable_entries" title="pymatgen.analysis.pourbaix.maker.PourbaixDiagram.unstable_entries">unstable_entries</a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.plotter.PDPlotter.plot_chempot_range_map">
+<code class="descname">plot_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>referenced=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#PDPlotter.plot_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.PDPlotter.plot_chempot_range_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the chemical potential range _map. Currently works only for
+3-component PDs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>elements</strong> &#8211; Sequence of elements to be considered as independent
+variables. E.g., if you want to show the stability ranges of
+all Li-Co-O phases wrt to uLi and uO, you will supply
+[Element(&#8220;Li&#8221;), Element(&#8220;O&#8221;)]</li>
+<li><strong>referenced</strong> &#8211; if True, gives the results with a reference being the
+energy of the elemental phase. If False, gives absolute values.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.plotter.PDPlotter.show">
+<code class="descname">show</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#PDPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.PDPlotter.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the phase diagram using Matplotlib and show it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>*args</strong> &#8211; Passed to get_plot.</li>
+<li><strong>**kwargs</strong> &#8211; Passed to get_plot.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phasediagram.plotter.PDPlotter.write_image">
+<code class="descname">write_image</code><span class="sig-paren">(</span><em>stream</em>, <em>image_format='svg'</em>, <em>label_stable=True</em>, <em>label_unstable=True</em>, <em>ordering=None</em>, <em>energy_colormap=None</em>, <em>process_attributes=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#PDPlotter.write_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.PDPlotter.write_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the phase diagram to an image in a stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stream</strong> &#8211; stream to write to. Can be a file stream or a StringIO stream.</li>
+<li><strong>image_format</strong> &#8211; format for image. Can be any of matplotlib supported formats.
+Defaults to svg for best results for vector graphics.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.phasediagram.plotter.order_phase_diagram">
+<code class="descname">order_phase_diagram</code><span class="sig-paren">(</span><em>lines</em>, <em>stable_entries</em>, <em>unstable_entries</em>, <em>ordering</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#order_phase_diagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.order_phase_diagram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Orders the entries (their coordinates) in a phase diagram plot according
+to the user specified ordering.
+Ordering should be given as [&#8216;Up&#8217;, &#8216;Left&#8217;, &#8216;Right&#8217;], where Up,
+Left and Right are the names of the entries in the upper, left and right
+corners of the triangle respectively.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lines</strong> &#8211; list of list of coordinates for lines in the PD.</li>
+<li><strong>stable_entries</strong> &#8211; {coordinate : entry} for each stable node in the
+phase diagram. (Each coordinate can only have one stable phase)</li>
+<li><strong>unstable_entries</strong> &#8211; {entry: coordinates} for all unstable nodes in the
+phase diagram.</li>
+<li><strong>ordering</strong> &#8211; Ordering of the phase diagram, given as a list [&#8216;Up&#8217;,
+&#8216;Left&#8217;,&#8217;Right&#8217;]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li>newlines is a list of list of coordinates for lines in the PD.</li>
+<li>newstable_entries is a {coordinate : entry} for each stable node</li>
+</ul>
+<p>in the phase diagram. (Each coordinate can only have one
+stable phase)
+- newunstable_entries is a {entry: coordinates} for all unstable
+nodes in the phase diagram.</p>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(newlines, newstable_entries, newunstable_entries)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.phasediagram.plotter.tet_coord">
+<code class="descname">tet_coord</code><span class="sig-paren">(</span><em>coord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#tet_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.tet_coord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a 3D coordinate into a tetrahedron based coordinate system for a
+prettier phase diagram.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordinate</strong> &#8211; coordinate used in the convex hull computation.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">coordinates in a tetrahedron-based coordinate system.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.phasediagram.plotter.triangular_coord">
+<code class="descname">triangular_coord</code><span class="sig-paren">(</span><em>coord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#triangular_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.triangular_coord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a 2D coordinate into a triangle-based coordinate system for a
+prettier phase diagram.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordinate</strong> &#8211; coordinate used in the convex hull computation.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">coordinates in a triangular-based coordinate system.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.phasediagram.plotter.uniquelines">
+<code class="descname">uniquelines</code><span class="sig-paren">(</span><em>q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#uniquelines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.uniquelines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given all the facets, convert it into a set of unique lines.  Specifically
+used for converting convex hull facets into line pairs of coordinates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>q</strong> &#8211; A 2-dim sequence, where each row represents a facet. E.g.,
+[[1,2,3],[3,6,7],...]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ....)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">setoflines</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.phasediagram.plotter.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -1409,7 +1409,7 @@ class BSPlotterProjected(BSPlotter):
                                  + e_max)
                     else:
                         plt.ylim(ylim)
-                    plt.title(elt + "_" + numa + "_" + str(o))
+                    plt.title(elt + " " + numa + " " + str(o))
 
         return plt
 
@@ -1519,6 +1519,7 @@ class BSPlotterProjected(BSPlotter):
                                 raise ValueError("The invalid orbital '%s' was put into sum_orbs['%s']." % (orb, elt))
                             else:
                                 sum_morbs[elt] = individual_orbs[dictio[elt][0]]
+                                dictio[elt] = individual_orbs[dictio[elt][0]]
             else:
                 duplicate = copy.deepcopy(dictio[elt])
                 for orb in dictio[elt]:
@@ -2689,7 +2690,7 @@ class BoltztrapPlotter(object):
                                  label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("Seebeck \n coefficient  ($\mu$V/K)", fontsize=30.0)
+                plt.ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
             plt.xlabel('Temperature (K)', fontsize=30.0)
 
             p = 'lower right' if i == 0 else ''
@@ -2742,7 +2743,7 @@ class BoltztrapPlotter(object):
                                  label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("conductivity $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
+                plt.ylabel("conductivity $\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             plt.xlabel('Temperature (K)', fontsize=30.0)
 
             p = '' # 'lower right' if i == 0 else ''
@@ -2795,7 +2796,7 @@ class BoltztrapPlotter(object):
                                  label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("Power Factor ($\mu$W/(mK$^2$))", fontsize=30.0)
+                plt.ylabel("Power Factor ($\\mu$W/(mK$^2$))", fontsize=30.0)
             plt.xlabel('Temperature (K)', fontsize=30.0)
 
             p = '' #'lower right' if i == 0 else ''
@@ -2945,7 +2946,7 @@ class BoltztrapPlotter(object):
                                  marker='s',label=str(temp)+' K')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("Seebeck coefficient ($\mu$V/K)", fontsize=30.0)
+                plt.ylabel("Seebeck coefficient ($\\mu$V/K)", fontsize=30.0)
             plt.xlabel('Doping concentration (cm$^{-3}$)', fontsize=30.0)
 
             p = 'lower right' if i == 0 else ''
@@ -2993,7 +2994,7 @@ class BoltztrapPlotter(object):
                                  marker='s',label=str(temp)+' K')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("conductivity $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
+                plt.ylabel("conductivity $\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             plt.xlabel('Doping concentration ($cm^{-3}$)', fontsize=30.0)
             plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
             plt.legend(fontsize=15)
@@ -3039,7 +3040,7 @@ class BoltztrapPlotter(object):
                                  marker='s',label=str(temp)+' K')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("Power Factor  ($\mu$W/(mK$^2$))", fontsize=30.0)
+                plt.ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
             plt.xlabel('Doping concentration ($cm^{-3}$)', fontsize=30.0)
             plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
             p = '' #'lower right' if i == 0 else ''
