@@ -13,7 +13,7 @@ from monty.dev import requires
 from monty.json import jsanitize
 from monty.os import cd
 from monty.os.path import which
-from scipy.constants import e, m_e
+from scipy import constants
 from scipy.spatial import distance
 
 from pymatgen.core.lattice import Lattice
@@ -24,9 +24,8 @@ from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.core.physical_constants import BOLTZMANN_CONST, \
-                                             PLANCK_CONSTANT,ELECTRON_CHARGE, \
-                                             ELECTRON_MASS 
+
+
 
 
 """
@@ -1295,7 +1294,9 @@ class BoltztrapAnalyzer(object):
                             result_doping[doping][temp].append(np.linalg.inv(
                                 np.array(self._cond_doping[doping][temp][i])) * \
                                                                self.doping[doping][
-                                                                   i] * 10 ** 6 * e ** 2 / m_e)
+                                                                   i] * 10 ** 6 * 
+                                                                    constants.e ** 2 / 
+                                                                    constants.m_e)
                         except np.linalg.LinAlgError:
                             pass
         else:
@@ -1307,7 +1308,9 @@ class BoltztrapAnalyzer(object):
                     except np.linalg.LinAlgError:
                         pass
                     result[temp].append(cond_inv * \
-                                        conc[temp][i] * 10 ** 6 * e ** 2 / m_e)
+                                        conc[temp][i] * 10 ** 6 * 
+                                                constants.e ** 2 / 
+                                                constants.m_e)
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels)
@@ -1340,13 +1343,7 @@ class BoltztrapAnalyzer(object):
             if 'tensor' is selected, each element of the lists is a list containing 
             the three components of the seebeck effective mass.
         """
-        
-        try:
-            from fdint import fdk
-        except ImportError:
-            raise BoltztrapError("fdint module not found. Please, install it.\n"+
-                                "It is needed to calculate Fermi integral quickly.")
-        
+                
         if doping_levels:
             sbk_mass = {}
             for dt in ('n','p'):
@@ -1688,7 +1685,7 @@ class BoltztrapAnalyzer(object):
             for i in self._hall[temp]:
                 trace = (i[1][2][0] + i[2][0][1] + i[0][1][2]) / 3.0
                 if trace != 0.0:
-                    result[temp].append(1e-6 / (trace * e))
+                    result[temp].append(1e-6 / (trace * constants.e))
                 else:
                     result[temp].append(0.0)
         return result
@@ -2279,7 +2276,9 @@ def seebeck_spb(eta,Lambda=0.5):
     """
         Seebeck analytic formula in the single parabolic model
     """
-    return BOLTZMANN_CONST/ELECTRON_CHARGE * ((2. + Lambda) * fdk( 1.+ Lambda, eta)/ 
+    from fdint import fdk
+    
+    return constants.k/constants.e * ((2. + Lambda) * fdk( 1.+ Lambda, eta)/ 
                  ((1.+Lambda)*fdk(Lambda, eta))- eta) * 1e+6
 
 def eta_from_seebeck(seeb,Lambda):
@@ -2298,8 +2297,10 @@ def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
         Calculate seebeck effective mass at a certain carrier concentration
         eta in kB*T units, n in cm-3, T in K, returns mass in m0 units
     """
+    from fdint import fdk
+
     return (2 * np.pi**2 * abs(n) * 10 ** 6 / (fdk(0.5,eta))) ** (2. / 3)\
-            / (2 * ELECTRON_MASS * BOLTZMANN_CONST * T / (PLANCK_CONSTANT/2/np.pi) ** 2)
+            / (2 * constants.m_e * constants.k * T / (constants.h/2/np.pi) ** 2)
 
 
 def seebeck_eff_mass_from_seebeck_carr(seeb, n, T, Lambda):
@@ -2308,6 +2309,12 @@ def seebeck_eff_mass_from_seebeck_carr(seeb, n, T, Lambda):
         and then calculate the seebeck effective mass at that chemical potential and 
         a certain carrier concentration n
     """
+    try:
+        from fdint import fdk
+    except ImportError:
+        raise BoltztrapError("fdint module not found. Please, install it.\n"+
+                            "It is needed to calculate Fermi integral quickly.")
+
     eta = eta_from_seebeck(seeb,Lambda)
     mass = seebeck_eff_mass_from_carr(eta, n, T, Lambda)
     return mass
