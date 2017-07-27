@@ -345,8 +345,10 @@ class LammpsRun(MSONable):
 
     def as_dict(self):
         d = {}
-        for attrib in [a for a in dir(self)
-                       if not a.startswith('__') and not callable(getattr(self, a))]:
+        skip = ["mol_velocity", "mol_trajectory"]  # not applicable in general
+        attributes = [a for a in dir(self) if a not in skip and not a.startswith('__')]
+        attributes = [a for a in attributes if not callable(getattr(self, a))]
+        for attrib in attributes:
             obj = getattr(self, attrib)
             if isinstance(obj, MSONable):
                 d[attrib] = obj.as_dict()
