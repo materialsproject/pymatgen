@@ -313,12 +313,11 @@ class PackmolRunner(object):
 
 
 class LammpsRunner(object):
-    def __init__(self, dict_input, input_filename="lammps.in", bin="lammps"):
+    def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
         LAMMPS wrapper
 
         Args:
-            dict_input (DictLammpsInput): lammps input object
             input_filename (string): input file name
             bin (string): command to run, excluding the input file name
         """
@@ -329,22 +328,18 @@ class LammpsRunner(object):
                 "Please download and install LAMMPS from " \
                 "http://lammps.sandia.gov. "
                 "Don't forget to add the binary to your path".format(self.lammps_bin[-1]))
-        self.dict_input = dict_input
         self.input_filename = input_filename
 
     def run(self):
         """
         Write the input/data files and run LAMMPS.
         """
-        self.dict_input.write_input(self.input_filename)
-        print("Input file: {}".format(self.input_filename))
         lammps_cmd = self.lammps_bin + ['-in', self.input_filename]
         print("Running: {}".format(" ".join(lammps_cmd)))
         p = Popen(lammps_cmd, stdout=PIPE, stderr=PIPE)
         p.wait()
         (stdout, stderr) = p.communicate()
-        print("Done")
-        print(stdout, stderr)
+        return stdout, stderr
 
 
 if __name__ == '__main__':
