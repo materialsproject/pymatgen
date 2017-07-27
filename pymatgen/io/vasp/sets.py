@@ -1053,11 +1053,13 @@ class MVLSlabSet(MPRelaxSet):
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
-    def __init__(self, structure, k_product=50, bulk=False, **kwargs):
+    def __init__(self, structure, k_product=50, bulk=False, 
+                 auto_dipole=False, **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
         self.structure = structure
         self.k_product = k_product
         self.bulk = bulk
+        self.auto_dipole = auto_dipole
         self.kwargs = kwargs
 
         slab_incar = {"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
@@ -1068,6 +1070,13 @@ class MVLSlabSet(MPRelaxSet):
             slab_incar["AMIX"] = 0.2
             slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
+            if self.auto_dipole:
+                weights = [s.species_and_occu.weight for s in structure]
+                center_of_mass = np.average(structure.frac_coords,
+                                            weights=weights, axis=0)
+                slab_incar["IDIPOL"] = 3
+                slab_incar["LDIPOL"] = True
+                slab_incar["DIPOL"] = center_of_mass
 
         self.config_dict["INCAR"].update(slab_incar)
 
