@@ -60,7 +60,8 @@ class LammpsRun(MSONable):
         self.trajectory_file = os.path.abspath(trajectory_file)
         self.log_file = os.path.abspath(log_file)
         self.lammps_log = LammpsLog(log_file)
-        if is_forcefield:
+        self.is_forcefield = is_forcefield
+        if self.is_forcefield:
             self.lammps_data = LammpsForceFieldData.from_file(data_file)
         else:
             self.lammps_data = LammpsData.from_file(data_file)
@@ -349,6 +350,8 @@ class LammpsRun(MSONable):
             obj = getattr(self, attrib)
             if isinstance(obj, MSONable):
                 d[attrib] = obj.as_dict()
+            elif isinstance(obj, np.ndarray):
+                d[attrib] = obj.tolist()
             else:
                 d[attrib] = obj
         d["@module"] = self.__class__.__module__

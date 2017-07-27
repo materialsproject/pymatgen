@@ -9,7 +9,8 @@ import os
 import unittest
 
 import numpy as np
-from pymatgen.io.lammps.output import LammpsRun
+
+from pymatgen.io.lammps.output import LammpsRun, LammpsLog
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
@@ -24,6 +25,7 @@ class TestLammpsOutput(unittest.TestCase):
         data_file = os.path.join(test_dir, "nvt.data")
         traj_file = os.path.join(test_dir, "nvt.dump")
         log_file = os.path.join(test_dir, "nvt.log")
+        cls.lmps_log = LammpsLog(log_file=log_file)
         cls.lammpsrun = LammpsRun(data_file, traj_file, log_file,
                                   is_forcefield=True)
 
@@ -56,6 +58,14 @@ class TestLammpsOutput(unittest.TestCase):
             np.testing.assert_almost_equal(trajectory[:][fld],
                                            trajectory_ans[:, i + 1],
                                            decimal=10)
+
+    def test_serialization(self):
+        d = self.lammpsrun.as_dict()
+        lmps_run = LammpsRun.from_dict(d)
+        self.assertDictEqual(d, lmps_run.as_dict())
+        d2 = self.lmps_log.as_dict()
+        lmps_log = LammpsLog.from_dict(d2)
+        self.assertDictEqual(d2, lmps_log.as_dict())
 
 
 if __name__ == "__main__":
