@@ -4,11 +4,14 @@
 
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
+
 import re
 from io import open
+import os
 
 import numpy as np
-from monty.json import MSONable, MontyDecoder
+
+from monty.json import MSONable
 
 from pymatgen.core.periodic_table import _pt_data
 from pymatgen.core.structure import Molecule
@@ -36,7 +39,7 @@ __email__ = "kmathew@lbl.gov"
 __credits__ = "Navnidhi Rajput, Michael Humbert"
 
 
-class LammpsRun(object):
+class LammpsRun(MSONable):
     """
     Parse the lammps data file, trajectory(dump) file and the log file to extract
     useful info about the system.
@@ -53,9 +56,9 @@ class LammpsRun(object):
 
     def __init__(self, data_file, trajectory_file, log_file="log.lammps",
                  is_forcefield=False):
-        self.data_file = data_file
-        self.trajectory_file = trajectory_file
-        self.log_file = log_file
+        self.data_file = os.path.abspath(data_file)
+        self.trajectory_file = os.path.abspath(trajectory_file)
+        self.log_file = os.path.abspath(log_file)
         self.lammps_log = LammpsLog(log_file)
         if is_forcefield:
             self.lammps_data = LammpsForceFieldData.from_file(data_file)
@@ -339,9 +342,28 @@ class LammpsRun(object):
             velocity.append(tmp_mol)
         return np.array(velocity)
 
+    def as_dict(self):
+        d = {}
+        for attrib in [a for a in dir(self)
+                       if not a.startswith('__') and not callable(getattr(self, a))]:
+            obj = getattr(self, attrib)
+            if isinstance(obj, MSONable):
+                d[attrib] = obj.as_dict()
+            else:
+                d[attrib] = obj
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    # not really needed ?
+    @classmethod
+    def from_dict(cls, d):
+        return cls(data_file=d["data_file"], trajectory_file=d["trajectory_file"],
+                   log_file=d["log_file"], is_forcefield=d["is_forcefield"])
+
 
 # TODO write parser for one and multi thermo_styles
-class LammpsLog(object):
+class LammpsLog(MSONable):
     """
     Parser for LAMMPS log file.
     """
@@ -351,8 +373,7 @@ class LammpsLog(object):
         Args:
             log_file (string): path to the log file
         """
-        self.log_file = log_file
-
+        self.log_file = os.path.abspath(log_file)
         self._parse_log()
 
     def _parse_log(self):
@@ -417,6 +438,20 @@ class LammpsLog(object):
 
         self.fixes = fixes
         self.dangerous_builds = d_build
+
+    def as_dict(self):
+        d = {}
+        for attrib in [a for a in dir(self)
+                       if not a.startswith('__') and not callable(getattr(self, a))]:
+            d[attrib] = getattr(self, attrib)
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    # not really needed ?
+    @classmethod
+    def from_dict(cls, d):
+        return cls(log_file=d["log_file"])
 
 
 def pbc_wrap(array, box_lengths):
