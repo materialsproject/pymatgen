@@ -1059,6 +1059,7 @@ class MVLSlabSet(MPRelaxSet):
         self.structure = structure
         self.k_product = k_product
         self.bulk = bulk
+        self.auto_dipole = auto_dipole
         self.kwargs = kwargs
 
         slab_incar = {"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
@@ -1070,7 +1071,7 @@ class MVLSlabSet(MPRelaxSet):
             slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
             if self.auto_dipole:
-                weights = [s.weight for s in structure]
+                weights = [s.species_and_occu.weight for s in structure]
                 center_of_mass = np.average(structure.frac_coords,
                                             weights=weights, axis=0)
                 slab_incar["IDIPOL"] = 3
