@@ -62,9 +62,9 @@ class LammpsRun(MSONable):
         self.lammps_log = LammpsLog(log_file)
         self.is_forcefield = is_forcefield
         if self.is_forcefield:
-            self.lammps_data = LammpsForceFieldData.from_file(data_file)
+            self.lammps_data = LammpsForceFieldData.from_file(self.data_file)
         else:
-            self.lammps_data = LammpsData.from_file(data_file)
+            self.lammps_data = LammpsData.from_file(self.data_file)
         self._set_mol_masses_and_charges()
         self._parse_trajectory()
 
