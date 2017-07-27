@@ -10,6 +10,9 @@ angles and dihedrals
 """
 
 import itertools
+
+from monty.json import MSONable
+
 from pymatgen.core.bonds import CovalentBond
 
 __author__ = 'Kiran Mathew'
@@ -17,7 +20,7 @@ __email__ = 'kmathew@lbl.gov'
 __credits__ = 'Brandon Wood'
 
 
-class Topology(object):
+class Topology(MSONable):
     """
     Args:
         atoms (list): map atom names to force field(ff) atom name,
