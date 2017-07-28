@@ -2395,6 +2395,24 @@ class Structure(IStructure, collections.MutableSequence):
                                           site.frac_coords, self._lattice,
                                           properties=props)
 
+    def remove_site_property(self, property_name):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name (str): The name of the property to add.
+            values (list): A sequence of values. Must be same length as
+                number of sites.
+        """
+        for i in range(len(self._sites)):
+            site = self._sites[i]
+            props = {k: v
+                     for k, v in site.properties.items()
+                     if k != property_name}
+            self._sites[i] = PeriodicSite(site.species_and_occu,
+                                          site.frac_coords, self._lattice,
+                                          properties=props)
+
     def replace_species(self, species_mapping):
         """
         Swap species in a structure.
@@ -2939,6 +2957,23 @@ class Molecule(IMolecule, collections.MutableSequence):
             if not props:
                 props = {}
             props[property_name] = values[i]
+            self._sites[i] = Site(site.species_and_occu, site.coords,
+                                  properties=props)
+
+    def remove_site_property(self, property_name):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name (str): The name of the property to add.
+            values (list): A sequence of values. Must be same length as
+                number of sites.
+        """
+        for i in range(len(self._sites)):
+            site = self._sites[i]
+            props = {k: v
+                     for k, v in site.properties.items()
+                     if k != property_name}
             self._sites[i] = Site(site.species_and_occu, site.coords,
                                   properties=props)
 
