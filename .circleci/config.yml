@@ -50,9 +50,9 @@ jobs:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           command: |
-            python -m venv venv
+            pip install virtualenv
+            virtualenv venv
             . venv/bin/activate
-            mkdir coverage_reports
             apt-get -y -qq update
             apt-get -y -qq install gfortran python-openbabel python-vtk python3-tk
             pip install numpy
