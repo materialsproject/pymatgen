@@ -26,6 +26,7 @@ jobs:
             . venv/bin/activate
             python3 setup.py develop
             export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
+            ls
             echo "PATH=$PATH"
             nosetests --config=nose.cfg --cover-html --cover-html-dir=$CIRCLE_ARTIFACTS
       - store_artifacts:
