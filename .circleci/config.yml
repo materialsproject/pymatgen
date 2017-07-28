@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/pymatgen
     docker:
-      - image: python:3.6.0
+      - image: python:3.6.1
     steps:
       - checkout
       - restore_cache:
