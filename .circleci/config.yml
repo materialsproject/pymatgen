@@ -13,8 +13,8 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             mkdir coverage_reports
-            apt-get update
-            apt-get install gfortran python-openbabel python-vtk python3-tk
+            apt-get -y -qq update
+            apt-get -y -qq install gfortran python-openbabel python-vtk python3-tk
             pip install numpy
             pip install -r requirements.txt
             pip install -r requirements-optional.txt
@@ -26,7 +26,7 @@ jobs:
           command: |
             . venv/bin/activate
             python3 setup.py develop
-            export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
+            export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             ls
             echo "PATH=$PATH"
