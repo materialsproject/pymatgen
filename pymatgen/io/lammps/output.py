@@ -59,7 +59,7 @@ class LammpsRun(MSONable):
         self.data_file = os.path.abspath(data_file)
         self.trajectory_file = os.path.abspath(trajectory_file)
         self.log_file = os.path.abspath(log_file)
-        self.lammps_log = LammpsLog(log_file)
+        self.log = LammpsLog(log_file)
         self.is_forcefield = is_forcefield
         if self.is_forcefield:
             self.lammps_data = LammpsForceFieldData.from_file(self.data_file)
@@ -301,7 +301,7 @@ class LammpsRun(MSONable):
         trajectory time steps in time units.
         e.g. for units = real, time units = fmsec
         """
-        return self.timesteps * self.lammps_log.timestep
+        return self.timesteps * self.log.timestep
 
     @property
     def mol_trajectory(self):

@@ -35,9 +35,9 @@ class TestLammpsOutput(unittest.TestCase):
         fields = fields.split()
         thermo_data_ans = np.loadtxt(
             os.path.join(test_dir, "thermo_data.txt"))
-        thermo_data = self.lammpsrun.lammps_log.thermo_data
+        thermo_data = self.lammpsrun.log.thermo_data
         self.assertEqual(sorted(list(thermo_data.keys())), sorted(fields))
-        self.assertEqual(self.lammpsrun.lammps_log.nmdsteps + 1,
+        self.assertEqual(self.lammpsrun.log.nmdsteps + 1,
                          len(thermo_data['step']))
         data = [thermo_data[k] for k in fields]
         np.testing.assert_almost_equal(data, np.transpose(thermo_data_ans), decimal=10)
