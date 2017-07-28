@@ -58,7 +58,8 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def atoms(self):
         """
         Returns Atoms string from a structure that goes in feff.inp file.
@@ -68,14 +69,16 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def tags(self):
         """
         Returns standard calculation parameters.
         """
         return
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def potential(self):
         """
         Returns POTENTIAL section used in feff.inp from a structure.

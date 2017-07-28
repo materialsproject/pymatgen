@@ -80,17 +80,20 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     class. Start from DictSet or MPRelaxSet or MITRelaxSet.
     """
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def incar(self):
         """Incar object"""
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def kpoints(self):
         """Kpoints object"""
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def poscar(self):
         """Poscar object"""
         pass
