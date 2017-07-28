@@ -507,14 +507,6 @@ class BSPlotter(object):
 
                         plt.plot(xs, ys, 'r--', linewidth=band_linewidth)
 
-                    #                        plt.plot([x * step + data['distances'][d][0]
-                    #                                  for x in range(1000)],
-                    #                                 [scint.splev(
-                    #                                     x * step + data['distances'][d][0],
-                    #                                     tck, der=0)
-                    #                                  for x in range(1000)], 'r--',
-                    #                                 linewidth=band_linewidth)
-
         self._maketicks(plt)
 
         # Main X and Y Labels
