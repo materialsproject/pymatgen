@@ -189,6 +189,7 @@ class BaderAnalysis(object):
             to be supplied.
         """
         structure = self.chgcar.structure
-        charges = [self.get_charge_transfer(i) for i in range(len(structure))]
+        charges = [-self.get_charge_transfer(i)
+                   for i in range(len(structure))]
         structure.add_oxidation_state_by_site(charges)
         return structure

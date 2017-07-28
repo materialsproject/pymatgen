@@ -9,7 +9,7 @@ import os
 import json
 import collections
 import itertools
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 import random
 import warnings
 from fnmatch import fnmatch
@@ -64,7 +64,8 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     # Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.5
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def sites(self):
         """
         Returns a tuple of sites.
@@ -534,8 +535,9 @@ class IStructure(SiteCollection, MSONable):
                    site_properties=all_site_properties)
 
     @classmethod
-    def from_magnetic_spacegroup(cls, msg, lattice, species, coords, site_properties,
-                                  transform_setting=None, coords_are_cartesian=False, tol=1e-5):
+    def from_magnetic_spacegroup(
+            cls, msg, lattice, species, coords, site_properties,
+            transform_setting=None, coords_are_cartesian=False, tol=1e-5):
          """
          Generate a structure using a magnetic spacegroup. Note that only
          symmetrically distinct species, coords and magmoms should be provided.]
@@ -601,7 +603,7 @@ class IStructure(SiteCollection, MSONable):
              raise ValueError(
                  "Supplied lattice with parameters %s is incompatible with "
                  "supplied spacegroup %s!" % (latt.lengths_and_angles,
-                                              sgp.symbol)
+                                              msg.symbol)
              )
 
          if len(species) != len(coords):
@@ -2395,6 +2397,24 @@ class Structure(IStructure, collections.MutableSequence):
                                           site.frac_coords, self._lattice,
                                           properties=props)
 
+    def remove_site_property(self, property_name):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name (str): The name of the property to add.
+            values (list): A sequence of values. Must be same length as
+                number of sites.
+        """
+        for i in range(len(self._sites)):
+            site = self._sites[i]
+            props = {k: v
+                     for k, v in site.properties.items()
+                     if k != property_name}
+            self._sites[i] = PeriodicSite(site.species_and_occu,
+                                          site.frac_coords, self._lattice,
+                                          properties=props)
+
     def replace_species(self, species_mapping):
         """
         Swap species in a structure.
@@ -2939,6 +2959,23 @@ class Molecule(IMolecule, collections.MutableSequence):
             if not props:
                 props = {}
             props[property_name] = values[i]
+            self._sites[i] = Site(site.species_and_occu, site.coords,
+                                  properties=props)
+
+    def remove_site_property(self, property_name):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name (str): The name of the property to add.
+            values (list): A sequence of values. Must be same length as
+                number of sites.
+        """
+        for i in range(len(self._sites)):
+            site = self._sites[i]
+            props = {k: v
+                     for k, v in site.properties.items()
+                     if k != property_name}
             self._sites[i] = Site(site.species_and_occu, site.coords,
                                   properties=props)
 

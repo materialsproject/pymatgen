@@ -485,9 +485,11 @@ class MVLSlabSetTest(PymatgenTest):
 
         vis_bulk = MVLSlabSet(self.bulk, bulk=True)
         vis = MVLSlabSet(self.slab)
+        vis_dipole = MVLSlabSet(self.slab, auto_dipole=True)
 
         self.d_bulk = vis_bulk.all_input
         self.d_slab = vis.all_input
+        self.d_dipole = vis_dipole.all_input
 
     def test_user_incar_settings(self):
         # Make sure user incar settings properly override AMIX.
@@ -521,6 +523,12 @@ class MVLSlabSetTest(PymatgenTest):
         self.assertEqual(potcar_slab.symbols[1], u'O')
         self.assertEqual(poscar_slab.structure.formula,
                          self.slab.formula)
+        # Test auto-dipole
+        dipole_incar = self.d_dipole["INCAR"]
+        self.assertTrue(dipole_incar["LDIPOL"])
+        self.assertArrayAlmostEqual(dipole_incar["DIPOL"], 
+                                    [0.2323, 0.2323, 0.2165], decimal=4)
+        self.assertEqual(dipole_incar["IDIPOL"], 3)
 
     def test_kpoints(self):
 
