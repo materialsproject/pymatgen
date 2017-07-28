@@ -67,6 +67,9 @@ class DosPlotterTest(unittest.TestCase):
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_get_plot(self):
+        # Disabling latex is needed for this test to work.
+        from matplotlib import rc
+        rc('text', usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(),
                                   key_sort_func=lambda x: x.X)
         plt = self.plotter.get_plot()
@@ -102,6 +105,11 @@ class BSPlotterTest(unittest.TestCase):
     def test_get_plot(self):
         # zero_to_efermi = True, ylim = None, smooth = False,
         # vbm_cbm_marker = False, smooth_tol = None
+
+        # Disabling latex is needed for this test to work.
+        from matplotlib import rc
+        rc('text', usetex=False)
+
         plt = self.plotter.get_plot()
         plt = self.plotter.get_plot(smooth=True)
         plt = self.plotter.get_plot(vbm_cbm_marker=True)

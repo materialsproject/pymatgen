@@ -127,12 +127,6 @@ class DosPlotter(object):
                 determination.
             ylim: Specifies the y-axis limits.
         """
-        from matplotlib import rc
-        try:
-            rc('text', usetex=True)
-        except:
-            # Fall back on non Tex if errored.
-            rc('text', usetex=False)
 
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
