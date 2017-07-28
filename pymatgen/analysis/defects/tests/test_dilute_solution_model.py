@@ -11,7 +11,6 @@ import os
 from monty.json import MontyDecoder
 from pymatgen.analysis.defects.dilute_solution_model import *
 import random
-import sympy
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
