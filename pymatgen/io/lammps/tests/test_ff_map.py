@@ -83,8 +83,8 @@ class TestLammpsForceFieldData(unittest.TestCase):
                     [40, 43, ('C2', 'C2')], [43, 44, ('C2', 'H2')], [43, 45, ('C2', 'H2')],
                     [43, 46, ('C2', 'O')], [46, 47, ('O', 'C3')], [47, 48, ('C3', 'H3')],
                     [47, 49, ('C3', 'H3')], [47, 50, ('C3', 'H3')]]
-
-        tangles = [[1, 0, 2, ('H3', 'C3', 'H3')], [1, 0, 3, ('H3', 'C3', 'H3')],
+        #pairs = OrderedDict([((u'C', u'C'), [-0.056, 2.01, -0.01, 1.9]),
+        tangles = OrderedDict([(1, 0, 2, (u'H3', u'C3', u'H3'), [1, 0, 3, ('H3', 'C3', 'H3')]),
                     [1, 0, 4, ('H3', 'C3', 'O')], [2, 0, 3, ('H3', 'C3', 'H3')],
                     [2, 0, 4, ('H3', 'C3', 'O')], [3, 0, 4, ('H3', 'C3', 'O')],
                     [0, 4, 5, ('C3', 'O', 'C2')], [4, 5, 6, ('O', 'C2', 'H2')],
@@ -148,7 +148,7 @@ class TestLammpsForceFieldData(unittest.TestCase):
                     [66, 64, 67, ('H2', 'C2', 'O')], [64, 67, 68, ('C2', 'O', 'C3')],
                     [67, 68, 69, ('O', 'C3', 'H3')], [67, 68, 70, ('O', 'C3', 'H3')],
                     [67, 68, 71, ('O', 'C3', 'H3')], [69, 68, 70, ('H3', 'C3', 'H3')],
-                    [69, 68, 71, ('H3', 'C3', 'H3')], [70, 68, 71, ('H3', 'C3', 'H3')]]
+                    [69, 68, 71, ('H3', 'C3', 'H3')], [70, 68, 71, ('H3', 'C3', 'H3')]])
         tdihedrals = [[1, 0, 4, 5, ('H3', 'C3', 'O', 'C2')], [2, 0, 4, 5, ('H3', 'C3', 'O', 'C2')], [3, 0, 4, 5, ('H3', 'C3', 'O', 'C2')],
                         [0, 4, 5, 6, ('C3', 'O', 'C2', 'H2')], [0, 4, 5, 7, ('C3', 'O', 'C2', 'H2')], [0, 4, 5, 8, ('C3', 'O', 'C2', 'C2')],
                         [4, 5, 8, 9, ('O', 'C2', 'C2', 'H2')], [4, 5, 8, 10, ('O', 'C2', 'C2', 'H2')], [4, 5, 8, 11, ('O', 'C2', 'C2', 'O')],
@@ -226,18 +226,20 @@ class TestLammpsForceFieldData(unittest.TestCase):
         #check atoms
         self.assertEqual(tatoms, self.topology.atoms)
         #check pairs
-        self.assertEqual(pairs, self.forcefield.pairs)
+        #self.assertEqual(pairs, self.forcefield.pairs)
         #check bonds
         self.assertEqual(bonds, self.forcefield.bonds)
         self.assertEqual(tbonds, self.topology.bonds)
         #check angles
         self.assertEqual(angles, self.forcefield.angles)
         # TODO: fix this
-        #self.assertEqual(tangles, self.topology.angles)
+        print(type(tangles))
+        print(type(self.topology.angles))
+        self.assertEqual(tangles, self.topology.angles)
         #check dihedrals
         self.assertEqual(dihedrals, self.forcefield.dihedrals)
         # TODO: fix this
-        #self.assertEqual(tdihedrals, self.topology.dihedrals)
+        self.assertEqual(tdihedrals, self.topology.dihedrals)
 
     def tearDown(self):
         for x in ["lammps_ff_data.dat"]:
