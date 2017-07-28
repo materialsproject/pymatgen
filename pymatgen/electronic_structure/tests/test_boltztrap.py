@@ -115,10 +115,10 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                                          temp=300)['n'][2]
         
         for i in range(0, 3):
-            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 4)
+            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 1)
             self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i], 4)
         
-        self.assertAlmostEqual(sbk_mass_avg_mu, 4361.4744008038842, 4)
+        self.assertAlmostEqual(sbk_mass_avg_mu, 4361.4744008038842, 1)
         self.assertAlmostEqual(sbk_mass_avg_dop, 1.661553842105382, 4)
 
     @unittest.skipIf(not fdint, "No FDINT")
