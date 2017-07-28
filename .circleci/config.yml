@@ -16,7 +16,7 @@ jobs:
             pip install numpy
             pip install -r requirements.txt
             pip install -r requirements-optional.txt
-            sudo apt-get install gfortran
+            sudo apt-get install gfortran python-openbabel python-vtk python3-tk
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
