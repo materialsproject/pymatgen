@@ -4,6 +4,13 @@
 
 from __future__ import division, unicode_literals
 
+from collections import Sequence
+import abc
+
+from monty.json import MSONable
+
+from scipy.constants import N_A
+
 """
 This module defines the abstract base classes for battery-related classes.
 Regardless of the kind of electrode, conversion or insertion, there are many
@@ -21,53 +28,55 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Feb 1, 2012"
 __status__ = "Beta"
 
-from collections import Sequence
-from abc import ABCMeta, abstractproperty
-
-from monty.json import MSONable
-
-from scipy.constants import N_A
-
 
 class AbstractVoltagePair(object):
     """
     An Abstract Base Class for a Voltage Pair.
     """
-    __metaclass__ = ABCMeta
+    __metaclass__ = abc.ABCMeta
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def voltage(self):
         return self._voltage
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def mAh(self):
         return self._mAh
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def mass_charge(self):
         return self._mass_charge
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def mass_discharge(self):
         return self._mass_discharge
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def vol_charge(self):
         return self._vol_charge
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def vol_discharge(self):
         return self._vol_discharge
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def frac_charge(self):
         return self._frac_charge
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def frac_discharge(self):
         return self._frac_discharge
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def working_ion_entry(self):
         return self._working_ion_entry
 
@@ -111,23 +120,26 @@ class AbstractElectrode(Sequence, MSONable):
     already implemented) need to implement a VoltagePair and an Electrode.
     """
 
-    __metaclass__ = ABCMeta
+    __metaclass__ = abc.ABCMeta
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def voltage_pairs(self):
         """
         Returns all the VoltagePairs
         """
         return
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def working_ion(self):
         """
         The working ion as an Element object
         """
         return
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def working_ion_entry(self):
         """
         The working ion as an Entry object

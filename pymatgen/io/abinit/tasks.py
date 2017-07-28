@@ -1489,7 +1489,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def executable(self):
         """
         Path to the executable associated to the task (internally stored in self._executable).
