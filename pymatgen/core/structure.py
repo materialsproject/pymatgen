@@ -9,7 +9,7 @@ import os
 import json
 import collections
 import itertools
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 import random
 import warnings
 from fnmatch import fnmatch
@@ -64,7 +64,8 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     # Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.5
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def sites(self):
         """
         Returns a tuple of sites.
@@ -534,8 +535,9 @@ class IStructure(SiteCollection, MSONable):
                    site_properties=all_site_properties)
 
     @classmethod
-    def from_magnetic_spacegroup(cls, msg, lattice, species, coords, site_properties,
-                                  transform_setting=None, coords_are_cartesian=False, tol=1e-5):
+    def from_magnetic_spacegroup(
+            cls, msg, lattice, species, coords, site_properties,
+            transform_setting=None, coords_are_cartesian=False, tol=1e-5):
          """
          Generate a structure using a magnetic spacegroup. Note that only
          symmetrically distinct species, coords and magmoms should be provided.]
@@ -601,7 +603,7 @@ class IStructure(SiteCollection, MSONable):
              raise ValueError(
                  "Supplied lattice with parameters %s is incompatible with "
                  "supplied spacegroup %s!" % (latt.lengths_and_angles,
-                                              sgp.symbol)
+                                              msg.symbol)
              )
 
          if len(species) != len(coords):
