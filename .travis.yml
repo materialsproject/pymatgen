@@ -2,7 +2,7 @@ services:
   - mysql
 language: python
 python:
-  - "2.7"
+  - "2.7.12"
 env:
   global:
     - secure: "LQDypjfjcQYVN1NYPYfBz1VqMSqjNQqEqGBp+R6u/opf8bRUtYUGdK1gR356U3ApPzgLl906M3rI2ZMNqxiROdB6RDZrDEzXLhushwCfqt0C9qmZFLsj7TtGCMT8qHahU/sfYKntYxlWDgTbvFVrHhmg6brWEObPYny5FUidJc4="
@@ -11,6 +11,7 @@ env:
 # command to install dependencies
 sudo: false
 install:
+  - pip install numpy
   - travis_wait pip install -q -r requirements.txt
   - travis_wait pip install -q -r requirements-optional.txt
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
