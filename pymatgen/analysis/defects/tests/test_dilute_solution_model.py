@@ -27,8 +27,8 @@ with open(os.path.join(test_dir, 'mp1487_raw_defect_energies.json')) as fp:
 # monstrously slow. It takes more than 10 mins to get through this test alone.
 
 
-@unittest.skipIf(random.randint(0, 10) % 10 != 0,
-                 "random skip.")
+#@unittest.skipIf(random.randint(0, 10) % 10 != 0,
+#                 "random skip.")
 class DiluteSolutionModelTest(unittest.TestCase):
     def setUp(self):
         """
@@ -88,8 +88,8 @@ class DiluteSolutionModelTest(unittest.TestCase):
             # print(plot_data['y'])
 
 
-@unittest.skipIf(random.randint(0, 10) % 10 != 0,
-                 "random skip.")
+#@unittest.skipIf(random.randint(0, 10) % 10 != 0,
+#                 "random skip.")
 class SoluteSiteFinderTest(unittest.TestCase):
     def setUp(self):
         """
