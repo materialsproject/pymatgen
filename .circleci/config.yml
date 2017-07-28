@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  py3test:
     working_directory: ~/pymatgen
     docker:
       - image: python:3.6.1
@@ -10,23 +10,73 @@ jobs:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           command: |
+            python3 -m venv venv
+            . venv/bin/activate
             mkdir coverage_reports
             apt-get -y -qq update
             apt-get -y -qq install gfortran python-openbabel python-vtk python3-tk
-            pip install tox
+            pip install numpy
+            pip install -r requirements.txt
+            pip install -r requirements-optional.txt
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
             - "venv"
       - run:
           command: |
+            . venv/bin/activate
+            python3 setup.py develop
             export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             ls
             echo "PATH=$PATH"
-            tox
+            nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports
+            pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
+            pmg structure --convert --filenames POSCAR.pmg pmg.cif
+            pmg analyze -d test_files
+            coveralls
       - store_artifacts:
           path: coverage_reports/
           destination: tr1
       - store_test_results:
           path: coverage_reports/
+  py2test:
+    working_directory: ~/pymatgen
+    docker:
+      - image: python:2.7.12
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+      - run:
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            mkdir coverage_reports
+            apt-get -y -qq update
+            apt-get -y -qq install gfortran python-openbabel python-vtk python3-tk
+            pip install numpy
+            pip install -r requirements.txt
+            pip install -r requirements-optional.txt
+      - save_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          paths:
+            - "venv"
+      - run:
+          command: |
+            . venv/bin/activate
+            python setup.py develop
+            export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
+            export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
+            ls
+            echo "PATH=$PATH"
+            nosetests --config=nose.cfg
+            pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
+            pmg structure --convert --filenames POSCAR.pmg pmg.cif
+            pmg analyze -d test_files
+workflows:
+  version: 2
+  build:
+    jobs:
+      - "py3test"
+      - "py2test"
