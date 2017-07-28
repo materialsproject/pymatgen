@@ -15,8 +15,7 @@ jobs:
             mkdir coverage_reports
             apt-get -y -qq update
             apt-get -y -qq install gfortran python-openbabel python-vtk python3-tk
-            pip install tox tox-pyenv
-            pyenv local 2.7.12 3.6.1
+            pip install tox
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
