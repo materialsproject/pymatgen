@@ -13,8 +13,9 @@ jobs:
           key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
       - run:
           command: |
-            python3 -m venv venv
+            python -m venv venv
             . venv/bin/activate
+            pip install numpy
             pip install -r requirements.txt
             pip install -r requirements-optional.txt
       - save_cache:
