@@ -3,6 +3,24 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import unittest
+import os
+import json
+
+from io import open
+from monty.tempfile import ScratchDir
+
+try:
+    import matplotlib
+    matplotlib.use("pdf") # Use non-graphical display backend during test.
+    have_matplotlib = "DISPLAY" in os.environ
+except ImportError:
+    have_matplotlib = False
+
+from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, plot_ellipsoid, fold_point, plot_brillouin_zone
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.core.structure import Structure
 
 """
 Created on May 1, 2012
@@ -16,23 +34,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 1, 2012"
 
-import unittest
-import os
-import json
-
-from io import open
-
-try:
-    import matplotlib
-    matplotlib.use("pdf") # Use non-graphical display backend during test.
-    have_matplotlib = "DISPLAY" in os.environ
-except ImportError:
-    have_matplotlib = False
-
-from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, plot_ellipsoid, fold_point, plot_brillouin_zone
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.core.structure import Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -63,6 +64,16 @@ class DosPlotterTest(unittest.TestCase):
         for el in ["Li", "Fe", "P", "O"]:
             self.assertIn(el, d)
 
+    # Minimal baseline testing for get_plot. not a true test. Just checks that
+    # it can actually execute.
+    def test_get_plot(self):
+        self.plotter.add_dos_dict(self.dos.get_element_dos(),
+                                  key_sort_func=lambda x: x.X)
+        plt = self.plotter.get_plot()
+        with ScratchDir(".", copy_from_current_on_enter=False,
+                        copy_to_current_on_exit=False):
+            self.plotter.save_plot("dosplot.png")
+
 
 class BSPlotterTest(unittest.TestCase):
 
@@ -85,6 +96,18 @@ class BSPlotterTest(unittest.TestCase):
                          "wrong tick label")
         self.assertEqual(len(self.plotter.bs_plot_data()['ticks']['label']),
                          19, "wrong number of tick labels")
+
+    # Minimal baseline testing for get_plot. not a true test. Just checks that
+    # it can actually execute.
+    def test_get_plot(self):
+        # zero_to_efermi = True, ylim = None, smooth = False,
+        # vbm_cbm_marker = False, smooth_tol = None
+        plt = self.plotter.get_plot()
+        plt = self.plotter.get_plot(smooth=True)
+        plt = self.plotter.get_plot(vbm_cbm_marker=True)
+        with ScratchDir(".", copy_from_current_on_enter=False,
+                        copy_to_current_on_exit=False):
+            self.plotter.save_plot("bsplot.png")
 
 
 class PlotBZTest(unittest.TestCase):
@@ -115,5 +138,4 @@ class PlotBZTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

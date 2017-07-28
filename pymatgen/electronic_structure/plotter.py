@@ -128,8 +128,6 @@ class DosPlotter(object):
                 determination.
             ylim: Specifies the y-axis limits.
         """
-
-
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
 
@@ -402,7 +400,7 @@ class BSPlotter(object):
                 if not self._bs.is_metal() else ""}
 
     def get_plot(self, zero_to_efermi=True, ylim=None, smooth=False,
-                 vbm_cbm_marker=False,smooth_tol=None):
+                 vbm_cbm_marker=False, smooth_tol=None):
         """
         Get a matplotlib object for the bandstructure plot.
         Blue lines are up spin, red lines are down
