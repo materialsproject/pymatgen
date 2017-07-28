@@ -419,11 +419,6 @@ class BSPlotter(object):
         plt = pretty_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
-        try:
-            rc('text', usetex=True)
-        except:
-            # Fall back on non Tex if errored.
-            rc('text', usetex=False)
 
         # main internal config options
         e_min = -4
