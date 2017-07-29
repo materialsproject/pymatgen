@@ -8,6 +8,7 @@ import os
 import subprocess
 import shutil
 import warnings
+import glob
 
 from six.moves import map, zip
 from pymatgen.io.vasp.outputs import Chgcar
@@ -208,7 +209,7 @@ class BaderAnalysis(object):
         return structure
 
     @property
-    def result(self):
+    def summary(self):
 
         summary = {
             "min_dist": [d['min_dist'] for d in self.data],
@@ -224,157 +225,120 @@ class BaderAnalysis(object):
             charge_transfer = [self.get_charge_transfer(i) for i in range(len(self.data))]
             summary['charge_transfer'] = charge_transfer
 
-        return BaderResult(summary)
+        return summary
+
+def bader_analysis_from_path(path, suffix=''):
+    """
+    Convenience method to run Bader analysis on a folder containing
+    typical VASP output files.
+
+    This method will:
+
+    1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
+    counterparts.
+    2. If AECCAR* files are present, constructs a temporary reference
+    file as AECCAR0 + AECCAR2
+    3. Runs Bader analysis twice: once for charge, and a second time
+    for the charge difference (magnetization density).
+
+    :param path: path to folder to search in
+    :param suffix: specific suffix to look for (e.g. '.relax1' for 'CHGCAR.relax1.gz'
+    :return: summary dict
+    """
+
+    def _get_filepath(filename, warning, path=path, suffix=suffix):
+        paths = glob.glob(os.path.join(path, filename+suffix+'*'))
+        if not paths:
+            warnings.warn(warning)
+            return None
+        if len(paths) > 1:
+            # using reverse=True because, if multiple files are present,
+            # they likely have suffixes 'static', 'relax', 'relax2', etc.
+            # and this would give 'static' over 'relax2' over 'relax'
+            # however, better to use 'suffix' kwarg to avoid this!
+            paths.sort(reverse=True)
+            warnings.warn('Multiple files detected, using {}'.format(os.path.basename(path)))
+        path = paths[0]
+        return path
+
+    chgcar_path = _get_filepath('CHGCAR', 'Could not find CHGCAR!')
+    chgcar = Chgcar.from_file(chgcar_path)
+
+    aeccar0_path = _get_filepath('AECCAR0', 'Could not find AECCAR0, interpret Bader results with caution.')
+    aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
+
+    aeccar2_path = _get_filepath('AECCAR2', 'Could not find AECCAR2, interpret Bader results with caution.')
+    aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
+
+    potcar_path = _get_filepath('POTCAR', 'Could not find POTCAR, cannot calculate charge transfer.')
+    potcar = Potcar.from_file(potcar_path) if potcar_path else None
+
+    return bader_analysis_from_objects(chgcar, potcar, aeccar0, aeccar2)
 
 
-class BaderResult(MSONable):
+def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None):
+    """
+    Convenience method to run Bader analysis from a set
+    of pymatgen Chgcar and Potcar objects.
 
-    def __init__(self, summary):
-        """
-        A class to hold results of a BaderAnalysis. Simply a dict
-        containing lists that can be used as site properties for
-        the corresponding input structure.
+    This method will:
 
-        Use `from_path` or `from_objects` to conveniently obtain
-        a BaderResult. To manually specify arguments and call the
-        bader binary directly, use BaderAnalysis class instead.
+    1. If aeccar objects are present, constructs a temporary reference
+    file as AECCAR0 + AECCAR2
+    2. Runs Bader analysis twice: once for charge, and a second time
+    for the charge difference (magnetization density).
 
-        :param summary: BaderResult
-        """
+    :param chgcar: Chgcar object
+    :param potcar: (optional) Potcar object
+    :param aeccar0: (optional) Chgcar object from aeccar0 file
+    :param aeccar2: (optional) Chgcar object from aeccar2 file
+    :return: summary dict
+    """
 
-        for key in summary:
-            setattr(self, key, summary[key])
+    with ScratchDir(".") as temp_dir:
 
-    @classmethod
-    def from_dict(cls, d):
-        del d["@module"]
-        del d["@class"]
-        return cls(d)
-
-    @classmethod
-    def as_dict(self):
-        d = dict(self.__dict__)
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @classmethod
-    def from_path(cls, path):
-        """
-        Convenience method to run Bader analysis on a folder containing
-        typical VASP output files.
-
-        This method will:
-
-        1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
-        counterparts.
-        2. If AECCAR* files are present, constructs a temporary reference
-        file as AECCAR0 + AECCAR2
-        3. Runs Bader analysis twice: once for charge, and a second time
-        for the charge difference (magnetization density).
-
-        :param path: path to folder to search in
-        :return: BaderResult
-        """
-
-        if os.path.isfile(os.path.join(path, 'CHGCAR')):
-            chgcar = Chgcar.from_file(os.path.join(path, 'CHGCAR'))
-        elif os.path.isfile(os.path.join(path, 'CHGCAR.gz')):
-            chgcar = Chgcar.from_file(os.path.join(path, 'CHGCAR.gz'))
+        if aeccar0 and aeccar2:
+            # construct reference file
+            chgref = aeccar0.linear_add(aeccar2)
+            chgref_path = os.path.join(temp_dir, 'CHGCAR_ref')
+            chgref.write_file(chgref_path)
         else:
-            raise IOError('Could not find CHGCAR.')
+            chgref_path = None
 
-        if os.path.isfile(os.path.join(path, 'AECCAR0')):
-            aeccar0 = Chgcar.from_file(os.path.join(path, 'AECCAR0'))
-        elif os.path.isfile(os.path.join(path, 'AECCAR0.gz')):
-            aeccar0 = Chgcar.from_file(os.path.join(path, 'AECCAR0.gz'))
+        chgcar.write_file('CHGCAR')
+        chgcar_path = os.path.join(temp_dir, 'CHGCAR')
+
+        if potcar:
+            potcar.write_file('POTCAR')
+            potcar_path = os.path.join(temp_dir, 'POTCAR')
         else:
-            warnings.warn('Could not find AECCAR0, interpret Bader results with caution.')
-            aeccar0 = None
+            potcar_path = None
 
-        if os.path.isfile(os.path.join(path, 'AECCAR2')):
-            aeccar2 = Chgcar.from_file(os.path.join(path, 'AECCAR2'))
-        elif os.path.isfile(os.path.join(path, 'AECCAR2.gz')):
-            aeccar2 = Chgcar.from_file(os.path.join(path, 'AECCAR2.gz'))
-        else:
-            warnings.warn('Could not find AECCAR2, interpret Bader results with caution.')
-            aeccar2 = None
+        ba = BaderAnalysis(chgcar_path, potcar_filename=potcar_path, chgref_filename=chgref_path)
 
-        if os.path.isfile(os.path.join(path, 'POTCAR')):
-            potcar = Potcar.from_file(os.path.join(path, 'POTCAR'))
-        elif os.path.isfile(os.path.join(path, 'POTCAR.gz')):
-            potcar = Potcar.from_file(os.path.join(path, 'POTCAR.gz'))
-        else:
-            warnings.warn('Could not find POTCAR, cannot calculate charge transfer.')
-            potcar = None
+        summary = {
+            "min_dist": [d['min_dist'] for d in ba.data],
+            "charge": [d['charge'] for d in ba.data],
+            "volume": [d['atomic_vol'] for d in ba.data],
+            "vacuum_charge": ba.vacuum_charge,
+            "vacuum_volume": ba.vacuum_volume,
+            "reference_used": True if chgref_path else False,
+            "bader_version": ba.version,
+        }
 
-        return cls.from_objects(chgcar, potcar, aeccar0, aeccar2)
+        if potcar:
+            charge_transfer = [ba.get_charge_transfer(i) for i in range(len(ba.data))]
+            summary['charge_transfer'] = charge_transfer
 
+        if chgcar.is_spin_polarized:
 
-    @classmethod
-    def from_objects(cls, chgcar, potcar=None, aeccar0=None, aeccar2=None):
-        """
-        Convenience method to run Bader analysis from a set
-        of pymatgen Chgcar and Potcar objects.
+            # write a CHGCAR containing magnetization density only
+            chgcar.data['total'] = chgcar.data['diff']
+            chgcar.is_spin_polarized = False
+            chgcar.write_file('CHGCAR_mag')
 
-        This method will:
+            chgcar_mag_path = os.path.join(temp_dir, 'CHGCAR_mag')
+            ba = BaderAnalysis(chgcar_mag_path, potcar_filename=potcar_path, chgref_filename=chgref_path)
+            summary["magmom"] = [d['charge'] for d in ba.data]
 
-        1. If aeccar objects are present, constructs a temporary reference
-        file as AECCAR0 + AECCAR2
-        2. Runs Bader analysis twice: once for charge, and a second time
-        for the charge difference (magnetization density).
-
-        :param chgcar: Chgcar object
-        :param potcar: (optional) Potcar object
-        :param aeccar0: (optional) Chgcar object from aeccar0 file
-        :param aeccar2: (optional) Chgcar object from aeccar2 file
-        :return: BaderResult
-        """
-
-        with ScratchDir(".") as temp_dir:
-
-            if aeccar0 and aeccar2:
-                # construct reference file
-                chgref = aeccar0.linear_add(aeccar2)
-                chgref_path = os.path.join(temp_dir, 'CHGCAR_ref')
-                chgref.write_file(chgref_path)
-            else:
-                chgref_path = None
-
-            chgcar.write_file('CHGCAR')
-            chgcar_path = os.path.join(temp_dir, 'CHGCAR')
-
-            if potcar:
-                potcar.write_file('POTCAR')
-                potcar_path = os.path.join(temp_dir, 'POTCAR')
-            else:
-                potcar_path = None
-
-            ba = BaderAnalysis(chgcar_path, potcar_filename=potcar_path, chgref_filename=chgref_path)
-
-            summary = {
-                "min_dist": [d['min_dist'] for d in ba.data],
-                "charge": [d['charge'] for d in ba.data],
-                "volume": [d['atomic_vol'] for d in ba.data],
-                "vacuum_charge": ba.vacuum_charge,
-                "vacuum_volume": ba.vacuum_volume,
-                "reference_used": True if chgref_path else False,
-                "bader_version": ba.version,
-            }
-
-            if potcar:
-                charge_transfer = [ba.get_charge_transfer(i) for i in range(len(ba.data))]
-                summary['charge_transfer'] = charge_transfer
-
-            if chgcar.is_spin_polarized:
-
-                # write a CHGCAR containing magnetization density only
-                chgcar.data['total'] = chgcar.data['diff']
-                chgcar.is_spin_polarized = False
-                chgcar.write_file('CHGCAR_mag')
-
-                chgcar_mag_path = os.path.join(temp_dir, 'CHGCAR_mag')
-                ba = BaderAnalysis(chgcar_mag_path, potcar_filename=potcar_path, chgref_filename=chgref_path)
-                summary["magmom"] = [d['charge'] for d in ba.data]
-
-            return cls(summary)
+        return summary

@@ -51,7 +51,7 @@ class BaderAnalysisTest(unittest.TestCase):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 'test_files/bader')
 
-        bader_result = BaderResult.from_path(test_dir)
+        summary = bader_analysis_from_path(test_dir)
 
         summary_ref = {
             'magmom': [4.298761, 4.221997, 4.221997, 3.816685, 4.221997, 4.298763, 0.36292,
@@ -68,11 +68,7 @@ class BaderAnalysisTest(unittest.TestCase):
             'reference_used': True
         }
 
-        self.assertEqual(bader_result.__dict__, summary_ref)
-
-        # test as/from dict
-        bader_result_dict = bader_result.as_dict()
-        bader_result = BaderResult.from_dict(bader_result_dict)
+        self.assertDictEqual(summary, summary_ref)
 
 if __name__ == '__main__':
     unittest.main()
