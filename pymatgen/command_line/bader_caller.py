@@ -242,9 +242,21 @@ class BaderResult(MSONable):
         :param summary: BaderResult
         """
 
-        self.summary = summary
         for key in summary:
             setattr(self, key, summary[key])
+
+    @classmethod
+    def from_dict(cls, d):
+        del d["@module"]
+        del d["@class"]
+        return cls(d)
+
+    @classmethod
+    def as_dict(self):
+        d = self.__dict__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
 
     @classmethod
     def from_path(cls, path):
