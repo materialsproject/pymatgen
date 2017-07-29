@@ -21,6 +21,8 @@ from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
+from monty.tempfile import ScratchDir
+
 """
 Created on Jul 16, 2012
 """
@@ -727,6 +729,17 @@ class ChgcarTest(unittest.TestCase):
         myans = chg.get_integrated_diff(0, 3, 6)
         self.assertTrue(np.allclose(myans[:, 1], ans))
 
+    def test_write(self):
+        filepath = os.path.join(test_dir, 'CHGCAR.spin')
+        chg = Chgcar.from_file(filepath)
+        with ScratchDir(".") as temp_dir:
+            chg.write_file(os.path.join(temp_dir, "CHGCAR_pmg"))
+            with open(os.path.join(temp_dir, "CHGCAR_pmg")) as f:
+                for i, line in enumerate(f):
+                    if i == 22130:
+                        self.assertEqual("augmentation occupancies   1  15\n", line)
+                    if i == 44255:
+                        self.assertEqual("augmentation occupancies   1  15\n", line)
 
 class ProcarTest(unittest.TestCase):
 
