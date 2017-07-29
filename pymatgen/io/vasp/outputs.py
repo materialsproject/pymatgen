@@ -2395,7 +2395,7 @@ class VolumetricData(object):
         Total number of grid points in volumetric data.
     """
 
-    def __init__(self, structure, data, distance_matrix=None):
+    def __init__(self, structure, data, distance_matrix=None, data_aug=None):
         """
         Typically, this constructor is not used directly and the static
         from_file constructor is used. This constructor is designed to allow
@@ -2404,6 +2404,8 @@ class VolumetricData(object):
         Args:
             structure: Structure associated with the volumetric data
             data: Actual volumetric data.
+            data_aug: Any extra information associated with volumetric data
+                (typically augmentation charges)
             distance_matrix: A pre-computed distance matrix if available.
                 Useful so pass distance_matrices between sums,
                 shortcircuiting an otherwise expensive operation.
@@ -2412,6 +2414,7 @@ class VolumetricData(object):
         self.is_spin_polarized = len(data) == 2
         self.dim = data["total"].shape
         self.data = data
+        self.data_aug = data_aug if data_aug else {}
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data = {}
@@ -2491,6 +2494,9 @@ class VolumetricData(object):
         poscar_string = []
         dataset = []
         all_dataset = []
+        # for holding any strings in input that are not Poscar
+        # or VolumetricData (typically augmentation charges)
+        all_dataset_aug = {}
         dim = None
         dimline = None
         read_dataset = False
@@ -2499,6 +2505,7 @@ class VolumetricData(object):
         poscar = None
         with zopen(filename, "rt") as f:
             for line in f:
+                original_line = line
                 line = line.strip()
                 if read_dataset:
                     toks = line.split()
@@ -2529,13 +2536,23 @@ class VolumetricData(object):
                     read_dataset = True
                     dataset = np.zeros(dim)
                 elif line == dimline:
+                    # when line == dimline, expect volumetric data to follow
+                    # so set read_dataset to True
                     read_dataset = True
                     dataset = np.zeros(dim)
+                else:
+                    # store any extra lines that were not part of the volumetric data
+                    key = len(all_dataset)-1  # so we know which set of data the extra lines are associated with
+                    if key not in all_dataset_aug:
+                        all_dataset_aug[key] = []
+                    all_dataset_aug[key].append(original_line)
             if len(all_dataset) == 2:
                 data = {"total": all_dataset[0], "diff": all_dataset[1]}
+                data_aug = {"total": all_dataset_aug.get(0, None), "diff": all_dataset_aug.get(1, None)}
             else:
                 data = {"total": all_dataset[0]}
-            return poscar, data
+                data_aug = {"total": all_dataset_aug.get(0, None)}
+            return poscar, data, data_aug
 
     def write_file(self, file_name, vasp4_compatible=False):
         """
@@ -2546,10 +2563,29 @@ class VolumetricData(object):
             vasp4_compatible (bool): True if the format is vasp4 compatible
         """
 
+        def _print_fortran_float(f):
+            '''
+            Fortran codes print floats with a leading zero in scientific
+            notation. When writing CHGCAR files, we adopt this convention
+            to ensure written CHGCAR files are byte-to-byte identical to
+            their input files as far as possible.
+            :param f: float
+            :return: str
+            '''
+            s = "{:.10E}".format(f)
+            if f > 0:
+                return "0."+s[0]+s[2:12]+'E'+"{:+03}".format(int(s[13:])+1)
+            else:
+                return "-."+s[1]+s[3:13]+'E'+"{:+03}".format(int(s[14:])+1)
+
+
         with zopen(file_name, "wt") as f:
             p = Poscar(self.structure)
 
-            lines = p.comment + "\n"
+            # use original name if it's been set (e.g. from Chgcar)
+            comment = getattr(self, 'name', p.comment)
+
+            lines = comment + "\n"
             lines += "   1.00000000000000\n"
             latt = self.structure.lattice.matrix
             lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0, :])
@@ -2561,28 +2597,28 @@ class VolumetricData(object):
             lines += "Direct\n"
             for site in self.structure:
                 lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
-            lines += "\n"
+            lines += " \n"
             f.write(lines)
             a = self.dim
 
             def write_spin(data_type):
                 lines = []
                 count = 0
-                f.write("{} {} {}\n".format(a[0], a[1], a[2]))
+                f.write("   {}   {}   {}\n".format(a[0], a[1], a[2]))
                 for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])),
                                                    list(range(a[0]))):
-                    lines.append("%0.11e" % self.data[data_type][i, j, k])
+                    lines.append(_print_fortran_float(self.data[data_type][i, j, k]))
                     count += 1
                     if count % 5 == 0:
-                        f.write("".join(lines) + "\n")
+                        f.write(" " + "".join(lines) + "\n")
                         lines = []
                     else:
                         lines.append(" ")
-                f.write("".join(lines) + "\n")
+                f.write(" " + "".join(lines) + " \n")
+                f.write("".join(self.data_aug.get(data_type, [])))
 
             write_spin("total")
             if self.is_spin_polarized:
-                f.write("\n")
                 write_spin("diff")
 
     def get_integrated_diff(self, ind, radius, nbins=1):
@@ -2679,7 +2715,7 @@ class Locpot(VolumetricData):
 
     @staticmethod
     def from_file(filename):
-        (poscar, data) = VolumetricData.parse_file(filename)
+        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return Locpot(poscar, data)
 
 
@@ -2692,16 +2728,16 @@ class Chgcar(VolumetricData):
         data: Actual data.
     """
 
-    def __init__(self, poscar, data):
-        super(Chgcar, self).__init__(poscar.structure, data)
+    def __init__(self, poscar, data, data_aug=None):
+        super(Chgcar, self).__init__(poscar.structure, data, data_aug=data_aug)
         self.poscar = poscar
         self.name = poscar.comment
         self._distance_matrix = {}
 
     @staticmethod
     def from_file(filename):
-        (poscar, data) = VolumetricData.parse_file(filename)
-        return Chgcar(poscar, data)
+        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
+        return Chgcar(poscar, data, data_aug=data_aug)
 
 
 class Procar(object):
