@@ -115,11 +115,11 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                                          temp=300)['n'][2]
         
         for i in range(0, 3):
-            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i])
-            self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i])
+            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 1)
+            self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i], 4)
         
-        self.assertAlmostEqual(sbk_mass_avg_mu, 4361.4744008038842)
-        self.assertAlmostEqual(sbk_mass_avg_dop, 1.661553842105382)
+        self.assertAlmostEqual(sbk_mass_avg_mu, 4361.4744008038842, 1)
+        self.assertAlmostEqual(sbk_mass_avg_dop, 1.661553842105382, 4)
 
     @unittest.skipIf(not fdint, "No FDINT")
     def test_get_complexity_factor(self):
@@ -135,11 +135,11 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                                          temp=300)['n'][2]
         
         for i in range(0, 3):
-            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i])
-            self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i])
+            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 4)
+            self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i], 4)
         
-        self.assertAlmostEqual(sbk_mass_avg_mu, 0.00628677029221)
-        self.assertAlmostEqual(sbk_mass_avg_dop, 1.12322832119)
+        self.assertAlmostEqual(sbk_mass_avg_mu, 0.00628677029221, 4)
+        self.assertAlmostEqual(sbk_mass_avg_dop, 1.12322832119, 4)
 
     def test_get_seebeck(self):
         ref = [-768.99078999999995, -724.43919999999991, -686.84682999999973]

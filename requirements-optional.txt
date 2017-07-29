@@ -6,4 +6,4 @@ ase==3.11.0
 coveralls==1.1
 chemview==0.6
 netCDF4==1.2.9
-# fdint==2.0.2
+fdint==2.0.2
