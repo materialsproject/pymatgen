@@ -35,7 +35,7 @@ class TestLammpsInputSet(unittest.TestCase):
             data_filename=self.data_filename, is_forcefield=True)
 
     def test_input(self):
-        self.assertEqual(self.lammps_input_set.lammps_input["read_data"],
+        self.assertEqual(self.lammps_input_set.lammps_input["data_file"],
                          self.data_filename)
         for k, v in self.settings.items():
             self.assertEqual(self.lammps_input_set.lammps_input[k], v)

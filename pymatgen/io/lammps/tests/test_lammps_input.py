@@ -34,7 +34,7 @@ class TestLammpsInput(unittest.TestCase):
         d_test = {}
         with open(os.path.join(test_dir, "in.peptide.template.with_read_data"), "r") as f:
             d_test["template_string"] = f.read()
-        d_test["read_data"] = "data.peptide"
+        d_test["data_file"] = "data.peptide"
         d_test.update(self.settings)
         self.assertDictEqual(d, d_test)
 
@@ -45,8 +45,8 @@ class TestLammpsInput(unittest.TestCase):
         self.assertDictEqual(lammps_input.as_dict(), self.lammps_input.as_dict())
 
     def test_read_data_placeholder(self):
-        self.assertIn("read_data", self.lammps_input)
-        self.assertEqual(self.lammps_input["read_data"], "data.peptide")
+        self.assertIn("data_file", self.lammps_input)
+        self.assertEqual(self.lammps_input["data_file"], "data.peptide")
 
     def test_string_representation(self):
         input_file = os.path.join(test_dir, "in.peptide")

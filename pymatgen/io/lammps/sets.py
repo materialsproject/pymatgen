@@ -41,7 +41,7 @@ class LammpsInputSet(MSONable):
             lammps_input (LammpsInput): The config dictionary to use.
             lammps_data (LammpsData): LammpsData object
             data_filename (str): name of the the lammps data file.
-                Note: this will override the value for 'read_data' key in lammps_input
+                Note: this will override the value for 'data_file' key in lammps_input
             user_lammps_settings (dict): User lammps settings. This allows a user
                 to override lammps settings, e.g., setting a different force field
                 or bond type.
@@ -51,7 +51,7 @@ class LammpsInputSet(MSONable):
         self.lammps_input = lammps_input
         self.lammps_data = lammps_data
         self.data_filename = data_filename
-        self.lammps_input["read_data"] = data_filename
+        self.lammps_input["data_file"] = data_filename
         self.user_lammps_settings = user_lammps_settings or {}
         self.lammps_input.update(self.user_lammps_settings)
 
@@ -66,8 +66,8 @@ class LammpsInputSet(MSONable):
         """
         if data_filename:
             data_filename = os.path.abspath(os.path.join(os.getcwd(), data_filename))
-        if data_filename and ("read_data" in self.lammps_input):
-            self.lammps_input["read_data"] = data_filename
+        if data_filename and ("data_file" in self.lammps_input):
+            self.lammps_input["data_file"] = data_filename
             self.data_filename = data_filename
         self.lammps_input.write_file(input_filename)
         # write the data file if present
