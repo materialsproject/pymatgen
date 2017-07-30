@@ -72,7 +72,7 @@ jobs:
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
             pmg analyze -d test_files
           no_output_timeout: 3600
-          
+
 workflows:
   version: 2
   build_and_test:
