@@ -12,6 +12,7 @@ from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
+from pymatgen.electronic_structure.core import Magmom
 
 """
 Created on Jul 17, 2012
@@ -40,7 +41,7 @@ class SiteTest(PymatgenTest):
         self.assertRaises(AttributeError, getattr, self.disordered_site,
                           'specie')
         self.assertIsInstance(self.ordered_site.specie, Element)
-        self.assertEqual(self.propertied_site.magmom, 5.1)
+        self.assertEqual(self.propertied_site.magmom, Magmom(5.1))
         self.assertEqual(self.propertied_site.charge, 4.2)
 
     def test_to_from_dict(self):
@@ -50,7 +51,7 @@ class SiteTest(PymatgenTest):
         self.assertNotEqual(site, self.ordered_site)
         d = self.propertied_site.as_dict()
         site = Site.from_dict(d)
-        self.assertEqual(site.magmom, 5.1)
+        self.assertEqual(site.magmom, Magmom(5.1))
         self.assertEqual(site.charge, 4.2)
         d = self.dummy_site.as_dict()
         site = Site.from_dict(d)
@@ -104,7 +105,7 @@ class PeriodicSiteTest(PymatgenTest):
         self.assertEqual(self.site.z, 4.5)
         self.assertTrue(self.site.is_ordered)
         self.assertFalse(self.site2.is_ordered)
-        self.assertEqual(self.propertied_site.magmom, 5.1)
+        self.assertEqual(self.propertied_site.magmom, Magmom(5.1))
         self.assertEqual(self.propertied_site.charge, 4.2)
 
     def test_distance(self):

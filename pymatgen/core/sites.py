@@ -13,6 +13,7 @@ from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
 from monty.json import MSONable
 from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
+from pymatgen.electronic_structure.core import Magmom
 
 """
 This module defines classes representing non-periodic and periodic sites.
@@ -187,6 +188,17 @@ class Site(collections.Hashable, MSONable):
         Cartesian z coordinate
         """
         return self._coords[2]
+
+    @property
+    def magmom(self):
+        """
+        Returns magnetic moment, first if it's defined on site
+        property, then if not then on the specie spin property,
+        then if not returns None.
+        :return: Magmom instance or None
+        """
+        m = self.properties.get('magmom', getattr(self.specie, 'spin', None))
+        return Magmom(m) if m else None
 
     def __getitem__(self, el):
         """
