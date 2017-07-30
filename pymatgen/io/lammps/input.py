@@ -27,15 +27,18 @@ class LammpsInput(MSONable):
         self.contents = contents
         self.settings = settings or {}
         self.delimiter = delimiter
-
         # make read_data configurable i.e "read_data $${data_file}"
-        if ("data_file" not in self.settings and
-                    self.contents.find("read_data") >= 0):
-            self.settings["data_file"] = \
-                self.contents.split("read_data")[-1].split("\n")[0].expandtabs().strip()
+        self._map_param_to_identifier("read_data", "data_file")
+        # log $${log_file}
+        self._map_param_to_identifier("log", "log_file")
+
+    def _map_param_to_identifier(self, param, identifier):
+        if identifier not in self.settings and self.contents.find(param) >= 0:
+            self.settings[identifier] = \
+                self.contents.split(param)[-1].split("\n")[0].expandtabs().strip()
             self.contents = \
-                self.contents.replace(self.settings["data_file"],
-                                      "$${data_file}", 1)
+                self.contents.replace(self.settings[identifier],
+                                      self.delimiter+"{"+identifier+"}", 1)
 
     def __str__(self):
         template = self.get_template(self.__class__.__name__,
