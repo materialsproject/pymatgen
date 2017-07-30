@@ -3,7 +3,7 @@ jobs:
   py3test:
     working_directory: ~/pymatgen
     docker:
-      - image: materialsvirtuallab/circle-ci-pmg-py3:latest
+      - image: materialsvirtuallab/circle-ci-pmg-py3
     steps:
       - checkout
       - restore_cache:
