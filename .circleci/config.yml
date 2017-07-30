@@ -41,7 +41,7 @@ jobs:
   py2test:
     working_directory: ~/pymatgen
     docker:
-      - image: materialsvirtuallab/circle-ci-pmg-py2:0.0.1
+      - image: materialsvirtuallab/circle-ci-pmg-py2:0.0.2
     steps:
       - checkout
       - restore_cache:
