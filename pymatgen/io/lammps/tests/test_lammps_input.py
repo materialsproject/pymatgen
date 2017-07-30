@@ -35,7 +35,7 @@ class TestLammpsInput(unittest.TestCase):
         d.pop("@module")
         d_test = {}
         with open(os.path.join(test_dir, "in.peptide.template.with_read_data"), "r") as f:
-            d_test["contents"] = f.read()
+            d_test["contents"] = "log $${log_file} \n"+f.read()
         d_test["settings"] = self.settings
         d_test["settings"]["data_file"] = "data.peptide"
         d_test["delimiter"] = "$$"
