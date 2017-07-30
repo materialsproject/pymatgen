@@ -1445,6 +1445,8 @@ class IStructure(SiteCollection, MSONable):
 
         if fmt == "cif" or fnmatch(fname, "*.cif*"):
             writer = CifWriter(self)
+        elif fmt == "mcif" or fnmatch(fname, "*.mcif*"):
+            writer = CifWriter(self, write_magmoms=True)
         elif fmt == "poscar" or fnmatch(fname, "*POSCAR*"):
             writer = Poscar(self)
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
@@ -1564,7 +1566,7 @@ class IStructure(SiteCollection, MSONable):
         fname = os.path.basename(filename)
         with zopen(filename, "rt") as f:
             contents = f.read()
-        if fnmatch(fname.lower(), "*.cif*"):
+        if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(contents, fmt="cif",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
