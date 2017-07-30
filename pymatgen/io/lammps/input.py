@@ -44,7 +44,8 @@ class LammpsInput(defaultdict, MSONable):
         self.update(kwargs)
 
         # if 'read_data' is configurable, make it
-        if "read_data" not in self and self.template_string.find("read_data") >= 0:
+        if ("read_data" not in self and self.template_string.find("read_data") >= 0
+            and self.template_string.find("$${read_data}") < 0):
             self["read_data"] = \
                 self.template_string.split("read_data")[-1].split("\n")[0].expandtabs().strip()
             self.template_string = \

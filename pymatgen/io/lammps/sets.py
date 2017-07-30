@@ -18,6 +18,7 @@ For the ease of management we divide LAMMPS input into 2 files:
             afore-mentioned data file and the job control parameters such as
             the ensemble type(NVT, NPT etc), max number of iterations etc.
 """
+import os
 import six
 
 from monty.json import MSONable, MontyDecoder
@@ -63,6 +64,8 @@ class LammpsInputSet(MSONable):
             input_filename (string): name of the input file
             data_filename (string): override the data file name with this
         """
+        if data_filename:
+            data_filename = os.path.abspath(os.path.join(os.getcwd(), data_filename))
         if data_filename and ("read_data" in self.lammps_input):
             self.lammps_input["read_data"] = data_filename
             self.data_filename = data_filename

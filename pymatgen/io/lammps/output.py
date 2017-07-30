@@ -379,6 +379,7 @@ class LammpsLog(MSONable):
             log_file (string): path to the log file
         """
         self.log_file = os.path.abspath(log_file)
+        self.timestep = -1
         self._parse_log()
 
     def _parse_log(self):
