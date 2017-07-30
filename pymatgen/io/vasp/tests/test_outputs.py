@@ -732,14 +732,15 @@ class ChgcarTest(unittest.TestCase):
     def test_write(self):
         filepath = os.path.join(test_dir, 'CHGCAR.spin')
         chg = Chgcar.from_file(filepath)
-        with ScratchDir(".") as temp_dir:
-            chg.write_file(os.path.join(temp_dir, "CHGCAR_pmg"))
-            with open(os.path.join(temp_dir, "CHGCAR_pmg")) as f:
-                for i, line in enumerate(f):
-                    if i == 22130:
-                        self.assertEqual("augmentation occupancies   1  15\n", line)
-                    if i == 44255:
-                        self.assertEqual("augmentation occupancies   1  15\n", line)
+        chg.write_file("CHGCAR_pmg")
+        with open("CHGCAR_pmg") as f:
+            for i, line in enumerate(f):
+                if i == 22130:
+                    self.assertEqual("augmentation occupancies   1  15\n", line)
+                if i == 44255:
+                    self.assertEqual("augmentation occupancies   1  15\n", line)
+        os.remove("CHGCAR_pmg")
+        
 
 class ProcarTest(unittest.TestCase):
 
