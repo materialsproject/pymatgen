@@ -740,7 +740,7 @@ class ChgcarTest(unittest.TestCase):
                 if i == 44255:
                     self.assertEqual("augmentation occupancies   1  15\n", line)
         os.remove("CHGCAR_pmg")
-        
+
 
 class ProcarTest(unittest.TestCase):
 
