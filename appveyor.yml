@@ -51,6 +51,6 @@ notifications:
     on_build_status_changed: true
 
 deploy_script:
-   - "pip install twine"
+   - IF "%APPVEYOR_REPO_BRANCH%" == "stable" "pip install twine"
    - IF "%APPVEYOR_REPO_BRANCH%" == "stable" (python setup.py sdist bdist_wheel)
    - IF "%APPVEYOR_REPO_BRANCH%" == "stable" (twine upload --username Shyue.Ping.Ong --password %PYPIPWD% dist/*.whl)
