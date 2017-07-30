@@ -63,6 +63,64 @@
 <dd><p>Bader analysis for a CHGCAR.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="pymatgen.command_line.bader_caller.bader_analysis_from_objects">
+<code class="descname">bader_analysis_from_objects</code><span class="sig-paren">(</span><em>chgcar</em>, <em>potcar=None</em>, <em>aeccar0=None</em>, <em>aeccar2=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#bader_analysis_from_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.bader_analysis_from_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to run Bader analysis from a set
+of pymatgen Chgcar and Potcar objects.</p>
+<p>This method will:</p>
+<p>1. If aeccar objects are present, constructs a temporary reference
+file as AECCAR0 + AECCAR2
+2. Runs Bader analysis twice: once for charge, and a second time
+for the charge difference (magnetization density).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>chgcar</strong> &#8211; Chgcar object</li>
+<li><strong>potcar</strong> &#8211; (optional) Potcar object</li>
+<li><strong>aeccar0</strong> &#8211; (optional) Chgcar object from aeccar0 file</li>
+<li><strong>aeccar2</strong> &#8211; (optional) Chgcar object from aeccar2 file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">summary dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.command_line.bader_caller.bader_analysis_from_path">
+<code class="descname">bader_analysis_from_path</code><span class="sig-paren">(</span><em>path</em>, <em>suffix=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#bader_analysis_from_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.bader_analysis_from_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to run Bader analysis on a folder containing
+typical VASP output files.</p>
+<p>This method will:</p>
+<p>1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
+counterparts.
+2. If AECCAR* files are present, constructs a temporary reference
+file as AECCAR0 + AECCAR2
+3. Runs Bader analysis twice: once for charge, and a second time
+for the charge difference (magnetization density).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>path</strong> &#8211; path to folder to search in</li>
+<li><strong>suffix</strong> &#8211; specific suffix to look for (e.g. &#8216;.relax1&#8217; for &#8216;CHGCAR.relax1.gz&#8217;</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">summary dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 

@@ -74,7 +74,7 @@ etc. are ignored.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.outputs.Chgcar">
-<em class="property">class </em><code class="descname">Chgcar</code><span class="sig-paren">(</span><em>poscar</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Chgcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Chgcar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Chgcar</code><span class="sig-paren">(</span><em>poscar</em>, <em>data</em>, <em>data_aug=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Chgcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Chgcar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.outputs.VolumetricData</span></code></a></p>
 <p>Simple object for reading a CHGCAR file.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1101,7 +1101,7 @@ kpoint label as commentary.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.get_computed_entry">
-<code class="descname">get_computed_entry</code><span class="sig-paren">(</span><em>inc_structure=False</em>, <em>parameters=None</em>, <em>data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Vasprun.get_computed_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.get_computed_entry" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_computed_entry</code><span class="sig-paren">(</span><em>inc_structure=True</em>, <em>parameters=None</em>, <em>data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Vasprun.get_computed_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.get_computed_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a ComputedStructureEntry from the vasprun.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1176,7 +1176,7 @@ supported by the Vasprun object.</li>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData">
-<em class="property">class </em><code class="descname">VolumetricData</code><span class="sig-paren">(</span><em>structure</em>, <em>data</em>, <em>distance_matrix=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">VolumetricData</code><span class="sig-paren">(</span><em>structure</em>, <em>data</em>, <em>distance_matrix=None</em>, <em>data_aug=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Simple volumetric object for reading LOCPOT and CHGCAR type files.</p>
 <dl class="attribute">
@@ -1213,6 +1213,8 @@ summation and other operations between VolumetricData objects.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>structure</strong> &#8211; Structure associated with the volumetric data</li>
 <li><strong>data</strong> &#8211; Actual volumetric data.</li>
+<li><strong>data_aug</strong> &#8211; Any extra information associated with volumetric data
+(typically augmentation charges)</li>
 <li><strong>distance_matrix</strong> &#8211; A pre-computed distance matrix if available.
 Useful so pass distance_matrices between sums,
 shortcircuiting an otherwise expensive operation.</li>

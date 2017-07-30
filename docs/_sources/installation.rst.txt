@@ -247,7 +247,8 @@ Linux
 Step 2: Install pymatgen in developmental mode
 ----------------------------------------------
 
-1. Clone the repo at http://github.com/materialsproject/pymatgen.
+1. Make sure you have git and `git-lfs <https://git-lfs.github.com/>`_ installed.
+   Clone the repo at https://github.com/materialsproject/pymatgen.
 
 2. In your root pymatgen repo directory, type (you may need to do this with root
    privileges)::
