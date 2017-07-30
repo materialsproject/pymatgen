@@ -227,6 +227,7 @@ class BaderAnalysis(object):
 
         return summary
 
+
 def bader_analysis_from_path(path, suffix=''):
     """
     Convenience method to run Bader analysis on a folder containing
