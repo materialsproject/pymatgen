@@ -440,6 +440,7 @@ class Magmom(MSONable):
         """
         Equal if 'global' magnetic moments are the same, saxis can differ.
         """
+        other = Magmom(other)
         return np.allclose(self.global_moment, other.global_moment)
 
     def __ne__(self, other):
