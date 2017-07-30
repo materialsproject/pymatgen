@@ -259,14 +259,14 @@ class ReactionTest(unittest.TestCase):
                      Composition("Cl"),
                      Composition("Cl")]
         products = [Composition("LiCl")]
-        self.assertRaisesRegexp(ReactionError, "underdetermined", Reaction,
+        self.assertRaisesRegex(ReactionError, "underdetermined", Reaction,
                                reactants, products)
 
         reactants = [Composition("LiMnCl3"),
                      Composition("LiCl"),
                      Composition("MnCl2")]
         products = [Composition("Li2MnCl4")]
-        self.assertRaisesRegexp(ReactionError, "underdetermined", Reaction,
+        self.assertRaisesRegex(ReactionError, "underdetermined", Reaction,
                                reactants, products)
 
 
