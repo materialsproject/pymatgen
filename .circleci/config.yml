@@ -3,20 +3,14 @@ jobs:
   py3test:
     working_directory: ~/pymatgen
     docker:
-      - image: python:3.6.1
+      - image: mavrl/circle-ci-pmg-py3:0.0.1
     steps:
       - checkout
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           command: |
-            apt-get -y -qq update
-            apt-get -y -qq install gfortran python-openbabel python-vtk python3-tk
-            curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
-            apt-get install git-lfs
-            git lfs install
-            git lfs pull
-            python3 -m venv venv
+            python -m venv venv
             . venv/bin/activate
             mkdir coverage_reports
             pip install numpy
@@ -47,19 +41,13 @@ jobs:
   py2test:
     working_directory: ~/pymatgen
     docker:
-      - image: python:2.7.12
+      - image: mavrl/circle-ci-pmg-py2:0.0.1
     steps:
       - checkout
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           command: |
-            apt-get -y -qq update
-            apt-get -y -qq install gfortran python-openbabel python-vtk python3-tk
-            curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
-            apt-get install git-lfs
-            git lfs install
-            git lfs pull
             pip install virtualenv
             virtualenv venv
             . venv/bin/activate
