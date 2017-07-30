@@ -3,7 +3,7 @@ jobs:
   py3test:
     working_directory: ~/pymatgen
     docker:
-      - image: mavrl/circle-ci-pmg-py3:0.0.1
+      - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.1
     steps:
       - checkout
       - restore_cache:
@@ -23,7 +23,7 @@ jobs:
       - run:
           command: |
             . venv/bin/activate
-            python3 setup.py develop
+            python setup.py develop
             export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             ls
@@ -41,7 +41,7 @@ jobs:
   py2test:
     working_directory: ~/pymatgen
     docker:
-      - image: mavrl/circle-ci-pmg-py2:0.0.1
+      - image: materialsvirtuallab/circle-ci-pmg-py2:0.0.1
     steps:
       - checkout
       - restore_cache:
