@@ -50,6 +50,7 @@ jobs:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           command: |
+            git lfs pull
             pip install virtualenv
             virtualenv venv
             . venv/bin/activate
