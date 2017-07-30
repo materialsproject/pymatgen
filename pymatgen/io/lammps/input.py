@@ -25,7 +25,7 @@ class LammpsInput(MSONable):
 
     def __init__(self, contents, settings, delimiter):
         self.contents = contents
-        self.settings = settings
+        self.settings = settings or {}
         self.delimiter = delimiter
 
         # make read_data configurable i.e "read_data $${data_file}"
@@ -42,7 +42,6 @@ class LammpsInput(MSONable):
                                      delimiter=self.delimiter)
         template_string = template(self.contents)
 
-        # might contain unused parameters as leftover $$
         unclean_template = template_string.safe_substitute(self.settings)
 
         clean_template = filter(lambda l: self.delimiter not in l,
@@ -55,7 +54,7 @@ class LammpsInput(MSONable):
         return cls(input_string, settings, delimiter)
 
     @classmethod
-    def from_file(cls, input_file, settings, delimiter="$$"):
+    def from_file(cls, input_file, settings=None, delimiter="$$"):
         with open(input_file) as f:
             return cls.from_string(f.read(), settings, delimiter)
 
@@ -64,5 +63,5 @@ class LammpsInput(MSONable):
             f.write(self.__str__())
 
     @staticmethod
-    def get_template(name, delimiter="$$"):
+    def get_template(name, delimiter):
         return type(name, (Template,), {"delimiter": delimiter})
