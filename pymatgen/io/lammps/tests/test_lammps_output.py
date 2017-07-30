@@ -26,6 +26,8 @@ class TestLammpsDump(unittest.TestCase):
         dump_file_2 = os.path.join(test_dir, "dump_2")
         self.dump1 = LammpsDump.from_file(dump_file_1)
         self.dump2 = LammpsDump.from_file(dump_file_2)
+        dump_file_nvt = os.path.join(test_dir, "nvt.dump")
+        self.dump_nvt = LammpsDump.from_file(dump_file_nvt)
 
     def test_non_atoms_data(self):
         self.assertEqual(self.dump1.box_bounds, [[0.0, 25.0],
@@ -49,6 +51,10 @@ class TestLammpsDump(unittest.TestCase):
         np.testing.assert_almost_equal(self.dump2.atoms_data[57],
                                        [99, 2, 0.909816, 0.883438, 0.314853],
                                        decimal=6)
+
+    def test_timesteps_and_atoms_data(self):
+        self.assertEqual(self.dump_nvt.natoms * len(self.dump_nvt.timesteps),
+                         len(self.dump_nvt.atoms_data))
 
 
 class TestLammpsRun(unittest.TestCase):

@@ -178,6 +178,7 @@ class LammpsDump(MSONable):
                 if parse_atoms:
                     line_data = [float(x) for x in line.split()]
                     atoms_data.append(line_data)
+                    parse_atoms = False if len(atoms_data) == len(timesteps)*natoms else True
 
         return cls(timesteps, natoms, box_bounds, atoms_data)
 
