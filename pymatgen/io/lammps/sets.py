@@ -51,9 +51,9 @@ class LammpsInputSet(MSONable):
         self.lammps_input = lammps_input
         self.lammps_data = lammps_data
         self.data_filename = data_filename
-        self.lammps_input["data_file"] = data_filename
+        self.lammps_input.settings["data_file"] = data_filename
         self.user_lammps_settings = user_lammps_settings or {}
-        self.lammps_input.update(self.user_lammps_settings)
+        self.lammps_input.settings.update(self.user_lammps_settings)
 
     def write_input(self, input_filename, data_filename=None):
         """
@@ -66,8 +66,8 @@ class LammpsInputSet(MSONable):
         """
         if data_filename:
             data_filename = os.path.abspath(os.path.join(os.getcwd(), data_filename))
-        if data_filename and ("data_file" in self.lammps_input):
-            self.lammps_input["data_file"] = data_filename
+        if data_filename and ("data_file" in self.lammps_input.settings):
+            self.lammps_input.settings["data_file"] = data_filename
             self.data_filename = data_filename
         self.lammps_input.write_file(input_filename)
         # write the data file if present

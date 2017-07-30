@@ -31,22 +31,19 @@ class TestLammpsInput(unittest.TestCase):
 
     def test_as_dict(self):
         d = self.lammps_input.as_dict()
+        d.pop("@class")
+        d.pop("@module")
         d_test = {}
         with open(os.path.join(test_dir, "in.peptide.template.with_read_data"), "r") as f:
-            d_test["template_string"] = f.read()
-        d_test["data_file"] = "data.peptide"
-        d_test.update(self.settings)
+            d_test["contents"] = f.read()
+        d_test["settings"] = self.settings
+        d_test["settings"]["data_file"] = "data.peptide"
+        d_test["delimiter"] = "$$"
         self.assertDictEqual(d, d_test)
 
-    def test_direct_setting_vs_from_file(self):
-        with open(os.path.join(test_dir, "in.peptide.template"), "r") as f:
-            template_string = f.read()
-        lammps_input = LammpsInput(template_string, **self.settings)
-        self.assertDictEqual(lammps_input.as_dict(), self.lammps_input.as_dict())
-
     def test_read_data_placeholder(self):
-        self.assertIn("data_file", self.lammps_input)
-        self.assertEqual(self.lammps_input["data_file"], "data.peptide")
+        self.assertIn("data_file", self.lammps_input.settings)
+        self.assertEqual(self.lammps_input.settings["data_file"], "data.peptide")
 
     def test_string_representation(self):
         input_file = os.path.join(test_dir, "in.peptide")
