@@ -29,10 +29,10 @@ install:
 
   # Install the build dependencies of the project via conda and pip
   - 'conda install --yes --quiet numpy scipy matplotlib setuptools wheel'
-  - 'conda install --yes --quiet --channel matsci spglib'
+  - 'conda install --yes --quiet --channel matsci spglib netcdf4'
   - 'conda update --yes --all'
   - "pip install -r requirements.txt"
-  - "pip install pybtex nose sympy unittest2 coverage ase coveralls"  # Note that pyhull is excluded because it does not work on Windows.
+  - "pip install pybtex nose coverage ase coveralls fdint ase"  # Note that pyhull is excluded because it does not work on Windows.
 
   # Run develop to install in dev mode and build C extension.
   - "python setup.py develop"
