@@ -314,6 +314,44 @@ an_dw=BoltztrapAnalyzer.from_files(&#8220;dos_dw/boltztrap/&#8221;,dos_spin=-1)<
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_complexity_factor">
+<code class="descname">get_complexity_factor</code><span class="sig-paren">(</span><em>output='average'</em>, <em>temp=300</em>, <em>doping_levels=False</em>, <em>Lambda=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_complexity_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_complexity_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fermi surface complexity factor respect to calculated as explained in Ref.
+Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
+from ab initio band structure calculations.
+npj Computational Materials 3, 8 (2017).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output</strong> &#8211; &#8216;average&#8217; returns the complexity factor calculated using the average
+of the three diagonal components of the seebeck and conductivity tensors.
+&#8216;tensor&#8217; returns the complexity factor respect to the three
+diagonal components of seebeck and conductivity tensors.</li>
+<li><strong>doping_levels</strong> &#8211; False means that the complexity factor is calculated
+for every value of the chemical potential
+True means that the complexity factor is calculated
+for every value of the doping levels for both n and p types</li>
+<li><strong>temp</strong> &#8211; temperature of calculated seebeck and conductivity.</li>
+<li><strong>Lambda</strong> &#8211; fitting parameter used to model the scattering (0.5 means constant
+relaxation time).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of values for the complexity factor w.r.t the chemical potential,
+if doping_levels is set at False;
+a dict with n an p keys that contain a list of values for the complexity factor
+w.r.t the doping levels, if doping_levels is set at True;
+if &#8216;tensor&#8217; is selected, each element of the lists is a list containing
+the three components of the complexity factor.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_conductivity">
 <code class="descname">get_conductivity</code><span class="sig-paren">(</span><em>output='eigs'</em>, <em>doping_levels=True</em>, <em>relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_conductivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_conductivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the conductivity (1/Ohm*m) in either a full 3x3 tensor
@@ -494,6 +532,44 @@ output=&#8217;tensor&#8217;) or as an average
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">If doping_levels=True, a dictionary {temp</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck_eff_mass">
+<code class="descname">get_seebeck_eff_mass</code><span class="sig-paren">(</span><em>output='average'</em>, <em>temp=300</em>, <em>doping_levels=False</em>, <em>Lambda=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_seebeck_eff_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck_eff_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seebeck effective mass calculated as explained in Ref.
+Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
+from ab initio band structure calculations.
+npj Computational Materials 3, 8 (2017).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output</strong> &#8211; &#8216;average&#8217; returns the seebeck effective mass calculated using
+the average of the three diagonal components of the seebeck tensor.
+&#8216;tensor&#8217; returns the seebeck effective mass respect to the three
+diagonal components of the seebeck tensor.</li>
+<li><strong>doping_levels</strong> &#8211; False means that the seebeck effective mass is calculated
+for every value of the chemical potential
+True means that the seebeck effective mass is calculated
+for every value of the doping levels for both n and p types</li>
+<li><strong>temp</strong> &#8211; temperature of calculated seebeck.</li>
+<li><strong>Lambda</strong> &#8211; fitting parameter used to model the scattering (0.5 means constant
+relaxation time).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of values for the seebeck effective mass w.r.t the chemical potential,
+if doping_levels is set at False;
+a dict with n an p keys that contain a list of values for the seebeck effective
+mass w.r.t the doping levels, if doping_levels is set at True;
+if &#8216;tensor&#8217; is selected, each element of the lists is a list containing
+the three components of the seebeck effective mass.</p>
 </td>
 </tr>
 </tbody>
@@ -704,7 +780,7 @@ Raised when the boltztrap gives an error</p>
 <dl class="class">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner">
 <em class="property">class </em><code class="descname">BoltztrapRunner</code><span class="sig-paren">(</span><em>bs</em>, <em>nelec</em>, <em>dos_type='HISTO'</em>, <em>energy_grid=0.005</em>, <em>lpfac=10</em>, <em>run_type='BOLTZ'</em>, <em>band_nb=None</em>, <em>tauref=0</em>, <em>tauexp=0</em>, <em>tauen=0</em>, <em>soc=False</em>, <em>doping=None</em>, <em>energy_span_around_fermi=1.5</em>, <em>scissor=0.0</em>, <em>kpt_line=None</em>, <em>spin=None</em>, <em>cond_band=False</em>, <em>tmax=1300</em>, <em>tgrid=50</em>, <em>symprec=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This class is used to run Boltztrap on a band structure object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -766,12 +842,19 @@ high symmetry k-points is automatically set as default)</li>
 <li><strong>tgrid</strong> &#8211; Temperature interval for calculation (default=50)</li>
 <li><strong>symprec</strong> &#8211; 1e-3 is the default in pymatgen. If the kmesh has been
 generated using a different symprec, it has to be specified
-to avoid a &#8220;factorization error&#8221; in BoltzTraP calculation.</li>
+to avoid a &#8220;factorization error&#8221; in BoltzTraP calculation.
+If a kmesh that spans the whole Brillouin zone has been used,
+or to disable all the symmetries, set symprec to None.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.bs">
 <code class="descname">bs</code><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.bs" title="Permalink to this definition">¶</a></dt>
@@ -854,9 +937,38 @@ squared (%) if nb is specified.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pymatgen.electronic_structure.boltztrap.eta_from_seebeck">
+<code class="descname">eta_from_seebeck</code><span class="sig-paren">(</span><em>seeb</em>, <em>Lambda</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#eta_from_seebeck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.eta_from_seebeck" title="Permalink to this definition">¶</a></dt>
+<dd><p>It takes a value of seebeck and adjusts the analytic seebeck until it&#8217;s equal
+Returns: eta where the two seebeck coefficients are equal
+(reduced chemical potential)</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="pymatgen.electronic_structure.boltztrap.read_cube_file">
 <code class="descname">read_cube_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#read_cube_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.read_cube_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_carr">
+<code class="descname">seebeck_eff_mass_from_carr</code><span class="sig-paren">(</span><em>eta</em>, <em>n</em>, <em>T</em>, <em>Lambda</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#seebeck_eff_mass_from_carr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_carr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate seebeck effective mass at a certain carrier concentration
+eta in kB*T units, n in cm-3, T in K, returns mass in m0 units</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_seebeck_carr">
+<code class="descname">seebeck_eff_mass_from_seebeck_carr</code><span class="sig-paren">(</span><em>seeb</em>, <em>n</em>, <em>T</em>, <em>Lambda</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#seebeck_eff_mass_from_seebeck_carr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_seebeck_carr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the chemical potential where analytic and calculated seebeck are identical
+and then calculate the seebeck effective mass at that chemical potential and
+a certain carrier concentration n</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.boltztrap.seebeck_spb">
+<code class="descname">seebeck_spb</code><span class="sig-paren">(</span><em>eta</em>, <em>Lambda=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#seebeck_spb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.seebeck_spb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seebeck analytic formula in the single parabolic model</p>
+</dd></dl>
 
 </div>
 

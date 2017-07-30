@@ -240,7 +240,7 @@ def power2_inverse_decreasing(xx, edges=None, prefactor=None):
             aa = 1.0/np.power(-1.0, 2)
         else:
             aa = prefactor
-        return aa * np.power(xx-1.0, 2) / xx
+        return aa * np.power(xx-1.0, 2) / xx if xx != 0 else aa * float("inf")
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
         return power2_inverse_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
@@ -252,7 +252,7 @@ def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
             aa = 1.0/np.power(-1.0, 2)
         else:
             aa = prefactor
-        return aa * np.power(xx-1.0, 2) / xx ** 2.0
+        return aa * np.power(xx-1.0, 2) / xx ** 2.0 if xx != 0 else aa * float("inf")
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
         return power2_inverse_power2_decreasing(xx_scaled_and_clamped, prefactor=prefactor)

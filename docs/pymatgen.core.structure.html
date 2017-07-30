@@ -1263,6 +1263,25 @@ site.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.core.structure.Molecule.remove_site_property">
+<code class="descname">remove_site_property</code><span class="sig-paren">(</span><em>property_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Molecule.remove_site_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.remove_site_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a property to a site.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>property_name</strong> (<em>str</em>) &#8211; The name of the property to add.</li>
+<li><strong>values</strong> (<em>list</em>) &#8211; A sequence of values. Must be same length as
+number of sites.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.core.structure.Molecule.remove_sites">
 <code class="descname">remove_sites</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Molecule.remove_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.remove_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete sites with at indices.</p>
@@ -1373,7 +1392,7 @@ do is to remove the index site, and connect the nearest
 neighbor to the C atom in CH3. The X-C bond indicates the
 directionality to connect the atoms.</li>
 <li>A string name. The molecule will be obtained from the
-relevant template in functional_groups.json.</li>
+relevant template in func_groups.json.</li>
 </ol>
 </li>
 <li><strong>bond_order</strong> (<em>int</em>) &#8211; A specified bond order to calculate the bond
@@ -1918,6 +1937,25 @@ site.</td>
 <dt id="pymatgen.core.structure.Structure.remove_oxidation_states">
 <code class="descname">remove_oxidation_states</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.remove_oxidation_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.remove_oxidation_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes oxidation states from a structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.remove_site_property">
+<code class="descname">remove_site_property</code><span class="sig-paren">(</span><em>property_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.remove_site_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.remove_site_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a property to a site.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>property_name</strong> (<em>str</em>) &#8211; The name of the property to add.</li>
+<li><strong>values</strong> (<em>list</em>) &#8211; A sequence of values. Must be same length as
+number of sites.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">

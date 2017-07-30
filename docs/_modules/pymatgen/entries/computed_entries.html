@@ -64,6 +64,14 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
 
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyEncoder</span><span class="p">,</span> <span class="n">MontyDecoder</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.phasediagram.entries</span> <span class="k">import</span> <span class="n">PDEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements equivalents of the basic ComputedEntry objects, which</span>
 <span class="sd">is the basic entity that can be used to perform many analyses. ComputedEntries</span>
@@ -79,14 +87,6 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Apr 30, 2012&quot;</span>
-
-<span class="kn">import</span> <span class="nn">json</span>
-
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyEncoder</span><span class="p">,</span> <span class="n">MontyDecoder</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.phasediagram.entries</span> <span class="k">import</span> <span class="n">PDEntry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 
 
 <div class="viewcode-block" id="ComputedEntry"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry">[docs]</a><span class="k">class</span> <span class="nc">ComputedEntry</span><span class="p">(</span><span class="n">PDEntry</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>

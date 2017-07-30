@@ -8,7 +8,6 @@ import os
 import json
 
 from io import open
-from monty.tempfile import ScratchDir
 
 try:
     import matplotlib
@@ -73,9 +72,9 @@ class DosPlotterTest(unittest.TestCase):
         self.plotter.add_dos_dict(self.dos.get_element_dos(),
                                   key_sort_func=lambda x: x.X)
         plt = self.plotter.get_plot()
-        with ScratchDir(".", copy_from_current_on_enter=False,
-                        copy_to_current_on_exit=False):
-            self.plotter.save_plot("dosplot.png")
+        self.plotter.save_plot("dosplot.png")
+        self.assertTrue(os.path.isfile("dosplot.png"))
+        os.remove("dosplot.png")
 
 
 class BSPlotterTest(unittest.TestCase):
@@ -113,17 +112,14 @@ class BSPlotterTest(unittest.TestCase):
         plt = self.plotter.get_plot()
         plt = self.plotter.get_plot(smooth=True)
         plt = self.plotter.get_plot(vbm_cbm_marker=True)
-        with ScratchDir(".", copy_from_current_on_enter=False,
-                        copy_to_current_on_exit=False):
-            self.plotter.save_plot("bsplot.png")
+        self.plotter.save_plot("bsplot.png")
+        self.assertTrue(os.path.isfile("bsplot.png"))
+        os.remove("bsplot.png")
 
 
 class PlotBZTest(unittest.TestCase):
 
     def setUp(self):
-        if not have_matplotlib:
-            raise unittest.SkipTest("matplotlib not available")
-
         self.rec_latt = Structure.from_file(os.path.join(test_dir, "Si.cssr")).lattice.reciprocal_lattice
         self.kpath = [[[0., 0., 0.], [0.5, 0., 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {'\\Gamma': [0., 0., 0.], 'K': [0.375, 0.375, 0.75], u'L': [0.5, 0.5, 0.5],
