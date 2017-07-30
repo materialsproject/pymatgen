@@ -214,7 +214,7 @@ class BaderAnalysis(object):
         summary = {
             "min_dist": [d['min_dist'] for d in self.data],
             "charge": [d['charge'] for d in self.data],
-            "volume": [d['atomic_vol'] for d in self.data],
+            "atomic_volume": [d['atomic_vol'] for d in self.data],
             "vacuum_charge": self.vacuum_charge,
             "vacuum_volume": self.vacuum_volume,
             "reference_used": self.reference_used,
@@ -319,7 +319,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
         summary = {
             "min_dist": [d['min_dist'] for d in ba.data],
             "charge": [d['charge'] for d in ba.data],
-            "volume": [d['atomic_vol'] for d in ba.data],
+            "atomic_volume": [d['atomic_vol'] for d in ba.data],
             "vacuum_charge": ba.vacuum_charge,
             "vacuum_volume": ba.vacuum_volume,
             "reference_used": True if chgref_path else False,
