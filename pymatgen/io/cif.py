@@ -953,9 +953,12 @@ class CifParser(object):
 
             struct = struct.get_sorted_structure()
 
-            if primitive:
+            if primitive and self.feature_flags['magcif']:
+                struct = struct.get_primitive_structure(use_site_props=True)
+            elif primitive:
                 struct = struct.get_primitive_structure()
                 struct = struct.get_reduced_structure()
+
             return struct
 
     def get_structures(self, primitive=True):
@@ -965,7 +968,8 @@ class CifParser(object):
 
         Args:
             primitive (bool): Set to False to return conventional unit cells.
-                Defaults to True.
+                Defaults to True. With magnetic CIF files, will return primitive
+                magnetic cell which may be larger than nuclear primitive cell.
 
         Returns:
             List of Structures.
@@ -1061,7 +1065,8 @@ class CifWriter(object):
         """
 
         if write_magmoms and symprec:
-            warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen.")
+            warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen,"
+                          "disabling symmetry detection.")
             symprec = None
 
         format_str = "{:.8f}"
@@ -1153,9 +1158,11 @@ class CifWriter(object):
                     atom_site_label.append("{}{}".format(sp.symbol, count))
                     atom_site_occupancy.append(occu.__str__())
 
-                    magmom = Magmom(site.properties.get('magmom', 0))
-                    moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
+                    # look for Magmom site property first, else Specie spin, else 0
+                    magmom = Magmom(site.properties.get('magmom', getattr(site.specie, 'spin', 0)))
+
                     if write_magmoms and abs(magmom) > 0:
+                        moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
                         atom_site_moment_label.append("{}{}".format(sp.symbol, count))
                         atom_site_moment_crystalaxis_x.append(moment[0])
                         atom_site_moment_crystalaxis_y.append(moment[1])
