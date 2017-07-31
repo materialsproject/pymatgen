@@ -483,7 +483,6 @@ class OutcarTest(unittest.TestCase):
             {'s': Magmom([0.0, 0.0, 0.0]), 'p': Magmom([0.0, 0.0, 0.0]),
              'd': Magmom([0.0, 0.0, 0.0]), 'tot': Magmom([0.0, 0.0, 0.0])}
         )
-        print(outcar.magnetization)
         # test note: Magmom class uses np.allclose() when testing for equality
         # so fine to use assertEqual here
         self.assertEqual(outcar.magnetization, expected_mag,
@@ -759,6 +758,32 @@ class ChgcarTest(unittest.TestCase):
                         self.assertEqual("augmentation occupancies   1  15\n", line)
                     if i == 44255:
                         self.assertEqual("augmentation occupancies   1  15\n", line)
+
+    def test_soc_chgcar(self):
+
+        filepath = os.path.join(test_dir, "CHGCAR.NiO_SOC.gz")
+        chg = Chgcar.from_file(filepath)
+        self.assertEqual(set(chg.data.keys()), {'total', 'diff_x', 'diff_y', 'diff_z', 'diff'})
+        self.assertTrue(chg.is_soc)
+        self.assertEqual(chg.data['diff'].shape, chg.data['diff_y'].shape)
+
+        # check our construction of chg.data['diff'] makes sense
+        # this has been checked visually too and seems reasonable
+        self.assertEqual(abs(chg.data['diff'][0][0][0]),
+                         np.linalg.norm([chg.data['diff_x'][0][0][0],
+                                         chg.data['diff_y'][0][0][0],
+                                         chg.data['diff_z'][0][0][0]]))
+
+        # and that the net magnetization is about zero
+        # note: we get ~ 0.08 here, seems a little high compared to
+        # vasp output, but might be due to chgcar limitations?
+        self.assertAlmostEqual(chg.net_magnetization, 0.0, places=0)
+
+        with ScratchDir(".") as temp_dir:
+            chg.write_file(os.path.join(temp_dir, "CHGCAR_pmg_soc"))
+            chg_from_file = Chgcar.from_file(os.path.join(temp_dir, "CHGCAR_pmg_soc"))
+            self.assertTrue(chg_from_file.is_soc)
+
 
 class ProcarTest(unittest.TestCase):
 

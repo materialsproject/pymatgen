@@ -2442,7 +2442,8 @@ class VolumetricData(object):
                 shortcircuiting an otherwise expensive operation.
         """
         self.structure = structure
-        self.is_spin_polarized = len(data) == 2
+        self.is_spin_polarized = len(data) >= 2
+        self.is_soc = len(data) >= 4
         self.dim = data["total"].shape
         self.data = data
         self.data_aug = data_aug if data_aug else {}
@@ -2577,7 +2578,27 @@ class VolumetricData(object):
                     if key not in all_dataset_aug:
                         all_dataset_aug[key] = []
                     all_dataset_aug[key].append(original_line)
-            if len(all_dataset) == 2:
+            if len(all_dataset) == 4:
+
+                data = {"total": all_dataset[0], "diff_x": all_dataset[1],
+                        "diff_y": all_dataset[2], "diff_z": all_dataset[3]}
+                data_aug = {"total": all_dataset_aug.get(0, None), "diff_x": all_dataset_aug.get(1, None),
+                            "diff_y": all_dataset_aug.get(2, None), "diff_z": all_dataset_aug.get(3, None)}
+
+                # construct a "diff" dict for scalar-like magnetization density,
+                # referenced to an arbitrary direction (using same method as
+                # pymatgen.electronic_structure.core.Magmom, see
+                # Magmom documentation for justification for this)
+                # TODO: re-examine this, and also similar behavior in Magmom - @mkhorton
+                # TODO: does CHGCAR change with different SAXIS?
+                diff_xyz = np.array([data["diff_x"], data["diff_y"], data["diff_z"]])
+                diff_xyz = diff_xyz.reshape((3, dim[0]*dim[1]*dim[2]))
+                ref_direction = np.array([1.01, 1.02, 1.03])
+                ref_sign = np.sign(np.dot(ref_direction, diff_xyz))
+                diff = np.multiply(np.linalg.norm(diff_xyz, axis=0), ref_sign)
+                data["diff"] = diff.reshape((dim[0], dim[1], dim[2]))
+
+            elif len(all_dataset) == 2:
                 data = {"total": all_dataset[0], "diff": all_dataset[1]}
                 data_aug = {"total": all_dataset_aug.get(0, None), "diff": all_dataset_aug.get(1, None)}
             else:
@@ -2649,7 +2670,11 @@ class VolumetricData(object):
                 f.write("".join(self.data_aug.get(data_type, [])))
 
             write_spin("total")
-            if self.is_spin_polarized:
+            if self.is_spin_polarized and self.is_soc:
+                write_spin("diff_x")
+                write_spin("diff_y")
+                write_spin("diff_z")
+            elif self.is_spin_polarized:
                 write_spin("diff")
 
     def get_integrated_diff(self, ind, radius, nbins=1):
@@ -2770,6 +2795,12 @@ class Chgcar(VolumetricData):
         (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return Chgcar(poscar, data, data_aug=data_aug)
 
+    @property
+    def net_magnetization(self):
+        if self.is_spin_polarized:
+            return np.sum(self.data['diff'])
+        else:
+            return None
 
 class Procar(object):
     """

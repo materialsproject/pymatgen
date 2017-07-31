@@ -468,6 +468,10 @@ class Magmom(MSONable):
         However, should be used with caution for non-collinear
         structures and might give non-sensical results except in the case
         of only slightly non-collinear structures (e.g. small canting).
+
+        This approach is also used to obtain "diff" VolumetricDensity
+        in pymatgen.io.vasp.outputs.VolumetricDensity when processing
+        Chgcars from SOC calculations.
         """
         return float(self.get_00t_magmom_with_xyz_saxis()[2])
 
