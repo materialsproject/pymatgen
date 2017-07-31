@@ -1,4 +1,0 @@
-AECCAR* filter=lfs diff=lfs merge=lfs -text
-CHGCAR* filter=lfs diff=lfs merge=lfs -text
-OUTCAR* filter=lfs diff=lfs merge=lfs -text
-vasprun.xml* filter=lfs diff=lfs merge=lfs -text
