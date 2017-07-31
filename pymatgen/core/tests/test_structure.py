@@ -523,7 +523,7 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s[0].charge, 4.1)
         self.assertEqual(s[0].magmom, 3)
         s.remove_site_property("magmom")
-        self.assertRaises(AttributeError, getattr, s[0], "magmom")
+        self.assertEqual(s[0].magmom, None)
 
     def test_propertied_structure(self):
         #Make sure that site properties are set to None for missing values.
@@ -573,6 +573,25 @@ class StructureTest(PymatgenTest):
         s_specie.remove_oxidation_states()
         self.assertEqual(s_elem, s_specie, "Oxidation state remover "
                                            "failed")
+
+    def test_add_remove_spin_states(self):
+
+        latt = Lattice.cubic(4.17)
+        species = ["Ni", "O"]
+        coords = [[0, 0, 0],
+                  [0.5, 0.5, 0.5]]
+        nio = Structure.from_spacegroup(225, latt, species, coords)
+
+        spins = {"Ni": 5}
+        nio.add_spin_by_element(spins)
+        self.assertEqual(nio[0].specie.spin, 5, "Failed to add spin states")
+
+        nio.remove_spin()
+        self.assertRaises(AttributeError, getattr, nio[0].specie, 'spin')
+
+        spins = [5, -5, -5, 5, 0, 0, 0, 0] # AFM on (001)
+        nio.add_spin_by_site(spins)
+        self.assertEqual(nio[1].specie.spin, -5, "Failed to add spin states")
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
@@ -1116,7 +1135,7 @@ class MoleculeTest(PymatgenTest):
         self.assertEqual(self.mol[0].charge, 4.1)
         self.assertEqual(self.mol[0].magmom, 3)
         self.mol.remove_site_property("magmom")
-        self.assertRaises(AttributeError, getattr, self.mol[0], "magmom")
+        self.assertEqual(self.mol[0].magmom, None)
 
     def test_to_from_dict(self):
         d = self.mol.as_dict()

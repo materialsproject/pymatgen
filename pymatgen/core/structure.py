@@ -2711,6 +2711,67 @@ class Structure(IStructure, collections.MutableSequence):
                                     properties=site.properties)
             self._sites[i] = new_site
 
+    def add_spin_by_element(self, spins):
+        """
+        Add spin states to a structure.
+
+        Args:
+            spisn (dict): Dict of spins associated with
+            elements or species, e.g. {"Ni":+5} or {"Ni2+":5}
+        """
+        for i, site in enumerate(self._sites):
+            new_sp = {}
+            for sp, occu in site.species_and_occu.items():
+                sym = sp.symbol
+                oxi_state = getattr(sp, "oxi_state", None)
+                new_sp[Specie(sym, oxidation_state=oxi_state,
+                              properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
+            new_site = PeriodicSite(new_sp, site.frac_coords,
+                                    self._lattice,
+                                    coords_are_cartesian=False,
+                                    properties=site.properties)
+            self._sites[i] = new_site
+
+    def add_spin_by_site(self, spins):
+        """
+        Add spin states to a structure by site.
+
+        Args:
+            spins (list): List of spins
+                E.g., [+5, -5, 0, 0]
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for sp, occu in site.species_and_occu.items():
+                    sym = sp.symbol
+                    oxi_state = getattr(sp, "oxi_state", None)
+                    new_sp[Specie(sym, oxidation_state=oxi_state,
+                                  properties={'spin': spins[i]})] = occu
+                new_site = PeriodicSite(new_sp, site.frac_coords,
+                                        self._lattice,
+                                        coords_are_cartesian=False,
+                                        properties=site.properties)
+                self._sites[i] = new_site
+
+        except IndexError:
+            raise ValueError("Spin of all sites must be "
+                             "specified in the dictionary.")
+
+    def remove_spin(self):
+        """
+        Removes spin states from a structure.
+        """
+        for i, site in enumerate(self._sites):
+            new_sp = collections.defaultdict(float)
+            for sp, occu in site.species_and_occu.items():
+                new_sp[Specie(sp.symbol, oxidation_state=sp.oxi_state)] += occu
+            new_site = PeriodicSite(new_sp, site.frac_coords,
+                                    self._lattice,
+                                    coords_are_cartesian=False,
+                                    properties=site.properties)
+            self._sites[i] = new_site
+
     def make_supercell(self, scaling_matrix, to_unit_cell=True):
         """
         Create a supercell.
