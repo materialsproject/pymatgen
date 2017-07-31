@@ -1,0 +1,74 @@
+
+#(C) 2013 by Fachinformationszentrum Karlsruhe, and the U.S. Secretary of
+#Commerce on behalf of the United States.  All rights reserved.
+data_647605-ICSD
+_database_code_ICSD 647605
+_audit_creation_date 2008-07-07
+_audit_update_record 2009-08-01
+_chemical_name_systematic 'Vanadium(III) oxide'
+_chemical_formula_structural 'V2 O3'
+_chemical_formula_sum 'O3 V2'
+_exptl_crystal_density_diffrn 5.05
+_publ_section_title 'Studies on vanadium oxides. I. Phase analysis'
+_publ_section_comment
+
+;
+Cell and Type only determined by the author(s). Coordinates estimated by the
+editor in analogy to isotypic compounds.
+;
+loop_
+_citation_id
+_citation_journal_full
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Acta Chemica Scandinavica (1-27,1973-42,1988)' 1954 8 1599 1606 ACSAA4
+loop_
+_publ_author_name
+'Andersson, G.'
+_cell_length_a 5.467
+_cell_length_b 5.467
+_cell_length_c 5.467
+_cell_angle_alpha 53.74
+_cell_angle_beta 53.74
+_cell_angle_gamma 53.74
+_cell_volume 98.63
+_cell_formula_units_Z 2
+_symmetry_space_group_name_H-M 'R -3 c R'
+_symmetry_Int_Tables_number 167
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1 '-x+1/2, -z+1/2, -y+1/2'
+2 '-z+1/2, -y+1/2, -x+1/2'
+3 '-y+1/2, -x+1/2, -z+1/2'
+4 'x+1/2, z+1/2, y+1/2'
+5 'z+1/2, y+1/2, x+1/2'
+6 'y+1/2, x+1/2, z+1/2'
+7 '-z, -x, -y'
+8 '-y, -z, -x'
+9 '-x, -y, -z'
+10 'z, x, y'
+11 'y, z, x'
+12 'x, y, z'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+O2- -2
+V3+ 3
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+_atom_site_attached_hydrogens
+O1 O2- 6 e 0.55 -0.05 0.25 . 1. 0
+V1 V3+ 4 c 0.35 0.35 0.35 . 1. 0
+#End of TTdata_647605-ICSD

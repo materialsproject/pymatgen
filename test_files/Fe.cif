@@ -1,0 +1,153 @@
+data_53802-ICSD
+#?2009 by Fachinformationszentrum Karlsruhe, and the U.S. Secretary of 
+#Commerce on behalf of the United States.  All rights reserved.
+_database_code_ICSD                53802
+_audit_creation_date               2003/04/01
+_audit_update_record               2006/04/01
+_chemical_name_systematic          'Iron - Alpha'
+_chemical_formula_structural       Fe
+_chemical_formula_sum              Fe1
+_chemical_name_mineral             Iron
+_publ_section_title                'Crystal structure of alpha-iron'
+loop_
+_citation_id
+_citation_journal_abbrev
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Physical Review (1,1893-132,1963/141,1966-188,1969)'
+ 1917 10 661 696 PHRVAO
+2 'Zeitschrift fuer Physikalische Chemie (Leipzig)' 1921 98 181 210 ZPCLAH
+3 'Physical Review (1,1893-132,1963/141,1966-188,1969)' 1925 26 60 60 PHRVAO
+4 'Golden Book of Phase Transitions, Wroclaw' 2002 1 1 123 GBOPT5
+_publ_author_name                  'Hull, A.W.'
+_cell_length_a                     2.866
+_cell_length_b                     2.866
+_cell_length_c                     2.866
+_cell_angle_alpha                  90.
+_cell_angle_beta                   90.
+_cell_angle_gamma                  90.
+_cell_volume                       23.54
+_cell_formula_units_Z              2
+_symmetry_space_group_name_H-M     'I m -3 m'
+_symmetry_Int_Tables_number        229
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+  1	'z, y, -x'
+  2	'y, x, -z'
+  3	'x, z, -y'
+  4	'z, x, -y'
+  5	'y, z, -x'
+  6	'x, y, -z'
+  7	'z, -y, x'
+  8	'y, -x, z'
+  9	'x, -z, y'
+ 10	'z, -x, y'
+ 11	'y, -z, x'
+ 12	'x, -y, z'
+ 13	'-z, y, x'
+ 14	'-y, x, z'
+ 15	'-x, z, y'
+ 16	'-z, x, y'
+ 17	'-y, z, x'
+ 18	'-x, y, z'
+ 19	'-z, -y, -x'
+ 20	'-y, -x, -z'
+ 21	'-x, -z, -y'
+ 22	'-z, -x, -y'
+ 23	'-y, -z, -x'
+ 24	'-x, -y, -z'
+ 25	'-z, -y, x'
+ 26	'-y, -x, z'
+ 27	'-x, -z, y'
+ 28	'-z, -x, y'
+ 29	'-y, -z, x'
+ 30	'-x, -y, z'
+ 31	'-z, y, -x'
+ 32	'-y, x, -z'
+ 33	'-x, z, -y'
+ 34	'-z, x, -y'
+ 35	'-y, z, -x'
+ 36	'-x, y, -z'
+ 37	'z, -y, -x'
+ 38	'y, -x, -z'
+ 39	'x, -z, -y'
+ 40	'z, -x, -y'
+ 41	'y, -z, -x'
+ 42	'x, -y, -z'
+ 43	'z, y, x'
+ 44	'y, x, z'
+ 45	'x, z, y'
+ 46	'z, x, y'
+ 47	'y, z, x'
+ 48	'x, y, z'
+ 49	'z+.5, y+.5, -x+.5'
+ 50	'y+.5, x+.5, -z+.5'
+ 51	'x+.5, z+.5, -y+.5'
+ 52	'z+.5, x+.5, -y+.5'
+ 53	'y+.5, z+.5, -x+.5'
+ 54	'x+.5, y+.5, -z+.5'
+ 55	'z+.5, -y+.5, x+.5'
+ 56	'y+.5, -x+.5, z+.5'
+ 57	'x+.5, -z+.5, y+.5'
+ 58	'z+.5, -x+.5, y+.5'
+ 59	'y+.5, -z+.5, x+.5'
+ 60	'x+.5, -y+.5, z+.5'
+ 61	'-z+.5, y+.5, x+.5'
+ 62	'-y+.5, x+.5, z+.5'
+ 63	'-x+.5, z+.5, y+.5'
+ 64	'-z+.5, x+.5, y+.5'
+ 65	'-y+.5, z+.5, x+.5'
+ 66	'-x+.5, y+.5, z+.5'
+ 67	'-z+.5, -y+.5, -x+.5'
+ 68	'-y+.5, -x+.5, -z+.5'
+ 69	'-x+.5, -z+.5, -y+.5'
+ 70	'-z+.5, -x+.5, -y+.5'
+ 71	'-y+.5, -z+.5, -x+.5'
+ 72	'-x+.5, -y+.5, -z+.5'
+ 73	'-z+.5, -y+.5, x+.5'
+ 74	'-y+.5, -x+.5, z+.5'
+ 75	'-x+.5, -z+.5, y+.5'
+ 76	'-z+.5, -x+.5, y+.5'
+ 77	'-y+.5, -z+.5, x+.5'
+ 78	'-x+.5, -y+.5, z+.5'
+ 79	'-z+.5, y+.5, -x+.5'
+ 80	'-y+.5, x+.5, -z+.5'
+ 81	'-x+.5, z+.5, -y+.5'
+ 82	'-z+.5, x+.5, -y+.5'
+ 83	'-y+.5, z+.5, -x+.5'
+ 84	'-x+.5, y+.5, -z+.5'
+ 85	'z+.5, -y+.5, -x+.5'
+ 86	'y+.5, -x+.5, -z+.5'
+ 87	'x+.5, -z+.5, -y+.5'
+ 88	'z+.5, -x+.5, -y+.5'
+ 89	'y+.5, -z+.5, -x+.5'
+ 90	'x+.5, -y+.5, -z+.5'
+ 91	'z+.5, y+.5, x+.5'
+ 92	'y+.5, x+.5, z+.5'
+ 93	'x+.5, z+.5, y+.5'
+ 94	'z+.5, x+.5, y+.5'
+ 95	'y+.5, z+.5, x+.5'
+ 96	'x+.5, y+.5, z+.5'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+Fe0+	0
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_attached_hydrogens
+Fe1 Fe0+ 2 a 0 0 0 1. 0 
+
+#End of data_53802-ICSD
+
+

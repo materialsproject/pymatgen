@@ -1,0 +1,266 @@
+
+Running Job 1 of 1 hf_cosmo.inp
+qchem hf_cosmo.inp_18334.0 /Users/xiaohuiqu/scratch/qchem18334/ 1
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+ Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown, 
+ A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill, 
+ R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley, 
+ J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele, 
+ V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin, 
+ J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz, 
+ A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu, 
+ G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang, 
+ I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee, 
+ J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik, 
+ H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman, 
+ F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong, 
+ A. I. Krylov, P. M. W. Gill, M. Head-Gordon
+
+ Additional authors for Version 3.1: 
+ Z. Gan, Y. Zhao, N. E. SchultzD. Truhlar, E. Epifanovsky, M. Oana
+
+ Additional authors for Version 3.2: 
+ R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer, 
+ D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley, 
+ W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich, 
+ D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom, 
+ V. Vanovschi, C. F. Williams, Q. Wu, Z.-Q. You
+
+ Additional authors for Version 4.0: 
+ A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen, 
+ R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson, 
+ M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt, 
+ D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu, 
+ J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt, 
+ N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson, 
+ M. Wormit, X. Xu, S. Yeganeh, I. Y. Zhang, D. Zuev
+
+ Additional authors for Version 4.1: 
+ X. Feng, M. W. D. Hason-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati, 
+ N. Mardirossian, N. Sergueev, S. Sharada, P. Zimmerman
+
+
+ Q-Chem, Version 4.1, Q-Chem, Inc., Pittsburgh, PA (2013).
+
+ MAC (Intel) OSX Version 4.1.0.1 
+
+ Q-chem begins on Sun Dec 15 17:08:23 2013  
+
+Host: 
+0
+
+     Scratch files written to /Users/xiaohuiqu/scratch/qchem18334//
+ Aug3013 17693_zgan 4696   
+Processing $rem in /Users/xiaohuiqu/program/qchem/config/preferences.
+ MEM_TOTAL  2000 
+Finally everything over in PARseQInput
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$molecule
+1 2
+H       0.000000     0.000000     0.943930
+F       0.000000     0.000000     0.000000
+$end
+
+$rem
+job_type = sp
+exchange = b3lyp
+basis = 6-31+g*
+solvent_method = cosmo
+solvent_dielectric = 78.4
+$end
+
+--------------------------------------------------------------
+ ----------------------------------------------------
+       Standard Nuclear Orientation (Angstroms)
+    I     Atom         X            Y            Z
+ ----------------------------------------------------
+    1      H       0.000000     0.000000     0.849537
+    2      F       0.000000     0.000000    -0.094393
+ ----------------------------------------------------
+ Molecular Point Group                 C*v   NOp =***
+ Largest Abelian Subgroup              C2v   NOp =  1
+ Nuclear Repulsion Energy =     5.0454958495 hartrees
+ There are        5 alpha and        4 beta electrons
+ Requested basis set is 6-31+G(d)
+ There are 7 shells and 21 basis functions
+
+Total QAlloc Memory Limit   2000 MB
+Mega-Array Size        61 MB
+MEM_STATIC part        62 MB
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   F (  2)  0.943930
+ 
+ A cutoff of  1.0D-08 yielded     28 shell pairs
+ There are       264 function pairs
+ Smallest overlap matrix eigenvalue = 7.23E-03
+
+  Scale SEOQF with 1.000000e+00/1.000000e+00/1.000000e+00
+
+ Standard Electronic Orientation quadrupole field applied
+ Nucleus-field energy     =    -0.0000000009 hartrees
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+COSMO, gas phase SCF first
+ An unrestricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-05
+ Inaccurate integrated density:
+   Number of electrons =     9
+   Numerical integral  =    10.000002394148
+   Relative error      =    11.1111377128 %
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -100.3778605607      1.03E-01
+    2     -99.7918207114      3.36E-02
+    3     -99.8190268676      2.76E-02
+    4     -99.8459866777      1.45E-03
+    5     -99.8461059858      3.87E-04
+    6     -99.8461183982      3.51E-05
+    7     -99.8461200364      1.51E-05
+    8     -99.8461203535      2.65E-06 Convergence criterion met
+ ---------------------------------------
+ <S^2> = 0.7516
+ SCF time:  CPU 0.20 s  wall 0.29 s
+ An unrestricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-05
+ in get_qchem_info
+ IBasis=      361010
+ IBasis=      361010
+ USING 1082 GRID
+ Set epsilon to    78.4000015258789     
+==== cosmso data ====
+outfile: out.cosmo
+phsran:    0.00000D+00
+ampran:    0.10000D-04
+volume:    157.1386913
+area:    142.5225802
+routf:      0.8500000
+rsolv [a.u]:      2.4566438
+disex:     10.0000000
+disex2:   3874.5559041
+fepsi:      0.9809886
+eps :    78.4000015
+lcavity:     1
+nppa:  1082
+nspa:    92
+nsph:    32
+maxnps:   148
+natoms:     2
+Atom   Radius [a.u.] nuc. charge
+    1      2.4566438    1
+    2      3.2503287    9
+=== end cosmo data ===
+ number of segments:          113
+ f_epsilon=  0.980988593523563     
+Ediel:   -0.1550805
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -100.0012008202      2.68E-03
+ number of segments:          113
+ f_epsilon=  0.980988593523563     
+Ediel:   -0.1564677
+    2    -100.0017726279      1.04E-03
+ number of segments:          113
+ f_epsilon=  0.980988593523563     
+Ediel:   -0.1563090
+    3    -100.0018053638      5.29E-04
+ number of segments:          113
+ f_epsilon=  0.980988593523563     
+Ediel:   -0.1563508
+    4    -100.0018153868      4.57E-05
+ number of segments:          113
+ f_epsilon=  0.980988593523563     
+Ediel:   -0.1563543
+    5    -100.0018154702      2.16E-06 Convergence criterion met
+ ---------------------------------------
+ <S^2> = 0.7516
+ SCF time:  CPU 0.15 s  wall 0.20 s
+before final oc correction, ETot:      -100.0018154702
+ number of outlayer segments:           92
+SCF energy after oc correction:      -100.0013563349
+ SCF   energy in the final basis set = -100.0018154702
+ Total energy in the final basis set = -100.0013563349
+ Analysis of SCF Wavefunction
+ 
+ --------------------------------------------------------------
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+ 
+ Alpha MOs
+ -- Occupied --
+-25.088  -1.526  -0.822  -0.795  -0.704
+ -- Virtual --
+ -0.027   0.134   0.162   0.165   0.221   0.834   1.211   1.259
+  1.317   1.440   1.515   1.559   1.580   1.582   2.417   4.023
+ 
+ Beta MOs
+ -- Occupied --
+-25.055  -1.436  -0.790  -0.669
+ -- Virtual --
+ -0.486  -0.019   0.139   0.168   0.183   0.222   0.840   1.276
+  1.310   1.334   1.471   1.567   1.572   1.637   1.643   2.437
+  4.057
+ --------------------------------------------------------------
+ 
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)    Spin (a.u.)
+  --------------------------------------------------------
+      1 H                     0.710000      -0.018128
+      2 F                     0.290000       1.018128
+  --------------------------------------------------------
+  Sum of atomic charges =     1.000000
+  Sum of spin   charges =     1.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 4.8032
+    Dipole Moment (Debye)
+         X      -0.0002      Y       0.0000      Z       2.5951
+       Tot       2.5951
+    Quadrupole Moments (Debye-Ang)
+        XX      -3.9149     XY      -0.3645     YY      -4.2485
+        XZ       0.0000     YZ       0.0000     ZZ      -1.5786
+    Octapole Moments (Debye-Ang^2)
+       XXX      -0.0001    XXY       0.0000    XYY       0.0000
+       YYY      -0.0001    XXZ       0.0170    XYZ       0.0109
+       YYZ       0.0270    XZZ       0.0000    YZZ       0.0000
+       ZZZ       2.5249
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -1.8754   XXXY      -0.1648   XXYY      -0.6754
+      XYYY      -0.1648   YYYY      -2.1771   XXXZ       0.0000
+      XXYZ       0.0000   XYYZ       0.0000   YYYZ       0.0000
+      XXZZ      -0.7969   XYZZ      -0.0552   YYZZ      -0.8474
+      XZZZ       0.0000   YZZZ       0.0000   ZZZZ      -0.5652
+ -----------------------------------------------------------------
+Archival summary:
+1\1\MacQu.local\SP\ProcedureUnspecified\6-31+G*\11(1+,2)\SunDec1517:08:242013SunDec1517:08:242013\0\\#,ProcedureUnspecified,6-31+G*,\\1,2\H\F,1,0.94393\\\@
+
+ Total job time:  0.54s(wall), 0.38s(cpu) 
+ Sun Dec 15 17:08:24 2013
+
+        *************************************************************
+        *                                                           *
+        *  Thank you very much for using Q-Chem.  Have a nice day.  *
+        *                                                           *
+        *************************************************************
+
+

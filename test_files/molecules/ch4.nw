@@ -1,0 +1,69 @@
+memory total 1000 mb stack 400 mb
+start H4C1
+geometry units angstroms
+ C 0.0 0.0 0.0
+ H 0.0 0.0 1.089
+ H 1.026719 0.0 -0.363
+ H -0.51336 -0.889165 -0.363
+ H -0.51336 0.889165 -0.363
+end
+
+title "H4C1 dft optimize"
+charge 0
+basis
+ H library "6-31++G*"
+ C library "6-31++G*"
+end
+dft
+ xc b3lyp
+ mult 1
+end
+task dft optimize
+
+title "H4C1 dft freq"
+charge 0
+basis
+ H library "6-31++G*"
+ C library "6-31++G*"
+end
+dft
+ xc b3lyp
+ mult 1
+end
+task dft freq
+
+title "H4C1 dft energy"
+charge 0
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+dft
+ xc b3lyp
+ mult 1
+end
+task dft energy
+
+title "H4C1 dft energy"
+charge 1
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+dft
+ xc b3lyp
+ mult 2
+end
+task dft energy
+
+title "H4C1 dft energy"
+charge -1
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+dft
+ xc b3lyp
+ mult 2
+end
+task dft energy
