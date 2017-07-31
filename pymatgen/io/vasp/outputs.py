@@ -31,7 +31,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.units import unitized
 from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
-from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
+from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType, Magmom
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
@@ -1370,7 +1370,9 @@ class Outcar(MSONable):
 
         # data from end of OUTCAR
         charge = []
-        mag = []
+        mag_x = []
+        mag_y = []
+        mag_z = []
         header = []
         run_stats = {}
         total_mag = None
@@ -1424,10 +1426,12 @@ class Outcar(MSONable):
         # For single atom systems, VASP doesn't print a total line, so
         # reverse parsing is very difficult
         read_charge = False
-        read_mag = False
+        read_mag_x = False
+        read_mag_y = False  # for SOC calculations only
+        read_mag_z = False
         all_lines.reverse()
         for clean in all_lines:
-            if read_charge or read_mag:
+            if read_charge or read_mag_x or read_mag_y or read_mag_z:
                 if clean.startswith("# of ion"):
                     header = re.split(r"\s{2,}", clean.strip())
                     header.pop(0)
@@ -1439,19 +1443,46 @@ class Outcar(MSONable):
                         toks.pop(0)
                         if read_charge:
                             charge.append(dict(zip(header, toks)))
-                        else:
-                            mag.append(dict(zip(header, toks)))
+                        elif read_mag_x:
+                            mag_x.append(dict(zip(header, toks)))
+                        elif read_mag_y:
+                            mag_y.append(dict(zip(header, toks)))
+                        elif read_mag_z:
+                            mag_z.append(dict(zip(header, toks)))
                     elif clean.startswith('tot'):
                         read_charge = False
-                        read_mag = False
+                        read_mag_x = False
+                        read_mag_y = False
+                        read_mag_z = False
             if clean == "total charge":
                 charge = []
                 read_charge = True
-                read_mag = False
+                read_mag_x, read_mag_y, read_mag_z = False, False, False
             elif clean == "magnetization (x)":
-                mag = []
-                read_mag = True
-                read_charge = False
+                mag_x = []
+                read_mag_x = True
+                read_charge, read_mag_y, read_mag_z = False, False, False
+            elif clean == "magnetization (y)":
+                mag_y = []
+                read_mag_y = True
+                read_charge, read_mag_x, read_mag_z = False, False, False
+            elif clean == "magnetization (z)":
+                mag_z = []
+                read_mag_z = True
+                read_charge, read_mag_x, read_mag_y = False, False, False
+
+        # merge x, y and z components of magmoms if present (SOC calculation)
+        if mag_y and mag_z:
+            # TODO: detect spin axis
+            mag = []
+            for idx in range(len(mag_x)):
+                mag.append({
+                    key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]])
+                    for key in mag_x[0].keys()
+                })
+        else:
+            mag = mag_x
+
 
         # data from beginning of OUTCAR
         run_stats['cores'] = 0
