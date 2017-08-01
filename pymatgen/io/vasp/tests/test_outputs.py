@@ -780,10 +780,10 @@ class ChgcarTest(unittest.TestCase):
         # vasp output, but might be due to chgcar limitations?
         self.assertAlmostEqual(chg.net_magnetization, 0.0, places=0)
 
-        with ScratchDir(".") as temp_dir:
-            chg.write_file(os.path.join(temp_dir, "CHGCAR_pmg_soc"))
-            chg_from_file = Chgcar.from_file(os.path.join(temp_dir, "CHGCAR_pmg_soc"))
-            self.assertTrue(chg_from_file.is_soc)
+        chg.write_file("CHGCAR_pmg_soc")
+        chg_from_file = Chgcar.from_file("CHGCAR_pmg_soc")
+        self.assertTrue(chg_from_file.is_soc)
+        os.remove("CHGCAR_pmg_soc")
 
 
 class ProcarTest(unittest.TestCase):
