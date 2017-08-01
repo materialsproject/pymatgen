@@ -74,7 +74,7 @@ class ForceField(MSONable):
                 ff_data[coeff_key][key] = v
         pairs = ff_data.get("Pair Coeffs", None)
         if pairs:
-            if len(set(ff_data["Atoms"].values())) != len(pairs):
+            if len(ff_data["Atoms"]) != len(pairs):
                 raise ValueError("Number of pairs coefficient parmaters > "
                                  "the number of atome types. Parameters i != j "
                                  "pairs cannot be set in the data file")
