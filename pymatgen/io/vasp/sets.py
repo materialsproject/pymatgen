@@ -271,8 +271,10 @@ class DictSet(VaspInputSet):
             if k == "MAGMOM":
                 mag = []
                 for site in structure:
-                    if site.magmom:
+                    if hasattr(site, 'magmom'):
                         mag.append(site.magmom)
+                    elif hasattr(site.specie, 'spin'):
+                        mag.append(site.specie.spin)
                     elif str(site.specie) in v:
                         mag.append(v.get(str(site.specie)))
                     else:

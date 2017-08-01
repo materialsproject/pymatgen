@@ -189,17 +189,6 @@ class Site(collections.Hashable, MSONable):
         """
         return self._coords[2]
 
-    @property
-    def magmom(self):
-        """
-        Returns magnetic moment, first if it's defined on site
-        property, then if not then on the specie spin property,
-        then if not returns None.
-        :return: Magmom instance or None
-        """
-        m = self.properties.get('magmom', getattr(self.specie, 'spin', None))
-        return Magmom(m) if m else None
-
     def __getitem__(self, el):
         """
         Get the occupancy for element

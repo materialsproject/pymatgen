@@ -523,7 +523,7 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s[0].charge, 4.1)
         self.assertEqual(s[0].magmom, 3)
         s.remove_site_property("magmom")
-        self.assertEqual(s[0].magmom, None)
+        self.assertRaises(AttributeError, getattr, s[0], "magmom")
 
     def test_propertied_structure(self):
         #Make sure that site properties are set to None for missing values.
@@ -1135,7 +1135,7 @@ class MoleculeTest(PymatgenTest):
         self.assertEqual(self.mol[0].charge, 4.1)
         self.assertEqual(self.mol[0].magmom, 3)
         self.mol.remove_site_property("magmom")
-        self.assertEqual(self.mol[0].magmom, None)
+        self.assertRaises(AttributeError, getattr, self.mol[0], "magmom")
 
     def test_to_from_dict(self):
         d = self.mol.as_dict()
