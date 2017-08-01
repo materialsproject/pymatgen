@@ -614,12 +614,16 @@ class Incar(dict, MSONable):
         """
         super(Incar, self).__init__()
         if params:
-            if params.get("MAGMOM") and (params.get("LSORBIT") or
-                                         params.get("LNONCOLLINEAR")):
+
+            # if Incar contains vector-like magmoms given as a list
+            # of floats, convert to a list of lists
+            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) \
+                    and (params.get("LSORBIT") or params.get("LNONCOLLINEAR")):
                 val = []
                 for i in range(len(params["MAGMOM"])//3):
                     val.append(params["MAGMOM"][i*3:(i+1)*3])
                 params["MAGMOM"] = val
+
             self.update(params)
 
     def __setitem__(self, key, val):
@@ -640,6 +644,8 @@ class Incar(dict, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        if d.get("MAGMOM") and isinstance(d["MAGMOM"][0], dict):
+            d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
         return Incar({k: v for k, v in d.items() if k not in ("@module",
                                                               "@class")})
 
@@ -662,6 +668,7 @@ class Incar(dict, MSONable):
         for k in keys:
             if k == "MAGMOM" and isinstance(self[k], list):
                 value = []
+
                 if (isinstance(self[k][0], list) or isinstance(self[k][0], Magmom)) and \
                         (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
                     value.append(" ".join(str(i) for j in self[k] for i in j))
@@ -673,6 +680,7 @@ class Incar(dict, MSONable):
                     # float magmoms and Magmom objects
                     for m, g in itertools.groupby(self[k], lambda x: float(x)):
                         value.append("{}*{}".format(len(tuple(g)), m))
+
                 lines.append([k, " ".join(value)])
             elif isinstance(self[k], list):
                 lines.append([k, " ".join([str(i) for i in self[k]])])
