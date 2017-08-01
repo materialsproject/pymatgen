@@ -10,7 +10,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen.io.lammps.output import LammpsRun, LammpsLog
+from pymatgen.io.lammps.output import LammpsRun, LammpsLog, LammpsDump
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
@@ -19,7 +19,45 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
 
 
-class TestLammpsOutput(unittest.TestCase):
+class TestLammpsDump(unittest.TestCase):
+
+    def setUp(self):
+        dump_file_1 = os.path.join(test_dir, "dump_1")
+        dump_file_2 = os.path.join(test_dir, "dump_2")
+        self.dump1 = LammpsDump.from_file(dump_file_1)
+        self.dump2 = LammpsDump.from_file(dump_file_2)
+        dump_file_nvt = os.path.join(test_dir, "nvt.dump")
+        self.dump_nvt = LammpsDump.from_file(dump_file_nvt)
+
+    def test_non_atoms_data(self):
+        self.assertEqual(self.dump1.box_bounds, [[0.0, 25.0],
+                                                 [0.0, 25.0],
+                                                 [0.0, 25.0]])
+        self.assertEqual(self.dump1.natoms, 123)
+        self.assertEqual(self.dump1.timesteps, [0.0])
+        self.assertEqual(self.dump1.box_bounds, self.dump2.box_bounds)
+        self.assertEqual(self.dump1.natoms, self.dump2.natoms)
+        self.assertEqual(self.dump1.timesteps, self.dump2.timesteps)
+
+    def test_atoms_data(self):
+        self.assertEqual(self.dump1.natoms, len(self.dump1.atoms_data))
+        self.assertEqual(self.dump2.natoms, len(self.dump2.atoms_data))
+
+        ans1 = [float(x) for x in "1 2 1 3 3 2 4 1 3 5 4 3 5 2 4 6 1 3 5 7 5 4 " \
+                                  "6 3 5 7 2 4 6 1 3 5 7 6 5 7 4 6 3 5 7 2 4 6 " \
+                                  "1 3 5 7 7 6 5 7 4 6 3 5 7 2 4 6 1 3 5 7".split()]
+        np.testing.assert_almost_equal(self.dump1.atoms_data[115], ans1,
+                                       decimal=6)
+        np.testing.assert_almost_equal(self.dump2.atoms_data[57],
+                                       [99, 2, 0.909816, 0.883438, 0.314853],
+                                       decimal=6)
+
+    def test_timesteps_and_atoms_data(self):
+        self.assertEqual(self.dump_nvt.natoms * len(self.dump_nvt.timesteps),
+                         len(self.dump_nvt.atoms_data))
+
+
+class TestLammpsRun(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         data_file = os.path.join(test_dir, "nvt.data")
@@ -30,7 +68,8 @@ class TestLammpsOutput(unittest.TestCase):
                                   is_forcefield=True)
 
     def test_lammps_log(self):
-        fields = "step vol temp press ke pe etotal enthalpy evdwl ecoul epair ebond eangle edihed eimp " \
+        fields = "step vol temp press ke pe etotal enthalpy evdwl ecoul epair " \
+                 "ebond eangle edihed eimp " \
                  "emol elong etail lx ly lz xy xz yz density"
         fields = fields.split()
         thermo_data_ans = np.loadtxt(

@@ -1,9 +1,9 @@
 numpy==1.13.1
 pydispatcher==2.0.5
-sympy==1.1
-requests==2.18.1
+sympy==1.1.1
+requests==2.18.2
 monty==1.0.1
-ruamel.yaml==0.15.19
+ruamel.yaml==0.15.21
 six==1.10.0
 scipy==0.19.1
 tabulate==0.7.7

@@ -447,9 +447,40 @@ f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_complexity_factor_mu">
+<code class="descname">plot_complexity_factor_mu</code><span class="sig-paren">(</span><em>temps=[300], output='average', Lambda=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BoltztrapPlotter.plot_complexity_factor_mu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_complexity_factor_mu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot respect to the chemical potential of the Fermi surface complexity
+factor calculated as explained in Ref.
+Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
+from ab initio band structure calculations.
+npj Computational Materials 3, 8 (2017).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output</strong> &#8211; &#8216;average&#8217; returns the complexity factor calculated using the average
+of the three diagonal components of the seebeck and conductivity tensors.
+&#8216;tensor&#8217; returns the complexity factor respect to the three
+diagonal components of seebeck and conductivity tensors.</li>
+<li><strong>temps</strong> &#8211; list of temperatures of calculated seebeck and conductivity.</li>
+<li><strong>Lambda</strong> &#8211; fitting parameter used to model the scattering (0.5 means constant
+relaxation time).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a matplotlib object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_conductivity_dop">
 <code class="descname">plot_conductivity_dop</code><span class="sig-paren">(</span><em>temps='all'</em>, <em>output='average'</em>, <em>relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BoltztrapPlotter.plot_conductivity_dop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_conductivity_dop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the conductivity in function of doping levels for different temperatures.</p>
+<dd><p>Plot the conductivity in function of doping levels for different
+temperatures.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -695,6 +726,36 @@ with &#8216;eigs&#8217; you get all the three directions.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_seebeck_eff_mass_mu">
+<code class="descname">plot_seebeck_eff_mass_mu</code><span class="sig-paren">(</span><em>temps=[300], output='average', Lambda=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BoltztrapPlotter.plot_seebeck_eff_mass_mu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_seebeck_eff_mass_mu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot respect to the chemical potential of the Seebeck effective mass
+calculated as explained in Ref.
+Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
+from ab initio band structure calculations.
+npj Computational Materials 3, 8 (2017).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output</strong> &#8211; &#8216;average&#8217; returns the seebeck effective mass calculated
+using the average of the three diagonal components of the
+seebeck tensor. &#8216;tensor&#8217; returns the seebeck effective mass
+respect to the three diagonal components of the seebeck tensor.</li>
+<li><strong>temps</strong> &#8211; list of temperatures of calculated seebeck.</li>
+<li><strong>Lambda</strong> &#8211; fitting parameter used to model the scattering (0.5 means
+constant relaxation time).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a matplotlib object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_seebeck_mu">
 <code class="descname">plot_seebeck_mu</code><span class="sig-paren">(</span><em>temp=600</em>, <em>output='eig'</em>, <em>xlim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BoltztrapPlotter.plot_seebeck_mu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_seebeck_mu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the seebeck coefficient in function of Fermi level</p>
@@ -742,7 +803,8 @@ with &#8216;eigs&#8217; you get all the three directions.</li>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_zt_dop">
 <code class="descname">plot_zt_dop</code><span class="sig-paren">(</span><em>temps='all'</em>, <em>output='average'</em>, <em>relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BoltztrapPlotter.plot_zt_dop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_zt_dop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the figure of merit zT in function of doping levels for different temperatures.</p>
+<dd><p>Plot the figure of merit zT in function of doping levels for different
+temperatures.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1155,6 +1217,8 @@ via read_cube_file function, or from a
 BoltztrapAnalyzer.fermi_surface_data</li>
 <li><strong>structure</strong> &#8211; structure object of the material</li>
 <li><strong>energy_levels</strong> &#8211; list of energy value of the fermi surface.
+By default 0 eV correspond to the VBM, as in
+the plot of band structure along symmetry line.
 Default: max energy value + 0.01 eV</li>
 <li><strong>cbm</strong> &#8211; Boolean value to specify if the considered band is
 a conduction band or not</li>

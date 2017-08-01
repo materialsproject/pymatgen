@@ -69,7 +69,7 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span><span class="p">,</span> <span class="n">abstractproperty</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="k">import</span> <span class="n">fnmatch</span>
@@ -124,7 +124,8 @@
     <span class="c1"># Tolerance in Angstrom for determining if sites are too close.</span>
     <span class="n">DISTANCE_TOLERANCE</span> <span class="o">=</span> <span class="mf">0.5</span>
 
-    <span class="nd">@abstractproperty</span>
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a tuple of sites.</span>
@@ -594,8 +595,9 @@
                    <span class="n">site_properties</span><span class="o">=</span><span class="n">all_site_properties</span><span class="p">)</span></div>
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IStructure.from_magnetic_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_magnetic_spacegroup">[docs]</a>    <span class="k">def</span> <span class="nf">from_magnetic_spacegroup</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="p">,</span>
-                                  <span class="n">transform_setting</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.from_magnetic_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_magnetic_spacegroup">[docs]</a>    <span class="k">def</span> <span class="nf">from_magnetic_spacegroup</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="p">,</span>
+            <span class="n">transform_setting</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
          <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">         Generate a structure using a magnetic spacegroup. Note that only</span>
 <span class="sd">         symmetrically distinct species, coords and magmoms should be provided.]</span>
@@ -661,7 +663,7 @@
              <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                  <span class="s2">&quot;Supplied lattice with parameters </span><span class="si">%s</span><span class="s2"> is incompatible with &quot;</span>
                  <span class="s2">&quot;supplied spacegroup </span><span class="si">%s</span><span class="s2">!&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">latt</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">,</span>
-                                              <span class="n">sgp</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+                                              <span class="n">msg</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
              <span class="p">)</span>
 
          <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">species</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">):</span>
@@ -2455,6 +2457,24 @@
                                           <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span>
                                           <span class="n">properties</span><span class="o">=</span><span class="n">props</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Structure.remove_site_property"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.remove_site_property">[docs]</a>    <span class="k">def</span> <span class="nf">remove_site_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">property_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a property to a site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            property_name (str): The name of the property to add.</span>
+<span class="sd">            values (list): A sequence of values. Must be same length as</span>
+<span class="sd">                number of sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">)):</span>
+            <span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+                     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                     <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">property_name</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
+                                          <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span>
+                                          <span class="n">properties</span><span class="o">=</span><span class="n">props</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Structure.replace_species"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.replace_species">[docs]</a>    <span class="k">def</span> <span class="nf">replace_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species_mapping</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Swap species in a structure.</span>
@@ -3002,6 +3022,23 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Site</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
                                   <span class="n">properties</span><span class="o">=</span><span class="n">props</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Molecule.remove_site_property"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.remove_site_property">[docs]</a>    <span class="k">def</span> <span class="nf">remove_site_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">property_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a property to a site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            property_name (str): The name of the property to add.</span>
+<span class="sd">            values (list): A sequence of values. Must be same length as</span>
+<span class="sd">                number of sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">)):</span>
+            <span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+                     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                     <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">property_name</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Site</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                                  <span class="n">properties</span><span class="o">=</span><span class="n">props</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Molecule.replace_species"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.replace_species">[docs]</a>    <span class="k">def</span> <span class="nf">replace_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species_mapping</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Swap species in a molecule.</span>
@@ -3176,7 +3213,7 @@
 <span class="sd">                   neighbor to the C atom in CH3. The X-C bond indicates the</span>
 <span class="sd">                   directionality to connect the atoms.</span>
 <span class="sd">                2. A string name. The molecule will be obtained from the</span>
-<span class="sd">                   relevant template in functional_groups.json.</span>
+<span class="sd">                   relevant template in func_groups.json.</span>
 <span class="sd">            bond_order (int): A specified bond order to calculate the bond</span>
 <span class="sd">                length between the attached functional group and the nearest</span>
 <span class="sd">                neighbor site. Defaults to 1.</span>

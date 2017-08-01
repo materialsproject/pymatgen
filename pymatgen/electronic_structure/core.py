@@ -421,6 +421,7 @@ class Magmom(MSONable):
         """
         # get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
+        # note np.matmul() requires numpy version >= 1.10
         moment = np.matmul(self.global_moment, np.linalg.inv(unit_m))
         # round small values to zero
         moment[np.abs(moment) < 1e-8] = 0
@@ -439,6 +440,7 @@ class Magmom(MSONable):
         """
         Equal if 'global' magnetic moments are the same, saxis can differ.
         """
+        other = Magmom(other)
         return np.allclose(self.global_moment, other.global_moment)
 
     def __ne__(self, other):
@@ -466,6 +468,10 @@ class Magmom(MSONable):
         However, should be used with caution for non-collinear
         structures and might give non-sensical results except in the case
         of only slightly non-collinear structures (e.g. small canting).
+
+        This approach is also used to obtain "diff" VolumetricDensity
+        in pymatgen.io.vasp.outputs.VolumetricDensity when processing
+        Chgcars from SOC calculations.
         """
         return float(self.get_00t_magmom_with_xyz_saxis()[2])
 

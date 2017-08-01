@@ -3,19 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
-"""
-Created on May 1, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "May 1, 2012"
-
 import unittest
 import os
 import json
@@ -33,6 +20,19 @@ from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, plot_ellipsoid, fold_point, plot_brillouin_zone
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.core.structure import Structure
+
+"""
+Created on May 1, 2012
+"""
+
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "May 1, 2012"
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -63,6 +63,19 @@ class DosPlotterTest(unittest.TestCase):
         for el in ["Li", "Fe", "P", "O"]:
             self.assertIn(el, d)
 
+    # Minimal baseline testing for get_plot. not a true test. Just checks that
+    # it can actually execute.
+    def test_get_plot(self):
+        # Disabling latex is needed for this test to work.
+        from matplotlib import rc
+        rc('text', usetex=False)
+        self.plotter.add_dos_dict(self.dos.get_element_dos(),
+                                  key_sort_func=lambda x: x.X)
+        plt = self.plotter.get_plot()
+        self.plotter.save_plot("dosplot.png")
+        self.assertTrue(os.path.isfile("dosplot.png"))
+        os.remove("dosplot.png")
+
 
 class BSPlotterTest(unittest.TestCase):
 
@@ -86,13 +99,27 @@ class BSPlotterTest(unittest.TestCase):
         self.assertEqual(len(self.plotter.bs_plot_data()['ticks']['label']),
                          19, "wrong number of tick labels")
 
+    # Minimal baseline testing for get_plot. not a true test. Just checks that
+    # it can actually execute.
+    def test_get_plot(self):
+        # zero_to_efermi = True, ylim = None, smooth = False,
+        # vbm_cbm_marker = False, smooth_tol = None
+
+        # Disabling latex is needed for this test to work.
+        from matplotlib import rc
+        rc('text', usetex=False)
+
+        plt = self.plotter.get_plot()
+        plt = self.plotter.get_plot(smooth=True)
+        plt = self.plotter.get_plot(vbm_cbm_marker=True)
+        self.plotter.save_plot("bsplot.png")
+        self.assertTrue(os.path.isfile("bsplot.png"))
+        os.remove("bsplot.png")
+
 
 class PlotBZTest(unittest.TestCase):
 
     def setUp(self):
-        if not have_matplotlib:
-            raise unittest.SkipTest("matplotlib not available")
-
         self.rec_latt = Structure.from_file(os.path.join(test_dir, "Si.cssr")).lattice.reciprocal_lattice
         self.kpath = [[[0., 0., 0.], [0.5, 0., 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {'\\Gamma': [0., 0., 0.], 'K': [0.375, 0.375, 0.75], u'L': [0.5, 0.5, 0.5],
@@ -115,5 +142,4 @@ class PlotBZTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

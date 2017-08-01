@@ -682,7 +682,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ISPIN&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
 
-<div class="viewcode-block" id="Vasprun.get_computed_entry"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.get_computed_entry">[docs]</a>    <span class="k">def</span> <span class="nf">get_computed_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inc_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="Vasprun.get_computed_entry"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.get_computed_entry">[docs]</a>    <span class="k">def</span> <span class="nf">get_computed_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inc_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                            <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a ComputedStructureEntry from the vasprun.</span>
@@ -2455,7 +2455,7 @@
 <span class="sd">        Total number of grid points in volumetric data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Typically, this constructor is not used directly and the static</span>
 <span class="sd">        from_file constructor is used. This constructor is designed to allow</span>
@@ -2464,6 +2464,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            structure: Structure associated with the volumetric data</span>
 <span class="sd">            data: Actual volumetric data.</span>
+<span class="sd">            data_aug: Any extra information associated with volumetric data</span>
+<span class="sd">                (typically augmentation charges)</span>
 <span class="sd">            distance_matrix: A pre-computed distance matrix if available.</span>
 <span class="sd">                Useful so pass distance_matrices between sums,</span>
 <span class="sd">                shortcircuiting an otherwise expensive operation.</span>
@@ -2472,6 +2474,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_aug</span> <span class="o">=</span> <span class="n">data_aug</span> <span class="k">if</span> <span class="n">data_aug</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ngridpts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
         <span class="c1"># lazy init the spin data since this is not always needed.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_spin_data</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2551,6 +2554,9 @@
         <span class="n">poscar_string</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">all_dataset</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># for holding any strings in input that are not Poscar</span>
+        <span class="c1"># or VolumetricData (typically augmentation charges)</span>
+        <span class="n">all_dataset_aug</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">dimline</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">read_dataset</span> <span class="o">=</span> <span class="kc">False</span>
@@ -2559,6 +2565,7 @@
         <span class="n">poscar</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">original_line</span> <span class="o">=</span> <span class="n">line</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">read_dataset</span><span class="p">:</span>
                     <span class="n">toks</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -2589,13 +2596,23 @@
                     <span class="n">read_dataset</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="n">dataset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">line</span> <span class="o">==</span> <span class="n">dimline</span><span class="p">:</span>
+                    <span class="c1"># when line == dimline, expect volumetric data to follow</span>
+                    <span class="c1"># so set read_dataset to True</span>
                     <span class="n">read_dataset</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="n">dataset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># store any extra lines that were not part of the volumetric data</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_dataset</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>  <span class="c1"># so we know which set of data the extra lines are associated with</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_dataset_aug</span><span class="p">:</span>
+                        <span class="n">all_dataset_aug</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">all_dataset_aug</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">original_line</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_dataset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">all_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;diff&quot;</span><span class="p">:</span> <span class="n">all_dataset</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+                <span class="n">data_aug</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">all_dataset_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;diff&quot;</span><span class="p">:</span> <span class="n">all_dataset_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">all_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
-            <span class="k">return</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span></div>
+                <span class="n">data_aug</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">all_dataset_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
+            <span class="k">return</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span></div>
 
 <div class="viewcode-block" id="VolumetricData.write_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">vasp4_compatible</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2606,10 +2623,29 @@
 <span class="sd">            vasp4_compatible (bool): True if the format is vasp4 compatible</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="k">def</span> <span class="nf">_print_fortran_float</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            Fortran codes print floats with a leading zero in scientific</span>
+<span class="sd">            notation. When writing CHGCAR files, we adopt this convention</span>
+<span class="sd">            to ensure written CHGCAR files are byte-to-byte identical to</span>
+<span class="sd">            their input files as far as possible.</span>
+<span class="sd">            :param f: float</span>
+<span class="sd">            :return: str</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.10E}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;0.&quot;</span><span class="o">+</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;E&#39;</span><span class="o">+</span><span class="s2">&quot;</span><span class="si">{:+03}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">13</span><span class="p">:])</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;-.&quot;</span><span class="o">+</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;E&#39;</span><span class="o">+</span><span class="s2">&quot;</span><span class="si">{:+03}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">14</span><span class="p">:])</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
 
-            <span class="n">lines</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">comment</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="c1"># use original name if it&#39;s been set (e.g. from Chgcar)</span>
+            <span class="n">comment</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">comment</span><span class="p">)</span>
+
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">comment</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="n">lines</span> <span class="o">+=</span> <span class="s2">&quot;   1.00000000000000</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="n">latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
             <span class="n">lines</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">%12.6f%12.6f%12.6f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">latt</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
@@ -2621,28 +2657,28 @@
             <span class="n">lines</span> <span class="o">+=</span> <span class="s2">&quot;Direct</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
                 <span class="n">lines</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%10.6f%10.6f%10.6f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
-            <span class="n">lines</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">lines</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
             <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span>
 
             <span class="k">def</span> <span class="nf">write_spin</span><span class="p">(</span><span class="n">data_type</span><span class="p">):</span>
                 <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;   </span><span class="si">{}</span><span class="s2">   </span><span class="si">{}</span><span class="s2">   </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
                 <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
                                                    <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]))):</span>
-                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%0.11e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">data_type</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">])</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_print_fortran_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">data_type</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">]))</span>
                     <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                         <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="p">[])))</span>
 
             <span class="n">write_spin</span><span class="p">(</span><span class="s2">&quot;total&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">write_spin</span><span class="p">(</span><span class="s2">&quot;diff&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VolumetricData.get_integrated_diff"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.get_integrated_diff">[docs]</a>    <span class="k">def</span> <span class="nf">get_integrated_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -2739,7 +2775,7 @@
 
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="Locpot.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Locpot.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-        <span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="p">)</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Locpot</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div></div>
 
 
@@ -2752,16 +2788,16 @@
 <span class="sd">        data: Actual data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Chgcar</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Chgcar</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="n">data_aug</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">poscar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">comment</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_distance_matrix</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="Chgcar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Chgcar.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-        <span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Chgcar</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div></div>
+        <span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="p">)</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Chgcar</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="n">data_aug</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Procar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Procar">[docs]</a><span class="k">class</span> <span class="nc">Procar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>

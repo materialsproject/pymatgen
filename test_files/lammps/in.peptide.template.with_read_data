@@ -10,7 +10,7 @@ dihedral_style  charmm
 improper_style  harmonic
 kspace_style	$${kspace_style}
 
-read_data	$${read_data}
+read_data	$${data_file}
 
 neighbor	2.0 bin
 neigh_modify	delay 5

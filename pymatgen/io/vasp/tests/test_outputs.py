@@ -20,6 +20,9 @@ from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.electronic_structure.core import Magmom
+
+from monty.tempfile import ScratchDir
 
 """
 Created on Jul 16, 2012
@@ -468,6 +471,23 @@ class OutcarTest(unittest.TestCase):
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
 
+        filepath = os.path.join(test_dir, 'OUTCAR.NiO_SOC.gz')
+        outcar = Outcar(filepath)
+        expected_mag = (
+            {'s': Magmom([0.0, 0.0, -0.001]), 'p': Magmom([0.0, 0.0, -0.003]),
+             'd': Magmom([0.0, 0.0, 1.674]), 'tot': Magmom([0.0, 0.0, 1.671])},
+            {'s': Magmom([0.0, 0.0, 0.001]), 'p': Magmom([0.0, 0.0, 0.003]),
+             'd': Magmom([0.0, 0.0, -1.674]), 'tot': Magmom([0.0, 0.0, -1.671])},
+            {'s': Magmom([0.0, 0.0, 0.0]), 'p': Magmom([0.0, 0.0, 0.0]),
+             'd': Magmom([0.0, 0.0, 0.0]), 'tot': Magmom([0.0, 0.0, 0.0])},
+            {'s': Magmom([0.0, 0.0, 0.0]), 'p': Magmom([0.0, 0.0, 0.0]),
+             'd': Magmom([0.0, 0.0, 0.0]), 'tot': Magmom([0.0, 0.0, 0.0])}
+        )
+        # test note: Magmom class uses np.allclose() when testing for equality
+        # so fine to use assertEqual here
+        self.assertEqual(outcar.magnetization, expected_mag,
+                         "Wrong vector magnetization read from Outcar for SOC calculation")
+
     def test_polarization(self):
         filepath = os.path.join(test_dir, "OUTCAR.BaTiO3.polar")
         outcar = Outcar(filepath)
@@ -726,6 +746,44 @@ class ChgcarTest(unittest.TestCase):
         ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
         myans = chg.get_integrated_diff(0, 3, 6)
         self.assertTrue(np.allclose(myans[:, 1], ans))
+
+    def test_write(self):
+        filepath = os.path.join(test_dir, 'CHGCAR.spin')
+        chg = Chgcar.from_file(filepath)
+        chg.write_file("CHGCAR_pmg")
+        with open("CHGCAR_pmg") as f:
+            for i, line in enumerate(f):
+                if i == 22130:
+                    self.assertEqual("augmentation occupancies   1  15\n", line)
+                if i == 44255:
+                    self.assertEqual("augmentation occupancies   1  15\n", line)
+        os.remove("CHGCAR_pmg")
+
+
+    def test_soc_chgcar(self):
+
+        filepath = os.path.join(test_dir, "CHGCAR.NiO_SOC.gz")
+        chg = Chgcar.from_file(filepath)
+        self.assertEqual(set(chg.data.keys()), {'total', 'diff_x', 'diff_y', 'diff_z', 'diff'})
+        self.assertTrue(chg.is_soc)
+        self.assertEqual(chg.data['diff'].shape, chg.data['diff_y'].shape)
+
+        # check our construction of chg.data['diff'] makes sense
+        # this has been checked visually too and seems reasonable
+        self.assertEqual(abs(chg.data['diff'][0][0][0]),
+                         np.linalg.norm([chg.data['diff_x'][0][0][0],
+                                         chg.data['diff_y'][0][0][0],
+                                         chg.data['diff_z'][0][0][0]]))
+
+        # and that the net magnetization is about zero
+        # note: we get ~ 0.08 here, seems a little high compared to
+        # vasp output, but might be due to chgcar limitations?
+        self.assertAlmostEqual(chg.net_magnetization, 0.0, places=0)
+
+        chg.write_file("CHGCAR_pmg_soc")
+        chg_from_file = Chgcar.from_file("CHGCAR_pmg_soc")
+        self.assertTrue(chg_from_file.is_soc)
+        os.remove("CHGCAR_pmg_soc")
 
 
 class ProcarTest(unittest.TestCase):
