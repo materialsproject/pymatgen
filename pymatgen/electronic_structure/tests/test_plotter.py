@@ -18,9 +18,11 @@ except ImportError:
 
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, \
-    plot_ellipsoid, fold_point, plot_brillouin_zone, BSPlotterProjected
+    plot_ellipsoid, fold_point, plot_brillouin_zone, BSPlotterProjected, \
+    BSDOSPlotter
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.core.structure import Structure
+from pymatgen.io.vasp import Vasprun
 
 """
 Created on May 1, 2012
@@ -133,6 +135,16 @@ class BSPlotterProjectedTest(unittest.TestCase):
         self.plotter.get_elt_projected_plots()
         self.plotter.get_elt_projected_plots_color()
 
+
+class BSDOSPlotterTest(unittest.TestCase):
+
+    # Minimal baseline testing for get_plot. not a true test. Just checks that
+    # it can actually execute.
+    def test_methods(self):
+        v = Vasprun(os.path.join(test_dir, "vasprun_Si_bands.xml"))
+        p = BSDOSPlotter()
+        plt = p.get_plot(v.get_band_structure(kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")), v.complete_dos)
+        
 
 class PlotBZTest(unittest.TestCase):
 
