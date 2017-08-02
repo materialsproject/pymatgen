@@ -388,7 +388,7 @@ class LammpsForceFieldData(LammpsData):
         natom_types = len(atom_types)
         elements = {}
         for s in molecule:
-            label = str(s.ff_map) if hasattr(molecule[0], "ff_map") else str(s.specie)
+            label = str(s.ff_map) if hasattr(molecule[0], "ff_map") else s.specie.symbol
             elements[label] = s.specie.atomic_mass
         elements_items = list(elements.items())
         elements_items = sorted(elements_items, key=lambda el_item: el_item[1])
@@ -444,6 +444,7 @@ class LammpsForceFieldData(LammpsData):
                 index will be the global mol id
         """
         atoms_data = []
+        molid_to_atomid = []
         nmols = len(mols)
         # set up map atom_to_mol:
         #   atom_id --> [mol_type, mol_id, local atom id in the mol with id mol id]
@@ -471,7 +472,8 @@ class LammpsForceFieldData(LammpsData):
         # molecules from mols list with their count from mol_number list.
         # atom id, mol id, atom type, charge from topology, x, y, z
         for i, site in enumerate(molecule):
-            atom_type = atomic_masses_dict[site.specie.symbol][0]
+            label = str(site.ff_map) if hasattr(site, "ff_map") else site.specie.symbol
+            atom_type = atomic_masses_dict[label][0]
             # atom_type = molecule.symbol_set.index(site.species_string) + 1
             atom_id = i + 1
             mol_type = atom_to_mol[i][0] + 1
