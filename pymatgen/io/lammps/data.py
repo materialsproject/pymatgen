@@ -382,6 +382,21 @@ class LammpsForceFieldData(LammpsData):
         return '\n'.join(lines)
 
     @staticmethod
+    def get_basic_system_info(molecule):
+        natoms = len(molecule)
+        atom_types = set(molecule.site_properties.get("ff_map", molecule.symbol_set))
+        natom_types = len(atom_types)
+        elements = {}
+        for s in molecule:
+            label = str(s.ff_map) if hasattr(molecule[0], "ff_map") else str(s.specie)
+            elements[label] = s.specie.atomic_mass
+        elements_items = list(elements.items())
+        elements_items = sorted(elements_items, key=lambda el_item: el_item[1])
+        atomic_masses_dict = OrderedDict([(el_item[0], [i + 1, el_item[1]])
+                                          for i, el_item in enumerate(elements_items)])
+        return natoms, natom_types, atomic_masses_dict
+
+    @staticmethod
     def get_param_coeff(forcefield, param_name):
         """
         get the parameter coefficients and mapping from the force field.
@@ -580,7 +595,7 @@ class LammpsForceFieldData(LammpsData):
         # atoms data, topology used for setting charge if present
         box_size = LammpsForceFieldData.check_box_size(molecule, box_size)
         natoms, natom_types, atomic_masses_dict = \
-            LammpsData.get_basic_system_info(molecule.copy())
+            LammpsForceFieldData.get_basic_system_info(molecule.copy())
         atoms_data, molid_to_atomid = LammpsForceFieldData.get_atoms_data(
             mols, mols_number, molecule, atomic_masses_dict, topologies)
         # set the other data from the molecular topologies
