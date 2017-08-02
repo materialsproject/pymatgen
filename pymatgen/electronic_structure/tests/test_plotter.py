@@ -17,9 +17,12 @@ except ImportError:
     have_matplotlib = False
 
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, plot_ellipsoid, fold_point, plot_brillouin_zone
+from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, \
+    plot_ellipsoid, fold_point, plot_brillouin_zone, BSPlotterProjected, \
+    BSDOSPlotter
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.core.structure import Structure
+from pymatgen.io.vasp import Vasprun
 
 """
 Created on May 1, 2012
@@ -115,6 +118,34 @@ class BSPlotterTest(unittest.TestCase):
         self.plotter.save_plot("bsplot.png")
         self.assertTrue(os.path.isfile("bsplot.png"))
         os.remove("bsplot.png")
+
+
+class BSPlotterProjectedTest(unittest.TestCase):
+
+    def setUp(self):
+        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"),
+                  "r", encoding='utf-8') as f:
+            d = json.load(f)
+            self.bs = BandStructureSymmLine.from_dict(d)
+            self.plotter = BSPlotterProjected(self.bs)
+
+    # Minimal baseline testing for get_plot. not a true test. Just checks that
+    # it can actually execute.
+    def test_methods(self):
+        self.plotter.get_elt_projected_plots()
+        self.plotter.get_elt_projected_plots_color()
+
+
+class BSDOSPlotterTest(unittest.TestCase):
+
+    # Minimal baseline testing for get_plot. not a true test. Just checks that
+    # it can actually execute.
+    def test_methods(self):
+        v = Vasprun(os.path.join(test_dir, "vasprun_Si_bands.xml"))
+        p = BSDOSPlotter()
+        plt = p.get_plot(v.get_band_structure(
+            kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")),
+            v.complete_dos)
 
 
 class PlotBZTest(unittest.TestCase):
