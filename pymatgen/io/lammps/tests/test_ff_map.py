@@ -119,10 +119,10 @@ class TestLammpsForceFieldData(unittest.TestCase):
                                  ((u'O', u'C2', u'C2', u'H2'), [0.19, 3, 0, 0.0]),
                                  ((u'O', u'C2', u'C2', u'O'), [1.16, 2, 0, 0.0])])
 
-        self.assertEqual(pairs, self.forcefield.pairs)
-        self.assertEqual(bonds, self.forcefield.bonds)
-        self.assertEqual(angles, self.forcefield.angles)
-        self.assertEqual(dihedrals, self.forcefield.dihedrals)
+        self.assertDictEqual(pairs, self.forcefield.pairs)
+        self.assertDictEqual(bonds, self.forcefield.bonds)
+        self.assertDictEqual(angles, self.forcefield.angles)
+        self.assertDictEqual(dihedrals, self.forcefield.dihedrals)
 
     def tearDown(self):
         for x in ["lammps_ff_data.dat"]:
