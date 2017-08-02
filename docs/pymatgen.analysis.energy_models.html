@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.energy_models module &#8212; pymatgen 2017.7.21 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.21',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.energy_models">
+<span id="pymatgen-analysis-energy-models-module"></span><h1>pymatgen.analysis.energy_models module<a class="headerlink" href="#module-pymatgen.analysis.energy_models" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.energy_models.EnergyModel">
+<em class="property">class </em><code class="descname">EnergyModel</code><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EnergyModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Abstract structure filter class.</p>
+<dl class="classmethod">
+<dt id="pymatgen.analysis.energy_models.EnergyModel.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EnergyModel.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.energy_models.EnergyModel.get_energy">
+<code class="descname">get_energy</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EnergyModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel.get_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a boolean for any structure. Structures that return true are
+kept in the Transmuter object during filtering.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.energy_models.EwaldElectrostaticModel">
+<em class="property">class </em><code class="descname">EwaldElectrostaticModel</code><span class="sig-paren">(</span><em>real_space_cut=None</em>, <em>recip_space_cut=None</em>, <em>eta=None</em>, <em>acc_factor=8.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EwaldElectrostaticModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.energy_models.EnergyModel</span></code></a></p>
+<p>Wrapper around EwaldSum to calculate the electrostatic energy.</p>
+<p>Initializes the model. Args have the same definitions as in
+<a class="reference internal" href="pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldSummation" title="pymatgen.analysis.ewald.EwaldSummation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.ewald.EwaldSummation</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>real_space_cut</strong> (<em>float</em>) &#8211; Real space cutoff radius dictating how
+many terms are used in the real space sum. Defaults to None,
+which means determine automagically using the formula given
+in gulp 3.1 documentation.</li>
+<li><strong>recip_space_cut</strong> (<em>float</em>) &#8211; Reciprocal space cutoff radius.
+Defaults to None, which means determine automagically using
+the formula given in gulp 3.1 documentation.</li>
+<li><strong>eta</strong> (<em>float</em>) &#8211; Screening parameter. Defaults to None, which means
+determine automatically.</li>
+<li><strong>acc_factor</strong> (<em>float</em>) &#8211; No. of significant figures each sum is
+converged to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.energy_models.EwaldElectrostaticModel.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EwaldElectrostaticModel.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.energy_models.EwaldElectrostaticModel.get_energy">
+<code class="descname">get_energy</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EwaldElectrostaticModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel.get_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.energy_models.IsingModel">
+<em class="property">class </em><code class="descname">IsingModel</code><span class="sig-paren">(</span><em>j</em>, <em>max_radius</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#IsingModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.energy_models.EnergyModel</span></code></a></p>
+<p>A very simple Ising model, with r^2 decay.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>j</strong> (<em>float</em>) &#8211; The interaction parameter. E = J * spin1 * spin2.</li>
+<li><strong>radius</strong> (<em>float</em>) &#8211; max_radius for the interaction.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.energy_models.IsingModel.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#IsingModel.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.energy_models.IsingModel.get_energy">
+<code class="descname">get_energy</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#IsingModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel.get_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.energy_models.NsitesModel">
+<em class="property">class </em><code class="descname">NsitesModel</code><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#NsitesModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.energy_models.EnergyModel</span></code></a></p>
+<p>Sets the energy to the number of sites. More sites =&gt; higher &#8220;energy&#8221;.
+Used to rank structures from smallest number of sites to largest number
+of sites after enumeration.</p>
+<dl class="method">
+<dt id="pymatgen.analysis.energy_models.NsitesModel.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#NsitesModel.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.energy_models.NsitesModel.get_energy">
+<code class="descname">get_energy</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#NsitesModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel.get_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.energy_models.SymmetryModel">
+<em class="property">class </em><code class="descname">SymmetryModel</code><span class="sig-paren">(</span><em>symprec=0.1</em>, <em>angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#SymmetryModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.energy_models.EnergyModel</span></code></a></p>
+<p>Sets the energy to the -ve of the spacegroup number. Higher symmetry =&gt;
+lower &#8220;energy&#8221;.</p>
+<p>Args have same meaning as in
+<code class="xref py py-class docutils literal"><span class="pre">pymatgen.symmetry.finder.SpacegroupAnalyzer</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>symprec</strong> (<em>float</em>) &#8211; Symmetry tolerance. Defaults to 0.1.</li>
+<li><strong>angle_tolerance</strong> (<em>float</em>) &#8211; Tolerance for angles. Defaults to 5 degrees.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.energy_models.SymmetryModel.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#SymmetryModel.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.energy_models.SymmetryModel.get_energy">
+<code class="descname">get_energy</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#SymmetryModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel.get_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.energy_models.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -89,7 +89,7 @@ class PoscarTransmuterTest(unittest.TestCase):
         tsc.apply_filter(ContainsSpecieFilter(['Zn2+', 'Be2+', 'Mn4+'],
                                               strict_compare=True, AND=False))
         self.assertEqual(len(tsc), 8)
-        self.assertEqual(tsc.get_transformed_structures()[0].as_dict()[
+        self.assertEqual(tsc.transformed_structures[0].as_dict()[
                              'history'][-1]['@class'], 'ContainsSpecieFilter')
 
         tsc.apply_filter(ContainsSpecieFilter(['Be2+']))

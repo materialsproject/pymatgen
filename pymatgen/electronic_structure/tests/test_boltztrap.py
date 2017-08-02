@@ -6,32 +6,48 @@ from __future__ import unicode_literals
 
 import unittest
 import os
-from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
+import json
+from pymatgen.electronic_structure.bandstructure import  BandStructure
+from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer, BoltztrapRunner
 from pymatgen.electronic_structure.core import Spin, OrbitalType
 from monty.serialization import loadfn
+from monty.os.path import which
 
 try:
     from ase.io.cube import read_cube
 except ImportError:
     read_cube = None
 
+try:
+    import fdint
+except ImportError:
+    fdint = None
+
+x_trans = which("x_trans")
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
+@unittest.skipIf(not x_trans, "No x_trans.")
 class BoltztrapAnalyzerTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.bz = BoltztrapAnalyzer.from_files(
+
+    def setUp(self):
+        self.bz = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/transp/"))
-        cls.bz_bands = BoltztrapAnalyzer.from_files(
+        self.bz_bands = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/bands/"))
-        cls.bz_up = BoltztrapAnalyzer.from_files(
+        self.bz_up = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/dos_up/"), dos_spin=1)
-        cls.bz_dw = BoltztrapAnalyzer.from_files(
+        self.bz_dw = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/dos_dw/"), dos_spin=-1)
-        cls.bz_fermi = BoltztrapAnalyzer.from_files(
+        self.bz_fermi = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/fermi/"))
+
+        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"), "rt") as f:
+            d = json.load(f)
+            self.bs = BandStructure.from_dict(d)
+            self.btr = BoltztrapRunner(self.bs, 1)
 
     def test_properties(self):
         self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)
@@ -84,6 +100,46 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                                (121, 121, 65))
         self.assertAlmostEqual(self.bz_fermi.fermi_surface_data[21][79][19],
                                -1.8831911809439161, 5)
+
+    @unittest.skipIf(not fdint, "No FDINT")
+    def test_get_seebeck_eff_mass(self):
+        ref = [1.956090529381193, 2.0339311618566343, 1.1529383757896965]
+        ref2 = [4258.4072823354145, 4597.0351887125289, 4238.1262696392705]
+        sbk_mass_tens_mu = self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=False, 
+                                         temp=300)[3]
+        sbk_mass_tens_dop = self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=True,
+                                         temp=300)['n'][2]
+        sbk_mass_avg_mu = self.bz.get_seebeck_eff_mass(output='average', doping_levels=False, 
+                                         temp=300)[3]
+        sbk_mass_avg_dop = self.bz.get_seebeck_eff_mass(output='average', doping_levels=True,
+                                         temp=300)['n'][2]
+        
+        for i in range(0, 3):
+            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 1)
+            self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i], 4)
+        
+        self.assertAlmostEqual(sbk_mass_avg_mu, 4361.4744008038842, 1)
+        self.assertAlmostEqual(sbk_mass_avg_dop, 1.661553842105382, 4)
+
+    @unittest.skipIf(not fdint, "No FDINT")
+    def test_get_complexity_factor(self):
+        ref = [2.7658776815227828, 2.9826088215568403, 0.28881335881640308]
+        ref2 = [0.0112022048620205, 0.0036001049607186602, 0.0083028947173193028]
+        sbk_mass_tens_mu = self.bz.get_complexity_factor(output='tensor', doping_levels=False, 
+                                         temp=300)[3]
+        sbk_mass_tens_dop = self.bz.get_complexity_factor(output='tensor', doping_levels=True,
+                                         temp=300)['n'][2]
+        sbk_mass_avg_mu = self.bz.get_complexity_factor(output='average', doping_levels=False, 
+                                         temp=300)[3]
+        sbk_mass_avg_dop = self.bz.get_complexity_factor(output='average', doping_levels=True,
+                                         temp=300)['n'][2]
+        
+        for i in range(0, 3):
+            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 4)
+            self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i], 4)
+        
+        self.assertAlmostEqual(sbk_mass_avg_mu, 0.00628677029221, 4)
+        self.assertAlmostEqual(sbk_mass_avg_dop, 1.12322832119, 4)
 
     def test_get_seebeck(self):
         ref = [-768.99078999999995, -724.43919999999991, -686.84682999999973]
@@ -272,6 +328,12 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(x["n"]["value"], 0.139, 2)
         self.assertEqual(x["p"]["temperature"], 400)
         self.assertEqual(x["n"]["isotropic"], False)
+
+    def test_to_from_dict(self):
+        btr_dict = self.btr.as_dict()
+        s = json.dumps(btr_dict)
+        self.assertIsNotNone(s)
+        self.assertIsNotNone(btr_dict['bs'])
 
 
 if __name__ == '__main__':

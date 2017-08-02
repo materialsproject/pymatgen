@@ -1,0 +1,865 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.lammps.data &#8212; pymatgen 2017.7.21 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '2017.7.21',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.lammps.data</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements classes for generating/parsing Lammps data file i.e</span>
+<span class="sd">the file that defines the system configuration(atomic positions, bonds,</span>
+<span class="sd">angles and dihedrals) + values of various fit paramters.</span>
+
+<span class="sd">Restrictions:</span>
+<span class="sd">    The ATOMS section in the data file that defines the atomic positions</span>
+<span class="sd">    is assumed to be in the following format(atom style = full, this is the</span>
+<span class="sd">    superset of several other atom styles such as angle, bond, atomic, charge</span>
+<span class="sd">    and molecular):</span>
+<span class="sd">    atom_id, molecule_id, atom_type, charge(optional), x, y, z</span>
+
+<span class="sd">    For more info, please refer to: http://lammps.sandia.gov/doc/read_data.html</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">range</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="nb">open</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">Structure</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Kiran Mathew&#39;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;kmathew@lbl.gov&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s1">&#39;Brandon Wood&#39;</span>
+
+
+<div class="viewcode-block" id="LammpsData"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData">[docs]</a><span class="k">class</span> <span class="nc">LammpsData</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Basic Lammps data: just the atoms section</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        box_size (list): [[x_min, x_max], [y_min,y_max], [z_min,z_max]]</span>
+<span class="sd">        atomic_masses (list): [[atom type, mass],...]</span>
+<span class="sd">        atoms_data (list): [[atom id, mol id, atom type, charge, x, y, z ...], ... ]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">atomic_masses</span><span class="p">,</span> <span class="n">atoms_data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span> <span class="o">=</span> <span class="n">box_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">natom_types</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomic_masses</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomic_masses</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">atomic_masses</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atoms_data</span> <span class="o">=</span> <span class="n">atoms_data</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        string representation of LammpsData</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String representation of the data file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Data file generated by pymatgen</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> atoms</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">))</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> atom types</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natom_types</span><span class="p">))</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> xlo xhi</span><span class="se">\n</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> ylo yhi</span><span class="se">\n</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> zlo zhi&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Masses&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_masses</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Atoms&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsData.check_box_size"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.check_box_size">[docs]</a>    <span class="k">def</span> <span class="nf">check_box_size</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">box_size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check the box size and if necessary translate the molecule so that</span>
+<span class="sd">        all the sites are contained within the bounding box.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            molecule(Molecule)</span>
+<span class="sd">            box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">box_lengths_req</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">molecule</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">molecule</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+                           <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="n">box_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_max</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">min_max</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">min_max</span> <span class="ow">in</span> <span class="n">box_size</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_less</span><span class="p">(</span><span class="n">box_lengths_req</span><span class="p">,</span> <span class="n">box_lengths</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="n">box_size</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="mf">1.1</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">box_lengths_req</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Minimum required box lengths </span><span class="si">{}</span><span class="s2"> larger than the provided box lengths</span><span class="si">{}</span><span class="s2">. &quot;</span>
+                  <span class="s2">&quot;Resetting the box size to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">box_lengths_req</span><span class="p">,</span> <span class="n">box_lengths</span><span class="p">,</span> <span class="n">box_size</span><span class="p">))</span>
+        <span class="n">com</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">center_of_mass</span>
+        <span class="n">new_com</span> <span class="o">=</span> <span class="p">[(</span><span class="n">side</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">side</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">side</span> <span class="ow">in</span> <span class="n">box_size</span><span class="p">]</span>
+        <span class="n">translate_by</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_com</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com</span><span class="p">)</span>
+        <span class="n">molecule</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">molecule</span><span class="p">)),</span> <span class="n">translate_by</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">box_size</span></div>
+
+<div class="viewcode-block" id="LammpsData.write_data_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.write_data_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_data_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        write lammps data input file from the string representation</span>
+<span class="sd">        of the data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (string): data file name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsData.get_basic_system_info"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_basic_system_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_basic_system_info</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return basic system info from the given structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            number of atoms, number of atom types, box size, mapping</span>
+<span class="sd">            between the atom id and corresponding atomic masses</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">natom_types</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">)</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">el</span><span class="p">:</span> <span class="n">el</span><span class="o">.</span><span class="n">atomic_mass</span><span class="p">)</span>
+        <span class="n">atomic_masses_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">[(</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">el</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Atomic mass&quot;</span><span class="p">]])</span>
+             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elements</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">natoms</span><span class="p">,</span> <span class="n">natom_types</span><span class="p">,</span> <span class="n">atomic_masses_dict</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsData.get_atoms_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_atoms_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_atoms_data</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="p">,</span> <span class="n">set_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return the atoms data:</span>
+<span class="sd">        atom_id, molecule tag, atom_type, charge(if present else 0), x, y, z.</span>
+<span class="sd">        The molecule_tag is set to 1(i.e the whole structure corresponds to</span>
+<span class="sd">        just one molecule). This corresponds to lammps command: &quot;atom_style</span>
+<span class="sd">        charge&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure)</span>
+<span class="sd">            atomic_masses_dict (dict):</span>
+<span class="sd">                { atom symbol : [atom_id, atomic mass], ... }</span>
+<span class="sd">            set_charge (bool): whether or not to set the charge field in Atoms</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [[atom_id, molecule tag, atom_type, charge(if present), x, y, z], ... ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">atoms_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+            <span class="n">atom_type</span> <span class="o">=</span> <span class="n">atomic_masses_dict</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">set_charge</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s2">&quot;charge&quot;</span><span class="p">):</span>
+                    <span class="n">atoms_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">atom_type</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+                                       <span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">atoms_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">atom_type</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span>
+                                       <span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">atoms_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">atom_type</span><span class="p">,</span>
+                                   <span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">atoms_data</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsData.set_lines_from_list"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.set_lines_from_list">[docs]</a>    <span class="k">def</span> <span class="nf">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">block_name</span><span class="p">,</span> <span class="n">input_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Append the values from the input list that corresponds to the block</span>
+<span class="sd">        with name &#39;block_name&#39; to the list of lines.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lines (list)</span>
+<span class="sd">            block_name (string): name of the data block,</span>
+<span class="sd">                e.g. &#39;Atoms&#39;, &#39;Bonds&#39; etc</span>
+<span class="sd">            input_list (list): list of values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">input_list</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">block_name</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="n">input_list</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ad</span><span class="p">]))</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsData.from_structure"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_structure">[docs]</a>    <span class="k">def</span> <span class="nf">from_structure</span><span class="p">(</span><span class="n">input_structure</span><span class="p">,</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">set_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set LammpsData from the given structure. If the input structure is</span>
+<span class="sd">        a Structure, it is converted to a molecule. TIf the molecule doesnt fit</span>
+<span class="sd">        in the input box, the box size is updated based on the max and min site</span>
+<span class="sd">        coordinates of the molecules.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_structure (Molecule/Structure)</span>
+<span class="sd">            box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]</span>
+<span class="sd">            set_charge (bool): whether or not to set the charge field in</span>
+<span class="sd">            Atoms. If true, the charge will be non-zero only if the</span>
+<span class="sd">            input_structure has the &quot;charge&quot; site property set.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            LammpsData</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">):</span>
+            <span class="n">input_structure</span> <span class="o">=</span> <span class="n">Molecule</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">input_structure</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+        <span class="n">box_size</span> <span class="o">=</span> <span class="n">LammpsData</span><span class="o">.</span><span class="n">check_box_size</span><span class="p">(</span><span class="n">input_structure</span><span class="p">,</span> <span class="n">box_size</span><span class="p">)</span>
+        <span class="n">natoms</span><span class="p">,</span> <span class="n">natom_types</span><span class="p">,</span> <span class="n">atomic_masses_dict</span> <span class="o">=</span> \
+            <span class="n">LammpsData</span><span class="o">.</span><span class="n">get_basic_system_info</span><span class="p">(</span><span class="n">input_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">atoms_data</span> <span class="o">=</span> <span class="n">LammpsData</span><span class="o">.</span><span class="n">get_atoms_data</span><span class="p">(</span><span class="n">input_structure</span><span class="p">,</span>
+                                               <span class="n">atomic_masses_dict</span><span class="p">,</span>
+                                               <span class="n">set_charge</span><span class="o">=</span><span class="n">set_charge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LammpsData</span><span class="p">(</span><span class="n">box_size</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">atoms_data</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsData.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">data_file</span><span class="p">,</span> <span class="n">read_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return LammpsData object from the data file.</span>
+<span class="sd">        Note: use this to read in data files that conform with</span>
+<span class="sd">        atom_style = charge or atomic</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_file (string): data file name</span>
+<span class="sd">            read_charge (bool): if true, read in data files that conform with</span>
+<span class="sd">                atom_style = charge else atom_style = atomic</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            LammpsData</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">atomic_masses</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># atom_type(starts from 1): mass</span>
+        <span class="n">box_size</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">atoms_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># atom_id, mol_id, atom_type, charge, x, y, z</span>
+        <span class="k">if</span> <span class="n">read_charge</span><span class="p">:</span>
+            <span class="n">atoms_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+(&#39;</span>
+                <span class="sa">r</span><span class="s1">&#39;[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*&#39;</span><span class="p">)</span>
+        <span class="c1"># atom_id, mol_id, atom_type, x, y, z</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">atoms_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+(&#39;</span>
+                <span class="sa">r</span><span class="s1">&#39;[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*&#39;</span><span class="p">)</span>
+        <span class="c1"># atom_type, mass</span>
+        <span class="n">masses_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+([0-9\.]+)$&#39;</span><span class="p">)</span>
+        <span class="n">box_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;^([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+[xyz]lo\s+[xyz]hi&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">df</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">masses_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">masses_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">atomic_masses</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))])</span>
+                <span class="k">if</span> <span class="n">box_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">box_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">box_size</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))])</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">atoms_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="c1"># atom id, mol id, atom type</span>
+                    <span class="n">line_data</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]]</span>
+                    <span class="c1"># charge, x, y, z</span>
+                    <span class="n">line_data</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">3</span><span class="p">:]])</span>
+                    <span class="n">atoms_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LammpsData</span><span class="p">(</span><span class="n">box_size</span><span class="p">,</span> <span class="n">atomic_masses</span><span class="p">,</span> <span class="n">atoms_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LammpsData.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">MSONable</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">):</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LammpsData.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                   <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">decoded</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LammpsForceFieldData"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData">[docs]</a><span class="k">class</span> <span class="nc">LammpsForceFieldData</span><span class="p">(</span><span class="n">LammpsData</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets Lammps data input file from force field parameters. It is recommended</span>
+<span class="sd">    that the the convenience method from_forcefield_and_topology be used to</span>
+<span class="sd">    create the object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        box_size (list): [[x_min,x_max], [y_min,y_max], [z_min,z_max]]</span>
+<span class="sd">        atomic_masses (list): [ [atom type, atomic mass], ... ]</span>
+<span class="sd">        pair_coeffs (list): pair coefficients,</span>
+<span class="sd">            [[unique id, sigma, epsilon ], ... ]</span>
+<span class="sd">        bond_coeffs (list): bond coefficients,</span>
+<span class="sd">            [[unique id, value1, value2 ], ... ]</span>
+<span class="sd">        angle_coeffs (list): angle coefficients,</span>
+<span class="sd">            [[unique id, value1, value2, value3 ], ... ]</span>
+<span class="sd">        dihedral_coeffs (list): dihedral coefficients,</span>
+<span class="sd">            [[unique id, value1, value2, value3, value4], ... ]</span>
+<span class="sd">        improper_coeffs (list): improper dihedral coefficients,</span>
+<span class="sd">            [[unique id, value1, value2, value3, value4], ... ]</span>
+<span class="sd">        atoms_data (list): [[atom id, mol id, atom type, charge, x,y,z, ...], ... ]</span>
+<span class="sd">        bonds_data (list): [[bond id, bond type, value1, value2], ... ]</span>
+<span class="sd">        angles_data (list): [[angle id, angle type, value1, value2, value3], ... ]</span>
+<span class="sd">        dihedrals_data (list):</span>
+<span class="sd">            [[dihedral id, dihedral type, value1, value2, value3, value4], ... ]</span>
+<span class="sd">        imdihedrals_data (list):</span>
+<span class="sd">            [[improper dihedral id, improper dihedral type, value1, value2,</span>
+<span class="sd">            value3, value4], ... ]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">atomic_masses</span><span class="p">,</span> <span class="n">pair_coeffs</span><span class="p">,</span> <span class="n">bond_coeffs</span><span class="p">,</span>
+                 <span class="n">angle_coeffs</span><span class="p">,</span> <span class="n">dihedral_coeffs</span><span class="p">,</span> <span class="n">improper_coeffs</span><span class="p">,</span> <span class="n">atoms_data</span><span class="p">,</span>
+                 <span class="n">bonds_data</span><span class="p">,</span> <span class="n">angles_data</span><span class="p">,</span> <span class="n">dihedrals_data</span><span class="p">,</span> <span class="n">imdihedrals_data</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LammpsForceFieldData</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">box_size</span><span class="p">,</span> <span class="n">atomic_masses</span><span class="p">,</span>
+                                                   <span class="n">atoms_data</span><span class="p">)</span>
+        <span class="c1"># number of types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nbond_types</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bond_coeffs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nangle_types</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_coeffs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ndih_types</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dihedral_coeffs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nimdih_types</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">improper_coeffs</span><span class="p">)</span>
+        <span class="c1"># number of parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nbonds</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nangles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">angles_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ndih</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dihedrals_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nimdihs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">imdihedrals_data</span><span class="p">)</span>
+        <span class="c1"># coefficients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pair_coeffs</span> <span class="o">=</span> <span class="n">pair_coeffs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bond_coeffs</span> <span class="o">=</span> <span class="n">bond_coeffs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_coeffs</span> <span class="o">=</span> <span class="n">angle_coeffs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dihedral_coeffs</span> <span class="o">=</span> <span class="n">dihedral_coeffs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">improper_coeffs</span> <span class="o">=</span> <span class="n">improper_coeffs</span>
+        <span class="c1"># data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bonds_data</span> <span class="o">=</span> <span class="n">bonds_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angles_data</span> <span class="o">=</span> <span class="n">angles_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dihedrals_data</span> <span class="o">=</span> <span class="n">dihedrals_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imdihedrals_data</span> <span class="o">=</span> <span class="n">imdihedrals_data</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns a string of lammps data input file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># title</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Data file generated by pymatgen</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># count</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> atoms&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">))</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> bonds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbonds</span><span class="p">))</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> angles&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nangles</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndih</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> dihedrals&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndih</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nimdihs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> impropers&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimdihs</span><span class="p">))</span>
+
+        <span class="c1"># types</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{}</span><span class="s2"> atom types&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natom_types</span><span class="p">))</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> bond types&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbond_types</span><span class="p">))</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> angle types&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nangle_types</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndih</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> dihedral types&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndih_types</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nimdihs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> improper types&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimdih_types</span><span class="p">))</span>
+
+        <span class="c1"># box size</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> xlo xhi</span><span class="se">\n</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> ylo yhi</span><span class="se">\n</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> zlo zhi&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="c1"># masses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Masses&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_masses</span><span class="p">)</span>
+
+        <span class="c1"># coefficients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Pair Coeffs&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pair_coeffs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Bond Coeffs&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bond_coeffs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Angle Coeffs&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_coeffs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndih</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Dihedral Coeffs&quot;</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">dihedral_coeffs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nimdihs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Improper Coeffs&quot;</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">improper_coeffs</span><span class="p">)</span>
+
+        <span class="c1"># data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Atoms&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Bonds&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonds_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Angles&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">angles_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndih</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Dihedrals&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dihedrals_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nimdihs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Impropers&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">imdihedrals_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsForceFieldData.get_param_coeff"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_param_coeff">[docs]</a>    <span class="k">def</span> <span class="nf">get_param_coeff</span><span class="p">(</span><span class="n">forcefield</span><span class="p">,</span> <span class="n">param_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get the parameter coefficients and mapping from the force field.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            forcefield (ForceField): ForceField object</span>
+<span class="sd">            param_name (string): name of the parameter for which</span>
+<span class="sd">            the coefficients are to be set.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [[parameter id, value1, value2, ... ], ... ] and</span>
+<span class="sd">            {parameter key: parameter id, ...}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">forcefield</span><span class="p">,</span> <span class="n">param_name</span><span class="p">):</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">forcefield</span><span class="p">,</span> <span class="n">param_name</span><span class="p">)</span>
+            <span class="n">param_coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">param_map</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">param</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                    <span class="n">param_coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                    <span class="n">param_map</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+            <span class="k">return</span> <span class="n">param_coeffs</span><span class="p">,</span> <span class="n">param_map</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsForceFieldData.get_atoms_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_atoms_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_atoms_data</span><span class="p">(</span><span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="p">,</span>
+                       <span class="n">topologies</span><span class="p">,</span> <span class="n">atom_to_mol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the atoms data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mols (list): list of Molecule objects.</span>
+<span class="sd">            mols_number (list): number of each type of molecule in mols list.</span>
+<span class="sd">            molecule (Molecule): the molecule assembled from the molecules</span>
+<span class="sd">                in the mols list.</span>
+<span class="sd">            topologies (list): list of Topology objects, one for each molecule</span>
+<span class="sd">                type in mols list</span>
+<span class="sd">            atom_to_mol (dict):  maps atom_id --&gt; [mol_type, mol_id,</span>
+<span class="sd">                local atom id in the mol with id mol_id]</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            atoms_data: [[atom id, mol type, atom type, charge, x, y, z], ... ]</span>
+<span class="sd">            molid_to_atomid: [ [global atom id 1, id 2, ..], ...], the</span>
+<span class="sd">                index will be the global mol id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">atoms_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">nmols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mols</span><span class="p">)</span>
+        <span class="c1"># set up map atom_to_mol:</span>
+        <span class="c1">#   atom_id --&gt; [mol_type, mol_id, local atom id in the mol with id mol id]</span>
+        <span class="c1"># set up map molid_to_atomid:</span>
+        <span class="c1">#   gobal molecule id --&gt; [[atom_id1, atom_id2,...], ...]</span>
+        <span class="c1"># This assumes that the atomic order in the assembled molecule can be</span>
+        <span class="c1"># obtained from the atomic order in the constituent molecules.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">atom_to_mol</span><span class="p">:</span>
+            <span class="n">atom_to_mol</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">molid_to_atomid</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">shift_</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">mol_id</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">mol_type</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmols</span><span class="p">):</span>
+                <span class="n">natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mols</span><span class="p">[</span><span class="n">mol_type</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">num_mol_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mols_number</span><span class="p">[</span><span class="n">mol_type</span><span class="p">]):</span>
+                    <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">mol_atom_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">natoms</span><span class="p">):</span>
+                        <span class="n">atom_id</span> <span class="o">=</span> <span class="n">num_mol_id</span> <span class="o">*</span> <span class="n">natoms</span> <span class="o">+</span> <span class="n">mol_atom_id</span> <span class="o">+</span> <span class="n">shift_</span>
+                        <span class="n">atom_to_mol</span><span class="p">[</span><span class="n">atom_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">mol_type</span><span class="p">,</span> <span class="n">mol_id</span><span class="p">,</span> <span class="n">mol_atom_id</span><span class="p">]</span>
+                        <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom_id</span><span class="p">)</span>
+                    <span class="n">mol_id</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">molid_to_atomid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+                <span class="n">shift_</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mols</span><span class="p">[</span><span class="n">mol_type</span><span class="p">])</span> <span class="o">*</span> <span class="n">mols_number</span><span class="p">[</span><span class="n">mol_type</span><span class="p">]</span>
+        <span class="c1"># set atoms data from the molecule assembly consisting of</span>
+        <span class="c1"># molecules from mols list with their count from mol_number list.</span>
+        <span class="c1"># atom id, mol id, atom type, charge from topology, x, y, z</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">molecule</span><span class="p">):</span>
+            <span class="n">atom_type</span> <span class="o">=</span> <span class="n">atomic_masses_dict</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># atom_type = molecule.symbol_set.index(site.species_string) + 1</span>
+            <span class="n">atom_id</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">mol_type</span> <span class="o">=</span> <span class="n">atom_to_mol</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">mol_id</span> <span class="o">=</span> <span class="n">atom_to_mol</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">mol_atom_id</span> <span class="o">=</span> <span class="n">atom_to_mol</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">topologies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;charges&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">topologies</span><span class="p">[</span><span class="n">mol_type</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">charges</span><span class="p">:</span>
+                    <span class="n">charge</span> <span class="o">=</span> <span class="n">topologies</span><span class="p">[</span><span class="n">mol_type</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">charges</span><span class="p">[</span><span class="n">mol_atom_id</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">atoms_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">atom_id</span><span class="p">,</span> <span class="n">mol_id</span><span class="p">,</span> <span class="n">atom_type</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span>
+                               <span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">atoms_data</span><span class="p">,</span> <span class="n">molid_to_atomid</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsForceFieldData.get_param_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_param_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_param_data</span><span class="p">(</span><span class="n">param_name</span><span class="p">,</span> <span class="n">param_map</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">topologies</span><span class="p">,</span>
+                       <span class="n">molid_to_atomid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set the data for the parameter named param_name from the topology.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            param_name (string): parameter name, example: &quot;bonds&quot;</span>
+<span class="sd">            param_map (dict):</span>
+<span class="sd">                { mol_type: {parameter_key : unique parameter id, ... }, ... }</span>
+<span class="sd">                example: {0: {(&quot;c1&quot;,&quot;c2&quot;): 1}} ==&gt; c1-c2 bond in mol_type=0</span>
+<span class="sd">                    has the global id of 1</span>
+<span class="sd">            mols (list): list of molecules.</span>
+<span class="sd">            mols_number (list): number of each type of molecule in mols list.</span>
+<span class="sd">            topologies (list): list of Topology objects, one for each molecule</span>
+<span class="sd">                type in mols list</span>
+<span class="sd">            molid_to_atomid (list): [ [gloabal atom id 1, id 2, ..], ...],</span>
+<span class="sd">                the index is the global mol id</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [ [parameter id, parameter type, global atom id1, global atom id2, ...], ... ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">param_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">topologies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">param_name</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">topologies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">param_name</span><span class="p">):</span>
+            <span class="n">nmols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mols</span><span class="p">)</span>
+            <span class="n">mol_id</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">skip</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">shift_</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># set the parameter data using the topology info</span>
+            <span class="c1"># example: loop over all bonds in the system</span>
+            <span class="c1"># mol_id --&gt; global molecule id</span>
+            <span class="c1"># mol_type --&gt; type of molecule</span>
+            <span class="c1"># mol_param_id --&gt; local parameter id in that molecule</span>
+            <span class="k">for</span> <span class="n">mol_type</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmols</span><span class="p">):</span>
+                <span class="n">param_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">topologies</span><span class="p">[</span><span class="n">mol_type</span><span class="p">],</span> <span class="n">param_name</span><span class="p">)</span>
+                <span class="n">nparams</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_obj</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">num_mol_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mols_number</span><span class="p">[</span><span class="n">mol_type</span><span class="p">]):</span>
+                    <span class="k">for</span> <span class="n">mol_param_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparams</span><span class="p">):</span>
+                        <span class="n">param_id</span> <span class="o">=</span> <span class="n">num_mol_id</span> <span class="o">*</span> <span class="n">nparams</span> <span class="o">+</span> <span class="n">mol_param_id</span> <span class="o">+</span> <span class="n">shift_</span>
+                        <span class="c1"># example: get the bonds list for mol_type molecule</span>
+                        <span class="n">param_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">topologies</span><span class="p">[</span><span class="n">mol_type</span><span class="p">],</span> <span class="n">param_name</span><span class="p">)</span>
+                        <span class="c1"># connectivity info(local atom ids and type) for the</span>
+                        <span class="c1"># parameter with the local id &#39;mol_param_id&#39;.</span>
+                        <span class="c1"># example: single bond = [i, j, bond_type]</span>
+                        <span class="n">param</span> <span class="o">=</span> <span class="n">param_obj</span><span class="p">[</span><span class="n">mol_param_id</span><span class="p">]</span>
+                        <span class="n">param_atomids</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="c1"># loop over local atom ids that constitute the parameter</span>
+                        <span class="c1"># for the molecule type, mol_type</span>
+                        <span class="c1"># example: single bond = [i,j,bond_label]</span>
+                        <span class="k">for</span> <span class="n">atomid</span> <span class="ow">in</span> <span class="n">param</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="c1"># local atom id to global atom id</span>
+                            <span class="n">global_atom_id</span> <span class="o">=</span> <span class="n">molid_to_atomid</span><span class="p">[</span><span class="n">mol_id</span><span class="p">][</span><span class="n">atomid</span><span class="p">]</span>
+                            <span class="n">param_atomids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">global_atom_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">param_type</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">param_type_reversed</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">param_type</span><span class="p">))</span>
+                        <span class="c1"># example: get the unique number id for the bond_type</span>
+                        <span class="k">if</span> <span class="n">param_type</span> <span class="ow">in</span> <span class="n">param_map</span><span class="p">:</span>
+                            <span class="n">key</span> <span class="o">=</span> <span class="n">param_type</span>
+                        <span class="k">elif</span> <span class="n">param_type_reversed</span> <span class="ow">in</span> <span class="n">param_map</span><span class="p">:</span>
+                            <span class="n">key</span> <span class="o">=</span> <span class="n">param_type_reversed</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">key</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+                            <span class="n">param_type_id</span> <span class="o">=</span> <span class="n">param_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                            <span class="n">param_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="p">[</span><span class="n">param_id</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">skip</span><span class="p">,</span> <span class="n">param_type_id</span><span class="p">]</span> <span class="o">+</span> <span class="n">param_atomids</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">skip</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> or </span><span class="si">{}</span><span class="s2"> Not available&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param_type</span><span class="p">,</span>
+                                                                  <span class="n">param_type_reversed</span><span class="p">))</span>
+                    <span class="n">mol_id</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">shift_</span> <span class="o">+=</span> <span class="n">nparams</span> <span class="o">*</span> <span class="n">mols_number</span><span class="p">[</span><span class="n">mol_type</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">param_data</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsForceFieldData.from_forcefield_and_topology"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.from_forcefield_and_topology">[docs]</a>    <span class="k">def</span> <span class="nf">from_forcefield_and_topology</span><span class="p">(</span><span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span>
+                                     <span class="n">forcefield</span><span class="p">,</span> <span class="n">topologies</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return LammpsForceFieldData object from force field and topology info</span>
+<span class="sd">        for the &#39;molecule&#39; assembled from the constituent molecules specified</span>
+<span class="sd">        in the &#39;mols&#39; list with their count specified in the &#39;mols_number&#39; list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mols (list): List of Molecule objects</span>
+<span class="sd">            mols_number (list): List of number of molecules of each</span>
+<span class="sd">                molecule type in mols</span>
+<span class="sd">            box_size (list): [[x_min,x_max], [y_min,y_max], [z_min,z_max]]</span>
+<span class="sd">            molecule (Molecule): The molecule that is assembled from mols</span>
+<span class="sd">                and mols_number</span>
+<span class="sd">            forcefield (ForceFiled): Force filed information</span>
+<span class="sd">            topologies (list): List of Topology objects, one for each</span>
+<span class="sd">                molecule type in mols.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            LammpsForceFieldData</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># set the coefficients and map from the force field</span>
+        <span class="n">bond_coeffs</span><span class="p">,</span> <span class="n">bond_map</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">get_param_coeff</span><span class="p">(</span>
+            <span class="n">forcefield</span><span class="p">,</span> <span class="s2">&quot;bonds&quot;</span><span class="p">)</span>
+        <span class="n">angle_coeffs</span><span class="p">,</span> <span class="n">angle_map</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">get_param_coeff</span><span class="p">(</span>
+            <span class="n">forcefield</span><span class="p">,</span> <span class="s2">&quot;angles&quot;</span><span class="p">)</span>
+        <span class="n">pair_coeffs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">get_param_coeff</span><span class="p">(</span>
+            <span class="n">forcefield</span><span class="p">,</span> <span class="s2">&quot;pairs&quot;</span><span class="p">)</span>
+        <span class="n">dihedral_coeffs</span><span class="p">,</span> <span class="n">dihedral_map</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">get_param_coeff</span><span class="p">(</span>
+            <span class="n">forcefield</span><span class="p">,</span> <span class="s2">&quot;dihedrals&quot;</span><span class="p">)</span>
+        <span class="n">improper_coeffs</span><span class="p">,</span> <span class="n">imdihedral_map</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">get_param_coeff</span><span class="p">(</span>
+            <span class="n">forcefield</span><span class="p">,</span> <span class="s2">&quot;imdihedrals&quot;</span><span class="p">)</span>
+        <span class="c1"># atoms data, topology used for setting charge if present</span>
+        <span class="n">box_size</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">check_box_size</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">box_size</span><span class="p">)</span>
+        <span class="n">natoms</span><span class="p">,</span> <span class="n">natom_types</span><span class="p">,</span> <span class="n">atomic_masses_dict</span> <span class="o">=</span> \
+            <span class="n">LammpsData</span><span class="o">.</span><span class="n">get_basic_system_info</span><span class="p">(</span><span class="n">molecule</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">atoms_data</span><span class="p">,</span> <span class="n">molid_to_atomid</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">get_atoms_data</span><span class="p">(</span>
+            <span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="p">,</span> <span class="n">topologies</span><span class="p">)</span>
+        <span class="c1"># set the other data from the molecular topologies</span>
+        <span class="n">bonds_data</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">get_param_data</span><span class="p">(</span>
+            <span class="s2">&quot;bonds&quot;</span><span class="p">,</span> <span class="n">bond_map</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">topologies</span><span class="p">,</span> <span class="n">molid_to_atomid</span><span class="p">)</span>
+        <span class="n">angles_data</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">get_param_data</span><span class="p">(</span>
+            <span class="s2">&quot;angles&quot;</span><span class="p">,</span> <span class="n">angle_map</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">topologies</span><span class="p">,</span> <span class="n">molid_to_atomid</span><span class="p">)</span>
+        <span class="n">dihedrals_data</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">get_param_data</span><span class="p">(</span>
+            <span class="s2">&quot;dihedrals&quot;</span><span class="p">,</span> <span class="n">dihedral_map</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">topologies</span><span class="p">,</span> <span class="n">molid_to_atomid</span><span class="p">)</span>
+        <span class="n">imdihedrals_data</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">get_param_data</span><span class="p">(</span>
+            <span class="s2">&quot;imdihedrals&quot;</span><span class="p">,</span> <span class="n">imdihedral_map</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">topologies</span><span class="p">,</span> <span class="n">molid_to_atomid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LammpsForceFieldData</span><span class="p">(</span><span class="n">box_size</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+                                    <span class="n">pair_coeffs</span><span class="p">,</span> <span class="n">bond_coeffs</span><span class="p">,</span>
+                                    <span class="n">angle_coeffs</span><span class="p">,</span> <span class="n">dihedral_coeffs</span><span class="p">,</span>
+                                    <span class="n">improper_coeffs</span><span class="p">,</span> <span class="n">atoms_data</span><span class="p">,</span>
+                                    <span class="n">bonds_data</span><span class="p">,</span> <span class="n">angles_data</span><span class="p">,</span> <span class="n">dihedrals_data</span><span class="p">,</span>
+                                    <span class="n">imdihedrals_data</span><span class="p">)</span></div>
+
+    <span class="c1"># TODO this needs to be rewritten more generally to include multiple coefficent styles. This could be done by</span>
+    <span class="c1"># parsing all the blocks individually instead of searching line by line for patterns</span>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LammpsForceFieldData.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">data_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return LammpsForceFieldData object from the data file. It is assumed</span>
+<span class="sd">        that the forcefield paramter sections for pairs, bonds, angles,</span>
+<span class="sd">        dihedrals and improper dihedrals are named as follows(not case sensitive):</span>
+<span class="sd">        &quot;Pair Coeffs&quot;, &quot;Bond Coeffs&quot;, &quot;Angle Coeffs&quot;, &quot;Dihedral Coeffs&quot; and</span>
+<span class="sd">        &quot;Improper Coeffs&quot;. For &quot;Pair Coeffs&quot;, values for factorial(n_atom_types)</span>
+<span class="sd">        pairs must be specified.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_file (string): the data file name</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            LammpsForceFieldData</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">atomic_masses</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># atom_type(starts from 1): mass</span>
+        <span class="n">box_size</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pair_coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bond_coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">angle_coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dihedral_coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">improper_coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">atoms_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bonds_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">angles_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dihedral_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">imdihedral_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">types_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+([a-zA-Z]+)\s+types$&#39;</span><span class="p">)</span>
+        <span class="c1"># atom_id, mol_id, atom_type, charge, x, y, z</span>
+        <span class="n">atoms_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+(&#39;</span>
+            <span class="sa">r</span><span class="s1">&#39;[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*&#39;</span><span class="p">)</span>
+        <span class="n">masses_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+([0-9\.]+)$&#39;</span><span class="p">)</span>
+        <span class="n">box_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+[xyz]lo\s+[xyz]hi&#39;</span><span class="p">)</span>
+        <span class="c1"># id, value1, value2</span>
+        <span class="n">general_coeff_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+([0-9\.]+)\s+([0-9\.]+)$&#39;</span><span class="p">)</span>
+        <span class="c1"># id, type, atom_id1, atom_id2</span>
+        <span class="n">bond_data_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$&#39;</span><span class="p">)</span>
+        <span class="c1"># id, type, atom_id1, atom_id2, atom_id3</span>
+        <span class="n">angle_data_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$&#39;</span><span class="p">)</span>
+        <span class="c1"># id, type, atom_id1, atom_id2, atom_id3, atom_id4</span>
+        <span class="n">dihedral_data_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$&#39;</span><span class="p">)</span>
+        <span class="n">impropers_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Impropers.+&#39;</span><span class="p">)</span>
+        <span class="n">imdihedral_data_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$&#39;</span><span class="p">)</span>
+        <span class="n">read_pair_coeffs</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">read_bond_coeffs</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">read_angle_coeffs</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">read_dihedral_coeffs</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">read_improper_coeffs</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">read_improper_data</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">df</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">types_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">types_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;atom&quot;</span><span class="p">:</span>
+                        <span class="n">natom_types</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                        <span class="n">npair_types</span> <span class="o">=</span> <span class="n">natom_types</span> <span class="c1"># i != j skipped</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;bond&quot;</span><span class="p">:</span>
+                        <span class="n">nbond_types</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;angle&quot;</span><span class="p">:</span>
+                        <span class="n">nangle_types</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;dihedral&quot;</span><span class="p">:</span>
+                        <span class="n">ndihedral_types</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;improper&quot;</span><span class="p">:</span>
+                        <span class="n">nimproper_types</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">masses_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">masses_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">atomic_masses</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))])</span>
+                <span class="k">if</span> <span class="n">box_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">box_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">box_size</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))])</span>
+                <span class="k">if</span> <span class="s2">&quot;Pair Coeffs&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">read_pair_coeffs</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">read_pair_coeffs</span><span class="p">:</span>
+                    <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">tokens</span><span class="p">:</span>
+                        <span class="n">pair_coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+                        <span class="n">read_pair_coeffs</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair_coeffs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">npair_types</span> <span class="k">else</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="s2">&quot;Bond Coeffs&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">read_bond_coeffs</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">read_bond_coeffs</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">general_coeff_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                        <span class="n">bond_coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))])</span>
+                        <span class="n">read_bond_coeffs</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bond_coeffs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">nbond_types</span> <span class="k">else</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="s2">&quot;Angle Coeffs&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">read_angle_coeffs</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">read_angle_coeffs</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">general_coeff_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                        <span class="n">angle_coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))])</span>
+                        <span class="n">read_angle_coeffs</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_coeffs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">nangle_types</span> <span class="k">else</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="s2">&quot;Dihedral Coeffs&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">read_dihedral_coeffs</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">read_dihedral_coeffs</span><span class="p">:</span>
+                    <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">tokens</span><span class="p">:</span>
+                        <span class="n">dihedral_coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+                        <span class="n">read_dihedral_coeffs</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dihedral_coeffs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">ndihedral_types</span> <span class="k">else</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="s2">&quot;Improper Coeffs&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">read_improper_coeffs</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">read_improper_coeffs</span><span class="p">:</span>
+                    <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">tokens</span><span class="p">:</span>
+                        <span class="n">improper_coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+                        <span class="n">read_improper_coeffs</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">improper_coeffs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">nimproper_types</span> <span class="k">else</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">atoms_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">atoms_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="c1"># atom id, mol id, atom type</span>
+                    <span class="n">line_data</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]]</span>
+                    <span class="c1"># charge, x, y, z, vx, vy, vz ...</span>
+                    <span class="n">line_data</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">3</span><span class="p">:]])</span>
+                    <span class="n">atoms_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_data</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">bond_data_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="n">atoms_data</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">bond_data_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">bonds_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()])</span>
+                <span class="k">if</span> <span class="n">angle_data_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="n">atoms_data</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">angle_data_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">angles_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()])</span>
+                <span class="k">if</span> <span class="n">dihedral_data_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="n">atoms_data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">read_improper_data</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">dihedral_data_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">dihedral_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()])</span>
+                <span class="k">if</span> <span class="s2">&quot;impropers&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">atoms_data</span><span class="p">:</span>
+                    <span class="n">read_improper_data</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">imdihedral_data_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="n">atoms_data</span> <span class="ow">and</span> <span class="n">read_improper_data</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">imdihedral_data_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">imdihedral_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="n">LammpsForceFieldData</span><span class="p">(</span><span class="n">box_size</span><span class="p">,</span> <span class="n">atomic_masses</span><span class="p">,</span> <span class="n">pair_coeffs</span><span class="p">,</span>
+                                    <span class="n">bond_coeffs</span><span class="p">,</span> <span class="n">angle_coeffs</span><span class="p">,</span>
+                                    <span class="n">dihedral_coeffs</span><span class="p">,</span> <span class="n">improper_coeffs</span><span class="p">,</span>
+                                    <span class="n">atoms_data</span><span class="p">,</span> <span class="n">bonds_data</span><span class="p">,</span> <span class="n">angles_data</span><span class="p">,</span>
+                                    <span class="n">dihedral_data</span><span class="p">,</span> <span class="n">imdihedral_data</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

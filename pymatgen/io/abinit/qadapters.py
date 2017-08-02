@@ -1347,10 +1347,8 @@ class PbsProAdapter(QueueAdapter):
     """Adapter for PbsPro"""
     QTYPE = "pbspro"
 
-#PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
-#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
-####PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
-####PBS -l pvmem=$${pvmem}mb
+#PBS -l select=$${select}:ncpus=$${ncpus}:mem=$${mem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
+#PBS -l select=$${select}:ncpus=1:mem=$${mem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -1359,7 +1357,6 @@ class PbsProAdapter(QueueAdapter):
 #PBS -N $${job_name}
 #PBS -A $${account}
 #PBS -l select=$${select}
-#PBS -l pvmem=$${pvmem}mb
 #PBS -l walltime=$${walltime}
 #PBS -l model=$${model}
 #PBS -l place=$${place}
@@ -1383,8 +1380,7 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(PbsProAdapter, self).set_mem_per_proc(mem_mb)
-        #self.qparams["vmem"] = self.mem_per_proc
-        self.qparams["pvmem"] = self.mem_per_proc
+        #self.qparams["mem"] = self.mem_per_proc
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
@@ -1410,7 +1406,7 @@ $${qverbatim}
                 chunks = 1
                 ncpus = rest_cores
                 mpiprocs = rest_cores
-                vmem = mem_per_proc * ncpus
+                mem = mem_per_proc * ncpus
                 ompthreads = 1
 
             elif rest_cores == 0:
@@ -1419,7 +1415,7 @@ $${qverbatim}
                 chunks = num_nodes
                 ncpus = hw.cores_per_node
                 mpiprocs = hw.cores_per_node
-                vmem = ncpus * mem_per_proc
+                mem = ncpus * mem_per_proc
                 ompthreads = 1
 
             else:
@@ -1427,7 +1423,7 @@ $${qverbatim}
                 chunks = self.mpi_procs
                 ncpus = 1
                 mpiprocs = 1
-                vmem = mem_per_proc
+                mem = mem_per_proc
                 ompthreads = 1
 
         elif self.pure_omp:
@@ -1437,7 +1433,7 @@ $${qverbatim}
             chunks = 1
             ncpus = self.omp_threads
             mpiprocs = 1
-            vmem = mem_per_proc
+            mem = mem_per_proc
             ompthreads = self.omp_threads
 
         elif self.hybrid_mpi_omp:
@@ -1454,7 +1450,7 @@ $${qverbatim}
                 chunks = chunks
                 ncpus = mpiprocs * self.omp_threads
                 mpiprocs = mpiprocs
-                vmem = mpiprocs * mem_per_proc
+                mem = mpiprocs * mem_per_proc
                 ompthreads = self.omp_threads
 
             else:
@@ -1462,7 +1458,7 @@ $${qverbatim}
                 chunks=self.mpi_procs
                 ncpus=self.omp_threads
                 mpiprocs=1
-                vmem= mem_per_proc
+                mem= mem_per_proc
                 ompthreads=self.omp_threads
 
         else:
@@ -1683,7 +1679,6 @@ class TorqueAdapter(PbsProAdapter):
 #PBS -q $${queue}
 #PBS -N $${job_name}
 #PBS -A $${account}
-#PBS -l pmem=$${pmem}mb
 ####PBS -l mppwidth=$${mppwidth}
 #PBS -l nodes=$${nodes}:ppn=$${ppn}
 #PBS -l walltime=$${walltime}
@@ -1702,7 +1697,6 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         QueueAdapter.set_mem_per_proc(self, mem_mb)
-        self.qparams["pmem"] = self.mem_per_proc
         #self.qparams["mem"] = self.mem_per_proc
 
     #@property

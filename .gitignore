@@ -8,6 +8,7 @@ dependencies/spglib*/build
 *.pyc
 *.swp
 *.swo
+*.pyd
 pymatgen/pymatgen.cfg
 dist
 _build

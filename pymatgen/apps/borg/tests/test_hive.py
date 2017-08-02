@@ -42,17 +42,15 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
         entry = self.drone.assimilate(self.test_dir)
         for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
             self.assertIn(p, entry.parameters)
-        self.assertAlmostEqual(entry.data["efermi"], 1.8301027)
-        self.assertEqual(entry.composition.reduced_formula, "LiFe4(PO4)4")
-        self.assertAlmostEqual(entry.energy, -269.38319884)
+        self.assertAlmostEqual(entry.data["efermi"], -6.62148548)
+        self.assertEqual(entry.composition.reduced_formula, "Xe")
+        self.assertAlmostEqual(entry.energy, 0.5559329)
         entry = self.structure_drone.assimilate(self.test_dir)
-        self.assertEqual(entry.composition.reduced_formula, "LiFe4(PO4)4")
-        self.assertAlmostEqual(entry.energy, -269.38319884)
+        self.assertEqual(entry.composition.reduced_formula, "Xe")
+        self.assertAlmostEqual(entry.energy, 0.5559329)
         self.assertIsInstance(entry, ComputedStructureEntry)
         self.assertIsNotNone(entry.structure)
         self.assertEqual(len(entry.parameters["history"]), 2)
-        compat = MITCompatibility(check_potcar_hash=False)
-        self.assertIsNone(compat.process_entry(entry))
 
     def test_to_from_dict(self):
         d = self.structure_drone.as_dict()

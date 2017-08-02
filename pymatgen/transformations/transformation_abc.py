@@ -55,7 +55,8 @@ class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         return
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def inverse(self):
         """
         Returns the inverse transformation if available.
@@ -63,7 +64,8 @@ class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         return
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def is_one_to_many(self):
         """
         Determines if a Transformation is a one-to-many transformation. If a

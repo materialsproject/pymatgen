@@ -13,6 +13,7 @@ from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
 from monty.json import MSONable
 from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
+from pymatgen.electronic_structure.core import Magmom
 
 """
 This module defines classes representing non-periodic and periodic sites.
@@ -56,7 +57,7 @@ class Site(collections.Hashable, MSONable):
                 {"magmom": 5}. Defaults to None.
         """
         if isinstance(atoms_n_occu, Composition):
-            # Compositions are immutable, so don't need to copy (much much faster)
+            # Compositions are immutable, so don't need to copy (much faster)
             self._species = atoms_n_occu
             # Kludgy lookup of private attribute, but its faster
             totaloccu = atoms_n_occu._natoms
@@ -202,10 +203,10 @@ class Site(collections.Hashable, MSONable):
         """
         if other is None:
             return False
-        return self._species == other._species and \
-            np.allclose(self._coords, other._coords,
-                        atol=Site.position_atol) and \
-            self._properties == other._properties
+        return (self._species == other._species and
+                np.allclose(self._coords, other._coords,
+                            atol=Site.position_atol) and
+                self._properties == other._properties)
 
     def __ne__(self, other):
         return not self.__eq__(other)

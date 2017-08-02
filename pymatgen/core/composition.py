@@ -7,9 +7,12 @@ from __future__ import division, unicode_literals
 import collections
 import numbers
 import string
+from itertools import combinations_with_replacement, product
 
 import six
 import re
+
+from collections import defaultdict
 from six.moves import filter, map, zip
 
 from functools import total_ordering
@@ -390,6 +393,17 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         return self.get_reduced_formula_and_factor()[0]
 
     @property
+    def hill_formula(self):
+        c = self.element_composition
+        elements = sorted([el.symbol for el in c.keys()])
+        if "C" in elements:
+            elements = ["C"] + [el for el in elements if el != "C"]
+
+        formula = ["%s%s" % (el, formula_double_format(c[el]) if c[el] != 1 else "")
+                   for el in elements]
+        return " ".join(formula)
+
+    @property
     def elements(self):
         """
         Returns view of elements in Composition.
@@ -560,6 +574,75 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 "reduced_cell_formula": self.reduced_formula,
                 "elements": self.as_dict().keys(),
                 "nelements": len(self.as_dict().keys())}
+
+    def oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
+                          all_oxi_states=False):
+        """
+        Checks if the composition is charge-balanced and returns back all
+        charge-balanced oxidation state combinations. Composition must have
+        integer values. Note that more num_atoms in the composition gives
+        more degrees of freedom. e.g., if possible oxidation states of
+        element X are [2,4] and Y are [-3], then XY is not charge balanced
+        but X2Y2 is.
+
+        Args:
+            oxi_states_override (dict): dict of str->list to override an
+                element's common oxidation states, e.g. {"V": [2,3,4,5]}
+            target_charge (int): the desired total charge on the structure.
+                Default is 0 signifying charge balance.
+            all_oxi_states (bool): if True, an element defaults to
+                all oxidation states in pymatgen Element.oxidation_states.
+                Otherwise, default is Element.common_oxidation_states. Note
+                that the full oxidation state list is *very* inclusive and
+                can produce nonsensical results.
+
+        Returns:
+            A list of dicts - each dict reports an element symbol and average
+                oxidation state across all sites in that composition. If the
+                composition is not charge balanced, an empty list is returned.
+        """
+
+        oxi_states_override = oxi_states_override or {}
+
+        # assert: Composition only has integer amounts
+        if not all(amt == int(amt) for amt in self.values()):
+            raise ValueError("Charge balance analysis requires integer "
+                             "values in Composition!")
+
+        # for each element, determine all possible sum of oxidations
+        # (taking into account nsites for that particular element)
+        el_amt = self.get_el_amt_dict()
+        el_sums = defaultdict(set)  # dict of element to possible oxid sums
+        for el in el_amt:
+            if oxi_states_override.get(el):
+                oxids = oxi_states_override[el]
+            elif all_oxi_states:
+                oxids = Element(el).oxidation_states
+            else:
+                oxids = Element(el).common_oxidation_states
+
+            # get all possible combinations of oxidation states
+            # and sum each combination
+            for oxid_combo in combinations_with_replacement(oxids,
+                                                            int(el_amt[el])):
+                el_sums[el].add(sum(oxid_combo))
+
+        els = el_sums.keys()
+        sums = el_sums.values()
+        all_sols = []  # will contain all solutions
+        for x in product(*sums):
+            # each x is a trial of one possible oxidation sum for each element
+            if sum(x) == target_charge:  # charge balance condition
+                el_sum_sol = dict(zip(els, x))  # element->oxid_sum
+                # normalize oxid_sum by amount to get avg oxid state
+                sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
+                all_sols.append(sol)  # add the solution to the list of solutions
+
+        # present results with smaller sum-square charge magnitudes first
+        # note: one could use tabulated oxidation state potentials for a
+        # more accurate ranking (exercise for the reader)
+        all_sols.sort(key=lambda x: sum([v**2 for v in x.values()]))
+        return all_sols
 
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula,

@@ -85,6 +85,8 @@ INCAR:
     W: 5
     Ce: 5
     Eu: 10
+    Eu2+: 7
+    Eu3+: 6
   NELM: 100
   NSW: 99
   PREC: Accurate

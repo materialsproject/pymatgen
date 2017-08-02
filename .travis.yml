@@ -1,14 +1,17 @@
+services:
+  - mysql
 language: python
 python:
-  - "3.5"
+  - "3.6"
 env:
   global:
     - secure: "LQDypjfjcQYVN1NYPYfBz1VqMSqjNQqEqGBp+R6u/opf8bRUtYUGdK1gR356U3ApPzgLl906M3rI2ZMNqxiROdB6RDZrDEzXLhushwCfqt0C9qmZFLsj7TtGCMT8qHahU/sfYKntYxlWDgTbvFVrHhmg6brWEObPYny5FUidJc4="
-    - PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
+    - PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
 # command to install dependencies
 sudo: false
 install:
+  - pip install numpy
   - travis_wait pip install -q -r requirements.txt
   - travis_wait pip install -q -r requirements-optional.txt
 # This is needed, otherwise, nosetests can't find the installed pymatgen C

@@ -219,6 +219,9 @@ class StructureNL(object):
             if isinstance(projects, string_types) else projects
 
         # check that references are valid BibTeX
+        if not isinstance(references, string_types):
+            raise ValueError("Invalid format for SNL reference! Should be "
+                             "empty string or BibTeX string.")
         if references and not is_valid_bibtex(references):
             raise ValueError("Invalid format for SNL reference! Should be "
                              "BibTeX string.")

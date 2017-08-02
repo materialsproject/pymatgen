@@ -296,6 +296,14 @@ class IStructureTest(PymatgenTest):
         bcc_prim = bcc_li.get_primitive_structure()
         self.assertEqual(len(bcc_prim), 1)
         self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+        bcc_li = IStructure(Lattice.cubic(4.09), ["Li"] * 2, coords,
+                            site_properties={"magmom": [1, -1]})
+        bcc_prim = bcc_li.get_primitive_structure()
+        self.assertEqual(len(bcc_prim), 1)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+        bcc_prim = bcc_li.get_primitive_structure(use_site_props=True)
+        self.assertEqual(len(bcc_prim), 2)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 90, 3)
 
         coords = [[0] * 3, [0.5] * 3, [0.25] * 3, [0.26] * 3]
         s = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
@@ -506,7 +514,7 @@ class StructureTest(PymatgenTest):
         s.remove_sites([1, 2])
         self.assertEqual(s.formula, "Ge0.25")
 
-    def test_add_site_property(self):
+    def test_add_remove_site_property(self):
         s = self.structure
         s.add_site_property("charge", [4.1, -5])
         self.assertEqual(s[0].charge, 4.1)
@@ -514,6 +522,8 @@ class StructureTest(PymatgenTest):
         s.add_site_property("magmom", [3, 2])
         self.assertEqual(s[0].charge, 4.1)
         self.assertEqual(s[0].magmom, 3)
+        s.remove_site_property("magmom")
+        self.assertRaises(AttributeError, getattr, s[0], "magmom")
 
     def test_propertied_structure(self):
         #Make sure that site properties are set to None for missing values.
@@ -563,6 +573,25 @@ class StructureTest(PymatgenTest):
         s_specie.remove_oxidation_states()
         self.assertEqual(s_elem, s_specie, "Oxidation state remover "
                                            "failed")
+
+    def test_add_remove_spin_states(self):
+
+        latt = Lattice.cubic(4.17)
+        species = ["Ni", "O"]
+        coords = [[0, 0, 0],
+                  [0.5, 0.5, 0.5]]
+        nio = Structure.from_spacegroup(225, latt, species, coords)
+
+        spins = {"Ni": 5}
+        nio.add_spin_by_element(spins)
+        self.assertEqual(nio[0].specie.spin, 5, "Failed to add spin states")
+
+        nio.remove_spin()
+        self.assertRaises(AttributeError, getattr, nio[0].specie, 'spin')
+
+        spins = [5, -5, -5, 5, 0, 0, 0, 0] # AFM on (001)
+        nio.add_spin_by_site(spins)
+        self.assertEqual(nio[1].specie.spin, -5, "Failed to add spin states")
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
@@ -1105,6 +1134,8 @@ class MoleculeTest(PymatgenTest):
         self.mol.add_site_property("magmom", [3, 2, 2, 2, 2])
         self.assertEqual(self.mol[0].charge, 4.1)
         self.assertEqual(self.mol[0].magmom, 3)
+        self.mol.remove_site_property("magmom")
+        self.assertRaises(AttributeError, getattr, self.mol[0], "magmom")
 
     def test_to_from_dict(self):
         d = self.mol.as_dict()
@@ -1152,8 +1183,11 @@ class MoleculeTest(PymatgenTest):
                             "C", "H"], coords)
         benzene.substitute(1, sub)
         self.assertEqual(benzene.formula, "H8 C7")
-        #Carbon attached should be in plane.
+        # Carbon attached should be in plane.
         self.assertAlmostEqual(benzene[11].coords[2], 0)
+        benzene[14] = "Br"
+        benzene.substitute(13, sub)
+        self.assertEqual(benzene.formula, "H9 C8 Br1")
 
     def test_to_from_file_string(self):
         for fmt in ["xyz", "json", "g03"]:

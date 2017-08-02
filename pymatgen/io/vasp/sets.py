@@ -80,17 +80,20 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     class. Start from DictSet or MPRelaxSet or MITRelaxSet.
     """
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def incar(self):
         """Incar object"""
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def kpoints(self):
         """Kpoints object"""
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def poscar(self):
         """Poscar object"""
         pass
@@ -208,9 +211,9 @@ class DictSet(VaspInputSet):
             of two ways, e.g. either {"LDAUU":{"O":{"Fe":5}}} to set LDAUU
             for Fe to 5 in an oxide, or {"LDAUU":{"Fe":5}} to set LDAUU to
             5 regardless of the input structure.
-        user_kpoints_settings (dict): Allow user to override kpoints setting by
-            supplying a dict. E.g., {"reciprocal_density": 1000}. Default is
-            None.
+        user_kpoints_settings (dict or Kpoints): Allow user to override kpoints 
+            setting by supplying a dict E.g., {"reciprocal_density": 1000}. 
+            User can also supply Kpoints object. Default is None.
         constrain_total_magmom (bool): Whether to constrain the total magmom
             (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
             species. Defaults to False.
@@ -332,10 +335,10 @@ class DictSet(VaspInputSet):
         """
         Gets the default number of electrons for a given structure.
         """
-        n = 0
-        for ps in self.potcar:
-            n += self.structure.composition[ps.element] * ps.ZVAL
-        return n
+        return int(round(
+            sum([self.structure.composition.element_composition[ps.element]
+                 * ps.ZVAL
+                 for ps in self.potcar])))
 
     @property
     def kpoints(self):
@@ -348,6 +351,9 @@ class DictSet(VaspInputSet):
             reciprocal lattice vector proportional to its length.
         """
         settings = self.user_kpoints_settings or self.config_dict["KPOINTS"]
+
+        if isinstance(settings, Kpoints):
+            return settings
 
         # If grid_density is in the kpoints_settings use
         # Kpoints.automatic_density
@@ -489,6 +495,12 @@ class MPStaticSet(MPRelaxSet):
         if self.lepsilon:
             incar["IBRION"] = 8
             incar["LEPSILON"] = True
+
+            # LPEAD=T: numerical evaluation of overlap integral prevents
+            # LRF_COMMUTATOR errors and can lead to better expt. agreement
+            # but produces slightly different results
+            incar["LPEAD"] = True
+
             # Note that DFPT calculations MUST unset NSW. NSW = 0 will fail
             # to output ionic.
             incar.pop("NSW", None)
@@ -1044,11 +1056,13 @@ class MVLSlabSet(MPRelaxSet):
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
-    def __init__(self, structure, k_product=50, bulk=False, **kwargs):
+    def __init__(self, structure, k_product=50, bulk=False, 
+                 auto_dipole=False, **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
         self.structure = structure
         self.k_product = k_product
         self.bulk = bulk
+        self.auto_dipole = auto_dipole
         self.kwargs = kwargs
 
         slab_incar = {"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
@@ -1059,6 +1073,13 @@ class MVLSlabSet(MPRelaxSet):
             slab_incar["AMIX"] = 0.2
             slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
+            if self.auto_dipole:
+                weights = [s.species_and_occu.weight for s in structure]
+                center_of_mass = np.average(structure.frac_coords,
+                                            weights=weights, axis=0)
+                slab_incar["IDIPOL"] = 3
+                slab_incar["LDIPOL"] = True
+                slab_incar["DIPOL"] = center_of_mass
 
         self.config_dict["INCAR"].update(slab_incar)
 

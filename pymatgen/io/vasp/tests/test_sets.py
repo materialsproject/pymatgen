@@ -77,6 +77,12 @@ class MITMPRelaxSetTest(unittest.TestCase):
         s = Structure(lattice, ['Si', 'Si', 'Fe'], coords)
         self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
 
+        # Check that it works even when oxidation states are present. Was a bug
+        # previously.
+        s = Structure(lattice, ['Si4+', 'Si4+', 'Fe2+'], coords)
+        self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
+        self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
+
     def test_get_incar(self):
 
         incar = self.mpset.incar
@@ -180,7 +186,6 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
-        print(self.structure.lattice._lengths)
         self.assertEqual(kpoints.kpts, [[2, 4, 5]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
@@ -188,6 +193,10 @@ class MITMPRelaxSetTest(unittest.TestCase):
             "reciprocal_density": 1000}).kpoints
         self.assertEqual(kpoints.kpts, [[6, 10, 13]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+
+        kpoints_obj = Kpoints(kpts=[[3, 3, 3]])
+        kpoints_return = MPRelaxSet(self.structure, user_kpoints_settings=kpoints_obj).kpoints
+        self.assertEqual(kpoints_return.kpts, [[3, 3, 3]])
 
         kpoints = self.mitset.kpoints
         self.assertEqual(kpoints.kpts, [[25]])
@@ -476,9 +485,11 @@ class MVLSlabSetTest(PymatgenTest):
 
         vis_bulk = MVLSlabSet(self.bulk, bulk=True)
         vis = MVLSlabSet(self.slab)
+        vis_dipole = MVLSlabSet(self.slab, auto_dipole=True)
 
         self.d_bulk = vis_bulk.all_input
         self.d_slab = vis.all_input
+        self.d_dipole = vis_dipole.all_input
 
     def test_user_incar_settings(self):
         # Make sure user incar settings properly override AMIX.
@@ -512,6 +523,12 @@ class MVLSlabSetTest(PymatgenTest):
         self.assertEqual(potcar_slab.symbols[1], u'O')
         self.assertEqual(poscar_slab.structure.formula,
                          self.slab.formula)
+        # Test auto-dipole
+        dipole_incar = self.d_dipole["INCAR"]
+        self.assertTrue(dipole_incar["LDIPOL"])
+        self.assertArrayAlmostEqual(dipole_incar["DIPOL"], 
+                                    [0.2323, 0.2323, 0.2165], decimal=4)
+        self.assertEqual(dipole_incar["IDIPOL"], 3)
 
     def test_kpoints(self):
 

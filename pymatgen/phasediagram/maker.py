@@ -4,18 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module provides classes to create phase diagrams.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Nov 25, 2012"
-
 import collections
 import numpy as np
 import itertools
@@ -32,7 +20,18 @@ from pymatgen.core.periodic_table import DummySpecie, Element
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.util.coord_utils import Simplex
 
-from monty.dev import deprecated
+
+"""
+This module provides classes to create phase diagrams.
+"""
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Nov 25, 2012"
 
 
 class PhaseDiagram(MSONable):
@@ -190,12 +189,6 @@ class PhaseDiagram(MSONable):
             raise ValueError('{} has elements not in the phase diagram {}'
                              ''.format(comp, self.elements))
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
-
-    @property
-    @deprecated(message="PhaseDiagram.simplices is deprecated. "
-                "Use PhaseDiagram.simplexes instead")
-    def simplices(self):
-        return [s._coords for s in self.simplexes]
 
     @property
     def all_entries_hulldata(self):

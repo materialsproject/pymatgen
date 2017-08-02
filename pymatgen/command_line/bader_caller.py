@@ -4,6 +4,20 @@
 
 from __future__ import division, unicode_literals
 
+import os
+import subprocess
+import shutil
+import warnings
+import glob
+
+from six.moves import map, zip
+from pymatgen.io.vasp.outputs import Chgcar
+from pymatgen.io.vasp.inputs import Potcar
+from monty.os.path import which
+from monty.dev import requires
+from monty.tempfile import ScratchDir
+from monty.json import MSONable
+
 """
 This module implements an interface to the Henkelmann et al.'s excellent
 Fortran code for calculating a Bader charge analysis.
@@ -18,25 +32,12 @@ G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
-from six.moves import map
-from six.moves import zip
-
 __author__ = "shyuepingong"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Beta"
 __date__ = "4/5/13"
-
-import os
-import subprocess
-import shutil
-
-from pymatgen.io.vasp.outputs import Chgcar
-from pymatgen.io.vasp.inputs import Potcar
-from monty.os.path import which
-from monty.dev import requires
-from monty.tempfile import ScratchDir
 
 
 @requires(which("bader") or which("bader.exe"),
@@ -54,8 +55,8 @@ class BaderAnalysis(object):
 
         [
             {
-                "dist": 8.769,
-                "min": 0.8753,
+                "atomic_vol": 8.769,
+                "min_dist": 0.8753,
                 "charge": 7.4168,
                 "y": 1.1598,
                 "x": 0.0079,
@@ -84,46 +85,69 @@ class BaderAnalysis(object):
 
         Potcar object associated with POTCAR used for calculation (used for
         calculating charge transferred).
+
+    .. attribute: chgcar_ref
+    
+        Chgcar reference which calculated by AECCAR0 + AECCAR2.
+        (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
     """
 
-    def __init__(self, chgcar_filename, potcar_filename=None):
+    def __init__(self, chgcar_filename, potcar_filename=None,
+                 chgref_filename=None):
         """
         Initializes the Bader caller.
 
         Args:
-            chgcar_filename: The filename of the CHGCAR.
-            potcar_filename: Optional: the filename of the corresponding
+            chgcar_filename (str): The filename of the CHGCAR.
+            potcar_filename (str): Optional: the filename of the corresponding
                 POTCAR file. Used for calculating the charge transfer. If
                 None, the get_charge_transfer method will raise a ValueError.
+            chgref_filename (str): Optional. The filename of the reference
+                CHGCAR, which calculated by AECCAR0 + AECCAR2. (See
+                http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
         """
         self.chgcar = Chgcar.from_file(chgcar_filename)
         self.potcar = Potcar.from_file(potcar_filename) \
             if potcar_filename is not None else None
         self.natoms = self.chgcar.poscar.natoms
         chgcarpath = os.path.abspath(chgcar_filename)
-
+        chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
+        self.reference_used = True if chgref_filename else False
         with ScratchDir(".") as temp_dir:
             shutil.copy(chgcarpath, os.path.join(temp_dir, "CHGCAR"))
-
-            rs = subprocess.Popen(["bader", "CHGCAR"],
+            args = ["bader", "CHGCAR"]
+            if chgref_filename:
+                shutil.copy(chgrefpath, os.path.join(temp_dir, "CHGCAR_ref"))
+                args += ['-ref', 'CHGCAR_ref']
+            rs = subprocess.Popen(args,
                                   stdout=subprocess.PIPE,
                                   stdin=subprocess.PIPE, close_fds=True)
-            rs.communicate()
+            stdout, stderr = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError("bader exited with return code %d. "
-                                   "Pls check your bader installation."
+                                   "Please check your bader installation."
                                    % rs.returncode)
+
+            try:
+                self.version = float(stdout.split()[5])
+            except:
+                self.version = -1  # Unknown
+            if self.version < 1.0:
+                warnings.warn('Your installed version of Bader is outdated, '
+                              'calculation of vacuum charge may be incorrect.')
+
             data = []
             with open("ACF.dat") as f:
                 raw = f.readlines()
-                headers = [s.lower() for s in raw.pop(0).split()]
+                headers = ('x', 'y', 'z', 'charge', 'min_dist', 'atomic_vol')
+                raw.pop(0)
                 raw.pop(0)
                 while True:
                     l = raw.pop(0).strip()
                     if l.startswith("-"):
                         break
                     vals = map(float, l.split()[1:])
-                    data.append(dict(zip(headers[1:], vals)))
+                    data.append(dict(zip(headers, vals)))
                 for l in raw:
                     toks = l.strip().split(":")
                     if toks[0] == "VACUUM CHARGE":
@@ -179,6 +203,143 @@ class BaderAnalysis(object):
             to be supplied.
         """
         structure = self.chgcar.structure
-        charges = [self.get_charge_transfer(i) for i in range(len(structure))]
+        charges = [-self.get_charge_transfer(i)
+                   for i in range(len(structure))]
         structure.add_oxidation_state_by_site(charges)
         return structure
+
+    @property
+    def summary(self):
+
+        summary = {
+            "min_dist": [d['min_dist'] for d in self.data],
+            "charge": [d['charge'] for d in self.data],
+            "atomic_volume": [d['atomic_vol'] for d in self.data],
+            "vacuum_charge": self.vacuum_charge,
+            "vacuum_volume": self.vacuum_volume,
+            "reference_used": self.reference_used,
+            "bader_version": self.version,
+        }
+
+        if self.potcar:
+            charge_transfer = [self.get_charge_transfer(i) for i in range(len(self.data))]
+            summary['charge_transfer'] = charge_transfer
+
+        return summary
+
+
+def bader_analysis_from_path(path, suffix=''):
+    """
+    Convenience method to run Bader analysis on a folder containing
+    typical VASP output files.
+
+    This method will:
+
+    1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
+    counterparts.
+    2. If AECCAR* files are present, constructs a temporary reference
+    file as AECCAR0 + AECCAR2
+    3. Runs Bader analysis twice: once for charge, and a second time
+    for the charge difference (magnetization density).
+
+    :param path: path to folder to search in
+    :param suffix: specific suffix to look for (e.g. '.relax1' for 'CHGCAR.relax1.gz'
+    :return: summary dict
+    """
+
+    def _get_filepath(filename, warning, path=path, suffix=suffix):
+        paths = glob.glob(os.path.join(path, filename+suffix+'*'))
+        if not paths:
+            warnings.warn(warning)
+            return None
+        if len(paths) > 1:
+            # using reverse=True because, if multiple files are present,
+            # they likely have suffixes 'static', 'relax', 'relax2', etc.
+            # and this would give 'static' over 'relax2' over 'relax'
+            # however, better to use 'suffix' kwarg to avoid this!
+            paths.sort(reverse=True)
+            warnings.warn('Multiple files detected, using {}'.format(os.path.basename(path)))
+        path = paths[0]
+        return path
+
+    chgcar_path = _get_filepath('CHGCAR', 'Could not find CHGCAR!')
+    chgcar = Chgcar.from_file(chgcar_path)
+
+    aeccar0_path = _get_filepath('AECCAR0', 'Could not find AECCAR0, interpret Bader results with caution.')
+    aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
+
+    aeccar2_path = _get_filepath('AECCAR2', 'Could not find AECCAR2, interpret Bader results with caution.')
+    aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
+
+    potcar_path = _get_filepath('POTCAR', 'Could not find POTCAR, cannot calculate charge transfer.')
+    potcar = Potcar.from_file(potcar_path) if potcar_path else None
+
+    return bader_analysis_from_objects(chgcar, potcar, aeccar0, aeccar2)
+
+
+def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None):
+    """
+    Convenience method to run Bader analysis from a set
+    of pymatgen Chgcar and Potcar objects.
+
+    This method will:
+
+    1. If aeccar objects are present, constructs a temporary reference
+    file as AECCAR0 + AECCAR2
+    2. Runs Bader analysis twice: once for charge, and a second time
+    for the charge difference (magnetization density).
+
+    :param chgcar: Chgcar object
+    :param potcar: (optional) Potcar object
+    :param aeccar0: (optional) Chgcar object from aeccar0 file
+    :param aeccar2: (optional) Chgcar object from aeccar2 file
+    :return: summary dict
+    """
+
+    with ScratchDir(".") as temp_dir:
+
+        if aeccar0 and aeccar2:
+            # construct reference file
+            chgref = aeccar0.linear_add(aeccar2)
+            chgref_path = os.path.join(temp_dir, 'CHGCAR_ref')
+            chgref.write_file(chgref_path)
+        else:
+            chgref_path = None
+
+        chgcar.write_file('CHGCAR')
+        chgcar_path = os.path.join(temp_dir, 'CHGCAR')
+
+        if potcar:
+            potcar.write_file('POTCAR')
+            potcar_path = os.path.join(temp_dir, 'POTCAR')
+        else:
+            potcar_path = None
+
+        ba = BaderAnalysis(chgcar_path, potcar_filename=potcar_path, chgref_filename=chgref_path)
+
+        summary = {
+            "min_dist": [d['min_dist'] for d in ba.data],
+            "charge": [d['charge'] for d in ba.data],
+            "atomic_volume": [d['atomic_vol'] for d in ba.data],
+            "vacuum_charge": ba.vacuum_charge,
+            "vacuum_volume": ba.vacuum_volume,
+            "reference_used": True if chgref_path else False,
+            "bader_version": ba.version,
+        }
+
+        if potcar:
+            charge_transfer = [ba.get_charge_transfer(i) for i in range(len(ba.data))]
+            summary['charge_transfer'] = charge_transfer
+
+        if chgcar.is_spin_polarized:
+
+            # write a CHGCAR containing magnetization density only
+            chgcar.data['total'] = chgcar.data['diff']
+            chgcar.is_spin_polarized = False
+            chgcar.write_file('CHGCAR_mag')
+
+            chgcar_mag_path = os.path.join(temp_dir, 'CHGCAR_mag')
+            ba = BaderAnalysis(chgcar_mag_path, potcar_filename=potcar_path, chgref_filename=chgref_path)
+            summary["magmom"] = [d['charge'] for d in ba.data]
+
+        return summary

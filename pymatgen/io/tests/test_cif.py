@@ -15,6 +15,7 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen import Element, Specie, Lattice, Structure, Composition, DummySpecie
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.electronic_structure.core import Magmom
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -280,6 +281,14 @@ loop_
         parser = CifParser(os.path.join(test_dir, 'site_type_symbol_test.cif'))
         self.assertEqual(parser.get_structures()[0].formula, "Ge0.4 Sb0.4 Te1")
 
+    def test_implicit_hydrogen(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            parser = CifParser(os.path.join(test_dir, 'Senegalite_implicit_hydrogen.cif'))
+            for s in parser.get_structures():
+                self.assertEqual(s.formula, "Al8 P4 O32")
+                self.assertEqual(sum(s.site_properties['implicit_hydrogens']), 20)
+
     def test_CifParserSpringerPauling(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -343,7 +352,7 @@ loop_
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        writer = CifWriter(poscar.structure, symprec=0.001)
+        writer = CifWriter(poscar.structure, symprec=0.01)
         ans = """# generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma
@@ -968,6 +977,224 @@ loop_
         s = p.get_structures()[0]
         self.assertEqual(s.formula, "K1 Mn1 F3")
 
+class MagCifTest(unittest.TestCase):
+
+    def setUp(self):
+        self.mcif = CifParser(os.path.join(test_dir, "magnetic.example.NiO.mcif"))
+        self.mcif_ncl = CifParser(os.path.join(test_dir, "magnetic.ncl.example.GdB4.mcif"))
+        self.mcif_incom = CifParser(os.path.join(test_dir, "magnetic.incommensurate.example.Cr.mcif"))
+        self.mcif_disord = CifParser(os.path.join(test_dir, "magnetic.disordered.example.CuMnO2.mcif"))
+
+    def test_mcif_detection(self):
+        self.assertTrue(self.mcif.feature_flags["magcif"])
+        self.assertTrue(self.mcif_ncl.feature_flags["magcif"])
+        self.assertTrue(self.mcif_incom.feature_flags["magcif"])
+        self.assertTrue(self.mcif_disord.feature_flags["magcif"])
+        self.assertFalse(self.mcif.feature_flags["magcif_incommensurate"])
+        self.assertFalse(self.mcif_ncl.feature_flags["magcif_incommensurate"])
+        self.assertTrue(self.mcif_incom.feature_flags["magcif_incommensurate"])
+        self.assertFalse(self.mcif_disord.feature_flags["magcif_incommensurate"])
+
+    def test_get_structures(self):
+
+        # incommensurate structures not currently supported
+        self.assertRaises(NotImplementedError, self.mcif_incom.get_structures)
+
+        # disordered magnetic structures not currently supported
+        self.assertRaises(NotImplementedError, self.mcif_disord.get_structures)
+
+        # taken from self.mcif_ncl, removing explicit magnetic symmops
+        # so that MagneticSymmetryGroup() has to be invoked
+        magcifstr = """
+data_5yOhtAoR
+
+_space_group.magn_name_BNS     "P 4/m' b' m' "
+_cell_length_a                 7.1316
+_cell_length_b                 7.1316
+_cell_length_c                 4.0505
+_cell_angle_alpha              90.00
+_cell_angle_beta               90.00
+_cell_angle_gamma              90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Gd1 Gd 0.31746 0.81746 0.00000 1
+B1 B 0.00000 0.00000 0.20290 1
+B2 B 0.17590 0.03800 0.50000 1
+B3 B 0.08670 0.58670 0.50000 1
+
+loop_
+_atom_site_moment_label
+_atom_site_moment_crystalaxis_x
+_atom_site_moment_crystalaxis_y
+_atom_site_moment_crystalaxis_z
+Gd1 5.05 5.05 0.0"""
+
+        s = self.mcif.get_structures(primitive=False)[0]
+        self.assertEqual(s.formula, "Ni32 O32")
+        self.assertTrue(Magmom.are_collinear(s.site_properties['magmom']))
+
+        # example with non-collinear spin
+        s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
+        s_ncl_from_msg = CifParser.from_string(magcifstr).get_structures(primitive=False)[0]
+        self.assertEqual(s_ncl.formula, "Gd4 B16")
+        self.assertFalse(Magmom.are_collinear(s_ncl.site_properties['magmom']))
+
+        self.assertTrue(s_ncl.matches(s_ncl_from_msg))
+
+    def test_write(self):
+
+        cw_ref_string = """# generated using pymatgen
+data_GdB4
+_symmetry_space_group_name_H-M   'P 1'
+_cell_length_a   7.13160000
+_cell_length_b   7.13160000
+_cell_length_c   4.05050000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   GdB4
+_chemical_formula_sum   'Gd4 B16'
+_cell_volume   206.007290027
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Gd  Gd1  1  0.317460  0.817460  0.000000  1.0
+  Gd  Gd2  1  0.182540  0.317460  0.000000  1.0
+  Gd  Gd3  1  0.817460  0.682540  0.000000  1.0
+  Gd  Gd4  1  0.682540  0.182540  0.000000  1.0
+  B  B5  1  0.000000  0.000000  0.202900  1.0
+  B  B6  1  0.500000  0.500000  0.797100  1.0
+  B  B7  1  0.000000  0.000000  0.797100  1.0
+  B  B8  1  0.500000  0.500000  0.202900  1.0
+  B  B9  1  0.175900  0.038000  0.500000  1.0
+  B  B10  1  0.962000  0.175900  0.500000  1.0
+  B  B11  1  0.038000  0.824100  0.500000  1.0
+  B  B12  1  0.675900  0.462000  0.500000  1.0
+  B  B13  1  0.324100  0.538000  0.500000  1.0
+  B  B14  1  0.824100  0.962000  0.500000  1.0
+  B  B15  1  0.538000  0.675900  0.500000  1.0
+  B  B16  1  0.462000  0.324100  0.500000  1.0
+  B  B17  1  0.086700  0.586700  0.500000  1.0
+  B  B18  1  0.413300  0.086700  0.500000  1.0
+  B  B19  1  0.586700  0.913300  0.500000  1.0
+  B  B20  1  0.913300  0.413300  0.500000  1.0
+loop_
+ _atom_site_moment_label
+ _atom_site_moment_crystalaxis_x
+ _atom_site_moment_crystalaxis_y
+ _atom_site_moment_crystalaxis_z
+  Gd1  5.05  5.05  0.0
+  Gd2  -5.05  5.05  0.0
+  Gd3  5.05  -5.05  0.0
+  Gd4  -5.05  -5.05  0.0
+"""
+        s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
+
+        cw = CifWriter(s_ncl, write_magmoms=True)
+        self.assertEqual(cw.__str__(), cw_ref_string)
+
+        # from list-type magmoms
+        list_magmoms = [list(m) for m in s_ncl.site_properties['magmom']]
+
+        # float magmoms (magnitude only)
+        float_magmoms = [float(m) for m in s_ncl.site_properties['magmom']]
+
+        s_ncl.add_site_property('magmom', list_magmoms)
+        cw = CifWriter(s_ncl, write_magmoms=True)
+        self.assertEqual(cw.__str__(), cw_ref_string)
+
+        s_ncl.add_site_property('magmom', float_magmoms)
+        cw = CifWriter(s_ncl, write_magmoms=True)
+
+        cw_ref_string_magnitudes = """# generated using pymatgen
+data_GdB4
+_symmetry_space_group_name_H-M   'P 1'
+_cell_length_a   7.13160000
+_cell_length_b   7.13160000
+_cell_length_c   4.05050000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   GdB4
+_chemical_formula_sum   'Gd4 B16'
+_cell_volume   206.007290027
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Gd  Gd1  1  0.317460  0.817460  0.000000  1.0
+  Gd  Gd2  1  0.182540  0.317460  0.000000  1.0
+  Gd  Gd3  1  0.817460  0.682540  0.000000  1.0
+  Gd  Gd4  1  0.682540  0.182540  0.000000  1.0
+  B  B5  1  0.000000  0.000000  0.202900  1.0
+  B  B6  1  0.500000  0.500000  0.797100  1.0
+  B  B7  1  0.000000  0.000000  0.797100  1.0
+  B  B8  1  0.500000  0.500000  0.202900  1.0
+  B  B9  1  0.175900  0.038000  0.500000  1.0
+  B  B10  1  0.962000  0.175900  0.500000  1.0
+  B  B11  1  0.038000  0.824100  0.500000  1.0
+  B  B12  1  0.675900  0.462000  0.500000  1.0
+  B  B13  1  0.324100  0.538000  0.500000  1.0
+  B  B14  1  0.824100  0.962000  0.500000  1.0
+  B  B15  1  0.538000  0.675900  0.500000  1.0
+  B  B16  1  0.462000  0.324100  0.500000  1.0
+  B  B17  1  0.086700  0.586700  0.500000  1.0
+  B  B18  1  0.413300  0.086700  0.500000  1.0
+  B  B19  1  0.586700  0.913300  0.500000  1.0
+  B  B20  1  0.913300  0.413300  0.500000  1.0
+loop_
+ _atom_site_moment_label
+ _atom_site_moment_crystalaxis_x
+ _atom_site_moment_crystalaxis_y
+ _atom_site_moment_crystalaxis_z
+  Gd1  0.0  0.0  7.14177848998
+  Gd2  0.0  0.0  7.14177848998
+  Gd3  0.0  0.0  -7.14177848998
+  Gd4  0.0  0.0  -7.14177848998
+"""
+
+        self.assertEqual(cw.__str__(), cw_ref_string_magnitudes)
+
+    def test_bibtex(self):
+
+        ref_bibtex_string = """@article{Blanco:2006,
+    author = {Blanco, J.A.},
+    title = {?},
+    journal = {PHYSICAL REVIEW B},
+    year = {2006},
+    volume = {73},
+    number = {?},
+    pages = {?--?},
+    doi = {10.1103/PhysRevB.73.212411}
+}"""
+        self.assertEqual(self.mcif_ncl.get_bibtex_strings()[0], ref_bibtex_string)
 
 if __name__ == '__main__':
     unittest.main()

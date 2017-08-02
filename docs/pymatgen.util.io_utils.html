@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.util.io_utils module &#8212; pymatgen 2017.7.21 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.21',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.util.io_utils">
+<span id="pymatgen-util-io-utils-module"></span><h1>pymatgen.util.io_utils module<a class="headerlink" href="#module-pymatgen.util.io_utils" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.util.io_utils.AtomicFile">
+<em class="property">class </em><code class="descname">AtomicFile</code><span class="sig-paren">(</span><em>name</em>, <em>mode='w+b'</em>, <em>createmode=None</em>, <em>encoding=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/io_utils.html#AtomicFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.io_utils.AtomicFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This is a straight port of Alexander Saltanov&#8217;s atomicfile package.</p>
+<p>Writeable file object that atomically writes a file.
+All writes will go to a temporary file.
+Call <code class="docutils literal"><span class="pre">close()</span></code> when you are done writing, and AtomicFile will rename
+the temporary copy to the original name, making the changes visible.
+If the object is destroyed without being closed, all your writes are
+discarded.
+If an <code class="docutils literal"><span class="pre">encoding</span></code> argument is specified, codecs.open will be called to open
+the file in the wanted encoding.</p>
+<dl class="method">
+<dt id="pymatgen.util.io_utils.AtomicFile.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/io_utils.html#AtomicFile.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.io_utils.AtomicFile.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.util.io_utils.AtomicFile.discard">
+<code class="descname">discard</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/io_utils.html#AtomicFile.discard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.io_utils.AtomicFile.discard" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.io_utils.ask_yesno">
+<code class="descname">ask_yesno</code><span class="sig-paren">(</span><em>question</em>, <em>default=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/io_utils.html#ask_yesno"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.io_utils.ask_yesno" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.io_utils.clean_lines">
+<code class="descname">clean_lines</code><span class="sig-paren">(</span><em>string_list</em>, <em>remove_empty_lines=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/io_utils.html#clean_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.io_utils.clean_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strips whitespace, carriage returns and empty lines from a list of strings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>string_list</strong> &#8211; List of strings</li>
+<li><strong>remove_empty_lines</strong> &#8211; Set to True to skip lines which are empty after
+stripping.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List of clean strings with no whitespaces.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.io_utils.micro_pyawk">
+<code class="descname">micro_pyawk</code><span class="sig-paren">(</span><em>filename</em>, <em>search</em>, <em>results=None</em>, <em>debug=None</em>, <em>postdebug=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/io_utils.html#micro_pyawk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.io_utils.micro_pyawk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Small awk-mimicking search routine.</p>
+<p>&#8216;file&#8217; is file to search through.
+&#8216;search&#8217; is the &#8220;search program&#8221;, a list of lists/tuples with 3 elements;
+i.e. [[regex,test,run],[regex,test,run],...]
+&#8216;results&#8217; is a an object that your search program will have access to for
+storing results.</p>
+<p>Here regex is either as a Regex object, or a string that we compile into a
+Regex. test and run are callable objects.</p>
+<p>This function goes through each line in filename, and if regex matches that
+line <em>and</em> test(results,line)==True (or test is None) we execute
+run(results,match),where match is the match object from running
+Regex.match.</p>
+<p>The default results is an empty dictionary. Passing a results object let
+you interact with it in run() and test(). Hence, in many occasions it is
+thus clever to use results=self.</p>
+<p>Author: Rickard Armiento, Ioannis Petousis</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">results</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.util.io_utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

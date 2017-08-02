@@ -1,0 +1,1462 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2017.7.21 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.7.21',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.core.periodic_table">
+<span id="pymatgen-core-periodic-table-module"></span><h1>pymatgen.core.periodic_table module<a class="headerlink" href="#module-pymatgen.core.periodic_table" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.core.periodic_table.DummySpecie">
+<em class="property">class </em><code class="descname">DummySpecie</code><span class="sig-paren">(</span><em>symbol='X'</em>, <em>oxidation_state=0</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.periodic_table.Specie</span></code></a></p>
+<p>A special specie for representing non-traditional elements or species. For
+example, representation of vacancies (charged or otherwise), or special
+sites, etc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>symbol</strong> (<em>str</em>) &#8211; An assigned symbol for the dummy specie. Strict
+rules are applied to the choice of the symbol. The dummy
+symbol cannot have any part of first two letters that will
+constitute an Element symbol. Otherwise, a composition may
+be parsed wrongly. E.g., &#8220;X&#8221; is fine, but &#8220;Vac&#8221; is not
+because Vac contains V, a valid Element.</li>
+<li><strong>oxidation_state</strong> (<em>float</em>) &#8211; Oxidation state for dummy specie.
+Defaults to zero.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.DummySpecie.symbol">
+<code class="descname">symbol</code><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbol for the DummySpecie.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.DummySpecie.oxi_state">
+<code class="descname">oxi_state</code><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.oxi_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Oxidation state associated with Specie.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.DummySpecie.Z">
+<code class="descname">Z</code><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.Z" title="Permalink to this definition">¶</a></dt>
+<dd><p>DummySpecie is always assigned an atomic number of 0.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.DummySpecie.X">
+<code class="descname">X</code><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.X" title="Permalink to this definition">¶</a></dt>
+<dd><p>DummySpecie is always assigned an electronegativity of 0.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">X</code></dt>
+<dd><p>DummySpecie is always assigned an electronegativity of 0. The effect of
+this is that DummySpecie are always sorted in front of actual Specie.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">Z</code></dt>
+<dd><p>DummySpecie is always assigned an atomic number equal to the hash of
+the symbol. The expectation is that someone would be an actual dummy
+to use atomic numbers for a Dummy specie.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.periodic_table.DummySpecie.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.core.periodic_table.DummySpecie.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.core.periodic_table.DummySpecie.from_string">
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>species_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Dummy from a string representation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_string</strong> (<em>str</em>) &#8211; A string representation of a dummy
+species, e.g., &#8220;X2+&#8221;, &#8220;X3+&#8221;.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A DummySpecie object.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">ValueError if species_string cannot be intepreted.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">oxi_state</code></dt>
+<dd><p>Oxidation state associated with DummySpecie</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.core.periodic_table.DummySpecie.safe_from_composition">
+<em class="property">classmethod </em><code class="descname">safe_from_composition</code><span class="sig-paren">(</span><em>comp</em>, <em>oxidation_state=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.safe_from_composition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.safe_from_composition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a DummySpecie object that can be safely used
+with (i.e. not present in) a given composition</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">symbol</code></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.periodic_table.Element">
+<em class="property">class </em><code class="descname">Element</code><span class="sig-paren">(</span><em>symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">enum.Enum</span></code></p>
+<p>Basic immutable element object with all relevant properties.
+Only one instance of Element for each symbol is stored after creation,
+ensuring that a particular element behaves like a singleton. For all
+attributes, missing data (i.e., data for which is not available) is
+represented by a None unless otherwise stated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symbol</strong> (<em>str</em>) &#8211; Element symbol, e.g., &#8220;H&#8221;, &#8220;Fe&#8221;</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Z">
+<code class="descname">Z</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomic number</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.symbol">
+<code class="descname">symbol</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Element symbol</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.X">
+<code class="descname">X</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.X" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pauling electronegativity. Elements without an electronegativity
+number are assigned a value of zero by default.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.number">
+<code class="descname">number</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alternative attribute for atomic number</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.max_oxidation_state">
+<code class="descname">max_oxidation_state</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.max_oxidation_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum oxidation state for element</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.min_oxidation_state">
+<code class="descname">min_oxidation_state</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.min_oxidation_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minimum oxidation state for element</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.oxidation_states">
+<code class="descname">oxidation_states</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.oxidation_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple of all known oxidation states</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.common_oxidation_states">
+<code class="descname">common_oxidation_states</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.common_oxidation_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple of all common oxidation states</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.full_electronic_structure">
+<code class="descname">full_electronic_structure</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.full_electronic_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full electronic structure as tuple.
+E.g., The electronic structure for Fe is represented as:
+[(1, &#8220;s&#8221;, 2), (2, &#8220;s&#8221;, 2), (2, &#8220;p&#8221;, 6), (3, &#8220;s&#8221;, 2), (3, &#8220;p&#8221;, 6),
+(3, &#8220;d&#8221;, 6), (4, &#8220;s&#8221;, 2)]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.row">
+<code class="descname">row</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the periodic table row of the element.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.group">
+<code class="descname">group</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the periodic table group of the element.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.block">
+<code class="descname">block</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the block character &#8220;s,p,d,f&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_noble_gas">
+<code class="descname">is_noble_gas</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_noble_gas" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element is noble gas.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_transition_metal">
+<code class="descname">is_transition_metal</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_transition_metal" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element is a transition metal.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_rare_earth_metal">
+<code class="descname">is_rare_earth_metal</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_rare_earth_metal" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element is a rare earth metal.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_metalloid">
+<code class="descname">is_metalloid</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_metalloid" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element is a metalloid.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_alkali">
+<code class="descname">is_alkali</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_alkali" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element is an alkali metal.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_alkaline">
+<code class="descname">is_alkaline</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_alkaline" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element is an alkaline earth metal (group II).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_halogen">
+<code class="descname">is_halogen</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_halogen" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element is a halogen.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_lanthanoid">
+<code class="descname">is_lanthanoid</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_lanthanoid" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element is a lanthanoid.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_actinoid">
+<code class="descname">is_actinoid</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_actinoid" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element is a actinoid.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.name">
+<code class="descname">name</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Long name for element. E.g., &#8220;Hydrogen&#8221;.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.atomic_mass">
+<code class="descname">atomic_mass</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.atomic_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomic mass for the element.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.atomic_radius">
+<code class="descname">atomic_radius</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.atomic_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomic radius for the element. This is the empirical value. Data is
+obtained from
+<a class="reference external" href="http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page">http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page</a>).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.atomic_radius_calculated">
+<code class="descname">atomic_radius_calculated</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.atomic_radius_calculated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculated atomic radius for the element. This is the empirical value.
+Data is obtained from
+<a class="reference external" href="http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page">http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page</a>).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.van_der_waals_radius">
+<code class="descname">van_der_waals_radius</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.van_der_waals_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Van der Waals radius for the element. This is the empirical
+value. Data is obtained from
+<a class="reference external" href="http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page">http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page</a>).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.mendeleev_no">
+<code class="descname">mendeleev_no</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.mendeleev_no" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mendeleev number</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.electrical_resistivity">
+<code class="descname">electrical_resistivity</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.electrical_resistivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Electrical resistivity</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.velocity_of_sound">
+<code class="descname">velocity_of_sound</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.velocity_of_sound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Velocity of sound</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.reflectivity">
+<code class="descname">reflectivity</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.reflectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reflectivity</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.refractive_index">
+<code class="descname">refractive_index</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.refractive_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refractice index</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.poissons_ratio">
+<code class="descname">poissons_ratio</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.poissons_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Poisson&#8217;s ratio</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.molar_volume">
+<code class="descname">molar_volume</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.molar_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Molar volume</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.electronic_structure">
+<code class="descname">electronic_structure</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.electronic_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Electronic structure. Simplified form with HTML formatting.
+E.g., The electronic structure for Fe is represented as
+[Ar].3d&lt;sup&gt;6&lt;/sup&gt;.4s&lt;sup&gt;2&lt;/sup&gt;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.thermal_conductivity">
+<code class="descname">thermal_conductivity</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.thermal_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thermal conductivity</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.boiling_point">
+<code class="descname">boiling_point</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.boiling_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boiling point</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.melting_point">
+<code class="descname">melting_point</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.melting_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Melting point</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.critical_temperature">
+<code class="descname">critical_temperature</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.critical_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Critical temperature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.superconduction_temperature">
+<code class="descname">superconduction_temperature</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.superconduction_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Superconduction temperature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.liquid_range">
+<code class="descname">liquid_range</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.liquid_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Liquid range</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.bulk_modulus">
+<code class="descname">bulk_modulus</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.bulk_modulus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bulk modulus</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.youngs_modulus">
+<code class="descname">youngs_modulus</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.youngs_modulus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Young&#8217;s modulus</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.brinell_hardness">
+<code class="descname">brinell_hardness</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.brinell_hardness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Brinell hardness</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.rigidity_modulus">
+<code class="descname">rigidity_modulus</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.rigidity_modulus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rigidity modulus</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.mineral_hardness">
+<code class="descname">mineral_hardness</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.mineral_hardness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mineral hardness</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.vickers_hardness">
+<code class="descname">vickers_hardness</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.vickers_hardness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vicker&#8217;s hardness</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.density_of_solid">
+<code class="descname">density_of_solid</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.density_of_solid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Density of solid phase</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.coefficient_of_linear_thermal_expansion">
+<code class="descname">coefficient_of_linear_thermal_expansion</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.coefficient_of_linear_thermal_expansion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coefficient of linear thermal expansion</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.average_ionic_radius">
+<code class="descname">average_ionic_radius</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.average_ionic_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average ionic radius for element in ang. The average is taken over all
+oxidation states of the element for which data is present.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.ionic_radii">
+<code class="descname">ionic_radii</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.ionic_radii" title="Permalink to this definition">¶</a></dt>
+<dd><p>All ionic radii of the element as a dict of
+{oxidation state: ionic radii}. Radii are given in ang.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ac">
+<code class="descname">Ac</code><em class="property"> = 'Ac'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ac" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ag">
+<code class="descname">Ag</code><em class="property"> = 'Ag'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Al">
+<code class="descname">Al</code><em class="property"> = 'Al'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Al" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Am">
+<code class="descname">Am</code><em class="property"> = 'Am'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Am" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ar">
+<code class="descname">Ar</code><em class="property"> = 'Ar'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.As">
+<code class="descname">As</code><em class="property"> = 'As'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.As" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.At">
+<code class="descname">At</code><em class="property"> = 'At'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.At" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Au">
+<code class="descname">Au</code><em class="property"> = 'Au'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Au" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.B">
+<code class="descname">B</code><em class="property"> = 'B'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.B" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ba">
+<code class="descname">Ba</code><em class="property"> = 'Ba'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ba" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Be">
+<code class="descname">Be</code><em class="property"> = 'Be'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Be" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Bi">
+<code class="descname">Bi</code><em class="property"> = 'Bi'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Bi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Bk">
+<code class="descname">Bk</code><em class="property"> = 'Bk'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Bk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Br">
+<code class="descname">Br</code><em class="property"> = 'Br'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Br" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.C">
+<code class="descname">C</code><em class="property"> = 'C'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.C" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ca">
+<code class="descname">Ca</code><em class="property"> = 'Ca'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ca" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Cd">
+<code class="descname">Cd</code><em class="property"> = 'Cd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ce">
+<code class="descname">Ce</code><em class="property"> = 'Ce'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ce" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Cf">
+<code class="descname">Cf</code><em class="property"> = 'Cf'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Cl">
+<code class="descname">Cl</code><em class="property"> = 'Cl'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Cm">
+<code class="descname">Cm</code><em class="property"> = 'Cm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Co">
+<code class="descname">Co</code><em class="property"> = 'Co'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Co" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Cr">
+<code class="descname">Cr</code><em class="property"> = 'Cr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Cs">
+<code class="descname">Cs</code><em class="property"> = 'Cs'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Cu">
+<code class="descname">Cu</code><em class="property"> = 'Cu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Dy">
+<code class="descname">Dy</code><em class="property"> = 'Dy'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Dy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Er">
+<code class="descname">Er</code><em class="property"> = 'Er'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Er" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Es">
+<code class="descname">Es</code><em class="property"> = 'Es'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Es" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Eu">
+<code class="descname">Eu</code><em class="property"> = 'Eu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Eu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.F">
+<code class="descname">F</code><em class="property"> = 'F'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.F" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Fe">
+<code class="descname">Fe</code><em class="property"> = 'Fe'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Fe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Fm">
+<code class="descname">Fm</code><em class="property"> = 'Fm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Fm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Fr">
+<code class="descname">Fr</code><em class="property"> = 'Fr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Fr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ga">
+<code class="descname">Ga</code><em class="property"> = 'Ga'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ga" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Gd">
+<code class="descname">Gd</code><em class="property"> = 'Gd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Gd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ge">
+<code class="descname">Ge</code><em class="property"> = 'Ge'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.H">
+<code class="descname">H</code><em class="property"> = 'H'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.H" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.He">
+<code class="descname">He</code><em class="property"> = 'He'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.He" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Hf">
+<code class="descname">Hf</code><em class="property"> = 'Hf'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Hf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Hg">
+<code class="descname">Hg</code><em class="property"> = 'Hg'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Hg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ho">
+<code class="descname">Ho</code><em class="property"> = 'Ho'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.I">
+<code class="descname">I</code><em class="property"> = 'I'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.I" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.In">
+<code class="descname">In</code><em class="property"> = 'In'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.In" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ir">
+<code class="descname">Ir</code><em class="property"> = 'Ir'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.K">
+<code class="descname">K</code><em class="property"> = 'K'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.K" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Kr">
+<code class="descname">Kr</code><em class="property"> = 'Kr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Kr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.La">
+<code class="descname">La</code><em class="property"> = 'La'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.La" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Li">
+<code class="descname">Li</code><em class="property"> = 'Li'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Li" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Lr">
+<code class="descname">Lr</code><em class="property"> = 'Lr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Lr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Lu">
+<code class="descname">Lu</code><em class="property"> = 'Lu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Lu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Md">
+<code class="descname">Md</code><em class="property"> = 'Md'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Md" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Mg">
+<code class="descname">Mg</code><em class="property"> = 'Mg'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Mg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Mn">
+<code class="descname">Mn</code><em class="property"> = 'Mn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Mn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Mo">
+<code class="descname">Mo</code><em class="property"> = 'Mo'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Mo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.N">
+<code class="descname">N</code><em class="property"> = 'N'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.N" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Na">
+<code class="descname">Na</code><em class="property"> = 'Na'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Na" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Nb">
+<code class="descname">Nb</code><em class="property"> = 'Nb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Nb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Nd">
+<code class="descname">Nd</code><em class="property"> = 'Nd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Nd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ne">
+<code class="descname">Ne</code><em class="property"> = 'Ne'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ne" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ni">
+<code class="descname">Ni</code><em class="property"> = 'Ni'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ni" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.No">
+<code class="descname">No</code><em class="property"> = 'No'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.No" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Np">
+<code class="descname">Np</code><em class="property"> = 'Np'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Np" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.O">
+<code class="descname">O</code><em class="property"> = 'O'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.O" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Os">
+<code class="descname">Os</code><em class="property"> = 'Os'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Os" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.P">
+<code class="descname">P</code><em class="property"> = 'P'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.P" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Pa">
+<code class="descname">Pa</code><em class="property"> = 'Pa'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pa" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Pb">
+<code class="descname">Pb</code><em class="property"> = 'Pb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Pd">
+<code class="descname">Pd</code><em class="property"> = 'Pd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Pm">
+<code class="descname">Pm</code><em class="property"> = 'Pm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Po">
+<code class="descname">Po</code><em class="property"> = 'Po'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Po" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Pr">
+<code class="descname">Pr</code><em class="property"> = 'Pr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Pt">
+<code class="descname">Pt</code><em class="property"> = 'Pt'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Pu">
+<code class="descname">Pu</code><em class="property"> = 'Pu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ra">
+<code class="descname">Ra</code><em class="property"> = 'Ra'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ra" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Rb">
+<code class="descname">Rb</code><em class="property"> = 'Rb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Rb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Re">
+<code class="descname">Re</code><em class="property"> = 'Re'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Re" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Rh">
+<code class="descname">Rh</code><em class="property"> = 'Rh'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Rh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Rn">
+<code class="descname">Rn</code><em class="property"> = 'Rn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Rn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ru">
+<code class="descname">Ru</code><em class="property"> = 'Ru'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ru" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.S">
+<code class="descname">S</code><em class="property"> = 'S'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.S" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Sb">
+<code class="descname">Sb</code><em class="property"> = 'Sb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Sc">
+<code class="descname">Sc</code><em class="property"> = 'Sc'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Se">
+<code class="descname">Se</code><em class="property"> = 'Se'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Se" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Si">
+<code class="descname">Si</code><em class="property"> = 'Si'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Si" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Sm">
+<code class="descname">Sm</code><em class="property"> = 'Sm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Sn">
+<code class="descname">Sn</code><em class="property"> = 'Sn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Sr">
+<code class="descname">Sr</code><em class="property"> = 'Sr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ta">
+<code class="descname">Ta</code><em class="property"> = 'Ta'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Tb">
+<code class="descname">Tb</code><em class="property"> = 'Tb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Tc">
+<code class="descname">Tc</code><em class="property"> = 'Tc'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Te">
+<code class="descname">Te</code><em class="property"> = 'Te'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Te" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Th">
+<code class="descname">Th</code><em class="property"> = 'Th'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Th" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Ti">
+<code class="descname">Ti</code><em class="property"> = 'Ti'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ti" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Tl">
+<code class="descname">Tl</code><em class="property"> = 'Tl'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Tm">
+<code class="descname">Tm</code><em class="property"> = 'Tm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.U">
+<code class="descname">U</code><em class="property"> = 'U'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.U" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.V">
+<code class="descname">V</code><em class="property"> = 'V'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.V" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.W">
+<code class="descname">W</code><em class="property"> = 'W'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.W" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">X</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Xe">
+<code class="descname">Xe</code><em class="property"> = 'Xe'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Xe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Y">
+<code class="descname">Y</code><em class="property"> = 'Y'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Yb">
+<code class="descname">Yb</code><em class="property"> = 'Yb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Yb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Zn">
+<code class="descname">Zn</code><em class="property"> = 'Zn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Zn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.Zr">
+<code class="descname">Zr</code><em class="property"> = 'Zr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Zr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.periodic_table.Element.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes Element obey the general json interface used in pymatgen for
+easier serialization.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">average_ionic_radius</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">block</code></dt>
+<dd><p>Return the block character &#8220;s,p,d,f&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">common_oxidation_states</code></dt>
+<dd><p>Tuple of all known oxidation states</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.data">
+<code class="descname">data</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dict of data for element.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.core.periodic_table.Element.from_Z">
+<em class="property">static </em><code class="descname">from_Z</code><span class="sig-paren">(</span><em>z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.from_Z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.from_Z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an element from an atomic number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>z</strong> (<em>int</em>) &#8211; Atomic number</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Element with atomic number z.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.core.periodic_table.Element.from_dict">
+<em class="property">static </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes Element obey the general json interface used in pymatgen for
+easier serialization.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.core.periodic_table.Element.from_row_and_group">
+<em class="property">static </em><code class="descname">from_row_and_group</code><span class="sig-paren">(</span><em>row</em>, <em>group</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.from_row_and_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.from_row_and_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element from a row and group number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>row</strong> (<em>int</em>) &#8211; Row number</li>
+<li><strong>group</strong> (<em>int</em>) &#8211; Group number</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The 18 group number system is used, i.e., Noble gases are group 18.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">full_electronic_structure</code></dt>
+<dd><p>Full electronic structure as tuple.
+E.g., The electronic structure for Fe is represented as:
+[(1, &#8220;s&#8221;, 2), (2, &#8220;s&#8221;, 2), (2, &#8220;p&#8221;, 6), (3, &#8220;s&#8221;, 2), (3, &#8220;p&#8221;, 6),
+(3, &#8220;d&#8221;, 6), (4, &#8220;s&#8221;, 2)]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">group</code></dt>
+<dd><p>Returns the periodic table group of the element.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">ionic_radii</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">is_actinoid</code></dt>
+<dd><p>True if element is a actinoid.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">is_alkali</code></dt>
+<dd><p>True if element is an alkali metal.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">is_alkaline</code></dt>
+<dd><p>True if element is an alkaline earth metal (group II).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_chalcogen">
+<code class="descname">is_chalcogen</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_chalcogen" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element is a chalcogen.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">is_halogen</code></dt>
+<dd><p>True if element is a halogen.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">is_lanthanoid</code></dt>
+<dd><p>True if element is a lanthanoid.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">is_metalloid</code></dt>
+<dd><p>True if element is a metalloid.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">is_noble_gas</code></dt>
+<dd><p>True if element is noble gas.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">is_rare_earth_metal</code></dt>
+<dd><p>True if element is a rare earth metal.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">is_transition_metal</code></dt>
+<dd><p>True if element is a transition metal.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.core.periodic_table.Element.is_valid_symbol">
+<em class="property">static </em><code class="descname">is_valid_symbol</code><span class="sig-paren">(</span><em>symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.is_valid_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_valid_symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if symbol is a valid element symbol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symbol</strong> (<em>str</em>) &#8211; Element symbol</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if symbol is a valid element (e.g., &#8220;H&#8221;). False otherwise
+(e.g., &#8220;Zebra&#8221;).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">max_oxidation_state</code></dt>
+<dd><p>Maximum oxidation state for element</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">min_oxidation_state</code></dt>
+<dd><p>Minimum oxidation state for element</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">number</code></dt>
+<dd><p>Alternative attribute for atomic number</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">oxidation_states</code></dt>
+<dd><p>Tuple of all known oxidation states</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.core.periodic_table.Element.print_periodic_table">
+<em class="property">static </em><code class="descname">print_periodic_table</code><span class="sig-paren">(</span><em>filter_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.print_periodic_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.print_periodic_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>A pretty ASCII printer for the periodic table, based on some
+filter_function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filter_function</strong> &#8211; A filtering function taking an Element as input
+and returning a boolean. For example, setting
+filter_function = lambda el: el.X &gt; 2 will print a periodic
+table containing only elements with electronegativity &gt; 2.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">row</code></dt>
+<dd><p>Returns the periodic table row of the element.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.periodic_table.Specie">
+<em class="property">class </em><code class="descname">Specie</code><span class="sig-paren">(</span><em>symbol</em>, <em>oxidation_state</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>An extension of Element with an oxidation state and other optional
+properties. Properties associated with Specie should be &#8220;idealized&#8221;
+values, not calculated values. For example, high-spin Fe2+ may be
+assigned an idealized spin of +5, but an actual Fe2+ site may be
+calculated to have a magmom of +4.5. Calculated properties should be
+assigned to Site objects, and not Specie.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>symbol</strong> (<em>str</em>) &#8211; Element symbol, e.g., Fe</li>
+<li><strong>oxidation_state</strong> (<em>float</em>) &#8211; Oxidation state of element, e.g., 2 or -2</li>
+<li><strong>properties</strong> &#8211; Properties associated with the Specie, e.g.,
+{&#8220;spin&#8221;: 5}. Defaults to None. Properties must be one of the
+Specie supported_properties.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Specie.oxi_state">
+<code class="descname">oxi_state</code><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.oxi_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Oxidation state associated with Specie</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Specie.ionic_radius">
+<code class="descname">ionic_radius</code><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.ionic_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ionic radius of Specie (with specific oxidation state).</p>
+</dd></dl>
+
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 2.6.7: </span>Properties are now checked when comparing two Species for equality.</p>
+</div>
+<dl class="method">
+<dt id="pymatgen.core.periodic_table.Specie.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Specie.cache">
+<code class="descname">cache</code><em class="property"> = {(&lt;class 'pymatgen.core.periodic_table.DummySpecie'&gt;, 'X', 0, None): DummySpecie X0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ag', 1, None): Specie Ag+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ag', 0.0, None): Specie Ag0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ag', 2.0, None): Specie Ag2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ag', 3.0, None): Specie Ag3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Al', 0.0, None): Specie Al0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Al', 2.0, None): Specie Al2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Al', 3.0, None): Specie Al3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'As', -1, None): Specie As-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'As', 0.0, None): Specie As0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'As', 2.0, None): Specie As2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'As', -2.0, None): Specie As2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'As', 3.0, None): Specie As3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'As', -3.0, None): Specie As3-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'As', 5.0, None): Specie As5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'B', 1, None): Specie B+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'B', -1, None): Specie B-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'B', 0.0, None): Specie B0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'B', 2.0, None): Specie B2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'B', -2.0, None): Specie B2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'B', 3.0, None): Specie B3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'B', -3.0, None): Specie B3-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ba', 0.0, None): Specie Ba0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ba', 2.0, None): Specie Ba2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Be', 0.0, None): Specie Be0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Be', 2.0, None): Specie Be2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Bi', 1, None): Specie Bi+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Bi', 0.0, None): Specie Bi0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Bi', 2.0, None): Specie Bi2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Bi', 3.0, None): Specie Bi3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Bi', -3.0, None): Specie Bi3-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Bi', 5.0, None): Specie Bi5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Br', 1, None): Specie Br+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Br', -1, None): Specie Br-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Br', 0.0, None): Specie Br0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Br', 3.0, None): Specie Br3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Br', 5.0, None): Specie Br5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Br', 7.0, None): Specie Br7+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'C', 1, None): Specie C+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'C', -1, None): Specie C-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'C', 0.0, None): Specie C0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'C', 2.0, None): Specie C2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'C', -2.0, None): Specie C2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'C', 3.0, None): Specie C3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'C', -3.0, None): Specie C3-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'C', 4.0, None): Specie C4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'C', -4.0, None): Specie C4-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ca', 0.0, None): Specie Ca0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ca', 2.0, None): Specie Ca2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cd', 0.0, None): Specie Cd0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cd', 2.0, None): Specie Cd2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ce', 0.0, None): Specie Ce0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ce', 2.0, None): Specie Ce2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ce', 3.0, None): Specie Ce3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ce', 4.0, None): Specie Ce4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cl', 1, None): Specie Cl+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cl', -1, None): Specie Cl-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cl', 0.0, None): Specie Cl0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cl', 3.0, None): Specie Cl3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cl', 5.0, None): Specie Cl5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cl', 7.0, None): Specie Cl7+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Co', 1, None): Specie Co+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Co', 0.0, None): Specie Co0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Co', 2.0, None): Specie Co2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Co', 3.0, None): Specie Co3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Co', 4.0, None): Specie Co4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cr', 0.0, None): Specie Cr0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cr', 2.0, None): Specie Cr2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cr', 3.0, None): Specie Cr3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cr', 4.0, None): Specie Cr4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cr', 5.0, None): Specie Cr5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cr', 6.0, None): Specie Cr6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cs', 1, None): Specie Cs+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cs', 0.0, None): Specie Cs0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cu', 1, None): Specie Cu+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cu', 0.0, None): Specie Cu0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cu', 2.0, None): Specie Cu2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cu', 3.0, None): Specie Cu3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Cu', 4.0, None): Specie Cu4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Dy', 0.0, None): Specie Dy0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Dy', 2.0, None): Specie Dy2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Dy', 3.0, None): Specie Dy3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Er', 0.0, None): Specie Er0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Er', 3.0, None): Specie Er3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Eu', 0.0, None): Specie Eu0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Eu', 2.0, None): Specie Eu2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Eu', 3.0, None): Specie Eu3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Eu', 4.0, None): Specie Eu4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'F', -1, None): Specie F-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'F', 0.0, None): Specie F0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Fe', 1, None): Specie Fe+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Fe', 0.0, None): Specie Fe0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Fe', 2.0, None): Specie Fe2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Fe', 3.0, None): Specie Fe3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Fe', 4.0, None): Specie Fe4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Fe', 5.0, None): Specie Fe5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Fe', 6.0, None): Specie Fe6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ga', 1, None): Specie Ga+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ga', 0.0, None): Specie Ga0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ga', 2.0, None): Specie Ga2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ga', 3.0, None): Specie Ga3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ga', 4.0, None): Specie Ga4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Gd', 1, None): Specie Gd+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Gd', 0.0, None): Specie Gd0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Gd', 2.0, None): Specie Gd2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Gd', 3.0, None): Specie Gd3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Gd', 4.0, None): Specie Gd4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ge', -1, None): Specie Ge-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ge', 0.0, None): Specie Ge0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ge', 2.0, None): Specie Ge2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ge', -2.0, None): Specie Ge2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ge', 3.0, None): Specie Ge3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ge', 4.0, None): Specie Ge4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ge', -4.0, None): Specie Ge4-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'H', 1, None): Specie H+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'H', -1, None): Specie H-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'H', 0.0, None): Specie H0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Hf', 0.0, None): Specie Hf0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Hf', 2.0, None): Specie Hf2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Hf', 3.0, None): Specie Hf3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Hf', 4.0, None): Specie Hf4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Hg', 1, None): Specie Hg+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Hg', 0.0, None): Specie Hg0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Hg', 2.0, None): Specie Hg2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ho', 0.0, None): Specie Ho0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ho', 2.0, None): Specie Ho2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ho', 3.0, None): Specie Ho3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'I', 1, None): Specie I+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'I', -1, None): Specie I-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'I', 0.0, None): Specie I0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'I', 3.0, None): Specie I3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'I', 5.0, None): Specie I5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'I', 7.0, None): Specie I7+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'In', 1, None): Specie In+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'In', -1, None): Specie In-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'In', 0.0, None): Specie In0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'In', 2.0, None): Specie In2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'In', 3.0, None): Specie In3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ir', 1, None): Specie Ir+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ir', 0.0, None): Specie Ir0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ir', 3.0, None): Specie Ir3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ir', 4.0, None): Specie Ir4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ir', 5.0, None): Specie Ir5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ir', 6.0, None): Specie Ir6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'K', 1, None): Specie K+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'K', 0.0, None): Specie K0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'La', 1, None): Specie La+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'La', 0.0, None): Specie La0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'La', 2.0, None): Specie La2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'La', 3.0, None): Specie La3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'La', 4.0, None): Specie La4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Li', 1, None): Specie Li+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Li', 0.0, None): Specie Li0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Lu', 0.0, None): Specie Lu0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Lu', 3.0, None): Specie Lu3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mg', 0.0, None): Specie Mg0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mg', 2.0, None): Specie Mg2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mn', 1, None): Specie Mn+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mn', 0.0, None): Specie Mn0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mn', 2.0, None): Specie Mn2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mn', 3.0, None): Specie Mn3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mn', 4.0, None): Specie Mn4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mn', 5.0, None): Specie Mn5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mn', 6.0, None): Specie Mn6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mn', 7.0, None): Specie Mn7+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mo', 0.0, None): Specie Mo0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mo', 2.0, None): Specie Mo2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mo', 3.0, None): Specie Mo3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mo', 4.0, None): Specie Mo4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mo', 5.0, None): Specie Mo5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Mo', 6.0, None): Specie Mo6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'N', 1, None): Specie N+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'N', -1, None): Specie N-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'N', 0.0, None): Specie N0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'N', 2.0, None): Specie N2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'N', -2.0, None): Specie N2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'N', 3.0, None): Specie N3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'N', -3.0, None): Specie N3-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'N', 4.0, None): Specie N4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'N', -4.0, None): Specie N4-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'N', 5.0, None): Specie N5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Na', 1, None): Specie Na+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Na', 0.0, None): Specie Na0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nb', 1, None): Specie Nb+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nb', 0.0, None): Specie Nb0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nb', 2.0, None): Specie Nb2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nb', 3.0, None): Specie Nb3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nb', 4.0, None): Specie Nb4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nb', 5.0, None): Specie Nb5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nb', 7.0, None): Specie Nb7+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nd', 0.0, None): Specie Nd0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nd', 2.0, None): Specie Nd2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nd', 3.0, None): Specie Nd3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Nd', 4.0, None): Specie Nd4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ni', 1, None): Specie Ni+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ni', 0.0, None): Specie Ni0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ni', 2.0, None): Specie Ni2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ni', 3.0, None): Specie Ni3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ni', 4.0, None): Specie Ni4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'O', -1, None): Specie O-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'O', 0.0, None): Specie O0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'O', -2.0, None): Specie O2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'P', 1, None): Specie P+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'P', -1, None): Specie P-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'P', 0.0, None): Specie P0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'P', 2.0, None): Specie P2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'P', -2.0, None): Specie P2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'P', 3.0, None): Specie P3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'P', -3.0, None): Specie P3-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'P', 4.0, None): Specie P4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'P', 5.0, None): Specie P5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'P', 6.0, None): Specie P6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pb', 0.0, None): Specie Pb0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pb', 2.0, None): Specie Pb2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pb', 4.0, None): Specie Pb4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pb', -4.0, None): Specie Pb4-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pd', 1, None): Specie Pd+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pd', 0.0, None): Specie Pd0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pd', 2.0, None): Specie Pd2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pd', 3.0, None): Specie Pd3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pd', 4.0, None): Specie Pd4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pr', 0.0, None): Specie Pr0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pr', 2.0, None): Specie Pr2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pr', 3.0, None): Specie Pr3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Pr', 4.0, None): Specie Pr4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Rb', 1, None): Specie Rb+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Rb', 0.0, None): Specie Rb0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Re', 0.0, None): Specie Re0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Re', 2.0, None): Specie Re2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Re', 3.0, None): Specie Re3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Re', 4.0, None): Specie Re4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Re', 5.0, None): Specie Re5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Re', 6.0, None): Specie Re6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Re', 7.0, None): Specie Re7+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Rh', 1, None): Specie Rh+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Rh', -1, None): Specie Rh-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Rh', 0.0, None): Specie Rh0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Rh', 2.0, None): Specie Rh2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Rh', 3.0, None): Specie Rh3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Rh', 4.0, None): Specie Rh4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Rh', 5.0, None): Specie Rh5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Rh', 6.0, None): Specie Rh6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ru', 1, None): Specie Ru+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ru', 0.0, None): Specie Ru0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ru', 2.0, None): Specie Ru2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ru', 3.0, None): Specie Ru3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ru', 4.0, None): Specie Ru4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ru', 5.0, None): Specie Ru5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ru', 6.0, None): Specie Ru6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ru', 7.0, None): Specie Ru7+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ru', 8.0, None): Specie Ru8+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'S', 1, None): Specie S+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'S', -1, None): Specie S-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'S', 0.0, None): Specie S0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'S', 2.0, None): Specie S2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'S', -2.0, None): Specie S2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'S', 3.0, None): Specie S3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'S', 4.0, None): Specie S4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'S', 5.0, None): Specie S5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'S', 6.0, None): Specie S6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'S', 7.0, None): Specie S7+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sb', -1, None): Specie Sb-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sb', 0.0, None): Specie Sb0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sb', -2.0, None): Specie Sb2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sb', 3.0, None): Specie Sb3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sb', -3.0, None): Specie Sb3-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sb', 4.0, None): Specie Sb4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sb', 5.0, None): Specie Sb5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sc', 1, None): Specie Sc+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sc', 0.0, None): Specie Sc0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sc', 2.0, None): Specie Sc2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sc', 3.0, None): Specie Sc3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Se', 1, None): Specie Se+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Se', -1, None): Specie Se-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Se', 0.0, None): Specie Se0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Se', 2.0, None): Specie Se2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Se', -2.0, None): Specie Se2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Se', 3.0, None): Specie Se3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Se', 4.0, None): Specie Se4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Se', 6.0, None): Specie Se6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Si', -1, None): Specie Si-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Si', 0.0, None): Specie Si0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Si', 2.0, None): Specie Si2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Si', -2.0, None): Specie Si2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Si', 3.0, None): Specie Si3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Si', 4.0, None): Specie Si4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Si', -4.0, None): Specie Si4-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sm', 0.0, None): Specie Sm0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sm', 2.0, None): Specie Sm2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sm', 3.0, None): Specie Sm3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sn', 0.0, None): Specie Sn0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sn', 2.0, None): Specie Sn2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sn', 3.0, None): Specie Sn3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sn', 4.0, None): Specie Sn4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sn', -4.0, None): Specie Sn4-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sr', 0.0, None): Specie Sr0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Sr', 2.0, None): Specie Sr2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ta', 1, None): Specie Ta+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ta', 0.0, None): Specie Ta0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ta', 2.0, None): Specie Ta2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ta', 3.0, None): Specie Ta3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ta', 4.0, None): Specie Ta4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ta', 5.0, None): Specie Ta5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tb', 1, None): Specie Tb+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tb', 0.0, None): Specie Tb0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tb', 2.0, None): Specie Tb2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tb', 3.0, None): Specie Tb3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tb', 4.0, None): Specie Tb4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Te', 1, None): Specie Te+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Te', -1, None): Specie Te-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Te', 0.0, None): Specie Te0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Te', 2.0, None): Specie Te2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Te', -2.0, None): Specie Te2-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Te', 4.0, None): Specie Te4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Te', 5.0, None): Specie Te5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Te', 6.0, None): Specie Te6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Th', 0.0, None): Specie Th0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Th', 2.0, None): Specie Th2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Th', 3.0, None): Specie Th3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Th', 4.0, None): Specie Th4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Th', 6.0, None): Specie Th6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ti', 1, None): Specie Ti+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ti', 0.0, None): Specie Ti0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ti', 2.0, None): Specie Ti2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ti', 3.0, None): Specie Ti3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ti', 4.0, None): Specie Ti4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tl', 1, None): Specie Tl+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tl', -1, None): Specie Tl-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tl', 0.0, None): Specie Tl0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tl', 2.0, None): Specie Tl2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tl', 3.0, None): Specie Tl3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tm', 0.0, None): Specie Tm0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tm', 2.0, None): Specie Tm2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Tm', 3.0, None): Specie Tm3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'U', 0.0, None): Specie U0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'U', 2.0, None): Specie U2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'U', 3.0, None): Specie U3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'U', 4.0, None): Specie U4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'U', 5.0, None): Specie U5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'U', 6.0, None): Specie U6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'V', 0.0, None): Specie V0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'V', 2.0, None): Specie V2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'V', 3.0, None): Specie V3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'V', 4.0, None): Specie V4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'V', 5.0, None): Specie V5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'W', 0.0, None): Specie W0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'W', 2.0, None): Specie W2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'W', 3.0, None): Specie W3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'W', 4.0, None): Specie W4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'W', 5.0, None): Specie W5+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'W', 6.0, None): Specie W6+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Y', 1, None): Specie Y+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Y', 0.0, None): Specie Y0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Y', 2.0, None): Specie Y2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Y', 3.0, None): Specie Y3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Yb', 0.0, None): Specie Yb0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Yb', 2.0, None): Specie Yb2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Yb', 3.0, None): Specie Yb3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Zn', 0.0, None): Specie Zn0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Zn', 2.0, None): Specie Zn2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Zn', 4.0, None): Specie Zn4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Zr', 1, None): Specie Zr+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Zr', 0.0, None): Specie Zr0+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Zr', 2.0, None): Specie Zr2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Zr', 3.0, None): Specie Zr3+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Zr', 4.0, None): Specie Zr4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'As', 4.0, None): Specie As4+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Co', -1, None): Specie Co-, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Ir', 2.0, None): Specie Ir2+, (&lt;class 'pymatgen.core.periodic_table.Specie'&gt;, 'Si', -3.0, None): Specie Si3-}</em><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Specie.element">
+<code class="descname">element</code><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Underlying element object</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.core.periodic_table.Specie.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.core.periodic_table.Specie.from_string">
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>species_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Specie from a string representation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_string</strong> (<em>str</em>) &#8211; A typical string representation of a
+species, e.g., &#8220;Mn2+&#8221;, &#8220;Fe3+&#8221;, &#8220;O2-&#8221;.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Specie object.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">ValueError if species_string cannot be intepreted.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.periodic_table.Specie.get_crystal_field_spin">
+<code class="descname">get_crystal_field_spin</code><span class="sig-paren">(</span><em>coordination='oct'</em>, <em>spin_config='high'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_crystal_field_spin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_crystal_field_spin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the crystal field spin based on coordination and spin
+configuration. Only works for transition metal species.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>coordination</strong> (<em>str</em>) &#8211; Only oct and tet are supported at the moment.</li>
+<li><strong>spin_config</strong> (<em>str</em>) &#8211; Supported keywords are &#8220;high&#8221; or &#8220;low&#8221;.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Crystal field spin in Bohr magneton.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li>AttributeError if species is not a valid transition metal or has</li>
+<li>an invalid oxidation state.</li>
+<li>ValueError if invalid coordination or spin_config.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">ionic_radius</code></dt>
+<dd><p>Ionic radius of specie. Returns None if data is not present.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">oxi_state</code></dt>
+<dd><p>Oxidation state of Specie.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Specie.supported_properties">
+<code class="descname">supported_properties</code><em class="property"> = ('spin',)</em><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.supported_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.core.periodic_table.get_el_sp">
+<code class="descname">get_el_sp</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#get_el_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.get_el_sp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility method to get an Element or Specie from an input obj.
+If obj is in itself an element or a specie, it is returned automatically.
+If obj is an int or a string representing an integer, the Element
+with the atomic number obj is returned.
+If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing
+which Element parsing will be attempted (e.g., Mn), failing which
+DummyElement parsing will be attempted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> (<em>Element/Specie/str/int</em>) &#8211; An arbitrary object.  Supported objects
+are actual Element/Specie objects, integers (representing atomic
+numbers) or strings (element symbols or species strings).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Specie or Element, with a bias for the maximum number of properties
+that can be determined.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">ValueError if obj cannot be converted into an Element or Specie.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.core.periodic_table.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

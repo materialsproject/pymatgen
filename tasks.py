@@ -9,10 +9,13 @@ import webbrowser
 import requests
 import re
 import subprocess
+import datetime
 from invoke import task
 
 from monty.os import cd
-from pymatgen import __version__ as ver
+from pymatgen import __version__ as CURRENT_VER
+
+NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
 
 
 """
@@ -37,13 +40,14 @@ def make_doc(ctx):
     changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
     changes = ("-" * n).join(changes)
 
-    with open("docs/latest_changes.rst", "w") as f:
+    with open("docs_rst/latest_changes.rst", "w") as f:
         f.write(changes)
 
-    #with cd("examples"):
-    #    ctx.run("jupyter nbconvert --to html *.ipynb")
-    #    ctx.run("mv *.html ../docs/_static")
-    with cd("docs"):
+    with cd("examples"):
+       ctx.run("jupyter nbconvert --to html *.ipynb")
+       ctx.run("mv *.html ../docs_rst/_static")
+
+    with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
         ctx.run("rm pymatgen*.tests.*rst")
@@ -70,34 +74,51 @@ def make_doc(ctx):
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
         ctx.run("make html")
-        ctx.run("cp _static/* _build/html/_static")
+        
+        ctx.run("cp _static/* ../docs/html/_static")
+
+    with cd("docs"):
+        ctx.run("cp -r html/* .")
+        ctx.run("rm -r html")
+        ctx.run("rm -r doctrees")
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
-        ctx.run("echo \"pymatgen.org\" > _build/html/CNAME")
-        # Avoid ths use of jekyll so that _dir works as intended.
-        ctx.run("touch _build/html/.nojekyll")
-
+        ctx.run("echo \"pymatgen.org\" > CNAME")
+        # Avoid the use of jekyll so that _dir works as intended.
+        ctx.run("touch .nojekyll")
 
 @task
 def update_doc(ctx):
-    with cd("docs/_build/html/"):
-        ctx.run("git pull")
     make_doc(ctx)
-    with cd("docs/_build/html/"):
-        ctx.run("git add .")
-        ctx.run("git commit -a -m \"Update dev docs\"")
-        ctx.run("git push origin gh-pages")
+    ctx.run("git add .")
+    ctx.run("git commit -a -m \"Update dev docs\"")
+    ctx.run("git push")
 
 
 @task
 def publish(ctx):
     ctx.run("python setup.py release")
 
+
 @task
-def setver(ctx):
-    ctx.run("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup"
-          .format(ver))
-    ctx.run("mv newsetup setup.py")
+def set_ver(ctx):
+    lines = []
+    with open("pymatgen/__init__.py", "rt") as f:
+        for l in f:
+            if "__version__" in l:
+                lines.append('__version__ = "%s"' % NEW_VER)
+            else:
+                lines.append(l.rstrip())
+    with open("pymatgen/__init__.py", "wt") as f:
+        f.write("\n".join(lines))
+
+    lines = []
+    with open("setup.py", "rt") as f:
+        for l in f:
+            lines.append(re.sub(r'version=([^,]+),', 'version="%s",' % NEW_VER,
+                                l.rstrip()))
+    with open("setup.py", "wt") as f:
+        f.write("\n".join(lines))
 
 
 @task
@@ -110,7 +131,7 @@ def update_coverage(ctx):
 
 @task
 def merge_stable(ctx):
-    ctx.run("git commit -a -m \"v%s release\"" % ver)
+    ctx.run("git commit -a -m \"v%s release\"" % NEW_VER)
     ctx.run("git push")
     ctx.run("git checkout stable")
     ctx.run("git pull")
@@ -128,9 +149,9 @@ def release_github(ctx):
     toks = desc.split("\n")
     desc = "\n".join(toks[:-1]).strip()
     payload = {
-        "tag_name": "v" + ver,
+        "tag_name": "v" + NEW_VER,
         "target_commitish": "master",
-        "name": "v" + ver,
+        "name": "v" + NEW_VER,
         "body": desc,
         "draft": False,
         "prerelease": False
@@ -144,14 +165,16 @@ def release_github(ctx):
 
 @task
 def update_changelog(ctx):
+
     output = subprocess.check_output(["git", "log", "--pretty=format:%s",
-                                      "v%s..HEAD" % ver])
+                                      "v%s..HEAD" % CURRENT_VER])
     lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]
     with open("CHANGES.rst") as f:
         contents = f.read()
     l = "=========="
     toks = contents.split(l)
-    toks.insert(-1, "\n\nvXXXX\n--------\n" + "\n".join(lines))
+    head = "\n\nv%s\n" % NEW_VER + "-" * (len(NEW_VER) + 1) + "\n"
+    toks.insert(-1, head + "\n".join(lines))
     with open("CHANGES.rst", "w") as f:
         f.write(toks[0] + l + "".join(toks[1:]))
 
@@ -159,14 +182,15 @@ def update_changelog(ctx):
 @task
 def log_ver(ctx):
     filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public",
-                            "pymatgen", ver)
+                            "pymatgen", NEW_VER)
     with open(filepath, "w") as f:
         f.write("Release")
 
 
 @task
 def release(ctx, notest=False):
-    setver(ctx)
+    ctx.run("rm -r dist build pymatgen.egg-info")
+    set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
     publish(ctx)
