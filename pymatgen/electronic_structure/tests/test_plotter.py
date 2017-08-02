@@ -143,8 +143,10 @@ class BSDOSPlotterTest(unittest.TestCase):
     def test_methods(self):
         v = Vasprun(os.path.join(test_dir, "vasprun_Si_bands.xml"))
         p = BSDOSPlotter()
-        plt = p.get_plot(v.get_band_structure(kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")), v.complete_dos)
-        
+        plt = p.get_plot(v.get_band_structure(
+            kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")),
+            v.complete_dos)
+
 
 class PlotBZTest(unittest.TestCase):
 
