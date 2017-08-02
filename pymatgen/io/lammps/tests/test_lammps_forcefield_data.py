@@ -40,7 +40,7 @@ class TestLammpsForceFieldData(unittest.TestCase):
         polymer_linear.add_site_property("charge", charges)
         topology = Topology.from_molecule(polymer_linear)
 
-        atoms = OrderedDict([("C","C"), ("H","H"), ("O", "O")])
+        atoms = OrderedDict([("C", "C"), ("H", "H"), ("O", "O")])
         bonds = OrderedDict([((u'C', u'O'), [1000, 1.4115]),
                              ((u'C', u'H'), [1000, 1.1041]),
                              ((u'C', u'C'), [1000, 1.5075])])
@@ -57,7 +57,7 @@ class TestLammpsForceFieldData(unittest.TestCase):
                                  ((u'C', u'C', u'O', u'C'), [1.76, 0.67, 0.04, 0.0]),
                                  ((u'H', u'C', u'C', u'O'), [0.0, 0.0, 0.28, 0.0]),
                                  ((u'O', u'C', u'C', u'O'), [0.41, -2.1, -0.6, -0.82])])
-        forcefield =ForceField(atoms, bonds, angles, dihedrals=dihedrals, pairs=pairs)
+        forcefield = ForceField(atoms, bonds, angles, dihedrals=dihedrals, pairs=pairs)
 
         cls.molecules = [polymer_chain] * 3
         cls.mols_number = [7, 3, 1]

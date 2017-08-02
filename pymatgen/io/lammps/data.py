@@ -584,31 +584,45 @@ class LammpsForceFieldData(LammpsData):
             LammpsForceFieldData
         """
         # set the coefficients and map from the force field
-        bond_coeffs, bond_map = LammpsForceFieldData.get_param_coeff(
-            forcefield, "bonds")
-        angle_coeffs, angle_map = LammpsForceFieldData.get_param_coeff(
-            forcefield, "angles")
-        pair_coeffs, _ = LammpsForceFieldData.get_param_coeff(
-            forcefield, "pairs")
-        dihedral_coeffs, dihedral_map = LammpsForceFieldData.get_param_coeff(
-            forcefield, "dihedrals")
-        improper_coeffs, imdihedral_map = LammpsForceFieldData.get_param_coeff(
-            forcefield, "imdihedrals")
+        bond_coeffs, bond_map = \
+            LammpsForceFieldData.get_param_coeff(forcefield, "bonds")
+
+        angle_coeffs, angle_map = \
+            LammpsForceFieldData.get_param_coeff(forcefield, "angles")
+
+        pair_coeffs, _ = \
+            LammpsForceFieldData.get_param_coeff(forcefield, "pairs")
+
+        dihedral_coeffs, dihedral_map = \
+            LammpsForceFieldData.get_param_coeff(forcefield, "dihedrals")
+
+        improper_coeffs, imdihedral_map = \
+            LammpsForceFieldData.get_param_coeff(forcefield, "imdihedrals")
+
         # atoms data, topology used for setting charge if present
         box_size = LammpsForceFieldData.check_box_size(molecule, box_size)
+
         natoms, natom_types, atomic_masses_dict = \
             LammpsForceFieldData.get_basic_system_info(molecule.copy())
+
         atoms_data, molid_to_atomid = LammpsForceFieldData.get_atoms_data(
             mols, mols_number, molecule, atomic_masses_dict, topologies)
+
         # set the other data from the molecular topologies
         bonds_data = LammpsForceFieldData.get_param_data(
             "bonds", bond_map, mols, mols_number, topologies, molid_to_atomid)
+
         angles_data = LammpsForceFieldData.get_param_data(
             "angles", angle_map, mols, mols_number, topologies, molid_to_atomid)
+
         dihedrals_data = LammpsForceFieldData.get_param_data(
-            "dihedrals", dihedral_map, mols, mols_number, topologies, molid_to_atomid)
+            "dihedrals", dihedral_map, mols, mols_number, topologies,
+            molid_to_atomid)
+
         imdihedrals_data = LammpsForceFieldData.get_param_data(
-            "imdihedrals", imdihedral_map, mols, mols_number, topologies, molid_to_atomid)
+            "imdihedrals", imdihedral_map, mols, mols_number, topologies,
+            molid_to_atomid)
+
         return LammpsForceFieldData(box_size, atomic_masses_dict.values(),
                                     pair_coeffs, bond_coeffs,
                                     angle_coeffs, dihedral_coeffs,
@@ -616,8 +630,9 @@ class LammpsForceFieldData(LammpsData):
                                     bonds_data, angles_data, dihedrals_data,
                                     imdihedrals_data)
 
-    # TODO this needs to be rewritten more generally to include multiple coefficent styles. This could be done by
-    # parsing all the blocks individually instead of searching line by line for patterns
+    # TODO this needs to be rewritten more generally to include multiple
+    # coefficent styles. This could be done by parsing all the blocks
+    # individually instead of searching line by line for patterns
     @staticmethod
     def from_file(data_file):
         """
