@@ -127,7 +127,7 @@ class LammpsData(MSONable):
         elements = structure.composition.elements
         elements = sorted(elements, key=lambda el: el.atomic_mass)
         atomic_masses_dict = OrderedDict(
-            [(el.symbol, [i + 1, el.data["Atomic mass"]])
+            [(el.symbol, [i + 1, float(el.data["Atomic mass"])])
              for i, el in enumerate(elements)])
         return natoms, natom_types, atomic_masses_dict
 
@@ -389,7 +389,7 @@ class LammpsForceFieldData(LammpsData):
         elements = {}
         for s in molecule:
             label = str(s.ff_map) if hasattr(molecule[0], "ff_map") else s.specie.symbol
-            elements[label] = s.specie.atomic_mass
+            elements[label] = float(s.specie.atomic_mass)
         elements_items = list(elements.items())
         elements_items = sorted(elements_items, key=lambda el_item: el_item[1])
         atomic_masses_dict = OrderedDict([(el_item[0], [i + 1, el_item[1]])
@@ -397,7 +397,7 @@ class LammpsForceFieldData(LammpsData):
         return natoms, natom_types, atomic_masses_dict
 
     @staticmethod
-    def get_param_coeff(forcefield, param_name):
+    def get_param_coeff(forcefield, param_name, atom_types_map=None):
         """
         get the parameter coefficients and mapping from the force field.
 
@@ -405,6 +405,9 @@ class LammpsForceFieldData(LammpsData):
             forcefield (ForceField): ForceField object
             param_name (string): name of the parameter for which
             the coefficients are to be set.
+            atom_types_map (dict): maps atom type to the atom type id.
+                Used to set hthe pair coeffs.
+                e.g. {"C2": [3], "H2": [1], "H1": [2]}
 
         Returns:
             [[parameter id, value1, value2, ... ], ... ] and
@@ -414,7 +417,12 @@ class LammpsForceFieldData(LammpsData):
             param = getattr(forcefield, param_name)
             param_coeffs = []
             param_map = {}
-            if param:
+            if param_name == "pairs":
+                for i, item in enumerate(param.items()):
+                    key = item[0][0]
+                    param_coeffs.append([atom_types_map[key][0]] + list(item[1]))
+                param_coeffs = sorted(param_coeffs, key=lambda ii: ii[0])
+            elif param:
                 for i, item in enumerate(param.items()):
                     param_coeffs.append([i + 1] + list(item[1]))
                     param_map[item[0]] = i+1
@@ -583,15 +591,24 @@ class LammpsForceFieldData(LammpsData):
         Returns:
             LammpsForceFieldData
         """
+
+        natoms, natom_types, atomic_masses_dict = \
+            LammpsForceFieldData.get_basic_system_info(molecule.copy())
+
+        box_size = LammpsForceFieldData.check_box_size(molecule, box_size)
+
         # set the coefficients and map from the force field
+
+        # bonds
         bond_coeffs, bond_map = \
             LammpsForceFieldData.get_param_coeff(forcefield, "bonds")
 
+        # angles
         angle_coeffs, angle_map = \
             LammpsForceFieldData.get_param_coeff(forcefield, "angles")
 
         pair_coeffs, _ = \
-            LammpsForceFieldData.get_param_coeff(forcefield, "pairs")
+            LammpsForceFieldData.get_param_coeff(forcefield, "pairs", atomic_masses_dict)
 
         dihedral_coeffs, dihedral_map = \
             LammpsForceFieldData.get_param_coeff(forcefield, "dihedrals")
@@ -599,26 +616,26 @@ class LammpsForceFieldData(LammpsData):
         improper_coeffs, imdihedral_map = \
             LammpsForceFieldData.get_param_coeff(forcefield, "imdihedrals")
 
-        # atoms data, topology used for setting charge if present
-        box_size = LammpsForceFieldData.check_box_size(molecule, box_size)
-
-        natoms, natom_types, atomic_masses_dict = \
-            LammpsForceFieldData.get_basic_system_info(molecule.copy())
-
+        # atoms data. topology used for setting charge if present
         atoms_data, molid_to_atomid = LammpsForceFieldData.get_atoms_data(
             mols, mols_number, molecule, atomic_masses_dict, topologies)
 
         # set the other data from the molecular topologies
+
+        # bonds
         bonds_data = LammpsForceFieldData.get_param_data(
             "bonds", bond_map, mols, mols_number, topologies, molid_to_atomid)
 
+        # angles
         angles_data = LammpsForceFieldData.get_param_data(
             "angles", angle_map, mols, mols_number, topologies, molid_to_atomid)
 
+        # dihedrals
         dihedrals_data = LammpsForceFieldData.get_param_data(
             "dihedrals", dihedral_map, mols, mols_number, topologies,
             molid_to_atomid)
 
+        # improper dihedrals
         imdihedrals_data = LammpsForceFieldData.get_param_data(
             "imdihedrals", imdihedral_map, mols, mols_number, topologies,
             molid_to_atomid)
