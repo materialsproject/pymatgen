@@ -341,6 +341,100 @@ class PackmolRunner(object):
 
         pbm.write(format="pdb", filename=filename, overwrite=True)
 
+    def _set_residue_map(self):
+        """
+        map each residue to the corresponding molecule.
+        """
+        self.map_residue_to_mol = {}
+        lookup = {}
+        for idx, mol in enumerate(self.mols):
+            if not mol.formula in lookup:
+                mol.translate_sites(indices=range(len(mol)),
+                                    vector=-mol.center_of_mass)
+                lookup[mol.formula] = mol.copy()
+            self.map_residue_to_mol["ml{}".format(idx + 1)] = lookup[mol.formula]
+
+    # the packed molecules have the atoms in the same order..sigh!
+    def convert_obatoms_to_molecule(self, atoms, residue_name=None, site_property="ff_map"):
+        """
+        Convert list of openbabel atoms to MOlecule.
+
+        Args:
+            atoms ([OBAtom]): list of OBAtom objects
+            residue_name (str): the key in self.map_residue_to_mol. Usec to
+                restore the site properties in the final packed molecule.
+            site_property (str): the site property to be restored.
+
+        Returns:
+            Molecule object
+        """
+
+        restore_site_props = True if residue_name is not None else False
+
+        if restore_site_props and not hasattr(self, "map_residue_to_mol"):
+            self._set_residue_map()
+
+        coords = []
+        zs = []
+        for atm in atoms:
+            coords.append(list(atm.coords))
+            zs.append(atm.atomicnum)
+
+        mol = Molecule(zs, coords)
+
+        if restore_site_props:
+
+            props = []
+
+            ref = self.map_residue_to_mol[residue_name].copy()
+
+            # sanity check
+            assert len(mol) == len(ref)
+            assert ref.formula == mol.formula
+
+            for i, site in enumerate(mol):
+                assert site.specie.symbol == ref[i].specie.symbol
+                props.append(getattr(ref[i], site_property))
+
+            mol.add_site_property(site_property, props)
+
+        return mol
+
+    def restore_site_properties(self, site_property="ff_map"):
+        """
+        Restore the site properties for the final packed molecule.
+
+        Args:
+            site_property (str):
+
+        Returns:
+            Molecule
+        """
+
+        # only for pdb
+        if not self.control_params["filetype"] == "pdb":
+            raise
+
+        import pybel as pb
+
+        bma = BabelMolAdaptor.from_file(self.control_params["output"], "pdb")
+        pbm = pb.Molecule(bma._obmol)
+
+        assert len(pbm.residues) == sum([x["number"] for x in self.param_list])
+
+        packed_mol = self.convert_obatoms_to_molecule(
+            pbm.residues[0].atoms, residue_name=pbm.residues[0].name,
+            site_property=site_property)
+
+        for resid in pbm.residues[1:]:
+            mol = self.convert_obatoms_to_molecule(
+                resid.atoms, residue_name=resid.name, site_property=site_property)
+            for site in mol:
+                packed_mol.append(site.species_and_occu, site.coords,
+                                  properties=site.properties)
+
+        return packed_mol
+
 
 class LammpsRunner(object):
     def __init__(self, input_filename="lammps.in", bin="lammps"):
