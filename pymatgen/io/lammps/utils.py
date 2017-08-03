@@ -41,8 +41,7 @@ class Polymer(object):
     def __init__(self, start_monomer, s_head, s_tail,
                  monomer, head, tail,
                  end_monomer, e_head, e_tail,
-                 n_units, link_distance=1.0, linear_chain=False,
-                 nseeds=1):
+                 n_units, link_distance=1.0, linear_chain=False):
         """
         Args:
             start_monomer (Molecule): Starting molecule
@@ -83,25 +82,14 @@ class Polymer(object):
         self.prev_move = 1
         # places the start monomer at the beginning of the chain
         self.molecule = start_monomer.copy()
-        for i in range(nseeds):
-            if i > 0:
-                self.length = 0
-                smonomer = start_monomer.copy()
-                smonomer.translate_sites(vector=get_rand_vec(2.0))
-                start_mon_vector = smonomer.cart_coords[e_tail] - \
-                                 smonomer.cart_coords[e_head]
-                while self.length == 0:
-                    self._add_monomer(smonomer.copy(), start_mon_vector, get_rand_vec(1.0))
-                #self.length = self.n_units - 2
-                #self._create(start_monomer, start_mon_vector)
-            self.length = 1
-            # create the chain
-            self._create(self.monomer, self.mon_vector)
-            # terminate the chain with the end_monomer
-            self.n_units += 1
-            end_mon_vector = end_monomer.cart_coords[e_tail] - \
-                             end_monomer.cart_coords[e_head]
-            self._create(end_monomer, end_mon_vector)
+        self.length = 1
+        # create the chain
+        self._create(self.monomer, self.mon_vector)
+        # terminate the chain with the end_monomer
+        self.n_units += 1
+        end_mon_vector = end_monomer.cart_coords[e_tail] - \
+                         end_monomer.cart_coords[e_head]
+        self._create(end_monomer, end_mon_vector)
 
     def _create(self, monomer, mon_vector):
         """
@@ -383,11 +371,6 @@ class LammpsRunner(object):
         (stdout, stderr) = p.communicate()
         return stdout, stderr
 
-def get_rand_vec(distance):
-    # deals with zero vectors.
-    vector = np.random.randn(3)
-    vnorm = np.linalg.norm(vector)
-    return vector / vnorm * distance if vnorm != 0 else get_rand_vec(distance)
 
 if __name__ == '__main__':
     ethanol_coords = [[0.00720, -0.56870, 0.00000],
