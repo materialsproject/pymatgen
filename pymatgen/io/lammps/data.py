@@ -80,16 +80,19 @@ class LammpsData(MSONable):
         Args:
             molecule(Molecule)
             box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
+            translate (bool): if true move the molecule to the center of the
+                new box.
         """
-        box_lengths_req = [np.max(molecule.cart_coords[:, i])-np.min(molecule.cart_coords[:, i])
-                           for i in range(3)]
+        box_lengths_req = [
+            np.max(molecule.cart_coords[:, i])-np.min(molecule.cart_coords[:, i])
+            for i in range(3)]
         box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
         try:
             np.testing.assert_array_less(box_lengths_req, box_lengths)
         except AssertionError:
             box_size = [[0.0, np.ceil(i*1.1)] for i in box_lengths_req]
-            print("Minimum required box lengths {} larger than the provided box lengths{}. "
-                  "Resetting the box size to {}".format(
+            print("Minimum required box lengths {} larger than the provided "
+                  "box lengths{}. Resetting the box size to {}".format(
                 box_lengths_req, box_lengths, box_size))
             translate = True
         if translate:
@@ -193,8 +196,10 @@ class LammpsData(MSONable):
             input_structure (Molecule/Structure)
             box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
             set_charge (bool): whether or not to set the charge field in
-            Atoms. If true, the charge will be non-zero only if the
-            input_structure has the "charge" site property set.
+                Atoms. If true, the charge will be non-zero only if the
+                input_structure has the "charge" site property set.
+            translate (bool): if true move the molecule to the center of the
+                new box(it that is required).
 
         Returns:
             LammpsData
@@ -607,12 +612,16 @@ class LammpsForceFieldData(LammpsData):
         angle_coeffs, angle_map = \
             LammpsForceFieldData.get_param_coeff(forcefield, "angles")
 
+        # pair coefficients
         pair_coeffs, _ = \
-            LammpsForceFieldData.get_param_coeff(forcefield, "pairs", atomic_masses_dict)
+            LammpsForceFieldData.get_param_coeff(forcefield, "pairs",
+                                                 atomic_masses_dict)
 
+        # dihedrals
         dihedral_coeffs, dihedral_map = \
             LammpsForceFieldData.get_param_coeff(forcefield, "dihedrals")
 
+        # improper dihedrals
         improper_coeffs, imdihedral_map = \
             LammpsForceFieldData.get_param_coeff(forcefield, "imdihedrals")
 
