@@ -9,6 +9,7 @@ from pymatgen.analysis.elasticity.tensors import Tensor, \
     TensorCollection, get_uvec
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
+from pymatgen.core.units import Unit
 from scipy.misc import factorial
 from scipy.integrate import quad
 from scipy.optimize import root
@@ -44,6 +45,8 @@ class NthOrderElasticTensor(Tensor):
     An object representing an nth-order tensor expansion 
     of the stress-strain constitutive equations
     """
+    GPa_to_eV_A3 = Unit("GPa").get_conversion_factor(Unit("eV ang^-3"))
+
     def __new__(cls, input_array, check_rank=None, tol=1e-4):
         obj = super(NthOrderElasticTensor, cls).__new__(
             cls, input_array, check_rank=check_rank)
@@ -83,7 +86,7 @@ class NthOrderElasticTensor(Tensor):
         """
         e_density = np.sum(self.calculate_stress(strain)*strain) / self.order
         if convert_GPa_to_eV:
-            e_density *= 0.000624151  # Conversion factor for GPa to eV/A^3
+            e_density *= self.GPa_to_eV_A3  # Conversion factor for GPa to eV/A^3
         return e_density
 
     @classmethod
