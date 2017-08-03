@@ -263,13 +263,19 @@ class PackmolRunner(object):
             # the molecule id and the corresponding filename in the packmol
             # input file.
             for idx, mol in enumerate(self.mols):
-                a = BabelMolAdaptor(mol)
-                pm = pb.Molecule(a.openbabel_mol)
                 filename = os.path.join(
                     input_dir, '{}.{}'.format(
                         idx, self.control_params["filetype"])).encode("ascii")
-                pm.write(self.control_params["filetype"], filename=filename,
-                         overwrite=True)
+                # pdb
+                if self.control_params["filetype"] == "pdb":
+                    self.write_pdb(mol, filename, num=idx+1)
+                # all other filetypes
+                else:
+                    a = BabelMolAdaptor(mol)
+                    pm = pb.Molecule(a.openbabel_mol)
+                    pm.write(self.control_params["filetype"], filename=filename,
+                             overwrite=True)
+
                 inp.write("\n")
                 inp.write(
                     "structure {}.{}\n".format(
@@ -302,7 +308,8 @@ class PackmolRunner(object):
             (stdout, stderr) = p.communicate()
             output_file = os.path.join(scratch_dir, self.control_params["output"])
             if os.path.isfile(output_file):
-                packed_mol = BabelMolAdaptor.from_file(output_file)
+                packed_mol = BabelMolAdaptor.from_file(output_file,
+                                                       self.control_params["filetype"])
                 print("packed molecule written to {}".format(
                     self.control_params["output"]))
                 return packed_mol.pymatgen_mol
@@ -310,6 +317,29 @@ class PackmolRunner(object):
                 print("Packmol execution failed")
                 print(stdout, stderr)
                 return None
+
+    # ugly hack to get around the openbabel issues with inconsistent residue labelling.
+    def write_pdb(self, mol, filename, name=None, num=None):
+        """
+        dump the molecule into pdb file with custom residue name and number.
+        """
+
+        scratch = tempfile.gettempdir()
+
+        with ScratchDir(scratch, copy_to_current_on_exit=False) as scratch_dir:
+            mol.to(fmt="pdb", filename="tmp.pdb")
+            bma = BabelMolAdaptor.from_file("tmp.pdb", "pdb")
+
+        num = num or 1
+        name = name or "ml{}".format(num)
+
+        # bma = BabelMolAdaptor(mol)
+        pbm = pb.Molecule(bma._obmol)
+        for i, x in enumerate(pbm.residues):
+            x.OBResidue.SetName(name)
+            x.OBResidue.SetNum(num)
+
+        pbm.write(format="pdb", filename=filename, overwrite=True)
 
 
 class LammpsRunner(object):

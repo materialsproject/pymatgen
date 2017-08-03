@@ -3,22 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
-"""
-This module implements a EnergyModel abstract class and some basic
-implementations. Basically, an EnergyModel is any model that returns an
-"energy" for any given structure.
-"""
-
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "11/19/13"
-
 import abc
 
 import six
@@ -26,6 +10,19 @@ import six
 from monty.json import MSONable
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+"""
+This module implements a EnergyModel abstract class and some basic
+implementations. Basically, an EnergyModel is any model that returns an
+"energy" for any given structure.
+"""
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "11/19/13"
 
 
 class EnergyModel(six.with_metaclass(abc.ABCMeta, MSONable)):

@@ -132,6 +132,7 @@ class LammpsLog(MSONable):
         return cls(log_file=d["log_file"])
 
 
+# TODO: @wood-b parse binary dump files(*.dcd)
 class LammpsDump(MSONable):
     """
     Parse lammps dump file.
@@ -183,7 +184,8 @@ class LammpsDump(MSONable):
         return cls(timesteps, natoms, box_bounds, atoms_data)
 
 
-# TODO: simplify this, use LammpsDump to parse
+# TODO: @wood-b simplify this, use LammpsDump to parse + use mdanalysis to process.
+# make sure its backward compatible
 class LammpsRun(MSONable):
     """
     Parse the lammps data file, trajectory(dump) file and the log file to extract

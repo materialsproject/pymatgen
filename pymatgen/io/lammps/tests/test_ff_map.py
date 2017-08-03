@@ -73,7 +73,6 @@ class TestLammpsForceFieldData(unittest.TestCase):
                     [43, 46, ('C2', 'O')], [46, 47, ('O', 'C3')], [47, 48, ('C3', 'H3')],
                     [47, 49, ('C3', 'H3')], [47, 50, ('C3', 'H3')]]
 
-
         self.assertEqual(tatoms, self.topology.atoms)
         self.assertEqual(tbonds, self.topology.bonds)
         for i, angle in enumerate(self.topology.angles):
@@ -120,18 +119,15 @@ class TestLammpsForceFieldData(unittest.TestCase):
                                  ((u'O', u'C2', u'C2', u'H2'), [0.19, 3, 0, 0.0]),
                                  ((u'O', u'C2', u'C2', u'O'), [1.16, 2, 0, 0.0])])
 
-
-        self.assertEqual(pairs, self.forcefield.pairs)
-        self.assertEqual(bonds, self.forcefield.bonds)
-        self.assertEqual(angles, self.forcefield.angles)
-        self.assertEqual(dihedrals, self.forcefield.dihedrals)
-
+        self.assertDictEqual(pairs, self.forcefield.pairs)
+        self.assertDictEqual(bonds, self.forcefield.bonds)
+        self.assertDictEqual(angles, self.forcefield.angles)
+        self.assertDictEqual(dihedrals, self.forcefield.dihedrals)
 
     def tearDown(self):
         for x in ["lammps_ff_data.dat"]:
             if os.path.exists(os.path.join(test_dir, x)):
                 os.remove(os.path.join(test_dir, x))
-
 
 
 if __name__ == "__main__":
