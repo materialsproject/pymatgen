@@ -339,13 +339,13 @@ class SubstrateAnalyzer:
 
         dfm = Deformation(transform_matrix)
 
-        strain = dfm.green_lagrange_strain.von_mises_strain.convert_to_ieee(struc,initial_fit=False)
+        strain = dfm.green_lagrange_strain.convert_to_ieee(struc,initial_fit=False)
 
         energy_density = elasticity_tensor.energy_density(
-            dfm.green_lagrange_strain)
+            strain)
 
         if include_strain:
-            return (film.volume * energy_density / len(film.sites), strain)
+            return (film.volume * energy_density / len(film.sites), strain.von_mises_strain)
         else:
             return film.volume * energy_density / len(film.sites)
 
