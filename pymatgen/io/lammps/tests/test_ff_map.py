@@ -8,6 +8,7 @@ from collections import OrderedDict
 from pymatgen.io.lammps.force_field import ForceField
 from pymatgen.io.lammps.topology import Topology
 from pymatgen.core.structure import Molecule
+from pymatgen.io.lammps.data import LammpsForceFieldData
 
 __author__ = 'Rishi Gurnani'
 __email__ = 'rgurnani96@lbl.gov'
@@ -16,7 +17,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
 
 
-class TestLammpsForceFieldData(unittest.TestCase):
+class TestLammpsForceFieldDataWithMap(unittest.TestCase):
 
     def setUp(self):
         self.polymer_linear = Molecule.from_file(os.path.join(test_dir,
@@ -42,6 +43,13 @@ class TestLammpsForceFieldData(unittest.TestCase):
         self.topology = Topology.from_molecule(self.polymer_linear)
         self.forcefield = ForceField.from_file(os.path.join(test_dir,
                                                             "ffmap_data.yaml"))
+
+        box_size = [[0.0, 50],
+                    [0.0, 50],
+                    [0.0, 50]]
+        self.lammps_ff_data = LammpsForceFieldData.from_forcefield_and_topology(
+            [self.polymer_linear], [1], box_size, self.polymer_linear,
+            self.forcefield, [self.topology])
 
     def test_topology(self):
         tatoms = [['C', 'C3'], ['H', 'H3'], ['H', 'H3'], ['H', 'H3'], ['O', 'O'],
@@ -123,6 +131,18 @@ class TestLammpsForceFieldData(unittest.TestCase):
         self.assertDictEqual(bonds, self.forcefield.bonds)
         self.assertDictEqual(angles, self.forcefield.angles)
         self.assertDictEqual(dihedrals, self.forcefield.dihedrals)
+
+    def test_ff_pair_coeffs(self):
+        natoms, natom_types, atomic_masses_dict = \
+            LammpsForceFieldData.get_basic_system_info(self.polymer_linear)
+
+        # atom_types = list(atomic_masses_dict.keys())
+        ans_atomtype_ids = [x[0] for x in atomic_masses_dict.values()]
+
+        pair_coeffs = self.lammps_ff_data.pair_coeffs
+        atomtype_ids = [x[0] for x in pair_coeffs]
+
+        self.assertEqual(ans_atomtype_ids, atomtype_ids)
 
     def tearDown(self):
         for x in ["lammps_ff_data.dat"]:

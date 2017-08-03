@@ -16,7 +16,7 @@ from pymatgen.io.vasp.inputs import Potcar
 from monty.os.path import which
 from monty.dev import requires
 from monty.tempfile import ScratchDir
-from monty.json import MSONable
+from monty.io import zopen
 
 """
 This module implements an interface to the Henkelmann et al.'s excellent
@@ -114,10 +114,14 @@ class BaderAnalysis(object):
         chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
         self.reference_used = True if chgref_filename else False
         with ScratchDir(".") as temp_dir:
-            shutil.copy(chgcarpath, os.path.join(temp_dir, "CHGCAR"))
+            with zopen(chgcarpath, 'rt') as f_in:
+                with open("CHGCAR", "wt") as f_out:
+                    shutil.copyfileobj(f_in, f_out)
             args = ["bader", "CHGCAR"]
             if chgref_filename:
-                shutil.copy(chgrefpath, os.path.join(temp_dir, "CHGCAR_ref"))
+                with zopen(chgrefpath, 'rt') as f_in:
+                    with open("CHGCAR_ref", "wt") as f_out:
+                        shutil.copyfileobj(f_in, f_out)
                 args += ['-ref', 'CHGCAR_ref']
             rs = subprocess.Popen(args,
                                   stdout=subprocess.PIPE,
