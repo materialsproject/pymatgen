@@ -4,7 +4,6 @@
 
 from __future__ import division, unicode_literals
 import unittest
-import os
 
 from pymatgen.command_line.bader_caller import *
 from monty.os.path import which
