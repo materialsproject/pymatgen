@@ -13,6 +13,8 @@ import glob
 from six.moves import map, zip
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.io.vasp.inputs import Potcar
+from monty.dev import requires
+from monty.os.path import which
 from monty.tempfile import ScratchDir
 from monty.io import zopen
 
@@ -86,6 +88,10 @@ class BaderAnalysis(object):
         (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
     """
 
+    @requires(which("bader") or which("bader.exe"),
+              "BaderAnalysis requires the executable bader to be in the path."
+              " Please download the library at http://theory.cm.utexas"
+              ".edu/vasp/bader/ and compile the executable.")
     def __init__(self, chgcar_filename, potcar_filename=None,
                  chgref_filename=None):
         """
