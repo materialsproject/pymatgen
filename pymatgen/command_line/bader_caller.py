@@ -13,8 +13,6 @@ import glob
 from six.moves import map, zip
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.io.vasp.inputs import Potcar
-from monty.os.path import which
-from monty.dev import requires
 from monty.tempfile import ScratchDir
 from monty.io import zopen
 
