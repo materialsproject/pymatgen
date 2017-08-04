@@ -1,7 +1,4 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from invoke import task
 import glob
 import os
 import json
@@ -10,7 +7,6 @@ import requests
 import re
 import subprocess
 import datetime
-from invoke import task
 
 from monty.os import cd
 from pymatgen import __version__ as CURRENT_VER
