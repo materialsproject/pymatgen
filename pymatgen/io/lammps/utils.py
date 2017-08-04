@@ -326,7 +326,7 @@ class PackmolRunner(object):
         # ugly hack to get around the openbabel issues with inconsistent
         # residue labelling.
         scratch = tempfile.gettempdir()
-        with ScratchDir(scratch, copy_to_current_on_exit=False) as scratch_dir:
+        with ScratchDir(scratch, copy_to_current_on_exit=False) as _:
             mol.to(fmt="pdb", filename="tmp.pdb")
             bma = BabelMolAdaptor.from_file("tmp.pdb", "pdb")
 
@@ -415,8 +415,6 @@ class PackmolRunner(object):
         # only for pdb
         if not self.control_params["filetype"] == "pdb":
             raise
-
-        import pybel as pb
 
         filename = filename or self.control_params["output"]
         bma = BabelMolAdaptor.from_file(filename, "pdb")
