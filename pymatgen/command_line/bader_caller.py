@@ -234,27 +234,28 @@ class BaderAnalysis(object):
             name_pattern = filename + suffix + '*' if filename != 'POTCAR' \
                 else filename + '*'
             paths = glob.glob(os.path.join(path, name_pattern))
-            if not paths:
-                if filename == "CHGCAR":
-                    raise IOError("Could not find CHGCAR!")
-                else:
-                    if filename == "POTCAR":
-                        warning_msg = "cannot calculate charge transfer."
-                    else:
-                        warning_msg = "interpret Bader results with caution."
-                    warnings.warn("Could not find %s, " % filename
-                                  + warning_msg)
-                    return None
-            if len(paths) > 1:
+            fpath = None
+            if len(paths) >= 1:
                 # using reverse=True because, if multiple files are present,
                 # they likely have suffixes 'static', 'relax', 'relax2', etc.
                 # and this would give 'static' over 'relax2' over 'relax'
                 # however, better to use 'suffix' kwarg to avoid this!
                 paths.sort(reverse=True)
                 warning_msg = "Multiple files detected, using %s" \
-                              % os.path.basename(paths[0])
+                              % os.path.basename(paths[0]) if len(paths) > 1\
+                    else None
+                fpath = paths[0]
+            else:
+                if filename == "CHGCAR":
+                    raise IOError("Could not find CHGCAR!")
+                else:
+                    warning_msg = "Could not find %s, " % filename
+                    if filename == "POTCAR":
+                        warning_msg += "cannot calculate charge transfer."
+                    else:
+                        warning_msg += "interpret Bader results with caution."
+            if warning_msg:
                 warnings.warn(warning_msg)
-            fpath = paths[0]
             return fpath
 
         chgcar_filename = _get_filepath("CHGCAR")
