@@ -263,7 +263,7 @@ class BaderAnalysis(object):
         aeccar2 = _get_filepath("AECCAR2")
         if (aeccar0 and aeccar2):
             chgref = Chgcar.from_file(aeccar0) + Chgcar.from_file(aeccar2)
-            chgref_filename = "CHGCAR_ref"
+            chgref_filename = "CHGREF"
             chgref.write_file(chgref_filename)
         else:
             chgref_filename = None
