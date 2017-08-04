@@ -20,8 +20,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class TestLammpsForceFieldDataWithMap(unittest.TestCase):
 
     def setUp(self):
-        self.polymer_linear = Molecule.from_file(os.path.join(test_dir,
-                                                              "polymer_linear.xyz"))
+        self.polymer_linear = Molecule.from_file(
+            os.path.join(test_dir, "polymer_linear.xyz"))
 
         charges = [-0.1187, 0.0861, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861,
                    0.0861, -0.0326, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861,
@@ -41,8 +41,8 @@ class TestLammpsForceFieldDataWithMap(unittest.TestCase):
         self.polymer_linear.add_site_property("charge", charges)
         self.polymer_linear.add_site_property("ff_map", ff_map)
         self.topology = Topology.from_molecule(self.polymer_linear)
-        self.forcefield = ForceField.from_file(os.path.join(test_dir,
-                                                            "ffmap_data.yaml"))
+        self.forcefield = ForceField.from_file(
+            os.path.join(test_dir, "ffmap_data.yaml"))
 
         box_size = [[0.0, 50],
                     [0.0, 50],
@@ -52,34 +52,45 @@ class TestLammpsForceFieldDataWithMap(unittest.TestCase):
             self.forcefield, [self.topology])
 
     def test_topology(self):
-        tatoms = [['C', 'C3'], ['H', 'H3'], ['H', 'H3'], ['H', 'H3'], ['O', 'O'],
-                    ['C', 'C2'], ['H', 'H2'], ['H', 'H2'], ['C', 'C2'], ['H', 'H2'],
-                    ['H', 'H2'], ['O', 'O'], ['C', 'C2'], ['H', 'H2'], ['H', 'H2'],
-                    ['C', 'C2'], ['H', 'H2'], ['H', 'H2'], ['O', 'O'], ['C', 'C2'],
-                    ['H', 'H2'], ['H', 'H2'], ['C', 'C2'], ['H', 'H2'], ['H', 'H2'],
-                    ['O', 'O'], ['C', 'C2'], ['H', 'H2'], ['H', 'H2'], ['C', 'C2'],
-                    ['H', 'H2'], ['H', 'H2'], ['O', 'O'], ['C', 'C2'], ['H', 'H2'],
-                    ['H', 'H2'], ['C', 'C2'], ['H', 'H2'],['H', 'H2'], ['O', 'O'],
-                    ['C', 'C2'], ['H', 'H2'], ['H', 'H2'], ['C', 'C2'], ['H', 'H2'],
-                    ['H', 'H2'], ['O', 'O'], ['C', 'C3'], ['H', 'H3'], ['H', 'H3'],
-                    ['H', 'H3']]
-        tbonds = [[0, 1, ('C3', 'H3')], [0, 2, ('C3', 'H3')], [0, 3, ('C3', 'H3')],
-                    [0, 4, ('C3', 'O')], [4, 5, ('O', 'C2')], [5, 6, ('C2', 'H2')],
-                    [5, 7, ('C2', 'H2')], [5, 8, ('C2', 'C2')], [8, 9, ('C2', 'H2')],
-                    [8, 10, ('C2', 'H2')], [8, 11, ('C2', 'O')], [11, 12, ('O', 'C2')],
-                    [12, 13, ('C2', 'H2')], [12, 14, ('C2', 'H2')], [12, 15, ('C2', 'C2')],
-                    [15, 16, ('C2', 'H2')], [15, 17, ('C2', 'H2')], [15, 18, ('C2', 'O')],
-                    [18, 19, ('O', 'C2')], [19, 20, ('C2', 'H2')], [19, 21, ('C2', 'H2')],
-                    [19, 22, ('C2', 'C2')], [22, 23, ('C2', 'H2')], [22, 24, ('C2', 'H2')],
-                    [22, 25, ('C2', 'O')], [25, 26, ('O', 'C2')], [26, 27, ('C2', 'H2')],
-                    [26, 28, ('C2', 'H2')], [26, 29, ('C2', 'C2')], [29, 30, ('C2', 'H2')],
-                    [29, 31, ('C2', 'H2')], [29, 32, ('C2', 'O')], [32, 33, ('O', 'C2')],
-                    [33, 34, ('C2', 'H2')], [33, 35, ('C2', 'H2')], [33, 36, ('C2', 'C2')],
-                    [36, 37, ('C2', 'H2')], [36, 38, ('C2', 'H2')], [36, 39, ('C2', 'O')],
-                    [39, 40, ('O', 'C2')], [40, 41, ('C2', 'H2')], [40, 42, ('C2', 'H2')],
-                    [40, 43, ('C2', 'C2')], [43, 44, ('C2', 'H2')], [43, 45, ('C2', 'H2')],
-                    [43, 46, ('C2', 'O')], [46, 47, ('O', 'C3')], [47, 48, ('C3', 'H3')],
-                    [47, 49, ('C3', 'H3')], [47, 50, ('C3', 'H3')]]
+        tatoms = [['C', 'C3'], ['H', 'H3'], ['H', 'H3'], ['H', 'H3'],
+                  ['O', 'O'], ['C', 'C2'], ['H', 'H2'], ['H', 'H2'],
+                  ['C', 'C2'], ['H', 'H2'], ['H', 'H2'], ['O', 'O'],
+                  ['C', 'C2'], ['H', 'H2'], ['H', 'H2'], ['C', 'C2'],
+                  ['H', 'H2'], ['H', 'H2'], ['O', 'O'], ['C', 'C2'],
+                  ['H', 'H2'], ['H', 'H2'], ['C', 'C2'], ['H', 'H2'],
+                  ['H', 'H2'],['O', 'O'], ['C', 'C2'], ['H', 'H2'],
+                  ['H', 'H2'], ['C', 'C2'], ['H', 'H2'], ['H', 'H2'],
+                  ['O', 'O'], ['C', 'C2'], ['H', 'H2'], ['H', 'H2'],
+                  ['C', 'C2'], ['H', 'H2'],['H', 'H2'], ['O', 'O'],
+                  ['C', 'C2'], ['H', 'H2'], ['H', 'H2'], ['C', 'C2'],
+                  ['H', 'H2'], ['H', 'H2'], ['O', 'O'], ['C', 'C3'],
+                  ['H', 'H3'], ['H', 'H3'], ['H', 'H3']]
+
+        tbonds = [[0, 1, ('C3', 'H3')], [0, 2, ('C3', 'H3')],
+                  [0, 3, ('C3', 'H3')], [0, 4, ('C3', 'O')],
+                  [4, 5, ('O', 'C2')], [5, 6, ('C2', 'H2')],
+                  [5, 7, ('C2', 'H2')], [5, 8, ('C2', 'C2')],
+                  [8, 9, ('C2', 'H2')], [8, 10, ('C2', 'H2')],
+                  [8, 11, ('C2', 'O')], [11, 12, ('O', 'C2')],
+                  [12, 13, ('C2', 'H2')], [12, 14, ('C2', 'H2')],
+                  [12, 15, ('C2', 'C2')], [15, 16, ('C2', 'H2')],
+                  [15, 17, ('C2', 'H2')], [15, 18, ('C2', 'O')],
+                  [18, 19, ('O', 'C2')], [19, 20, ('C2', 'H2')],
+                  [19, 21, ('C2', 'H2')], [19, 22, ('C2', 'C2')],
+                  [22, 23, ('C2', 'H2')], [22, 24, ('C2', 'H2')],
+                  [22, 25, ('C2', 'O')], [25, 26, ('O', 'C2')],
+                  [26, 27, ('C2', 'H2')], [26, 28, ('C2', 'H2')],
+                  [26, 29, ('C2', 'C2')], [29, 30, ('C2', 'H2')],
+                  [29, 31, ('C2', 'H2')], [29, 32, ('C2', 'O')],
+                  [32, 33, ('O', 'C2')], [33, 34, ('C2', 'H2')],
+                  [33, 35, ('C2', 'H2')], [33, 36, ('C2', 'C2')],
+                  [36, 37, ('C2', 'H2')], [36, 38, ('C2', 'H2')],
+                  [36, 39, ('C2', 'O')], [39, 40, ('O', 'C2')],
+                  [40, 41, ('C2', 'H2')], [40, 42, ('C2', 'H2')],
+                  [40, 43, ('C2', 'C2')], [43, 44, ('C2', 'H2')],
+                  [43, 45, ('C2', 'H2')], [43, 46, ('C2', 'O')],
+                  [46, 47, ('O', 'C3')], [47, 48, ('C3', 'H3')],
+                  [47, 49, ('C3', 'H3')], [47, 50, ('C3', 'H3')]]
 
         self.assertEqual(tatoms, self.topology.atoms)
         self.assertEqual(tbonds, self.topology.bonds)
@@ -166,7 +177,8 @@ class TestLammpsForceFieldDataWithMap2(unittest.TestCase):
                   "C3", "H3", "H3", "H3"]
         self.dmoe.add_site_property("ff_map", ff_map)
         self.topology = Topology.from_molecule(self.dmoe, ff_map="ff_map")
-        self.forcefield = ForceField.from_file(os.path.join(test_dir, "ffmap_data.yaml"))
+        self.forcefield = ForceField.from_file(
+            os.path.join(test_dir, "ffmap_data.yaml"))
         self.box_size = [[0.0, 10], [0.0, 10], [0.0, 10]]
         self.lammps_ff_data = \
             LammpsForceFieldData.from_forcefield_and_topology(
