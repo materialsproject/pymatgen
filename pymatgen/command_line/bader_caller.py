@@ -13,10 +13,10 @@ import glob
 from six.moves import map, zip
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.io.vasp.inputs import Potcar
-from monty.os.path import which
 from monty.dev import requires
+from monty.os.path import which
 from monty.tempfile import ScratchDir
-from monty.json import MSONable
+from monty.io import zopen
 
 """
 This module implements an interface to the Henkelmann et al.'s excellent
@@ -91,6 +91,10 @@ class BaderAnalysis(object):
         (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
     """
 
+    @requires(which("bader") or which("bader.exe"),
+              "BaderAnalysis requires the executable bader to be in the path."
+              " Please download the library at http://theory.cm.utexas"
+              ".edu/vasp/bader/ and compile the executable.")
     def __init__(self, chgcar_filename, potcar_filename=None,
                  chgref_filename=None):
         """
@@ -118,10 +122,14 @@ class BaderAnalysis(object):
         chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
         self.reference_used = True if chgref_filename else False
         with ScratchDir(".") as temp_dir:
-            shutil.copy(chgcarpath, os.path.join(temp_dir, "CHGCAR"))
+            with zopen(chgcarpath, 'rt') as f_in:
+                with open("CHGCAR", "wt") as f_out:
+                    shutil.copyfileobj(f_in, f_out)
             args = [BADEREXE, "CHGCAR"]
             if chgref_filename:
-                shutil.copy(chgrefpath, os.path.join(temp_dir, "CHGCAR_ref"))
+                with zopen(chgrefpath, 'rt') as f_in:
+                    with open("CHGCAR_ref", "wt") as f_out:
+                        shutil.copyfileobj(f_in, f_out)
                 args += ['-ref', 'CHGCAR_ref']
             rs = subprocess.Popen(args,
                                   stdout=subprocess.PIPE,
@@ -230,6 +238,61 @@ class BaderAnalysis(object):
             summary['charge_transfer'] = charge_transfer
 
         return summary
+
+    @classmethod
+    def from_path(cls, path, suffix=""):
+        """
+        Convenient constructor that takes in the path name of VASP run
+        to perform Bader analysis.
+
+        Args:
+            path (str): Name of directory where VASP output files are
+                stored.
+            suffix (str): specific suffix to look for (e.g. '.relax1'
+                for 'CHGCAR.relax1.gz').
+
+        """
+
+        def _get_filepath(filename):
+            name_pattern = filename + suffix + '*' if filename != 'POTCAR' \
+                else filename + '*'
+            paths = glob.glob(os.path.join(path, name_pattern))
+            fpath = None
+            if len(paths) >= 1:
+                # using reverse=True because, if multiple files are present,
+                # they likely have suffixes 'static', 'relax', 'relax2', etc.
+                # and this would give 'static' over 'relax2' over 'relax'
+                # however, better to use 'suffix' kwarg to avoid this!
+                paths.sort(reverse=True)
+                warning_msg = "Multiple files detected, using %s" \
+                              % os.path.basename(paths[0]) if len(paths) > 1\
+                    else None
+                fpath = paths[0]
+            else:
+                warning_msg = "Could not find %s" % filename
+                if filename in ['AECCAR0', 'AECCAR2']:
+                    warning_msg += ", cannot calculate charge transfer."
+                elif filename == "POTCAR":
+                    warning_msg += ", interpret Bader results with caution."
+            if warning_msg:
+                warnings.warn(warning_msg)
+            return fpath
+
+        chgcar_filename = _get_filepath("CHGCAR")
+        if chgcar_filename is None:
+            raise IOError("Could not find CHGCAR!")
+        potcar_filename = _get_filepath("POTCAR")
+        aeccar0 = _get_filepath("AECCAR0")
+        aeccar2 = _get_filepath("AECCAR2")
+        if (aeccar0 and aeccar2):
+            # `chgsum.pl AECCAR0 AECCAR2` equivalent to obtain chgref_file
+            chgref = Chgcar.from_file(aeccar0) + Chgcar.from_file(aeccar2)
+            chgref_filename = "CHGREF"
+            chgref.write_file(chgref_filename)
+        else:
+            chgref_filename = None
+        return cls(chgcar_filename, potcar_filename=potcar_filename,
+                   chgref_filename=chgref_filename)
 
 
 def bader_analysis_from_path(path, suffix=''):
