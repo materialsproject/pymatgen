@@ -8,6 +8,7 @@ import os
 
 from pymatgen.command_line.bader_caller import *
 from monty.os.path import which
+import numpy as np
 
 """
 TODO: Change the module doc.
@@ -46,6 +47,20 @@ class BaderAnalysisTest(unittest.TestCase):
         # make sure bader still runs without reference file
         analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.Fe3O4"))
         self.assertEqual(len(analysis.data), 14)
+
+    def test_from_path(self):
+        test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                "test_files", "bader")
+        analysis = BaderAnalysis.from_path(test_dir)
+        chgcar = os.path.join(test_dir, "CHGCAR.gz")
+        chgref = os.path.join(test_dir, "_CHGCAR_sum.gz")
+        analysis0 = BaderAnalysis(chgcar_filename=chgcar,
+                                  chgref_filename=chgref)
+        charge = np.array(analysis.summary["charge"])
+        charge0 = np.array(analysis0.summary["charge"])
+        self.assertTrue(np.allclose(charge, charge0))
+        if os.path.exists("CHGREF"):
+            os.remove("CHGREF")
 
     def test_automatic_runner(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
