@@ -207,7 +207,7 @@ class ElasticTensorTest(PymatgenTest):
                            [ -6.12323400e-17,-6.12323400e-17,1.00000000e+00]])
 
         self.assertAlmostEqual(film_elac.energy_density(dfm.green_lagrange_strain),
-            0.000125664672793)
+            0.00125664672793)
 
         film_elac.energy_density(Strain.from_deformation([[ 0.99774738,  0.11520994, -0.        ],
                                         [-0.11520994,  0.99774738,  0.        ],
@@ -254,7 +254,7 @@ class ElasticTensorExpansionTest(PymatgenTest):
 
     def test_energy_density(self):
         edensity = self.exp.energy_density(self.strains[0])
-        self.assertAlmostEqual(edensity, 1.36363099e-5)
+        self.assertAlmostEqual(edensity, 1.36363099e-4)
 
     def test_gruneisen(self):
         # Get GGT
