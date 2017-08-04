@@ -229,6 +229,17 @@ class BaderAnalysis(object):
 
     @classmethod
     def from_path(cls, path, suffix=""):
+        """
+        Convenient constructor that takes in the path name of VASP run
+        to perform Bader analysis.
+
+        Args:
+            path (str): Name of directory where VASP output files are
+                stored.
+            suffix (str): specific suffix to look for (e.g. '.relax1'
+                for 'CHGCAR.relax1.gz').
+
+        """
 
         def _get_filepath(filename):
             name_pattern = filename + suffix + '*' if filename != 'POTCAR' \
@@ -263,6 +274,7 @@ class BaderAnalysis(object):
         aeccar0 = _get_filepath("AECCAR0")
         aeccar2 = _get_filepath("AECCAR2")
         if (aeccar0 and aeccar2):
+            # `chgsum.pl AECCAR0 AECCAR2` equivalent to obtain chgref_file
             chgref = Chgcar.from_file(aeccar0) + Chgcar.from_file(aeccar2)
             chgref_filename = "CHGREF"
             chgref.write_file(chgref_filename)
