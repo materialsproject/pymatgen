@@ -40,10 +40,9 @@ __status__ = "Beta"
 __date__ = "4/5/13"
 
 
-@requires(which("bader") or which("bader.exe"),
-          "BaderAnalysis requires the executable bader to be in the path."
-          " Please download the library at http://theory.cm.utexas"
-          ".edu/vasp/bader/ and compile the executable.")
+BADEREXE = which("bader") or which("bader.exe")
+
+
 class BaderAnalysis(object):
     """
     Bader analysis for a CHGCAR.
@@ -106,6 +105,11 @@ class BaderAnalysis(object):
                 CHGCAR, which calculated by AECCAR0 + AECCAR2. (See
                 http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
         """
+        if not BADEREXE:
+            raise RuntimeError(
+                "BaderAnalysis requires the executable bader to be in the path."
+                " Please download the library at http://theory.cm.utexas"
+                ".edu/vasp/bader/ and compile the executable.")
         self.chgcar = Chgcar.from_file(chgcar_filename)
         self.potcar = Potcar.from_file(potcar_filename) \
             if potcar_filename is not None else None
@@ -115,7 +119,7 @@ class BaderAnalysis(object):
         self.reference_used = True if chgref_filename else False
         with ScratchDir(".") as temp_dir:
             shutil.copy(chgcarpath, os.path.join(temp_dir, "CHGCAR"))
-            args = ["bader", "CHGCAR"]
+            args = [BADEREXE, "CHGCAR"]
             if chgref_filename:
                 shutil.copy(chgrefpath, os.path.join(temp_dir, "CHGCAR_ref"))
                 args += ['-ref', 'CHGCAR_ref']
