@@ -261,19 +261,18 @@ class BaderAnalysis(object):
                     else None
                 fpath = paths[0]
             else:
-                if filename == "CHGCAR":
-                    raise IOError("Could not find CHGCAR!")
-                else:
-                    warning_msg = "Could not find %s, " % filename
-                    if filename == "POTCAR":
-                        warning_msg += "cannot calculate charge transfer."
-                    else:
-                        warning_msg += "interpret Bader results with caution."
+                warning_msg = "Could not find %s" % filename
+                if filename in ['AECCAR0', 'AECCAR2']:
+                    warning_msg += ", cannot calculate charge transfer."
+                elif filename == "POTCAR":
+                    warning_msg += ", interpret Bader results with caution."
             if warning_msg:
                 warnings.warn(warning_msg)
             return fpath
 
         chgcar_filename = _get_filepath("CHGCAR")
+        if chgcar_filename is None:
+            raise IOError("Could not find CHGCAR!")
         potcar_filename = _get_filepath("POTCAR")
         aeccar0 = _get_filepath("AECCAR0")
         aeccar2 = _get_filepath("AECCAR2")
