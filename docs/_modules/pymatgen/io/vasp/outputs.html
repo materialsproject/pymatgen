@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2017.8.4 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.7.21',
+        VERSION:     '2017.8.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -91,7 +91,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">unitized</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">BandStructure</span><span class="p">,</span> \
     <span class="n">BandStructureSymmLine</span><span class="p">,</span> <span class="n">get_reconstructed_band_structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">OrbitalType</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">OrbitalType</span><span class="p">,</span> <span class="n">Magmom</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="k">import</span> <span class="n">CompleteDos</span><span class="p">,</span> <span class="n">Dos</span>
 <span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> \
     <span class="n">ComputedEntry</span><span class="p">,</span> <span class="n">ComputedStructureEntry</span>
@@ -1430,7 +1430,9 @@
 
         <span class="c1"># data from end of OUTCAR</span>
         <span class="n">charge</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">mag</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mag_x</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mag_y</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mag_z</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">header</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">run_stats</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">total_mag</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1484,10 +1486,12 @@
         <span class="c1"># For single atom systems, VASP doesn&#39;t print a total line, so</span>
         <span class="c1"># reverse parsing is very difficult</span>
         <span class="n">read_charge</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">read_mag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">read_mag_x</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">read_mag_y</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># for SOC calculations only</span>
+        <span class="n">read_mag_z</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">all_lines</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">clean</span> <span class="ow">in</span> <span class="n">all_lines</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">read_charge</span> <span class="ow">or</span> <span class="n">read_mag</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">read_charge</span> <span class="ow">or</span> <span class="n">read_mag_x</span> <span class="ow">or</span> <span class="n">read_mag_y</span> <span class="ow">or</span> <span class="n">read_mag_z</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">clean</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;# of ion&quot;</span><span class="p">):</span>
                     <span class="n">header</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s{2,}&quot;</span><span class="p">,</span> <span class="n">clean</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
                     <span class="n">header</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -1499,19 +1503,46 @@
                         <span class="n">toks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">read_charge</span><span class="p">:</span>
                             <span class="n">charge</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">toks</span><span class="p">)))</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">mag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">toks</span><span class="p">)))</span>
+                        <span class="k">elif</span> <span class="n">read_mag_x</span><span class="p">:</span>
+                            <span class="n">mag_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">toks</span><span class="p">)))</span>
+                        <span class="k">elif</span> <span class="n">read_mag_y</span><span class="p">:</span>
+                            <span class="n">mag_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">toks</span><span class="p">)))</span>
+                        <span class="k">elif</span> <span class="n">read_mag_z</span><span class="p">:</span>
+                            <span class="n">mag_z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">toks</span><span class="p">)))</span>
                     <span class="k">elif</span> <span class="n">clean</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;tot&#39;</span><span class="p">):</span>
                         <span class="n">read_charge</span> <span class="o">=</span> <span class="kc">False</span>
-                        <span class="n">read_mag</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="n">read_mag_x</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="n">read_mag_y</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="n">read_mag_z</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="n">clean</span> <span class="o">==</span> <span class="s2">&quot;total charge&quot;</span><span class="p">:</span>
                 <span class="n">charge</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="n">read_charge</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">read_mag</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">read_mag_x</span><span class="p">,</span> <span class="n">read_mag_y</span><span class="p">,</span> <span class="n">read_mag_z</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
             <span class="k">elif</span> <span class="n">clean</span> <span class="o">==</span> <span class="s2">&quot;magnetization (x)&quot;</span><span class="p">:</span>
-                <span class="n">mag</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">read_mag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">read_charge</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">mag_x</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">read_mag_x</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">read_charge</span><span class="p">,</span> <span class="n">read_mag_y</span><span class="p">,</span> <span class="n">read_mag_z</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">clean</span> <span class="o">==</span> <span class="s2">&quot;magnetization (y)&quot;</span><span class="p">:</span>
+                <span class="n">mag_y</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">read_mag_y</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">read_charge</span><span class="p">,</span> <span class="n">read_mag_x</span><span class="p">,</span> <span class="n">read_mag_z</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">clean</span> <span class="o">==</span> <span class="s2">&quot;magnetization (z)&quot;</span><span class="p">:</span>
+                <span class="n">mag_z</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">read_mag_z</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">read_charge</span><span class="p">,</span> <span class="n">read_mag_x</span><span class="p">,</span> <span class="n">read_mag_y</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+
+        <span class="c1"># merge x, y and z components of magmoms if present (SOC calculation)</span>
+        <span class="k">if</span> <span class="n">mag_y</span> <span class="ow">and</span> <span class="n">mag_z</span><span class="p">:</span>
+            <span class="c1"># TODO: detect spin axis</span>
+            <span class="n">mag</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mag_x</span><span class="p">)):</span>
+                <span class="n">mag</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="n">key</span><span class="p">:</span> <span class="n">Magmom</span><span class="p">([</span><span class="n">mag_x</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">key</span><span class="p">],</span> <span class="n">mag_y</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">key</span><span class="p">],</span> <span class="n">mag_z</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">key</span><span class="p">]])</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mag_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mag</span> <span class="o">=</span> <span class="n">mag_x</span>
+
 
         <span class="c1"># data from beginning of OUTCAR</span>
         <span class="n">run_stats</span><span class="p">[</span><span class="s1">&#39;cores&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
@@ -2471,7 +2502,8 @@
 <span class="sd">                shortcircuiting an otherwise expensive operation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_soc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_aug</span> <span class="o">=</span> <span class="n">data_aug</span> <span class="k">if</span> <span class="n">data_aug</span> <span class="k">else</span> <span class="p">{}</span>
@@ -2606,7 +2638,27 @@
                     <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_dataset_aug</span><span class="p">:</span>
                         <span class="n">all_dataset_aug</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">all_dataset_aug</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">original_line</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_dataset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_dataset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+
+                <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">all_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;diff_x&quot;</span><span class="p">:</span> <span class="n">all_dataset</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="s2">&quot;diff_y&quot;</span><span class="p">:</span> <span class="n">all_dataset</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;diff_z&quot;</span><span class="p">:</span> <span class="n">all_dataset</span><span class="p">[</span><span class="mi">3</span><span class="p">]}</span>
+                <span class="n">data_aug</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">all_dataset_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;diff_x&quot;</span><span class="p">:</span> <span class="n">all_dataset_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                            <span class="s2">&quot;diff_y&quot;</span><span class="p">:</span> <span class="n">all_dataset_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;diff_z&quot;</span><span class="p">:</span> <span class="n">all_dataset_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
+
+                <span class="c1"># construct a &quot;diff&quot; dict for scalar-like magnetization density,</span>
+                <span class="c1"># referenced to an arbitrary direction (using same method as</span>
+                <span class="c1"># pymatgen.electronic_structure.core.Magmom, see</span>
+                <span class="c1"># Magmom documentation for justification for this)</span>
+                <span class="c1"># TODO: re-examine this, and also similar behavior in Magmom - @mkhorton</span>
+                <span class="c1"># TODO: does CHGCAR change with different SAXIS?</span>
+                <span class="n">diff_xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;diff_x&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;diff_y&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;diff_z&quot;</span><span class="p">]])</span>
+                <span class="n">diff_xyz</span> <span class="o">=</span> <span class="n">diff_xyz</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="n">ref_direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.01</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">,</span> <span class="mf">1.03</span><span class="p">])</span>
+                <span class="n">ref_sign</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ref_direction</span><span class="p">,</span> <span class="n">diff_xyz</span><span class="p">))</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff_xyz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">ref_sign</span><span class="p">)</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;diff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_dataset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">all_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;diff&quot;</span><span class="p">:</span> <span class="n">all_dataset</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
                 <span class="n">data_aug</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">all_dataset_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;diff&quot;</span><span class="p">:</span> <span class="n">all_dataset_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
             <span class="k">else</span><span class="p">:</span>
@@ -2678,7 +2730,11 @@
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="p">[])))</span>
 
             <span class="n">write_spin</span><span class="p">(</span><span class="s2">&quot;total&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_soc</span><span class="p">:</span>
+                <span class="n">write_spin</span><span class="p">(</span><span class="s2">&quot;diff_x&quot;</span><span class="p">)</span>
+                <span class="n">write_spin</span><span class="p">(</span><span class="s2">&quot;diff_y&quot;</span><span class="p">)</span>
+                <span class="n">write_spin</span><span class="p">(</span><span class="s2">&quot;diff_z&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
                 <span class="n">write_spin</span><span class="p">(</span><span class="s2">&quot;diff&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VolumetricData.get_integrated_diff"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.get_integrated_diff">[docs]</a>    <span class="k">def</span> <span class="nf">get_integrated_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -2797,8 +2853,14 @@
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="Chgcar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Chgcar.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="p">)</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Chgcar</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="n">data_aug</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">Chgcar</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="n">data_aug</span><span class="p">)</span></div>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net_magnetization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Procar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Procar">[docs]</a><span class="k">class</span> <span class="nc">Procar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -3604,7 +3666,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

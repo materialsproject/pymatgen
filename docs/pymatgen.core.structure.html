@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.core.structure module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2017.8.4 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2017.8.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -1757,6 +1757,39 @@ sites.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.core.structure.Structure.add_spin_by_element">
+<code class="descname">add_spin_by_element</code><span class="sig-paren">(</span><em>spins</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.add_spin_by_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.add_spin_by_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add spin states to a structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>spisn</strong> (<em>dict</em>) &#8211; Dict of spins associated with</li>
+<li><strong>or species</strong><strong>, </strong><strong>e.g. {&quot;Ni&quot;</strong> (<a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.elements" title="pymatgen.analysis.reaction_calculator.BalancedReaction.elements"><em>elements</em></a>) &#8211; +5} or {&#8220;Ni2+&#8221;:5}</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.add_spin_by_site">
+<code class="descname">add_spin_by_site</code><span class="sig-paren">(</span><em>spins</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.add_spin_by_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.add_spin_by_site" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add spin states to a structure by site.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spins</strong> (<em>list</em>) &#8211; List of spins
+E.g., [+5, -5, 0, 0]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.core.structure.Structure.append">
 <code class="descname">append</code><span class="sig-paren">(</span><em>species</em>, <em>coords</em>, <em>coords_are_cartesian=False</em>, <em>validate_proximity=False</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.append" title="Permalink to this definition">¶</a></dt>
 <dd><p>Append a site to the structure.</p>
@@ -1987,6 +2020,12 @@ number of sites.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.core.structure.Structure.remove_spin">
+<code class="descname">remove_spin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.remove_spin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.remove_spin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes spin states from a structure.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.core.structure.Structure.replace">
 <code class="descname">replace</code><span class="sig-paren">(</span><em>i</em>, <em>species</em>, <em>coords=None</em>, <em>coords_are_cartesian=False</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.replace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace a single site. Takes either a species or a dict of species and
@@ -2146,7 +2185,7 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 

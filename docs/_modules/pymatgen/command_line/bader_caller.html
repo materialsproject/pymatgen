@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.command_line.bader_caller &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.command_line.bader_caller &#8212; pymatgen 2017.8.4 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.7.21',
+        VERSION:     '2017.8.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -73,10 +73,10 @@
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Chgcar</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Potcar</span>
-<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
 <span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
 <span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="k">import</span> <span class="n">ScratchDir</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements an interface to the Henkelmann et al.&#39;s excellent</span>
@@ -100,10 +100,9 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;4/5/13&quot;</span>
 
 
-<span class="nd">@requires</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;bader&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s2">&quot;bader.exe&quot;</span><span class="p">),</span>
-          <span class="s2">&quot;BaderAnalysis requires the executable bader to be in the path.&quot;</span>
-          <span class="s2">&quot; Please download the library at http://theory.cm.utexas&quot;</span>
-          <span class="s2">&quot;.edu/vasp/bader/ and compile the executable.&quot;</span><span class="p">)</span>
+<span class="n">BADEREXE</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s2">&quot;bader&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s2">&quot;bader.exe&quot;</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="BaderAnalysis"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis">[docs]</a><span class="k">class</span> <span class="nc">BaderAnalysis</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Bader analysis for a CHGCAR.</span>
@@ -152,6 +151,10 @@
 <span class="sd">        (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="nd">@requires</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;bader&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s2">&quot;bader.exe&quot;</span><span class="p">),</span>
+              <span class="s2">&quot;BaderAnalysis requires the executable bader to be in the path.&quot;</span>
+              <span class="s2">&quot; Please download the library at http://theory.cm.utexas&quot;</span>
+              <span class="s2">&quot;.edu/vasp/bader/ and compile the executable.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chgcar_filename</span><span class="p">,</span> <span class="n">potcar_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">chgref_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -166,6 +169,11 @@
 <span class="sd">                CHGCAR, which calculated by AECCAR0 + AECCAR2. (See</span>
 <span class="sd">                http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">BADEREXE</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;BaderAnalysis requires the executable bader to be in the path.&quot;</span>
+                <span class="s2">&quot; Please download the library at http://theory.cm.utexas&quot;</span>
+                <span class="s2">&quot;.edu/vasp/bader/ and compile the executable.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span> <span class="o">=</span> <span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">chgcar_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">potcar_filename</span><span class="p">)</span> \
             <span class="k">if</span> <span class="n">potcar_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
@@ -174,10 +182,14 @@
         <span class="n">chgrefpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">chgref_filename</span><span class="p">)</span> <span class="k">if</span> <span class="n">chgref_filename</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reference_used</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">chgref_filename</span> <span class="k">else</span> <span class="kc">False</span>
         <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">chgcarpath</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s2">&quot;CHGCAR&quot;</span><span class="p">))</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bader&quot;</span><span class="p">,</span> <span class="s2">&quot;CHGCAR&quot;</span><span class="p">]</span>
+            <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">chgcarpath</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;CHGCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">f_out</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">BADEREXE</span><span class="p">,</span> <span class="s2">&quot;CHGCAR&quot;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">chgref_filename</span><span class="p">:</span>
-                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">chgrefpath</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s2">&quot;CHGCAR_ref&quot;</span><span class="p">))</span>
+                <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">chgrefpath</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;CHGCAR_ref&quot;</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">f_out</span><span class="p">)</span>
                 <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-ref&#39;</span><span class="p">,</span> <span class="s1">&#39;CHGCAR_ref&#39;</span><span class="p">]</span>
             <span class="n">rs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span>
                                   <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
@@ -218,7 +230,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">nelectrons</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
 
-    <span class="k">def</span> <span class="nf">get_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_index</span><span class="p">):</span>
+<div class="viewcode-block" id="BaderAnalysis.get_charge"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge">[docs]</a>    <span class="k">def</span> <span class="nf">get_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience method to get the charge on a particular atom.</span>
 
@@ -229,9 +241,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Charge associated with atom from the Bader analysis.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">atom_index</span><span class="p">][</span><span class="s2">&quot;charge&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">atom_index</span><span class="p">][</span><span class="s2">&quot;charge&quot;</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="nf">get_charge_transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_index</span><span class="p">):</span>
+<div class="viewcode-block" id="BaderAnalysis.get_charge_transfer"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_transfer">[docs]</a>    <span class="k">def</span> <span class="nf">get_charge_transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the charge transferred for a particular atom. Requires POTCAR</span>
 <span class="sd">        to be supplied.</span>
@@ -252,9 +264,9 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
             <span class="n">potcar_indices</span> <span class="o">+=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span>
         <span class="n">nelect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">[</span><span class="n">potcar_indices</span><span class="p">[</span><span class="n">atom_index</span><span class="p">]]</span><span class="o">.</span><span class="n">nelectrons</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">atom_index</span><span class="p">][</span><span class="s2">&quot;charge&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">nelect</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">atom_index</span><span class="p">][</span><span class="s2">&quot;charge&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">nelect</span></div>
 
-    <span class="k">def</span> <span class="nf">get_oxidation_state_decorated_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaderAnalysis.get_oxidation_state_decorated_structure"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.get_oxidation_state_decorated_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_oxidation_state_decorated_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an oxidation state decorated structure.</span>
 
@@ -266,7 +278,7 @@
         <span class="n">charges</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_charge_transfer</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">))]</span>
         <span class="n">structure</span><span class="o">.</span><span class="n">add_oxidation_state_by_site</span><span class="p">(</span><span class="n">charges</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">structure</span>
+        <span class="k">return</span> <span class="n">structure</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -285,7 +297,62 @@
             <span class="n">charge_transfer</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_charge_transfer</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))]</span>
             <span class="n">summary</span><span class="p">[</span><span class="s1">&#39;charge_transfer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">charge_transfer</span>
 
-        <span class="k">return</span> <span class="n">summary</span></div>
+        <span class="k">return</span> <span class="n">summary</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BaderAnalysis.from_path"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.from_path">[docs]</a>    <span class="k">def</span> <span class="nf">from_path</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenient constructor that takes in the path name of VASP run</span>
+<span class="sd">        to perform Bader analysis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Name of directory where VASP output files are</span>
+<span class="sd">                stored.</span>
+<span class="sd">            suffix (str): specific suffix to look for (e.g. &#39;.relax1&#39;</span>
+<span class="sd">                for &#39;CHGCAR.relax1.gz&#39;).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_get_filepath</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">name_pattern</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">+</span> <span class="n">suffix</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span> <span class="k">if</span> <span class="n">filename</span> <span class="o">!=</span> <span class="s1">&#39;POTCAR&#39;</span> \
+                <span class="k">else</span> <span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">name_pattern</span><span class="p">))</span>
+            <span class="n">fpath</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># using reverse=True because, if multiple files are present,</span>
+                <span class="c1"># they likely have suffixes &#39;static&#39;, &#39;relax&#39;, &#39;relax2&#39;, etc.</span>
+                <span class="c1"># and this would give &#39;static&#39; over &#39;relax2&#39; over &#39;relax&#39;</span>
+                <span class="c1"># however, better to use &#39;suffix&#39; kwarg to avoid this!</span>
+                <span class="n">paths</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">warning_msg</span> <span class="o">=</span> <span class="s2">&quot;Multiple files detected, using </span><span class="si">%s</span><span class="s2">&quot;</span> \
+                              <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>\
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="n">fpath</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warning_msg</span> <span class="o">=</span> <span class="s2">&quot;Could not find </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filename</span>
+                <span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;AECCAR0&#39;</span><span class="p">,</span> <span class="s1">&#39;AECCAR2&#39;</span><span class="p">]:</span>
+                    <span class="n">warning_msg</span> <span class="o">+=</span> <span class="s2">&quot;, cannot calculate charge transfer.&quot;</span>
+                <span class="k">elif</span> <span class="n">filename</span> <span class="o">==</span> <span class="s2">&quot;POTCAR&quot;</span><span class="p">:</span>
+                    <span class="n">warning_msg</span> <span class="o">+=</span> <span class="s2">&quot;, interpret Bader results with caution.&quot;</span>
+            <span class="k">if</span> <span class="n">warning_msg</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">fpath</span>
+
+        <span class="n">chgcar_filename</span> <span class="o">=</span> <span class="n">_get_filepath</span><span class="p">(</span><span class="s2">&quot;CHGCAR&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">chgcar_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Could not find CHGCAR!&quot;</span><span class="p">)</span>
+        <span class="n">potcar_filename</span> <span class="o">=</span> <span class="n">_get_filepath</span><span class="p">(</span><span class="s2">&quot;POTCAR&quot;</span><span class="p">)</span>
+        <span class="n">aeccar0</span> <span class="o">=</span> <span class="n">_get_filepath</span><span class="p">(</span><span class="s2">&quot;AECCAR0&quot;</span><span class="p">)</span>
+        <span class="n">aeccar2</span> <span class="o">=</span> <span class="n">_get_filepath</span><span class="p">(</span><span class="s2">&quot;AECCAR2&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">aeccar0</span> <span class="ow">and</span> <span class="n">aeccar2</span><span class="p">):</span>
+            <span class="c1"># `chgsum.pl AECCAR0 AECCAR2` equivalent to obtain chgref_file</span>
+            <span class="n">chgref</span> <span class="o">=</span> <span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">aeccar0</span><span class="p">)</span> <span class="o">+</span> <span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">aeccar2</span><span class="p">)</span>
+            <span class="n">chgref_filename</span> <span class="o">=</span> <span class="s2">&quot;CHGREF&quot;</span>
+            <span class="n">chgref</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">chgref_filename</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chgref_filename</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">chgcar_filename</span><span class="p">,</span> <span class="n">potcar_filename</span><span class="o">=</span><span class="n">potcar_filename</span><span class="p">,</span>
+                   <span class="n">chgref_filename</span><span class="o">=</span><span class="n">chgref_filename</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="bader_analysis_from_path"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.bader_analysis_from_path">[docs]</a><span class="k">def</span> <span class="nf">bader_analysis_from_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
@@ -433,7 +500,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

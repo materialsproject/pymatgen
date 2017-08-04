@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.command_line.bader_caller module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.command_line.bader_caller module &#8212; pymatgen 2017.8.4 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2017.8.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,12 +55,107 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pymatgen-command-line-bader-caller-module">
-<h1>pymatgen.command_line.bader_caller module<a class="headerlink" href="#pymatgen-command-line-bader-caller-module" title="Permalink to this headline">¶</a></h1>
-<span class="target" id="module-pymatgen.command_line.bader_caller"></span><dl class="function">
+  <div class="section" id="module-pymatgen.command_line.bader_caller">
+<span id="pymatgen-command-line-bader-caller-module"></span><h1>pymatgen.command_line.bader_caller module<a class="headerlink" href="#module-pymatgen.command_line.bader_caller" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
 <dt id="pymatgen.command_line.bader_caller.BaderAnalysis">
-<code class="descname">BaderAnalysis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#BaderAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bader analysis for a CHGCAR.</p>
+<em class="property">class </em><code class="descname">BaderAnalysis</code><span class="sig-paren">(</span><em>chgcar_filename</em>, <em>potcar_filename=None</em>, <em>chgref_filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#BaderAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Bader analysis for a CHGCAR.</p>
+<p>Initializes the Bader caller.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>chgcar_filename</strong> (<em>str</em>) &#8211; The filename of the CHGCAR.</li>
+<li><strong>potcar_filename</strong> (<em>str</em>) &#8211; Optional: the filename of the corresponding
+POTCAR file. Used for calculating the charge transfer. If
+None, the get_charge_transfer method will raise a ValueError.</li>
+<li><strong>chgref_filename</strong> (<em>str</em>) &#8211; Optional. The filename of the reference
+CHGCAR, which calculated by AECCAR0 + AECCAR2. (See
+<a class="reference external" href="http://theory.cm.utexas.edu/henkelman/code/bader/">http://theory.cm.utexas.edu/henkelman/code/bader/</a> for details.)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="pymatgen.command_line.bader_caller.BaderAnalysis.from_path">
+<em class="property">classmethod </em><code class="descname">from_path</code><span class="sig-paren">(</span><em>path</em>, <em>suffix=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#BaderAnalysis.from_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.from_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenient constructor that takes in the path name of VASP run
+to perform Bader analysis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; Name of directory where VASP output files are
+stored.</li>
+<li><strong>suffix</strong> (<em>str</em>) &#8211; specific suffix to look for (e.g. &#8216;.relax1&#8217;
+for &#8216;CHGCAR.relax1.gz&#8217;).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.bader_caller.BaderAnalysis.get_charge">
+<code class="descname">get_charge</code><span class="sig-paren">(</span><em>atom_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#BaderAnalysis.get_charge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to get the charge on a particular atom.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>atom_index</strong> &#8211; Index of atom.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Charge associated with atom from the Bader analysis.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_transfer">
+<code class="descname">get_charge_transfer</code><span class="sig-paren">(</span><em>atom_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#BaderAnalysis.get_charge_transfer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_transfer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the charge transferred for a particular atom. Requires POTCAR
+to be supplied.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>atom_index</strong> &#8211; Index of atom.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Charge transfer associated with atom from the Bader analysis.
+Given by final charge on atom - nelectrons in POTCAR for
+associated atom.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.bader_caller.BaderAnalysis.get_oxidation_state_decorated_structure">
+<code class="descname">get_oxidation_state_decorated_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#BaderAnalysis.get_oxidation_state_decorated_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_oxidation_state_decorated_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an oxidation state decorated structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Returns an oxidation state decorated structure. Requires POTCAR
+to be supplied.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.command_line.bader_caller.BaderAnalysis.summary">
+<code class="descname">summary</code><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.summary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -159,7 +254,7 @@ for the charge difference (magnetization density).</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.lammps.input module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.io.lammps.input module &#8212; pymatgen 2017.8.4 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2017.8.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -58,87 +58,28 @@
   <div class="section" id="module-pymatgen.io.lammps.input">
 <span id="pymatgen-io-lammps-input-module"></span><h1>pymatgen.io.lammps.input module<a class="headerlink" href="#module-pymatgen.io.lammps.input" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pymatgen.io.lammps.input.DictLammpsInput">
-<em class="property">class </em><code class="descname">DictLammpsInput</code><span class="sig-paren">(</span><em>name</em>, <em>config_dict</em>, <em>lammps_data=None</em>, <em>data_filename='in.data'</em>, <em>user_lammps_settings={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/input.html#DictLammpsInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.input.DictLammpsInput" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.io.lammps.input.LammpsInput">
+<em class="property">class </em><code class="descname">LammpsInput</code><span class="sig-paren">(</span><em>contents</em>, <em>settings</em>, <em>delimiter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/input.html#LammpsInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.input.LammpsInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
-<p>Implementation of LammpsInputSet that is initialized from a dict
-settings. It is typically used by other LammpsInputSets for
-initialization from json or yaml source files.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; A name for the input set.</li>
-<li><strong>config_dict</strong> (<em>dict</em>) &#8211; The config dictionary to use.</li>
-<li><strong>lammps_data</strong> (<a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><em>LammpsData</em></a>) &#8211; LammpsData object</li>
-<li><strong>data_filename</strong> (<em>str</em>) &#8211; name of the the lammps data file</li>
-<li><strong>user_lammps_settings</strong> (<em>dict</em>) &#8211; User lammps settings. This allows a user
-to override lammps settings, e.g., setting a different force field
-or bond type.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pymatgen.io.lammps.input.DictLammpsInput.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/input.html#DictLammpsInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.input.DictLammpsInput.as_dict" title="Permalink to this definition">¶</a></dt>
+<dl class="classmethod">
+<dt id="pymatgen.io.lammps.input.LammpsInput.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>input_file</em>, <em>settings=None</em>, <em>delimiter='$$'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/input.html#LammpsInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.input.LammpsInput.from_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
-<dt id="pymatgen.io.lammps.input.DictLammpsInput.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/input.html#DictLammpsInput.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.input.DictLammpsInput.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.io.lammps.input.LammpsInput.from_string">
+<em class="property">classmethod </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>input_string</em>, <em>settings=None</em>, <em>delimiter='$$'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/input.html#LammpsInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.input.LammpsInput.from_string" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
-<dt id="pymatgen.io.lammps.input.DictLammpsInput.from_file">
-<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>name</em>, <em>filename</em>, <em>lammps_data=None</em>, <em>data_filename='in.data'</em>, <em>user_lammps_settings={}</em>, <em>is_forcefield=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/input.html#DictLammpsInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.input.DictLammpsInput.from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads lammps style and JSON style input files putting the settings in an ordered dict (config_dict).
-Note: with monty.serialization.loadfn the order of paramters in the
-json file is not preserved</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>filename</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; name of the file with the lamps control
-paramters</li>
-<li><strong>lammps_data</strong> (<em>string/LammpsData/LammpsForceFieldData</em>) &#8211; path to the
-data file or an appropriate object</li>
-<li><strong>data_filename</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; name of the the lammps data file</li>
-<li><strong>user_lammps_settings</strong> (<em>dict</em>) &#8211; User lammps settings</li>
-<li><strong>is_forcefield</strong> (<em>bool</em>) &#8211; whether the data file has forcefield and
-topology info in it. This is required only if lammps_data is
-a path to the data file instead of a data object</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">DictLammpsInput</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
+<dl class="staticmethod">
+<dt id="pymatgen.io.lammps.input.LammpsInput.get_template">
+<em class="property">static </em><code class="descname">get_template</code><span class="sig-paren">(</span><em>name</em>, <em>delimiter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/input.html#LammpsInput.get_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.input.LammpsInput.get_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.io.lammps.input.DictLammpsInput.write_input">
-<code class="descname">write_input</code><span class="sig-paren">(</span><em>filename</em>, <em>data_filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/input.html#DictLammpsInput.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.input.DictLammpsInput.write_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the string representation of the main input file and write it.
-Also writes the data file if the lammps_data attribute is set.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; name of the input file</li>
-<li><strong>data_filename</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; override the data file name with this</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
+<dt id="pymatgen.io.lammps.input.LammpsInput.write_file">
+<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/input.html#LammpsInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.input.LammpsInput.write_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -180,7 +121,7 @@ Also writes the data file if the lammps_data attribute is set.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 

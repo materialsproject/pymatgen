@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2017.8.4 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2017.8.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -82,7 +82,7 @@
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.lammps.data.LammpsData.check_box_size">
-<em class="property">static </em><code class="descname">check_box_size</code><span class="sig-paren">(</span><em>molecule</em>, <em>box_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.check_box_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.check_box_size" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">check_box_size</code><span class="sig-paren">(</span><em>molecule</em>, <em>box_size</em>, <em>translate=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.check_box_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.check_box_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check the box size and if necessary translate the molecule so that
 all the sites are contained within the bounding box.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -92,6 +92,8 @@ all the sites are contained within the bounding box.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) &#8211; </li>
 <li><strong>box_size</strong> (<em>list</em>) &#8211; [[x_min, x_max], [y_min, y_max], [z_min, z_max]]</li>
+<li><strong>translate</strong> (<em>bool</em>) &#8211; if true move the molecule to the center of the
+new box.</li>
 </ul>
 </td>
 </tr>
@@ -104,9 +106,9 @@ all the sites are contained within the bounding box.</p>
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="classmethod">
 <dt id="pymatgen.io.lammps.data.LammpsData.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>data_file</em>, <em>read_charge=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>data_file</em>, <em>read_charge=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return LammpsData object from the data file.
 Note: use this to read in data files that conform with
 atom_style = charge or atomic</p>
@@ -128,9 +130,9 @@ atom_style = charge else atom_style = atomic</li>
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="classmethod">
 <dt id="pymatgen.io.lammps.data.LammpsData.from_structure">
-<em class="property">static </em><code class="descname">from_structure</code><span class="sig-paren">(</span><em>input_structure</em>, <em>box_size</em>, <em>set_charge=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_structure" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_structure</code><span class="sig-paren">(</span><em>input_structure</em>, <em>box_size</em>, <em>set_charge=True</em>, <em>translate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set LammpsData from the given structure. If the input structure is
 a Structure, it is converted to a molecule. TIf the molecule doesnt fit
 in the input box, the box size is updated based on the max and min site
@@ -142,9 +144,11 @@ coordinates of the molecules.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>input_structure</strong> (<em>Molecule/Structure</em>) &#8211; </li>
 <li><strong>box_size</strong> (<em>list</em>) &#8211; [[x_min, x_max], [y_min, y_max], [z_min, z_max]]</li>
-<li><strong>set_charge</strong> (<em>bool</em>) &#8211; whether or not to set the charge field in</li>
-<li><strong>If true</strong><strong>, </strong><strong>the charge will be non-zero only if the</strong> (<em>Atoms.</em>) &#8211; </li>
-<li><strong>has the &quot;charge&quot; site property set.</strong> (<em>input_structure</em>) &#8211; </li>
+<li><strong>set_charge</strong> (<em>bool</em>) &#8211; whether or not to set the charge field in
+Atoms. If true, the charge will be non-zero only if the
+input_structure has the &#8220;charge&#8221; site property set.</li>
+<li><strong>translate</strong> (<em>bool</em>) &#8211; if true move the molecule to the center of the
+new box(it that is required).</li>
 </ul>
 </td>
 </tr>
@@ -358,8 +362,13 @@ molid_to_atomid: [ [global atom id 1, id 2, ..], ...], the</p>
 </dd></dl>
 
 <dl class="staticmethod">
+<dt id="pymatgen.io.lammps.data.LammpsForceFieldData.get_basic_system_info">
+<em class="property">static </em><code class="descname">get_basic_system_info</code><span class="sig-paren">(</span><em>molecule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsForceFieldData.get_basic_system_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData.get_basic_system_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
 <dt id="pymatgen.io.lammps.data.LammpsForceFieldData.get_param_coeff">
-<em class="property">static </em><code class="descname">get_param_coeff</code><span class="sig-paren">(</span><em>forcefield</em>, <em>param_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsForceFieldData.get_param_coeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData.get_param_coeff" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">get_param_coeff</code><span class="sig-paren">(</span><em>forcefield</em>, <em>param_name</em>, <em>atom_types_map=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsForceFieldData.get_param_coeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData.get_param_coeff" title="Permalink to this definition">¶</a></dt>
 <dd><p>get the parameter coefficients and mapping from the force field.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -369,6 +378,9 @@ molid_to_atomid: [ [global atom id 1, id 2, ..], ...], the</p>
 <li><strong>forcefield</strong> (<a class="reference internal" href="pymatgen.io.lammps.force_field.html#pymatgen.io.lammps.force_field.ForceField" title="pymatgen.io.lammps.force_field.ForceField"><em>ForceField</em></a>) &#8211; ForceField object</li>
 <li><strong>param_name</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; name of the parameter for which</li>
 <li><strong>coefficients are to be set.</strong> (<em>the</em>) &#8211; </li>
+<li><strong>atom_types_map</strong> (<em>dict</em>) &#8211; maps atom type to the atom type id.
+Used to set hthe pair coeffs.
+e.g. {&#8220;C2&#8221;: [3], &#8220;H2&#8221;: [1], &#8220;H1&#8221;: [2]}</li>
 </ul>
 </td>
 </tr>
@@ -451,7 +463,7 @@ the index is the global mol id</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 

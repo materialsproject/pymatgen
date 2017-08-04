@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.lammps.output module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.io.lammps.output module &#8212; pymatgen 2017.8.4 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2017.8.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -58,9 +58,21 @@
   <div class="section" id="module-pymatgen.io.lammps.output">
 <span id="pymatgen-io-lammps-output-module"></span><h1>pymatgen.io.lammps.output module<a class="headerlink" href="#module-pymatgen.io.lammps.output" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
+<dt id="pymatgen.io.lammps.output.LammpsDump">
+<em class="property">class </em><code class="descname">LammpsDump</code><span class="sig-paren">(</span><em>timesteps</em>, <em>natoms</em>, <em>box_bounds</em>, <em>atoms_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsDump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsDump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Parse lammps dump file.</p>
+<dl class="classmethod">
+<dt id="pymatgen.io.lammps.output.LammpsDump.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>dump_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsDump.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsDump.from_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.io.lammps.output.LammpsLog">
 <em class="property">class </em><code class="descname">LammpsLog</code><span class="sig-paren">(</span><em>log_file='log.lammps'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsLog" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Parser for LAMMPS log file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -70,30 +82,55 @@
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pymatgen.io.lammps.output.LammpsLog.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsLog.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsLog.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.lammps.output.LammpsLog.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsLog.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsLog.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.lammps.output.LammpsRun">
 <em class="property">class </em><code class="descname">LammpsRun</code><span class="sig-paren">(</span><em>data_file</em>, <em>trajectory_file</em>, <em>log_file='log.lammps'</em>, <em>is_forcefield=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsRun" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Parse the lammps data file, trajectory file and the log file to extract
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Parse the lammps data file, trajectory(dump) file and the log file to extract
 useful info about the system.</p>
+<dl class="docutils">
+<dt>Note: In order to parse trajectory or dump file, the first 2 fields must be</dt>
+<dd>the id and the atom type. There can be arbitrary number of fields after
+that and they all will be treated as floats.</dd>
+</dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>data_file</strong> (<em>str</em>) &#8211; path to the data file</li>
-<li><strong>trajectory_file</strong> (<em>str</em>) &#8211; path to the trajectory file</li>
+<li><strong>trajectory_file</strong> (<em>str</em>) &#8211; path to the trajectory file or dump file</li>
 <li><strong>log_file</strong> (<em>str</em>) &#8211; path to the log file</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pymatgen.io.lammps.output.LammpsRun.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsRun.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsRun.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.io.lammps.output.LammpsRun.box_lengths">
 <code class="descname">box_lengths</code><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsRun.box_lengths" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.lammps.output.LammpsRun.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsRun.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsRun.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -127,7 +164,7 @@ between measurements)</li>
 <dt id="pymatgen.io.lammps.output.LammpsRun.get_displacements">
 <code class="descname">get_displacements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsRun.get_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsRun.get_displacements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the initial structure and displacements for each time step.
-Used to interface witht the DiffusionAnalyzer.</p>
+Used to interface with the DiffusionAnalyzer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -253,7 +290,7 @@ e.g. for units = real, time units = fmsec</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
