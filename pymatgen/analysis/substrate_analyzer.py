@@ -144,9 +144,9 @@ class ZSLGenerator(object):
         for (film_transformations, substrate_transformations) in \
                 transformation_sets:
             # Apply transformations and reduce using Zur reduce methodology
-            films = [reduce_vectors(*np.dot(f, film_vectors).tolist()) for f in film_transformations]
+            films = [reduce_vectors(*np.dot(f, film_vectors)) for f in film_transformations]
 
-            substrates = [reduce_vectors(*np.dot(s, substrate_vectors).tolist()) for s in substrate_transformations]
+            substrates = [reduce_vectors(*np.dot(s, substrate_vectors)) for s in substrate_transformations]
 
             # Check if equivelant super lattices
             for f, s in product(films, substrates):
@@ -186,11 +186,11 @@ class ZSLGenerator(object):
             substrate_miller(array)
         """
         d = {}
-        d["film_sl_vecs"] = np.asarray(film_sl_vectors).tolist()
-        d["sub_sl_vecs"] = np.asarray(substrate_sl_vectors).tolist()
+        d["film_sl_vecs"] = np.asarray(film_sl_vectors)
+        d["sub_sl_vecs"] = np.asarray(substrate_sl_vectors)
         d["match_area"] = match_area
-        d["film_vecs"] = np.asarray(film_vectors).tolist()
-        d["sub_vecs"] = np.asarray(substrate_vectors).tolist()
+        d["film_vecs"] = np.asarray(film_vectors)
+        d["sub_vecs"] = np.asarray(substrate_vectors)
 
         return d
 
@@ -367,7 +367,7 @@ def gen_sl_transform_matricies(area_multiple):
         matrix_list: transformation matricies to covert unit vectors to
         super lattice vectors
     """
-    return [np.matrix(((i, j), (0, area_multiple / i)))
+    return [np.array(((i, j), (0, area_multiple / i)))
             for i in get_factors(area_multiple)
             for j in range(area_multiple // i)]
 
