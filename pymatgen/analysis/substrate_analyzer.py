@@ -263,6 +263,7 @@ class SubstrateAnalyzer:
             substrate(Structure): conventional standard structure for the
                 substrate
             elasticity_tensor(ElasticTensor): elasticity tensor for the film
+                in the IEEE orientation
             film_millers(array): film facets to consider in search as defined by
                 miller indicies
             substrate_millers(array): substrate facets to consider in search as
