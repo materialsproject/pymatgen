@@ -220,7 +220,7 @@ class SubstrateAnalyzer:
         self.film_max_miller = film_max_miller
         self.substrate_max_miller = substrate_max_miller
 
-    def generate_surface_vectors(self,film_millers, substrate_millers):
+    def generate_surface_vectors(self, film_millers, substrate_millers):
         """
         Generates the film/substrate slab combinations for a set of given
         miller indicies
@@ -285,8 +285,8 @@ class SubstrateAnalyzer:
                                                           self.substrate_max_miller))
 
         # Check each miller index combination
-        surface_vector_sets =  self.generate_surface_vectors(film_millers,substrate_millers)
-        for [film_vectors, substrate_vectors,film_miller, substrate_miller] in surface_vector_sets:
+        surface_vector_sets = self.generate_surface_vectors(film_millers, substrate_millers)
+        for [film_vectors, substrate_vectors, film_miller, substrate_miller] in surface_vector_sets:
             for match in self.zsl(film_vectors, substrate_vectors, lowest):
                 match['film_miller'] = film_miller
                 match['sub_miller'] = substrate_miller
@@ -319,7 +319,7 @@ class SubstrateAnalyzer:
 
         # Get the appropriate surface structure
         struc = SlabGenerator(self.film, match['film_miller'], 20, 15,
-                                      primitive=False).get_slab().oriented_unit_cell
+                              primitive=False).get_slab().oriented_unit_cell
 
         # Generate 3D lattice vectors for film super lattice
         film_matrix = list(match['film_sl_vecs'])
@@ -339,7 +339,7 @@ class SubstrateAnalyzer:
 
         dfm = Deformation(transform_matrix)
 
-        strain = dfm.green_lagrange_strain.convert_to_ieee(struc,initial_fit=False)
+        strain = dfm.green_lagrange_strain.convert_to_ieee(struc, initial_fit=False)
 
         energy_density = elasticity_tensor.energy_density(
             strain)
