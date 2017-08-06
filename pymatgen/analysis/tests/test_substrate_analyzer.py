@@ -76,7 +76,7 @@ class SubstrateAnalyzerTest(PymatgenTest):
         s = SubstrateAnalyzer()
 
         matches = list(s.calculate(film,substrate,film_elac))
-        self.assertEqual(len(matches), 82)
+        self.assertEqual(len(matches), 192)
 
 
 if __name__ == '__main__':
