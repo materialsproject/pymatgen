@@ -616,7 +616,6 @@ class StructureMotifInterstitialTest(PymatgenTest):
         self.assertIsInstance(structs[0], Structure)
 
     def test_get_neighbors_of_site_with_index(self):
-        print('here')
         self.assertAlmostEqual(len(get_neighbors_of_site_with_index(
             self.diamond, 0)), 4)
         self.assertAlmostEqual(len(get_neighbors_of_site_with_index(
