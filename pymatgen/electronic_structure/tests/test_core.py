@@ -130,6 +130,8 @@ class MagmomTest(unittest.TestCase):
     def test_equality(self):
         self.assertTrue(Magmom([1, 1, 1]) == Magmom([1, 1, 1]))
         self.assertFalse(Magmom([1, 1, 2]) == Magmom([1, 1, 1]))
+        self.assertTrue(Magmom([0, 0, 10]) == 10)
+
         
 if __name__ == '__main__':
     unittest.main()

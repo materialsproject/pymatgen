@@ -72,7 +72,7 @@ class LammpsData(MSONable):
         return '\n'.join(lines)
 
     @staticmethod
-    def check_box_size(molecule, box_size):
+    def check_box_size(molecule, box_size, translate=False):
         """
         Check the box size and if necessary translate the molecule so that
         all the sites are contained within the bounding box.
@@ -80,21 +80,26 @@ class LammpsData(MSONable):
         Args:
             molecule(Molecule)
             box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
+            translate (bool): if true move the molecule to the center of the
+                new box.
         """
-        box_lengths_req = [np.max(molecule.cart_coords[:, i])-np.min(molecule.cart_coords[:, i])
-                           for i in range(3)]
+        box_lengths_req = [
+            np.max(molecule.cart_coords[:, i])-np.min(molecule.cart_coords[:, i])
+            for i in range(3)]
         box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
         try:
             np.testing.assert_array_less(box_lengths_req, box_lengths)
         except AssertionError:
             box_size = [[0.0, np.ceil(i*1.1)] for i in box_lengths_req]
-            print("Minimum required box lengths {} larger than the provided box lengths{}. "
-                  "Resetting the box size to {}".format(
+            print("Minimum required box lengths {} larger than the provided "
+                  "box lengths{}. Resetting the box size to {}".format(
                 box_lengths_req, box_lengths, box_size))
-        com = molecule.center_of_mass
-        new_com = [(side[1] + side[0]) / 2 for side in box_size]
-        translate_by = np.array(new_com) - np.array(com)
-        molecule.translate_sites(range(len(molecule)), translate_by)
+            translate = True
+        if translate:
+            com = molecule.center_of_mass
+            new_com = [(side[1] + side[0]) / 2 for side in box_size]
+            translate_by = np.array(new_com) - np.array(com)
+            molecule.translate_sites(range(len(molecule)), translate_by)
         return box_size
 
     def write_data_file(self, filename):
@@ -125,7 +130,7 @@ class LammpsData(MSONable):
         elements = structure.composition.elements
         elements = sorted(elements, key=lambda el: el.atomic_mass)
         atomic_masses_dict = OrderedDict(
-            [(el.symbol, [i + 1, el.data["Atomic mass"]])
+            [(el.symbol, [i + 1, float(el.data["Atomic mass"])])
              for i, el in enumerate(elements)])
         return natoms, natom_types, atomic_masses_dict
 
@@ -179,8 +184,8 @@ class LammpsData(MSONable):
             for ad in input_list:
                 lines.append(" ".join([str(x) for x in ad]))
 
-    @staticmethod
-    def from_structure(input_structure, box_size, set_charge=True):
+    @classmethod
+    def from_structure(cls, input_structure, box_size, set_charge=True, translate=True):
         """
         Set LammpsData from the given structure. If the input structure is
         a Structure, it is converted to a molecule. TIf the molecule doesnt fit
@@ -191,24 +196,24 @@ class LammpsData(MSONable):
             input_structure (Molecule/Structure)
             box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
             set_charge (bool): whether or not to set the charge field in
-            Atoms. If true, the charge will be non-zero only if the
-            input_structure has the "charge" site property set.
+                Atoms. If true, the charge will be non-zero only if the
+                input_structure has the "charge" site property set.
+            translate (bool): if true move the molecule to the center of the
+                new box(it that is required).
 
         Returns:
             LammpsData
         """
         if isinstance(input_structure, Structure):
             input_structure = Molecule.from_sites(input_structure.sites)
-        box_size = LammpsData.check_box_size(input_structure, box_size)
-        natoms, natom_types, atomic_masses_dict = \
-            LammpsData.get_basic_system_info(input_structure.copy())
-        atoms_data = LammpsData.get_atoms_data(input_structure,
-                                               atomic_masses_dict,
-                                               set_charge=set_charge)
-        return LammpsData(box_size, atomic_masses_dict.values(), atoms_data)
+        box_size = cls.check_box_size(input_structure, box_size, translate=translate)
+        natoms, natom_types, atomic_masses_dict = cls.get_basic_system_info(input_structure.copy())
+        atoms_data = cls.get_atoms_data(input_structure, atomic_masses_dict,
+                                        set_charge=set_charge)
+        return cls(box_size, atomic_masses_dict.values(), atoms_data)
 
-    @staticmethod
-    def from_file(data_file, read_charge=True):
+    @classmethod
+    def from_file(cls, data_file, read_charge=True):
         """
         Return LammpsData object from the data file.
         Note: use this to read in data files that conform with
@@ -254,7 +259,7 @@ class LammpsData(MSONable):
                     # charge, x, y, z
                     line_data.extend([float(i) for i in m.groups()[3:]])
                     atoms_data.append(line_data)
-        return LammpsData(box_size, atomic_masses, atoms_data)
+        return cls(box_size, atomic_masses, atoms_data)
 
     def as_dict(self):
         d = MSONable.as_dict(self)
@@ -382,7 +387,22 @@ class LammpsForceFieldData(LammpsData):
         return '\n'.join(lines)
 
     @staticmethod
-    def get_param_coeff(forcefield, param_name):
+    def get_basic_system_info(molecule):
+        natoms = len(molecule)
+        atom_types = set(molecule.site_properties.get("ff_map", molecule.symbol_set))
+        natom_types = len(atom_types)
+        elements = {}
+        for s in molecule:
+            label = str(s.ff_map) if hasattr(molecule[0], "ff_map") else s.specie.symbol
+            elements[label] = float(s.specie.atomic_mass)
+        elements_items = list(elements.items())
+        elements_items = sorted(elements_items, key=lambda el_item: el_item[1])
+        atomic_masses_dict = OrderedDict([(el_item[0], [i + 1, el_item[1]])
+                                          for i, el_item in enumerate(elements_items)])
+        return natoms, natom_types, atomic_masses_dict
+
+    @staticmethod
+    def get_param_coeff(forcefield, param_name, atom_types_map=None):
         """
         get the parameter coefficients and mapping from the force field.
 
@@ -390,6 +410,9 @@ class LammpsForceFieldData(LammpsData):
             forcefield (ForceField): ForceField object
             param_name (string): name of the parameter for which
             the coefficients are to be set.
+            atom_types_map (dict): maps atom type to the atom type id.
+                Used to set hthe pair coeffs.
+                e.g. {"C2": [3], "H2": [1], "H1": [2]}
 
         Returns:
             [[parameter id, value1, value2, ... ], ... ] and
@@ -399,7 +422,12 @@ class LammpsForceFieldData(LammpsData):
             param = getattr(forcefield, param_name)
             param_coeffs = []
             param_map = {}
-            if param:
+            if param_name == "pairs":
+                for i, item in enumerate(param.items()):
+                    key = item[0][0]
+                    param_coeffs.append([atom_types_map[key][0]] + list(item[1]))
+                param_coeffs = sorted(param_coeffs, key=lambda ii: ii[0])
+            elif param:
                 for i, item in enumerate(param.items()):
                     param_coeffs.append([i + 1] + list(item[1]))
                     param_map[item[0]] = i+1
@@ -429,6 +457,7 @@ class LammpsForceFieldData(LammpsData):
                 index will be the global mol id
         """
         atoms_data = []
+        molid_to_atomid = []
         nmols = len(mols)
         # set up map atom_to_mol:
         #   atom_id --> [mol_type, mol_id, local atom id in the mol with id mol id]
@@ -456,7 +485,8 @@ class LammpsForceFieldData(LammpsData):
         # molecules from mols list with their count from mol_number list.
         # atom id, mol id, atom type, charge from topology, x, y, z
         for i, site in enumerate(molecule):
-            atom_type = atomic_masses_dict[site.specie.symbol][0]
+            label = str(site.ff_map) if hasattr(site, "ff_map") else site.specie.symbol
+            atom_type = atomic_masses_dict[label][0]
             # atom_type = molecule.symbol_set.index(site.species_string) + 1
             atom_id = i + 1
             mol_type = atom_to_mol[i][0] + 1
@@ -566,32 +596,59 @@ class LammpsForceFieldData(LammpsData):
         Returns:
             LammpsForceFieldData
         """
-        # set the coefficients and map from the force field
-        bond_coeffs, bond_map = LammpsForceFieldData.get_param_coeff(
-            forcefield, "bonds")
-        angle_coeffs, angle_map = LammpsForceFieldData.get_param_coeff(
-            forcefield, "angles")
-        pair_coeffs, _ = LammpsForceFieldData.get_param_coeff(
-            forcefield, "pairs")
-        dihedral_coeffs, dihedral_map = LammpsForceFieldData.get_param_coeff(
-            forcefield, "dihedrals")
-        improper_coeffs, imdihedral_map = LammpsForceFieldData.get_param_coeff(
-            forcefield, "imdihedrals")
-        # atoms data, topology used for setting charge if present
-        box_size = LammpsForceFieldData.check_box_size(molecule, box_size)
+
         natoms, natom_types, atomic_masses_dict = \
-            LammpsData.get_basic_system_info(molecule.copy())
+            LammpsForceFieldData.get_basic_system_info(molecule.copy())
+
+        box_size = LammpsForceFieldData.check_box_size(molecule, box_size)
+
+        # set the coefficients and map from the force field
+
+        # bonds
+        bond_coeffs, bond_map = \
+            LammpsForceFieldData.get_param_coeff(forcefield, "bonds")
+
+        # angles
+        angle_coeffs, angle_map = \
+            LammpsForceFieldData.get_param_coeff(forcefield, "angles")
+
+        # pair coefficients
+        pair_coeffs, _ = \
+            LammpsForceFieldData.get_param_coeff(forcefield, "pairs",
+                                                 atomic_masses_dict)
+
+        # dihedrals
+        dihedral_coeffs, dihedral_map = \
+            LammpsForceFieldData.get_param_coeff(forcefield, "dihedrals")
+
+        # improper dihedrals
+        improper_coeffs, imdihedral_map = \
+            LammpsForceFieldData.get_param_coeff(forcefield, "imdihedrals")
+
+        # atoms data. topology used for setting charge if present
         atoms_data, molid_to_atomid = LammpsForceFieldData.get_atoms_data(
             mols, mols_number, molecule, atomic_masses_dict, topologies)
+
         # set the other data from the molecular topologies
+
+        # bonds
         bonds_data = LammpsForceFieldData.get_param_data(
             "bonds", bond_map, mols, mols_number, topologies, molid_to_atomid)
+
+        # angles
         angles_data = LammpsForceFieldData.get_param_data(
             "angles", angle_map, mols, mols_number, topologies, molid_to_atomid)
+
+        # dihedrals
         dihedrals_data = LammpsForceFieldData.get_param_data(
-            "dihedrals", dihedral_map, mols, mols_number, topologies, molid_to_atomid)
+            "dihedrals", dihedral_map, mols, mols_number, topologies,
+            molid_to_atomid)
+
+        # improper dihedrals
         imdihedrals_data = LammpsForceFieldData.get_param_data(
-            "imdihedrals", imdihedral_map, mols, mols_number, topologies, molid_to_atomid)
+            "imdihedrals", imdihedral_map, mols, mols_number, topologies,
+            molid_to_atomid)
+
         return LammpsForceFieldData(box_size, atomic_masses_dict.values(),
                                     pair_coeffs, bond_coeffs,
                                     angle_coeffs, dihedral_coeffs,
@@ -599,8 +656,9 @@ class LammpsForceFieldData(LammpsData):
                                     bonds_data, angles_data, dihedrals_data,
                                     imdihedrals_data)
 
-    # TODO this needs to be rewritten more generally to include multiple coefficent styles. This could be done by
-    # parsing all the blocks individually instead of searching line by line for patterns
+    # TODO this needs to be rewritten more generally to include multiple
+    # coefficent styles. This could be done by parsing all the blocks
+    # individually instead of searching line by line for patterns
     @staticmethod
     def from_file(data_file):
         """

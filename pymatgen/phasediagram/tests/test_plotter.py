@@ -14,6 +14,9 @@ from pymatgen.phasediagram.maker import PhaseDiagram
 from pymatgen.phasediagram.plotter import PDPlotter, uniquelines, \
      triangular_coord, tet_coord
 
+import matplotlib
+
+matplotlib.use("pdf")
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -34,7 +37,6 @@ class PDPlotterTest(unittest.TestCase):
         self.pd3d = PhaseDiagram(entries)
         self.plotter3d = PDPlotter(self.pd3d, show_unstable=True)
 
-
     def test_pd_plot_data(self):
         (lines, labels, unstable_entries) = self.plotter.pd_plot_data
         self.assertEqual(len(lines), 22)
@@ -52,19 +54,15 @@ class PDPlotterTest(unittest.TestCase):
         self.assertEqual(len(lines), 3)
         self.assertEqual(len(labels), len(self.pd_formation.stable_entries))
 
-    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plot(self):
         # Some very basic non-tests. Just to make sure the methods are callable.
-        import matplotlib
-        matplotlib.use("pdf")
-
         self.plotter.get_plot()
         self.plotter3d.get_plot()
-        self.plotter.get_plot(energy_colormap="Reds", process_attributes=True)
-        plt = self.plotter3d.get_plot(energy_colormap="Reds", process_attributes=True)
-        self.plotter.get_plot(energy_colormap="Reds", process_attributes=False)
-        plt = self.plotter3d.get_plot(energy_colormap="Reds",
-                                      process_attributes=False)
+        # self.plotter.get_plot(energy_colormap="Reds", process_attributes=True)
+        # plt = self.plotter3d.get_plot(energy_colormap="Reds", process_attributes=True)
+        # self.plotter.get_plot(energy_colormap="Reds", process_attributes=False)
+        # plt = self.plotter3d.get_plot(energy_colormap="Reds",
+        #                               process_attributes=False)
         self.plotter.get_chempot_range_map_plot([Element("Li"), Element("O")])
 
 

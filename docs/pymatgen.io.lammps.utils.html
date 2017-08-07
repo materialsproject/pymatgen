@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.lammps.utils module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.io.lammps.utils module &#8212; pymatgen 2017.8.4 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2017.8.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,7 +59,7 @@
 <span id="pymatgen-io-lammps-utils-module"></span><h1>pymatgen.io.lammps.utils module<a class="headerlink" href="#module-pymatgen.io.lammps.utils" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.lammps.utils.LammpsRunner">
-<em class="property">class </em><code class="descname">LammpsRunner</code><span class="sig-paren">(</span><em>dict_input</em>, <em>input_filename='lammps.in'</em>, <em>bin='lammps'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/utils.html#LammpsRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">LammpsRunner</code><span class="sig-paren">(</span><em>input_filename='lammps.in'</em>, <em>bin='lammps'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/utils.html#LammpsRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>LAMMPS wrapper</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -67,7 +67,6 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dict_input</strong> (<a class="reference internal" href="pymatgen.io.lammps.input.html#pymatgen.io.lammps.input.DictLammpsInput" title="pymatgen.io.lammps.input.DictLammpsInput"><em>DictLammpsInput</em></a>) &#8211; lammps input object</li>
 <li><strong>input_filename</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; input file name</li>
 <li><strong>bin</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; command to run, excluding the input file name</li>
 </ul>
@@ -110,6 +109,50 @@ according to the filetype</li>
 </tbody>
 </table>
 <dl class="method">
+<dt id="pymatgen.io.lammps.utils.PackmolRunner.convert_obatoms_to_molecule">
+<code class="descname">convert_obatoms_to_molecule</code><span class="sig-paren">(</span><em>atoms</em>, <em>residue_name=None</em>, <em>site_property='ff_map'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/utils.html#PackmolRunner.convert_obatoms_to_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.convert_obatoms_to_molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert list of openbabel atoms to MOlecule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>atoms</strong> (<em></em><em>[</em><em>OBAtom</em><em>]</em><em></em>) &#8211; list of OBAtom objects</li>
+<li><strong>residue_name</strong> (<em>str</em>) &#8211; the key in self.map_residue_to_mol. Usec to
+restore the site properties in the final packed molecule.</li>
+<li><strong>site_property</strong> (<em>str</em>) &#8211; the site property to be restored.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Molecule object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.lammps.utils.PackmolRunner.restore_site_properties">
+<code class="descname">restore_site_properties</code><span class="sig-paren">(</span><em>site_property='ff_map'</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/utils.html#PackmolRunner.restore_site_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.restore_site_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore the site properties for the final packed molecule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>site_property</strong> (<em>str</em>) &#8211; </li>
+<li><strong>filename</strong> (<em>str</em>) &#8211; path to the final packed molecule.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Molecule</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.io.lammps.utils.PackmolRunner.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>copy_to_current_on_exit=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/utils.html#PackmolRunner.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the input file to the scratch directory, run packmol and return
@@ -126,6 +169,12 @@ directory.</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.lammps.utils.PackmolRunner.write_pdb">
+<code class="descname">write_pdb</code><span class="sig-paren">(</span><em>mol</em>, <em>filename</em>, <em>name=None</em>, <em>num=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/utils.html#PackmolRunner.write_pdb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.write_pdb" title="Permalink to this definition">¶</a></dt>
+<dd><p>dump the molecule into pdb file with custom residue name and number.</p>
 </dd></dl>
 
 </dd></dl>
@@ -200,7 +249,7 @@ terminal molecules</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 

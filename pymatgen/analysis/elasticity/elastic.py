@@ -9,6 +9,7 @@ from pymatgen.analysis.elasticity.tensors import Tensor, \
     TensorCollection, get_uvec
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
+from pymatgen.core.units import Unit
 from scipy.misc import factorial
 from scipy.integrate import quad
 from scipy.optimize import root
@@ -44,6 +45,8 @@ class NthOrderElasticTensor(Tensor):
     An object representing an nth-order tensor expansion 
     of the stress-strain constitutive equations
     """
+    GPa_to_eV_A3 = Unit("GPa").get_conversion_factor(Unit("eV ang^-3"))
+
     def __new__(cls, input_array, check_rank=None, tol=1e-4):
         obj = super(NthOrderElasticTensor, cls).__new__(
             cls, input_array, check_rank=check_rank)
@@ -83,7 +86,7 @@ class NthOrderElasticTensor(Tensor):
         """
         e_density = np.sum(self.calculate_stress(strain)*strain) / self.order
         if convert_GPa_to_eV:
-            e_density *= 0.000624151  # Conversion factor for GPa to eV/A^3
+            e_density *= self.GPa_to_eV_A3  # Conversion factor for GPa to eV/A^3
         return e_density
 
     @classmethod
@@ -624,7 +627,7 @@ class ElasticTensorExpansion(TensorCollection):
         """
         return np.trace(self.get_tgt(temperature, structure, quad)) / 3.
 
-    def get_heat_capacity(self, temperature, structure, n, u):
+    def get_heat_capacity(self, temperature, structure, n, u, cutoff=1e2):
         """
         Gets the directional heat capacity for a higher order tensor
         expansion as a function of direction and polarization.
@@ -636,10 +639,13 @@ class ElasticTensorExpansion(TensorCollection):
             n (3x1 array-like): direction for Cv determination
             u (3x1 array-like): polarization direction, note that
                 no attempt for verification of eigenvectors is made
+            overflow_cutoff (float)
         """
         k = 1.38065e-23
         kt = k*temperature
         hbar_w = 1.05457e-34*self.omega(structure, n, u)
+        if hbar_w > kt * cutoff:
+            return 0.0
         c = k * (hbar_w / kt) ** 2
         c *= np.exp(hbar_w / kt) / (np.exp(hbar_w / kt) - 1)**2
         return c * 6.022e23

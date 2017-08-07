@@ -229,14 +229,17 @@ class SpecieTestCase(PymatgenTest):
 
     def test_to_from_string(self):
         fe3 = Specie("Fe", 3, {"spin": 5})
-        self.assertEqual(str(fe3), "Fe3+spin=5")
-        fe = Specie.from_string("Fe3+spin=5")
+        self.assertEqual(str(fe3), "Fe3+,spin=5")
+        fe = Specie.from_string("Fe3+,spin=5")
         self.assertEqual(fe.spin, 5)
         mo0 = Specie("Mo", 0, {"spin": 5})
-        self.assertEqual(str(mo0), "Mo0+spin=5")
-        mo = Specie.from_string("Mo0+spin=4")
+        self.assertEqual(str(mo0), "Mo0+,spin=5")
+        mo = Specie.from_string("Mo0+,spin=4")
         self.assertEqual(mo.spin, 4)
 
+    def test_no_oxidation_state(self):
+        mo0 = Specie("Mo", None, {"spin": 5})
+        self.assertEqual(str(mo0), "Mo,spin=5")
 
 class DummySpecieTestCase(unittest.TestCase):
 

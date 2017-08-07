@@ -16,6 +16,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
 from pymatgen import Composition, Structure
+from pymatgen.electronic_structure.core import Magmom
 from monty.io import zopen
 
 """
@@ -403,6 +404,9 @@ class IncarTest(unittest.TestCase):
         d = self.incar.as_dict()
         incar2 = Incar.from_dict(d)
         self.assertEqual(self.incar, incar2)
+        d["MAGMOM"] = [Magmom([1, 2, 3]).as_dict()]
+        incar3 = Incar.from_dict(d)
+        self.assertEqual(incar3["MAGMOM"], [Magmom([1, 2, 3])])
 
     def test_write(self):
         tempfname = "INCAR.testing"
@@ -446,12 +450,15 @@ TIME       =  0.4"""
     def test_lsorbit_magmom(self):
         magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
         magmom2 = [-1, -1, -1, 0, 0, 0, 0, 0]
+        magmom4 = [Magmom([1.0, 2.0, 2.0])]
 
         ans_string1 = "LANGEVIN_GAMMA = 10 10 10\nLSORBIT = True\n" \
                       "MAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
         ans_string2 = "LANGEVIN_GAMMA = 10\nLSORBIT = True\n" \
                       "MAGMOM = 3*3*-1 3*5*0\n"
         ans_string3 = "LSORBIT = False\nMAGMOM = 2*-1 2*9\n"
+        ans_string4_nolsorbit = "LANGEVIN_GAMMA = 10\nLSORBIT = False\nMAGMOM = 1*3.0\n"
+        ans_string4_lsorbit = "LANGEVIN_GAMMA = 10\nLSORBIT = True\nMAGMOM = 1.0 2.0 2.0\n"
 
         incar = Incar({})
         incar["MAGMOM"] = magmom1
@@ -463,6 +470,12 @@ TIME       =  0.4"""
         incar["LSORBIT"] = "T"
         incar["LANGEVIN_GAMMA"] = 10
         self.assertEqual(ans_string2, str(incar))
+
+        incar["MAGMOM"] = magmom4
+        incar["LSORBIT"] = "F"
+        self.assertEqual(ans_string4_nolsorbit, str(incar))
+        incar["LSORBIT"] = "T"
+        self.assertEqual(ans_string4_lsorbit, str(incar))
 
         incar = Incar.from_string(ans_string1)
         self.assertEqual(incar["MAGMOM"], [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]])

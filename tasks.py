@@ -1,7 +1,4 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from invoke import task
 import glob
 import os
 import json
@@ -10,7 +7,6 @@ import requests
 import re
 import subprocess
 import datetime
-from invoke import task
 
 from monty.os import cd
 from pymatgen import __version__ as CURRENT_VER
@@ -131,8 +127,8 @@ def update_coverage(ctx):
 
 @task
 def merge_stable(ctx):
-    ctx.run("git commit -a -m \"v%s release\"" % NEW_VER)
-    ctx.run("git push")
+    ctx.run("git tag -a v%s -m \"v%s release\"" % (NEW_VER, NEW_VER))
+    ctx.run("git push --tags")
     ctx.run("git checkout stable")
     ctx.run("git pull")
     ctx.run("git merge master")

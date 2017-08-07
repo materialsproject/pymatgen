@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.cif &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.io.cif &#8212; pymatgen 2017.8.4 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.7.21',
+        VERSION:     '2017.8.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1013,9 +1013,12 @@
 
             <span class="n">struct</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="n">primitive</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">primitive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_flags</span><span class="p">[</span><span class="s1">&#39;magcif&#39;</span><span class="p">]:</span>
+                <span class="n">struct</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">(</span><span class="n">use_site_props</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">primitive</span><span class="p">:</span>
                 <span class="n">struct</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">()</span>
                 <span class="n">struct</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_reduced_structure</span><span class="p">()</span>
+
             <span class="k">return</span> <span class="n">struct</span>
 
 <div class="viewcode-block" id="CifParser.get_structures"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.get_structures">[docs]</a>    <span class="k">def</span> <span class="nf">get_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -1025,7 +1028,8 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            primitive (bool): Set to False to return conventional unit cells.</span>
-<span class="sd">                Defaults to True.</span>
+<span class="sd">                Defaults to True. With magnetic CIF files, will return primitive</span>
+<span class="sd">                magnetic cell which may be larger than nuclear primitive cell.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of Structures.</span>
@@ -1121,7 +1125,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">write_magmoms</span> <span class="ow">and</span> <span class="n">symprec</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Magnetic symmetry cannot currently be detected by pymatgen.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Magnetic symmetry cannot currently be detected by pymatgen,&quot;</span>
+                          <span class="s2">&quot;disabling symmetry detection.&quot;</span><span class="p">)</span>
             <span class="n">symprec</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">format_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.8f}</span><span class="s2">&quot;</span>
@@ -1213,9 +1218,9 @@
                     <span class="n">atom_site_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span>
                     <span class="n">atom_site_occupancy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">occu</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
 
-                    <span class="n">magmom</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;magmom&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-                    <span class="n">moment</span> <span class="o">=</span> <span class="n">Magmom</span><span class="o">.</span><span class="n">get_moment_relative_to_crystal_axes</span><span class="p">(</span><span class="n">magmom</span><span class="p">,</span> <span class="n">latt</span><span class="p">)</span>
+                    <span class="n">magmom</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;magmom&#39;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="s1">&#39;spin&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
                     <span class="k">if</span> <span class="n">write_magmoms</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">magmom</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">moment</span> <span class="o">=</span> <span class="n">Magmom</span><span class="o">.</span><span class="n">get_moment_relative_to_crystal_axes</span><span class="p">(</span><span class="n">magmom</span><span class="p">,</span> <span class="n">latt</span><span class="p">)</span>
                         <span class="n">atom_site_moment_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span>
                         <span class="n">atom_site_moment_crystalaxis_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moment</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                         <span class="n">atom_site_moment_crystalaxis_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moment</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -1330,7 +1335,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

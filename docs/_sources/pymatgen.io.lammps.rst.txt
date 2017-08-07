@@ -16,6 +16,7 @@ Submodules
    pymatgen.io.lammps.force_field
    pymatgen.io.lammps.input
    pymatgen.io.lammps.output
+   pymatgen.io.lammps.sets
    pymatgen.io.lammps.topology
    pymatgen.io.lammps.utils
 
