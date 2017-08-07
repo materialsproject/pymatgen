@@ -35,15 +35,16 @@ class LammpsInput(MSONable):
     def _map_param_to_identifier(self, param, identifier):
         delimited_identifier = self.delimiter+"{"+identifier+"}"
         if delimited_identifier not in self.contents:
-            if self.contents.find(param) >= 0:
-                self.settings[identifier] = \
-                    self.contents.split(param)[-1].split("\n")[0].expandtabs().strip()
+            i = self.contents.find(param)
+            if i >= 0:
+                self.settings[identifier] = self.contents[i:].split()[1]
                 self.contents = \
                     self.contents.replace(self.settings[identifier],
                                           delimited_identifier, 1)
             # if log is missing add it to the input
             elif param == "log":
-                self.contents = "log {} \n".format(delimited_identifier)+self.contents
+                self.contents = self.contents+"\nlog {}".format(delimited_identifier)
+                self.settings[identifier] = "log.lammps"
 
     def __str__(self):
         template = self.get_template(self.__class__.__name__,

@@ -35,7 +35,7 @@ class TestLammpsInput(unittest.TestCase):
         d.pop("@module")
         d_test = {}
         with open(os.path.join(test_dir, "in.peptide.template.with_read_data"), "r") as f:
-            d_test["contents"] = "log $${log_file} \n"+f.read()
+            d_test["contents"] = f.read() + "\nlog $${log_file}"
         d_test["settings"] = self.settings
         d_test["settings"]["data_file"] = "data.peptide"
         d_test["delimiter"] = "$$"
@@ -45,11 +45,16 @@ class TestLammpsInput(unittest.TestCase):
         self.assertIn("data_file", self.lammps_input.settings)
         self.assertEqual(self.lammps_input.settings["data_file"], "data.peptide")
 
+    def test_log_placeholder(self):
+        self.assertIn("log_file", self.lammps_input.settings)
+        self.assertEqual(self.lammps_input.settings["log_file"], "log.lammps")
+
     def test_string_representation(self):
         input_file = os.path.join(test_dir, "in.peptide")
         input_file_lines = str(self.lammps_input).split("\n")
         with open(input_file) as f:
-            for l1, l2 in zip(input_file_lines, f.readlines()):
+            input_file_lines_ans = f.readlines() + ["", "log log.lammps"]
+            for l1, l2 in zip(input_file_lines, input_file_lines_ans):
                 self.assertEqual(l1.strip(), l2.strip())
 
 if __name__ == "__main__":
