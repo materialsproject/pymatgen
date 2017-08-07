@@ -263,13 +263,19 @@ class PackmolRunner(object):
             # the molecule id and the corresponding filename in the packmol
             # input file.
             for idx, mol in enumerate(self.mols):
-                a = BabelMolAdaptor(mol)
-                pm = pb.Molecule(a.openbabel_mol)
                 filename = os.path.join(
                     input_dir, '{}.{}'.format(
                         idx, self.control_params["filetype"])).encode("ascii")
-                pm.write(self.control_params["filetype"], filename=filename,
-                         overwrite=True)
+                # pdb
+                if self.control_params["filetype"] == "pdb":
+                    self.write_pdb(mol, filename, num=idx+1)
+                # all other filetypes
+                else:
+                    a = BabelMolAdaptor(mol)
+                    pm = pb.Molecule(a.openbabel_mol)
+                    pm.write(self.control_params["filetype"], filename=filename,
+                             overwrite=True)
+
                 inp.write("\n")
                 inp.write(
                     "structure {}.{}\n".format(
@@ -302,7 +308,8 @@ class PackmolRunner(object):
             (stdout, stderr) = p.communicate()
             output_file = os.path.join(scratch_dir, self.control_params["output"])
             if os.path.isfile(output_file):
-                packed_mol = BabelMolAdaptor.from_file(output_file)
+                packed_mol = BabelMolAdaptor.from_file(output_file,
+                                                       self.control_params["filetype"])
                 print("packed molecule written to {}".format(
                     self.control_params["output"]))
                 return packed_mol.pymatgen_mol
@@ -311,14 +318,130 @@ class PackmolRunner(object):
                 print(stdout, stderr)
                 return None
 
+    def write_pdb(self, mol, filename, name=None, num=None):
+        """
+        dump the molecule into pdb file with custom residue name and number.
+        """
+
+        # ugly hack to get around the openbabel issues with inconsistent
+        # residue labelling.
+        scratch = tempfile.gettempdir()
+        with ScratchDir(scratch, copy_to_current_on_exit=False) as _:
+            mol.to(fmt="pdb", filename="tmp.pdb")
+            bma = BabelMolAdaptor.from_file("tmp.pdb", "pdb")
+
+        num = num or 1
+        name = name or "ml{}".format(num)
+
+        # bma = BabelMolAdaptor(mol)
+        pbm = pb.Molecule(bma._obmol)
+        for i, x in enumerate(pbm.residues):
+            x.OBResidue.SetName(name)
+            x.OBResidue.SetNum(num)
+
+        pbm.write(format="pdb", filename=filename, overwrite=True)
+
+    def _set_residue_map(self):
+        """
+        map each residue to the corresponding molecule.
+        """
+        self.map_residue_to_mol = {}
+        lookup = {}
+        for idx, mol in enumerate(self.mols):
+            if not mol.formula in lookup:
+                mol.translate_sites(indices=range(len(mol)),
+                                    vector=-mol.center_of_mass)
+                lookup[mol.formula] = mol.copy()
+            self.map_residue_to_mol["ml{}".format(idx + 1)] = lookup[mol.formula]
+
+    def convert_obatoms_to_molecule(self, atoms, residue_name=None, site_property="ff_map"):
+        """
+        Convert list of openbabel atoms to MOlecule.
+
+        Args:
+            atoms ([OBAtom]): list of OBAtom objects
+            residue_name (str): the key in self.map_residue_to_mol. Usec to
+                restore the site properties in the final packed molecule.
+            site_property (str): the site property to be restored.
+
+        Returns:
+            Molecule object
+        """
+
+        restore_site_props = True if residue_name is not None else False
+
+        if restore_site_props and not hasattr(self, "map_residue_to_mol"):
+            self._set_residue_map()
+
+        coords = []
+        zs = []
+        for atm in atoms:
+            coords.append(list(atm.coords))
+            zs.append(atm.atomicnum)
+
+        mol = Molecule(zs, coords)
+
+        if restore_site_props:
+
+            props = []
+
+            ref = self.map_residue_to_mol[residue_name].copy()
+
+            # sanity check
+            assert len(mol) == len(ref)
+            assert ref.formula == mol.formula
+
+            # the packed molecules have the atoms in the same order..sigh!
+            for i, site in enumerate(mol):
+                assert site.specie.symbol == ref[i].specie.symbol
+                props.append(getattr(ref[i], site_property))
+
+            mol.add_site_property(site_property, props)
+
+        return mol
+
+    def restore_site_properties(self, site_property="ff_map", filename=None):
+        """
+        Restore the site properties for the final packed molecule.
+
+        Args:
+            site_property (str):
+            filename (str): path to the final packed molecule.
+
+        Returns:
+            Molecule
+        """
+
+        # only for pdb
+        if not self.control_params["filetype"] == "pdb":
+            raise
+
+        filename = filename or self.control_params["output"]
+        bma = BabelMolAdaptor.from_file(filename, "pdb")
+        pbm = pb.Molecule(bma._obmol)
+
+        assert len(pbm.residues) == sum([x["number"] for x in self.param_list])
+
+        packed_mol = self.convert_obatoms_to_molecule(
+            pbm.residues[0].atoms, residue_name=pbm.residues[0].name,
+            site_property=site_property)
+
+        for resid in pbm.residues[1:]:
+            mol = self.convert_obatoms_to_molecule(
+                resid.atoms, residue_name=resid.name, site_property=site_property)
+            for site in mol:
+                packed_mol.append(site.species_and_occu, site.coords,
+                                  properties=site.properties)
+
+        return packed_mol
+
 
 class LammpsRunner(object):
-    def __init__(self, dict_input, input_filename="lammps.in", bin="lammps"):
+    def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
         LAMMPS wrapper
 
         Args:
-            dict_input (DictLammpsInput): lammps input object
             input_filename (string): input file name
             bin (string): command to run, excluding the input file name
         """
@@ -329,22 +452,18 @@ class LammpsRunner(object):
                 "Please download and install LAMMPS from " \
                 "http://lammps.sandia.gov. "
                 "Don't forget to add the binary to your path".format(self.lammps_bin[-1]))
-        self.dict_input = dict_input
         self.input_filename = input_filename
 
     def run(self):
         """
         Write the input/data files and run LAMMPS.
         """
-        self.dict_input.write_input(self.input_filename)
-        print("Input file: {}".format(self.input_filename))
         lammps_cmd = self.lammps_bin + ['-in', self.input_filename]
         print("Running: {}".format(" ".join(lammps_cmd)))
         p = Popen(lammps_cmd, stdout=PIPE, stderr=PIPE)
         p.wait()
         (stdout, stderr) = p.communicate()
-        print("Done")
-        print(stdout, stderr)
+        return stdout, stderr
 
 
 if __name__ == '__main__':

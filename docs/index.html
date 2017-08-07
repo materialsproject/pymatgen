@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>Introduction &#8212; pymatgen 2017.8.4 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2017.8.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -145,12 +145,16 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 </div>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2017-7-21">
-<h2>v2017.7.21<a class="headerlink" href="#v2017-7-21" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2017-8-4">
+<h2>v2017.8.4<a class="headerlink" href="#v2017-8-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Misc bug fixes to elastic (J. Montaya),</li>
-<li>Decrease default symprec in SpacegroupAnalyzer to 0.01, which should be
-sufficiently flexible for a lot of non-DFT applications.</li>
+<li>Major refactoring and improvements to lammps io. (Kiran)</li>
+<li>Major improvements to BaderAnalysis. (Joey and Zhi)</li>
+<li>Major improvements to Magmom support in cifs, SOC calculations, etc.
+(Matthew Horton)</li>
+<li>Add remove_site_property function. Add magmom for Eu3+ and Eu2+.</li>
+<li>BoltztrapAnalyzer/Plotter support for seebeck effective mass and complexity
+factor (fraricci)</li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -636,7 +640,7 @@ to indicate the copyright and license terms:</p>
 <li><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li><a class="reference internal" href="#change-log">Change log</a><ul>
-<li><a class="reference internal" href="#v2017-7-21">v2017.7.21</a></li>
+<li><a class="reference internal" href="#v2017-8-4">v2017.8.4</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a><ul>
@@ -701,7 +705,7 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 

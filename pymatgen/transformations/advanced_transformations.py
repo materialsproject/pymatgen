@@ -527,12 +527,14 @@ class MagOrderingTransformation(AbstractTransformation):
 
         t = EnumerateStructureTransformation(**enum_args)
 
-        alls = t.apply_transformation(mods,
-                                      return_ranked_list=return_ranked_list)
+        alls = t.apply_transformation(
+            mods, return_ranked_list=return_ranked_list)
 
         try:
             num_to_return = int(return_ranked_list)
         except ValueError:
+            warnings.warn("return_ranked_list cannot be cast to an int. "
+                          "Only 1 structure will be returned.")
             num_to_return = 1
 
         if num_to_return == 1 or not return_ranked_list:
