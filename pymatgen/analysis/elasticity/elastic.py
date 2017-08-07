@@ -627,7 +627,7 @@ class ElasticTensorExpansion(TensorCollection):
         """
         return np.trace(self.get_tgt(temperature, structure, quad)) / 3.
 
-    def get_heat_capacity(self, temperature, structure, n, u):
+    def get_heat_capacity(self, temperature, structure, n, u, cutoff=1e2):
         """
         Gets the directional heat capacity for a higher order tensor
         expansion as a function of direction and polarization.
@@ -639,10 +639,13 @@ class ElasticTensorExpansion(TensorCollection):
             n (3x1 array-like): direction for Cv determination
             u (3x1 array-like): polarization direction, note that
                 no attempt for verification of eigenvectors is made
+            overflow_cutoff (float)
         """
         k = 1.38065e-23
         kt = k*temperature
         hbar_w = 1.05457e-34*self.omega(structure, n, u)
+        if hbar_w > kt * cutoff:
+            return 0.0
         c = k * (hbar_w / kt) ** 2
         c *= np.exp(hbar_w / kt) / (np.exp(hbar_w / kt) - 1)**2
         return c * 6.022e23

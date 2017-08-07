@@ -266,8 +266,11 @@ class ElasticTensorExpansionTest(PymatgenTest):
         self.assertArrayAlmostEqual(tgt, np.eye(3)*2.59631832)
 
         # Get heat capacity
+        c0 = self.exp_cu.get_heat_capacity(0, self.cu, [1, 0, 0], [0, 1, 0])
+        self.assertEqual(c0, 0.0)
         c = self.exp_cu.get_heat_capacity(300, self.cu, [1, 0, 0], [0, 1, 0])
-        
+        self.assertAlmostEqual(c, 8.285611958)
+
         # Get Gruneisen parameter
         gp = self.exp_cu.get_gruneisen_parameter()
         self.assertAlmostEqual(gp, 2.59631832)
