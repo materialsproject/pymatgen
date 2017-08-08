@@ -180,7 +180,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         #test for default LDAUU value
         
         userset_ldauu_fallback = MPRelaxSet(struct,
-            user_incar_settings={'LDAUU': {'Fe': 5.0}}
+            user_incar_settings={'LDAUU': {'Fe': 5.0, 'S': 0}}
         )
         self.assertEqual(userset_ldauu_fallback.incar['LDAUU'], [5.0, 0, 0])
 
