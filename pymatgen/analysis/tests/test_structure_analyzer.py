@@ -501,6 +501,7 @@ class OrderParametersTest(PymatgenTest):
         with self.assertRaises(ValueError):
             ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[2])
 
+
     def tearDown(self):
         del self.linear
         del self.bent45
