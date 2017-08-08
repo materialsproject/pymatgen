@@ -287,8 +287,8 @@ class DictSet(VaspInputSet):
                                   for site in structure])
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                     # lookup specific LDAU if specified for most_electroneg atom
-                    elif most_electroneg in v.keys():
-                        if isinstance(v[most_electroneg], dict):
+                    elif most_electroneg in v.keys() and \
+                            isinstance(v[most_electroneg], dict):
                            incar[k] = [v[most_electroneg].get(sym, 0)
                                        for sym in poscar.site_symbols]
                     # else, use fallback LDAU value if it exists
