@@ -1218,17 +1218,12 @@ class PointGroupAnalyzer(object):
         clustered_dists = defaultdict(list)
         for i, site in enumerate(self.centered_mol):
             clustered_dists[f[i]].append(dists[i])
-        avg_dist = {label: np.mean(val)
-                    for label, val in clustered_dists.items()}
+        avg_dist = {k: np.mean(v) for k, v in clustered_dists.items()}
+
         clustered_sites = defaultdict(list)
-        origin_site = None
         for i, site in enumerate(self.centered_mol):
-            if avg_dist[f[i]] < self.tol:
-                origin_site = site
-            else:
-                clustered_sites[(avg_dist[f[i]],
-                                 site.species_and_occu)].append(i)
-        return origin_site, clustered_sites
+            clustered_sites[(avg_dist[f[i]], site.species_and_occu)].append(i)
+        return clustered_sites
 
     def get_equivalent_atoms(self):
         """
@@ -1244,10 +1239,10 @@ class PointGroupAnalyzer(object):
             The first list element are the indices of equivalent atoms,
             the second element is a list of sites of the aforementioned atoms.
         """
-        def get_equivalent_atom_dicts(index):
-            indices_eq_to = defaultdict(set)
-            operations = dict()
-
+        def update_atom_dicts(index, indices_eq_to, operations):
+            """This function updates indices_eq_to and operations
+            inplace and is therefore **NOT SIDEEFFECT FREE**
+            """
             sites = [self.centered_mol.sites[i] for i in index]
             rename = dict(enumerate(index))
             for i, reference in enumerate(sites):
@@ -1263,17 +1258,44 @@ class PointGroupAnalyzer(object):
                                        for j in matched_indices})
             return dict(indices_eq_to), operations
 
-        indices_eq_to = dict()
-        operations = dict()
-
-        for index in self.cluster_sites()[1].values():
-            a, b = get_equivalent_atom_dicts(index)
-            indices_eq_to.update(a)
-            operations.update(b)
+        indices_eq_to, operations = {}, {}
+        for index in self.cluster_sites().values():
+            update_atom_dicts(index, indices_eq_to, operations=)
 
         return indices_eq_to, operations
 
 
+def cluster_sites(mol, tol):
+    """
+    Cluster sites based on distance and species type.
+
+    Args:
+        mol (Molecule): Molecule **with origin at center of mass**.
+        tol (float): Tolerance to use.
+
+    Returns:
+        (origin_site, clustered_sites): origin_site is a site at the center
+        of mass (None if there are no origin atoms). clustered_sites is a
+        dict of {(avg_dist, species_and_occu): [list of sites]}
+    """
+    # Cluster works for dim > 2 data. We just add a dummy 0 for second
+    # coordinate.
+    dists = [[np.linalg.norm(site.coords), 0] for site in mol]
+    import scipy.cluster as spcluster
+    f = spcluster.hierarchy.fclusterdata(dists, tol, criterion='distance')
+    clustered_dists = defaultdict(list)
+    for i, site in enumerate(mol):
+        clustered_dists[f[i]].append(dists[i])
+    avg_dist = {label: np.mean(val) for label, val in clustered_dists.items()}
+    clustered_sites = defaultdict(list)
+    origin_site = None
+    for i, site in enumerate(mol):
+        if avg_dist[f[i]] < tol:
+            origin_site = site
+        else:
+            clustered_sites[(avg_dist[f[i]],
+                             site.species_and_occu)].append(site)
+    return origin_site, clustered_sites
 
 
 def generate_full_symmops(symmops, tol, max_recursion_depth=300):
