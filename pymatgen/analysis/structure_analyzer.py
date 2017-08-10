@@ -861,44 +861,51 @@ class OrderParameters(object):
     """
 
     __supported_types = (
-            "cn", "lin", "bent", "tet", "tetalt", "oct", "octalt", "bcc",
-            "q2", "q4", "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr")
+            "cn", "lin", "bent", "tet", "tet_legacy", "oct", "oct_legacy",
+            "bcc", "q2", "q4", "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
-        Create an OrderParameter analyzer instance.
-
         Args:
-            types ([string]):
-                List of strings representing the types of order parameters
-                to be calculated. Note that multiple mentions of the
-                same type may occur. Currently available types are
-                "cn"  (simple coordination number---normalized,
-                      if desired),
-                "lin" [Peters-style OP recognizing linear coordination
-                      (Zimmermann & Jain, in progress, 2017)],
-                "bent" [Peters-style OP recognizing bent coordination
-                      (Zimmermann & Jain, in progress, 2017)],
-                "tet" [Peters-style OP recognizing tetrahedral
-                      coordination (Zimmermann et al.,
-                      J. Am. Chem. Soc., 137, 13352-13361, 2015)],
-                "oct" [Peters-style OP recognizing octahedral
-                      coordination (Zimmermann et al.,
-                      J. Am. Chem. Soc., 137, 13352-13361, 2015)],
-                "bcc" [Peters-style OP recognizing local
-                      body-centered cubic environment (Peters,
-                      J. Chem. Phys., 131, 244103, 2009)],
-                "reg_tri" (OP recognizing coordination with a regular triangle),
-                "sq" (OP recognizing square coordination),
-                "sq_pyr" (OP recognizing square pyramidal coordination),
-                "tri_bipyr" (OP recognizing trigonal bipyramidal coord.),
-                "q2"  [Bond orientational order parameter (BOOP)
-                      of weight l=2 (Steinhardt et al., Phys. Rev. B,
-                      28, 784-805, 1983)],
-                "q4"  (BOOP of weight l=4),
-                "q6"  (BOOP of weight l=6).
-            parameters ([[float]]):
-                2D list of floating point numbers that store
+            types ([string]): list of strings representing the types of
+                order parameters to be calculated. Note that multiple
+                mentions of the same type may occur. Currently available
+                types are:
+                  "cn": simple coordination number---normalized
+                        if desired;
+                  "lin": Peters-style OP recognizing linear coordination
+                         (Zimmermann & Jain, in progress, 2017);
+                  "bent": Peters-style OP recognizing bent coordination
+                          (Zimmermann & Jain, in progress, 2017);
+                  "tet": Peters-style OP recognizing tetrahedral
+                         environments (Zimmermann et al., submitted,
+                         2017);
+                  "oct": Peters-style OP recognizing octahedral
+                         environments (Zimmermann et al., submitted,
+                         2017);
+                  "bcc": Peters-style OP recognizing local
+                         body-centered cubic environment (Peters,
+                         J. Chem. Phys., 131, 244103, 2009);
+                  "reg_tri": OP recognizing coordination with a regular triangle;
+                  "sq": OP recognizing square coordination;
+                  "sq_pyr": OP recognizing square pyramidal coordination;
+                  "tri_bipyr": OP recognizing trigonal bipyramidal coord.;
+                  "q2": bond orientational order parameter (BOOP)
+                        of weight l=2 (Steinhardt et al., Phys. Rev. B,
+                        28, 784-805, 1983);
+                  "q4": BOOP of weight l=4;
+                  "q6": BOOP of weight l=6.
+                  "tet_legacy": original Peters-style OP recognizing
+                                tetrahedral coordination environments
+                                (Zimmermann et al., J. Am. Chem. Soc.,
+                                137, 13352-13361, 2015) that can, however,
+                                produce small negative values sometimes;
+                  "oct_legacy": original Peters-style OP recognizing
+                                octahedral coordination environments
+                                (Zimmermann et al., J. Am. Chem. Soc.,
+                                137, 13352-13361, 2015) that can, however,
+                                produce small negative values sometimes.
+            parameters ([[float]]): 2D list of floating point numbers that store
                 parameters associated with the different order parameters
                 that are to be calculated (1st dimension = length of
                 types tuple; any 2nd dimension may be zero, in which case
@@ -915,20 +922,15 @@ class OrderParameters(object):
                           Gaussian width for penalizing deviations away
                           from perfect target angle in fractions of pi
                           (0.0667);
-                  "tet": Gaussian width for penalizing deviations away
-                         perfecttetrahedral angle (0.0667);
-                  "oct": threshold angle in degrees distinguishing a second
-                         neighbor to be either close to the south pole or
-                         close to the equator (160.0);
-                         Gaussian width for penalizing deviations away
-                         from south pole (0.0667);
-                         Gaussian width for penalizing deviations away
-                         from equator (0.0556);
-                         constant for shifting q_oct toward smaller
-                         values, which can be helpful when trying to fine-
-                         tune the capabilities of distinguishing between
-                         different environments (e.g., tet vs oct)
-                         given a single mutual threshold q_thresh;
+                  "tet": Gaussian width for penalizing deviations
+                         away perfect tetrahedral angle (0.0667);
+                  "oct": threshold angle in degrees distinguishing
+                         a second neighbor to be either close to the
+                         south pole or close to the equator (160.0);
+                         Gaussian width for penalizing deviations
+                         away from south pole (0.0667); Gaussian
+                         width for penalizing deviations away from
+                         equator (0.0556);
                   "bcc": south-pole threshold angle as for "oct" (160.0);
                          south-pole Gaussian width as for "oct" (0.0667);
                   "reg_tri": Gaussian width for penalizing angles away from
@@ -952,8 +954,21 @@ class OrderParameters(object):
                             from south pole (0.0667);
                             Gaussian width for penalizing deviations away
                             from equator (0.0556).
-            cutoff (float):
-                Cutoff radius to determine which nearest neighbors are
+                  "tet_legacy": Gaussian width for penalizing deviations
+                                away perfect tetrahedral angle (0.0667);
+                  "oct_legacy": threshold angle in degrees distinguishing
+                                a second neighbor to be either close to the
+                                south pole or close to the equator (160.0);
+                                Gaussian width for penalizing deviations
+                                away from south pole (0.0667); Gaussian
+                                width for penalizing deviations away from
+                                equator (0.0556); constant for shifting
+                                q_oct_legacy toward smaller values, which
+                                can be helpful when trying to fine-tune
+                                the capabilities of distinguishing between
+                                different environments (e.g., tet vs oct)
+                                given a single mutual threshold q_thresh;
+            cutoff (float): Cutoff radius to determine which nearest neighbors are
                 supposed to contribute to the order parameters.
                 If the value is negative the neighboring sites found by
                 distance and cutoff radius are further
@@ -1023,6 +1038,16 @@ class OrderParameters(object):
                     else:
                         tmpparas[i] = [loc_parameters[i][0] / 180.0, \
                                 1.0 / loc_parameters[i][1]]
+            elif t == "tet_legacy":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i].append(1.0 / 0.0667)
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for"
+                                         " original tetrahedral order"
+                                         " parameter is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][0])
             elif t == "tet":
                 if len(loc_parameters[i]) == 0:
                     tmpparas[i].append(1.0 / 0.0667)
@@ -1033,17 +1058,7 @@ class OrderParameters(object):
                                          " parameter is zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][0])
-            elif t == "tetalt":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0 / 0.0667)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " tetrahedral order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][0])
-            elif t == "oct":
+            elif t == "oct_legacy":
                 if len(loc_parameters[i]) < 4:
                     tmpparas[i].append(8.0 * pi / 9.0)
                     tmpparas[i].append(1.0 / 0.0667)
@@ -1054,19 +1069,21 @@ class OrderParameters(object):
                     if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
                             0] >= 180.0:
                         warn("Threshold value for south pole"
-                             " configurations in octahedral order"
+                             " configurations in original octahedral order"
                              " parameter outside ]0,180[")
                     tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
                     if loc_parameters[i][1] == 0.0:
                         raise ValueError("Gaussian width for south pole"
-                                         " configurations in octahedral"
-                                         " order parameter is zero!")
+                                         " configurations in original"
+                                         " octahedral order parameter is"
+                                         " zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][1])
                     if loc_parameters[i][2] == 0.0:
                         raise ValueError("Gaussian width for equatorial"
-                                         " configurations in octahedral"
-                                         " order parameter is zero!")
+                                         " configurations in original"
+                                         " octahedral order parameter is"
+                                         " zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][2])
                     if loc_parameters[i][3] - 1.0 == 0.0:
@@ -1076,7 +1093,7 @@ class OrderParameters(object):
                         warn("Shift constant outside [0,1[.")
                     tmpparas[i].append(loc_parameters[i][3])
                     tmpparas[i].append(1.0 / (1.0 - loc_parameters[i][3]))
-            elif t == "octalt":
+            elif t == "oct":
                 if len(loc_parameters[i]) < 3:
                     tmpparas[i].append(8.0 * pi / 9.0)
                     tmpparas[i].append(1.0 / 0.0667)
@@ -1156,8 +1173,8 @@ class OrderParameters(object):
                     if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
                             0] >= 180.0:
                         warn("Threshold value for south pole"
-                             " configurations in octahedral order"
-                             " parameter outside ]0,180[")
+                             " configurations in trigonal bipyramidal"
+                             " order parameter outside ]0,180[")
                     tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
                     if loc_parameters[i][1] == 0.0:
                         raise ValueError("Gaussian width for south pole"
@@ -1184,7 +1201,7 @@ class OrderParameters(object):
             # self._computerjks: compute vectors from non-centeral atom j
             #                    to any non-central atom k.
             if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
-                    t == "tri_bipyr" or t == "tetalt" or t == "octalt":
+                    t == "tri_bipyr" or t == "tet_legacy" or t == "oct_legacy":
                 self._computerijs = self._geomops = True
             if t == "reg_tri" or t =="sq":
                 self._computerijs = self._computerjks = self._geomops2 = True
@@ -1882,11 +1899,11 @@ class OrderParameters(object):
                                 tmp = self._paras[i][1] * (
                                     thetak * ipi - self._paras[i][0])
                                 ops[i] += exp(-0.5 * tmp * tmp)
-                            elif t == "tet" or t == "tetalt":
+                            elif t == "tet" or t == "tet_legacy":
                                 tmp = self._paras[i][0] * (
                                     thetak * ipi - tetangoverpi)
                                 gaussthetak[i] = math.exp(-0.5 * tmp * tmp)
-                            elif t == "oct" or t == "octalt":
+                            elif t == "oct" or t == "oct_legacy":
                                 if thetak >= self._paras[i][0]:
                                     # k is south pole to j
                                     tmp = self._paras[i][1] * (
@@ -1927,19 +1944,19 @@ class OrderParameters(object):
                                 # angles between plane j-i-k and i-m vector.
                                 if not flag_xaxis and not flag_xtwoaxis:
                                     for i, t in enumerate(self._types):
-                                        if t == "tet":
+                                        if t == "tet_legacy":
                                             tmp = self._paras[i][0] * (
                                                 thetam * ipi - tetangoverpi)
                                             ops[i] += gaussthetak[i] * math.exp(
                                                 -0.5 * tmp * tmp) * math.cos(
                                                 3.0 * phi)
-                                        elif t == "tetalt":
+                                        elif t == "tet":
                                             tmp = self._paras[i][0] * (
                                                 thetam * ipi - tetangoverpi)
                                             tmp2 = math.cos(1.5 * phi)
                                             ops[i] += gaussthetak[i] * math.exp(
                                                 -0.5 * tmp * tmp) * tmp2 * tmp2
-                                        elif t == "oct":
+                                        elif t == "oct_legacy":
                                             if thetak < self._paras[i][0] and \
                                                             thetam < \
                                                             self._paras[i][0]:
@@ -1951,7 +1968,7 @@ class OrderParameters(object):
                                                               math.exp(
                                                                   -0.5 * tmp2 * tmp2) - \
                                                               self._paras[i][3])
-                                        elif t == "octalt":
+                                        elif t == "oct":
                                             if thetak < self._paras[i][0] and \
                                                     thetam < self._paras[i][0]:
                                                 tmp = math.cos(2.0 * phi)
@@ -1992,10 +2009,10 @@ class OrderParameters(object):
                 elif t == "bent":
                     ops[i] = ops[i] / float(nneigh * (
                             nneigh - 1)) if nneigh > 1 else None
-                elif t == "tet" or t == "tetalt":
+                elif t == "tet" or t == "tet_legacy":
                     ops[i] = ops[i] / float(nneigh * (nneigh - 1) * (
                             nneigh - 2)) if nneigh > 2 else None
-                elif t == "oct" or t == "octalt":
+                elif t == "oct" or t == "oct_legacy":
                     ops[i] = ops[i] / float(nneigh * (3 + (nneigh - 2) * (
                             nneigh - 3))) if nneigh > 3 else None
                 elif t == "bcc":

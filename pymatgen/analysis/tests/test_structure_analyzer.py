@@ -424,7 +424,7 @@ class OrderParametersTest(PymatgenTest):
         self.assertIsNone(op_vals[8])
         op_vals = ops_101.get_order_parameters(self.cubic, 0)
         self.assertAlmostEqual(op_vals[0], 6.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), -14)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 14)
         self.assertAlmostEqual(int(op_vals[4] * 1000), 1000)
         self.assertAlmostEqual(int(op_vals[5] * 1000), 333)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
@@ -434,8 +434,8 @@ class OrderParametersTest(PymatgenTest):
         # Bcc structure.
         op_vals = ops_087.get_order_parameters(self.bcc, 0)
         self.assertAlmostEqual(op_vals[0], 8.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 140)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), 42)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 142)
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 145)
         self.assertAlmostEqual(int(op_vals[5] * 1000), 975)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
@@ -444,8 +444,8 @@ class OrderParametersTest(PymatgenTest):
         # Fcc structure.
         op_vals = ops_071.get_order_parameters(self.fcc, 0)
         self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), -18)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), -81)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 30)
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 78)
         self.assertAlmostEqual(int(op_vals[5] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[7] * 1000), 190)
@@ -454,8 +454,8 @@ class OrderParametersTest(PymatgenTest):
         # Hcp structure.
         op_vals = ops_101.get_order_parameters(self.hcp, 0)
         self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), -8)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), -59)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 30)
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 89)
         self.assertAlmostEqual(int(op_vals[5] * 1000), -38)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[7] * 1000), 97)
@@ -465,7 +465,7 @@ class OrderParametersTest(PymatgenTest):
         op_vals = ops_044.get_order_parameters(self.diamond, 0)
         self.assertAlmostEqual(op_vals[0], 4.0)
         self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), -39)
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 45)
         self.assertAlmostEqual(int(op_vals[5] * 1000), 727)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
@@ -500,6 +500,7 @@ class OrderParametersTest(PymatgenTest):
         self.assertIsNone(op_vals[3])
         with self.assertRaises(ValueError):
             ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[2])
+
 
     def tearDown(self):
         del self.linear

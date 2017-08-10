@@ -1660,6 +1660,70 @@ def get_neighbors_of_site_with_index(struct, n, p=None):
     return sites
 
 
+def site_is_of_motif_type(struct, n, pneighs=None, thresh=None):
+    """
+    Returns the motif type of the site with index n in structure struct;
+    currently featuring "tetrahedral", "octahedral", "bcc", and "cp"
+    (close-packed: fcc and hcp) as well as "square pyramidal" and
+    "trigonal bipyramidal".  If the site is not recognized,
+    "unrecognized" is returned.  If a site should be assigned to two
+    different motifs, "multiple assignments" is returned.
+
+    Args:
+        struct (Structure): input structure.
+        n (int): index of site in Structure object for which motif type
+                is to be determined.
+        pneighs (dict): specification and parameters of neighbor-finding
+                approach (cf., function get_neighbors_of_site_with_index).
+        thresh (dict): thresholds for motif criteria (currently, required
+                keys and their default values are "qtet": 0.5,
+                "qoct": 0.5, "qbcc": 0.5, "q6": 0.4).
+
+    Returns: motif type (str).
+    """
+
+    if thresh is None:
+        thresh = {
+            "qtet": 0.5, "qoct": 0.5, "qbcc": 0.5, "q6": 0.4,
+            "qtribipyr": 0.8, "qsqpyr": 0.8}
+
+    ops = OrderParameters([
+            "cn", "tet", "oct", "bcc", "q6", "sq_pyr", "tri_bipyr"])
+            # 0    1      2      3       4     5        6
+    neighs_cent = get_neighbors_of_site_with_index(struct, n, p=pneighs)
+    neighs_cent.append(struct.sites[n])
+    opvals = ops.get_order_parameters(
+            neighs_cent, len(neighs_cent)-1, indeces_neighs=[
+            i for i in range(len(neighs_cent)-1)])
+    cn = int(opvals[0] + 0.5)
+    motif_type = "unrecognized"
+    nmotif = 0
+
+    if cn == 4 and opvals[1] > thresh["qtet"]:
+        motif_type = "tetrahedral"
+        nmotif += 1
+    if cn == 5 and opvals[5] > thresh["qsqpyr"]:
+       motif_type = "square pyramidal"
+       nmotif += 1
+    if cn == 5 and opvals[6] > thresh["qtribipyr"]:
+       motif_type = "trigonal bipyramidal"
+       nmotif += 1
+    if cn == 6 and opvals[2] > thresh["qoct"]:
+        motif_type = "octahedral"
+        nmotif += 1
+    if cn == 8 and (opvals[3] > thresh["qbcc"] and opvals[1] < thresh["qtet"]):
+        motif_type = "bcc"
+        nmotif += 1
+    if cn == 12 and (opvals[4] > thresh["q6"] and opvals[1] < thresh["q6"] and \
+                                 opvals[2] < thresh["q6"] and opvals[3] < thresh["q6"]):
+        motif_type = "cp"
+        nmotif += 1
+
+    if nmotif > 1:
+        motif_type = "multiple assignments"
+
+    return motif_type
+
 
 class StructureMotifInterstitial(Defect):
 
@@ -1674,10 +1738,10 @@ class StructureMotifInterstitial(Defect):
     (PyCDT, https://arxiv.org/abs/1611.07481).
     """
 
-    __supported_types = ("tetalt", "octalt", "bcc")
+    __supported_types = ("tet", "oct", "bcc")
 
     def __init__(self, struct, inter_elem,
-                 motif_types=("tetalt", "octalt"),
+                 motif_types=("tet", "oct"),
                  op_threshs=(0.3, 0.5),
                  dl=0.2, doverlap=1.0, facmaxdl=1.01, verbose=False):
         """
@@ -1782,18 +1846,18 @@ class StructureMotifInterstitial(Defect):
                                         allsites, len(allsites)-1,
                                         indeces_neighs=indeces_neighs)
                             motif_type = "unrecognized"
-                            if "tetalt" in motif_types:
+                            if "tet" in motif_types:
                                 if nneighs == 4 and \
-                                        opvals[motif_types.index("tetalt")] > \
-                                        op_threshs[motif_types.index("tetalt")]:
+                                        opvals[motif_types.index("tet")] > \
+                                        op_threshs[motif_types.index("tet")]:
                                     motif_type = "tet"
-                                    this_op = opvals[motif_types.index("tetalt")]
-                            if "octalt" in motif_types:
+                                    this_op = opvals[motif_types.index("tet")]
+                            if "oct" in motif_types:
                                 if nneighs == 6 and \
-                                        opvals[motif_types.index("octalt")] > \
-                                        op_threshs[motif_types.index("octalt")]:
+                                        opvals[motif_types.index("oct")] > \
+                                        op_threshs[motif_types.index("oct")]:
                                     motif_type = "oct"
-                                    this_op = opvals[motif_types.index("octalt")]
+                                    this_op = opvals[motif_types.index("oct")]
 
                             if motif_type != "unrecognized":
                                 cns = {}
