@@ -13,6 +13,8 @@ from math import sin
 from fractions import Fraction
 
 import numpy as np
+from numpy.linalg import matrix_power, multi_dot
+
 
 from six.moves import filter, map, zip
 from monty.dev import deprecated
@@ -1225,7 +1227,47 @@ class PointGroupAnalyzer(object):
             clustered_sites[(avg_dist[f[i]], site.species_and_occu)].append(i)
         return clustered_sites
 
-    def get_equivalent_atoms(self):
+    def generate_full_symmops(self):
+        """
+        Recursive algorithm to permute through all possible combinations of the
+        initially supplied symmetry operations to arrive at a complete set of
+        operations mapping a single atom to all other equivalent atoms in the
+        point group.  This assumes that the initial number already uniquely
+        identifies all operations.
+
+        Args:
+            symmops ([SymmOp]): Initial set of symmetry operations.
+
+        Returns:
+            Full set of symmetry operations.
+        """
+        UNIT = np.eye(3)
+
+        def get_idempotence_n(matrix):
+            n = 1
+            product = np.eye(3)
+            while True:
+                product = product @ matrix
+                n += 1
+                if np.allclose(product, UNIT):
+                    break
+            return n
+
+        gen_ops = [op.rotation_matrix for op in self.symmops
+                   if not np.allclose(op.rotation_matrix, UNIT)]
+        idempotence = [get_idempotence_n(o) - 1 for o in gen_ops]
+
+        sym_ops = gen_ops.copy()
+
+        for powers in itertools.product(*[range(n) for n in idempotence]):
+            sym_ops.append(multi_dot(
+                [matrix_power(op, n) for op, n in zip(gen_ops, powers)]))
+            # if not self.abelian:
+            sym_ops.append(multi_dot(list(reversed(
+                [matrix_power(op, n) for op, n in zip(gen_ops, powers)]))))
+        return sym_ops
+
+    def _get_equivalent_atom_dicts(self):
         """
         Cluster sites based on distance and species type.
 
@@ -1239,30 +1281,26 @@ class PointGroupAnalyzer(object):
             The first list element are the indices of equivalent atoms,
             the second element is a list of sites of the aforementioned atoms.
         """
-        def update_atom_dicts(index, indices_eq_to, operations):
-            """This function updates indices_eq_to and operations
-            inplace and is therefore **NOT SIDEEFFECT FREE**
-            """
-            sites = [self.centered_mol.sites[i] for i in index]
+        indices_eq_to, operations = defaultdict(set), {}
+        symm_ops = [op.rotation_matrix
+                    for op in generate_full_symmops(self.symmops, self.tol)]
+        for index in self.cluster_sites().values():
+            # sites = np.array([self.centered_mol.sites[i].coords for i in index])
+            sites = self.centered_mol.cart_coords[index]
             rename = dict(enumerate(index))
             for i, reference in enumerate(sites):
-                for op in self.symmops:
-                    rotated = [op.operate(site.coords) for site in sites]
+                for op in symm_ops:
+                    rotated = np.dot(op, sites.T).T
                     matched_indices = find_in_coord_list(
-                        rotated, reference.coords, self.tol)
+                        rotated, reference, self.tol)
                     indices_eq_to[rename[i]] |= {rename[j]
                                                  for j in matched_indices}
                     operations.update({(rename[j], rename[i]): op
                                        for j in matched_indices})
-                    operations.update({(rename[i], rename[j]): op.inverse
-                                       for j in matched_indices})
-            return dict(indices_eq_to), operations
-
-        indices_eq_to, operations = {}, {}
-        for index in self.cluster_sites().values():
-            update_atom_dicts(index, indices_eq_to, operations=)
-
-        return indices_eq_to, operations
+                    # operations.update(
+                    #     {(rename[i], rename[j]): op.rotation_matrix.T
+                    #      for j in matched_indices})
+        return dict(indices_eq_to), operations
 
 
 def cluster_sites(mol, tol):
