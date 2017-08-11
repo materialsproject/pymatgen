@@ -92,7 +92,16 @@ class BaderAnalysis(object):
 
     .. attribute: atomic_densities
 
-        Charge densities for each atom in the structure as parsed by the Bader volumes
+        list of charge densities for each atom centered on the atom
+        excess 0's are removed from the array to reduce the size of the array
+        the charge densities are dicts with the charge density map,
+        the shift vector applied to move the data to the center, and the original dimension of the charge density map
+        charge:
+            {
+            "data": charge density array
+            "shift": shift used to center the atomic charge density
+            "dim": dimension of the original charge density map
+            }
     """
 
     @requires(which("bader") or which("bader.exe"),
@@ -113,6 +122,7 @@ class BaderAnalysis(object):
                 CHGCAR, which calculated by AECCAR0 + AECCAR2. (See
                 http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
             parse_atomic_densities (bool): Optional. turns on atomic partition of the charge density
+                charge densities are atom centered
 
         """
         if not BADEREXE:
@@ -223,6 +233,11 @@ class BaderAnalysis(object):
                     }
                     atomic_densities.append(d)
                 self.atomic_densities = atomic_densities
+
+    @classmethod
+    def rebuild_chgcar(cls,atomic_densities):
+
+        pass
 
     def get_charge(self, atom_index):
         """
