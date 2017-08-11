@@ -90,5 +90,22 @@ class BaderAnalysisTest(unittest.TestCase):
         self.assertTrue(summary['reference_used'])
         self.assertAlmostEqual(sum(summary['magmom']), 28, places=1)
 
+    def test_atom_parsing(self):
+        test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                'test_files')
+
+        # test with reference file
+        analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.Fe3O4"),
+                                 os.path.join(test_dir, "POTCAR.Fe3O4"),
+                                 os.path.join(test_dir, "CHGCAR.Fe3O4_ref"),
+                                 parse_atomic_densities=True)
+
+        self.assertEqual(len(analysis.atomic_densities),len(analysis.chgcar.structure))
+
+        self.assertAlmostEqual(np.sum(analysis.chgcar.data['total']),
+                               np.sum([np.sum(d['data']) for d in analysis.atomic_densities]))
+
+
+
 if __name__ == '__main__':
     unittest.main()
