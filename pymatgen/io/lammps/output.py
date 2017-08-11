@@ -14,7 +14,7 @@ import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.periodic_table import _pt_data
-from pymatgen.core.structure import Molecule
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
@@ -398,8 +398,8 @@ class LammpsRun(MSONable):
                 species = [
                     mass_to_symbol[round(unique_atomic_masses[atype - 1], 1)]
                     for atype in self.trajectory[begin:end][:]["atom_type"]]
-                mol = Molecule(species, coords)
-                structure = mol.get_boxed_structure(*self.box_lengths)
+                structure = Structure(lattice, species, coords,
+                                      coords_are_cartesian=True)
             step_frac_coords = [lattice.get_fractional_coords(crd)
                                 for crd in coords]
             frac_coords.append(np.array(step_frac_coords)[:, None])
