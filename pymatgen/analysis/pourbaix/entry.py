@@ -62,16 +62,7 @@ class PourbaixEntry(MSONable):
         nH = self.entry.composition.get("H", 0.) 
         nO = self.entry.composition.get("O", 0.)
         nM = sum(self.entry.composition.values()) - nH - nO
-        """
-        for elt in self.entry.composition.elements:
-            if elt == Element("H"):
-                nH = self.entry.composition[elt]
-            elif elt == Element("O"):
-                nO = self.entry.composition[elt]
-            else:
-                nM += self.entry.composition[elt]
-        blargh
-        """
+ 
         self.nM = nM
         self.npH = (nH - 2 * nO)
         self.nH2O = nO
@@ -206,13 +197,12 @@ class PourbaixEntry(MSONable):
         return self.entry.composition.num_atoms\
             / self.entry.composition.get_reduced_composition_and_factor()[1]
 
-    # Note entry_id is added to the Pourbaix Entry to keep track of the ids 
-    # of materials 
     def __repr__(self):
-        return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, nPhi = {},\
-             nH2O = {}, mp_id ={} ".format(self.entry.composition, self.g0, self.npH,
-                               self.nPhi, self.nH2O, self.entry_id)
-    
+        return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, "\
+               "nPhi = {}, nH2O = {}, entry_id = {} ".format(
+                       self.entry.composition, self.g0, self.npH,
+                       self.nPhi, self.nH2O, self.entry_id)
+
     def __str__(self):
         return self.__repr__()
 
@@ -274,13 +264,9 @@ class MultiEntry(PourbaixEntry):
         fact = 1.0 / norm_fac
         return fact
 
-    # Note Materials Project material id, mp-id, added to the 
-    # Multiple Pourbaix entry to keep track of all materials
-    # in the pourbaix diagram
-
     def __repr__(self):
         str = "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, "\
-            "nPhi = {}, nH2O = {}, mp_id ={}".format(
+            "nPhi = {}, nH2O = {}, entry_id = {}".format(
             self.g0, self.npH, self.nPhi, self.nH2O, self.entry_id)
         str += ", species: "
         for entry in self.entrylist:
