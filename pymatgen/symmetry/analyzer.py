@@ -1226,13 +1226,13 @@ class PointGroupAnalyzer(object):
 
         for index in get_clustered_indices():
             sites = self.centered_mol.cart_coords[index]
-            rename = dict(enumerate(index))
             for i, reference in zip(index, sites):
                 for op in symm_ops:
                     rotated = np.dot(op, sites.T).T
                     matched_indices = find_in_coord_list(rotated, reference,
                                                          self.tol)
-                    matched_indices = {rename[i] for i in matched_indices}
+                    matched_indices = {
+                        dict(enumerate(index))[i] for i in matched_indices}
                     eq_sets[i] |= matched_indices
 
                     operations[i].update({j: op.T for j in matched_indices})
@@ -1269,7 +1269,7 @@ class PointGroupAnalyzer(object):
                     visited.add(j)
                     for k in tmp_eq_sets[j]:
                         new_tmp_eq_sets[k] = eq_sets[k] - visited
-                        ops[k][i] = np.dot(ops[k][j], ops[j][i])
+                        ops[k][i] = np.dot(ops[j][i], ops[k][j])
                         ops[i][k] = ops[k][i].T
                 tmp_eq_sets = new_tmp_eq_sets
             return visited, ops

@@ -488,6 +488,23 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(m)
         self.assertEqual(a.sch_symbol, "Ih")
 
+    def test_symmetrize_molecule(self):
+        dist_mol = C2H4.copy()
+        np.random.seed(77)
+        distortion = np.random.rand(len(dist_mol), 3) / 5
+        dist_mol.cart_coords[:] = dist_mol.cart_coords + distortion
+        a = PointGroupAnalyzer(dist_mol)
+        eq_sets, ops = a.get_equivalent_atoms()
+        self.assertTrue({0, 1} in eq_sets.values())
+        self.assertTrue({2, 3, 4, 5} eq_sets.values())
+        self.assertTrue(np.allclose(np.dot(ops[2][3], ops[3][4]), ops[2][4]))
+        sym_mol = a.symmetrize_molecule()
+        coords = sym_mol.cart_coords
+        for i, eq_set in eq_sets.items():
+            for j in eq_set:
+                rotated = np.dot(ops[i][j], coords[i])
+                self.assertTrue(np.allclose(rotated, coords[j]))
+
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9
         # 1.7 can't find symmetry either, but at least doesn't kill python
