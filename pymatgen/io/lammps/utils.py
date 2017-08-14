@@ -174,16 +174,11 @@ class PackmolRunner(object):
     molecules into a one single unit.
     """
 
-    @requires(which('packmol'),
-              "PackmolRunner requires the executable 'packmol' to be in "
-              "the path. Please download packmol from "
-              "https://github.com/leandromartinez98/packmol "
-              "and follow the instructions in the README to compile. "
-              "Don't forget to add the packmol binary to your path")
     def __init__(self, mols, param_list, input_file="pack.inp",
                  tolerance=2.0, filetype="xyz",
                  control_params={"maxit": 20, "nloop": 600},
-                 auto_box=True, output_file="packed.xyz"):
+                 auto_box=True, output_file="packed.xyz",
+                 bin="packmol"):
         """
         Args:
               mols:
@@ -205,6 +200,14 @@ class PackmolRunner(object):
                     output file name. The extension will be adjusted
                     according to the filetype
         """
+        self.packmol_bin = bin.split()
+        if not which(self.packmol_bin[-1]):
+            raise RuntimeError(
+                "PackmolRunner requires the executable 'packmol' to be in "
+                "the path. Please download packmol from "
+                "https://github.com/leandromartinez98/packmol "
+                "and follow the instructions in the README to compile. "
+                "Don't forget to add the packmol binary to your path")
         self.mols = mols
         self.param_list = param_list
         self.input_file = input_file
@@ -304,9 +307,8 @@ class PackmolRunner(object):
         scratch = tempfile.gettempdir()
         with ScratchDir(scratch, copy_to_current_on_exit=copy_to_current_on_exit) as scratch_dir:
             self._write_input(input_dir=scratch_dir)
-            packmol_bin = ['packmol']
             packmol_input = open(os.path.join(scratch_dir, self.input_file), 'r')
-            p = Popen(packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE)
+            p = Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE)
             p.wait()
             (stdout, stderr) = p.communicate()
             output_file = os.path.join(scratch_dir, self.control_params["output"])
