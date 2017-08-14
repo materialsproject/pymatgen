@@ -15,6 +15,9 @@ from fractions import Fraction
 import numpy as np
 from numpy.linalg import matrix_power, multi_dot
 
+from numba import jit
+import numba as nb
+
 
 from six.moves import filter, map, zip
 from monty.dev import deprecated
@@ -1198,112 +1201,107 @@ class PointGroupAnalyzer(object):
                 return False
         return True
 
-    def cluster_sites(self):
-        """
-        Cluster sites based on distance and species type.
-
-        Args:
-            None
-
-        Returns:
-            (origin_site, clustered_sites): origin_site is a site at the center
-            of mass (None if there are no origin atoms). clustered_sites is a
-            dict of {(avg_dist, species_and_occu): [list of sites]}
-        """
-        # Cluster works for dim > 2 data. We just add a dummy 0 for second
-        # coordinate.
-        dists = [[np.linalg.norm(site.coords), 0]
-                 for site in self.centered_mol]
-        import scipy.cluster as spcluster
-        f = spcluster.hierarchy.fclusterdata(dists, self.tol,
-                                             criterion='distance')
-        clustered_dists = defaultdict(list)
-        for i, site in enumerate(self.centered_mol):
-            clustered_dists[f[i]].append(dists[i])
-        avg_dist = {k: np.mean(v) for k, v in clustered_dists.items()}
-
-        clustered_sites = defaultdict(list)
-        for i, site in enumerate(self.centered_mol):
-            clustered_sites[(avg_dist[f[i]], site.species_and_occu)].append(i)
-        return clustered_sites
-
-    def generate_full_symmops(self):
-        """
-        Recursive algorithm to permute through all possible combinations of the
-        initially supplied symmetry operations to arrive at a complete set of
-        operations mapping a single atom to all other equivalent atoms in the
-        point group.  This assumes that the initial number already uniquely
-        identifies all operations.
-
-        Args:
-            symmops ([SymmOp]): Initial set of symmetry operations.
-
-        Returns:
-            Full set of symmetry operations.
-        """
-        UNIT = np.eye(3)
-
-        def get_idempotence_n(matrix):
-            n = 1
-            product = np.eye(3)
-            while True:
-                product = product @ matrix
-                n += 1
-                if np.allclose(product, UNIT):
-                    break
-            return n
-
-        gen_ops = [op.rotation_matrix for op in self.symmops
-                   if not np.allclose(op.rotation_matrix, UNIT)]
-        idempotence = [get_idempotence_n(o) - 1 for o in gen_ops]
-
-        sym_ops = gen_ops.copy()
-
-        for powers in itertools.product(*[range(n) for n in idempotence]):
-            sym_ops.append(multi_dot(
-                [matrix_power(op, n) for op, n in zip(gen_ops, powers)]))
-            # if not self.abelian:
-            sym_ops.append(multi_dot(list(reversed(
-                [matrix_power(op, n) for op, n in zip(gen_ops, powers)]))))
-        return sym_ops
-
     def _get_equivalent_atom_dicts(self):
         """
-        Cluster sites based on distance and species type.
+        Calculates the dictionary for mapping equivalent atoms onto each other.
 
         Args:
             None
 
         Returns:
-            Dict of lists
-            The dicts map from indices of equivalent atoms, to
-            lists of coordinates.
-            The first list element are the indices of equivalent atoms,
-            the second element is a list of sites of the aforementioned atoms.
+            2-tuple: The first element is a dict of indices mapping to sets
+            of indices, each key maps to indices of equivalent atoms.
+            The second element is a twofold nested dict, which
+            gives using``operations[i][j]`` the operation to map atom ``i``
+            unto ``j``.
         """
-        indices_eq_to, operations = defaultdict(set), {}
+        eq_sets, operations = defaultdict(set), defaultdict(dict)
         symm_ops = [op.rotation_matrix
                     for op in generate_full_symmops(self.symmops, self.tol)]
-        for index in self.cluster_sites().values():
-            # sites = np.array([self.centered_mol.sites[i].coords for i in index])
+
+        def get_clustered_indices():
+            indices = cluster_sites(self.centered_mol, self.tol,
+                                    give_only_index=True)
+            out = list(indices[1].values())
+            if indices[0] is not None:
+                out.append([indices[0]])
+            return out
+
+        for index in get_clustered_indices():
             sites = self.centered_mol.cart_coords[index]
             rename = dict(enumerate(index))
-            for i, reference in enumerate(sites):
+            for i, reference in zip(index, sites):
                 for op in symm_ops:
                     rotated = np.dot(op, sites.T).T
-                    matched_indices = find_in_coord_list(
-                        rotated, reference, self.tol)
-                    indices_eq_to[rename[i]] |= {rename[j]
-                                                 for j in matched_indices}
-                    operations.update({(rename[j], rename[i]): op
-                                       for j in matched_indices})
-                    # operations.update(
-                    #     {(rename[i], rename[j]): op.rotation_matrix.T
-                    #      for j in matched_indices})
-        return dict(indices_eq_to), operations
+                    matched_indices = find_in_coord_list(rotated, reference,
+                                                         self.tol)
+                    matched_indices = {rename[i] for i in matched_indices}
+                    eq_sets[i] |= matched_indices
+
+                    operations[i].update({j: op.T for j in matched_indices})
+                    for j in matched_indices:
+                        operations[j].update({i: op})
+        return eq_sets, operations
+
+    @staticmethod
+    def _combine_eq_sets(eq_sets, operations):
+        """Combines the dicts of _get_equivalent_atom_dicts into one
+
+        Args:
+            eq_sets (dict)
+            operations (dict)
+
+        Returns:
+            2-tuple: The first element is a dict of indices mapping to sets
+            of indices, each key maps to indices of equivalent atoms.
+            The second element is a twofold nested dict, which
+            gives using``operations[i][j]`` the operation to map atom ``i``
+            unto ``j``.
+        """
+        eq_sets = copy.deepcopy(eq_sets)
+        operations = copy.deepcopy(operations)
+        to_be_deleted = set()
+        for i in eq_sets:
+            if i in to_be_deleted:
+                continue
+            eq_indices = list(eq_sets[i])
+            for j in eq_indices:
+
+        return eq_sets, operations
+
+    def get_symmetrised_molecule(self):
+        self._get_equivalent_atom_dicts()
+        eq_sets, operations = self.get_eq_sets()
+
+        return sym_mol
+
+    def fragmentate(self):
+        fragments = []
+        indices_eq_to, operations = self._get_equivalent_atom_dicts()
+        pending = set(indices_eq_to.keys())
+
+        while pending:
+            index = self.get_coordination_sphere(
+                pending.pop(), use_lookup=True, n_sphere=float('inf'),
+                only_surface=False, give_only_index=True)
+            pending = pending - index
+            if give_only_index:
+                fragments.append(index)
+            else:
+                fragment = self.loc[index]
+                fragment._metadata['bond_dict'] = fragment.restrict_bond_dict(
+                    self._metadata['bond_dict'])
+                try:
+                    fragment._metadata['val_bond_dict'] = (
+                        fragment.restrict_bond_dict(
+                            self._metadata['val_bond_dict']))
+                except KeyError:
+                    pass
+                fragments.append(fragment)
+        return fragments
 
 
-def cluster_sites(mol, tol):
+def cluster_sites(mol, tol, give_only_index=False):
     """
     Cluster sites based on distance and species type.
 
@@ -1329,14 +1327,21 @@ def cluster_sites(mol, tol):
     origin_site = None
     for i, site in enumerate(mol):
         if avg_dist[f[i]] < tol:
-            origin_site = site
+            if give_only_index:
+                origin_site = i
+            else:
+                origin_site = site
         else:
-            clustered_sites[(avg_dist[f[i]],
-                             site.species_and_occu)].append(site)
+            if give_only_index:
+                clustered_sites[
+                    (avg_dist[f[i]], site.species_and_occu)].append(i)
+            else:
+                clustered_sites[
+                    (avg_dist[f[i]], site.species_and_occu)].append(site)
     return origin_site, clustered_sites
 
 
-def generate_full_symmops(symmops, tol, max_recursion_depth=300):
+def generate_full_symmops(symmops, tol):
     """
     Recursive algorithm to permute through all possible combinations of the
     initially supplied symmetry operations to arrive at a complete set of
@@ -1350,22 +1355,25 @@ def generate_full_symmops(symmops, tol, max_recursion_depth=300):
     Returns:
         Full set of symmetry operations.
     """
+    # Uses an algorithm described in:
+    # Gregory Butler. Fundamental Algorithms for Permutation Groups.
+    # Lecture Notes in Computer Science (Book 559). Springer, 1991. page 15
+    UNIT = np.eye(4)
+    generators = [op.affine_matrix for op in symmops
+                  if not np.allclose(op.affine_matrix, UNIT)]
+    full = generators.copy()
 
-    a = [o.affine_matrix for o in symmops]
-
-    if len(symmops) > max_recursion_depth:
-        logger.debug("Generation of symmetry operations in infinite loop.  " +
-                     "Possible error in initial operations or tolerance too "
-                     "low.")
-    else:
-        for op1, op2 in itertools.product(symmops, symmops):
-            m = np.dot(op1.affine_matrix, op2.affine_matrix)
-            d = np.abs(a - m) < tol
+    for g in full:
+        for s in generators:
+            op = np.dot(g, s)
+            d = np.abs(full - op) < tol
             if not np.any(np.all(np.all(d, axis=2), axis=1)):
-                return generate_full_symmops(symmops + [SymmOp(m)], tol,
-                                             max_recursion_depth)
+                full.append(op)
 
-    return symmops
+    d = np.abs(full - UNIT) < tol
+    if not np.any(np.all(np.all(d, axis=2), axis=1)):
+        full.append(UNIT)
+    return [SymmOp(op) for op in full]
 
 
 class SpacegroupOperations(list):
