@@ -6,6 +6,7 @@ from __future__ import division, unicode_literals, print_function
 import itertools
 import logging
 from collections import defaultdict
+import copy
 
 import math
 from math import cos
@@ -23,7 +24,7 @@ from six.moves import filter, map, zip
 from monty.dev import deprecated
 import spglib
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
@@ -1201,7 +1202,7 @@ class PointGroupAnalyzer(object):
                 return False
         return True
 
-    def _get_equivalent_atom_dicts(self):
+    def _get_eq_sets(self):
         """
         Calculates the dictionary for mapping equivalent atoms onto each other.
 
@@ -1241,7 +1242,7 @@ class PointGroupAnalyzer(object):
                     operations[i].update({j: op.T for j in matched_indices})
                     for j in matched_indices:
                         operations[j].update({i: op})
-        return eq_sets, operations
+        return dict(eq_sets), operations
 
     @staticmethod
     def _combine_eq_sets(eq_sets, operations):
@@ -1258,47 +1259,80 @@ class PointGroupAnalyzer(object):
             gives using``operations[i][j]`` the operation to map atom ``i``
             unto ``j``.
         """
+        def all_equivalent_atoms_of_i(i, eq_sets, ops):
+            """WORKS INPLACE on operations
+            """
+            visited = set([i])
+            tmp_eq_sets = {j: (eq_sets[j] - visited) for j in eq_sets[i]}
+
+            while tmp_eq_sets:
+                new_tmp_eq_sets = {}
+                for j in tmp_eq_sets:
+                    if j in visited:
+                        continue
+                    visited.add(j)
+                    for k in tmp_eq_sets[j]:
+                        new_tmp_eq_sets[k] = eq_sets[k] - visited
+                        ops[k][i] = np.dot(ops[k][j], ops[j][i])
+                        ops[i][k] = ops[k][i].T
+                tmp_eq_sets = new_tmp_eq_sets
+            return visited, ops
+
         eq_sets = copy.deepcopy(eq_sets)
-        operations = copy.deepcopy(operations)
+        new_eq_sets = {}
+        ops = copy.deepcopy(operations)
         to_be_deleted = set()
         for i in eq_sets:
             if i in to_be_deleted:
                 continue
-            eq_indices = list(eq_sets[i])
+            visited, ops = all_equivalent_atoms_of_i(i, eq_sets, ops)
+            to_be_deleted |= visited - {i}
+
+        for k in to_be_deleted:
+            eq_sets.pop(k, None)
+        return eq_sets, ops
+
+    def get_equivalent_atoms(self):
+        """Returns sets of equivalent atoms with symmetry operations
+
+        Args:
+            None
+
+        Returns:
+            2-tuple: The first element is a dict of indices mapping to sets
+            of indices, each key maps to indices of equivalent atoms.
+            The second element is a twofold nested dict, which
+            gives using``operations[i][j]`` the operation to map atom ``i``
+            unto ``j``.
+        """
+        return self._combine_eq_sets(*self._get_eq_sets())
+
+    def get_symmetrized_molecule(self):
+        """Returns a symmetrised molecule
+
+        The equivalent atoms obtained via
+        :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
+        are rotated, mirrored... unto one position.
+        Then the average position is calculated.
+        The average position is rotated, mirrored... back with the inverse
+        of the previous symmetry operations, which gives the
+        symmetrized molecule
+
+        Args:
+            None
+
+        Returns:
+            Molecule:
+        """
+        eq_sets, ops = self.get_equivalent_atoms()
+        coords = self.centered_mol.cart_coords.copy()
+        for i, eq_indices in eq_sets.items():
             for j in eq_indices:
-
-        return eq_sets, operations
-
-    def get_symmetrised_molecule(self):
-        self._get_equivalent_atom_dicts()
-        eq_sets, operations = self.get_eq_sets()
-
-        return sym_mol
-
-    def fragmentate(self):
-        fragments = []
-        indices_eq_to, operations = self._get_equivalent_atom_dicts()
-        pending = set(indices_eq_to.keys())
-
-        while pending:
-            index = self.get_coordination_sphere(
-                pending.pop(), use_lookup=True, n_sphere=float('inf'),
-                only_surface=False, give_only_index=True)
-            pending = pending - index
-            if give_only_index:
-                fragments.append(index)
-            else:
-                fragment = self.loc[index]
-                fragment._metadata['bond_dict'] = fragment.restrict_bond_dict(
-                    self._metadata['bond_dict'])
-                try:
-                    fragment._metadata['val_bond_dict'] = (
-                        fragment.restrict_bond_dict(
-                            self._metadata['val_bond_dict']))
-                except KeyError:
-                    pass
-                fragments.append(fragment)
-        return fragments
+                coords[j] = np.dot(ops[j][i], coords[j])
+            coords[i] = np.mean(coords[list(eq_indices)], axis=0)
+            for j in eq_indices:
+                coords[j] = np.dot(ops[i][j], coords[i])
+        return Molecule(species=self.centered_mol.species, coords=coords)
 
 
 def cluster_sites(mol, tol, give_only_index=False):
