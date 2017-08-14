@@ -1307,8 +1307,8 @@ class PointGroupAnalyzer(object):
         """
         return self._combine_eq_sets(*self._get_eq_sets())
 
-    def get_symmetrized_molecule(self):
-        """Returns a symmetrised molecule
+    def symmetrize_molecule(self):
+        """Returns a symmetrized molecule
 
         The equivalent atoms obtained via
         :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
