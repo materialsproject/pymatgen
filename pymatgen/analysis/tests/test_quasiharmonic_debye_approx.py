@@ -48,7 +48,7 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
         self.eos = "vinet"
         self.T = 300
         self.qhda = QuasiharmonicDebyeApprox(self.energies, self.volumes, struct, t_min=self.T,
-                                             t_max=self.T, eos=self.eos)
+                                             t_max=self.T, eos=self.eos, anharmonic_contribution=False)
         self.opt_vol = 11.957803302392925
 
     def test_bulk_modulus(self):
