@@ -1050,6 +1050,8 @@ class Kpoints(MSONable):
         """
         comment = "pymatgen 4.7.6+ generated KPOINTS with grid density = " + \
             "%.0f / atom" % kppa
+        if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
+            kppa += kppa * 0.01
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
