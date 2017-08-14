@@ -16,10 +16,6 @@ from fractions import Fraction
 import numpy as np
 from numpy.linalg import matrix_power, multi_dot
 
-from numba import jit
-import numba as nb
-
-
 from six.moves import filter, map, zip
 from monty.dev import deprecated
 import spglib
