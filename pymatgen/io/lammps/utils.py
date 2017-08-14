@@ -309,7 +309,6 @@ class PackmolRunner(object):
             self._write_input(input_dir=scratch_dir)
             packmol_input = open(os.path.join(scratch_dir, self.input_file), 'r')
             p = Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE)
-            p.wait()
             (stdout, stderr) = p.communicate()
             output_file = os.path.join(scratch_dir, self.control_params["output"])
             if os.path.isfile(output_file):
@@ -469,7 +468,6 @@ class LammpsRunner(object):
         lammps_cmd = self.lammps_bin + ['-in', self.input_filename]
         print("Running: {}".format(" ".join(lammps_cmd)))
         p = Popen(lammps_cmd, stdout=PIPE, stderr=PIPE)
-        p.wait()
         (stdout, stderr) = p.communicate()
         return stdout, stderr
 
