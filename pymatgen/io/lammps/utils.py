@@ -90,6 +90,7 @@ class Polymer(object):
         end_mon_vector = end_monomer.cart_coords[e_tail] - \
                          end_monomer.cart_coords[e_head]
         self._create(end_monomer, end_mon_vector)
+        self.molecule = Molecule.from_sites(self.molecule.sites)
 
     def _create(self, monomer, mon_vector):
         """
@@ -285,7 +286,7 @@ class PackmolRunner(object):
                     inp.write('  {} {}\n'.format(k, self._format_param_val(v)))
                 inp.write('end structure\n')
 
-    def run(self, copy_to_current_on_exit=False):
+    def run(self, copy_to_current_on_exit=False, site_property=None):
         """
         Write the input file to the scratch directory, run packmol and return
         the packed molecule.
@@ -294,6 +295,8 @@ class PackmolRunner(object):
             copy_to_current_on_exit (bool): Whether or not to copy the packmol
                 input/output files from the scratch directory to the current
                 directory.
+            site_property (str): if set then the specified site property
+                for the the final packed molecule will be restored.
 
         Returns:
                 Molecule object
@@ -312,6 +315,8 @@ class PackmolRunner(object):
                                                        self.control_params["filetype"])
                 print("packed molecule written to {}".format(
                     self.control_params["output"]))
+                if site_property:
+                    self.restore_site_properties(site_property=site_property, filename=output_file)
                 return packed_mol.pymatgen_mol
             else:
                 print("Packmol execution failed")
