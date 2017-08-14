@@ -313,11 +313,12 @@ class PackmolRunner(object):
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file,
                                                        self.control_params["filetype"])
+                packed_mol = packed_mol.pymatgen_mol
                 print("packed molecule written to {}".format(
                     self.control_params["output"]))
                 if site_property:
-                    self.restore_site_properties(site_property=site_property, filename=output_file)
-                return packed_mol.pymatgen_mol
+                    packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
+                return packed_mol
             else:
                 print("Packmol execution failed")
                 print(stdout, stderr)
