@@ -44,8 +44,7 @@ class PourbaixEntry(MSONable):
 
     Args:
         entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An
-            entry object
-        energy: Energy of entry
+            entry object 
     """
     def __init__(self, entry, correction=0.0, entry_id=None):
         if isinstance(entry, IonEntry):
@@ -60,9 +59,10 @@ class PourbaixEntry(MSONable):
             self.charge = 0.0
         self.uncorrected_energy = entry.energy
         self.correction = correction
-        nH = 0
-        nO = 0
-        nM = 0
+        nH = self.entry.composition.get("H", 0.) 
+        nO = self.entry.composition.get("O", 0.)
+        nM = sum(self.entry.composition.values()) - nH - nO
+        """
         for elt in self.entry.composition.elements:
             if elt == Element("H"):
                 nH = self.entry.composition[elt]
@@ -70,6 +70,8 @@ class PourbaixEntry(MSONable):
                 nO = self.entry.composition[elt]
             else:
                 nM += self.entry.composition[elt]
+        blargh
+        """
         self.nM = nM
         self.npH = (nH - 2 * nO)
         self.nH2O = nO
