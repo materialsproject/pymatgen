@@ -9,6 +9,7 @@ This module defines classes that set the force field parameters for the bonds,
 angles and dihedrals.
 """
 
+import six
 from collections import defaultdict
 import ruamel.yaml as yaml
 
@@ -87,3 +88,40 @@ class ForceField(MSONable):
                           dihedrals=ff_data.get("Dihedral Coeffs", None),
                           imdihedrals=ff_data.get("Improper Coeffs", None),
                           pairs=pairs)
+
+    def as_dict(self):
+        d = MSONable.as_dict(self)
+        d1 = {}
+        for k, v in d.items():
+            if not k.startswith("@"):
+                if v:
+                    d1[k] = {}
+                    for k1, v1 in list(v.items()):
+                        if isinstance(k1, tuple):
+                            d1[k]["--".join(k1)] = v1
+                        else:
+                            d1[k][k1] = v1
+                else:
+                    d1[k] = v
+            else:
+                d1[k] = v
+
+        return d1
+
+    @classmethod
+    def from_dict(cls, d):
+        d1 = {}
+        delimiter = "--"
+        for k, v in d.items():
+            if not k.startswith("@"):
+                if v:
+                    d1[k] = {}
+                    for k1, v1 in list(v.items()):
+                        if isinstance(k1, six.string_types) and delimiter in k1:
+                            d1[k][tuple(k1.split(delimiter))] = v1
+                        else:
+                            d1[k][k1] = v1
+                else:
+                    d1[k] = v
+
+        return cls(**d1)
