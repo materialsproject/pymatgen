@@ -83,6 +83,7 @@ def make_doc(ctx):
         # Avoid the use of jekyll so that _dir works as intended.
         ctx.run("touch .nojekyll")
 
+
 @task
 def update_doc(ctx):
     make_doc(ctx)
@@ -93,7 +94,9 @@ def update_doc(ctx):
 
 @task
 def publish(ctx):
-    ctx.run("python setup.py release")
+    ctx.run("rm dist/*.*", warn=True)
+    ctx.run("python setup.py register sdist bdist_wheel")
+    ctx.run("twine upload dist/*")
 
 
 @task
