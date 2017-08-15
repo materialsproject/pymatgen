@@ -1372,9 +1372,9 @@ class PointGroupAnalyzer(object):
                 if j == i:
                     continue
                 coords[j] = np.dot(ops[i][j], coords[i])
-                coords[j] = ops[i][j] @ coords[i]
+                coords[j] = np.dot(ops[i][j], coords[i])
                 try:
-                    assert np.allclose(ops[i][j] @ coords[i], coords[j])
+                    assert np.allclose(np.dot(ops[i][j], coords[i]), coords[j])
                 except AssertionError:
                     return coords, ops, i, j
         molecule = Molecule(species=self.centered_mol.species, coords=coords)
