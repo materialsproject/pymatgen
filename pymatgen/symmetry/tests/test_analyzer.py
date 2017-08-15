@@ -13,7 +13,7 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
-    PointGroupAnalyzer, cluster_sites
+    PointGroupAnalyzer, cluster_sites, iterative_symmetrize
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Molecule, Structure
@@ -487,6 +487,24 @@ class PointGroupAnalyzerTest(PymatgenTest):
         m = Molecule.from_file(os.path.join(test_dir_mol, "b12h12.xyz"))
         a = PointGroupAnalyzer(m)
         self.assertEqual(a.sch_symbol, "Ih")
+
+    def test_symmetrize_molecule(self):
+        np.random.seed(77)
+        distortion = np.random.randn(len(C2H4), 3) / 10
+        dist_mol = Molecule(C2H4.species, C2H4.cart_coords + distortion)
+
+        eq = iterative_symmetrize(dist_mol, max_n=100, tol=1e-7)
+        sym_mol, eq_sets, ops = eq['sym_mol'], eq['eq_sets'], eq['sym_ops']
+
+        self.assertTrue({0, 1} in eq_sets.values())
+        self.assertTrue({2, 3, 4, 5} in eq_sets.values())
+
+        coords = sym_mol.cart_coords
+        for i, eq_set in eq_sets.items():
+            for j in eq_set:
+                rotated = np.dot(ops[i][j], coords[i])
+                self.assertTrue(
+                    np.allclose(np.dot(ops[i][j], coords[i]), coords[j]))
 
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9
