@@ -77,6 +77,7 @@ def make_doc(ctx):
         ctx.run("cp -r html/* .")
         ctx.run("rm -r html")
         ctx.run("rm -r doctrees")
+        ctx.run("rm -r _sources")
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
         ctx.run("echo \"pymatgen.org\" > CNAME")
@@ -188,7 +189,7 @@ def log_ver(ctx):
 
 @task
 def release(ctx, notest=False):
-    ctx.run("rm -r dist build pymatgen.egg-info")
+    ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
