@@ -51,11 +51,11 @@ class QuasiharmonicDebyeApprox(object):
             The default is the slater-gamma formulation.
         anharmonic_contribution (bool): whether or not to consider the anharmonic
             contribution to the Debye temperature. Cannot be used with
-            use_mie_gruneisen. Defaults to True.
+            use_mie_gruneisen. Defaults to False.
     """
     def __init__(self, energies, volumes, structure, t_min=300.0, t_step=100,
                  t_max=300.0, eos="vinet", pressure=0.0, poisson=0.25,
-                 use_mie_gruneisen=False, anharmonic_contribution=True):
+                 use_mie_gruneisen=False, anharmonic_contribution=False):
         self.energies = energies
         self.volumes = volumes
         self.structure = structure
@@ -209,9 +209,11 @@ class QuasiharmonicDebyeApprox(object):
         debye = 2.9772e-11 * (volume / self.natoms) ** (-1. / 6.) * f * \
                np.sqrt(self.bulk_modulus/self.avg_mass)
         if self.anharmonic_contribution:
-            return debye * (self.ev_eos_fit.v0 / volume) ** (self.gruneisen_parameter(0, volume))
+            gamma = self.gruneisen_parameter(0, self.ev_eos_fit.v0)  # 0K equilibrium Gruneisen parameter
+            return debye * (self.ev_eos_fit.v0 / volume) ** (gamma)
         else:
             return debye
+
 
     @staticmethod
     def debye_integral(y):
