@@ -1,5 +1,5 @@
-pymatgen.ext.jhu module
-=======================
+pymatgen\.ext\.jhu module
+=========================
 
 .. automodule:: pymatgen.ext.jhu
     :members:

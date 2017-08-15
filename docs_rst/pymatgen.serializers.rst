@@ -1,5 +1,5 @@
-pymatgen.serializers package
-============================
+pymatgen\.serializers package
+=============================
 
 Subpackages
 -----------

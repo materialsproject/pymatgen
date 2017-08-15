@@ -1,5 +1,5 @@
-pymatgen.io.gaussian module
-===========================
+pymatgen\.io\.gaussian module
+=============================
 
 .. automodule:: pymatgen.io.gaussian
     :members:

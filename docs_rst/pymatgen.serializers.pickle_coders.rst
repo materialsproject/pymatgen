@@ -1,5 +1,5 @@
-pymatgen.serializers.pickle_coders module
-=========================================
+pymatgen\.serializers\.pickle\_coders module
+============================================
 
 .. automodule:: pymatgen.serializers.pickle_coders
     :members:

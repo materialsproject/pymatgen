@@ -1,5 +1,5 @@
-pymatgen.io.ase module
-======================
+pymatgen\.io\.ase module
+========================
 
 .. automodule:: pymatgen.io.ase
     :members:

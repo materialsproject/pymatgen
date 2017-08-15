@@ -1,5 +1,5 @@
-pymatgen.symmetry.groups module
-===============================
+pymatgen\.symmetry\.groups module
+=================================
 
 .. automodule:: pymatgen.symmetry.groups
     :members:

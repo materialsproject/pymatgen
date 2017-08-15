@@ -1,5 +1,5 @@
-pymatgen.apps.battery.analyzer module
-=====================================
+pymatgen\.apps\.battery\.analyzer module
+========================================
 
 .. automodule:: pymatgen.apps.battery.analyzer
     :members:
