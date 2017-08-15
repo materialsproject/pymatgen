@@ -493,8 +493,8 @@ class PointGroupAnalyzerTest(PymatgenTest):
         distortion = np.random.randn(len(C2H4), 3) / 10
         dist_mol = mg.Molecule(C2H4.species, C2H4.cart_coords + distortion)
 
-        sym_mol, eq_sets, ops = iterative_symmetrize(dist_mol, max_n=100,
-                                                     tol=1e-7)
+        eq = iterative_symmetrize(dist_mol, max_n=100, tol=1e-7)
+        sym_mol, eq_sets, ops = eq['sym_mol'], eq['eq_sets'], eq['sym_ops']
 
         self.assertTrue({0, 1} in eq_sets.values())
         self.assertTrue({2, 3, 4, 5} in eq_sets.values())
