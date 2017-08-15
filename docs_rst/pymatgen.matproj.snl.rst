@@ -1,5 +1,5 @@
-pymatgen.matproj.snl module
-===========================
+pymatgen\.matproj\.snl module
+=============================
 
 .. automodule:: pymatgen.matproj.snl
     :members:

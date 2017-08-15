@@ -1,5 +1,5 @@
-pymatgen.io.xyz module
-======================
+pymatgen\.io\.xyz module
+========================
 
 .. automodule:: pymatgen.io.xyz
     :members:

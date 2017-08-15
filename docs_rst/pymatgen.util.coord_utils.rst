@@ -1,5 +1,5 @@
-pymatgen.util.coord_utils module
-================================
+pymatgen\.util\.coord\_utils module
+===================================
 
 .. automodule:: pymatgen.util.coord_utils
     :members:

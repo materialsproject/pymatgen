@@ -1,5 +1,5 @@
-pymatgen.matproj.rest module
-============================
+pymatgen\.matproj\.rest module
+==============================
 
 .. automodule:: pymatgen.matproj.rest
     :members:

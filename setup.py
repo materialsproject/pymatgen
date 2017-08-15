@@ -3,7 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 import os
-from io import open
 import sys
 import platform
 
@@ -32,21 +31,45 @@ class build_ext(_build_ext):
 
         self.include_dirs.append(numpy.get_include())
 
-SETUP_PTH = os.path.dirname(__file__)
 
 extra_link_args = []
 if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
 
-with open(os.path.join(SETUP_PTH, "README.rst")) as f:
-    long_desc = f.read()
-    ind = long_desc.find("\n")
-    long_desc = long_desc[ind + 1:]
+long_desc = """
+.. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
+
+.. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
+
+.. image:: https://anaconda.org/matsci/pymatgen/badges/downloads.svg
+
+.. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
+
+Pymatgen (Python Materials Genomics) is a robust, open-source Python library
+for materials analysis. These are some of the main features:
+
+1. Highly flexible classes for the representation of Element, Site, Molecule,
+   Structure objects.
+2. Extensive input/output support, including support for VASP
+   (http://cms.mpi.univie.ac.at/vasp/), ABINIT (http://www.abinit.org/), CIF,
+   Gaussian, XYZ, and many other file formats.
+3. Powerful analysis tools, including generation of phase diagrams, Pourbaix
+   diagrams, diffusion analyses, reactions, etc.
+4. Electronic structure analyses, such as density of states and band structure.
+5. Integration with the Materials Project REST API.
+
+Pymatgen is free to use. However, we also welcome your help to improve this
+library by making your own contributions.  These contributions can be in the
+form of additional tools or modules you develop, or feature requests and bug
+reports. Please report any bugs and issues at pymatgen's `Github page
+<https://github.com/materialsproject/pymatgen>`_. If you wish to be notified
+of pymatgen releases, you may become a member of `pymatgen's Google Groups page
+<https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_."""
 
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2017.8.4",
+    version="2017.8.14",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",

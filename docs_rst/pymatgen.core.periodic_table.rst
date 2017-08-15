@@ -1,5 +1,5 @@
-pymatgen.core.periodic_table module
-===================================
+pymatgen\.core\.periodic\_table module
+======================================
 
 .. automodule:: pymatgen.core.periodic_table
     :members:

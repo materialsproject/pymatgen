@@ -1,5 +1,5 @@
-pymatgen.io.vasp package
-========================
+pymatgen\.io\.vasp package
+==========================
 
 Subpackages
 -----------
