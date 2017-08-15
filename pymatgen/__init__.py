@@ -69,7 +69,7 @@ def get_structure_from_mp(formula):
             formula.
     """
     m = MPRester()
-    entries = m.get_entries(formula, inc_structure=True)
+    entries = m.get_entries(formula, inc_structure="final")
     if len(entries) == 0:
         raise ValueError("No structure with formula %s in Materials Project!" %
                          formula)
