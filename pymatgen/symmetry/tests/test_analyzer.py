@@ -489,20 +489,21 @@ class PointGroupAnalyzerTest(PymatgenTest):
         self.assertEqual(a.sch_symbol, "Ih")
 
     def test_symmetrize_molecule(self):
-        dist_mol = C2H4.copy()
         np.random.seed(77)
-        distortion = np.random.rand(len(dist_mol), 3) / 5
-        dist_mol.cart_coords[:] = dist_mol.cart_coords + distortion
-        a = PointGroupAnalyzer(dist_mol)
-        eq_sets, ops = a.get_equivalent_atoms()
-        self.assertTrue({0, 1} in eq_sets.values())
-        self.assertTrue({2, 3, 4, 5} eq_sets.values())
-        sym_mol = a.symmetrize_molecule()
+        distortion = np.random.randn(len(C2H4), 3) / 10
+        dist_mol = mg.Molecule(C2H4.species, C2H4.cart_coords + distortion)
+
+        sym_mol, eq_sets, ops = iterative_symmetrize(dist_mol, max_n=100,
+                                                     tol=1e-7)
+
+        assert ({0, 1} in eq_sets.values())
+        assert ({2, 3, 4, 5} in eq_sets.values())
+
         coords = sym_mol.cart_coords
         for i, eq_set in eq_sets.items():
             for j in eq_set:
                 rotated = np.dot(ops[i][j], coords[i])
-                self.assertTrue(np.allclose(rotated, coords[j]))
+                assert np.allclose(np.dot(ops[i][j], coords[i]), coords[j])
 
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9
