@@ -497,7 +497,6 @@ class PointGroupAnalyzerTest(PymatgenTest):
         eq_sets, ops = a.get_equivalent_atoms()
         self.assertTrue({0, 1} in eq_sets.values())
         self.assertTrue({2, 3, 4, 5} eq_sets.values())
-        self.assertTrue(np.allclose(np.dot(ops[2][3], ops[3][4]), ops[2][4]))
         sym_mol = a.symmetrize_molecule()
         coords = sym_mol.cart_coords
         for i, eq_set in eq_sets.items():
