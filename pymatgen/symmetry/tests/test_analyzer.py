@@ -13,7 +13,7 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
-    PointGroupAnalyzer, cluster_sites
+    PointGroupAnalyzer, cluster_sites, iterative_symmetrize
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Molecule, Structure
