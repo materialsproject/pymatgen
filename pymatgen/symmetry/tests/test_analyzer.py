@@ -496,14 +496,15 @@ class PointGroupAnalyzerTest(PymatgenTest):
         sym_mol, eq_sets, ops = iterative_symmetrize(dist_mol, max_n=100,
                                                      tol=1e-7)
 
-        assert ({0, 1} in eq_sets.values())
-        assert ({2, 3, 4, 5} in eq_sets.values())
+        self.assertTrue({0, 1} in eq_sets.values())
+        self.assertTrue({2, 3, 4, 5} in eq_sets.values())
 
         coords = sym_mol.cart_coords
         for i, eq_set in eq_sets.items():
             for j in eq_set:
                 rotated = np.dot(ops[i][j], coords[i])
-                assert np.allclose(np.dot(ops[i][j], coords[i]), coords[j])
+                self.assertTrue(
+                    np.allclose(np.dot(ops[i][j], coords[i]), coords[j]))
 
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9
