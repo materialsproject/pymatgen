@@ -553,7 +553,7 @@ class LammpsForceFieldData(LammpsData):
                             # local atom id to global atom id
                             global_atom_id = molid_to_atomid[mol_id][atomid]
                             param_atomids.append(global_atom_id + 1)
-                        param_type = param[-1]
+                        param_type = tuple(param[-1])
                         param_type_reversed = tuple(reversed(param_type))
                         # example: get the unique number id for the bond_type
                         if param_type in param_map:
