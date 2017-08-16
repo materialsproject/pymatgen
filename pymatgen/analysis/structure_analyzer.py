@@ -354,10 +354,10 @@ def average_coordination_number(structures, freq=10):
         count += 1
         vor = VoronoiCoordFinder(structures[t])
         for atom in range(len(structures[0])):
-            cn = vor.get_coordination_number(atom)
+            cn = vor.get_coordination_number(atom, use_weights=True)
             coordination_numbers[structures[t][atom].species_string] += cn
     elements = structures[0].composition.as_dict()
-    for el in coordination_numbers:
+    for el in coordination_numbers.keys():
         coordination_numbers[el] = coordination_numbers[el] / elements[
             el] / count
     return coordination_numbers
