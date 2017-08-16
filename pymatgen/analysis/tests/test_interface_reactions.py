@@ -31,20 +31,8 @@ class InterfaceReactionTest(unittest.TestCase):
         self.ir.append(InterfacialReactivity(Composition('Mn'),Composition('O2'),self.gpd, norm=1, include_no_mixing_energy=0, pd_non_grand=self.pd))
         self.ir.append(InterfacialReactivity(Composition('Mn'),Composition('Li2O'),self.gpd, norm=1, include_no_mixing_energy=1, pd_non_grand=self.pd))
 
-        with self.assertRaises(Exception) as context1:
-            self.ir.append(InterfacialReactivity(Composition('O2'),Composition('Mn'),self.pd, norm=0, include_no_mixing_energy=1, pd_non_grand=None))
-        self.assertTrue('Please provide grand phase diagram to compute no_mixing_energy for reactants!' in context1.exception)
-
-        with self.assertRaises(Exception) as context2:
-            self.ir.append(InterfacialReactivity(Composition('O2'),Composition('Mn'),self.gpd, norm=0, include_no_mixing_energy=1, pd_non_grand=None))
-        self.assertTrue('Please also provide non-grand phase diagram to compute no_mixing_energy for reactants!' in context2.exception)
-
     def test_get_entry_energy(self):
-        # Test AssertionError
         comp = Composition('MnO3')
-        with self.assertRaises(Exception) as context1:
-            energy = self.ir[0]._get_entry_energy(self.pd,comp)
-        self.assertTrue('The reactant MnO3 has no matching entry with negative formation energy!' in context1.exception)
         # Test normal functionality
         comp = Composition('MnO2')
         test2 = np.isclose(self.ir[0]._get_entry_energy(self.pd,comp), -30,atol=1e-03)
@@ -141,10 +129,6 @@ class InterfaceReactionTest(unittest.TestCase):
             self.assertTrue(np.allclose(i.minimum(),j),'minimum: the system with {0} and {1} gets error!{2} expected, but gets {3}'.format(i.c1_original.reduced_formula,i.c2_original.reduced_formula,str(j),str(i.minimum())))
 
     def test_get_no_mixing_energy(self):
-        with self.assertRaises(Exception) as context1:
-            self.ir[0].get_no_mixing_energy()
-        self.assertTrue('Please provide grand potential phase diagram for computing no_mixing_energy!' in context1.exception)
-
         answer = [
             [(u'MnO2 (eV/f.u.)', 0.0), (u'Mn (eV/f.u.)', 0.0)],
             [(u'Mn (eV/atom)', 0.0), (u'O2 (eV/atom)', -4.0)],
