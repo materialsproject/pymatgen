@@ -514,7 +514,8 @@ class Element(Enum):
 
     @property
     def icsd_oxidation_states(self):
-        """Tuple of all oxidation states with at least 10 instances in ICSD database"""
+        """Tuple of all oxidation states with at least 10 instances in
+        ICSD database AND at least 1% of entries for that element"""
         return tuple(self._data.get("ICSD oxidation states", list()))
 
     @property
