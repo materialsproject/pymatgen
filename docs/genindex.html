@@ -6,13 +6,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Index &#8212; pymatgen 2017.8.14 documentation</title>
+    <title>Index &#8212; pymatgen 2017.8.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.14',
+        VERSION:     '2017.8.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -778,6 +778,8 @@
         <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.as_dict">(Fiesta_run method)</a>
 </li>
         <li><a href="pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.as_dict">(Flow method)</a>
+</li>
+        <li><a href="pymatgen.io.lammps.force_field.html#pymatgen.io.lammps.force_field.ForceField.as_dict">(ForceField method)</a>
 </li>
         <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput.as_dict">(GaussianInput method)</a>
 </li>
@@ -2979,6 +2981,8 @@
 </li>
         <li><a href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_dict">(pymatgen.io.lammps.data.LammpsData class method)</a>
 </li>
+        <li><a href="pymatgen.io.lammps.force_field.html#pymatgen.io.lammps.force_field.ForceField.from_dict">(pymatgen.io.lammps.force_field.ForceField class method)</a>
+</li>
         <li><a href="pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsLog.from_dict">(pymatgen.io.lammps.output.LammpsLog class method)</a>
 </li>
         <li><a href="pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsRun.from_dict">(pymatgen.io.lammps.output.LammpsRun class method)</a>
@@ -3891,6 +3895,8 @@
       <li><a href="pymatgen.phasediagram.analyzer.html#pymatgen.phasediagram.analyzer.PDAnalyzer.get_equilibrium_reaction_energy">get_equilibrium_reaction_energy() (PDAnalyzer method)</a>
 </li>
       <li><a href="pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.ZSLGenerator.get_equiv_transformations">get_equiv_transformations() (ZSLGenerator method)</a>
+</li>
+      <li><a href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms">get_equivalent_atoms() (PointGroupAnalyzer method)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_equivalent_kpoints">get_equivalent_kpoints() (BandStructureSymmLine method)</a>
 </li>
@@ -5873,6 +5879,8 @@
 </li>
       </ul></li>
       <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.IStructure">IStructure (class in pymatgen.core.structure)</a>
+</li>
+      <li><a href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.iterative_symmetrize">iterative_symmetrize() (in module pymatgen.symmetry.analyzer)</a>
 </li>
       <li><a href="pymatgen.io.adf.html#pymatgen.io.adf.iterlines">iterlines() (in module pymatgen.io.adf)</a>
 </li>
@@ -9328,10 +9336,10 @@
         <li><a href="pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyLauncher.single_shot">(PyLauncher method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.core.sites.html#pymatgen.core.sites.Site">Site (class in pymatgen.core.sites)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_contains_environment">site_contains_environment() (LightStructureEnvironments method)</a>
 </li>
       <li><a href="pymatgen.analysis.defects.point_defects.html#pymatgen.analysis.defects.point_defects.site_is_of_motif_type">site_is_of_motif_type() (in module pymatgen.analysis.defects.point_defects)</a>
@@ -9769,6 +9777,8 @@
       <li><a href="pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.symlink_abiext">symlink_abiext() (Directory method)</a>
 </li>
       <li><a href="pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce">symm_reduce() (AdsorbateSiteFinder method)</a>
+</li>
+      <li><a href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.symmetrize_molecule">symmetrize_molecule() (PointGroupAnalyzer method)</a>
 </li>
       <li><a href="pymatgen.core.surface.html#pymatgen.core.surface.SlabGenerator.symmetrize_slab">symmetrize_slab() (SlabGenerator method)</a>
 </li>
@@ -10738,7 +10748,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

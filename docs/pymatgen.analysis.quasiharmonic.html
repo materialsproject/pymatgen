@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.quasiharmonic module &#8212; pymatgen 2017.8.14 documentation</title>
+    <title>pymatgen.analysis.quasiharmonic module &#8212; pymatgen 2017.8.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.14',
+        VERSION:     '2017.8.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,7 +56,7 @@
 <span id="pymatgen-analysis-quasiharmonic-module"></span><h1>pymatgen.analysis.quasiharmonic module<a class="headerlink" href="#module-pymatgen.analysis.quasiharmonic" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox">
-<em class="property">class </em><code class="descname">QuasiharmonicDebyeApprox</code><span class="sig-paren">(</span><em>energies</em>, <em>volumes</em>, <em>structure</em>, <em>t_min=300.0</em>, <em>t_step=100</em>, <em>t_max=300.0</em>, <em>eos='vinet'</em>, <em>pressure=0.0</em>, <em>poisson=0.25</em>, <em>use_mie_gruneisen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">QuasiharmonicDebyeApprox</code><span class="sig-paren">(</span><em>energies</em>, <em>volumes</em>, <em>structure</em>, <em>t_min=300.0</em>, <em>t_step=100</em>, <em>t_max=300.0</em>, <em>eos='vinet'</em>, <em>pressure=0.0</em>, <em>poisson=0.25</em>, <em>use_mie_gruneisen=False</em>, <em>anharmonic_contribution=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -81,6 +81,9 @@ options supported by pymatgen: “quadratic”, “murnaghan”, “birch”,</p
 <li><strong>use_mie_gruneisen</strong> (<em>bool</em>) – whether or not to use the mie-gruneisen
 formulation to compute the gruneisen parameter.
 The default is the slater-gamma formulation.</li>
+<li><strong>anharmonic_contribution</strong> (<em>bool</em>) – whether or not to consider the anharmonic
+contribution to the Debye temperature. Cannot be used with
+use_mie_gruneisen. Defaults to False.</li>
 </ul>
 </td>
 </tr>
@@ -109,6 +112,13 @@ The default is the slater-gamma formulation.</li>
 <code class="descname">debye_temperature</code><span class="sig-paren">(</span><em>volume</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox.debye_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_temperature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the debye temperature.
 Eq(6) in doi.org/10.1016/j.comphy.2003.12.001. Thanks to Joey.</p>
+<p>Eq(6) above is equivalent to Eq(3) in doi.org/10.1103/PhysRevB.37.790
+which does not consider anharmonic effects. Eq(20) in the same paper
+and Eq(18) in doi.org/10.1016/j.commatsci.2009.12.006 both consider
+anharmonic contributions to the Debye temperature through the Gruneisen
+parameter at 0K (Gruneisen constant).</p>
+<p>The anharmonic contribution is toggled by setting the anharmonic_contribution
+to True or False in the QuasiharmonicDebyeApprox constructor.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -334,7 +344,7 @@ Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

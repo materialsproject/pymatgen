@@ -1,6 +1,9 @@
 Change log
 ==========
 
-v2017.8.14
+v2017.8.16
 ----------
-* Fixes and minor improvements to elastic, bader and defect analyses.
+* PointGroupAnalyzer now allows for symmetrization of molecules. (@mcocdawc)
+* QuasiharmonicDebyeApprox with anharmonic contribution. (Brandon)
+* Improvements to LAMMPS io. (Kiran)
+* Misc bug fixes.
