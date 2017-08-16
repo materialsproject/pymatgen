@@ -1503,20 +1503,20 @@ def generate_full_symmops(symmops, tol):
     if not generators:
         # C1 symmetry breaks assumptions in the algorithm afterwards
         return symmops
+    else:
+        full = list(generators)
 
-    full = list(generators)
+        for g in full:
+            for s in generators:
+                op = np.dot(g, s)
+                d = np.abs(full - op) < tol
+                if not np.any(np.all(np.all(d, axis=2), axis=1)):
+                    full.append(op)
 
-    for g in full:
-        for s in generators:
-            op = np.dot(g, s)
-            d = np.abs(full - op) < tol
-            if not np.any(np.all(np.all(d, axis=2), axis=1)):
-                full.append(op)
-
-    d = np.abs(full - UNIT) < tol
-    if not np.any(np.all(np.all(d, axis=2), axis=1)):
-        full.append(UNIT)
-    return [SymmOp(op) for op in full]
+        d = np.abs(full - UNIT) < tol
+        if not np.any(np.all(np.all(d, axis=2), axis=1)):
+            full.append(UNIT)
+        return [SymmOp(op) for op in full]
 
 
 class SpacegroupOperations(list):
