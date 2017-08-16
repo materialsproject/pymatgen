@@ -10,7 +10,6 @@ from pymatgen.analysis.interface_reactions import InterfacialReactivity
 
 class InterfaceReactionTest(unittest.TestCase):
 
-
     def setUp(self):
         self.entries = [ComputedEntry(Composition('Li'), 0),
                 ComputedEntry(Composition('Mn'), 0),
@@ -20,7 +19,6 @@ class InterfaceReactionTest(unittest.TestCase):
                 ComputedEntry(Composition('MnO3'), 20),
                 ComputedEntry(Composition('Li2O'), -10),
                 ComputedEntry(Composition('LiMnO2'), -30),
-                # ComputedEntry(Composition('LiMnO2'), -30),
                         ]
         self.pd = PhaseDiagram(self.entries)
         chempots = {'Li':-3}

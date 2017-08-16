@@ -6,15 +6,15 @@ and plotting reaction energy vs. mixing ratio between two reactants.
 
 Class Methods:
 
-    -- get_kinks: Gets information on critical reactions: [indices of kinks, critical
+    -- get_kinks: Gets information on critical reactions: [index of kink, critical
                   mixing ratio x, critical energy, balanced reaction].
     
-    -- get_products: Gets all potential potential products in interfacial reactions.
+    -- get_products: Gets all potential reaction products in interfacial reactions.
     
     -- labels: Dictionary version of class method get_kinks.
 
     -- plot: Plots the reaction energy as a function of mixing ratios of reaction 
-             between electrolyte and cathode. Kinks are labeled.
+             between reactants. Kinks are labeled with indices.
 
     -- minimum: Gets the minimum reaction energy E_min and corresponding mixing ratio
                 X_min: (x_min, energy_min).
@@ -25,12 +25,8 @@ Class Methods:
 """
 
 __author__ = "Yihan Xiao"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Yihan Xiao"
 __email__ = "eric.xyh2011@gmail.com"
-__status__ = "Production"
-__date__ = "Mar 16 2017"
+__date__ = "Aug 15 2017"
 
 import numpy as np
 import matplotlib.pylab as plt
@@ -53,25 +49,27 @@ class InterfacialReactivity:
         '''
         Initiates the class.
 
-        :param c1, c2: Composition objects.
+        :param c1, c2: Composition objects for reactants.
         :param pd: PhaseDiagram object or GrandPotentialPhaseDiagram object built
                 from elements in c1 and c2.
         :param norm: Whether or not the total number of atoms in each reactant
-                will be normalized to 1. If norm = 0, no normalization would
-                be performed.
-        :param include_no_mixing_energy: No_mixing_energy is the opposite number
-                of energy above grand potential convex hull, for a reactant. In
-                cases where reactions involve external reservoir, this param
+                will be normalized to 1 for reaction energy calculations.
+        :param include_no_mixing_energy: No_mixing_energy for a reactant is the
+                opposite number of its energy above grand potential convex hull. In
+                cases where reactions involve elements reservoir, this param
                 determines whether no_mixing_energy of reactants will be included
-                in the final reaction energy calculation. By definition, if pd
-                is not GrandPotentialPhaseDiagram object, this param is 0.
+                in the final reaction energy calculation. By definition, if pd is
+                not a GrandPotentialPhaseDiagram object, this param is 0.
         :param pd_non_grand: PhaseDiagram object but not GrandPotentialPhaseDiagram
                 object, built from elements in c1 and c2.
         '''
-        # Checks if pd is a GrandPotentialPhaseDiagram object.
         self.grand = isinstance(pd,GrandPotentialPhaseDiagram)
+
+        # if pd is not a GrandPotentialPhaseDiagram object, include_no_mixing_energy should be 0.
         assert not (include_no_mixing_energy and not self.grand), \
             'Please provide grand phase diagram to compute no_mixing_energy for reactants!'
+        # if include_no_mixing_energy = 1, pd should be a GrandPotentialPhaseDiagram object,
+        # pd_non_grand should be a normal PhaseDiagram object.
         assert not (include_no_mixing_energy and not pd_non_grand),\
             'Please also provide non-grand phase diagram to compute no_mixing_energy for reactants!'
 
@@ -174,9 +172,10 @@ class InterfacialReactivity:
 
     def _get_reaction(self, x, normalize=0):
         '''
-        Returns balanced reaction at mixing ratio X:(1-X) for self.comp1:self.comp2.
+        Returns balanced reaction at mixing ratio x:(1-x) for self.comp1:self.comp2.
         :param x: Mixing ratio x.
         :param normalize: Whether or not to normalize the sum of coefficients of reactants to 1.
+                For unnormalized case, use original reactant compositions in reaction for clarity.
         :return: Reaction object.
         '''
         mix_comp = self.comp1 * x + self.comp2 * (1-x)
@@ -316,7 +315,7 @@ class InterfacialReactivity:
 
     def minimum(self):
         '''
-        Returns the minimum reaction energy E_min and corresponding mixing ratio X_min.
+        Returns the minimum reaction energy E_min and corresponding mixing ratio x_min.
         :return: Tuple (x_min, E_min).
         '''
         return min([(x,energy) for _,x,energy,_ in self.get_kinks()],key=lambda i:i[1])
