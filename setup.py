@@ -45,6 +45,8 @@ long_desc = """
 
 .. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
 
+Official docs: `http://pymatgen.org <http://pymatgen.org/>`_
+
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:
 
@@ -64,7 +66,44 @@ form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's `Github page
 <https://github.com/materialsproject/pymatgen>`_. If you wish to be notified
 of pymatgen releases, you may become a member of `pymatgen's Google Groups page
-<https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_."""
+<https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
+
+
+Why use pymatgen?
+=================
+
+There are many materials analysis codes out there, both commerical and free,
+but pymatgen offer several advantages:
+
+1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers,
+   and is the analysis code powering the `Materials Project`_. The analysis it
+   produces survives rigorous scrutiny every single day. Bugs tend to be
+   found and corrected quickly. Pymatgen also uses
+   `CircleCI <https://circleci.com>`_ and `Appveyor <https://www.appveyor.com/>`_
+   for continuous integration on the Linux and Windows platforms,
+   respectively, which ensures that every commit passes a comprehensive suite
+   of unittests. The coverage of the unittests can be seen at
+   `here <coverage/index.html>`_.
+2. **It is well documented.** A fairly comprehensive documentation has been
+   written to help you get to grips with it quickly.
+3. **It is open.** You are free to use and contribute to pymatgen. It also means
+   that pymatgen is continuously being improved. We will attribute any code you
+   contribute to any publication you specify. Contributing to pymatgen means
+   your research becomes more visible, which translates to greater impact.
+4. **It is fast.** Many of the core numerical methods in pymatgen have been
+   optimized by vectorizing in numpy/scipy. This means that coordinate
+   manipulations are extremely fast and are in fact comparable to codes
+   written in other languages. Pymatgen also comes with a complete system for
+   handling periodic boundary conditions.
+5. **It will be around.** Pymatgen is not a pet research project. It is used in
+   the well-established Materials Project. It is also actively being developed
+   and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
+   other research groups.
+
+With effect from version 3.0, pymatgen now supports both Python 2.7 as well
+as Python 3.x. All developers must ensure that their code passes the
+unittests on both Py2.7 and 3.x.
+"""
 
 setup(
     name="pymatgen",
