@@ -41,74 +41,130 @@ class CoordFinder(object):
     of a site in a structure as well as the image location (lattice
     translation vector) of each neighbor and, if computable, its weight
     (otherwise set to 1).
+    Args:
+        structure (Structure): structure for which to evaluate the
+            coordination environment.
     """
 
     def __init__(self, structure):
         self._structure = structure
 
-    def get_coordination_number(self, n, use_weights=True):
+    def get_coordination_number(
+            self, n, tol=None, targets=None, use_weights=False):
         """
         Get coordination number of site with index n.
 
         Args:
             n (integer): index of site for which to determine coordination
-                    number.
-            use_weights (boolean): flag indicating whether (True, default)
-                    to use weights for computing the coordination number
-                    or not (False, each coordinated site has equal weight).
+                number.
+            tol (float): tolerance parameter for neighbor finding.
+            targets (Element or list of Elements): target element(s).
+            use_weights (boolean): flag indicating whether (True)
+                to use weights for computing the coordination number
+                or not (False, default: each coordinated site has equal
+                weight).
         Returns:
             cn (integer or float): coordination number.
         """
 
-        siw = self.get_coordinated_sites(n)
+        siw = self.get_coordination_info(n, tol=tol, targets=targets)
         return sum([e[2] for e in siw]) if use_weights else len(siw)
 
-    def get_coordinated_sites(self, n):
+    def get_coordinated_sites(self, n, tol=None, targets=None):
+        """
+        Get coordinated sites of site with index n.
+
+        Args:
+            n (integer): index of site for which to determine coordinated
+                sites.
+            tol (float): tolerance parameter for neighbor finding.
+            targets (Element or list of Elements): target element(s).
+        Returns:
+            sites (list of Site objects): coordinated sites.
+        """
+
+        return [e[0] for e in self.get_coordination_info(
+                n, tol=tol, targets=targets)]
+
+    def get_weights_of_coordinated_sites(self, n, tol=None, targets=None):
+        """
+        Get weight associated with each coordinated site of site with
+        index n.
+
+        Args:
+            n (integer): index of site for which to determine coordinated
+                sites.
+            tol (float): tolerance parameter for neighbor finding.
+            targets (Element or list of Elements): target element(s).
+        Returns:
+            sites (list of Site objects): coordinated sites.
+        """
+
+        return [e[2] for e in self.get_coordination_info(
+                n, tol=tol, targets=targets)]
+
+    def get_images_of_coordinated_sites(self, n, tol=None, targets=None):
+        """
+        Get image location of all coordinated sites of site with index n.
+
+        Args:
+            n (integer): index of site for which to determine coordinated
+                sites.
+            tol (float): tolerance parameter for neighbor finding.
+            targets (Element or list of Elements): target element(s).
+        Returns:
+            images (list of 3D integer array): image locations of
+                coordinated sites as lattice translational vectors.
+        """
+
+        return [e[1] for e in self.get_coordination_info(
+                n, tol=tol, targets=targets)]
+
+    def get_coordination_info(self, n, tol=None, targets=None):
         """
         Get all coordinated sites as well as the associated image locations
         and weights of the site with index n.
 
         Args:
             n (integer): index of site for which to determine coordinated
-                         sites.
+                sites.
+            tol (float): tolerance parameter for neighbor finding.
+            targets (Element or list of Elements): target element(s).
+ 
         Returns:
             siw (list of tuples (Site, array, float)): tuples, each one
-                    representing a coordinated site, the image location,
-                    and its weight.
+                of which represents a coordinated site, its image location,
+                and its weight.
         """
 
-        raise NotImplementedError("get_coordinated_sites(n) is not defined!")
-
+        raise NotImplementedError("get_coordination_info(n, tol=None, "
+                "targets=None) is not defined!")
 
 class VoronoiCoordFinder(CoordFinder):
     """
-    Abstract class to determine coordination number and coordinated sites
-    of a site in a structure as well as the image location (lattice
-    translation vector) of each neighbor and, if computable, its weight
-    (otherwise set to 1).
-
     Uses a Voronoi algorithm to determine the coordination for each site in a
     structure.
 
     Args:
-        structure (Structure): Input structure
-        target ([Element/Specie]): A list of target species to determine
-            coordination for.
-        cutoff (float): Radius in Angstrom cutoff to look for coordinating
+        structure (Structure): structure for which to evaluate the
+            coordination environment.
+        cutoff (float): cutoff radius in Angstrom to look for coordinating
             atoms. Defaults to 10.0.
         allow_pathological (bool): whether to allow infinite vertices in
-            determination of Voronoi coordination
+            determination of Voronoi coordination.
+        targets (Element or list of Element): this is kept here only
+            for backwards compatability of get_voronoi_polyhedra().
     """
 
-    def __init__(self, structure, target=None, cutoff=10.0,
-                 allow_pathological=False):
-        self._structure = structure
+    def __init__(self, structure, cutoff=10.0,
+                 allow_pathological=False, targets=None):
+        CoordFinder.__init__(self, structure)
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
-        if target is None:
-            self._target = structure.composition.elements
+        if targets is None:
+            self._targets = self._structure.composition.elements
         else:
-            self._target = target
+            self._targets = targets
 
     def get_voronoi_polyhedra(self, n):
         """
@@ -124,7 +180,7 @@ class VoronoiCoordFinder(CoordFinder):
             A dict of sites sharing a common Voronoi facet with the site
             n and their solid angle weights
         """
-        localtarget = self._target
+        localtarget = self._targets
         center = self._structure[n]
         neighbors = self._structure.get_sites_in_sphere(
             center.coords, self.cutoff)
@@ -163,52 +219,55 @@ class VoronoiCoordFinder(CoordFinder):
 
         return resultweighted
 
-    def get_coordination_number(self, n):
-        """
-        Returns the coordination number of site with index n.
+
+    def get_coordination_info(self, n, tol=0, targets=None):
+        """"
+        Get all coordinated sites as well as the associated image locations
+        and weights of the site with index n using Voronoi decomposition
+        for neighbor identification.
 
         Args:
-            n (int): Site index
-        """
-        return sum(self.get_voronoi_polyhedra(n).values())
-
-    def get_coordinated_sites(self, n, tol=0, target=None):
-        """
-        Returns the sites that are in the coordination radius of site with
-        index n.
-
-        Args:
-            n (int): Site index.
-            tol (float): Weight tolerance to determine if a particular pair is
-                considered a neighbor.
-            target (Element): Target element
-
+            n (integer): index of site for which to determine coordinated
+                sites.
+            tol (float): tolerance parameter for neighbor finding.
+            targets (Element or list of Elements): is ignored but needs
+                to be here until backwards compatibitly issues with
+                get_voronoi_polyhedra get resolved.
+ 
         Returns:
-            Sites coordinating input site.
+            siw (list of tuples (Site, array, float)): tuples, each one
+                of which represents a coordinated site, its image location,
+                and its weight.
         """
-        coordinated_sites = []
+
+        #if type(targets) is not list:
+        #    targets = [targets]
+        siw = []
         for site, weight in self.get_voronoi_polyhedra(n).items():
-            if weight > tol and (target is None or site.specie == target):
-                coordinated_sites.append(site)
-        return coordinated_sites
+            if weight > tol and (self._targets is None or site.specie in self._targets):
+                dist, image = self._structure.sites[n].distance_and_image(site)
+                siw.append([site, image, weight])
+        return siw
 
 
-class JMolCoordFinder:
+class JMolCoordFinder(CoordFinder):
     """
-    Determine coordinated sites and coordination number using an emulation of 
-    JMol's default autoBond() algorithm. This version of the algorithm does not 
-    take into account any information regarding known charge states.
+    Determine coordinated sites and coordination number using an emulation
+    of JMol's default autoBond() algorithm. This version of the algorithm
+    does not take into account any information regarding known charge
+    states.
+
+    Args:
+        structure (Structure): structure for which to evaluate the
+            coordination environment.
+        el_radius_updates: (dict) symbol->float to override default atomic 
+            radii table values 
     """
 
-    def __init__(self, el_radius_updates=None):
-        """
-        Initialize coordination finder parameters (atomic radii)
-        
-        Args:
-            el_radius_updates: (dict) symbol->float to override default atomic 
-                radii table values 
-        """
+    def __init__(self, structure, target=None, cutoff=10.0, \
+            el_radius_updates=None):
 
+        CoordFinder.__init__(self, structure)
         # load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                   "bonds_jmol_ob.yaml")
@@ -233,47 +292,45 @@ class JMolCoordFinder:
         return math.sqrt(
             (self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
 
-    def get_coordination_number(self, structure, n, tol=1E-3):
+    def get_coordination_info(self, n, tol=None, targets=None):
         """
-        Get the coordination number of a site
+        Get all coordinated sites as well as the associated image locations
+        and weights of the site with index n using the bond identification
+        algorithm underlying JMol.
+
         Args:
-            structure: (Structure)
-            n: (int) index of site in the structure to get CN for
-            tol: (float) a numerical tolerance to extend search
-
-        Returns: (int) the coordination number
+            n (integer): index of site for which to determine coordinated
+                sites.
+            tol (float): tolerance parameter for neighbor finding.
+            targets (Element or list of Elements): target element(s).
+ 
+        Returns:
+            siw (list of tuples (Site, array, float)): tuples, each one
+                of which represents a coordinated site, its image location,
+                and its weight.
         """
 
-        return len(self.get_coordinated_sites(structure, n, tol))
+        site = self._structure[n]
+        tol = 1E-3 if tol is None else tol
 
-    def get_coordinated_sites(self, structure, n, tol=1E-3):
-        """
-        Get the coordinated sites for a site
-        Args:
-            structure: (Structure)
-            n: (int) index of site in the structure to analyze
-            tol: (float) a numerical tolerance to extend search
-
-        Returns: ([sites]) a list of coordinated sites
-        """
-        site = structure[n]
-
-        # determine relevant bond lengths based on atomic radii table
+        # Determine relevant bond lengths based on atomic radii table
         bonds = {}
-        for el in structure.composition.elements:
+        for el in self._structure.composition.elements:
             bonds[site.specie, el] = self.get_max_bond_distance(
                 site.specie.symbol, el.symbol)
 
-        # search for neighbors up to max bond length + tolerance
+        # Search for neighbors up to max bond length + tolerance
         max_rad = max(bonds.values()) + tol
+        min_rad = min(bonds.values())
 
-        all_neighbors = []
-        for neighb, dist in structure.get_neighbors(site, max_rad):
-            # confirm neighbor based on bond length specific to atom pair
+        siw = []
+        for neighb, dist in self._structure.get_neighbors(site, max_rad):
+            # Confirm neighbor based on bond length specific to atom pair
             if dist <= bonds[(site.specie, neighb.specie)] + tol:
-                all_neighbors.append(neighb)
-
-        return all_neighbors
+                weight = min_rad / dist
+                d, image = site.distance_and_image(neighb)
+                siw.append([neighb, image, weight])
+        return siw
 
 
 def average_coordination_number(structures, freq=10):
