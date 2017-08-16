@@ -35,8 +35,54 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.surface import Slab, SlabGenerator
 
 
-class VoronoiCoordFinder(object):
+class CoordFinder(object):
     """
+    Base class to determine coordination number and coordinated sites
+    of a site in a structure as well as the image location (lattice
+    translation vector) of each neighbor and, if computable, its weight
+    (otherwise set to 1).
+    """
+
+    def __init__(self, structure):
+        self._structure = structure
+
+    def get_coordination_number(self, n):
+        """
+        Get coordination number of site with index n.
+
+        Args:
+            n (integer): index of site for which to determine coordination
+                         number.
+        Returns:
+            cn (integer): coordination number.
+        """
+
+        raise NotImplementedError("get_coordination_number(n) is not defined!")
+
+    def get_coordinated_sites(self, n):
+        """
+        Get all coordinated sites as well as the associated image locations
+        and weights of the site with index n.
+
+        Args:
+            n (integer): index of site for which to determine coordinated
+                         sites.
+        Returns:
+            niw (list of tuples (Site, array, float)): tuples, each one
+                    representing a coordinated site, the image location,
+                    and its weight.
+        """
+
+        raise NotImplementedError("get_coordinated_sites(n) is not defined!")
+
+
+class VoronoiCoordFinder(CoordFinder):
+    """
+    Abstract class to determine coordination number and coordinated sites
+    of a site in a structure as well as the image location (lattice
+    translation vector) of each neighbor and, if computable, its weight
+    (otherwise set to 1).
+
     Uses a Voronoi algorithm to determine the coordination for each site in a
     structure.
 
