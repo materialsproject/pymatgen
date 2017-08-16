@@ -112,7 +112,7 @@ direct
 
     def test_debye_temperature(self):
         theta = self.qhda.debye_temperature(self.opt_vol)
-        np.testing.assert_almost_equal(theta, 601.239096, 3)
+        np.testing.assert_approx_equal(theta, 601.239096, 4 )
 
     def test_gruneisen_paramter(self):
         gamma = self.qhda.gruneisen_parameter(0, self.qhda.ev_eos_fit.v0)
