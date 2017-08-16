@@ -716,6 +716,7 @@ class LammpsForceFieldData(LammpsData):
         read_improper_data = False
         with open(data_file) as df:
             for line in df:
+                line = line.split("#")[0].strip()
                 if types_pattern.search(line):
                     m = types_pattern.search(line)
                     if m.group(2) == "atom":
