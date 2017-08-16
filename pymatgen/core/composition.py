@@ -619,7 +619,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             elif all_oxi_states:
                 oxids = Element(el).oxidation_states
             else:
-                oxids = Element(el).common_oxidation_states
+                oxids = Element(el).icsd_oxidation_states
 
             # get all possible combinations of oxidation states
             # and sum each combination
