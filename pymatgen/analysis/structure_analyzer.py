@@ -46,18 +46,22 @@ class CoordFinder(object):
     def __init__(self, structure):
         self._structure = structure
 
-    def get_coordination_number(self, n):
+    def get_coordination_number(self, n, use_weights=True):
         """
         Get coordination number of site with index n.
 
         Args:
             n (integer): index of site for which to determine coordination
-                         number.
+                    number.
+            use_weights (boolean): flag indicating whether (True, default)
+                    to use weights for computing the coordination number
+                    or not (False, each coordinated site has equal weight).
         Returns:
-            cn (integer): coordination number.
+            cn (integer or float): coordination number.
         """
 
-        raise NotImplementedError("get_coordination_number(n) is not defined!")
+        siw = self.get_coordinated_sites(n)
+        return sum([e[2] for e in siw]) if use_weights else len(siw)
 
     def get_coordinated_sites(self, n):
         """
@@ -68,7 +72,7 @@ class CoordFinder(object):
             n (integer): index of site for which to determine coordinated
                          sites.
         Returns:
-            niw (list of tuples (Site, array, float)): tuples, each one
+            siw (list of tuples (Site, array, float)): tuples, each one
                     representing a coordinated site, the image location,
                     and its weight.
         """
