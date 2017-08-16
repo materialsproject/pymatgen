@@ -513,7 +513,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
                             C2H2F2Br2.cart_coords + distortion)
         PA1 = PointGroupAnalyzer(C2H2F2Br2, tolerance=0.1)
         self.assertTrue(PA1.get_pointgroup().sch_symbol == 'Ci')
-        PA2 = PointGroupAnalyzer(dist_mol, tolerance=0.2)
+        PA2 = PointGroupAnalyzer(dist_mol, tolerance=0.1)
         self.assertTrue(PA2.get_pointgroup().sch_symbol == 'C1')
         eq = iterative_symmetrize(dist_mol, tolerance=0.3)
         PA3 = PointGroupAnalyzer(eq['sym_mol'], tolerance=0.1)
