@@ -32,7 +32,6 @@ class InterfaceReactionTest(unittest.TestCase):
         self.ir.append(InterfacialReactivity(Composition('Mn'),Composition('Li2O'),self.gpd, norm=1, include_no_mixing_energy=1, pd_non_grand=self.pd))
 
     def test_get_entry_energy(self):
-        comp = Composition('MnO3')
         # Test normal functionality
         comp = Composition('MnO2')
         test2 = np.isclose(self.ir[0]._get_entry_energy(self.pd,comp), -30,atol=1e-03)
