@@ -1,5 +1,5 @@
-pymatgen.structure_prediction package
-=====================================
+pymatgen\.structure\_prediction package
+=======================================
 
 Subpackages
 -----------

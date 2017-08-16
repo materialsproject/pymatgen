@@ -1,5 +1,5 @@
-pymatgen.io.phonopy module
-==========================
+pymatgen\.io\.phonopy module
+============================
 
 .. automodule:: pymatgen.io.phonopy
     :members:

@@ -1,5 +1,5 @@
-pymatgen.transformations.advanced_transformations module
-========================================================
+pymatgen\.transformations\.advanced\_transformations module
+===========================================================
 
 .. automodule:: pymatgen.transformations.advanced_transformations
     :members:

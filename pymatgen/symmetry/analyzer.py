@@ -1502,7 +1502,7 @@ def generate_full_symmops(symmops, tol):
         # C1 symmetry breaks assumptions in the algorithm afterwards
         return symmops
 
-    full = generators.copy()
+    full = list(generators)
 
     for g in full:
         for s in generators:

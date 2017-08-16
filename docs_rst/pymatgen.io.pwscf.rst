@@ -1,5 +1,5 @@
-pymatgen.io.pwscf module
-========================
+pymatgen\.io\.pwscf module
+==========================
 
 .. automodule:: pymatgen.io.pwscf
     :members:

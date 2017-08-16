@@ -1,5 +1,5 @@
-pymatgen.io.abinit.abiinspect module
-====================================
+pymatgen\.io\.abinit\.abiinspect module
+=======================================
 
 .. automodule:: pymatgen.io.abinit.abiinspect
     :members:

@@ -1,5 +1,5 @@
-pymatgen.analysis.hhi package
-=============================
+pymatgen\.analysis\.hhi package
+===============================
 
 Subpackages
 -----------

@@ -1,5 +1,5 @@
-pymatgen.analysis.nmr module
-============================
+pymatgen\.analysis\.nmr module
+==============================
 
 .. automodule:: pymatgen.analysis.nmr
     :members:

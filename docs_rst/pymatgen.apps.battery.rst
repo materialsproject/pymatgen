@@ -1,5 +1,5 @@
-pymatgen.apps.battery package
-=============================
+pymatgen\.apps\.battery package
+===============================
 
 Subpackages
 -----------
