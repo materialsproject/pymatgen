@@ -14,8 +14,7 @@ jobs:
             . venv/bin/activate
             mkdir coverage_reports
             pip install numpy
-            pip install -r requirements.txt
-            pip install -r requirements-optional.txt
+            pip install -r requirements.txt -r requirements-optional.txt
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
@@ -53,8 +52,7 @@ jobs:
             virtualenv venv
             . venv/bin/activate
             pip install numpy
-            pip install -r requirements.txt
-            pip install -r requirements-optional.txt
+            pip install -r requirements.txt -r requirements-optional.txt
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
