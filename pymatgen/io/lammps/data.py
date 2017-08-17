@@ -229,7 +229,7 @@ class LammpsData(MSONable):
         return cls(box_size, atomic_masses_dict.values(), atoms_data)
 
     @classmethod
-    def from_file(cls, data_file, read_charge=True):
+    def from_file(cls, data_file):
         """
         Return LammpsData object from the data file.
         Note: use this to read in data files that conform with
@@ -243,38 +243,16 @@ class LammpsData(MSONable):
         Returns:
             LammpsData
         """
-        atomic_masses = []  # atom_type(starts from 1): mass
-        box_size = []
         atoms_data = []
-        # atom_id, mol_id, atom_type, charge, x, y, z
-        if read_charge:
-            atoms_pattern = re.compile(
-                r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+('
-                r'[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*')
-        # atom_id, mol_id, atom_type, x, y, z
-        else:
-            atoms_pattern = re.compile(
-                r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+('
-                r'[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*')
-        # atom_type, mass
-        masses_pattern = re.compile(r'^\s*(\d+)\s+([0-9\.]+)$')
-        box_pattern = re.compile(
-            r'^([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+[xyz]lo\s+[xyz]hi')
-        with open(data_file) as df:
-            for line in df:
-                if masses_pattern.search(line):
-                    m = masses_pattern.search(line)
-                    atomic_masses.append([int(m.group(1)), float(m.group(2))])
-                if box_pattern.search(line):
-                    m = box_pattern.search(line)
-                    box_size.append([float(m.group(1)), float(m.group(2))])
-                m = atoms_pattern.search(line)
-                if m:
-                    # atom id, mol id, atom type
-                    line_data = [int(i) for i in m.groups()[:3]]
-                    # charge, x, y, z
-                    line_data.extend([float(i) for i in m.groups()[3:]])
-                    atoms_data.append(line_data)
+
+        data = parse_data_file(data_file)
+        atomic_masses = [[int(x[0]), float(x[1])] for x in data["masses"]]
+        box_size = [data['x'], data['y'], data['z']]
+
+        if "atoms" in data:
+            for x in data["atoms"]:
+                atoms_data.append([int(xi) for xi in x[:3]] + x[3:])
+
         return cls(box_size, atomic_masses, atoms_data)
 
     def as_dict(self):
