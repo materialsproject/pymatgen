@@ -669,6 +669,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
         # sort the solutions by highest to lowest score
         all_sols = [x for (y, x) in sorted(zip(all_scores, all_sols),
+                                           key=lambda pair: pair[0],
                                            reverse=True)]
         return all_sols
 
