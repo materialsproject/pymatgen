@@ -672,11 +672,24 @@ class LammpsForceFieldData(LammpsData):
                                     bonds_data, angles_data, dihedrals_data,
                                     imdihedrals_data)
 
-    # TODO this needs to be rewritten more generally to include multiple
-    # coefficent styles. This could be done by parsing all the blocks
-    # individually instead of searching line by line for patterns
     @staticmethod
-    def from_file(data_file):
+    def _get_coeffs(data, name):
+        val = []
+        if name in data:
+            for x in data[name]:
+                val.append([int(x[0])] + x[1:])
+        return val
+
+    @staticmethod
+    def _get_non_atoms(data, name):
+        val = []
+        if name in data:
+            for x in data[name]:
+                val.append([int(xi) for xi in x])
+        return val
+
+    @classmethod
+    def from_file(cls, data_file):
         """
         Return LammpsForceFieldData object from the data file. It is assumed
         that the forcefield paramter sections for pairs, bonds, angles,
@@ -691,60 +704,32 @@ class LammpsForceFieldData(LammpsData):
         Returns:
             LammpsForceFieldData
         """
-        pair_coeffs = []
-        bond_coeffs = []
-        angle_coeffs = []
-        dihedral_coeffs = []
-        improper_coeffs = []
         atoms_data = []
-        bonds_data = []
-        angles_data = []
-        dihedral_data = []
-        imdihedral_data = []
 
         data = parse_data_file(data_file)
-        print(data.keys())
         atomic_masses = [[int(x[0]), float(x[1])] for x in data["masses"]]
         box_size = [data['x'], data['y'], data['z']]
 
-        #for k in ["pair-coeffs", "bond-coeffs", "angle-coeffs",
-        #          "dihedral-coeffs", "improper-coeffs"]:
-        if "pair-coeffs" in data:
-            for x in data["pair-coeffs"]:
-                pair_coeffs.append([int(x[0])] + x[1:])
-        if "bond-coeffs" in data:
-            for x in data["bond-coeffs"]:
-                bond_coeffs.append([int(x[0])] + x[1:])
-        if "angle-coeffs" in data:
-            for x in data["angle-coeffs"]:
-                angle_coeffs.append([int(x[0])]+x[1:])
-        if "dihedral-coeffs" in data:
-            for x in data["dihedral-coeffs"]:
-                dihedral_coeffs.append([int(x[0])]+x[1:])
-        if "improper-coeffs" in data:
-            for x in data["improper-coeffs"]:
-                improper_coeffs.append([int(x[0])]+x[1:])
+        pair_coeffs = cls._get_coeffs(data, "pair-coeffs")
+        bond_coeffs = cls._get_coeffs(data, "bond-coeffs")
+        angle_coeffs = cls._get_coeffs(data, "angle-coeffs")
+        dihedral_coeffs = cls._get_coeffs(data, "dihedral-coeffs")
+        improper_coeffs = cls._get_coeffs(data, "improper-coeffs")
+
         if "atoms" in data:
             for x in data["atoms"]:
                 atoms_data.append([int(xi) for xi in x[:3]] + x[3:])
-        if "bonds" in data:
-            for x in data["bonds"]:
-                bonds_data.append([int(xi) for xi in x])
-        if "angles" in data:
-            for x in data["angles"]:
-                angles_data.append([int(xi) for xi in x])
-        if "dihedrals" in data:
-            for x in data["dihedrals"]:
-                dihedral_data.append([int(xi) for xi in x])
-        if "impropers" in data:
-            for x in data["impropers"]:
-                imdihedral_data.append([int(xi) for xi in x])
 
-        return LammpsForceFieldData(box_size, atomic_masses, pair_coeffs,
-                                    bond_coeffs, angle_coeffs,
-                                    dihedral_coeffs, improper_coeffs,
-                                    atoms_data, bonds_data, angles_data,
-                                    dihedral_data, imdihedral_data)
+        bonds_data = cls._get_non_atoms(data, "bonds")
+        angles_data = cls._get_non_atoms(data, "angles")
+        dihedral_data = cls._get_non_atoms(data, "dihedrals")
+        imdihedral_data = cls._get_non_atoms(data, "impropers")
+
+        return cls(box_size, atomic_masses, pair_coeffs,
+                    bond_coeffs, angle_coeffs,
+                    dihedral_coeffs, improper_coeffs,
+                    atoms_data, bonds_data, angles_data,
+                    dihedral_data, imdihedral_data)
 
 
 def parse_data_file(filename):
@@ -760,8 +745,7 @@ def parse_data_file(filename):
             if line:
                 if line.lower() in SECTION_KEYWORDS:
                     key = line.lower()
-                    key.replace(" ", "-")
-                    print(key)
+                    key = key.replace(" ", "-")
                     data[key] = []
                 elif key and key in data:
                     data[key].append([float(x) for x in line.split()])
