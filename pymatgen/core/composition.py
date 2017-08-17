@@ -643,7 +643,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 score = sum([prior_prob.get(Specie(el, o), 0) for o in
                              oxid_combo])  # how probable is this combo?
                 el_sum_scores[idx][sum(oxid_combo)] = max(
-                    el_sum_scores[idx].get(sum(oxid_combo)), score)
+                    el_sum_scores[idx].get(sum(oxid_combo), 0), score)
 
         els = el_sums.keys()
         sums = el_sums.values()
