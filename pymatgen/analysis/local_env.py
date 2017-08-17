@@ -135,12 +135,8 @@ class VoronoiNN(NearNeighbors):
     structure.
 
     Args:
-<<<<<<< HEAD
         tol (float): tolerance parameter for near-neighbor finding
             (default: 0).
-=======
-        tol (float): tolerance parameter for near-neighbor finding.
->>>>>>> 19cd3557c4c95b5a8d656a497595774476c087ac
         targets (Element or list of Elements): target element(s).
         cutoff (float): cutoff radius in Angstrom to look for near-neighbor
             atoms. Defaults to 10.0.
@@ -148,11 +144,7 @@ class VoronoiNN(NearNeighbors):
             determination of Voronoi coordination.
     """
 
-<<<<<<< HEAD
     def __init__(self, tol=0, targets=None, cutoff=10.0,
-=======
-    def __init__(self, tol=None, targets=None, cutoff=10.0,
->>>>>>> 19cd3557c4c95b5a8d656a497595774476c087ac
                  allow_pathological=False):
         self.tol = tol
         self.cutoff = cutoff
@@ -262,15 +254,9 @@ class JMolNN(NearNeighbors):
             radii table values 
     """
 
-<<<<<<< HEAD
     def __init__(self, tol=1E-3, el_radius_updates=None):
 
         self.tol = tol
-=======
-    def __init__(self, tol=None, el_radius_updates=None):
-
-        self.tol = 1E-3 if tol is None else tol
->>>>>>> 19cd3557c4c95b5a8d656a497595774476c087ac
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
