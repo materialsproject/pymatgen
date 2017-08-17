@@ -9,7 +9,7 @@ import unittest
 import os
 
 from pymatgen.analysis.local_env import VoronoiNN, JMolNN, \
-        MinimumDistanceNN, MinimumOKeeffeNN
+        MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
@@ -90,12 +90,21 @@ class MiniDistNNTest(PymatgenTest):
             nacl, 0), 6)
         self.assertAlmostEqual(MinimumDistanceNN(tol=0.01).get_cn(
             cscl, 0), 8)
+
         self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
             diamond, 0), 4)
         self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
             nacl, 0), 6)
         self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
             cscl, 0), 8)
+
+        self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
+            diamond, 0), 4)
+        self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
+            nacl, 0), 6)
+        self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
+            cscl, 0), 8)
+
 
 if __name__ == '__main__':
     unittest.main()

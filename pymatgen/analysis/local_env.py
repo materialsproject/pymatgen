@@ -32,6 +32,9 @@ from scipy.spatial import Voronoi
 from pymatgen import Element
 from pymatgen.util.num import abs_cap
 from pymatgen.analysis.bond_valence import BV_PARAMS
+from pymatgen.analysis.defects.point_defects import \
+        ValenceIonicRadiusEvaluator
+
 
 class NearNeighbors(object):
     """
@@ -418,6 +421,64 @@ class MinimumOKeeffeNN(NearNeighbors):
                 el2 = neigh.species_string
             reldists_neighs.append([dist / get_okeeffe_distance_prediction(
                     eln, el2), neigh])
+
+        siw = []
+        min_reldist = min([reldist for reldist, neigh in reldists_neighs])
+        for reldist, s in reldists_neighs:
+            if reldist < (1.0 + self.tol) * min_reldist:
+                w = min_reldist / reldist
+                d, i = site.distance_and_image(s)
+                siw.append({'site': s, 'image': i, 'weight': w})
+
+        return siw
+
+
+class MinimumVIRENN(NearNeighbors):
+    """
+    Determine near-neighbor sites and coordination number using the
+    neighbor(s) at closest relative distance, d_min_VIRE, plus some
+    relative tolerance, where atom radii from the
+    Pymatgen's ValenceIonicRadiusEvaluator (VIRE) are used
+    to calculate relative distances.
+
+    Args:
+        tol (float): tolerance parameter for neighbor identification
+            (default: 0.1).
+        cutoff (float): cutoff radius in Angstrom to look for trial
+            near-neighbor sites (default: 10.0).
+    """
+
+    def __init__(self, tol=0.1, cutoff=10.0):
+
+        self.tol = tol
+        self.cutoff = cutoff
+
+    def get_nn_info(self, structure, n):
+        """
+        Get all near-neighbor sites as well as the associated image locations
+        and weights of the site with index n using the closest relative
+        neighbor distance-based method with VIRE atomic/ionic radii.
+
+        Args:
+            structure (Structure): input structure.
+            n (integer): index of site for which to determine near
+                neighbors.
+
+        Returns:
+            siw (list of tuples (Site, array, float)): tuples, each one
+                of which represents a neighbor site, its image location,
+                and its weight.
+        """
+
+        vire = ValenceIonicRadiusEvaluator(structure)
+        site = vire.structure[n]
+        neighs_dists = vire.structure.get_neighbors(site, self.cutoff)
+        rn = vire.radii[vire.structure[n].species_string]
+
+        reldists_neighs = []
+        for neigh, dist in neighs_dists:
+            reldists_neighs.append([dist / (
+                    vire.radii[neigh.species_string] + rn), neigh])
 
         siw = []
         min_reldist = min([reldist for reldist, neigh in reldists_neighs])
