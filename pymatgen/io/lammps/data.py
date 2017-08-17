@@ -22,7 +22,7 @@ Restrictions:
 from six.moves import range
 from io import open
 import re
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 import numpy as np
 
@@ -33,6 +33,22 @@ from pymatgen.core.structure import Molecule, Structure
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
 __credits__ = 'Brandon Wood'
+
+
+HEADER_KEYWORDS = {"atoms", "bonds",  "angles", "dihedrals",  "impropers",
+                   "atom types", "bond types",  "angle types", "dihedral types",
+                   "improper types", "extra bond per atom",  "extra angle per atom",
+                   "extra dihedral per atom", "extra improper per atom",
+                   "extra special per atom", "ellipsoids", "lines", "triangles",
+                   "bodies", "xlo xhi", "ylo yhi", "zlo zhi", "xy xz yz"}
+
+SECTION_KEYWORDS = {"atoms", "velocities", "masses", "ellipsoids", "lines", "triangles", "bodies",
+                    "bonds", "angles", "dihedrals", "impropers",
+                    "pair coeffs", "pairij coeffs", "bond coeffs", "angle coeffs", "dihedral coeffs",
+                    "improper coeffs",
+                    "bondbond coeffs", "bondangle coeffs", "middlebondtorsion coeffs",
+                    "endbondtorsion coeffs", "angletorsion coeffs", "angleangletorsion coeffs",
+                    "bondbond13 coeffs", "angleangle coeffs"}
 
 
 class LammpsData(MSONable):
@@ -806,3 +822,36 @@ class LammpsForceFieldData(LammpsData):
                                     dihedral_coeffs, improper_coeffs,
                                     atoms_data, bonds_data, angles_data,
                                     dihedral_data, imdihedral_data)
+
+
+def parse_data_file(filename):
+    data = {}
+    gen_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)$')
+    types_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$')
+    box_pattern = re.compile(r'^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([xyz])lo\s+([xyz])hi$')
+    tilt_pattern = re.compile(r'^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+xy\s+xz\s+yz$')
+    key = None
+    with open(filename) as f:
+        for line in f:
+            line = line.split("#")[0].strip()
+            if line:
+                if line.lower() in SECTION_KEYWORDS:
+                    key = line.lower()
+                    key.replace(" ", "-")
+                    data[key] = []
+                elif key and key in data:
+                    data[key].append([float(x) for x in line.split()])
+                else:
+                    if types_pattern.search(line):
+                        m = types_pattern.search(line)
+                        data["{}-types".format(m.group(2))] = int(m.group(1))
+                    elif box_pattern.search(line):
+                        m = box_pattern.search(line)
+                        data[m.group(3)] = [float(m.group(1)), float(m.group(2))]
+                    elif gen_pattern.search(line):
+                        tokens = line.split(maxsplit=1)
+                        data[tokens[-1].lower()] = int(tokens[0])
+                    elif tilt_pattern.search(line):
+                        m = tilt_pattern.search(line)
+                        data["xy-xz-yz"] = [float(m.group(1)), float(m.group(2)), float(m.group(3))]
+    return data
