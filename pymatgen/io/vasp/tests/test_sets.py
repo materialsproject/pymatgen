@@ -17,7 +17,7 @@ from pymatgen.io.vasp.outputs import Vasprun
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
-
+print (test_dir)
 dec = MontyDecoder()
 
 
@@ -594,6 +594,23 @@ class FuncTest(PymatgenTest):
                 self.assertTrue(os.path.exists(os.path.join(d, f)))
         for d in ['Li4Fe4P4O16_1', 'Li2O1_0']:
             shutil.rmtree(d)
+
+print (test_dir)
+
+from pymacy.surface_adsorption.GBVaspInputSet import MVLGBVaspInputSet
+
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                                'test_files')
+
+class GBinputsetTest(unittest.TestCase):
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'CONTCAR_Mo')
+        s = Structure.from_file(filepath)
+        m = MVLGBVaspInputSet(s, bulk=True, unit_cell=False, slab=False, dope=True,
+                              user_incar_settings={"LDAU": False, "LCHARG": False,
+                                                   "ISMEAR": 1}
+                              )
+        m.write_input(self.test_dir)
 
 
 if __name__ == '__main__':
