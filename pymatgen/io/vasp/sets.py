@@ -1115,6 +1115,108 @@ class MVLSlabSet(MPRelaxSet):
         return kpt
 
 
+class MVLGBVaspInputSet(MPRelaxSet):
+    """
+    Class for writing a vasp input file for grain boundary, slab or bulk.
+    Args:
+        structure: provide the grain boundary structure
+        kpoints0: specify kpts[0] = kpoints0, default to []
+        k_product: kpts[0][0]*a. Decide k density without kpoint0,
+        default to 40
+        potcar_functional: default to PAW GGA PBE
+        bulk(bool): Set to True if the structure is bulk or grain boundary. Default is False.
+        bader(bool): Set to True if you want to do bader analysis. Default is False.
+        dope(bool): Set to True if your structure is doped structure. Default is False.
+        slab(bool): Set to True if your structure is slab. Default is False.
+        unit_cell(bool):Set to True if your structure is bulk unit cell
+        manual_kpoints: E.g. manual_kpoints=[4,4,1]
+
+        **kwargs:
+            Other kwargs supported by :class:`DictVaspInputSet`.
+    """
+
+    def __init__(self, structure, k_product=40, bulk=False, bader=False, dope=False,
+                 slab=False, unit_cell=False, manual_kpoints=[], **kwargs):
+
+        super(MVLGBVaspInputSet, self).__init__(structure, **kwargs)
+
+        self.k_product = k_product
+        self.bulk = bulk
+        self.structure = structure
+        self.bader = bader
+        self.dope = dope
+        self.slab = slab
+        self.unit_cell = unit_cell
+        self.manual_kpoints = manual_kpoints
+
+    @property
+    def kpoints(self):
+        """
+        k_product, default to 40, is kpoint number * length for a & b directions,
+            also for c direction in bulk calculations
+        Automatic mesh & Gamma is the default setting.
+        """
+
+        # To get input sets, the input structure has to has the same number
+        # of required parameters as a Structure object.
+
+        kpt = super(MVLGBVaspInputSet, self).kpoints
+        kpt.comment = "Automatic mesh"
+        kpt.style = 'Gamma'
+
+        # use k_product to calculate kpoints, k_product = kpts[0][0] * a
+        abc = self.structure.lattice.abc
+        if self.k_product:
+            kpt_calc = [int(self.k_product / abc[0] + 0.5),
+                        int(self.k_product / abc[1] + 0.5),
+                        int(self.k_product / abc[2] + 0.5)]
+            if not self.unit_cell:
+                kpt_calc[2] = int(1)
+            self.kpt_calc = kpt_calc
+
+            kpt.kpts[0] = kpt_calc
+
+        if self.manual_kpoints:
+            self.kpt_calc = copy.deepcopy(self.manual_kpoints)
+            kpt.kpts[0] = copy.deepcopy(self.manual_kpoints)
+
+        return kpt
+
+    @property
+    def incar(self):
+        incar = super(MVLGBVaspInputSet, self).incar
+
+        incar.update({"ISIF": 3, "ISMEAR": 1, "SIGMA": 0.05, "LCHARG": False, "NPAR": 4,
+                      "ENCUT": 400, "NELMIN": 8, "NELM": 60, "PREC": "Normal",
+                      "IBRION": 2, "ICHARG": 0, "NSW": 200, "EDIFF": 0.0001, "LDAU": False})
+        incar.update(self.user_incar_settings)
+        if not self.dope:
+            incar.update({"EDIFFG": -0.02})
+
+        if self.bader:
+            incar.update({"EDIFF": 0.0001, "IBRION": -1,
+                          "ICHARG": 0, "LAECHG": True, "LCHARG": True,
+                          "LVHAR": True, "NSW": 0, "ISIF": 2})
+
+        if self.dope or self.slab:
+            incar.update({"ISIF": 2})
+
+        if self.unit_cell:
+            self.bulk = True
+
+        if not self.bulk:
+            incar["AMIN"] = 0.01
+            incar["NELMIN"] = 8
+
+        if self.k_product:
+            abc = self.structure.lattice.abc
+            kpt_calc = [int(self.k_product / abc[0] + 0.5),
+                        int(self.k_product / abc[1] + 0.5), 1]
+
+            kpts = kpt_calc
+        return incar
+
+
 class MITNEBSet(MITRelaxSet):
     """
     Class for writing NEB inputs. Note that EDIFF is not on a per atom
