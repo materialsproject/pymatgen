@@ -586,7 +586,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         integer values. Note that more num_atoms in the composition gives
         more degrees of freedom. e.g., if possible oxidation states of
         element X are [2,4] and Y are [-3], then XY is not charge balanced
-        but X2Y2 is.
+        but X2Y2 is. Results are returned from most to least probable based
+        on ICSD statistics.
 
         Args:
             oxi_states_override (dict): dict of str->list to override an
@@ -606,7 +607,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         """
 
         # Load prior probabilities of oxidation states, used to rank solutions
-        # TODO: method can be faster if this loaded only once!
+        # TODO: method can be faster if prior_prob is loaded only once!
         module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
         all_data = loadfn(os.path.join(module_dir, "..",
                                        "analysis", "icsd_bv.yaml"))

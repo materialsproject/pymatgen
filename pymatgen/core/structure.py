@@ -2712,6 +2712,13 @@ class Structure(IStructure, collections.MutableSequence):
             self._sites[i] = new_site
 
     def add_oxidation_state_by_guess(self, *kwargs):
+        """
+        Decorates the structure with oxidation state, guessing
+        using Composition.oxi_state_guesses()
+
+        Args:
+            *kwargs: parameters to pass into oxi_state_guesses()
+        """
         oxid_guess = self.composition.oxi_state_guesses(*kwargs)
         oxid_guess = oxid_guess or \
                      [dict([(e.symbol, 0) for e in self.composition])]
