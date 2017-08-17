@@ -266,11 +266,10 @@ class Slab(Structure):
         Returns:
             (bool) Whether slab contains inversion symmetry.
         """
-        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
-                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
+
         sg = SpacegroupAnalyzer(self, symprec=symprec)
         pg = sg.get_point_group_symbol()
-        return str(pg) in laue
+        return pg.is_laue()
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -807,7 +806,7 @@ class SlabGenerator(object):
             # For each unique termination, symmetrize the
             # surfaces by removing sites from the bottom.
             if symmetrize:
-                slab = self.symmetrize_slab(g[0])
+                slab = self.nonstoichiometric_symmetrized_slab(g[0])
                 if original_formula != str(slab.composition.reduced_formula):
                     warnings.warn("WARNING: Stoichiometry is no longer the "
                                   "same due to symmetrization")
@@ -817,17 +816,16 @@ class SlabGenerator(object):
 
         return sorted(new_slabs, key=lambda s: s.energy)
 
-    def symmetrize_slab(self, slab, tol=1e-3):
+    def nonstoichiometric_symmetrized_slab(self, slab, tol=1e-3):
 
         """
         This method checks whether or not the two surfaces of the slab are
         equivalent. If the point group of the slab has an inversion symmetry (
         ie. belong to one of the Laue groups), then it is assumed that the
         surfaces should be equivalent. Otherwise, sites at the bottom of the
-        slab will be removed until the slab is symmetric. Note that this method
-        should only be limited to elemental structures as the removal of sites
+        slab will be removed until the slab is symmetric. Note the removal of sites
         can destroy the stoichiometry of the slab. For non-elemental
-        structures, use is_polar().
+        structures, the chemical potential will be needed to calculate surface energy.
 
         Arg:
             slab (Structure): A single slab structure
