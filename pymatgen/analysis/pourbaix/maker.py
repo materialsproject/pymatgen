@@ -56,6 +56,8 @@ class PourbaixDiagram(object):
         if len(self._ion_entries) == 0:
             raise Exception("No ion phase. Equilibrium between ion/solid "
                             "is required to make a Pourbaix Diagram")
+            # TODO: why is this true?  I could just want to look at the
+            #   equilibria of solid phases? Does this mean I need H+? -JHM
         self._unprocessed_entries = self._solid_entries + self._ion_entries
         self._elt_comp = comp_dict
         if comp_dict:
@@ -139,6 +141,7 @@ class PourbaixDiagram(object):
         # for all combinations
         for index, entry_list in enumerate(list_of_entries):
             # Check if all elements in composition list are present in entry_list
+            # TODO: Try to fix this -JHM
             if not (set([Element(el) for el in el_list]).issubset(set(list(chain.from_iterable([entries[i].composition.keys() for i in entry_list]))))):
                 continue
             if len(entry_list) == 1:
