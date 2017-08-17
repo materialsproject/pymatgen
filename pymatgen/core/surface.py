@@ -817,17 +817,16 @@ class SlabGenerator(object):
 
         return sorted(new_slabs, key=lambda s: s.energy)
 
-    def symmetrize_slab(self, slab, tol=1e-3):
+    def nonstoichiometric_symmetrized_slab(self, slab, tol=1e-3):
 
         """
         This method checks whether or not the two surfaces of the slab are
         equivalent. If the point group of the slab has an inversion symmetry (
         ie. belong to one of the Laue groups), then it is assumed that the
         surfaces should be equivalent. Otherwise, sites at the bottom of the
-        slab will be removed until the slab is symmetric. Note that this method
-        should only be limited to elemental structures as the removal of sites
+        slab will be removed until the slab is symmetric. Note the removal of sites
         can destroy the stoichiometry of the slab. For non-elemental
-        structures, use is_polar().
+        structures, the chemical potential will be needed to calculate surface energy.
 
         Arg:
             slab (Structure): A single slab structure
