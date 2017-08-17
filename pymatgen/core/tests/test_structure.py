@@ -574,6 +574,13 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s_elem, s_specie, "Oxidation state remover "
                                            "failed")
 
+    def test_add_oxidation_states_by_guess(self):
+        s = PymatgenTest.get_structure("Li2O")
+        s.add_oxidation_state_by_guess()
+        for i in s:
+            self.assertTrue(i.specie in [Specie("Li", 1),
+                                         Specie("O", -2)])
+
     def test_add_remove_spin_states(self):
 
         latt = Lattice.cubic(4.17)
