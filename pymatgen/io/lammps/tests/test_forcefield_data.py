@@ -137,6 +137,7 @@ class TestLammpsForceFieldData(unittest.TestCase):
             os.path.join(test_dir,"lammps_ff_data.dat"))
         lammps_ff_data_2 = LammpsForceFieldData.from_file(
             os.path.join(test_dir,"lammps_ff_data.dat"))
+        print(self.lammps_ff_data_1.bond_coeffs, lammps_ff_data_2.bond_coeffs)
         np.testing.assert_almost_equal(self.lammps_ff_data_1.bond_coeffs,
                          lammps_ff_data_2.bond_coeffs)
         np.testing.assert_almost_equal(self.lammps_ff_data_1.pair_coeffs,

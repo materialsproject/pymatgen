@@ -691,8 +691,6 @@ class LammpsForceFieldData(LammpsData):
         Returns:
             LammpsForceFieldData
         """
-        atomic_masses = []  # atom_type(starts from 1): mass
-        box_size = []
         pair_coeffs = []
         bond_coeffs = []
         angle_coeffs = []
@@ -703,120 +701,45 @@ class LammpsForceFieldData(LammpsData):
         angles_data = []
         dihedral_data = []
         imdihedral_data = []
-        types_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$')
-        # atom_id, mol_id, atom_type, charge, x, y, z
-        atoms_pattern = re.compile(
-            r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+('
-            r'[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*')
-        masses_pattern = re.compile(r'^\s*(\d+)\s+([0-9\.]+)$')
-        box_pattern = re.compile(
-            r'^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+[xyz]lo\s+[xyz]hi')
-        # id, value1, value2
-        general_coeff_pattern = re.compile(r'^\s*(\d+)\s+([0-9\.]+)\s+([0-9\.]+)$')
-        # id, type, atom_id1, atom_id2
-        bond_data_pattern = re.compile(r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$')
-        # id, type, atom_id1, atom_id2, atom_id3
-        angle_data_pattern = re.compile(
-            r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$')
-        # id, type, atom_id1, atom_id2, atom_id3, atom_id4
-        dihedral_data_pattern = re.compile(
-            r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$')
-        impropers_pattern = re.compile(r'Impropers.+')
-        imdihedral_data_pattern = re.compile(
-            r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$')
-        read_pair_coeffs = False
-        read_bond_coeffs = False
-        read_angle_coeffs = False
-        read_dihedral_coeffs = False
-        read_improper_coeffs = False
-        read_improper_data = False
-        with open(data_file) as df:
-            for line in df:
-                line = line.split("#")[0].strip()
-                if types_pattern.search(line):
-                    m = types_pattern.search(line)
-                    if m.group(2) == "atom":
-                        natom_types = int(m.group(1))
-                        npair_types = natom_types # i != j skipped
-                    if m.group(2) == "bond":
-                        nbond_types = int(m.group(1))
-                    if m.group(2) == "angle":
-                        nangle_types = int(m.group(1))
-                    if m.group(2) == "dihedral":
-                        ndihedral_types = int(m.group(1))
-                    if m.group(2) == "improper":
-                        nimproper_types = int(m.group(1))
-                if masses_pattern.search(line):
-                    m = masses_pattern.search(line)
-                    atomic_masses.append([int(m.group(1)), float(m.group(2))])
-                if box_pattern.search(line):
-                    m = box_pattern.search(line)
-                    box_size.append([float(m.group(1)), float(m.group(2))])
-                if "Pair Coeffs".lower() in line.lower():
-                    read_pair_coeffs = True
-                    continue
-                if read_pair_coeffs:
-                    tokens = line.split()
-                    if tokens:
-                        pair_coeffs.append([int(tokens[0])] + [float(i) for i in tokens[1:]])
-                        read_pair_coeffs = False if len(pair_coeffs) >= npair_types else True
-                if "Bond Coeffs".lower() in line.lower():
-                    read_bond_coeffs = True
-                    continue
-                if read_bond_coeffs:
-                    m = general_coeff_pattern.search(line)
-                    if m:
-                        bond_coeffs.append(
-                            [int(m.group(1)), float(m.group(2)), float(m.group(3))])
-                        read_bond_coeffs = False if len(bond_coeffs) >= nbond_types else True
-                if "Angle Coeffs".lower() in line.lower():
-                    read_angle_coeffs = True
-                    continue
-                if read_angle_coeffs:
-                    m = general_coeff_pattern.search(line)
-                    if m:
-                        angle_coeffs.append(
-                            [int(m.group(1)), float(m.group(2)), float(m.group(3))])
-                        read_angle_coeffs = False if len(angle_coeffs) >= nangle_types else True
-                if "Dihedral Coeffs".lower() in line.lower():
-                    read_dihedral_coeffs = True
-                    continue
-                if read_dihedral_coeffs:
-                    tokens = line.split()
-                    if tokens:
-                        dihedral_coeffs.append(
-                            [int(tokens[0])] + [float(i) for i in tokens[1:]])
-                        read_dihedral_coeffs = False if len(dihedral_coeffs) >= ndihedral_types else True
-                if "Improper Coeffs".lower() in line.lower():
-                    read_improper_coeffs = True
-                    continue
-                if read_improper_coeffs:
-                    tokens = line.split()
-                    if tokens:
-                        improper_coeffs.append(
-                            [int(tokens[0])] + [float(i) for i in tokens[1:]])
-                        read_improper_coeffs = False if len(improper_coeffs) >= nimproper_types else True
-                if atoms_pattern.search(line):
-                    m = atoms_pattern.search(line)
-                    # atom id, mol id, atom type
-                    line_data = [int(i) for i in m.groups()[:3]]
-                    # charge, x, y, z, vx, vy, vz ...
-                    line_data.extend([float(i) for i in m.groups()[3:]])
-                    atoms_data.append(line_data)
-                if bond_data_pattern.search(line) and atoms_data:
-                    m = bond_data_pattern.search(line)
-                    bonds_data.append([int(i) for i in m.groups()])
-                if angle_data_pattern.search(line) and atoms_data:
-                    m = angle_data_pattern.search(line)
-                    angles_data.append([int(i) for i in m.groups()])
-                if dihedral_data_pattern.search(line) and atoms_data and not read_improper_data:
-                    m = dihedral_data_pattern.search(line)
-                    dihedral_data.append([int(i) for i in m.groups()])
-                if "impropers" in line.lower() and atoms_data:
-                    read_improper_data = True
-                if imdihedral_data_pattern.search(line) and atoms_data and read_improper_data:
-                    m = imdihedral_data_pattern.search(line)
-                    imdihedral_data.append([int(i) for i in m.groups()])
+
+        data = parse_data_file(data_file)
+        print(data.keys())
+        atomic_masses = [[int(x[0]), float(x[1])] for x in data["masses"]]
+        box_size = [data['x'], data['y'], data['z']]
+
+        #for k in ["pair-coeffs", "bond-coeffs", "angle-coeffs",
+        #          "dihedral-coeffs", "improper-coeffs"]:
+        if "pair-coeffs" in data:
+            for x in data["pair-coeffs"]:
+                pair_coeffs.append([int(x[0])] + x[1:])
+        if "bond-coeffs" in data:
+            for x in data["bond-coeffs"]:
+                bond_coeffs.append([int(x[0])] + x[1:])
+        if "angle-coeffs" in data:
+            for x in data["angle-coeffs"]:
+                angle_coeffs.append([int(x[0])]+x[1:])
+        if "dihedral-coeffs" in data:
+            for x in data["dihedral-coeffs"]:
+                dihedral_coeffs.append([int(x[0])]+x[1:])
+        if "improper-coeffs" in data:
+            for x in data["improper-coeffs"]:
+                improper_coeffs.append([int(x[0])]+x[1:])
+        if "atoms" in data:
+            for x in data["atoms"]:
+                atoms_data.append([int(xi) for xi in x[:3]] + x[3:])
+        if "bonds" in data:
+            for x in data["bonds"]:
+                bonds_data.append([int(xi) for xi in x])
+        if "angles" in data:
+            for x in data["angles"]:
+                angles_data.append([int(xi) for xi in x])
+        if "dihedrals" in data:
+            for x in data["dihedrals"]:
+                dihedral_data.append([int(xi) for xi in x])
+        if "impropers" in data:
+            for x in data["impropers"]:
+                imdihedral_data.append([int(xi) for xi in x])
+
         return LammpsForceFieldData(box_size, atomic_masses, pair_coeffs,
                                     bond_coeffs, angle_coeffs,
                                     dihedral_coeffs, improper_coeffs,
@@ -838,6 +761,7 @@ def parse_data_file(filename):
                 if line.lower() in SECTION_KEYWORDS:
                     key = line.lower()
                     key.replace(" ", "-")
+                    print(key)
                     data[key] = []
                 elif key and key in data:
                     data[key].append([float(x) for x in line.split()])
@@ -850,7 +774,7 @@ def parse_data_file(filename):
                         data[m.group(3)] = [float(m.group(1)), float(m.group(2))]
                     elif gen_pattern.search(line):
                         tokens = line.split(maxsplit=1)
-                        data[tokens[-1].lower()] = int(tokens[0])
+                        data["n{}".format(tokens[-1])] = int(tokens[0])
                     elif tilt_pattern.search(line):
                         m = tilt_pattern.search(line)
                         data["xy-xz-yz"] = [float(m.group(1)), float(m.group(2)), float(m.group(3))]
