@@ -226,11 +226,11 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
         d = mitset.as_dict()
         v = dec.process_decoded(d)
-        self.assertEqual(v.config_dict["INCAR"]["LDAUU"]["O"]["Fe"], 4)
+        self.assertEqual(v._config_dict["INCAR"]["LDAUU"]["O"]["Fe"], 4)
 
         d = mpset.as_dict()
         v = dec.process_decoded(d)
-        self.assertEqual(v.config_dict["INCAR"]["LDAUU"]["O"]["Fe"], 5.3)
+        self.assertEqual(v._config_dict["INCAR"]["LDAUU"]["O"]["Fe"], 5.3)
 
         d = mpuserset.as_dict()
         v = dec.process_decoded(d)
@@ -254,6 +254,11 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertTrue(os.path.exists("Fe4P4O16.cif"))
         for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR", "Fe4P4O16.cif"]:
             os.remove(f)
+
+    def test_user_potcar_settings(self):
+        vis = MPRelaxSet(self.structure, user_potcar_settings={"Fe": "Fe"})
+        potcar = vis.potcar
+        self.assertEqual(potcar.symbols, ["Fe", "P", "O"])
 
 
 class MPStaticSetTest(PymatgenTest):
@@ -402,7 +407,7 @@ class MITMDSetTest(unittest.TestCase):
         d = self.mitmdparam.as_dict()
         v = dec.process_decoded(d)
         self.assertEqual(type(v), MITMDSet)
-        self.assertEqual(v.config_dict["INCAR"]["TEBEG"], 300)
+        self.assertEqual(v._config_dict["INCAR"]["TEBEG"], 300)
 
 
 class MITNEBSetTest(unittest.TestCase):
@@ -435,7 +440,7 @@ class MITNEBSetTest(unittest.TestCase):
     def test_as_from_dict(self):
         d = self.vis.as_dict()
         v = dec.process_decoded(d)
-        self.assertEqual(v.config_dict["INCAR"]["IMAGES"], 2)
+        self.assertEqual(v._config_dict["INCAR"]["IMAGES"], 2)
 
     def test_write_input(self):
         self.vis.write_input(".", write_cif=True,

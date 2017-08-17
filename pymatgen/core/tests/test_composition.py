@@ -387,17 +387,12 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition("Fe4O5").oxi_state_guesses(),
                          [{"Fe": 2.5, "O": -2}])
 
-        # because pymatgen common oxidation states doesn't include V:3+,
-        # this doesn't work
         self.assertEqual(Composition("V2O3").oxi_state_guesses(),
-                         [])
+                         [{"V": 3, "O": -2}])
 
         # all_oxidation_states produces *many* possible responses
         self.assertEqual(len(Composition("MnO").oxi_state_guesses(
             all_oxi_states=True)), 4)
-
-        self.assertEqual(Composition("V2O3").oxi_state_guesses(
-            oxi_states_override={"V": [2, 3, 4, 5]}), [{"V": 3, "O": -2}])
 
         # can't balance b/c missing V4+
         self.assertEqual(Composition("VO2").oxi_state_guesses(
