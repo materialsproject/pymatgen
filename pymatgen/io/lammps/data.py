@@ -734,7 +734,7 @@ class LammpsForceFieldData(LammpsData):
 
 def parse_data_file(filename):
     data = {}
-    gen_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)$')
+    count_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)$')
     types_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$')
     box_pattern = re.compile(r'^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([xyz])lo\s+([xyz])hi$')
     tilt_pattern = re.compile(r'^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+xy\s+xz\s+yz$')
@@ -756,7 +756,7 @@ def parse_data_file(filename):
                     elif box_pattern.search(line):
                         m = box_pattern.search(line)
                         data[m.group(3)] = [float(m.group(1)), float(m.group(2))]
-                    elif gen_pattern.search(line):
+                    elif count_pattern.search(line):
                         tokens = line.split(maxsplit=1)
                         data["n{}".format(tokens[-1])] = int(tokens[0])
                     elif tilt_pattern.search(line):
