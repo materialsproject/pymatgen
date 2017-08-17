@@ -582,7 +582,7 @@ class OutcarTest(unittest.TestCase):
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
 
     def test_read_fermi_contact_shift(self):
-        filepath = os.path.join(test_dir, "OUTCAR_fc.gz")
+        filepath = os.path.join(test_dir, "OUTCAR_fc")
         outcar = Outcar(filepath)
         outcar.read_fermi_contact_shift()
         self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'fch'][0][0], 0.004)
