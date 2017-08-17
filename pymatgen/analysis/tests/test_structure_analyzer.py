@@ -8,7 +8,7 @@ import numpy as np
 import unittest
 import os
 
-from pymatgen.analysis.structure_analyzer import VoronoiCoordFinderFuture, \
+from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
     oxide_type, sulfide_type, OrderParameters, average_coordination_number, \
     VoronoiAnalyzer, JMolCoordFinder, get_dimensionality
@@ -23,19 +23,18 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 class VoronoiCoordFinderTest(PymatgenTest):
     def setUp(self):
-        self.s = self.get_structure('LiFePO4')
-        self.finder = VoronoiCoordFinderFuture(targets=[Element("O")])
+        s = self.get_structure('LiFePO4')
+        self.finder = VoronoiCoordFinder(s, [Element("O")])
 
     def test_get_voronoi_polyhedra(self):
-        self.assertEqual(len(self.finder.get_voronoi_polyhedra(
-                self.s, 0).items()), 8)
+        self.assertEqual(len(self.finder.get_voronoi_polyhedra(0).items()), 8)
 
     def test_get_coordination_number(self):
-        self.assertAlmostEqual(self.finder.get_coordination_number(
-                self.s, 0, use_weights=True), 5.809265748999465, 7)
+        self.assertAlmostEqual(self.finder.get_coordination_number(0),
+                               5.809265748999465, 7)
 
     def test_get_coordinated_sites(self):
-        self.assertEqual(len(self.finder.get_coordinated_sites(self.s, 0)), 8)
+        self.assertEqual(len(self.finder.get_coordinated_sites(0)), 8)
 
 
 class VoronoiAnalyzerTest(PymatgenTest):
@@ -64,7 +63,7 @@ class JMolCoordFinderTest(PymatgenTest):
     def test_get_coordination_number(self):
         s = self.get_structure('LiFePO4')
 
-        # Test the default coordination finder
+        # test the default coordination finder
         finder = JMolCoordFinder()
         nsites_checked = 0
 
@@ -81,7 +80,7 @@ class JMolCoordFinderTest(PymatgenTest):
         self.assertEqual(nsites_checked, 12)
 
         # test a user override that would cause Li to show up as 6-coordinated
-        finder = JMolCoordFinder(el_radius_updates={"Li": 1})
+        finder = JMolCoordFinder({"Li": 1})
         self.assertEqual(finder.get_coordination_number(s, 0), 6)
 
         # verify get_coordinated_sites function works
@@ -151,7 +150,7 @@ class MiscFunctionTest(PymatgenTest):
     def test_average_coordination_number(self):
         xdatcar = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD'))
         coordination_numbers = average_coordination_number(xdatcar.structures,
-                freq=1)
+                                                           freq=1)
         self.assertAlmostEqual(coordination_numbers['Fe'], 4.771903318390836, 5,
                                "Coordination number not calculated properly.")
 
