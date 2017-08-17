@@ -9,16 +9,19 @@ import numbers
 import string
 from itertools import combinations_with_replacement, product
 
+import os
 import six
 import re
 
 from collections import defaultdict
+
+from monty.serialization import loadfn
 from six.moves import filter, map, zip
 
 from functools import total_ordering
 
 from monty.fractions import gcd, gcd_float
-from pymatgen.core.periodic_table import get_el_sp, Element
+from pymatgen.core.periodic_table import get_el_sp, Element, Specie
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
 from pymatgen.core.units import unitized
@@ -93,6 +96,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                         "HO": "H2O2", "CsO": "Cs2O2", "RbO": "Rb2O2",
                         "O": "O2",  "N": "N2", "F": "F2", "Cl": "Cl2",
                         "H": "H2"}
+
+    oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
 
     def __init__(self, *args, **kwargs):  # allow_negative=False
         """
@@ -583,7 +588,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         integer values. Note that more num_atoms in the composition gives
         more degrees of freedom. e.g., if possible oxidation states of
         element X are [2,4] and Y are [-3], then XY is not charge balanced
-        but X2Y2 is.
+        but X2Y2 is. Results are returned from most to least probable based
+        on ICSD statistics.
 
         Args:
             oxi_states_override (dict): dict of str->list to override an
@@ -591,7 +597,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             target_charge (int): the desired total charge on the structure.
                 Default is 0 signifying charge balance.
             all_oxi_states (bool): if True, an element defaults to
-                all oxidation states in pymatgen Element.oxidation_states.
+                all oxidation states in pymatgen Element.icsd_oxidation_states.
                 Otherwise, default is Element.common_oxidation_states. Note
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
@@ -601,6 +607,16 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
+
+        # Load prior probabilities of oxidation states, used to rank solutions
+        if not Composition.oxi_prob:
+            module_dir = os.path.join(os.path.
+                                      dirname(os.path.abspath(__file__)))
+            all_data = loadfn(os.path.join(module_dir, "..",
+                                           "analysis", "icsd_bv.yaml"))
+            Composition.oxi_prob = {Specie.from_string(sp): data
+                                    for sp, data in
+                                    all_data["occurrence"].items()}
 
         oxi_states_override = oxi_states_override or {}
 
@@ -613,23 +629,30 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         # (taking into account nsites for that particular element)
         el_amt = self.get_el_amt_dict()
         el_sums = defaultdict(set)  # dict of element to possible oxid sums
-        for el in el_amt:
+        el_sum_scores = defaultdict(set)  # dict of el_idx, sum -> score
+        for idx, el in enumerate(el_amt):
+            el_sum_scores[idx] = {}
             if oxi_states_override.get(el):
                 oxids = oxi_states_override[el]
             elif all_oxi_states:
                 oxids = Element(el).oxidation_states
             else:
-                oxids = Element(el).common_oxidation_states
+                oxids = Element(el).icsd_oxidation_states
 
             # get all possible combinations of oxidation states
             # and sum each combination
             for oxid_combo in combinations_with_replacement(oxids,
                                                             int(el_amt[el])):
                 el_sums[el].add(sum(oxid_combo))
+                score = sum([Composition.oxi_prob.get(Specie(el, o), 0) for
+                             o in oxid_combo])  # how probable is this combo?
+                el_sum_scores[idx][sum(oxid_combo)] = max(
+                    el_sum_scores[idx].get(sum(oxid_combo), 0), score)
 
         els = el_sums.keys()
         sums = el_sums.values()
         all_sols = []  # will contain all solutions
+        all_scores = []  # will contain a score for each solution
         for x in product(*sums):
             # each x is a trial of one possible oxidation sum for each element
             if sum(x) == target_charge:  # charge balance condition
@@ -638,11 +661,18 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
                 all_sols.append(sol)  # add the solution to the list of solutions
 
-        # present results with smaller sum-square charge magnitudes first
-        # note: one could use tabulated oxidation state potentials for a
-        # more accurate ranking (exercise for the reader)
-        all_sols.sort(key=lambda x: sum([v**2 for v in x.values()]))
+                # determine the score for this solution
+                score = 0
+                for idx, v in enumerate(x):
+                    score += el_sum_scores[idx][v]
+                all_scores.append(score)
+
+        # sort the solutions by highest to lowest score
+        all_sols = [x for (y, x) in sorted(zip(all_scores, all_sols),
+                                           key=lambda pair: pair[0],
+                                           reverse=True)]
         return all_sols
+
 
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula,

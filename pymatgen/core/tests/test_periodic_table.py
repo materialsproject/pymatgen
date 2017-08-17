@@ -104,6 +104,7 @@ class ElementTestCase(PymatgenTest):
         el = Element.Fe
         self.assertEqual(el.oxidation_states, (-2, -1, 1, 2, 3, 4, 5, 6))
         self.assertEqual(el.common_oxidation_states, (2, 3))
+        self.assertEqual(el.icsd_oxidation_states, (2, 3))
 
     def test_deepcopy(self):
         el1 = Element.Fe
