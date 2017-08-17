@@ -97,6 +97,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                         "O": "O2",  "N": "N2", "F": "F2", "Cl": "Cl2",
                         "H": "H2"}
 
+    oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
+
     def __init__(self, *args, **kwargs):  # allow_negative=False
         """
         Very flexible Composition construction, similar to the built-in Python
@@ -607,12 +609,14 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         """
 
         # Load prior probabilities of oxidation states, used to rank solutions
-        # TODO: method can be faster if prior_prob is loaded only once!
-        module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-        all_data = loadfn(os.path.join(module_dir, "..",
-                                       "analysis", "icsd_bv.yaml"))
-        prior_prob = {Specie.from_string(sp): data
-                      for sp, data in all_data["occurrence"].items()}
+        if not Composition.oxi_prob:
+            module_dir = os.path.join(os.path.
+                                      dirname(os.path.abspath(__file__)))
+            all_data = loadfn(os.path.join(module_dir, "..",
+                                           "analysis", "icsd_bv.yaml"))
+            Composition.oxi_prob = {Specie.from_string(sp): data
+                                    for sp, data in
+                                    all_data["occurrence"].items()}
 
         oxi_states_override = oxi_states_override or {}
 
@@ -640,8 +644,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             for oxid_combo in combinations_with_replacement(oxids,
                                                             int(el_amt[el])):
                 el_sums[el].add(sum(oxid_combo))
-                score = sum([prior_prob.get(Specie(el, o), 0) for o in
-                             oxid_combo])  # how probable is this combo?
+                score = sum([Composition.oxi_prob.get(Specie(el, o), 0) for
+                             o in oxid_combo])  # how probable is this combo?
                 el_sum_scores[idx][sum(oxid_combo)] = max(
                     el_sum_scores[idx].get(sum(oxid_combo), 0), score)
 
