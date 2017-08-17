@@ -266,11 +266,10 @@ class Slab(Structure):
         Returns:
             (bool) Whether slab contains inversion symmetry.
         """
-        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
-                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
+
         sg = SpacegroupAnalyzer(self, symprec=symprec)
         pg = sg.get_point_group_symbol()
-        return str(pg) in laue
+        return pg.is_laue()
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -807,7 +806,7 @@ class SlabGenerator(object):
             # For each unique termination, symmetrize the
             # surfaces by removing sites from the bottom.
             if symmetrize:
-                slab = self.symmetrize_slab(g[0])
+                slab = self.nonstoichiometric_symmetrized_slab(g[0])
                 if original_formula != str(slab.composition.reduced_formula):
                     warnings.warn("WARNING: Stoichiometry is no longer the "
                                   "same due to symmetrization")
