@@ -1,5 +1,5 @@
-pymatgen.matproj package
-========================
+pymatgen\.matproj package
+=========================
 
 Subpackages
 -----------

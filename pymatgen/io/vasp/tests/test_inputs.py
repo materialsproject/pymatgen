@@ -147,7 +147,7 @@ cart
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
 
-        #Silicon structure for testing.
+        # Silicon structure for testing.
         latt = [[3.8401979337, 0.00, 0.00],
                 [1.9200989668, 3.3257101909, 0.00],
                 [0.00, -2.2171384943, 3.1355090603]]
@@ -523,7 +523,7 @@ SIGMA = 0.1"""
         self.assertEqual(Incar.proc_val("HELLO", "-0.85 0.85"), "-0.85 0.85")
 
 
-class KpointsTest(unittest.TestCase):
+class KpointsTest(PymatgenTest):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'KPOINTS.auto')
@@ -622,6 +622,20 @@ Cartesian
     def test_pickle(self):
         k = Kpoints.gamma_automatic()
         pickle.dumps(k)
+
+    def test_automatic_kpoint(self):
+        # s = PymatgenTest.get_structure("Li2O")
+        p = Poscar.from_string("""Al1
+1.0
+2.473329 0.000000 1.427977
+0.824443 2.331877 1.427977
+0.000000 0.000000 2.855955
+Al
+1
+direct
+0.000000 0.000000 0.000000 Al""")
+        kpoints = Kpoints.automatic_density(p.structure, 1000)
+        self.assertArrayAlmostEqual(kpoints.kpts[0], [10, 10, 10])
 
 
 class PotcarSingleTest(unittest.TestCase):

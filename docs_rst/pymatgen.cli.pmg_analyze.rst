@@ -1,5 +1,5 @@
-pymatgen.cli.pmg_analyze module
-===============================
+pymatgen\.cli\.pmg\_analyze module
+==================================
 
 .. automodule:: pymatgen.cli.pmg_analyze
     :members:

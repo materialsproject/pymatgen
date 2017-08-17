@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.util.plotting module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.util.plotting module &#8212; pymatgen 2017.8.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -137,13 +134,13 @@ plt: matplotlib pyplot module.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>width</strong> (<em>float</em>) &#8211; Width of plot in inches. Defaults to 8in.</li>
-<li><strong>height</strong> (<em>float</em>) &#8211; Height of plot in inches. Defaults to width * golden
+<li><strong>width</strong> (<em>float</em>) – Width of plot in inches. Defaults to 8in.</li>
+<li><strong>height</strong> (<em>float</em>) – Height of plot in inches. Defaults to width * golden
 ratio.</li>
-<li><strong>plt</strong> (<em>matplotlib.pyplot</em>) &#8211; If plt is supplied, changes will be made to an
+<li><strong>plt</strong> (<em>matplotlib.pyplot</em>) – If plt is supplied, changes will be made to an
 existing plot. Otherwise, a new plot will be created.</li>
-<li><strong>dpi</strong> (<em>int</em>) &#8211; Sets dot per inch for figure. Defaults to 300.</li>
-<li><strong>color_cycle</strong> (<em>tuple</em>) &#8211; Set the color cycle for new plots to one of the
+<li><strong>dpi</strong> (<em>int</em>) – Sets dot per inch for figure. Defaults to 300.</li>
+<li><strong>color_cycle</strong> (<em>tuple</em>) – Set the color cycle for new plots to one of the
 color sets in palettable. Defaults to a qualitative Set1_9.</li>
 </ul>
 </td>
@@ -165,18 +162,18 @@ examples. Makes it easier to create plots with different axes.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>np.ndarray/list</em>) &#8211; Data for x-axis.</li>
-<li><strong>y1</strong> (<em>dict/np.ndarray/list</em>) &#8211; Data for y1 axis (left). If a dict, it will
+<li><strong>x</strong> (<em>np.ndarray/list</em>) – Data for x-axis.</li>
+<li><strong>y1</strong> (<em>dict/np.ndarray/list</em>) – Data for y1 axis (left). If a dict, it will
 be interpreted as a {label: sequence}.</li>
-<li><strong>y2</strong> (<em>dict/np.ndarray/list</em>) &#8211; Data for y2 axis (right). If a dict, it will
+<li><strong>y2</strong> (<em>dict/np.ndarray/list</em>) – Data for y2 axis (right). If a dict, it will
 be interpreted as a {label: sequence}.</li>
-<li><strong>xlabel</strong> (<em>str</em>) &#8211; If not None, this will be the label for the x-axis.</li>
-<li><strong>y1label</strong> (<em>str</em>) &#8211; If not None, this will be the label for the y1-axis.</li>
-<li><strong>y2label</strong> (<em>str</em>) &#8211; If not None, this will be the label for the y2-axis.</li>
-<li><strong>width</strong> (<em>float</em>) &#8211; Width of plot in inches. Defaults to 8in.</li>
-<li><strong>height</strong> (<em>float</em>) &#8211; Height of plot in inches. Defaults to width * golden
+<li><strong>xlabel</strong> (<em>str</em>) – If not None, this will be the label for the x-axis.</li>
+<li><strong>y1label</strong> (<em>str</em>) – If not None, this will be the label for the y1-axis.</li>
+<li><strong>y2label</strong> (<em>str</em>) – If not None, this will be the label for the y2-axis.</li>
+<li><strong>width</strong> (<em>float</em>) – Width of plot in inches. Defaults to 8in.</li>
+<li><strong>height</strong> (<em>float</em>) – Height of plot in inches. Defaults to width * golden
 ratio.</li>
-<li><strong>dpi</strong> (<em>int</em>) &#8211; Sets dot per inch for figure. Defaults to 300.</li>
+<li><strong>dpi</strong> (<em>int</em>) – Sets dot per inch for figure. Defaults to 300.</li>
 </ul>
 </td>
 </tr>
@@ -196,12 +193,12 @@ ratio.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> &#8211; Sequence of x data.</li>
-<li><strong>y</strong> &#8211; Sequence of y data.</li>
-<li><strong>deg</strong> (<em>int</em>) &#8211; Degree of polynomial. Defaults to 1.</li>
-<li><strong>xlabel</strong> (<em>str</em>) &#8211; Label for x-axis.</li>
-<li><strong>ylabel</strong> (<em>str</em>) &#8211; Label for y-axis.</li>
-<li><strong>**kwargs</strong> &#8211; Keyword args passed to pretty_plot.</li>
+<li><strong>x</strong> – Sequence of x data.</li>
+<li><strong>y</strong> – Sequence of y data.</li>
+<li><strong>deg</strong> (<em>int</em>) – Degree of polynomial. Defaults to 1.</li>
+<li><strong>xlabel</strong> (<em>str</em>) – Label for x-axis.</li>
+<li><strong>ylabel</strong> (<em>str</em>) – Label for y-axis.</li>
+<li><strong>**kwargs</strong> – Keyword args passed to pretty_plot.</li>
 </ul>
 </td>
 </tr>
@@ -250,13 +247,13 @@ ratio.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

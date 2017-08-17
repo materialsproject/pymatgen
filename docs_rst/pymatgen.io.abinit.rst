@@ -1,5 +1,5 @@
-pymatgen.io.abinit package
-==========================
+pymatgen\.io\.abinit package
+============================
 
 Subpackages
 -----------

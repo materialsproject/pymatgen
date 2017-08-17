@@ -96,6 +96,17 @@ class TestLammpsTopology(unittest.TestCase):
         self.assertEqual(self.forcefield.dihedrals, dihedrals)
         self.assertEqual(self.forcefield.pairs, pairs)
 
+        ff = ForceField.from_dict(self.forcefield.as_dict())
+        self.assertEqual(ff.atoms, atoms)
+        self.assertEqual(ff.bonds, bonds)
+        self.assertEqual(ff.angles, angles)
+        self.assertEqual(ff.dihedrals, dihedrals)
+        self.assertEqual(ff.pairs, pairs)
+
+    def test_forcefield_serialization(self):
+        ff = ForceField.from_dict(self.forcefield.as_dict())
+        self.assertDictEqual(self.forcefield.as_dict(), ff.as_dict())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,5 @@
-pymatgen.io.exciting package
-============================
+pymatgen\.io\.exciting package
+==============================
 
 Submodules
 ----------

@@ -14,7 +14,7 @@ import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.periodic_table import _pt_data
-from pymatgen.core.structure import Molecule
+from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
@@ -345,6 +345,9 @@ class LammpsRun(MSONable):
         Returns:
             list of Structure objects
         """
+        lattice = Lattice([[self.box_lengths[0], 0, 0],
+                           [0, self.box_lengths[1], 0],
+                           [0, 0, self.box_lengths[2]]])
         structures = []
         mass_to_symbol = dict(
             (round(y["Atomic mass"], 1), x) for x, y in _pt_data.items())
@@ -360,14 +363,14 @@ class LammpsRun(MSONable):
             coords = mol_vector.copy()
             species = [mass_to_symbol[round(unique_atomic_masses[atype - 1], 1)]
                        for atype in self.trajectory[begin:end][:]["atom_type"]]
-            mol = Molecule(species, coords)
             try:
-                boxed_mol = mol.get_boxed_structure(*self.box_lengths)
+                structure = Structure(lattice, species, coords,
+                                      coords_are_cartesian=True)
             except ValueError as error:
                 print("Error: '{}' at timestep {} in the trajectory".format(
                     error,
                     int(self.timesteps[step])))
-            structures.append(boxed_mol)
+            structures.append(structure)
         return structures
 
     def get_displacements(self):
@@ -398,8 +401,8 @@ class LammpsRun(MSONable):
                 species = [
                     mass_to_symbol[round(unique_atomic_masses[atype - 1], 1)]
                     for atype in self.trajectory[begin:end][:]["atom_type"]]
-                mol = Molecule(species, coords)
-                structure = mol.get_boxed_structure(*self.box_lengths)
+                structure = Structure(lattice, species, coords,
+                                      coords_are_cartesian=True)
             step_frac_coords = [lattice.get_fractional_coords(crd)
                                 for crd in coords]
             frac_coords.append(np.array(step_frac_coords)[:, None])

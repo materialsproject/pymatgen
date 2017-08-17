@@ -45,8 +45,8 @@ class InsertSitesTransformation(AbstractTransformation):
             [[0,0,0],[0.5,0.5,0.5]].
         coords_are_cartesian (bool): Set to True if coords are given in
             cartesian coords. Defaults to False.
-        validate_proximity (bool): Set to False if you do not wish to ensure that added sites are
-            not too close to other sites. Defaults to True.
+        validate_proximity (bool): Set to False if you do not wish to ensure
+            that added sites are not too close to other sites. Defaults to True.
     """
     def __init__(self, species, coords, coords_are_cartesian=False,
                  validate_proximity=True):
@@ -89,9 +89,9 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         indices_species_map: A dict containing the species mapping in
             int-string pairs. E.g., { 1:"Na"} or {2:"Mn2+"}. Multiple
             substitutions can be done. Overloaded to accept sp_and_occu
-            dictionary. E.g. {"Si: {"Ge":0.75, "C":0.25} }, which
-            substitutes a single species with multiple species to generate a disordered
-            structure.
+            dictionary. E.g. {1: {"Ge":0.75, "C":0.25} }, which
+            substitutes a single species with multiple species to generate a
+            disordered structure.
     """
     def __init__(self, indices_species_map):
         self.indices_species_map = indices_species_map

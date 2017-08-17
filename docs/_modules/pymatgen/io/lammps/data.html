@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.lammps.data &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.lammps.data &#8212; pymatgen 2017.8.16 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -131,8 +128,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Atoms&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsData.check_box_size"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.check_box_size">[docs]</a>    <span class="k">def</span> <span class="nf">check_box_size</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsData.check_box_size"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.check_box_size">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">check_box_size</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check the box size and if necessary translate the molecule so that</span>
 <span class="sd">        all the sites are contained within the bounding box.</span>
@@ -173,8 +170,8 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsData.get_basic_system_info"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_basic_system_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_basic_system_info</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsData.get_basic_system_info"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_basic_system_info">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_basic_system_info</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return basic system info from the given structure.</span>
 
@@ -194,8 +191,8 @@
              <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elements</span><span class="p">)])</span>
         <span class="k">return</span> <span class="n">natoms</span><span class="p">,</span> <span class="n">natom_types</span><span class="p">,</span> <span class="n">atomic_masses_dict</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsData.get_atoms_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_atoms_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_atoms_data</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="p">,</span> <span class="n">set_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsData.get_atoms_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_atoms_data">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_atoms_data</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="p">,</span> <span class="n">set_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        return the atoms data:</span>
 <span class="sd">        atom_id, molecule tag, atom_type, charge(if present else 0), x, y, z.</span>
@@ -227,8 +224,8 @@
                                    <span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">atoms_data</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsData.set_lines_from_list"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.set_lines_from_list">[docs]</a>    <span class="k">def</span> <span class="nf">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">block_name</span><span class="p">,</span> <span class="n">input_list</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsData.set_lines_from_list"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.set_lines_from_list">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">block_name</span><span class="p">,</span> <span class="n">input_list</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Append the values from the input list that corresponds to the block</span>
 <span class="sd">        with name &#39;block_name&#39; to the list of lines.</span>
@@ -244,8 +241,8 @@
             <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="n">input_list</span><span class="p">:</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ad</span><span class="p">]))</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="LammpsData.from_structure"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_structure">[docs]</a>    <span class="k">def</span> <span class="nf">from_structure</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_structure</span><span class="p">,</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">set_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsData.from_structure"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_structure">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_structure</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_structure</span><span class="p">,</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">set_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set LammpsData from the given structure. If the input structure is</span>
 <span class="sd">        a Structure, it is converted to a molecule. TIf the molecule doesnt fit</span>
@@ -272,8 +269,8 @@
                                         <span class="n">set_charge</span><span class="o">=</span><span class="n">set_charge</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">box_size</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">atoms_data</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="LammpsData.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">read_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsData.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">read_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return LammpsData object from the data file.</span>
 <span class="sd">        Note: use this to read in data files that conform with</span>
@@ -327,8 +324,8 @@
             <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="LammpsData.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsData.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">decoded</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                    <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)}</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">decoded</span><span class="p">)</span></div></div>
@@ -446,8 +443,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_lines_from_list</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;Impropers&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">imdihedrals_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsForceFieldData.get_basic_system_info"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_basic_system_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_basic_system_info</span><span class="p">(</span><span class="n">molecule</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsForceFieldData.get_basic_system_info"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_basic_system_info">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_basic_system_info</span><span class="p">(</span><span class="n">molecule</span><span class="p">):</span>
         <span class="n">natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
         <span class="n">atom_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">molecule</span><span class="o">.</span><span class="n">site_properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ff_map&quot;</span><span class="p">,</span> <span class="n">molecule</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">))</span>
         <span class="n">natom_types</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atom_types</span><span class="p">)</span>
@@ -461,8 +458,8 @@
                                           <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el_item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elements_items</span><span class="p">)])</span>
         <span class="k">return</span> <span class="n">natoms</span><span class="p">,</span> <span class="n">natom_types</span><span class="p">,</span> <span class="n">atomic_masses_dict</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsForceFieldData.get_param_coeff"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_param_coeff">[docs]</a>    <span class="k">def</span> <span class="nf">get_param_coeff</span><span class="p">(</span><span class="n">forcefield</span><span class="p">,</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">atom_types_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsForceFieldData.get_param_coeff"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_param_coeff">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_param_coeff</span><span class="p">(</span><span class="n">forcefield</span><span class="p">,</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">atom_types_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        get the parameter coefficients and mapping from the force field.</span>
 
@@ -495,8 +492,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsForceFieldData.get_atoms_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_atoms_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_atoms_data</span><span class="p">(</span><span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="p">,</span>
+<div class="viewcode-block" id="LammpsForceFieldData.get_atoms_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_atoms_data">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_atoms_data</span><span class="p">(</span><span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="p">,</span>
                        <span class="n">topologies</span><span class="p">,</span> <span class="n">atom_to_mol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the atoms data.</span>
@@ -560,8 +557,8 @@
                                <span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">atoms_data</span><span class="p">,</span> <span class="n">molid_to_atomid</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsForceFieldData.get_param_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_param_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_param_data</span><span class="p">(</span><span class="n">param_name</span><span class="p">,</span> <span class="n">param_map</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">topologies</span><span class="p">,</span>
+<div class="viewcode-block" id="LammpsForceFieldData.get_param_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.get_param_data">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_param_data</span><span class="p">(</span><span class="n">param_name</span><span class="p">,</span> <span class="n">param_map</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">topologies</span><span class="p">,</span>
                        <span class="n">molid_to_atomid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        set the data for the parameter named param_name from the topology.</span>
@@ -613,7 +610,7 @@
                             <span class="c1"># local atom id to global atom id</span>
                             <span class="n">global_atom_id</span> <span class="o">=</span> <span class="n">molid_to_atomid</span><span class="p">[</span><span class="n">mol_id</span><span class="p">][</span><span class="n">atomid</span><span class="p">]</span>
                             <span class="n">param_atomids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">global_atom_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-                        <span class="n">param_type</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">param_type</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
                         <span class="n">param_type_reversed</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">param_type</span><span class="p">))</span>
                         <span class="c1"># example: get the unique number id for the bond_type</span>
                         <span class="k">if</span> <span class="n">param_type</span> <span class="ow">in</span> <span class="n">param_map</span><span class="p">:</span>
@@ -634,8 +631,8 @@
                 <span class="n">shift_</span> <span class="o">+=</span> <span class="n">nparams</span> <span class="o">*</span> <span class="n">mols_number</span><span class="p">[</span><span class="n">mol_type</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">param_data</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsForceFieldData.from_forcefield_and_topology"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.from_forcefield_and_topology">[docs]</a>    <span class="k">def</span> <span class="nf">from_forcefield_and_topology</span><span class="p">(</span><span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span>
+<div class="viewcode-block" id="LammpsForceFieldData.from_forcefield_and_topology"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.from_forcefield_and_topology">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_forcefield_and_topology</span><span class="p">(</span><span class="n">mols</span><span class="p">,</span> <span class="n">mols_number</span><span class="p">,</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span>
                                      <span class="n">forcefield</span><span class="p">,</span> <span class="n">topologies</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return LammpsForceFieldData object from force field and topology info</span>
@@ -719,8 +716,8 @@
     <span class="c1"># TODO this needs to be rewritten more generally to include multiple</span>
     <span class="c1"># coefficent styles. This could be done by parsing all the blocks</span>
     <span class="c1"># individually instead of searching line by line for patterns</span>
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsForceFieldData.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">data_file</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsForceFieldData.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsForceFieldData.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">data_file</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return LammpsForceFieldData object from the data file. It is assumed</span>
 <span class="sd">        that the forcefield paramter sections for pairs, bonds, angles,</span>
@@ -895,7 +892,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -903,7 +900,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

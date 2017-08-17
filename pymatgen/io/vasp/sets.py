@@ -105,7 +105,7 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         elements = self.poscar.site_symbols
         potcar_symbols = []
-        settings = self.config_dict["POTCAR"]
+        settings = self._config_dict["POTCAR"]
 
         if isinstance(settings[elements[-1]], dict):
             for el in elements:
@@ -214,6 +214,8 @@ class DictSet(VaspInputSet):
         user_kpoints_settings (dict or Kpoints): Allow user to override kpoints 
             setting by supplying a dict E.g., {"reciprocal_density": 1000}. 
             User can also supply Kpoints object. Default is None.
+        user_potcar_settings (dict: Allow user to override POTCARs. E.g.,
+            {"Gd": "Gd_3"}. This is generally not recommended. Default is None.
         constrain_total_magmom (bool): Whether to constrain the total magmom
             (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
             species. Defaults to False.
@@ -236,7 +238,7 @@ class DictSet(VaspInputSet):
 
     def __init__(self, structure, config_dict,
                  files_to_transfer=None, user_incar_settings=None,
-                 user_kpoints_settings=None,
+                 user_kpoints_settings=None, user_potcar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
                  reduce_structure=None):
@@ -245,7 +247,7 @@ class DictSet(VaspInputSet):
         if sort_structure:
             structure = structure.get_sorted_structure()
         self.structure = structure
-        self.config_dict = deepcopy(config_dict)
+        self._config_dict = deepcopy(config_dict)
         self.files_to_transfer = files_to_transfer or {}
         self.constrain_total_magmom = constrain_total_magmom
         self.sort_structure = sort_structure
@@ -254,10 +256,18 @@ class DictSet(VaspInputSet):
         self.reduce_structure = reduce_structure
         self.user_incar_settings = user_incar_settings or {}
         self.user_kpoints_settings = user_kpoints_settings
+        self.user_potcar_settings = user_potcar_settings
+        if self.user_potcar_settings:
+            warnings.warn("Overriding POTCARs is generally not recommended as it significantly affect the results of"
+                          "calculations and the compatibility with other calculations done with the same input set. "
+                          "In many instances, it is better to write a subclass of a desired input set and "
+                          "override the POTCAR in the subclass to be explicit on the differences.")
+            for k, v in self.user_potcar_settings.items():
+                self._config_dict["POTCAR"][k] = v
 
     @property
     def incar(self):
-        settings = dict(self.config_dict["INCAR"])
+        settings = dict(self._config_dict["INCAR"])
         settings.update(self.user_incar_settings)
         structure = self.structure
         incar = Incar()
@@ -267,6 +277,7 @@ class DictSet(VaspInputSet):
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         hubbard_u = settings.get("LDAU", False)
+
         for k, v in settings.items():
             if k == "MAGMOM":
                 mag = []
@@ -350,7 +361,7 @@ class DictSet(VaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
-        settings = self.user_kpoints_settings or self.config_dict["KPOINTS"]
+        settings = self.user_kpoints_settings or self._config_dict["KPOINTS"]
 
         if isinstance(settings, Kpoints):
             return settings
@@ -537,7 +548,7 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def kpoints(self):
-        self.config_dict["KPOINTS"]["reciprocal_density"] = \
+        self._config_dict["KPOINTS"]["reciprocal_density"] = \
             self.reciprocal_density
         kpoints = super(MPStaticSet, self).kpoints
         # Prefer to use k-point scheme from previous run
@@ -634,7 +645,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         super(MPHSEBSSet, self).__init__(structure, **kwargs)
         self.structure = structure
         self.user_incar_settings = user_incar_settings or {}
-        self.config_dict["INCAR"].update(
+        self._config_dict["INCAR"].update(
             {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 3, "LCHARG": False, "NELMIN": 5})
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
@@ -1038,9 +1049,9 @@ class MVLElasticSet(MPRelaxSet):
 
     def __init__(self, structure, potim=0.015, **kwargs):
         super(MVLElasticSet, self).__init__(structure, **kwargs)
-        self.config_dict["INCAR"].update({"IBRION": 6, "NFREE": 2,
+        self._config_dict["INCAR"].update({"IBRION": 6, "NFREE": 2,
                                           "POTIM": potim})
-        self.config_dict["INCAR"].pop("NPAR", None)
+        self._config_dict["INCAR"].pop("NPAR", None)
 
 
 class MVLSlabSet(MPRelaxSet):
@@ -1081,7 +1092,7 @@ class MVLSlabSet(MPRelaxSet):
                 slab_incar["LDIPOL"] = True
                 slab_incar["DIPOL"] = center_of_mass
 
-        self.config_dict["INCAR"].update(slab_incar)
+        self._config_dict["INCAR"].update(slab_incar)
 
     @property
     def kpoints(self):
@@ -1132,16 +1143,16 @@ class MITNEBSet(MITRelaxSet):
         self.structures = self._process_structures(structures)
         self.unset_encut = False
         if unset_encut:
-            self.config_dict["INCAR"].pop("ENCUT", None)
+            self._config_dict["INCAR"].pop("ENCUT", None)
 
-        if "EDIFF" not in self.config_dict["INCAR"]:
-            self.config_dict["INCAR"]["EDIFF"] = self.config_dict[
+        if "EDIFF" not in self._config_dict["INCAR"]:
+            self._config_dict["INCAR"]["EDIFF"] = self._config_dict[
                 "INCAR"].pop("EDIFF_PER_ATOM")
 
         # NEB specific defaults
         defaults = {'IMAGES': len(structures) - 2, 'IBRION': 1, 'ISYM': 0,
                     'LCHARG': False, "LDAU": False}
-        self.config_dict["INCAR"].update(defaults)
+        self._config_dict["INCAR"].update(defaults)
 
     @property
     def poscar(self):
@@ -1258,11 +1269,11 @@ class MITMDSet(MITRelaxSet):
         self.kwargs = kwargs
 
         # use VASP default ENCUT
-        self.config_dict["INCAR"].pop('ENCUT', None)
+        self._config_dict["INCAR"].pop('ENCUT', None)
 
         if defaults['ISPIN'] == 1:
-            self.config_dict["INCAR"].pop('MAGMOM', None)
-        self.config_dict["INCAR"].update(defaults)
+            self._config_dict["INCAR"].pop('MAGMOM', None)
+        self._config_dict["INCAR"].update(defaults)
 
     @property
     def kpoints(self):

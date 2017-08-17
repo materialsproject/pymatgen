@@ -1,5 +1,5 @@
-pymatgen.io.vasp.GWvaspinputsets module
-=======================================
+pymatgen\.io\.vasp\.GWvaspinputsets module
+==========================================
 
 .. automodule:: pymatgen.io.vasp.GWvaspinputsets
     :members:
