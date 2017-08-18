@@ -227,7 +227,7 @@ class MPRester(object):
             sub_url += "/" + prop
         return self._make_request(sub_url)
 
-    def get_structures(self, chemsys_formula_id, final=True):
+    def get_structures(self, chemsys_formula_id, final=True, conventional=False):
         """
         Get a list of Structures corresponding to a chemical system, formula,
         or materials_id.
@@ -237,13 +237,16 @@ class MPRester(object):
                 or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
             final (bool): Whether to get the final structure, or the initial
                 (pre-relaxation) structure. Defaults to True.
+            conventional (bool): Whether or not to return the conventional
+                standard structure
 
         Returns:
             List of Structure objects.
         """
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(chemsys_formula_id, prop=prop)
-        return [d[prop] for d in data]
+        return [SpacegroupAnalyzer(d[prop]).get_conventional_standard_structure()
+                if conventional else d[prop] for d in data]
 
     def find_structure(self, filename_or_structure):
         """
@@ -372,7 +375,7 @@ class MPRester(object):
 
         return entries
 
-    def get_structure_by_material_id(self, material_id, final=True):
+    def get_structure_by_material_id(self, material_id, final=True, conventional=False):
         """
         Get a Structure corresponding to a material_id.
 
@@ -381,13 +384,17 @@ class MPRester(object):
                 e.g., mp-1234).
             final (bool): Whether to get the final structure, or the initial
                 (pre-relaxation) structure. Defaults to True.
+            conventional (bool): Whether or not to return the conventional
+                standard structure
 
         Returns:
             Structure object.
         """
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(material_id, prop=prop)
-        return data[0][prop]
+
+        return SpacegroupAnalyzer(data[0][prop]).get_conventional_standard_structure() \
+            if conventional else data[0][prop]
 
     def get_entry_by_material_id(self, material_id, compatible_only=True,
                                  inc_structure=None, property_data=None):
