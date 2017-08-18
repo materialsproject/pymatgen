@@ -1044,16 +1044,20 @@ class MVLElasticSet(MPRelaxSet):
         self.config_dict["INCAR"].pop("NPAR", None)
 
 
-class MVLGWscDFTSet(DictSet):
+class MVLGWSCSet(DictSet):
     """
-    Standard DFT Static run for a nonscf exact diagonalization calc in GW calc.
+    MVL denotes VASP input sets that are implemented by the Materials Virtual
+    Lab (http://www.materialsvirtuallab.org) for various research.
+
+    This input set is to do static calc (1st-step) for
+    a nonscf exact diagonalization run during GW/BSE calc.
     """
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MVLGWSet.yaml"))
 
     def __init__(self, structure, potcar_functional="PBE_54",
                  reciprocal_density=100, **kwargs):
-        super(MVLGWscDFTSet, self).__init__(
-            structure, MVLGWscDFTSet.CONFIG, **kwargs)
+        super(MVLGWSCSet, self).__init__(
+            structure, MVLGWSCSet.CONFIG, **kwargs)
         self.potcar_functional = potcar_functional
         self.reciprocal_density = reciprocal_density
         self.kwargs = kwargs
@@ -1061,7 +1065,8 @@ class MVLGWscDFTSet(DictSet):
     @property
     def kpoints(self):
         """
-        Generate gamma center mesh k-points grid for GW calc.
+        Generate gamma center k-points mesh grid for GW calc,
+        which is requested by GW calculation.
         :return: gamma centered k-points
         """
         return Kpoints.automatic_density_by_vol(self.structure,
@@ -1069,119 +1074,80 @@ class MVLGWscDFTSet(DictSet):
                                                 force_gamma=True)
 
 
-class MVLGWDiagDFTSet(MVLGWscDFTSet):
+class MVLGWDIAGSet(MVLGWSCSet):
     """
-    Non self-consistent exact diagonalization step for a GW run,
-    which is the 2nd step-2 for a GW/BSE run.
-    Usage: use from_prev_calc method for creating inputs.
-
-    Tips: In this step you need to do convergence testing for NBANDS.
+    Generate inputs for Non self-consistent exact diagonalization calc
+    (2nd step) during a GW/BSE run.
+    N.B.: In this step you need to do convergence testing for NBANDS.
     """
     def __init__(self, structure, prev_incar=None, **kwargs):
-        super(MVLGWDiagDFTSet, self).__init__(structure, **kwargs)
+        super(MVLGWDIAGSet, self).__init__(structure, **kwargs)
         self.kwargs = kwargs
         self.prev_incar = prev_incar
 
     @property
     def incar(self):
-        parent_incar = super(MVLGWDiagDFTSet, self).incar
+        parent_incar = super(MVLGWDIAGSet, self).incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
 
         incar.update({"ALGO": "Exact", "NELM":1, "LOPTICS": True,
-                      "LPEAD": True, "OMEGAMAX": 40})
+                      "LPEAD": True})
 
         return incar
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_wavecar=True,
-                       nbands_factor=5, **kwargs):
+                       nbands_factor=5, ncores=16, **kwargs):
         """
-
-        :param prev_calc_dir:
-        :param copy_wavecar:
-        :param nbands_factor:
-        :param kwargs:
-        :return:
+        Generate a set of Vasp input files for GW or BSE calculations from a
+        directory of previous Exact Diag Vasp run.
+        Args:
+            prev_calc_dir (str): The directory contains the outputs(
+                vasprun.xml of previous vasp run.
+            copy_wavecar: Whether to copy the old WAVECAR.
+            Defaults to True.
+            nbands_factor: Multiplicative factor for NBANDS.
+            ncores: numbers of cores you do calculations. VASP will alter NBANDS
+            if it was not dividable by ncores.
+            Need to be tested for convergence.
+            \\*\\*kwargs: All kwargs supported by MVLGWDIAGSet,
+                other than structure, prev_incar which
+                are determined from the prev_calc_dir.
         """
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
         prev_incar = vasprun.incar
         structure = vasprun.final_structure
-        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
+        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor / ncores) * ncores)
         prev_incar.update({"NBANDS": nbands})
 
+        # copy WAVECAR, WAVEDER (derivatives)
         files_to_transfer = {}
         if copy_wavecar:
             wavecar = sorted(glob.glob(os.path.join(prev_calc_dir, "WAVECAR")))
             if wavecar:
                 files_to_transfer["WAVECAR"] = str(wavecar[-1])
 
-        return MVLGWDiagDFTSet(structure=structure, prev_incar=prev_incar,
-                               files_to_transfer=files_to_transfer, **kwargs)
-
-
-class MVLGWG0W0Set(MVLGWscDFTSet):
-    """
-    G0W0 VASP input set. Here OMEGATL, NBANDSGW are kept defaults.
-    For GW0 calc, set NELM = 4 as vasp tutorial suggested.
-    Tips: ENCUTGW, NOMEGA need to do tested for converence
-    """
-    def __init__(self, structure, prev_incar=None, **kwargs):
-        super(MVLGWG0W0Set, self).__init__(structure, **kwargs)
-        self.kwargs = kwargs
-        self.prev_incar = prev_incar
-
-    @property
-    def incar(self):
-        parent_incar = super(MVLGWG0W0Set, self).incar
-        incar = Incar(self.prev_incar) if self.prev_incar is not None else \
-            Incar(parent_incar)
-
-        incar.update({"ALGO": "GW0", "NELM": 1,
-                      "NOMEGA": 80, "ENCUTGW": 250})
-        incar.pop("EDIFF", None)
-
-        return incar
-
-    @classmethod
-    def from_prev_calc(cls, prev_calc_dir, copy_wavecar=True, **kwargs):
-        """
-
-        :param prev_calc_dir:
-        :param copy_wavecar:
-        :param kwargs:
-        :return:
-        """
-        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
-        structure = vasprun.final_structure
-        incar = vasprun.incar
-        incar.update({"NBANDS": int(vasprun.parameters["NBANDS"])})
-        incar.pop("LOPTICS", None)
-        incar.pop("LPEAD", None)
-        incar.pop("OMEGAMAX", None)
-
-        # copy WAVECAR and WAVEDER (derivatives) of GWDiagDFT run for GW calc
-        files_to_transfer = {}
-        if copy_wavecar:
-            wavecar = sorted(glob.glob(os.path.join(prev_calc_dir, "WAVE*")))
-            if wavecar:
-                files_to_transfer["WAVECAR"] = str(wavecar[0])
-                files_to_transfer["WAVEDER"] = str(wavecar[-1])
-
-        return MVLGWG0W0Set(structure=structure, prev_incar=incar,
+        return MVLGWDIAGSet(structure=structure, prev_incar=prev_incar,
                             files_to_transfer=files_to_transfer, **kwargs)
 
 
-class MVLGWBSESet(MVLGWscDFTSet):
+class MVLGWBSESet(MVLGWSCSet):
     """
-    BSE input sets for absorption spectrum calculation
-    Tips: play with tags NBANDSO (occupied orbitals) and
-    NBANDSV (unoccupied orbitals).
+    VASP input set for G0W0 and BSE calc.
+    For GW0 calc, set NELM = 4 as vasp tutorial suggested.
+    N.B.: ENCUTGW, NOMEGA need to be tested for convergence.
+    NPAR is not supported in this calc.
     """
-    def __init__(self, structure, prev_incar=None, **kwargs):
+    def __init__(self, structure, prev_incar=None, mode="GW", **kwargs):
         super(MVLGWBSESet, self).__init__(structure, **kwargs)
         self.kwargs = kwargs
         self.prev_incar = prev_incar
+        self.mode = mode
+
+        if self.mode.upper() not in ["GW", "BSE"]:
+            raise ValueError("Supported modes for GWBSE are, \
+                             'GW' and 'BSE'!")
 
     @property
     def incar(self):
@@ -1189,29 +1155,39 @@ class MVLGWBSESet(MVLGWscDFTSet):
         incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
 
-        incar.update({"ALGO": "BSE", "ANTIRES": 0,
-                      "NBANDSO": 20, "NBANDSV": 20})
+        if self.mode == "GW":
+            incar.update({"ALGO": "GW0", "NELM": 1,
+                          "NOMEGA": 80, "ENCUTGW": 250})
+            incar.pop("EDIFF", None)
+            incar.pop("LOPTICS", None)
+            incar.pop("LPEAD", None)
+
+        else:
+            incar.update({"ALGO": "BSE", "ANTIRES": 0,
+                          "NBANDSO": 20, "NBANDSV": 20})
 
         return incar
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_wavecar=True, **kwargs):
         """
-
-        :param prev_calc_dir:
-        :param copy_wavecar:
-        :param kwargs:
-        :return:
+        Generate a set of Vasp input files for GW or BSE calculations from a
+        directory of previous Exact Diag Vasp run.
+        Args:
+            prev_calc_dir (str): The directory contains the outputs(
+                vasprun.xml of previous vasp run.
+            copy_wavecar: Whether to copy the old WAVECAR and WAVEDER etc
+            Defaults to True.
+            \\*\\*kwargs: All kwargs supported by MPGWBSESet,
+                other than structure, prev_incar which
+                are determined from the prev_calc_dir.
         """
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
         structure = vasprun.final_structure
         incar = vasprun.incar
         incar.update({"NBANDS": int(vasprun.parameters["NBANDS"])})
-        incar.pop("NOMEGA", None)
-        incar.pop("NELM", None)
 
-        # copy WAVECAR and WAVEDER (derivatives) and WFULL***
-        # of G0W0 run for BSE calc
+        # copy WAVECAR, WAVEDER (derivatives) and WFULL***
         files_to_transfer = {}
         if copy_wavecar:
             wavecar = sorted(glob.glob(os.path.join(prev_calc_dir, "W*")))
