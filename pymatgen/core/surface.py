@@ -835,13 +835,9 @@ class SlabGenerator(object):
             Slab (structure): A symmetrized Slab object.
         """
 
-        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
-                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
-
         sg = SpacegroupAnalyzer(slab, symprec=tol)
-        pg = sg.get_point_group_symbol()
 
-        if str(pg) in laue:
+        if sg.is_laue():
             return slab
         else:
             asym = True
@@ -859,9 +855,8 @@ class SlabGenerator(object):
                 # Check if the altered surface is symmetric
 
                 sg = SpacegroupAnalyzer(slab, symprec=tol)
-                pg = sg.get_point_group_symbol()
 
-                if str(pg) in laue:
+                if sg.is_laue():
                     asym = False
 
         if len(slab) < len(self.parent):
