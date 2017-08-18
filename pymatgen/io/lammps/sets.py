@@ -29,6 +29,7 @@ from pymatgen.io.lammps.input import LammpsInput
 
 module_dir = os.path.dirname(__file__)
 
+
 class LammpsInputSet(MSONable):
 
     def __init__(self, name, lammps_input, lammps_data=None,

@@ -22,7 +22,7 @@ Restrictions:
 from six.moves import range
 from io import open
 import re
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 
 import numpy as np
 
@@ -35,6 +35,8 @@ __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
 __credits__ = 'Brandon Wood'
 
+
+# exhaustive(as far i know) list of lammps data file keywords
 
 HEADER_KEYWORDS = {"atoms", "bonds",  "angles", "dihedrals",  "impropers",
                    "atom types", "bond types",  "angle types", "dihedral types",
@@ -60,6 +62,7 @@ class LammpsData(MSONable):
         box_size (list): [[x_min, x_max], [y_min,y_max], [z_min,z_max]]
         atomic_masses (list): [[atom type, mass],...]
         atoms_data (list): [[atom id, mol id, atom type, charge, x, y, z ...], ... ]
+        box_tilt (list): [xy, xz, yz] for non-orthogonal systems
     """
 
     def __init__(self, box_size, atomic_masses, atoms_data, box_tilt=None):
@@ -95,18 +98,23 @@ class LammpsData(MSONable):
     @staticmethod
     def check_box_size(structure, box_size, translate=False):
         """
-        Check the box size and if necessary translate the molecule so that
-        all the sites are contained within the bounding box.
+        For Molecule objects: check the box size and if necessary translate
+        the molecule so that all the sites are contained within the bounding box.
+        Structure objects: compute the tilt. See
+            http://lammps.sandia.gov/doc/Section_howto.html#howto-12
 
         Args:
             structure(Structure/Molecule)
             box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
             translate (bool): if true move the molecule to the center of the
                 new box.
+
+        Returns:
+            box_size, box_tilt
         """
         box_tilt = None
         if isinstance(structure, Molecule):
-            box_size = box_size or [[0,10], [0, 10], [0, 10]]
+            box_size = box_size or [[0, 10], [0, 10], [0, 10]]
             box_lengths_req = [
                 np.max(structure.cart_coords[:, i]) - np.min(structure.cart_coords[:, i])
                 for i in range(3)]
@@ -124,6 +132,7 @@ class LammpsData(MSONable):
                 new_com = [(side[1] + side[0]) / 2 for side in box_size]
                 translate_by = np.array(new_com) - np.array(com)
                 structure.translate_sites(range(len(structure)), translate_by)
+        # Structure
         else:
             a, b, c = structure.lattice.abc
             m = structure.lattice.matrix.copy()
@@ -154,7 +163,7 @@ class LammpsData(MSONable):
         Return basic system info from the given structure.
 
         Args:
-            structure (Structure)
+            structure (Structure/Molecule)
 
         Returns:
             number of atoms, number of atom types, box size, mapping
@@ -173,26 +182,35 @@ class LammpsData(MSONable):
     def get_atoms_data(structure, atomic_masses_dict, set_charge=True):
         """
         return the atoms data:
-        atom_id, molecule tag, atom_type, charge(if present else 0), x, y, z.
-        The molecule_tag is set to 1(i.e the whole structure corresponds to
-        just one molecule). This corresponds to lammps command: "atom_style
-        charge"
+            Molecule:
+                atom_id, molecule tag, atom_type, charge(if present else 0), x, y, z.
+                The molecule_tag is set to 1(i.e the whole structure corresponds to
+                just one molecule).
+                This corresponds to lammps command: "atom_style charge" or
+                 "atom_style full"
+            Structure:
+                atom_id, atom_type, x, y, z
+                atom_style = atomic
 
         Args:
-            structure (Structure)
+            structure (Structure/Molecule)
             atomic_masses_dict (dict):
                 { atom symbol : [atom_id, atomic mass], ... }
             set_charge (bool): whether or not to set the charge field in Atoms
 
         Returns:
-            [[atom_id, molecule tag, atom_type, charge(if present), x, y, z], ... ]
+            For Molecule:
+                [[atom_id, molecule tag, atom_type, charge(if present), x, y, z], ... ]
+            For Structure:
+                [[atom_id, atom_type, x, y, z], ... ]
         """
         atoms_data = []
         for i, site in enumerate(structure):
             atom_type = atomic_masses_dict[site.specie.symbol][0]
+            # Structure
             if isinstance(site, PeriodicSite):
-                atoms_data.append([i + 1, atom_type,
-                                   site.x, site.y, site.z])
+                atoms_data.append([i + 1, atom_type, site.x, site.y, site.z])
+            # Molecule
             else:
                 if set_charge:
                     if hasattr(site, "charge"):
@@ -224,12 +242,13 @@ class LammpsData(MSONable):
                 lines.append(" ".join([str(x) for x in ad]))
 
     @classmethod
-    def from_structure(cls, input_structure, box_size=None, set_charge=True, translate=True):
+    def from_structure(cls, input_structure, box_size=None, set_charge=True,
+                       translate=True):
         """
-        Set LammpsData from the given structure. If the input structure is
-        a Structure, it is converted to a molecule. TIf the molecule doesnt fit
-        in the input box, the box size is updated based on the max and min site
-        coordinates of the molecules.
+        Set LammpsData from the given structure or molecule object. If the input
+        structure is a Molecule and if it doesnt fit in the input box then the
+        box size is updated based on the max and min site coordinates of the
+        molecules.
 
         Args:
             input_structure (Molecule/Structure)
@@ -244,23 +263,26 @@ class LammpsData(MSONable):
             LammpsData
         """
 
-        box_size, box_tilt = cls.check_box_size(input_structure, box_size, translate=translate)
-        natoms, natom_types, atomic_masses_dict = cls.get_basic_system_info(input_structure.copy())
+        box_size, box_tilt = cls.check_box_size(input_structure, box_size,
+                                                translate=translate)
+        natoms, natom_types, atomic_masses_dict = \
+            cls.get_basic_system_info(input_structure.copy())
+
         atoms_data = cls.get_atoms_data(input_structure, atomic_masses_dict,
                                         set_charge=set_charge)
+
         return cls(box_size, atomic_masses_dict.values(), atoms_data, box_tilt=box_tilt)
 
     @classmethod
-    def from_file(cls, data_file):
+    def from_file(cls, data_file, atom_style="full"):
         """
         Return LammpsData object from the data file.
         Note: use this to read in data files that conform with
-        atom_style = charge or atomic
+        atom_style = charge or atomic or full
 
         Args:
             data_file (string): data file name
-            read_charge (bool): if true, read in data files that conform with
-                atom_style = charge else atom_style = atomic
+            atom_style (string): "full" or "charge" or "atomic"
 
         Returns:
             LammpsData
@@ -271,9 +293,11 @@ class LammpsData(MSONable):
         atomic_masses = [[int(x[0]), float(x[1])] for x in data["masses"]]
         box_size = [data['x'], data['y'], data['z']]
 
+        int_limit = 2 if atom_style == "atomic" else 3
+
         if "atoms" in data:
             for x in data["atoms"]:
-                atoms_data.append([int(xi) for xi in x[:3]] + x[3:])
+                atoms_data.append([int(xi) for xi in x[:int_limit]] + x[int_limit:])
 
         return cls(box_size, atomic_masses, atoms_data)
 
@@ -616,7 +640,7 @@ class LammpsForceFieldData(LammpsData):
         natoms, natom_types, atomic_masses_dict = \
             LammpsForceFieldData.get_basic_system_info(molecule.copy())
 
-        box_size = LammpsForceFieldData.check_box_size(molecule, box_size)
+        box_size, _ = LammpsForceFieldData.check_box_size(molecule, box_size)
 
         # set the coefficients and map from the force field
 
@@ -681,7 +705,7 @@ class LammpsForceFieldData(LammpsData):
         return val
 
     @staticmethod
-    def _get_non_atoms(data, name):
+    def _get_non_atoms_data(data, name):
         val = []
         if name in data:
             for x in data[name]:
@@ -720,10 +744,10 @@ class LammpsForceFieldData(LammpsData):
             for x in data["atoms"]:
                 atoms_data.append([int(xi) for xi in x[:3]] + x[3:])
 
-        bonds_data = cls._get_non_atoms(data, "bonds")
-        angles_data = cls._get_non_atoms(data, "angles")
-        dihedral_data = cls._get_non_atoms(data, "dihedrals")
-        imdihedral_data = cls._get_non_atoms(data, "impropers")
+        bonds_data = cls._get_non_atoms_data(data, "bonds")
+        angles_data = cls._get_non_atoms_data(data, "angles")
+        dihedral_data = cls._get_non_atoms_data(data, "dihedrals")
+        imdihedral_data = cls._get_non_atoms_data(data, "impropers")
 
         return cls(box_size, atomic_masses, pair_coeffs,
                     bond_coeffs, angle_coeffs,
@@ -733,6 +757,15 @@ class LammpsForceFieldData(LammpsData):
 
 
 def parse_data_file(filename):
+    """
+    A very general parser for arbitrary lammps data files.
+
+    Args:
+        filename (str): path to the data file
+
+    Returns:
+        dict
+    """
     data = {}
     count_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)$')
     types_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$')
@@ -761,5 +794,7 @@ def parse_data_file(filename):
                         data["n{}".format(tokens[-1])] = int(tokens[0])
                     elif tilt_pattern.search(line):
                         m = tilt_pattern.search(line)
-                        data["xy-xz-yz"] = [float(m.group(1)), float(m.group(2)), float(m.group(3))]
+                        data["xy-xz-yz"] = [float(m.group(1)),
+                                            float(m.group(2)),
+                                            float(m.group(3))]
     return data
