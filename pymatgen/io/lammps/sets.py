@@ -23,9 +23,11 @@ import six
 
 from monty.json import MSONable, MontyDecoder
 
+from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsForceFieldData, LammpsData
 from pymatgen.io.lammps.input import LammpsInput
 
+module_dir = os.path.dirname(__file__)
 
 class LammpsInputSet(MSONable):
 
@@ -101,6 +103,26 @@ class LammpsInputSet(MSONable):
                 lammps_data = LammpsForceFieldData.from_file(lammps_data)
             else:
                 lammps_data = LammpsData.from_file(lammps_data)
+        return cls(name, lammps_input, lammps_data=lammps_data,
+                   data_filename=data_filename)
+
+    @classmethod
+    def from_structure(cls, structure, name="basic", input_template=None,
+                       user_settings=None, data_filename="in.data"):
+        input_template = input_template or os.path.join(module_dir,
+                                                        "basic.in.template")
+
+        user_settings = user_settings or {"log_file": "log.lammps",
+                                          "dump_file": "dump.lammps",
+                                          "run": 0}
+        atom_style = "atomic" if isinstance(structure, Structure) else "full"
+        user_settings["atom_style"] = atom_style
+        user_settings["data_file"] = data_filename
+
+        lammps_input = LammpsInput.from_file(input_template, user_settings)
+
+        lammps_data = LammpsData.from_structure(structure)
+
         return cls(name, lammps_input, lammps_data=lammps_data,
                    data_filename=data_filename)
 

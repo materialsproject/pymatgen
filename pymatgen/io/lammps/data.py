@@ -29,6 +29,7 @@ import numpy as np
 from monty.json import MSONable, MontyDecoder
 
 from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.sites import PeriodicSite
 
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
@@ -61,12 +62,13 @@ class LammpsData(MSONable):
         atoms_data (list): [[atom id, mol id, atom type, charge, x, y, z ...], ... ]
     """
 
-    def __init__(self, box_size, atomic_masses, atoms_data):
+    def __init__(self, box_size, atomic_masses, atoms_data, box_tilt=None):
         self.box_size = box_size
         self.natoms = len(atoms_data)
         self.natom_types = len(atomic_masses)
         self.atomic_masses = list(atomic_masses)
         self.atoms_data = atoms_data
+        self.box_tilt = box_tilt
 
     def __str__(self):
         """
@@ -83,40 +85,57 @@ class LammpsData(MSONable):
             self.box_size[0][0], self.box_size[0][1],
             self.box_size[1][0], self.box_size[1][1],
             self.box_size[2][0], self.box_size[2][1]))
+        if self.box_tilt:
+            lines.append("{} {} {} xy xz yz".format(
+                self.box_tilt[0], self.box_tilt[1], self.box_tilt[2]))
         self.set_lines_from_list(lines, "Masses", self.atomic_masses)
         self.set_lines_from_list(lines, "Atoms", self.atoms_data)
         return '\n'.join(lines)
 
     @staticmethod
-    def check_box_size(molecule, box_size, translate=False):
+    def check_box_size(structure, box_size, translate=False):
         """
         Check the box size and if necessary translate the molecule so that
         all the sites are contained within the bounding box.
 
         Args:
-            molecule(Molecule)
+            structure(Structure/Molecule)
             box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
             translate (bool): if true move the molecule to the center of the
                 new box.
         """
-        box_lengths_req = [
-            np.max(molecule.cart_coords[:, i])-np.min(molecule.cart_coords[:, i])
-            for i in range(3)]
-        box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
-        try:
-            np.testing.assert_array_less(box_lengths_req, box_lengths)
-        except AssertionError:
-            box_size = [[0.0, np.ceil(i*1.1)] for i in box_lengths_req]
-            print("Minimum required box lengths {} larger than the provided "
-                  "box lengths{}. Resetting the box size to {}".format(
-                box_lengths_req, box_lengths, box_size))
-            translate = True
-        if translate:
-            com = molecule.center_of_mass
-            new_com = [(side[1] + side[0]) / 2 for side in box_size]
-            translate_by = np.array(new_com) - np.array(com)
-            molecule.translate_sites(range(len(molecule)), translate_by)
-        return box_size
+        box_tilt = None
+        if isinstance(structure, Molecule):
+            box_size = box_size or [[0,10], [0, 10], [0, 10]]
+            box_lengths_req = [
+                np.max(structure.cart_coords[:, i]) - np.min(structure.cart_coords[:, i])
+                for i in range(3)]
+            box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
+            try:
+                np.testing.assert_array_less(box_lengths_req, box_lengths)
+            except AssertionError:
+                box_size = [[0.0, np.ceil(i*1.1)] for i in box_lengths_req]
+                print("Minimum required box lengths {} larger than the provided "
+                      "box lengths{}. Resetting the box size to {}".format(
+                    box_lengths_req, box_lengths, box_size))
+                translate = True
+            if translate:
+                com = structure.center_of_mass
+                new_com = [(side[1] + side[0]) / 2 for side in box_size]
+                translate_by = np.array(new_com) - np.array(com)
+                structure.translate_sites(range(len(structure)), translate_by)
+        else:
+            a, b, c = structure.lattice.abc
+            m = structure.lattice.matrix.copy()
+            xhi = a
+            xy = np.dot(m[1], m[0] / xhi)
+            yhi = np.sqrt(b**2 - xy**2)
+            xz = np.dot(m[2], m[0] / xhi)
+            yz = (np.dot(m[1], m[2]) - xy * xz) / yhi
+            zhi = np.sqrt(c**2 - xz**2 - yz**2)
+            box_size = [[0, xhi], [0, yhi], [0, zhi]]
+            box_tilt = [xy, xz, yz]
+        return box_size, box_tilt
 
     def write_data_file(self, filename):
         """
@@ -171,16 +190,20 @@ class LammpsData(MSONable):
         atoms_data = []
         for i, site in enumerate(structure):
             atom_type = atomic_masses_dict[site.specie.symbol][0]
-            if set_charge:
-                if hasattr(site, "charge"):
-                    atoms_data.append([i + 1, 1, atom_type, site.charge,
-                                       site.x, site.y, site.z])
-                else:
-                    atoms_data.append([i + 1, 1, atom_type, 0.0,
-                                       site.x, site.y, site.z])
-            else:
-                atoms_data.append([i + 1, 1, atom_type,
+            if isinstance(site, PeriodicSite):
+                atoms_data.append([i + 1, atom_type,
                                    site.x, site.y, site.z])
+            else:
+                if set_charge:
+                    if hasattr(site, "charge"):
+                        atoms_data.append([i + 1, 1, atom_type, site.charge,
+                                           site.x, site.y, site.z])
+                    else:
+                        atoms_data.append([i + 1, 1, atom_type, 0.0,
+                                           site.x, site.y, site.z])
+                else:
+                    atoms_data.append([i + 1, 1, atom_type,
+                                       site.x, site.y, site.z])
         return atoms_data
 
     @staticmethod
@@ -201,7 +224,7 @@ class LammpsData(MSONable):
                 lines.append(" ".join([str(x) for x in ad]))
 
     @classmethod
-    def from_structure(cls, input_structure, box_size, set_charge=True, translate=True):
+    def from_structure(cls, input_structure, box_size=None, set_charge=True, translate=True):
         """
         Set LammpsData from the given structure. If the input structure is
         a Structure, it is converted to a molecule. TIf the molecule doesnt fit
@@ -220,13 +243,12 @@ class LammpsData(MSONable):
         Returns:
             LammpsData
         """
-        if isinstance(input_structure, Structure):
-            input_structure = Molecule.from_sites(input_structure.sites)
-        box_size = cls.check_box_size(input_structure, box_size, translate=translate)
+
+        box_size, box_tilt = cls.check_box_size(input_structure, box_size, translate=translate)
         natoms, natom_types, atomic_masses_dict = cls.get_basic_system_info(input_structure.copy())
         atoms_data = cls.get_atoms_data(input_structure, atomic_masses_dict,
                                         set_charge=set_charge)
-        return cls(box_size, atomic_masses_dict.values(), atoms_data)
+        return cls(box_size, atomic_masses_dict.values(), atoms_data, box_tilt=box_tilt)
 
     @classmethod
     def from_file(cls, data_file):
