@@ -4,10 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module implements classes to perform bond valence analyses.
-"""
-
 import collections
 import numpy as np
 import operator
@@ -24,6 +20,10 @@ import six
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import get_el_sp
+
+"""
+This module implements classes to perform bond valence analyses.
+"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

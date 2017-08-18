@@ -628,32 +628,35 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         # for each element, determine all possible sum of oxidations
         # (taking into account nsites for that particular element)
         el_amt = self.get_el_amt_dict()
-        el_sums = defaultdict(set)  # dict of element to possible oxid sums
+        els = el_amt.keys()
+        el_sums = []  # matrix: dim1= el_idx, dim2=possible sums
         el_sum_scores = defaultdict(set)  # dict of el_idx, sum -> score
-        for idx, el in enumerate(el_amt):
+        for idx, el in enumerate(els):
             el_sum_scores[idx] = {}
+            el_sums.append([])
             if oxi_states_override.get(el):
                 oxids = oxi_states_override[el]
             elif all_oxi_states:
                 oxids = Element(el).oxidation_states
             else:
-                oxids = Element(el).icsd_oxidation_states
+                oxids = Element(el).icsd_oxidation_states or \
+                        Element(el).oxidation_states
 
             # get all possible combinations of oxidation states
             # and sum each combination
             for oxid_combo in combinations_with_replacement(oxids,
                                                             int(el_amt[el])):
-                el_sums[el].add(sum(oxid_combo))
-                score = sum([Composition.oxi_prob.get(Specie(el, o), 0) for
-                             o in oxid_combo])  # how probable is this combo?
-                el_sum_scores[idx][sum(oxid_combo)] = max(
-                    el_sum_scores[idx].get(sum(oxid_combo), 0), score)
+                if sum(oxid_combo) not in el_sums[idx]:
+                    el_sums[idx].append(sum(oxid_combo))
+                    score = sum([Composition.oxi_prob.get(Specie(el, o), 0) for
+                                 o in oxid_combo])  # how probable is this combo?
+                    el_sum_scores[idx][sum(oxid_combo)] = max(
+                        el_sum_scores[idx].get(sum(oxid_combo), 0), score)
 
-        els = el_sums.keys()
-        sums = el_sums.values()
+
         all_sols = []  # will contain all solutions
         all_scores = []  # will contain a score for each solution
-        for x in product(*sums):
+        for x in product(*el_sums):
             # each x is a trial of one possible oxidation sum for each element
             if sum(x) == target_charge:  # charge balance condition
                 el_sum_sol = dict(zip(els, x))  # element->oxid_sum
