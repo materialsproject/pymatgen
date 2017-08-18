@@ -555,6 +555,82 @@ class MVLElasticSetTest(PymatgenTest):
         self.assertNotIn("NPAR", incar)
 
 
+class MVLGWscDFTSetTest(PymatgenTest):
+
+    def setUp(self):
+
+        if "PMG_VASP_PSP_DIR" not in os.environ:
+            os.environ["PMG_VASP_PSP_DIR"] = test_dir
+        s = PymatgenTest.get_structure("Li2O")
+        self.mvlgwsc = MVLGWscDFTSet(s)
+
+    def test_incar(self):
+        incar = self.mvlgwsc.incar
+        self.assertEqual(incar["SIGMA"], 0.01)
+
+    def test_kpoints(self):
+        kpoints = self.mvlgwsc.kpoints
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+
+    def test_potcar(self):
+        symbols = self.mvlgwsc.potcar.symbols
+        self.assertEqual(symbols, ["Li_sv_GW", "O_GW"])
+
+
+class MVLGWDiagDFTSetTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def test_incar(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        mvlgwdiag = MVLGWDiagDFTSet.from_prev_calc(prev_run, copy_wavecar=False)
+        self.assertEqual(mvlgwdiag.incar["NBANDS"], 25)
+        self.assertEqual(mvlgwdiag.incar["OMEGAMAX"], 40)
+        self.assertEqual(mvlgwdiag.incar["ALGO"], "Exact")
+        self.assertTrue(mvlgwdiag.incar["LOPTICS"])
+
+
+class MVLGWG0W0SetTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def test_init(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        mvlgwg0w0 = MVLGWG0W0Set.from_prev_calc(prev_run, copy_wavecar=True)
+        mvlgwg0w0.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVEDER")))
+
+    def test_incar(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        mvlgwg0w0 = MVLGWG0W0Set.from_prev_calc(prev_run, copy_wavecar=False)
+        self.assertEqual(mvlgwg0w0.incar["NOMEGA"], 80)
+        self.assertEqual(mvlgwg0w0.incar["ENCUTGW"], 250)
+        self.assertEqual(mvlgwg0w0.incar["ALGO"], "GW0")
+
+
+class MVLGWBSESetTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def test_init(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        mvlgwbse = MVLGWBSESet.from_prev_calc(prev_run, copy_wavecar=True)
+        mvlgwbse.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVEDER")))
+
+    def test_incar(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        mvlgwbse = MVLGWBSESet.from_prev_calc(prev_run, copy_wavecar=False)
+        self.assertEqual(mvlgwbse.incar["ANTIRES"], 0)
+        self.assertEqual(mvlgwbse.incar["NBANDSO"], 20)
+        self.assertEqual(mvlgwbse.incar["ALGO"], "BSE")
+
+
 class MPHSEBSTest(PymatgenTest):
 
     def setUp(self):
