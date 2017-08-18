@@ -1130,6 +1130,8 @@ class MVLGBSet(MPRelaxSet):
     Class for writing a vasp input file for grain boundary, slab or bulk.
     Args:
         structure(Structure): provide the structure
+        k_product: kpts[0][0]*a. Decide k density without kpoint0,
+        default to 40
         bulk(bool): Set to True if the structure is bulk supercell. Default is False.
         slab(bool): Set to True if your structure is slab. Default is False.
 
@@ -1137,13 +1139,43 @@ class MVLGBSet(MPRelaxSet):
             Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
-    def __init__(self, structure, bulk=False, slab=False, **kwargs):
+    def __init__(self, structure, k_product=40, bulk=False, slab=False, **kwargs):
 
         super(MVLGBSet, self).__init__(structure, **kwargs)
 
         self.structure = structure
+        self.k_product = k_product
         self.bulk = bulk
         self.slab = slab
+
+    @property
+    def kpoints(self):
+        """
+        k_product, default to 40, is kpoint number * length for a & b directions,
+            also for c direction in bulk calculations
+        Automatic mesh & Gamma is the default setting.
+        """
+
+        # To get input sets, the input structure has to has the same number
+        # of required parameters as a Structure object.
+
+        kpt = super(MVLGBSet, self).kpoints
+        kpt.comment = "Automatic mesh"
+        kpt.style = 'Gamma'
+
+        # use k_product to calculate kpoints, k_product = kpts[0][0] * a
+        abc = self.structure.lattice.abc
+        if self.k_product:
+            kpt_calc = [int(self.k_product / abc[0] + 0.5),
+                        int(self.k_product / abc[1] + 0.5),
+                        int(self.k_product / abc[2] + 0.5)]
+            if self.slab:
+                kpt_calc[2] = int(1)
+            self.kpt_calc = kpt_calc
+
+            kpt.kpts[0] = kpt_calc
+
+            return kpt
 
     @property
     def incar(self):

@@ -616,6 +616,11 @@ class MVLGBSetTest(unittest.TestCase):
         incar_slab = self.d_slab["INCAR"]
         self.assertEqual(incar_slab["ISIF"], 2)
 
+    def test_kpoints(self):
+        kpoints = self.d_slab["KPOINTS"]
+        k_a = int(40 / (self.s.lattice.abc[0]) + 0.5)
+        k_b = int(40 / (self.s.lattice.abc[1]) + 0.5)
+        self.assertEqual(kpoints.kpts, [[k_a, k_b, 1]])
 
 
 
