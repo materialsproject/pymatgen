@@ -40,7 +40,7 @@ from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpeciesComparator
-from pymatgen.analysis.bond_valence import BVAnalyzer, BV_PARAMS
+from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.local_env import MinimumDistanceNN
 
 import six
@@ -1516,57 +1516,6 @@ def symmetry_reduced_voronoi_nodes(
         #    facecenter_dist_sites = vor_facecenter_struct.sites
 
         #return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
-
-
-def get_okeeffe_params(el_symbol):
-    """
-    Returns the elemental parameters related to atom size and
-    electronegativity which are used for estimating bond-valence
-    parameters (bond length) of pairs of atoms on the basis of data
-    provided in 'Atoms Sizes and Bond Lengths in Molecules and Crystals'
-    (O'Keeffe & Brese, 1991).
-
-    Args:
-        el_symbol (str): element symbol.
-    Returns:
-        (dict): atom-size ('r') and electronegativity-related ('c')
-                parameter.
-    """
-
-    el = Element(el_symbol)
-    if el not in list(BV_PARAMS.keys()):
-        raise RuntimeError("Could not find O'Keeffe parameters for element"
-                           " \"{}\" in \"BV_PARAMS\"dictonary"
-                           " provided by pymatgen".format(el_symbol))
-
-    return BV_PARAMS[el]
-
-
-def get_okeeffe_distance_prediction(el1, el2):
-    """
-    Returns an estimate of the bond valence parameter (bond length) using
-    the derived parameters from 'Atoms Sizes and Bond Lengths in Molecules
-    and Crystals' (O'Keeffe & Brese, 1991). The estimate is based on two
-    experimental parameters: r and c. The value for r  is based off radius,
-    while c is (usually) the Allred-Rochow electronegativity. Values used
-    are *not* generated from pymatgen, and are found in
-    'okeeffe_params.json'.
-
-    Args:
-        el1, el2 (Element): two Element objects
-    Returns:
-        a float value of the predicted bond length
-    """
-    el1_okeeffe_params = get_okeeffe_params(el1)
-    el2_okeeffe_params = get_okeeffe_params(el2)
-
-    r1 = el1_okeeffe_params['r']
-    r2 = el2_okeeffe_params['r']
-    c1 = el1_okeeffe_params['c']
-    c2 = el2_okeeffe_params['c']
-
-    return r1 + r2 - r1 * r2 * pow(
-            sqrt(c1) - sqrt(c2), 2) / (c1 * r1 + c2 * r2)
 
 
 class StructureMotifInterstitial(Defect):
