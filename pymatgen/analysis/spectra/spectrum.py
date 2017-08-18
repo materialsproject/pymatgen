@@ -22,7 +22,7 @@ __email__ = "chz022@ucsd.edu"
 __date__ = "Aug 9, 2017"
 
 
-class Spectrum(abc.ABC):
+class Spectrum(abc.ABC, MSONable):
     """
     Base class for Xanespectrum and Exafspectrum.
     Not meant to be instantiated directly
@@ -50,7 +50,7 @@ class Spectrum(abc.ABC):
         return self.spectrum
 
 
-class XANES(Spectrum, MSONable):
+class XANES(Spectrum):
     """
     Basic XANES object.
 
