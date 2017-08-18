@@ -14,7 +14,6 @@ from math import sin
 from fractions import Fraction
 
 import numpy as np
-from numpy.linalg import matrix_power, multi_dot
 
 from six.moves import filter, map, zip
 from monty.dev import deprecated
