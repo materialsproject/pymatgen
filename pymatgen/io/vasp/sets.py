@@ -11,7 +11,7 @@ import glob
 import shutil
 import warnings
 from itertools import chain
-from copy import copy, deepcopy
+from copy import deepcopy
 
 import six
 import numpy as np
@@ -1181,8 +1181,8 @@ class MVLGBVaspInputSet(MPRelaxSet):
 
         # if you want to use your own kpoints
         if self.manual_kpoints:
-            self.kpt_calc = copy(self.manual_kpoints)
-            kpt.kpts[0] = copy(self.manual_kpoints)
+            self.kpt_calc = deepcopy(self.manual_kpoints)
+            kpt.kpts[0] = deepcopy(self.manual_kpoints)
 
         return kpt
 
