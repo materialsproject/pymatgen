@@ -607,7 +607,6 @@ class MVLGBSetTest(unittest.TestCase):
         self.d_bulk = self.bulk.all_input
         self.d_slab = self.slab.all_input
 
-
     def test_bulk(self):
         incar_bulk = self.d_bulk["INCAR"]
         self.assertEqual(incar_bulk["ISIF"], 3)
