@@ -17,7 +17,6 @@ from pymatgen.io.vasp.outputs import Vasprun
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
-print (test_dir)
 dec = MontyDecoder()
 
 
