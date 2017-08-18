@@ -590,6 +590,9 @@ class MVLGWDiagDFTSetTest(PymatgenTest):
         self.assertEqual(mvlgwdiag.incar["ALGO"], "Exact")
         self.assertTrue(mvlgwdiag.incar["LOPTICS"])
 
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
 
 class MVLGWG0W0SetTest(PymatgenTest):
 
@@ -610,6 +613,9 @@ class MVLGWG0W0SetTest(PymatgenTest):
         self.assertEqual(mvlgwg0w0.incar["ENCUTGW"], 250)
         self.assertEqual(mvlgwg0w0.incar["ALGO"], "GW0")
 
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
 
 class MVLGWBSESetTest(PymatgenTest):
 
@@ -629,6 +635,9 @@ class MVLGWBSESetTest(PymatgenTest):
         self.assertEqual(mvlgwbse.incar["ANTIRES"], 0)
         self.assertEqual(mvlgwbse.incar["NBANDSO"], 20)
         self.assertEqual(mvlgwbse.incar["ALGO"], "BSE")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
 
 
 class MPHSEBSTest(PymatgenTest):
