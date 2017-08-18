@@ -286,7 +286,6 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(DummySpecie.safe_from_composition(c).symbol, 'Xb')
         self.assertEqual(DummySpecie.safe_from_composition(c, 1).symbol, 'Xb')
 
-
 class FuncTest(unittest.TestCase):
 
     def test_get_el_sp(self):
