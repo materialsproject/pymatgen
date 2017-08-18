@@ -168,8 +168,7 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(structs) > 0)
 
         # Now get the conventional structures
-        structs = self.rester.get_structure_by_material_id("Mo",
-                                                           conventional=True)
+        structs = self.rester.get_structures("Mo", conventional=True)
         # We've queried the conventional structure of
         # bcc Mo and fcc Mo which should both be cubic
         for s in structs:
