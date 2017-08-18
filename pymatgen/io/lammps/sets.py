@@ -85,6 +85,7 @@ class LammpsInputSet(MSONable):
         Returns LammpsInputSet from  input file template and input data.
 
         Args:
+            name (str)
             input_template (string): path to the input template file.
             user_settings (dict): User lammps settings, the keys must
                 correspond to the keys in the template.
@@ -98,6 +99,7 @@ class LammpsInputSet(MSONable):
         Returns:
             LammpsInputSet
         """
+        user_settings["data_file"] = data_filename
         lammps_input = LammpsInput.from_file(input_template, user_settings)
         if isinstance(lammps_data, six.string_types):
             if is_forcefield:
@@ -108,24 +110,25 @@ class LammpsInputSet(MSONable):
                    data_filename=data_filename)
 
     @classmethod
-    def from_structure(cls, structure, name="basic", input_template=None,
-                       user_settings=None, data_filename="in.data"):
-        input_template = input_template or os.path.join(module_dir,
-                                                        "basic.in.template")
+    def from_structure(cls, structure, input_template, user_settings,
+                       data_filename="in.data", name="basic"):
+        """
+        Returns inputset from structure
 
-        user_settings = user_settings or {"log_file": "log.lammps",
-                                          "dump_file": "dump.lammps",
-                                          "run": 0}
-        atom_style = "atomic" if isinstance(structure, Structure) else "full"
-        user_settings["atom_style"] = atom_style
-        user_settings["data_file"] = data_filename
+        Args:
+            structure (Structure/Molecule):
+            input_template (string): path to the input template file.
+            user_settings (dict): User lammps settings, the keys must
+                correspond to the keys in the template.
+            data_filename (string): name of the the lammps data file.
 
-        lammps_input = LammpsInput.from_file(input_template, user_settings)
+        Returns:
+            LammpsInputSet
+        """
 
         lammps_data = LammpsData.from_structure(structure)
-
-        return cls(name, lammps_input, lammps_data=lammps_data,
-                   data_filename=data_filename)
+        return cls.from_file(name, input_template, user_settings,
+                             lammps_data=lammps_data, data_filename=data_filename)
 
     def as_dict(self):
         d = MSONable.as_dict(self)

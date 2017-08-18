@@ -17,6 +17,21 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
 
 
+class TestLammpsInputSetFromStrcuture(unittest.TestCase):
+
+    def setUp(self):
+        template_file = os.path.join(test_dir, "basic.in.template")
+        self.data_filename = "test_basic.data"
+        self.input_filename = "test_basic.in"
+        atom_style = "atomic"
+        self.settings = {"log_file": "log.lammps",
+                         "dump_file": "dump.lammps",
+                         "atom_style": atom_style,
+                         "data_file": self.data_filename,
+                         "run": 0}
+        self.lammps_input_set = LammpsInputSet.from_structure(template_file, self.settings)
+
+
 class TestLammpsInputSet(unittest.TestCase):
 
     def setUp(self):
