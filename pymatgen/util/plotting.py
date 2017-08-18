@@ -212,9 +212,10 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     max_val = max(elemental_data.values())
     min_val = min(elemental_data.values())
     value_table = np.empty((9, 18)) * np.nan
+    blank_value = min_val * 2.0 if min_val < 0 else -1
 
     for el in Element:
-        value = elemental_data.get(el.symbol, min_val * 2.0)
+        value = elemental_data.get(el.symbol, blank_value)
         value_table[el.row - 1, el.group - 1] = value
 
     # Initialize the plt object
@@ -225,7 +226,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     # We set nan type values to masked values (ie blank spaces)
     data_mask = np.ma.masked_invalid(value_table.tolist())
     heatmap = ax.pcolor(data_mask, cmap=cmap, edgecolors='w', linewidths=1,
-                        vmin=min_val*0.995, vmax=max_val*1.005)
+                        vmin=min_val, vmax=max_val)
     cbar = fig.colorbar(heatmap)
 
     # Grey out missing elements in input data
@@ -244,7 +245,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
                 plt.text(j + 0.5, i + 0.25, symbol,
                          horizontalalignment='center',
                          verticalalignment='center', fontsize=7)
-                if el != min_val * 2.0:
+                if el != blank_value:
                     plt.text(j + 0.5, i + 0.5, "%.2f" % (el),
                              horizontalalignment='center',
                              verticalalignment='center', fontsize=5)
