@@ -602,7 +602,7 @@ class MVLGBSetTest(unittest.TestCase):
         self.s = Structure.from_file(filepath)
 
         self.bulk = MVLGBSet(self.s)
-        self.slab = MVLGBSet(self.s, mode="slab")
+        self.slab = MVLGBSet(self.s, slab_mode=True)
 
         self.d_bulk = self.bulk.all_input
         self.d_slab = self.slab.all_input
