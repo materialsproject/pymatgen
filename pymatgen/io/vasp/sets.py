@@ -1073,7 +1073,7 @@ class MVLGWSet(DictSet):
 
     def __init__(self, structure, prev_incar=None, prev_nbands=None,
                  potcar_functional="PBE_54",
-                 reciprocal_density=100, mode="static", **kwargs):
+                 reciprocal_density=100, mode="STATIC", **kwargs):
         super(MVLGWSet, self).__init__(
             structure, MVLGWSet.CONFIG, **kwargs)
         self.prev_incar = prev_incar
