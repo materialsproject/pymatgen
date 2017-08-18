@@ -128,12 +128,6 @@ class MPResterTest(unittest.TestCase):
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
         self.assertEqual(s1.formula, "Cs1")
-        # Now get the conventional structure
-        s1 = self.rester.get_structure_by_material_id("mp-1",
-                                                      conventional=True)
-        self.assertEqual(s1.lattice.a, 90)
-        self.assertEqual(s1.lattice.b, 90)
-        self.assertEqual(s1.lattice.c, 90)
 
     def test_get_entry_by_material_id(self):
         e = self.rester.get_entry_by_material_id("mp-19017")
@@ -166,15 +160,6 @@ class MPResterTest(unittest.TestCase):
     def test_get_structures(self):
         structs = self.rester.get_structures("Mn3O4")
         self.assertTrue(len(structs) > 0)
-
-        # Now get the conventional structures
-        structs = self.rester.get_structures("Mo", conventional=True)
-        # We've queried the conventional structure of
-        # bcc Mo and fcc Mo which should both be cubic
-        for s in structs:
-            self.assertEqual(s.lattice.a, 90)
-            self.assertEqual(s.lattice.b, 90)
-            self.assertEqual(s.lattice.c, 90)
 
     def test_get_entries(self):
         entries = self.rester.get_entries("TiO2")
