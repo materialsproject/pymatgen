@@ -1125,6 +1125,82 @@ class MVLSlabSet(MPRelaxSet):
         return kpt
 
 
+class MVLGBSet(MPRelaxSet):
+    """
+    Class for writing a vasp input file for grain boundary, slab or bulk.
+    Args:
+        structure(Structure): provide the structure
+        k_product: kpts[0][0]*a. Decide k density without kpoint0,
+        default to 40
+        bulk(bool): Set to True if the structure is bulk supercell. Default is False.
+        slab(bool): Set to True if your structure is slab. Default is False.
+
+        **kwargs:
+            Other kwargs supported by :class:`DictVaspInputSet`.
+    """
+
+    def __init__(self, structure, k_product=40, bulk=False, slab=False, **kwargs):
+
+        super(MVLGBSet, self).__init__(structure, **kwargs)
+
+        self.structure = structure
+        self.k_product = k_product
+        self.bulk = bulk
+        self.slab = slab
+
+    @property
+    def kpoints(self):
+        """
+        k_product, default to 40, is kpoint number * length for a & b directions,
+            also for c direction in bulk calculations
+        Automatic mesh & Gamma is the default setting.
+        """
+
+        # To get input sets, the input structure has to has the same number
+        # of required parameters as a Structure object.
+
+        kpt = super(MVLGBSet, self).kpoints
+        kpt.comment = "Automatic mesh"
+        kpt.style = 'Gamma'
+
+        # use k_product to calculate kpoints, k_product = kpts[0][0] * a
+        abc = self.structure.lattice.abc
+        if self.k_product:
+            kpt_calc = [int(self.k_product / abc[0] + 0.5),
+                        int(self.k_product / abc[1] + 0.5),
+                        int(self.k_product / abc[2] + 0.5)]
+            if self.slab:
+                kpt_calc[2] = int(1)
+            self.kpt_calc = kpt_calc
+
+            kpt.kpts[0] = kpt_calc
+
+            return kpt
+
+    @property
+    def incar(self):
+
+        incar = super(MVLGBSet, self).incar
+        # for clean grain boundary and bulk relaxation, full optimization
+        # relaxation (ISIF=3) is used. For slab and doped structure
+        # relaxation (ISIF=2) is used.
+        # The default incar setting is used for metallic system, for
+        # insulator or semiconductor, ISMEAR need to be changed.
+        incar.update({"ISIF": 3, "ISMEAR": 1, "SIGMA": 0.05, "LCHARG": False,
+                      "NPAR": 4,"ENCUT": 520, "NELMIN": 8, "NELM": 60,
+                      "PREC": "Normal", "EDIFFG": -0.02, "IBRION": 2,
+                      "ICHARG": 0, "NSW": 200, "EDIFF": 0.0001, "LDAU": False})
+        incar.update(self.user_incar_settings)
+
+        if self.slab:
+            incar.update({"ISIF": 2})
+
+        if not self.bulk:
+            incar["NELMIN"] = 8
+
+        return incar
+
+
 class MITNEBSet(MITRelaxSet):
     """
     Class for writing NEB inputs. Note that EDIFF is not on a per atom

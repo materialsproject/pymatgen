@@ -17,7 +17,6 @@ from pymatgen.io.vasp.outputs import Vasprun
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
-
 dec = MontyDecoder()
 
 
@@ -596,5 +595,35 @@ class FuncTest(PymatgenTest):
             shutil.rmtree(d)
 
 
+class MVLGBSetTest(unittest.TestCase):
+
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'Li.cif')
+        self.s = Structure.from_file(filepath)
+
+        self.bulk = MVLGBSet(self.s, bulk=True)
+        self.slab = MVLGBSet(self.s, slab=True)
+
+        self.d_bulk = self.bulk.all_input
+        self.d_slab = self.slab.all_input
+
+
+    def test_bulk(self):
+        incar_bulk = self.d_bulk["INCAR"]
+        self.assertEqual(incar_bulk["ISIF"], 3)
+
+    def test_slab(self):
+        incar_slab = self.d_slab["INCAR"]
+        self.assertEqual(incar_slab["ISIF"], 2)
+
+    def test_kpoints(self):
+        kpoints = self.d_slab["KPOINTS"]
+        k_a = int(40 / (self.s.lattice.abc[0]) + 0.5)
+        k_b = int(40 / (self.s.lattice.abc[1]) + 0.5)
+        self.assertEqual(kpoints.kpts, [[k_a, k_b, 1]])
+
+
+
 if __name__ == '__main__':
     unittest.main()
+
