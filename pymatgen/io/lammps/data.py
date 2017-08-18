@@ -3,6 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, print_function, unicode_literals, absolute_import
+from io import open
+import re
+from collections import OrderedDict
+
+import numpy as np
+
+from monty.json import MSONable, MontyDecoder
+
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.lattice import Lattice
 
 """
 This module implements classes for generating/parsing Lammps data file i.e
@@ -18,18 +29,6 @@ Restrictions:
 
     For more info, please refer to: http://lammps.sandia.gov/doc/read_data.html
 """
-
-from io import open
-import re
-from collections import OrderedDict
-
-import numpy as np
-
-from monty.json import MSONable, MontyDecoder
-
-from pymatgen.core.structure import Molecule, Structure
-from pymatgen.core.sites import PeriodicSite
-
 
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
