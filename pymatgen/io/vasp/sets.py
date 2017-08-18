@@ -1125,82 +1125,42 @@ class MVLSlabSet(MPRelaxSet):
         return kpt
 
 
-class MVLGBVaspInputSet(MPRelaxSet):
+class MVLGBSet(MPRelaxSet):
     """
     Class for writing a vasp input file for grain boundary, slab or bulk.
     Args:
         structure(Structure): provide the structure
-        k_product(int): kpts[0][0]*a.
-        default to 40
         bulk(bool): Set to True if the structure is bulk supercell. Default is False.
-        dope(bool): Set to True if your structure is doped structure. Default is False.
         slab(bool): Set to True if your structure is slab. Default is False.
-        manual_kpoints(list): e.g. manual_kpoints=[4,4,1]
 
         **kwargs:
             Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
-    def __init__(self, structure, k_product=40, bulk=False, dope=False,
-                 slab=False, manual_kpoints=[], **kwargs):
+    def __init__(self, structure, bulk=False, slab=False, **kwargs):
 
-        super(MVLGBVaspInputSet, self).__init__(structure, **kwargs)
+        super(MVLGBSet, self).__init__(structure, **kwargs)
 
-        self.k_product = k_product
-        self.bulk = bulk
         self.structure = structure
-        self.dope = dope
+        self.bulk = bulk
         self.slab = slab
-        self.manual_kpoints = manual_kpoints
-
-    @property
-    def kpoints(self):
-        """
-        k_product, default to 40, is kpoint number * length for a & b directions,
-            also for c direction in bulk calculations
-        Automatic mesh & Gamma is the default setting.
-        """
-
-        # To get input sets, the input structure has to has the same number
-        # of required parameters as a Structure object.
-
-        kpt = super(MVLGBVaspInputSet, self).kpoints
-        kpt.comment = "Automatic mesh"
-        kpt.style = 'Gamma'
-
-        # use k_product to calculate kpoints, k_product = kpts[0][0] * a
-        abc = self.structure.lattice.abc
-        if self.k_product:
-            kpt_calc = [int(self.k_product / abc[0] + 0.5),
-                        int(self.k_product / abc[1] + 0.5),
-                        int(self.k_product / abc[2] + 0.5)]
-            if self.slab:
-                kpt_calc[2] = int(1)
-            self.kpt_calc = kpt_calc
-            kpt.kpts[0] = kpt_calc
-
-        # if you want to use your own kpoints
-        if self.manual_kpoints:
-            self.kpt_calc = deepcopy(self.manual_kpoints)
-            kpt.kpts[0] = deepcopy(self.manual_kpoints)
-
-        return kpt
 
     @property
     def incar(self):
 
-        incar = super(MVLGBVaspInputSet, self).incar
+        incar = super(MVLGBSet, self).incar
         # for clean grain boundary and bulk relaxation, full optimization
-        # relaxation (ISIF=3) is used. For slab relaxation, ISIF = 2.
+        # relaxation (ISIF=3) is used. For slab and doped structure
+        # relaxation (ISIF=2) is used.
         # The default incar setting is used for metallic system, for
         # insulator or semiconductor, ISMEAR need to be changed.
         incar.update({"ISIF": 3, "ISMEAR": 1, "SIGMA": 0.05, "LCHARG": False,
-                      "NPAR": 4,"ENCUT": 400, "NELMIN": 8, "NELM": 60,
+                      "NPAR": 4,"ENCUT": 520, "NELMIN": 8, "NELM": 60,
                       "PREC": "Normal", "EDIFFG": -0.02, "IBRION": 2,
                       "ICHARG": 0, "NSW": 200, "EDIFF": 0.0001, "LDAU": False})
         incar.update(self.user_incar_settings)
 
-        if self.dope or self.slab:
+        if self.slab:
             incar.update({"ISIF": 2})
 
         if not self.bulk:

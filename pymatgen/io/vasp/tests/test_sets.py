@@ -595,22 +595,17 @@ class FuncTest(PymatgenTest):
             shutil.rmtree(d)
 
 
-class GBinputsetTest(unittest.TestCase):
-    def setUp(self):
+class MVLGBSetTest(unittest.TestCase):
 
-        filepath = os.path.join(test_dir, 'CONTCAR_Mo')
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'Li.cif')
         self.s = Structure.from_file(filepath)
 
-        self.bulk = MVLGBVaspInputSet(self.s, bulk=True)
-        self.slab = MVLGBVaspInputSet(self.s, slab=True)
-        self.dope = MVLGBVaspInputSet(self.s, dope=True)
-        self.manual_kpoints = \
-            MVLGBVaspInputSet(self.s, manual_kpoints=[20, 20, 20])
+        self.bulk = MVLGBSet(self.s, bulk=True)
+        self.slab = MVLGBSet(self.s, slab=True)
 
         self.d_bulk = self.bulk.all_input
         self.d_slab = self.slab.all_input
-        self.d_dope = self.dope.all_input
-        self.d_manual_kpoints = self.manual_kpoints.all_input
 
 
     def test_bulk(self):
@@ -621,20 +616,7 @@ class GBinputsetTest(unittest.TestCase):
         incar_slab = self.d_slab["INCAR"]
         self.assertEqual(incar_slab["ISIF"], 2)
 
-    def test_dope(self):
-        incar_dope = self.d_dope["INCAR"]
-        self.assertEquals(incar_dope["ISIF"],2)
 
-    def test_manual_kpoints(self):
-        kpoints = self.d_manual_kpoints["KPOINTS"]
-        self.assertEqual(kpoints.kpts, [[20, 20, 20]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
-
-    def test_kproduct(self):
-        kpoints = self.d_slab["KPOINTS"]
-        k_a = int(40/(self.s.lattice.abc[0])+0.5)
-        k_b = int(40/(self.s.lattice.abc[1])+0.5)
-        self.assertEqual(kpoints.kpts, [[k_a,k_b,1]])
 
 
 if __name__ == '__main__':
