@@ -54,7 +54,7 @@ class VoronoiCoordFinder(object):
     def __init__(self, structure, target=None, cutoff=10.0,
                  allow_pathological=False):
         warnings.warn("VoronoiCoordFinder will be moved to local_env.py"
-                " with pymatgen >= 2018")
+                      " with pymatgen >= 2018")
 
         self._structure = structure
         self.cutoff = cutoff
