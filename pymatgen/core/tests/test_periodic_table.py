@@ -6,7 +6,6 @@ from __future__ import division, unicode_literals
 
 import unittest
 import pickle
-import os
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
@@ -145,14 +144,6 @@ class ElementTestCase(PymatgenTest):
 
     def test_print_periodic_table(self):
         Element.print_periodic_table()
-
-    def test_plot_periodic_heatmap(self):
-        random_data = {'Te': 0.11083818874391202, 'Au': 0.7575629917425387,
-                       'Th': 1.2475885304040335, 'Ni': -2.0354391922547705}
-        plt = Element.plot_periodic_heatmap(random_data, cmap="plasma")
-        plt = Element.plot_periodic_heatmap(random_data, figure_name="test.png")
-        self.assertTrue(os.path.isfile("test.png"))
-        os.remove("test.png")
 
 
 class SpecieTestCase(PymatgenTest):
