@@ -246,8 +246,8 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
                          verticalalignment='center', fontsize=7)
                 if el != min_val * 2.0:
                     plt.text(j + 0.5, i + 0.5, "%.2f" % (el),
-                            horizontalalignment='center',
-                            verticalalignment='center', fontsize=5)
+                             horizontalalignment='center',
+                             verticalalignment='center', fontsize=5)
 
     plt.tight_layout()
 
