@@ -225,7 +225,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     # We set nan type values to masked values (ie blank spaces)
     data_mask = np.ma.masked_invalid(value_table.tolist())
     heatmap = ax.pcolor(data_mask, cmap=cmap, edgecolors='w', linewidths=1,
-                        vmin=min_val*1.005, vmax=max_val*1.005)
+                        vmin=min_val*0.995, vmax=max_val*1.005)
     cbar = fig.colorbar(heatmap)
 
     # Grey out missing elements in input data
@@ -246,8 +246,8 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
                          verticalalignment='center', fontsize=7)
                 if el != min_val * 2.0:
                     plt.text(j + 0.5, i + 0.5, "%.2f" % (el),
-                            horizontalalignment='center',
-                            verticalalignment='center', fontsize=5)
+                             horizontalalignment='center',
+                             verticalalignment='center', fontsize=5)
 
     plt.tight_layout()
 
