@@ -10,8 +10,9 @@ import unittest
 
 import numpy as np
 
-from pymatgen.io.lammps.data import LammpsData
+from pymatgen.io.lammps.data import LammpsData, parse_data_file
 from pymatgen.core.structure import Molecule
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
@@ -20,7 +21,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
 
 
-class TestLammpsData(unittest.TestCase):
+class TestLammpsDataMolecule(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         polymer_chain = Molecule.from_file(os.path.join(test_dir,"polymer_chain.xyz"))
@@ -100,6 +101,101 @@ class TestLammpsData(unittest.TestCase):
         for x in ["lammps_data.dat"]:
             if os.path.exists(os.path.join(test_dir, x)):
                 os.remove(os.path.join(test_dir, x))
+
+
+class TestLammpsDataStructure(unittest.TestCase):
+
+    def setUp(self):
+        self.structure = PymatgenTest.get_structure("Si")
+        self.lammps_data = LammpsData.from_structure(self.structure)
+
+    def test_system_info(self):
+        natom_types = 1
+        natoms = 2
+        atomic_masses = [[1, 28.0855]]
+        box_size = [[0.0, 3.8401979336999998],
+                    [0.0, 3.3257101908999998],
+                    [0.0, 3.1355090603]]
+        box_tilt = [1.9200989667999999, 0.0, -2.2171384942999999]
+        atoms_data = [[1, 1, 0, 0, 0],
+                      [2, 1,  3.84019793367, 0, 2.35163179522]]
+
+        self.assertEqual(self.lammps_data.natom_types, natom_types)
+        self.assertEqual(self.lammps_data.natoms, natoms)
+
+        np.testing.assert_almost_equal(self.lammps_data.atomic_masses,
+                                       atomic_masses, decimal=6)
+        np.testing.assert_almost_equal(self.lammps_data.atoms_data, atoms_data,
+                                       decimal=6)
+        np.testing.assert_almost_equal(self.lammps_data.box_size, box_size,
+                                       decimal=6)
+        np.testing.assert_almost_equal(self.lammps_data.box_tilt, box_tilt,
+                                       decimal=6)
+
+    def test_from_file(self):
+        self.lammps_data.write_data_file(
+            os.path.join(test_dir, "lammps_data.dat"))
+        lammps_data = LammpsData.from_file(
+            os.path.join(test_dir, "lammps_data.dat"), atom_style="atomic")
+        self.assertEqual(str(lammps_data), str(self.lammps_data))
+
+    def tearDown(self):
+        for x in ["lammps_data.dat"]:
+            if os.path.exists(os.path.join(test_dir, x)):
+                os.remove(os.path.join(test_dir, x))
+
+
+class TestLammpsDataParser(unittest.TestCase):
+
+    def setUp(self):
+        self.data = parse_data_file(os.path.join(test_dir, "const_pot.data"))
+
+    def test_keys(self):
+        ans = sorted(['natoms', 'nbonds', 'nangles', 'ndihedrals', 'nimpropers',
+                      'atom-types', 'bond-types', 'angle-types', 'dihedral-types',
+                      'improper-types', 'x', 'y', 'z', 'masses', 'bond-coeffs',
+                      'angle-coeffs', 'atoms', 'bonds', 'angles'])
+        self.assertEqual(ans, sorted(self.data.keys()))
+
+    def test_values(self):
+        self.assertEqual(self.data["natoms"], 432)
+        self.assertEqual(self.data["nbonds"], 160)
+        self.assertEqual(self.data["nangles"], 80)
+        self.assertEqual(self.data["ndihedrals"], 0)
+        self.assertEqual(self.data["nimpropers"], 0)
+        self.assertEqual(self.data["atom-types"], 4)
+        self.assertEqual(self.data["bond-types"], 2)
+        self.assertEqual(self.data["angle-types"], 1)
+        self.assertEqual(self.data["dihedral-types"], 0)
+        self.assertEqual(self.data["improper-types"], 0)
+        self.assertEqual(self.data["atom-types"], 4)
+
+        np.testing.assert_almost_equal(self.data["x"], [0, 9.83800], decimal=6)
+        np.testing.assert_almost_equal(self.data["y"], [0, 8.52000], decimal=6)
+        np.testing.assert_almost_equal(self.data["z"], [-40.20000, 40.20000], decimal=6)
+        np.testing.assert_almost_equal(self.data["masses"],
+                                       [[1, 12.01070000],
+                                        [2, 15.03450000],
+                                        [3, 12.01000000],
+                                        [4, 14.00670000]], decimal=6)
+        np.testing.assert_almost_equal(self.data["bond-coeffs"],
+                                       [[1, 380.0, 1.46],
+                                        [2, 600.0, 1.157]], decimal=6)
+        np.testing.assert_almost_equal(self.data["angle-coeffs"],
+                                       [[1, 20.0, 180.0]], decimal=6)
+
+        self.assertEqual(len(self.data["atoms"]), self.data["natoms"])
+        self.assertEqual(len(self.data["bonds"]), self.data["nbonds"])
+        self.assertEqual(len(self.data["angles"]), self.data["nangles"])
+
+        # test random line from the data block
+        np.testing.assert_almost_equal(
+            self.data["atoms"][110],
+            [111, 37, 1, 0.12900000, 4.869000, 5.574000, -13.992000],
+            decimal=10)
+        self.assertEqual(self.data["bonds"][76], [77, 2, 115, 117])
+        self.assertEqual(self.data["angles"][68], [69, 1, 205, 207, 206])
+
 
 if __name__ == "__main__":
     unittest.main()
