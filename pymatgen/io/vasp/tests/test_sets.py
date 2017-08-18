@@ -601,8 +601,8 @@ class MVLGBSetTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'Li.cif')
         self.s = Structure.from_file(filepath)
 
-        self.bulk = MVLGBSet(self.s, bulk=True)
-        self.slab = MVLGBSet(self.s, slab=True)
+        self.bulk = MVLGBSet(self.s)
+        self.slab = MVLGBSet(self.s, mode="slab")
 
         self.d_bulk = self.bulk.all_input
         self.d_slab = self.slab.all_input
@@ -621,7 +621,6 @@ class MVLGBSetTest(unittest.TestCase):
         k_a = int(40 / (self.s.lattice.abc[0]) + 0.5)
         k_b = int(40 / (self.s.lattice.abc[1]) + 0.5)
         self.assertEqual(kpoints.kpts, [[k_a, k_b, 1]])
-
 
 
 if __name__ == '__main__':

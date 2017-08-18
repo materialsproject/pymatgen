@@ -1127,32 +1127,38 @@ class MVLSlabSet(MPRelaxSet):
 
 class MVLGBSet(MPRelaxSet):
     """
-    Class for writing a vasp input file for grain boundary, slab or bulk.
+    Class for writing a vasp input files for grain boundary calculations, slab
+    or bulk.
+
     Args:
         structure(Structure): provide the structure
-        k_product: kpts[0][0]*a. Decide k density without kpoint0,
-        default to 40
-        bulk(bool): Set to True if the structure is bulk supercell. Default is False.
-        slab(bool): Set to True if your structure is slab. Default is False.
-
+        k_product: Kpoint number * length for a & b directions, also for c
+            direction in bulk calculations. Default to 40.
+        mode (str): "bulk" or "slab". Defaults to "bulk". Use "bulk" for a
+            bulk supercell. Use "slab" if you are performing calculations on a
+            slab-like (i.e., surface) of the GB, for example, when you are
+            calculating the work of separation.
+        is_metal (bool): Defaults to True. This determines whether an ISMEAR of
+            1 is used (for metals) or not (for insulators and semiconductors)
+            by default. Note that it does *not* override user_incar_settings,
+            which can be set by the user to be anything desired.
         **kwargs:
             Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
-    def __init__(self, structure, k_product=40, bulk=False, slab=False, **kwargs):
-
+    def __init__(self, structure, k_product=40, mode="bulk", is_metal=True,
+                 **kwargs):
         super(MVLGBSet, self).__init__(structure, **kwargs)
-
         self.structure = structure
         self.k_product = k_product
-        self.bulk = bulk
-        self.slab = slab
+        self.mode = mode
+        self.is_metal = is_metal
 
     @property
     def kpoints(self):
         """
-        k_product, default to 40, is kpoint number * length for a & b directions,
-            also for c direction in bulk calculations
+        k_product, default to 40, is kpoint number * length for a & b
+        directions, also for c direction in bulk calculations
         Automatic mesh & Gamma is the default setting.
         """
 
@@ -1164,18 +1170,17 @@ class MVLGBSet(MPRelaxSet):
         kpt.style = 'Gamma'
 
         # use k_product to calculate kpoints, k_product = kpts[0][0] * a
-        abc = self.structure.lattice.abc
-        if self.k_product:
-            kpt_calc = [int(self.k_product / abc[0] + 0.5),
-                        int(self.k_product / abc[1] + 0.5),
-                        int(self.k_product / abc[2] + 0.5)]
-            if self.slab:
-                kpt_calc[2] = int(1)
-            self.kpt_calc = kpt_calc
+        lengths = self.structure.lattice.abc
+        kpt_calc = [int(self.k_product / lengths[0] + 0.5),
+                    int(self.k_product / lengths[1] + 0.5),
+                    int(self.k_product / lengths[2] + 0.5)]
 
-            kpt.kpts[0] = kpt_calc
+        if self.mode == "slab":
+            kpt_calc[2] = 1
 
-            return kpt
+        kpt.kpts[0] = kpt_calc
+
+        return kpt
 
     @property
     def incar(self):
@@ -1186,17 +1191,25 @@ class MVLGBSet(MPRelaxSet):
         # relaxation (ISIF=2) is used.
         # The default incar setting is used for metallic system, for
         # insulator or semiconductor, ISMEAR need to be changed.
-        incar.update({"ISIF": 3, "ISMEAR": 1, "SIGMA": 0.05, "LCHARG": False,
-                      "NPAR": 4,"ENCUT": 520, "NELMIN": 8, "NELM": 60,
-                      "PREC": "Normal", "EDIFFG": -0.02, "IBRION": 2,
-                      "ICHARG": 0, "NSW": 200, "EDIFF": 0.0001, "LDAU": False})
-        incar.update(self.user_incar_settings)
+        incar.update({
+            "LCHARG": False,
+            "NELM": 60,
+            "PREC": "Normal",
+            "EDIFFG": -0.02,
+            "ICHARG": 0,
+            "NSW": 200,
+            "EDIFF": 0.0001
+        })
 
-        if self.slab:
+        if self.is_metal:
+            incar["ISMEAR"] = 1
+            incar["LDAU"] = False
+
+        if self.mode == "slab":
             incar.update({"ISIF": 2})
-
-        if not self.bulk:
             incar["NELMIN"] = 8
+
+        incar.update(self.user_incar_settings)
 
         return incar
 
