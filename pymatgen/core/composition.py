@@ -646,11 +646,13 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             # and sum each combination
             for oxid_combo in combinations_with_replacement(oxids,
                                                             int(el_amt[el])):
-                el_sums[idx].append(sum(oxid_combo))
-                score = sum([Composition.oxi_prob.get(Specie(el, o), 0) for
-                             o in oxid_combo])  # how probable is this combo?
-                el_sum_scores[idx][sum(oxid_combo)] = max(
-                    el_sum_scores[idx].get(sum(oxid_combo), 0), score)
+                if sum(oxid_combo) not in el_sums[idx]:
+                    el_sums[idx].append(sum(oxid_combo))
+                    score = sum([Composition.oxi_prob.get(Specie(el, o), 0) for
+                                 o in oxid_combo])  # how probable is this combo?
+                    el_sum_scores[idx][sum(oxid_combo)] = max(
+                        el_sum_scores[idx].get(sum(oxid_combo), 0), score)
+
 
         all_sols = []  # will contain all solutions
         all_scores = []  # will contain a score for each solution
