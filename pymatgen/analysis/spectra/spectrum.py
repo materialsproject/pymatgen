@@ -49,113 +49,64 @@ class Spectrum(abc.ABC):
         """
         return self.spectrum
 
-    @classmethod
-    @abc.abstractmethod
-    def from_file(cls, filename):
-        """
-        Initiate Spectrum from a filename
-        """
-        pass
 
-
-class Xanespectrum(Spectrum, MSONable):
-    def __init__(self, formula, absorption_specie, edge, structure, spectrum):
-        """
-        Create a XANES spectrum object
-        :param formula: The reduced formula of the structure associated with the spectrum
-        :param absorption_specie: absorption specie of the spectrum
-        :param edge: absorption spectrum edge
-        :param structure: materials structure associated with the spectrum, need to be a pymatgen structure object
-        :param spectrum: Spectrum data
-        """
-
-        self.formula = formula
-        self.absorption_specie = absorption_specie
-        self.edge = edge
-        self.structure = structure
-        self.spectrum = spectrum
-
-
-class XanesFEFF(Xanespectrum):
+class XANES(Spectrum, MSONable):
     """
-    This is a standard class for FEFF calculated XANES spectrum
+    Basic XANES object.
+
+    Args:
+        energies: A sequence of x-ray energies in eV
+        mu: A sequence of mu(E)
+
+    .. attribute: energies
+        The sequence of energies
+    .. attribute: mu
+        The sequence of mu(E)
+    .. attribute: absorption_specie
+        The absorption_species of the spectrum
     """
 
-    def __init__(self, dir_name, formula, absorbing_specie, edge, structure,
-                 spectrum, input_parameters, absorbing_atom_index, mp_id, type = "XANES"):
-        """
-        Create an XanesFEFF spectrum object
-        :param dir_name: XANES calculation directory name
-        :param formula: The formula of the structure
-        :param absorption_specie: absorption species
-        :param edge: spectrum edge
-        :param corehole: corehole setting in FEFF
-        :param structure: pymatgen structure object used for FEFF XANES calculation
-        :param spectrum: spectrum data
-        :param scf: scf value of FEFF calculation
-        :param fms: fms value of FEFF calculation
-        :param exchange: exchange value of FEFF calculation
-        :param s02: s02 value of FEFF calculation
-        :param xanes: xanes value of FEFF calculation
-        :param mp_id: mp_id of the structure
-        """
-        self.dir_name = dir_name
-        self.formula = formula
-        self.absorbing_specie = absorbing_specie
-        self.edge = edge
+    def __init__(self, structure, energies, mu, absorption_specie, edge):
         try:
             self.structure = Structure.from_dict(structure)
         except:
             self.structure = structure
-        self.spectrum = np.array(spectrum)
-        self.input_parameters = input_parameters
-        self.absorbing_atom_index = absorbing_atom_index
-        self.mp_id = mp_id
-        self.type = type
+        self.energies = np.array(energies)
+        self.mu = np.array(mu)
+        self.absorption_specie = absorption_specie
+        self.edge = edge
+        self.type = 'XANES'
+        self.spectrum = np.column_stack((self.energies, self.mu))
 
-    def e0_interpolate(self):
+    def find_e0(self):
         """
-        Use scipy interp1d function and relationship between 'relative_energies' and 'energies', calculate e0 of spectrum
-        :return: e0
+        Use the maximum gradient to find e0
         """
+        self.e0 = self.energies[np.argmax(np.gradient(self.mu) / np.gradient(self.energies))]
 
-        f = interp1d(self.spectrum[:,1], self.spectrum[:,0])
-        self.e0 = f(0).item()
-
-    def site_multiplicity(self):
+    def spectrum_norm(self):
         """
-        Use SpacegroupAnalysis and SymmetrizedStructure to find multiplicity number of absorbing site in Structure,
-            i.e. number of equivalent sites in Structure w.r.t absorbing site
+        Normalize the peak intentsity according to the cumulative sum of the intensity.
+        Therefore, peaks retain properties required from probability mass function
         """
-        absorbing_structure = Structure.from_dict(self.structure)
-
-        spaceg_analysis = SpacegroupAnalyzer(absorbing_structure)
-        sym_structure = spaceg_analysis.get_symmetrized_structure()
-        equivalent_sites = sym_structure.find_equivalent_sites(absorbing_structure[self.absorbing_atom_index])
-        self.equivalent_sites = equivalent_sites
-        self.absorber_multiplicity = len(equivalent_sites)
+        return np.column_stack((self.energies, (self.mu / self.mu.sum())))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_dict(cls, d):
         """
-        Initiate XANES entry object from file, currently support json file or dictionary object query from database directly
+        Return XANES object from dict representation of XANES
         """
+        return XANES(d['structure'], d['energies'], d['mu'],
+                     d['absorption_specie'], d['edge'])
 
-        if isinstance(filename, dict):
-            data_entry = filename
-            return cls(data_entry['dir_name'], data_entry['pretty_formula'], data_entry['absorbing_atom_specie'],
-                       data_entry['edge'], data_entry['structure'], data_entry['spectrum'],
-                       data_entry['input_parameters'], data_entry['metadata']['absorbing_atom_index'],
-                       data_entry['mp_id'])
-
-        elif filename.endswith('.json'):
-            with open(filename, 'r') as f:
-                data_entry = json.load(f)
-
-            return cls(data_entry['dir_name'], data_entry['pretty_formula'], data_entry['absorbing_atom_specie'],
-                       data_entry['edge'], data_entry['structure'], data_entry['spectrum'],
-                       data_entry['input_parameters'], data_entry['metadata']['absorbing_atom_index'],
-                       data_entry['mp_id'])
-
-        else:
-            raise Exception('Unknown data type')
+    def as_dict(self):
+        """
+        Json-serializable dict representation of XANES
+        """
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "energeis": list(self.energies),
+                "mu": list(self.mu),
+                "absorption_specie": list(self.absorption_specie),
+                "edge": self.edge
+                }
