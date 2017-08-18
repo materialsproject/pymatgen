@@ -7,6 +7,7 @@ from __future__ import division, unicode_literals
 import six
 import ruamel.yaml as yaml
 import os
+import json
 
 """
 This module provides classes to perform analyses of
@@ -17,7 +18,7 @@ To do:
 """
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman,"+\
-    " Nils E. R. Zimmermann"
+    " Nils E. R. Zimmermann, Bharat Medasani"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Nils E. R. Zimmermann"
@@ -28,12 +29,171 @@ __date__ = "August 17, 2017"
 from math import pow, pi, asin, atan, sqrt, exp, cos, acos
 import numpy as np
 
+from bisect import bisect_left
 from scipy.spatial import Voronoi
 from pymatgen import Element
 from pymatgen.util.num import abs_cap
 from pymatgen.analysis.bond_valence import BV_PARAMS
-from pymatgen.analysis.defects.point_defects import \
-        ValenceIonicRadiusEvaluator
+from pymatgen.analysis.structure_analyzer import OrderParameters
+
+
+file_dir = os.path.dirname(__file__)
+rad_file = os.path.join(file_dir, 'ionic_radii.json')
+with open(rad_file, 'r') as fp:
+    _ion_radii = json.load(fp)
+
+
+class ValenceIonicRadiusEvaluator(object):
+    """
+    Computes site valences and ionic radii for a structure using bond valence
+    analyzer
+
+    Args:
+        structure: pymatgen.core.structure.Structure
+    """
+
+    def __init__(self, structure):
+        self._structure = structure.copy()
+        self._valences = self._get_valences()
+        self._ionic_radii = self._get_ionic_radii()
+
+    @property
+    def radii(self):
+        """
+        List of ionic radii of elements in the order of sites.
+        """
+        el = [site.species_string for site in self._structure.sites]
+        radii_dict = dict(zip(el, self._ionic_radii))
+        #print radii_dict
+        return radii_dict
+
+    @property
+    def valences(self):
+        """
+        List of oxidation states of elements in the order of sites.
+        """
+        el = [site.species_string for site in self._structure.sites]
+        valence_dict = dict(zip(el, self._valences))
+        return valence_dict
+
+    @property
+    def structure(self):
+        """
+        Returns oxidation state decorated structure.
+        """
+        return self._structure.copy()
+
+
+    def _get_ionic_radii(self):
+        """
+        Computes ionic radii of elements for all sites in the structure.
+        If valence is zero, atomic radius is used.
+        """
+        radii = []
+        vnn = VoronoiNN() # self._structure)
+
+        def nearest_key(sorted_vals, key):
+            i = bisect_left(sorted_vals, key)
+            if i == len(sorted_vals):
+                return sorted_vals[-1]
+            if i == 0:
+                return sorted_vals[0]
+            before = sorted_vals[i-1]
+            after = sorted_vals[i]
+            if after-key < key-before:
+                return after
+            else:
+                return before
+
+        for i in range(len(self._structure.sites)):
+            site = self._structure.sites[i]
+            if isinstance(site.specie,Element):
+                radius = site.specie.atomic_radius
+                # Handle elements with no atomic_radius
+                # by using calculated values instead.
+                if radius is None:
+                    radius = site.specie.atomic_radius_calculated
+                if radius is None:
+                    raise ValueError(
+                            "cannot assign radius to element {}".format(
+                            site.specie))
+                radii.append(radius)
+                continue
+
+            el = site.specie.symbol
+            oxi_state = int(round(site.specie.oxi_state))
+            coord_no = int(round(vnn.get_cn(self._structure, i)))
+            try:
+                tab_oxi_states = sorted(map(int, _ion_radii[el].keys()))
+                oxi_state = nearest_key(tab_oxi_states, oxi_state)
+                radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
+            except KeyError:
+                if vnn.get_cn(self._structure, i)-coord_no > 0:
+                    new_coord_no = coord_no + 1
+                else:
+                    new_coord_no = coord_no - 1
+                try:
+                    radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
+                    coord_no = new_coord_no
+                except:
+                    tab_coords = sorted(map(int, _ion_radii[el][str(oxi_state)].keys()))
+                    new_coord_no = nearest_key(tab_coords, coord_no)
+                    i = 0
+                    for val in tab_coords:
+                        if  val > coord_no:
+                            break
+                        i = i + 1
+                    if i == len(tab_coords):
+                        key = str(tab_coords[-1])
+                        radius = _ion_radii[el][str(oxi_state)][key]
+                    elif i == 0:
+                        key = str(tab_coords[0])
+                        radius = _ion_radii[el][str(oxi_state)][key]
+                    else:
+                        key = str(tab_coords[i-1])
+                        radius1 = _ion_radii[el][str(oxi_state)][key]
+                        key = str(tab_coords[i])
+                        radius2 = _ion_radii[el][str(oxi_state)][key]
+                        radius = (radius1+radius2)/2
+
+            #implement complex checks later
+            radii.append(radius)
+        return radii
+
+    def _get_valences(self):
+        """
+        Computes ionic valences of elements for all sites in the structure.
+        """
+        try:
+            bv = BVAnalyzer()
+            self._structure = bv.get_oxi_state_decorated_structure(self._structure)
+            valences = bv.get_valences(self._structure)
+        except:
+            try:
+                bv = BVAnalyzer(symm_tol=0.0)
+                self._structure = bv.get_oxi_state_decorated_structure(self._structure)
+                valences = bv.get_valences(self._structure)
+            except:
+                valences = []
+                for site in self._structure.sites:
+                    if len(site.specie.common_oxidation_states) > 0:
+                        valences.append(site.specie.common_oxidation_states[0])
+                    # Handle noble gas species
+                    # which have no entries in common_oxidation_states.
+                    else:
+                        valences.append(0)
+                if sum(valences):
+                    valences = [0]*self._structure.num_sites
+                else:
+                    self._structure.add_oxidation_state_by_site(valences)
+                #raise
+
+        #el = [site.specie.symbol for site in self._structure.sites]
+        #el = [site.species_string for site in self._structure.sites]
+        #el = [site.specie for site in self._structure.sites]
+        #valence_dict = dict(zip(el, valences))
+        #print valence_dict
+        return valences
 
 
 class NearNeighbors(object):
@@ -439,7 +599,7 @@ class MinimumVIRENN(NearNeighbors):
     Determine near-neighbor sites and coordination number using the
     neighbor(s) at closest relative distance, d_min_VIRE, plus some
     relative tolerance, where atom radii from the
-    Pymatgen's ValenceIonicRadiusEvaluator (VIRE) are used
+    ValenceIonicRadiusEvaluator (VIRE) are used
     to calculate relative distances.
 
     Args:
@@ -567,4 +727,89 @@ def get_okeeffe_distance_prediction(el1, el2):
 
     return r1 + r2 - r1 * r2 * pow(
             sqrt(c1) - sqrt(c2), 2) / (c1 * r1 + c2 * r2)
+
+
+def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, \
+        cutoff=10.0, thresh=None):
+    """
+    Returns the motif type of the site with index n in structure struct;
+    currently featuring "tetrahedral", "octahedral", "bcc", and "cp"
+    (close-packed: fcc and hcp) as well as "square pyramidal" and
+    "trigonal bipyramidal".  If the site is not recognized,
+    "unrecognized" is returned.  If a site should be assigned to two
+    different motifs, "multiple assignments" is returned.
+
+    Args:
+        struct (Structure): input structure.
+        n (int): index of site in Structure object for which motif type
+                is to be determined.
+        approach (str): type of neighbor-finding approach, where
+              "min_dist" will use the MinimumDistanceNN class,
+              "voronoi" the VoronoiNN class, "min_OKeeffe" the
+              MinimumOKeeffe class, and "min_VIRE" the MinimumVIRENN class.
+        delta (float): tolerance involved in neighbor finding.
+        cutoff (float): (large) radius to find tentative neighbors.
+        thresh (dict): thresholds for motif criteria (currently, required
+                keys and their default values are "qtet": 0.5,
+                "qoct": 0.5, "qbcc": 0.5, "q6": 0.4).
+
+    Returns: motif type (str).
+    """
+
+    if thresh is None:
+        thresh = {
+            "qtet": 0.5, "qoct": 0.5, "qbcc": 0.5, "q6": 0.4,
+            "qtribipyr": 0.8, "qsqpyr": 0.8}
+
+    ops = OrderParameters([
+            "cn", "tet", "oct", "bcc", "q6", "sq_pyr", "tri_bipyr"])
+
+    if approach == "min_dist":
+        neighs_cent = MinimumDistanceNN(tol=delta, cutoff=cutoff).get_nn(
+                struct, n)
+    elif approach == "voronoi":
+        neighs_cent = VoronoiNN(tol=delta, cutoff=cutoff).get_nn(
+                struct, n)
+    elif approach == "min_OKeeffe":
+        neighs_cent = MinimumOKeeffeNN(tol=delta, cutoff=cutoff).get_nn(
+                struct, n)
+    elif approach == "min_VIRE":
+        neighs_cent = MinimumVIRENN(tol=delta, cutoff=cutoff).get_nn(
+                struct, n)
+    else:
+        raise RuntimeError("unsupported neighbor-finding method ({}).".format(
+                approach))
+
+    neighs_cent.append(struct.sites[n])
+    opvals = ops.get_order_parameters(
+            neighs_cent, len(neighs_cent)-1, indeces_neighs=[
+            i for i in range(len(neighs_cent)-1)])
+    cn = int(opvals[0] + 0.5)
+    motif_type = "unrecognized"
+    nmotif = 0
+
+    if cn == 4 and opvals[1] > thresh["qtet"]:
+        motif_type = "tetrahedral"
+        nmotif += 1
+    if cn == 5 and opvals[5] > thresh["qsqpyr"]:
+       motif_type = "square pyramidal"
+       nmotif += 1
+    if cn == 5 and opvals[6] > thresh["qtribipyr"]:
+       motif_type = "trigonal bipyramidal"
+       nmotif += 1
+    if cn == 6 and opvals[2] > thresh["qoct"]:
+        motif_type = "octahedral"
+        nmotif += 1
+    if cn == 8 and (opvals[3] > thresh["qbcc"] and opvals[1] < thresh["qtet"]):
+        motif_type = "bcc"
+        nmotif += 1
+    if cn == 12 and (opvals[4] > thresh["q6"] and opvals[1] < thresh["q6"] and \
+                                 opvals[2] < thresh["q6"] and opvals[3] < thresh["q6"]):
+        motif_type = "cp"
+        nmotif += 1
+
+    if nmotif > 1:
+        motif_type = "multiple assignments"
+
+    return motif_type
 
