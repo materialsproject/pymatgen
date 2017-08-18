@@ -268,8 +268,7 @@ class Slab(Structure):
         """
 
         sg = SpacegroupAnalyzer(self, symprec=symprec)
-        pg = sg.get_point_group_symbol()
-        return pg.is_laue()
+        return sg.is_laue()
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -437,6 +436,97 @@ class Slab(Structure):
             site_properties=s.site_properties, energy=d["energy"]
         )
 
+    def tag_surface_sites(self, decimal=5):
+        """
+        Adds site attribute "is_surfsite" (bool) to all sites of slab. The oriented unit
+        cell of the slab will determine the coordination number of a typical site. We use
+        VoronoiCoordFinder to determine the coordination number of bulk sites and slab
+        sites. Due to the pathological error resulting from some surface sites in the
+        VoronoiCoordFinder, we assume any site that has this error is a surface site as well.
+        This will work for elemental systems only for now. Useful for analysis involving
+        broken bonds and for finding adsorption sites.
+
+            Args:
+                decimal (int): The decimal place to determine a unique
+                    coordination number
+
+        TODO:
+            Is there a way to determine site equivalence between sites in a slab and sites
+            in a bulk system? This would allow us get the coordination number of a specific
+            site for multi-elemental systems or systems with more than one unequivalent sites
+            This will allow us to use this for compound systems.
+        """
+
+        from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
+
+        # Get a dictionary of coordination numbers for each distinct site in the structure
+        a = SpacegroupAnalyzer(self.oriented_unit_cell)
+        ucell = a.get_symmetrized_structure()
+        cn_dict = {}
+        v = VoronoiCoordFinder(ucell)
+        unique_indices = [equ[0] for equ in ucell.equivalent_indices]
+
+        for i in unique_indices:
+            el = ucell[i].species_string
+            if el not in cn_dict.keys():
+                cn_dict[el] = []
+            # Since this will get the cn as a result of the weighted polyhedra, the
+            # slightest difference in cn will indicate a different environment for a
+            # species, eg. bond distance of each neighbor or neighbor species. We
+            # need a tol value, the decimal place to get some cn to be equal.
+            cn = v.get_coordination_number(i)
+            cn = round(cn, decimal)
+            if cn not in cn_dict[el]:
+                cn_dict[el].append(cn)
+
+        v = VoronoiCoordFinder(self)
+        properties = []
+        for i, site in enumerate(self):
+            try:
+                # A site is a surface site, if its environment does
+                # not fit the environment of other sites
+                cn = round(v.get_coordination_number(i), decimal)
+                if cn not in cn_dict[site.species_string]:
+                    properties.append(True)
+                else:
+                    properties.append(False)
+            except RuntimeError:
+                # or if pathological error is returned, indicating a surface site
+                properties.append(True)
+
+        self.add_site_property("is_surf_site", properties)
+
+    def surface_sites_equal(self):
+
+        # Check if we have same number of equivalent sites on both surfaces.
+        # This is an alternative to checking Laue symmetry (is_symmetric())
+        # if we want to ensure both surfaces in the slab are the same
+
+        # tag the sites as either surface sites or not
+        self.tag_surface_sites()
+
+        a = SpacegroupAnalyzer(self)
+        symm_structure = a.get_symmetrized_structure()
+
+        # ensure each site on one surface has a
+        # corresponding equivalent site on the other
+        equal_surf_sites = []
+        for equ in symm_structure.equivalent_sites:
+            # Top and bottom are arbitrary, we will just determine
+            # if one site is on one side of the slab or the other
+            top, bottom = 0, 0
+            for s in equ:
+                if s.is_surf_site:
+                    if s.frac_coords[2] > 0.5:
+                        top += 1
+                    else:
+                        bottom += 1
+            # Check to see if the number of equivalent sites
+            # on one side of the slab are equal to the other
+            equal_surf_sites.append(top == bottom)
+
+        return all(equal_surf_sites)
+
 
 class SlabGenerator(object):
 
@@ -484,7 +574,7 @@ class SlabGenerator(object):
     """
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
-                 min_vacuum_size, lll_reduce=False, center_slab=False,
+                 min_vacuum_size, lll_reduce=False, center_slab=True,
                  primitive=True, max_normal_search=None):
         """
         Calculates the slab scale factor and uses it to generate a unit cell
