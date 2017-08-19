@@ -189,8 +189,8 @@ class SlabGeneratorTest(PymatgenTest):
             if sg.crystal_system == "hexagonal" or (sg.crystal_system == \
                     "trigonal" and (sg.symbol.endswith("H") or
                     sg.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
-                                        153, 154, 156, 157, 158, 159, 162, 163,
-                                        164, 165])):
+                                      153, 154, 156, 157, 158, 159, 162, 163,
+                                      164, 165])):
                 latt = Lattice.hexagonal(5, 10)
             else:
                 # Cubic lattice is compatible with all other space groups.
@@ -303,6 +303,40 @@ class SlabGeneratorTest(PymatgenTest):
         norm_slab = slab.get_orthogonal_c_slab()
         self.assertAlmostEqual(norm_slab.lattice.angles[0], 90)
         self.assertAlmostEqual(norm_slab.lattice.angles[1], 90)
+
+    def get_tasker2_slabs(self):
+        # The uneven distribution of ions on the (111) facets of Halite
+        # type slabs are typical examples of Tasker 3 structures. We
+        # will test this algo to generate a Tasker 2 structure instead
+        lattice = Lattice.cubic(3.010)
+        frac_coords = [[0.00000, 0.00000, 0.00000],
+                       [0.00000, 0.50000, 0.50000],
+                       [0.50000, 0.00000, 0.50000],
+                       [0.50000, 0.50000, 0.00000],
+                       [0.50000, 0.00000, 0.00000],
+                       [0.50000, 0.50000, 0.50000],
+                       [0.00000, 0.00000, 0.50000],
+                       [0.00000, 0.50000, 0.00000]]
+        species = ['Mg', 'Mg', 'Mg', 'Mg', 'O', 'O', 'O', 'O']
+        MgO = Structure(lattice, species, frac_coords)
+        MgO.add_oxidation_state_by_element({"Mg": 2, "O": -6})
+        slabgen = SlabGenerator(MgO, (1,1,1), 10, 10,
+                                max_normal_search=1)
+        # We generate the Tasker 3 structure first
+        slab = slabgen.get_slabs()[0]
+        self.assertFalse(slab.is_symmetric())
+        self.assertTrue(slab.is_polar())
+        # Now to generate the Tasker 2 structure, we must
+        # ensure there are enough ions on top to move around
+        slab.make_supercell([2,1,1])
+        slabs = slab.get_tasker2_slabs()
+        # Check if our Tasker 2 slab is nonpolar and symmetric
+        for slab in slabs:
+            self.assertTrue(slab.is_symmetric())
+            self.assertFalse(slab.is_polar())
+
+
+
 
 
 class MillerIndexFinderTests(PymatgenTest):

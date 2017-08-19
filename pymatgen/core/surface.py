@@ -496,7 +496,7 @@ class Slab(Structure):
 
         self.add_site_property("is_surf_site", properties)
 
-    def surface_sites_equal(self):
+    def have_equivalent_surfaces(self):
 
         # Check if we have same number of equivalent sites on both surfaces.
         # This is an alternative to checking Laue symmetry (is_symmetric())
@@ -574,7 +574,7 @@ class SlabGenerator(object):
     """
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
-                 min_vacuum_size, lll_reduce=False, center_slab=True,
+                 min_vacuum_size, lll_reduce=False, center_slab=False,
                  primitive=True, max_normal_search=None):
         """
         Calculates the slab scale factor and uses it to generate a unit cell
