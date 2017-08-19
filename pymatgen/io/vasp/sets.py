@@ -1060,24 +1060,41 @@ class MVLGWSet(DictSet):
     Lab (http://www.materialsvirtuallab.org) for various research. This is a
     flexible input set for GW calculations.
 
-    A typical sequence is mode="STATIC" -> mode="DIAG" -> mode="GW" ->
-    mode="BSE". For all steps other than the first one, the recommendation is
-    to use from_prev_calculation on the preceding run in the series.
-
-    Note that unlike all other input sets in this series, the PBE_54 series of
-    functional is set as the default.
+    Note that unlike all other input sets in this module, the PBE_54 series of
+    functional is set as the default. These have much improved performance for
+    GW calculations.
     """
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MVLGWSet.yaml"))
 
     SUPPORTED_MODES = ("DIAG", "GW", "STATIC", "BSE")
 
-    def __init__(self, structure, prev_incar=None, prev_nbands=None,
+    def __init__(self, structure, prev_incar=None, nbands=None,
                  potcar_functional="PBE_54",
                  reciprocal_density=100, mode="STATIC", **kwargs):
+        """
+        A typical sequence is mode="STATIC" -> mode="DIAG" -> mode="GW" ->
+        mode="BSE". For all steps other than the first one (static), the
+        recommendation is to use from_prev_calculation on the preceding run in
+        the series.
+
+        Args:
+            structure (Structure): Input structure.
+            prev_incar (Incar/string): Incar file from previous run.
+            mode (str): Supported modes are "STATIC" (default), "DIAG", "GW",
+                and "BSE".
+            nbands (int): For subsequent calculations, it is generally
+                recommended to perform NBANDS convergence starting from the
+                NBANDS of the previous run for DIAG, and to use the exact same
+                NBANDS for GW and BSE. This parameter is used by
+                from_previous_calculation to set nband.
+            potcar_functional (str): Defaults to "PBE_54".
+            \\*\\*kwargs: All kwargs supported by DictSet. Typically,
+                user_incar_settings is a commonly used option.
+        """
         super(MVLGWSet, self).__init__(
             structure, MVLGWSet.CONFIG, **kwargs)
         self.prev_incar = prev_incar
-        self.prev_nbands = prev_nbands
+        self.nbands = nbands
         self.potcar_functional = potcar_functional
         self.reciprocal_density = reciprocal_density
         self.mode = mode.upper()
@@ -1091,7 +1108,6 @@ class MVLGWSet(DictSet):
         """
         Generate gamma center k-points mesh grid for GW calc,
         which is requested by GW calculation.
-        :return: gamma centered k-points
         """
         return Kpoints.automatic_density_by_vol(self.structure,
                                                 self.reciprocal_density,
@@ -1104,21 +1120,37 @@ class MVLGWSet(DictSet):
             Incar(parent_incar)
 
         if self.mode == "DIAG":
-            incar.update({"ALGO": "Exact", "NELM":1, "LOPTICS": True,
-                          "LPEAD": True})
+            # Default parameters for diagonalization calculation.
+            incar.update({
+                "ALGO": "Exact",
+                "NELM":1,
+                "LOPTICS": True,
+                "LPEAD": True
+            })
         elif self.mode == "GW":
-            incar.update({"ALGO": "GW0", "NELM": 1,
-                          "NOMEGA": 80, "ENCUTGW": 250})
+            # Default parameters for GW calculation.
+            incar.update({
+                "ALGO": "GW0",
+                "NELM": 1,
+                "NOMEGA": 80,
+                "ENCUTGW": 250
+            })
             incar.pop("EDIFF", None)
             incar.pop("LOPTICS", None)
             incar.pop("LPEAD", None)
         elif self.mode == "BSE":
-            incar.update({"ALGO": "BSE", "ANTIRES": 0,
-                          "NBANDSO": 20, "NBANDSV": 20})
+            # Default parameters for BSE calculation.
+            incar.update({
+                "ALGO": "BSE",
+                "ANTIRES": 0,
+                "NBANDSO": 20,
+                "NBANDSV": 20
+            })
 
-        if self.prev_nbands:
-            incar["NBANDS"] = self.prev_nbands
+        if self.nbands:
+            incar["NBANDS"] = self.nbands
 
+        # Respect user set INCAR.
         incar.update(self.kwargs.get("user_incar_settings", {}))
 
         return incar
@@ -1134,13 +1166,15 @@ class MVLGWSet(DictSet):
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml of previous vasp run.
             copy_wavecar: Whether to copy the old WAVECAR. Defaults to True.
+            mode (str): Supported modes are "STATIC" (default), "DIAG", "GW",
+                and "BSE".
             nbands_factor (int): Multiplicative factor for NBANDS. Only applies
                 if mode=="DIAG".
             ncores (int): numbers of cores you do calculations. VASP will alter
                 NBANDS if it was not dividable by ncores. Only applies
                 if mode=="DIAG".
             Need to be tested for convergence.
-            \\*\\*kwargs: All kwargs supported by MVLGWDIAGSet,
+            \\*\\*kwargs: All kwargs supported by MVLGWSet,
                 other than structure, prev_incar and mode, which
                 are determined from the prev_calc_dir.
         """
@@ -1148,11 +1182,9 @@ class MVLGWSet(DictSet):
         prev_incar = vasprun.incar
         structure = vasprun.final_structure
 
+        nbands = int(vasprun.parameters["NBANDS"])
         if mode.upper() == "DIAG":
-            nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor
-                                 / ncores) * ncores)
-        else:
-            nbands = int(vasprun.parameters["NBANDS"])
+            nbands = int(np.ceil(nbands * nbands_factor / ncores) * ncores)
 
         # copy WAVECAR, WAVEDER (derivatives)
         files_to_transfer = {}
@@ -1162,7 +1194,7 @@ class MVLGWSet(DictSet):
                 files_to_transfer["WAVECAR"] = str(wavecar[-1])
 
         return MVLGWSet(structure=structure, prev_incar=prev_incar,
-                        prev_nbands=nbands, mode=mode,
+                        nbands=nbands, mode=mode,
                         files_to_transfer=files_to_transfer, **kwargs)
 
 
