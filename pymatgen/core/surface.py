@@ -446,9 +446,9 @@ class Slab(Structure):
             site_properties=s.site_properties, energy=d["energy"]
         )
 
-    def tag_surface_sites(self, decimal=5):
+    def get_surface_sites(self, decimal=5, tag=False):
         """
-        Adds site attribute "is_surfsite" (bool) to all sites of slab. The oriented unit
+        Returns the surface sites and their site indices in a dictionary. The oriented unit
         cell of the slab will determine the coordination number of a typical site. We use
         VoronoiCoordFinder to determine the coordination number of bulk sites and slab
         sites. Due to the pathological error resulting from some surface sites in the
@@ -459,6 +459,12 @@ class Slab(Structure):
             Args:
                 decimal (int): The decimal place to determine a unique
                     coordination number
+                tag (bool): Option to adds site attribute "is_surfsite" (bool) to
+                    all sites of slab. Defaults to False
+
+            Returns:
+                A dictionary grouping sites on top and bottom of the slab together.
+                    {"top": [sites with indices], "bottom": [sites with indices}
 
         TODO:
             Is there a way to determine site equivalence between sites in a slab and sites
@@ -490,21 +496,31 @@ class Slab(Structure):
                 cn_dict[el].append(cn)
 
         v = VoronoiCoordFinder(self)
-        properties = []
+
+        surf_sites_dict, properties = {"top": [], "bottom": []}, []
         for i, site in enumerate(self):
+            # Determine if site is closer to the top or bottom of the slab
+            top = True if site.frac_coords[2] > self.center_of_mass[2] else False
+
             try:
                 # A site is a surface site, if its environment does
                 # not fit the environment of other sites
                 cn = round(v.get_coordination_number(i), decimal)
                 if cn not in cn_dict[site.species_string]:
                     properties.append(True)
+                    key = "top" if top else "bottom"
+                    surf_sites_dict[key].append([site, i])
                 else:
                     properties.append(False)
             except RuntimeError:
                 # or if pathological error is returned, indicating a surface site
                 properties.append(True)
+                key = "top" if top else "bottom"
+                surf_sites_dict[key].append([site, i])
 
-        self.add_site_property("is_surf_site", properties)
+        if tag:
+            self.add_site_property("is_surf_site", properties)
+        return surf_sites_dict
 
     def have_equivalent_surfaces(self):
 
@@ -513,7 +529,7 @@ class Slab(Structure):
         # if we want to ensure both surfaces in the slab are the same
 
         # tag the sites as either surface sites or not
-        self.tag_surface_sites()
+        surf_sites_dict = self.get_surface_sites(tag=True)
 
         a = SpacegroupAnalyzer(self)
         symm_structure = a.get_symmetrized_structure()
