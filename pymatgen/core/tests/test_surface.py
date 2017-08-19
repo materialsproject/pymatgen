@@ -111,20 +111,23 @@ class SlabTest(PymatgenTest):
         # test if surfaces are equivalent by using
         # Laue symmetry and surface site equivalence
 
-        slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10)
-        slab = slabgen.get_slabs()[0]
-        slab.tag_surface_sites()
-        self.assertTrue(slab.is_symmetric())
-        self.assertEqual(len([site for site in slab if site.is_surf_site])/2, 4)
-        self.assertTrue(slab.surface_sites_equal())
-        # Test if the ratio of surface sites per area is
-        # constant, ie are the surface energies the same
-        r1 = len([site for site in slab if site.is_surf_site])/(2*slab.surface_area)
-        slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, primitive=False)
-        slab = slabgen.get_slabs()[0]
-        slab.tag_surface_sites()
-        r2 = len([site for site in slab if site.is_surf_site])/(2*slab.surface_area)
-        self.assertArrayEqual(r1, r2)
+        for bool in [True, False]:
+            # We will also set the slab to be centered and
+            # off centered in order to test the center of mass
+            slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, center_slab=bool)
+            slab = slabgen.get_slabs()[0]
+            slab.tag_surface_sites()
+            self.assertTrue(slab.is_symmetric())
+            self.assertEqual(len([site for site in slab if site.is_surf_site])/2, 4)
+            self.assertTrue(slab.have_equivalent_surfaces())
+            # Test if the ratio of surface sites per area is
+            # constant, ie are the surface energies the same
+            r1 = len([site for site in slab if site.is_surf_site])/(2*slab.surface_area)
+            slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, primitive=False)
+            slab = slabgen.get_slabs()[0]
+            slab.tag_surface_sites()
+            r2 = len([site for site in slab if site.is_surf_site])/(2*slab.surface_area)
+            self.assertArrayEqual(r1, r2)
 
     def test_symmetrization(self):
 

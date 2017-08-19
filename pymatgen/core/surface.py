@@ -369,6 +369,16 @@ class Slab(Structure):
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
+    @property
+    def center_of_mass(self):
+        """
+        Calculates the center of mass of the slab
+        """
+        weights = [s.species_and_occu.weight for s in self]
+        center_of_mass = np.average(self.frac_coords,
+                                    weights=weights, axis=0)
+        return center_of_mass
+
     def add_adsorbate_atom(self, indices, specie, distance):
         """
         Gets the structure of single atom adsorption.
@@ -517,7 +527,7 @@ class Slab(Structure):
             top, bottom = 0, 0
             for s in equ:
                 if s.is_surf_site:
-                    if s.frac_coords[2] > 0.5:
+                    if s.frac_coords[2] > self.center_of_mass[2]:
                         top += 1
                     else:
                         bottom += 1
