@@ -1169,11 +1169,10 @@ class MVLGWSet(DictSet):
             mode (str): Supported modes are "STATIC" (default), "DIAG", "GW",
                 and "BSE".
             nbands_factor (int): Multiplicative factor for NBANDS. Only applies
-                if mode=="DIAG".
+                if mode=="DIAG". Need to be tested for convergence.
             ncores (int): numbers of cores you do calculations. VASP will alter
                 NBANDS if it was not dividable by ncores. Only applies
                 if mode=="DIAG".
-            Need to be tested for convergence.
             \\*\\*kwargs: All kwargs supported by MVLGWSet,
                 other than structure, prev_incar and mode, which
                 are determined from the prev_calc_dir.
