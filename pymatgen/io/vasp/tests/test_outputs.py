@@ -701,6 +701,8 @@ class BSVasprunTest(unittest.TestCase):
                          "wrong vbm bands")
         self.assertEqual(vbm['kpoint'].label, "\\Gamma", "wrong vbm label")
         self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
+        d = vasprun.as_dict()
+        self.assertIn("eigenvalues", d["output"])
 
 
 class OszicarTest(unittest.TestCase):
@@ -846,6 +848,10 @@ class XdatcarTest(unittest.TestCase):
         self.assertEqual(len(structures), 4)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
+
+        x.concatenate(os.path.join(test_dir, 'XDATCAR_4'))
+        self.assertEqual(len(x.structures), 8)
+        self.assertIsNone(x.get_string())
 
 
 class DynmatTest(unittest.TestCase):

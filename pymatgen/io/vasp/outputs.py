@@ -3210,8 +3210,7 @@ class Xdatcar(object):
                         if (ionicstep_cnt >= ionicstep_start):
                             structures.append(p.structure)
                     else:
-                        if (ionicstep_cnt >= ionicstep_start and
-                            ionicstep_cnt < ionicstep_end):
+                        if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                             structures.append(p.structure)
                     ionicstep_cnt += 1
                     coords_str = []
@@ -3220,14 +3219,13 @@ class Xdatcar(object):
             p = Poscar.from_string("\n".join(preamble +
                                              ["Direct"] + coords_str))
             if ionicstep_end is None:
-                if (ionicstep_cnt >= ionicstep_start):
+                if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
             else:
-                if (ionicstep_cnt >= ionicstep_start and
-                    ionicstep_cnt < ionicstep_end):
+                if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                     structures.append(p.structure)
         self.structures = structures
-        self.comment = self.structures[0].formula if comment is None else comment
+        self.comment = comment or self.structures[0].formula
 
     @property
     def site_symbols(self):
@@ -3257,13 +3255,14 @@ class Xdatcar(object):
             ionicstep_start (int): Starting number of ionic step.
             ionicstep_end (int): Ending number of ionic step.
         TODO(rambalachandran):
-           Requires a check to ensure if the new concatenating file has the same lattice structure and atoms as the Xdatcar class.
+           Requires a check to ensure if the new concatenating file has the
+           same lattice structure and atoms as the Xdatcar class.
         """
         preamble = None
         coords_str = []
         structures = self.structures
         preamble_done = False
-        if (ionicstep_start < 1):
+        if ionicstep_start < 1:
             raise Exception('Start ionic step cannot be less than 1')
         if (ionicstep_end is not None and
             ionicstep_start < 1):
@@ -3293,8 +3292,7 @@ class Xdatcar(object):
                         if (ionicstep_cnt >= ionicstep_start):
                             structures.append(p.structure)
                     else:
-                        if (ionicstep_cnt >= ionicstep_start and
-                            ionicstep_cnt < ionicstep_end):
+                        if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                             structures.append(p.structure)
                     ionicstep_cnt += 1
                     coords_str = []
@@ -3303,11 +3301,10 @@ class Xdatcar(object):
             p = Poscar.from_string("\n".join(preamble +
                                              ["Direct"] + coords_str))
             if ionicstep_end is None:
-                if (ionicstep_cnt >= ionicstep_start):
+                if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
             else:
-                if (ionicstep_cnt >= ionicstep_start and
-                    ionicstep_cnt < ionicstep_end):
+                if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                     structures.append(p.structure)
         self.structures = structures
 
@@ -3348,8 +3345,7 @@ class Xdatcar(object):
                         lines.append(line)
                     output_cnt += 1
             else:
-                if (ionicstep_cnt >= ionicstep_start and
-                    ionicstep_cnt < ionicstep_end):
+                if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                     lines.append("Direct configuration="+
                                  ' '*(7-len(str(output_cnt)))+str(output_cnt))
                     for (i, site) in enumerate(structure):
@@ -3364,10 +3360,15 @@ class Xdatcar(object):
         Write  Xdatcar class into a file.
         Args:
             filename (str): Filename of output XDATCAR file.
-            The supported kwargs are the same as those for the Xdatcar.get_string method and are passed through directly.
+            The supported kwargs are the same as those for the
+            Xdatcar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
             f.write(self.get_string(**kwargs))
+
+    def __str__(self):
+        return self.get_string()
+
 
 
 class Dynmat(object):
