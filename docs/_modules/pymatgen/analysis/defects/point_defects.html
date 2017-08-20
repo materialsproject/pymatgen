@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.defects.point_defects &#8212; pymatgen 2017.8.16 documentation</title>
+    <title>pymatgen.analysis.defects.point_defects &#8212; pymatgen 2017.8.20 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.16',
+        VERSION:     '2017.8.20',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.20 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -80,7 +80,8 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">bisect</span> <span class="k">import</span> <span class="n">bisect_left</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">fabs</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">sqrt</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="n">fabs</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
@@ -97,6 +98,8 @@
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span><span class="p">,</span> \
     <span class="n">SpeciesComparator</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">MinimumDistanceNN</span>
+
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">filter</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span>
@@ -118,6 +121,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;ValenceIonicRadiusEvaluator will be moved to&quot;</span>
+                      <span class="s2">&quot; local_env.py with pymatgen &gt;= 2018&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_valences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valences</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ionic_radii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ionic_radii</span><span class="p">()</span>
@@ -1570,218 +1575,6 @@
         <span class="c1">#return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites</span>
 
 
-<div class="viewcode-block" id="get_okeeffe_params"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.point_defects.html#pymatgen.analysis.defects.point_defects.get_okeeffe_params">[docs]</a><span class="k">def</span> <span class="nf">get_okeeffe_params</span><span class="p">(</span><span class="n">el_symbol</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the elemental parameters related to atom size and</span>
-<span class="sd">    electronegativity which are used for estimating bond-valence</span>
-<span class="sd">    parameters (bond length) of pairs of atoms on the basis of data</span>
-<span class="sd">    provided in &#39;Atoms Sizes and Bond Lengths in Molecules and Crystals&#39;</span>
-<span class="sd">    (O&#39;Keeffe &amp; Brese, 1991).</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        el_symbol (str): element symbol.</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        (dict): atom-size (&#39;r&#39;) and electronegativity-related (&#39;c&#39;)</span>
-<span class="sd">                parameter.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">el</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">el_symbol</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">BV_PARAMS</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not find O&#39;Keeffe parameters for element&quot;</span>
-                           <span class="s2">&quot; </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2"> in </span><span class="se">\&quot;</span><span class="s2">BV_PARAMS</span><span class="se">\&quot;</span><span class="s2">dictonary&quot;</span>
-                           <span class="s2">&quot; provided by pymatgen&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">el_symbol</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="n">BV_PARAMS</span><span class="p">[</span><span class="n">el</span><span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="get_okeeffe_distance_prediction"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.point_defects.html#pymatgen.analysis.defects.point_defects.get_okeeffe_distance_prediction">[docs]</a><span class="k">def</span> <span class="nf">get_okeeffe_distance_prediction</span><span class="p">(</span><span class="n">el1</span><span class="p">,</span> <span class="n">el2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns an estimate of the bond valence parameter (bond length) using</span>
-<span class="sd">    the derived parameters from &#39;Atoms Sizes and Bond Lengths in Molecules</span>
-<span class="sd">    and Crystals&#39; (O&#39;Keeffe &amp; Brese, 1991). The estimate is based on two</span>
-<span class="sd">    experimental parameters: r and c. The value for r  is based off radius,</span>
-<span class="sd">    while c is (usually) the Allred-Rochow electronegativity. Values used</span>
-<span class="sd">    are *not* generated from pymatgen, and are found in</span>
-<span class="sd">    &#39;okeeffe_params.json&#39;.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        el1, el2 (Element): two Element objects</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        a float value of the predicted bond length</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">el1_okeeffe_params</span> <span class="o">=</span> <span class="n">get_okeeffe_params</span><span class="p">(</span><span class="n">el1</span><span class="p">)</span>
-    <span class="n">el2_okeeffe_params</span> <span class="o">=</span> <span class="n">get_okeeffe_params</span><span class="p">(</span><span class="n">el2</span><span class="p">)</span>
-
-    <span class="n">r1</span> <span class="o">=</span> <span class="n">el1_okeeffe_params</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">]</span>
-    <span class="n">r2</span> <span class="o">=</span> <span class="n">el2_okeeffe_params</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">]</span>
-    <span class="n">c1</span> <span class="o">=</span> <span class="n">el1_okeeffe_params</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
-    <span class="n">c2</span> <span class="o">=</span> <span class="n">el2_okeeffe_params</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span>
-            <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c2</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c1</span> <span class="o">*</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="get_neighbors_of_site_with_index"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.point_defects.html#pymatgen.analysis.defects.point_defects.get_neighbors_of_site_with_index">[docs]</a><span class="k">def</span> <span class="nf">get_neighbors_of_site_with_index</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determine the neighbors around the site that has index n in the input</span>
-<span class="sd">    Structure object struct, given the approach defined by parameters</span>
-<span class="sd">    p.  All supported neighbor-finding approaches and listed and</span>
-<span class="sd">    explained in the following.  All approaches start by creating a</span>
-<span class="sd">    tentative list of neighbors using a large cutoff radius defined in</span>
-<span class="sd">    parameter dictionary p via key &quot;cutoff&quot;.</span>
-<span class="sd">    &quot;min_dist&quot;: find nearest neighbor and its distance d_nn; consider all</span>
-<span class="sd">            neighbors which are within a distance of d_nn * (1 + delta),</span>
-<span class="sd">            where delta is an additional parameter provided in the</span>
-<span class="sd">            dictionary p via key &quot;delta&quot;.</span>
-<span class="sd">    &quot;scaled_VIRE&quot;: compute the radii, r_i, of all sites on the basis of</span>
-<span class="sd">            the valence-ionic radius evaluator (VIRE); consider all</span>
-<span class="sd">            neighbors for which the distance to the central site is less</span>
-<span class="sd">            than the sum of the radii multiplied by an a priori chosen</span>
-<span class="sd">            parameter, delta,</span>
-<span class="sd">            (i.e., dist &lt; delta * (r_central + r_neighbor)).</span>
-<span class="sd">    &quot;min_relative_VIRE&quot;: same approach as &quot;min_dist&quot;, except that we</span>
-<span class="sd">            use relative distances (i.e., distances divided by the sum of the</span>
-<span class="sd">            atom radii from VIRE).</span>
-<span class="sd">    &quot;min_relative_OKeeffe&quot;: same approach as &quot;min_relative_VIRE&quot;, except</span>
-<span class="sd">            that we use the bond valence parameters from O&#39;Keeffe&#39;s bond valence</span>
-<span class="sd">            method (J. Am. Chem. Soc. 1991, 3226-3229) to calculate</span>
-<span class="sd">            relative distances.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        struct (Structure): input structure.</span>
-<span class="sd">        n (int): index of site in Structure object for which</span>
-<span class="sd">                neighbors are to be determined.</span>
-<span class="sd">        p (dict): specification (via &quot;approach&quot; key; default is &quot;min_dist&quot;)</span>
-<span class="sd">                and parameters of neighbor-finding approach.</span>
-<span class="sd">                Default cutoff radius is 6 Angstrom (key: &quot;cutoff&quot;).</span>
-<span class="sd">                Other default parameters are as follows.</span>
-<span class="sd">                min_dist: &quot;delta&quot;: 0.15;</span>
-<span class="sd">                min_relative_OKeeffe: &quot;delta&quot;: 0.05;</span>
-<span class="sd">                min_relative_VIRE: &quot;delta&quot;: 0.05;</span>
-<span class="sd">                scaled_VIRE: &quot;delta&quot;: 2.</span>
-
-<span class="sd">    Returns: ([site]) list of sites that are considered to be nearest</span>
-<span class="sd">            neighbors to site with index n in Structure object struct.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;approach&quot;</span><span class="p">:</span> <span class="s2">&quot;min_dist&quot;</span><span class="p">,</span> <span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
-                <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">}</span>
-
-    <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;min_relative_OKeeffe&quot;</span><span class="p">,</span> <span class="s2">&quot;min_dist&quot;</span><span class="p">,</span> <span class="s2">&quot;min_relative_VIRE&quot;</span><span class="p">,</span> \
-            <span class="s2">&quot;scaled_VIRE&quot;</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unsupported neighbor-finding approach&quot;</span>
-                <span class="s2">&quot; (</span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]))</span>
-
-    <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;min_relative_OKeeffe&quot;</span> <span class="ow">or</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;min_dist&quot;</span><span class="p">:</span>
-        <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">struct</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">])</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">eln</span> <span class="o">=</span> <span class="n">struct</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="n">eln</span> <span class="o">=</span> <span class="n">struct</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span>
-    <span class="k">elif</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;scaled_VIRE&quot;</span> <span class="ow">or</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;min_relative_VIRE&quot;</span><span class="p">:</span>
-        <span class="n">vire</span> <span class="o">=</span> <span class="n">ValenceIonicRadiusEvaluator</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">struct</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="o">-</span><span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-6</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Mismatch between input structure and VIRE structure.&quot;</span><span class="p">)</span>
-        <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">])</span>
-        <span class="n">rn</span> <span class="o">=</span> <span class="n">vire</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span>
-
-    <span class="n">reldists_neighs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">neigh</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;scaled_VIRE&quot;</span><span class="p">:</span>
-            <span class="n">dscale</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">vire</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">neigh</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span> <span class="o">+</span> <span class="n">rn</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">dscale</span><span class="p">:</span>
-                <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neigh</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;min_relative_VIRE&quot;</span><span class="p">:</span>
-            <span class="n">reldists_neighs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">dist</span> <span class="o">/</span> <span class="p">(</span>
-                    <span class="n">vire</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">neigh</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span> <span class="o">+</span> <span class="n">rn</span><span class="p">),</span> <span class="n">neigh</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;min_relative_OKeeffe&quot;</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">el2</span> <span class="o">=</span> <span class="n">neigh</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="n">el2</span> <span class="o">=</span> <span class="n">neigh</span><span class="o">.</span><span class="n">species_string</span>
-            <span class="n">reldists_neighs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">dist</span> <span class="o">/</span> <span class="n">get_okeeffe_distance_prediction</span><span class="p">(</span>
-                    <span class="n">eln</span><span class="p">,</span> <span class="n">el2</span><span class="p">),</span> <span class="n">neigh</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;min_dist&quot;</span><span class="p">:</span>
-            <span class="n">reldists_neighs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">dist</span><span class="p">,</span> <span class="n">neigh</span><span class="p">])</span>
-
-    <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;min_relative_VIRE&quot;</span> <span class="ow">or</span> \
-            <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;min_relative_OKeeffe&quot;</span> <span class="ow">or</span> \
-            <span class="n">p</span><span class="p">[</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;min_dist&quot;</span><span class="p">:</span>
-        <span class="n">min_reldist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">reldist</span> <span class="k">for</span> <span class="n">reldist</span><span class="p">,</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">reldists_neighs</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">reldist</span><span class="p">,</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">reldists_neighs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">reldist</span> <span class="o">/</span> <span class="n">min_reldist</span> <span class="o">&lt;</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">]:</span>
-                <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neigh</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">sites</span></div>
-
-
-<div class="viewcode-block" id="site_is_of_motif_type"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.point_defects.html#pymatgen.analysis.defects.point_defects.site_is_of_motif_type">[docs]</a><span class="k">def</span> <span class="nf">site_is_of_motif_type</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">pneighs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the motif type of the site with index n in structure struct;</span>
-<span class="sd">    currently featuring &quot;tetrahedral&quot;, &quot;octahedral&quot;, &quot;bcc&quot;, and &quot;cp&quot;</span>
-<span class="sd">    (close-packed: fcc and hcp) as well as &quot;square pyramidal&quot; and</span>
-<span class="sd">    &quot;trigonal bipyramidal&quot;.  If the site is not recognized,</span>
-<span class="sd">    &quot;unrecognized&quot; is returned.  If a site should be assigned to two</span>
-<span class="sd">    different motifs, &quot;multiple assignments&quot; is returned.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        struct (Structure): input structure.</span>
-<span class="sd">        n (int): index of site in Structure object for which motif type</span>
-<span class="sd">                is to be determined.</span>
-<span class="sd">        pneighs (dict): specification and parameters of neighbor-finding</span>
-<span class="sd">                approach (cf., function get_neighbors_of_site_with_index).</span>
-<span class="sd">        thresh (dict): thresholds for motif criteria (currently, required</span>
-<span class="sd">                keys and their default values are &quot;qtet&quot;: 0.5,</span>
-<span class="sd">                &quot;qoct&quot;: 0.5, &quot;qbcc&quot;: 0.5, &quot;q6&quot;: 0.4).</span>
-
-<span class="sd">    Returns: motif type (str).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">thresh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">thresh</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;qtet&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;qoct&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;qbcc&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;q6&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
-            <span class="s2">&quot;qtribipyr&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">&quot;qsqpyr&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">}</span>
-
-    <span class="n">ops</span> <span class="o">=</span> <span class="n">OrderParameters</span><span class="p">([</span>
-            <span class="s2">&quot;cn&quot;</span><span class="p">,</span> <span class="s2">&quot;tet&quot;</span><span class="p">,</span> <span class="s2">&quot;oct&quot;</span><span class="p">,</span> <span class="s2">&quot;bcc&quot;</span><span class="p">,</span> <span class="s2">&quot;q6&quot;</span><span class="p">,</span> <span class="s2">&quot;sq_pyr&quot;</span><span class="p">,</span> <span class="s2">&quot;tri_bipyr&quot;</span><span class="p">])</span>
-            <span class="c1"># 0    1      2      3       4     5        6</span>
-    <span class="n">neighs_cent</span> <span class="o">=</span> <span class="n">get_neighbors_of_site_with_index</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">pneighs</span><span class="p">)</span>
-    <span class="n">neighs_cent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
-    <span class="n">opvals</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">get_order_parameters</span><span class="p">(</span>
-            <span class="n">neighs_cent</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighs_cent</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">indeces_neighs</span><span class="o">=</span><span class="p">[</span>
-            <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">neighs_cent</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
-    <span class="n">cn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opvals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
-    <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;unrecognized&quot;</span>
-    <span class="n">nmotif</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">if</span> <span class="n">cn</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span><span class="p">[</span><span class="s2">&quot;qtet&quot;</span><span class="p">]:</span>
-        <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;tetrahedral&quot;</span>
-        <span class="n">nmotif</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">if</span> <span class="n">cn</span> <span class="o">==</span> <span class="mi">5</span> <span class="ow">and</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span><span class="p">[</span><span class="s2">&quot;qsqpyr&quot;</span><span class="p">]:</span>
-       <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;square pyramidal&quot;</span>
-       <span class="n">nmotif</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">if</span> <span class="n">cn</span> <span class="o">==</span> <span class="mi">5</span> <span class="ow">and</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span><span class="p">[</span><span class="s2">&quot;qtribipyr&quot;</span><span class="p">]:</span>
-       <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;trigonal bipyramidal&quot;</span>
-       <span class="n">nmotif</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">if</span> <span class="n">cn</span> <span class="o">==</span> <span class="mi">6</span> <span class="ow">and</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span><span class="p">[</span><span class="s2">&quot;qoct&quot;</span><span class="p">]:</span>
-        <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;octahedral&quot;</span>
-        <span class="n">nmotif</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">if</span> <span class="n">cn</span> <span class="o">==</span> <span class="mi">8</span> <span class="ow">and</span> <span class="p">(</span><span class="n">opvals</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span><span class="p">[</span><span class="s2">&quot;qbcc&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">thresh</span><span class="p">[</span><span class="s2">&quot;qtet&quot;</span><span class="p">]):</span>
-        <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;bcc&quot;</span>
-        <span class="n">nmotif</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">if</span> <span class="n">cn</span> <span class="o">==</span> <span class="mi">12</span> <span class="ow">and</span> <span class="p">(</span><span class="n">opvals</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span><span class="p">[</span><span class="s2">&quot;q6&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">thresh</span><span class="p">[</span><span class="s2">&quot;q6&quot;</span><span class="p">]</span> <span class="ow">and</span> \
-                                 <span class="n">opvals</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">thresh</span><span class="p">[</span><span class="s2">&quot;q6&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">thresh</span><span class="p">[</span><span class="s2">&quot;q6&quot;</span><span class="p">]):</span>
-        <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;cp&quot;</span>
-        <span class="n">nmotif</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="k">if</span> <span class="n">nmotif</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;multiple assignments&quot;</span>
-
-    <span class="k">return</span> <span class="n">motif_type</span></div>
-
-
 <div class="viewcode-block" id="StructureMotifInterstitial"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.point_defects.html#pymatgen.analysis.defects.point_defects.StructureMotifInterstitial">[docs]</a><span class="k">class</span> <span class="nc">StructureMotifInterstitial</span><span class="p">(</span><span class="n">Defect</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1885,10 +1678,9 @@
                         <span class="n">ddelta</span> <span class="o">=</span> <span class="mf">0.1</span>
                         <span class="n">delta_end</span> <span class="o">=</span> <span class="mf">0.8</span>
                         <span class="k">while</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="n">delta_end</span><span class="p">:</span>
-                            <span class="n">neighs</span> <span class="o">=</span> <span class="n">get_neighbors_of_site_with_index</span><span class="p">(</span>
-                                    <span class="n">struct_w_inter</span><span class="p">,</span> <span class="n">natoms</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">{</span>
-                                    <span class="s2">&quot;approach&quot;</span><span class="p">:</span> <span class="s2">&quot;min_dist&quot;</span><span class="p">,</span> <span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta</span><span class="p">,</span>
-                                    <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">})</span>
+                            <span class="n">neighs</span> <span class="o">=</span> <span class="n">MinimumDistanceNN</span><span class="p">(</span>
+                                    <span class="n">tol</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">get_nn</span><span class="p">(</span>
+                                    <span class="n">struct_w_inter</span><span class="p">,</span> <span class="n">natoms</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
                             <span class="n">nneighs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighs</span><span class="p">)</span>
                             <span class="k">if</span> <span class="n">nneighs</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
                                 <span class="k">break</span>
@@ -2150,7 +1942,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.20 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

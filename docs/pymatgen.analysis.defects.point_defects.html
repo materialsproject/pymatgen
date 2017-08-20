@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.defects.point_defects module &#8212; pymatgen 2017.8.16 documentation</title>
+    <title>pymatgen.analysis.defects.point_defects module &#8212; pymatgen 2017.8.20 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.16',
+        VERSION:     '2017.8.20',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.20 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -1082,140 +1082,6 @@ analyzer</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pymatgen.analysis.defects.point_defects.get_neighbors_of_site_with_index">
-<code class="descname">get_neighbors_of_site_with_index</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>p=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#get_neighbors_of_site_with_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.get_neighbors_of_site_with_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine the neighbors around the site that has index n in the input
-Structure object struct, given the approach defined by parameters
-p.  All supported neighbor-finding approaches and listed and
-explained in the following.  All approaches start by creating a
-tentative list of neighbors using a large cutoff radius defined in
-parameter dictionary p via key “cutoff”.
-“min_dist”: find nearest neighbor and its distance d_nn; consider all</p>
-<blockquote>
-<div>neighbors which are within a distance of d_nn * (1 + delta),
-where delta is an additional parameter provided in the
-dictionary p via key “delta”.</div></blockquote>
-<dl class="docutils">
-<dt>“scaled_VIRE”: compute the radii, r_i, of all sites on the basis of</dt>
-<dd>the valence-ionic radius evaluator (VIRE); consider all
-neighbors for which the distance to the central site is less
-than the sum of the radii multiplied by an a priori chosen
-parameter, delta,
-(i.e., dist &lt; delta * (r_central + r_neighbor)).</dd>
-<dt>“min_relative_VIRE”: same approach as “min_dist”, except that we</dt>
-<dd>use relative distances (i.e., distances divided by the sum of the
-atom radii from VIRE).</dd>
-<dt>“min_relative_OKeeffe”: same approach as “min_relative_VIRE”, except</dt>
-<dd>that we use the bond valence parameters from O’Keeffe’s bond valence
-method (J. Am. Chem. Soc. 1991, 3226-3229) to calculate
-relative distances.</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<em>int</em>) – index of site in Structure object for which
-neighbors are to be determined.</li>
-<li><strong>p</strong> (<em>dict</em>) – specification (via “approach” key; default is “min_dist”)
-and parameters of neighbor-finding approach.
-Default cutoff radius is 6 Angstrom (key: “cutoff”).
-Other default parameters are as follows.
-min_dist: “delta”: 0.15;
-min_relative_OKeeffe: “delta”: 0.05;
-min_relative_VIRE: “delta”: 0.05;
-scaled_VIRE: “delta”: 2.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>Returns: ([site]) list of sites that are considered to be nearest</dt>
-<dd>neighbors to site with index n in Structure object struct.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pymatgen.analysis.defects.point_defects.get_okeeffe_distance_prediction">
-<code class="descname">get_okeeffe_distance_prediction</code><span class="sig-paren">(</span><em>el1</em>, <em>el2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#get_okeeffe_distance_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.get_okeeffe_distance_prediction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an estimate of the bond valence parameter (bond length) using
-the derived parameters from ‘Atoms Sizes and Bond Lengths in Molecules
-and Crystals’ (O’Keeffe &amp; Brese, 1991). The estimate is based on two
-experimental parameters: r and c. The value for r  is based off radius,
-while c is (usually) the Allred-Rochow electronegativity. Values used
-are <em>not</em> generated from pymatgen, and are found in
-‘okeeffe_params.json’.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el2</strong> (<em>el1</em><em>,</em>) – two Element objects</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a float value of the predicted bond length</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pymatgen.analysis.defects.point_defects.get_okeeffe_params">
-<code class="descname">get_okeeffe_params</code><span class="sig-paren">(</span><em>el_symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#get_okeeffe_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.get_okeeffe_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the elemental parameters related to atom size and
-electronegativity which are used for estimating bond-valence
-parameters (bond length) of pairs of atoms on the basis of data
-provided in ‘Atoms Sizes and Bond Lengths in Molecules and Crystals’
-(O’Keeffe &amp; Brese, 1991).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el_symbol</strong> (<em>str</em>) – element symbol.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>atom-size (‘r’) and electronegativity-related (‘c’)</dt>
-<dd>parameter.</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">(dict)</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pymatgen.analysis.defects.point_defects.site_is_of_motif_type">
-<code class="descname">site_is_of_motif_type</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>pneighs=None</em>, <em>thresh=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#site_is_of_motif_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.site_is_of_motif_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the motif type of the site with index n in structure struct;
-currently featuring “tetrahedral”, “octahedral”, “bcc”, and “cp”
-(close-packed: fcc and hcp) as well as “square pyramidal” and
-“trigonal bipyramidal”.  If the site is not recognized,
-“unrecognized” is returned.  If a site should be assigned to two
-different motifs, “multiple assignments” is returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<em>int</em>) – index of site in Structure object for which motif type
-is to be determined.</li>
-<li><strong>pneighs</strong> (<em>dict</em>) – specification and parameters of neighbor-finding
-approach (cf., function get_neighbors_of_site_with_index).</li>
-<li><strong>thresh</strong> (<em>dict</em>) – thresholds for motif criteria (currently, required
-keys and their default values are “qtet”: 0.5,
-“qoct”: 0.5, “qbcc”: 0.5, “q6”: 0.4).</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>Returns: motif type (str).</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="pymatgen.analysis.defects.point_defects.symmetry_reduced_voronoi_nodes">
 <code class="descname">symmetry_reduced_voronoi_nodes</code><span class="sig-paren">(</span><em>structure</em>, <em>rad_dict</em>, <em>high_accuracy_flag=False</em>, <em>symm_flag=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#symmetry_reduced_voronoi_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.symmetry_reduced_voronoi_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain symmetry reduced voronoi nodes using Zeo++ and
@@ -1277,7 +1143,7 @@ pymatgen.symmetry.finder.SpacegroupAnalyzer</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.20 documentation</a> &#187;</li> 
       </ul>
     </div>
 
