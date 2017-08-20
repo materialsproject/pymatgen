@@ -125,7 +125,7 @@ setup(
         "vis": ["vtk>=6.0.0"],
         "abinit": ["pydispatcher>=2.0.5", "apscheduler==2.1.0"]},
     package_data={"pymatgen.core": ["*.json"],
-                  "pymatgen.analysis": ["*.yaml", "*.csv"],
+                  "pymatgen.analysis": ["*.yaml", "*.csv", "*.json"],
                   "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
                   "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.io.vasp": ["*.yaml"],
