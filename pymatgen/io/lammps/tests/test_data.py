@@ -106,19 +106,24 @@ class TestLammpsDataMolecule(unittest.TestCase):
 class TestLammpsDataStructure(unittest.TestCase):
 
     def setUp(self):
-        self.structure = PymatgenTest.get_structure("Si")
+        self.structure = PymatgenTest.get_structure("Li2O")
         self.lammps_data = LammpsData.from_structure(self.structure)
+        neutral_structure = self.structure.copy()
+        neutral_structure.remove_oxidation_states()
+        self.lammps_data_neutral = LammpsData.from_structure(neutral_structure,
+                                                             set_charge=False)
 
     def test_system_info(self):
-        natom_types = 1
-        natoms = 2
-        atomic_masses = [[1, 28.0855]]
-        box_size = [[0.0, 3.8401979336999998],
-                    [0.0, 3.3257101908999998],
-                    [0.0, 3.1355090603]]
-        box_tilt = [1.9200989667999999, 0.0, -2.2171384942999999]
-        atoms_data = [[1, 1, 0, 0, 0],
-                      [2, 1,  3.84019793367, 0, 2.35163179522]]
+        natom_types = 2
+        natoms = 3
+        atomic_masses = [[1, 6.941], [2, 15.9994]]
+        box_size = [[0.0, 3.259762],
+                    [0.0, 2.823037],
+                    [0.0, 2.661585]]
+        box_tilt = [1.629881, 1.629881, 0.941012]
+        atoms_data = [[1, 1, 1.0, -1.1525, -1.1525, -1.1525],
+                      [2, 1, 1.0, -3.4575, -3.4575, -3.4575],
+                      [3, 2, -2.0, 0.0, 0.0, 0.0]]
 
         self.assertEqual(self.lammps_data.natom_types, natom_types)
         self.assertEqual(self.lammps_data.natoms, natoms)
@@ -131,6 +136,9 @@ class TestLammpsDataStructure(unittest.TestCase):
                                        decimal=6)
         np.testing.assert_almost_equal(self.lammps_data.box_tilt, box_tilt,
                                        decimal=6)
+        neutral_atoms_data = np.delete(atoms_data, 2, axis=1)
+        np.testing.assert_almost_equal(self.lammps_data_neutral.atoms_data,
+                                       neutral_atoms_data, decimal=6)
 
     def test_from_file(self):
         self.lammps_data.write_data_file(

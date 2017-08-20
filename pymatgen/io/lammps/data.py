@@ -11,7 +11,7 @@ import numpy as np
 
 from monty.json import MSONable, MontyDecoder
 
-from pymatgen.core.structure import Molecule
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.sites import PeriodicSite
 
 """
@@ -167,9 +167,12 @@ class LammpsData(MSONable):
             number of atoms, number of atom types, box size, mapping
             between the atom id and corresponding atomic masses
         """
-        natoms = len(structure)
-        natom_types = len(structure.symbol_set)
-        elements = structure.composition.elements
+        s = structure.copy()
+        if isinstance(s, Structure):
+            s.remove_oxidation_states()
+        natoms = len(s)
+        natom_types = len(s.symbol_set)
+        elements = s.composition.elements
         elements = sorted(elements, key=lambda el: el.atomic_mass)
         atomic_masses_dict = OrderedDict(
             [(el.symbol, [i + 1, float(el.data["Atomic mass"])])
@@ -200,14 +203,24 @@ class LammpsData(MSONable):
             For Molecule:
                 [[atom_id, molecule tag, atom_type, charge(if present), x, y, z], ... ]
             For Structure:
-                [[atom_id, atom_type, x, y, z], ... ]
+                [[atom_id, atom_type, charge(if present), x, y, z], ... ]
         """
         atoms_data = []
         for i, site in enumerate(structure):
             atom_type = atomic_masses_dict[site.specie.symbol][0]
             # Structure
             if isinstance(site, PeriodicSite):
-                atoms_data.append([i + 1, atom_type, site.x, site.y, site.z])
+                if set_charge:
+                    if hasattr(site.specie, "oxi_state"):
+                        atoms_data.append([i + 1, atom_type,
+                                           site.specie.oxi_state,
+                                           site.x, site.y, site.z])
+                    else:
+                        atoms_data.append([i + 1, atom_type, 0.0,
+                                           site.x, site.y, site.z])
+                else:
+                    atoms_data.append([i + 1, atom_type,
+                                       site.x, site.y, site.z])
             # Molecule
             else:
                 if set_charge:
