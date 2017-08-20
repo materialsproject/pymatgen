@@ -851,7 +851,7 @@ class XdatcarTest(unittest.TestCase):
 
         x.concatenate(os.path.join(test_dir, 'XDATCAR_4'))
         self.assertEqual(len(x.structures), 8)
-        self.assertIsNone(x.get_string())
+        self.assertIsNotNone(x.get_string())
 
 
 class DynmatTest(unittest.TestCase):
