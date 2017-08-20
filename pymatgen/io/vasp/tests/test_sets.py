@@ -559,6 +559,56 @@ class MVLElasticSetTest(PymatgenTest):
         self.assertNotIn("NPAR", incar)
 
 
+class MVLGWSetTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        if "PMG_VASP_PSP_DIR" not in os.environ:
+            os.environ["PMG_VASP_PSP_DIR"] = test_dir
+        self.s = PymatgenTest.get_structure("Li2O")
+
+    def test_static(self):
+        mvlgwsc = MVLGWSet(self.s)
+        incar = mvlgwsc.incar
+        self.assertEqual(incar["SIGMA"], 0.01)
+        kpoints = mvlgwsc.kpoints
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        symbols = mvlgwsc.potcar.symbols
+        self.assertEqual(symbols, ["Li_sv_GW", "O_GW"])
+
+    def test_diag(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        mvlgwdiag = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=True,
+                                            mode="diag")
+        mvlgwdiag.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertEqual(mvlgwdiag.incar["NBANDS"], 32)
+        self.assertEqual(mvlgwdiag.incar["ALGO"], "Exact")
+        self.assertTrue(mvlgwdiag.incar["LOPTICS"])
+
+    def test_bse(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        mvlgwgbse = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=True,
+                                            mode="BSE")
+        mvlgwgbse.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+
+        prev_run = os.path.join(test_dir, "relaxation")
+        mvlgwgbse = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=False,
+                                            mode="GW")
+        self.assertEqual(mvlgwgbse.incar["NOMEGA"], 80)
+        self.assertEqual(mvlgwgbse.incar["ENCUTGW"], 250)
+        self.assertEqual(mvlgwgbse.incar["ALGO"], "GW0")
+        mvlgwgbse1 = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=False,
+                                             mode="BSE")
+        self.assertEqual(mvlgwgbse1.incar["ANTIRES"], 0)
+        self.assertEqual(mvlgwgbse1.incar["NBANDSO"], 20)
+        self.assertEqual(mvlgwgbse1.incar["ALGO"], "BSE")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+
 class MPHSEBSTest(PymatgenTest):
 
     def setUp(self):

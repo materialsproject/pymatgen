@@ -1054,6 +1054,149 @@ class MVLElasticSet(MPRelaxSet):
         self._config_dict["INCAR"].pop("NPAR", None)
 
 
+class MVLGWSet(DictSet):
+    """
+    MVL denotes VASP input sets that are implemented by the Materials Virtual
+    Lab (http://www.materialsvirtuallab.org) for various research. This is a
+    flexible input set for GW calculations.
+
+    Note that unlike all other input sets in this module, the PBE_54 series of
+    functional is set as the default. These have much improved performance for
+    GW calculations.
+    """
+    CONFIG = loadfn(os.path.join(MODULE_DIR, "MVLGWSet.yaml"))
+
+    SUPPORTED_MODES = ("DIAG", "GW", "STATIC", "BSE")
+
+    def __init__(self, structure, prev_incar=None, nbands=None,
+                 potcar_functional="PBE_54",
+                 reciprocal_density=100, mode="STATIC", **kwargs):
+        """
+        A typical sequence is mode="STATIC" -> mode="DIAG" -> mode="GW" ->
+        mode="BSE". For all steps other than the first one (static), the
+        recommendation is to use from_prev_calculation on the preceding run in
+        the series.
+
+        Args:
+            structure (Structure): Input structure.
+            prev_incar (Incar/string): Incar file from previous run.
+            mode (str): Supported modes are "STATIC" (default), "DIAG", "GW",
+                and "BSE".
+            nbands (int): For subsequent calculations, it is generally
+                recommended to perform NBANDS convergence starting from the
+                NBANDS of the previous run for DIAG, and to use the exact same
+                NBANDS for GW and BSE. This parameter is used by
+                from_previous_calculation to set nband.
+            potcar_functional (str): Defaults to "PBE_54".
+            \\*\\*kwargs: All kwargs supported by DictSet. Typically,
+                user_incar_settings is a commonly used option.
+        """
+        super(MVLGWSet, self).__init__(
+            structure, MVLGWSet.CONFIG, **kwargs)
+        self.prev_incar = prev_incar
+        self.nbands = nbands
+        self.potcar_functional = potcar_functional
+        self.reciprocal_density = reciprocal_density
+        self.mode = mode.upper()
+        if self.mode not in MVLGWSet.SUPPORTED_MODES:
+            raise ValueError("%s not one of the support modes : %s" %
+                             (self.mode, MVLGWSet.SUPPORTED_MODES))
+        self.kwargs = kwargs
+
+    @property
+    def kpoints(self):
+        """
+        Generate gamma center k-points mesh grid for GW calc,
+        which is requested by GW calculation.
+        """
+        return Kpoints.automatic_density_by_vol(self.structure,
+                                                self.reciprocal_density,
+                                                force_gamma=True)
+
+    @property
+    def incar(self):
+        parent_incar = super(MVLGWSet, self).incar
+        incar = Incar(self.prev_incar) if self.prev_incar is not None else \
+            Incar(parent_incar)
+
+        if self.mode == "DIAG":
+            # Default parameters for diagonalization calculation.
+            incar.update({
+                "ALGO": "Exact",
+                "NELM":1,
+                "LOPTICS": True,
+                "LPEAD": True
+            })
+        elif self.mode == "GW":
+            # Default parameters for GW calculation.
+            incar.update({
+                "ALGO": "GW0",
+                "NELM": 1,
+                "NOMEGA": 80,
+                "ENCUTGW": 250
+            })
+            incar.pop("EDIFF", None)
+            incar.pop("LOPTICS", None)
+            incar.pop("LPEAD", None)
+        elif self.mode == "BSE":
+            # Default parameters for BSE calculation.
+            incar.update({
+                "ALGO": "BSE",
+                "ANTIRES": 0,
+                "NBANDSO": 20,
+                "NBANDSV": 20
+            })
+
+        if self.nbands:
+            incar["NBANDS"] = self.nbands
+
+        # Respect user set INCAR.
+        incar.update(self.kwargs.get("user_incar_settings", {}))
+
+        return incar
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, copy_wavecar=True, mode="DIAG",
+                       nbands_factor=5, ncores=16, **kwargs):
+        """
+        Generate a set of Vasp input files for GW or BSE calculations from a
+        directory of previous Exact Diag Vasp run.
+
+        Args:
+            prev_calc_dir (str): The directory contains the outputs(
+                vasprun.xml of previous vasp run.
+            copy_wavecar: Whether to copy the old WAVECAR. Defaults to True.
+            mode (str): Supported modes are "STATIC" (default), "DIAG", "GW",
+                and "BSE".
+            nbands_factor (int): Multiplicative factor for NBANDS. Only applies
+                if mode=="DIAG". Need to be tested for convergence.
+            ncores (int): numbers of cores you do calculations. VASP will alter
+                NBANDS if it was not dividable by ncores. Only applies
+                if mode=="DIAG".
+            \\*\\*kwargs: All kwargs supported by MVLGWSet,
+                other than structure, prev_incar and mode, which
+                are determined from the prev_calc_dir.
+        """
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+        prev_incar = vasprun.incar
+        structure = vasprun.final_structure
+
+        nbands = int(vasprun.parameters["NBANDS"])
+        if mode.upper() == "DIAG":
+            nbands = int(np.ceil(nbands * nbands_factor / ncores) * ncores)
+
+        # copy WAVECAR, WAVEDER (derivatives)
+        files_to_transfer = {}
+        if copy_wavecar:
+            wavecar = sorted(glob.glob(os.path.join(prev_calc_dir, "WAVECAR")))
+            if wavecar:
+                files_to_transfer["WAVECAR"] = str(wavecar[-1])
+
+        return MVLGWSet(structure=structure, prev_incar=prev_incar,
+                        nbands=nbands, mode=mode,
+                        files_to_transfer=files_to_transfer, **kwargs)
+
+
 class MVLSlabSet(MPRelaxSet):
     """
     Class for writing a set of slab vasp runs,
@@ -1067,10 +1210,10 @@ class MVLSlabSet(MPRelaxSet):
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
-    def __init__(self, structure, k_product=50, bulk=False, 
+    def __init__(self, slab, k_product=50, bulk=False,
                  auto_dipole=False, **kwargs):
-        super(MVLSlabSet, self).__init__(structure, **kwargs)
-        self.structure = structure
+        super(MVLSlabSet, self).__init__(slab, **kwargs)
+        self.structure = slab
         self.k_product = k_product
         self.bulk = bulk
         self.auto_dipole = auto_dipole
@@ -1085,12 +1228,9 @@ class MVLSlabSet(MPRelaxSet):
             slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
             if self.auto_dipole:
-                weights = [s.species_and_occu.weight for s in structure]
-                center_of_mass = np.average(structure.frac_coords,
-                                            weights=weights, axis=0)
                 slab_incar["IDIPOL"] = 3
                 slab_incar["LDIPOL"] = True
-                slab_incar["DIPOL"] = center_of_mass
+                slab_incar["DIPOL"] = slab.center_of_mass
 
         self._config_dict["INCAR"].update(slab_incar)
 
