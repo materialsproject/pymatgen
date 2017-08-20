@@ -8,14 +8,11 @@ jobs:
       - checkout
       - run:
           command: |
-            python -m venv venv36
-            . venv36/bin/activate
             mkdir coverage_reports
             pip install numpy
             pip install -r requirements.txt -r requirements-optional.txt
       - run:
           command: |
-            . venv36/bin/activate
             python setup.py develop
             export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
@@ -40,14 +37,10 @@ jobs:
       - checkout
       - run:
           command: |
-            pip install virtualenv
-            virtualenv venv27
-            . venv27/bin/activate
             pip install numpy
             pip install -r requirements.txt -r requirements-optional.txt
       - run:
           command: |
-            . venv27/bin/activate
             python setup.py develop
             export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
