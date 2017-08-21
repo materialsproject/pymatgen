@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import os
 import sys
 import platform
 
@@ -68,7 +67,6 @@ reports. Please report any bugs and issues at pymatgen's `Github page
 of pymatgen releases, you may become a member of `pymatgen's Google Groups page
 <https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
 
-
 Why use pymatgen?
 =================
 
@@ -101,14 +99,13 @@ but pymatgen offer several advantages:
    other research groups.
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x. All developers must ensure that their code passes the
-unittests on both Py2.7 and 3.x.
+as Python 3.x.
 """
 
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2017.8.16",
+    version="2017.8.20",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",
@@ -125,7 +122,7 @@ setup(
         "vis": ["vtk>=6.0.0"],
         "abinit": ["pydispatcher>=2.0.5", "apscheduler==2.1.0"]},
     package_data={"pymatgen.core": ["*.json"],
-                  "pymatgen.analysis": ["*.yaml", "*.csv"],
+                  "pymatgen.analysis": ["*.yaml", "*.json"],
                   "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
                   "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.io.vasp": ["*.yaml"],

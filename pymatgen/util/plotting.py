@@ -190,7 +190,8 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None,
 
 
 def periodic_table_heatmap(elemental_data, cbar_label="",
-                           show_plot=False, cmap="YlOrRd", blank_color="grey"):
+                           show_plot=False, cmap="YlOrRd", blank_color="grey",
+                           show_value=True):
     """
     A static method that generates a heat map overlapped on a periodic table.
 
@@ -226,7 +227,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     # We set nan type values to masked values (ie blank spaces)
     data_mask = np.ma.masked_invalid(value_table.tolist())
     heatmap = ax.pcolor(data_mask, cmap=cmap, edgecolors='w', linewidths=1,
-                        vmin=min_val, vmax=max_val)
+                        vmin=min_val-0.001, vmax=max_val+0.001)
     cbar = fig.colorbar(heatmap)
 
     # Grey out missing elements in input data
@@ -246,7 +247,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
                 plt.text(j + 0.5, i + 0.25, symbol,
                          horizontalalignment='center',
                          verticalalignment='center', fontsize=14)
-                if el != blank_value:
+                if el != blank_value and show_value:
                     plt.text(j + 0.5, i + 0.5, "%.2f" % (el),
                              horizontalalignment='center',
                              verticalalignment='center', fontsize=10)

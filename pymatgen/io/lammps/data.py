@@ -3,6 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, print_function, unicode_literals, absolute_import
+from io import open
+import re
+from collections import OrderedDict
+
+import numpy as np
+
+from monty.json import MSONable, MontyDecoder
+
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.sites import PeriodicSite
 
 """
 This module implements classes for generating/parsing Lammps data file i.e
@@ -18,18 +28,6 @@ Restrictions:
 
     For more info, please refer to: http://lammps.sandia.gov/doc/read_data.html
 """
-
-from io import open
-import re
-from collections import OrderedDict
-
-import numpy as np
-
-from monty.json import MSONable, MontyDecoder
-
-from pymatgen.core.structure import Molecule, Structure
-from pymatgen.core.sites import PeriodicSite
-
 
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
@@ -169,9 +167,12 @@ class LammpsData(MSONable):
             number of atoms, number of atom types, box size, mapping
             between the atom id and corresponding atomic masses
         """
-        natoms = len(structure)
-        natom_types = len(structure.symbol_set)
-        elements = structure.composition.elements
+        s = structure.copy()
+        if isinstance(s, Structure):
+            s.remove_oxidation_states()
+        natoms = len(s)
+        natom_types = len(s.symbol_set)
+        elements = s.composition.elements
         elements = sorted(elements, key=lambda el: el.atomic_mass)
         atomic_masses_dict = OrderedDict(
             [(el.symbol, [i + 1, float(el.data["Atomic mass"])])
@@ -202,14 +203,24 @@ class LammpsData(MSONable):
             For Molecule:
                 [[atom_id, molecule tag, atom_type, charge(if present), x, y, z], ... ]
             For Structure:
-                [[atom_id, atom_type, x, y, z], ... ]
+                [[atom_id, atom_type, charge(if present), x, y, z], ... ]
         """
         atoms_data = []
         for i, site in enumerate(structure):
             atom_type = atomic_masses_dict[site.specie.symbol][0]
             # Structure
             if isinstance(site, PeriodicSite):
-                atoms_data.append([i + 1, atom_type, site.x, site.y, site.z])
+                if set_charge:
+                    if hasattr(site.specie, "oxi_state"):
+                        atoms_data.append([i + 1, atom_type,
+                                           site.specie.oxi_state,
+                                           site.x, site.y, site.z])
+                    else:
+                        atoms_data.append([i + 1, atom_type, 0.0,
+                                           site.x, site.y, site.z])
+                else:
+                    atoms_data.append([i + 1, atom_type,
+                                       site.x, site.y, site.z])
             # Molecule
             else:
                 if set_charge:
@@ -800,111 +811,4 @@ def parse_data_file(filename):
                                             float(m.group(3))]
     return data
 
-class LMPData(object):
-    """
-    Object for representing the data of a LAMMPS simulation box converted from
-    a structure object. Non-orthogonal cells are supported.
 
-    """
-
-    def __init__(self, structure):
-        """
-
-        Args:
-            structure (Structure): A structure object to be calculated.
-
-        """
-        if structure.is_ordered:
-            lattice = structure.lattice
-            ((a, b, c), (alpha, beta, gamma)) = lattice.lengths_and_angles
-            lx = a
-            xy = b * np.cos(np.deg2rad(gamma))
-            xz = c * np.cos(np.deg2rad(beta))
-            ly = (b ** 2 - xy ** 2) ** 0.5
-            yz = (b * c * np.cos(np.deg2rad(alpha)) - xy * xz) / ly
-            lz = (c ** 2 - xz ** 2 - yz ** 2) ** 0.5
-            matrix = np.array([[lx, 0, 0], [xy, ly, 0], [xz, yz, lz]])
-            new_lattice = Lattice(matrix)
-            structure.modify_lattice(new_lattice)
-            self._structure = structure.get_sorted_structure()
-            neutral = structure.copy()
-            neutral.remove_oxidation_states()
-            self._elements = sorted(neutral.composition.elements)
-        else:
-            raise RuntimeError('Disordered structure cannot be converted.')
-
-    @property
-    def structure(self):
-        """
-        An aligned structure, of which a lattice vector is aligned with
-        x axis, and b lattice vector is in the xy plane.
-
-        """
-        return self._structure
-
-    def get_string(self, significant_figures=6):
-        """
-        Returns a string to be written as a charge-type lammps data file.
-
-        Args:
-            significant_figures (int): No. of significant figures to
-                output. Default to 6.
-
-        Returns:
-            String representation of data file.
-
-        """
-        float_fmt = '%.{}f'.format(significant_figures)
-        sites = self.structure.sites
-        # title
-        class_name = self.__module__ + '.' + self.__class__.__name__
-        lines = ['LAMMPS data file generated by pymatgen %s class' % class_name, '']
-        # number of atoms
-        lines.extend(['%d atoms' % len(sites), ''])
-        # number of atom types
-        lines.extend(['%d atom types' % len(self._elements), ''])
-        # box shape
-        latt_matrix = self.structure.lattice.matrix
-        for axis, l in zip('xyz', np.diag(latt_matrix)):
-            lines.append('0 ' + float_fmt % l + ' {a}lo {a}hi'.format(a=axis))
-        projections = [latt_matrix[i, j]
-                       for i in range(3) for j in range(3) if i > j]
-        lines.extend([' '.join([float_fmt % i for i in projections])
-                      + ' xy xz yz', ''])
-        # atomic masses
-        lines.extend(['Masses', ''])
-        for i, e in enumerate(self._elements):
-            lines.append('%d %.2f' % (i + 1, e.atomic_mass.real))
-        # atomic positions
-        lines.extend(['', 'Atoms', ''])
-
-        # id, type, charge, x, y, z
-        for i, site in enumerate(sites):
-            element = site.specie.element if hasattr(site.specie, 'element')\
-                else site.specie
-            atom_type = self._elements.index(element) + 1
-            try:
-                charge = site.specie.oxi_state
-            except:
-                charge = 0
-            atom = '%d %d ' % (i + 1, atom_type)
-            atom += ' '.join([float_fmt % i for i in [charge]
-                              + list(site.coords)])
-            lines.append(atom)
-        return '\n'.join(lines)
-
-    def write_file(self, name, significant_figures=6):
-        """
-        Write data file.
-
-        Args:
-            name (str): filename
-            significant_figures (int): No. of significant figures to
-                output. Default to 6.
-
-        """
-        with open('data.%s' % name, 'wt') as f:
-            f.write(self.get_string(significant_figures=significant_figures))
-
-    def __str__(self):
-        return self.get_string()
