@@ -3,16 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, print_function, unicode_literals, absolute_import
-from io import open
-import re
-from collections import OrderedDict
-
-import numpy as np
-
-from monty.json import MSONable, MontyDecoder
-
-from pymatgen.core.structure import Molecule, Structure
-from pymatgen.core.sites import PeriodicSite
 
 """
 This module implements classes for generating/parsing Lammps data file i.e
@@ -29,6 +19,17 @@ Restrictions:
     For more info, please refer to: http://lammps.sandia.gov/doc/read_data.html
 """
 
+from io import open
+import re
+from collections import OrderedDict
+
+import numpy as np
+
+from monty.json import MSONable, MontyDecoder
+
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.sites import PeriodicSite
+
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
 __credits__ = 'Brandon Wood'
@@ -38,17 +39,18 @@ __credits__ = 'Brandon Wood'
 
 HEADER_KEYWORDS = {"atoms", "bonds",  "angles", "dihedrals",  "impropers",
                    "atom types", "bond types",  "angle types", "dihedral types",
-                   "improper types", "extra bond per atom",  "extra angle per atom",
+                   "improper types", "extra bond per atom", "extra angle per atom",
                    "extra dihedral per atom", "extra improper per atom",
                    "extra special per atom", "ellipsoids", "lines", "triangles",
                    "bodies", "xlo xhi", "ylo yhi", "zlo zhi", "xy xz yz"}
 
-SECTION_KEYWORDS = {"atoms", "velocities", "masses", "ellipsoids", "lines", "triangles", "bodies",
-                    "bonds", "angles", "dihedrals", "impropers",
-                    "pair coeffs", "pairij coeffs", "bond coeffs", "angle coeffs", "dihedral coeffs",
-                    "improper coeffs",
-                    "bondbond coeffs", "bondangle coeffs", "middlebondtorsion coeffs",
-                    "endbondtorsion coeffs", "angletorsion coeffs", "angleangletorsion coeffs",
+SECTION_KEYWORDS = {"atoms", "velocities", "masses", "ellipsoids", "lines",
+                    "triangles", "bodies", "bonds", "angles", "dihedrals",
+                    "impropers", "pair coeffs", "pairij coeffs", "bond coeffs",
+                    "angle coeffs", "dihedral coeffs", "improper coeffs",
+                    "bondbond coeffs", "bondangle coeffs",
+                    "middlebondtorsion coeffs", "endbondtorsion coeffs",
+                    "angletorsion coeffs", "angleangletorsion coeffs",
                     "bondbond13 coeffs", "angleangle coeffs"}
 
 

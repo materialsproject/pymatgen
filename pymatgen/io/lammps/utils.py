@@ -26,7 +26,6 @@ from pymatgen.util.coord_utils import get_angle
 from pymatgen.io.babel import BabelMolAdaptor
 
 from monty.os.path import which
-from monty.dev import requires
 from monty.tempfile import ScratchDir
 
 __author__ = 'Kiran Mathew, Brandon Wood, Michael Humbert'

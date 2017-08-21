@@ -13,7 +13,6 @@ from string import Template
 
 from monty.json import MSONable
 
-
 __author__ = "Kiran Mathew, Brandon Wood"
 __email__ = "kmathew@lbl.gov, b.wood@berkeley.edu"
 __credits__ = "Navnidhi Rajput"

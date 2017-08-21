@@ -18,12 +18,12 @@ For the ease of management we divide LAMMPS input into 2 files:
             afore-mentioned data file and the job control parameters such as
             the ensemble type(NVT, NPT etc), max number of iterations etc.
 """
+
 import os
 import six
 
 from monty.json import MSONable, MontyDecoder
 
-from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsForceFieldData, LammpsData
 from pymatgen.io.lammps.input import LammpsInput
 

@@ -5,20 +5,6 @@
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
-import re
-from io import open
-import os
-
-import numpy as np
-
-from monty.json import MSONable
-
-from pymatgen.core.periodic_table import _pt_data
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
-from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
-
 """
 This module implements classes for processing Lammps output files:
 
@@ -33,6 +19,20 @@ This module implements classes for processing Lammps output files:
         of fields after that and they all will be treated as floats and
         updated based on the field names in the ITEM: ATOMS line.
 """
+
+import re
+from io import open
+import os
+
+import numpy as np
+
+from monty.json import MSONable
+
+from pymatgen.core.periodic_table import _pt_data
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
+from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
 
 __author__ = "Kiran Mathew"
 __email__ = "kmathew@lbl.gov"
