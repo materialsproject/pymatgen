@@ -21,8 +21,8 @@ This module implements classes for processing Lammps output files:
 """
 
 import re
-from io import open
 import os
+from io import open
 
 import numpy as np
 

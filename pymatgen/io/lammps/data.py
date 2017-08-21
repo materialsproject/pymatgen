@@ -19,8 +19,8 @@ Restrictions:
     For more info, please refer to: http://lammps.sandia.gov/doc/read_data.html
 """
 
-from io import open
 import re
+from io import open
 from collections import OrderedDict
 
 import numpy as np

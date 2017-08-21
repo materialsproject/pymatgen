@@ -8,10 +8,10 @@ from __future__ import division, print_function, unicode_literals, absolute_impo
 This module defines utility classes and functions.
 """
 
-import six
-from io import open
 import os
+import six
 import tempfile
+from io import open
 from subprocess import Popen, PIPE
 
 import numpy as np
@@ -20,6 +20,7 @@ try:
     import pybel as pb
 except ImportError:
     pb = None
+
 from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import get_angle

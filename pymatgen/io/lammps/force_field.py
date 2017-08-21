@@ -10,8 +10,8 @@ angles and dihedrals.
 """
 
 import six
-from collections import defaultdict
 import ruamel.yaml as yaml
+from collections import defaultdict
 
 from monty.json import MSONable
 
