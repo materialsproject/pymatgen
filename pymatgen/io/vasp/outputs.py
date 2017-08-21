@@ -2398,7 +2398,7 @@ class Outcar(MSONable):
         return d
 
     def read_fermi_contact_shift(self):
-    	'''
+        '''
         output example:
         Fermi contact (isotropic) hyperfine coupling parameter (MHz)
         -------------------------------------------------------------
@@ -2408,22 +2408,22 @@ class Outcar(MSONable):
          2      -0.002    -0.002    -0.051     0.000    -0.052
          3       0.056     0.056     0.321    -0.048     0.321
         -------------------------------------------------------------
-    	, which corresponds to
+        , which corresponds to
         [[-0.002, -0.002, -0.051, 0.0, -0.052],
-     	[-0.002, -0.002, -0.051, 0.0, -0.052],
-     	[0.056, 0.056, 0.321, -0.048, 0.321]] from 'fch' data
-    	'''
+         [-0.002, -0.002, -0.051, 0.0, -0.052],
+         [0.056, 0.056, 0.321, -0.048, 0.321]] from 'fch' data
+        '''
 
-	# Fermi contact (isotropic) hyperfine coupling parameter (MHz)
+        # Fermi contact (isotropic) hyperfine coupling parameter (MHz)
         header_pattern1 = r"\s*Fermi contact \(isotropic\) hyperfine coupling parameter \(MHz\)\s+" \
-                         r"\s*\-+" \
-                         r"\s*ion\s+A_pw\s+A_1PS\s+A_1AE\s+A_1c\s+A_tot\s+" \
-                         r"\s*\-+"
+                          r"\s*\-+" \
+                          r"\s*ion\s+A_pw\s+A_1PS\s+A_1AE\s+A_1c\s+A_tot\s+" \
+                          r"\s*\-+"
         row_pattern1 = r'(?:\d+)\s+' + r'\s+'.join([r'([-]?\d+\.\d+)'] * 5)
         footer_pattern = r"\-+"
         fch_table = self.read_table_pattern(header_pattern1, row_pattern1,
-                                           footer_pattern, postprocess=float,
-                                           last_one_only=True)
+                                            footer_pattern, postprocess=float,
+                                            last_one_only=True)
 
         # Dipolar hyperfine coupling parameters (MHz)
         header_pattern2 = r"\s*Dipolar hyperfine coupling parameters \(MHz\)\s+" \
@@ -2449,6 +2449,7 @@ class Outcar(MSONable):
         fc_shift_table = {'fch': fch_table, 'dh': dh_table, 'th': th_table}
 
         self.data["fermi_contact_shift"] = fc_shift_table
+
 
 class VolumetricData(object):
     """
