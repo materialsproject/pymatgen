@@ -2397,6 +2397,59 @@ class Outcar(MSONable):
 
         return d
 
+    def read_fermi_contact_shift(self):
+        '''
+        output example:
+        Fermi contact (isotropic) hyperfine coupling parameter (MHz)
+        -------------------------------------------------------------
+        ion      A_pw      A_1PS     A_1AE     A_1c      A_tot
+        -------------------------------------------------------------
+         1      -0.002    -0.002    -0.051     0.000    -0.052
+         2      -0.002    -0.002    -0.051     0.000    -0.052
+         3       0.056     0.056     0.321    -0.048     0.321
+        -------------------------------------------------------------
+        , which corresponds to
+        [[-0.002, -0.002, -0.051, 0.0, -0.052],
+         [-0.002, -0.002, -0.051, 0.0, -0.052],
+         [0.056, 0.056, 0.321, -0.048, 0.321]] from 'fch' data
+        '''
+
+        # Fermi contact (isotropic) hyperfine coupling parameter (MHz)
+        header_pattern1 = r"\s*Fermi contact \(isotropic\) hyperfine coupling parameter \(MHz\)\s+" \
+                          r"\s*\-+" \
+                          r"\s*ion\s+A_pw\s+A_1PS\s+A_1AE\s+A_1c\s+A_tot\s+" \
+                          r"\s*\-+"
+        row_pattern1 = r'(?:\d+)\s+' + r'\s+'.join([r'([-]?\d+\.\d+)'] * 5)
+        footer_pattern = r"\-+"
+        fch_table = self.read_table_pattern(header_pattern1, row_pattern1,
+                                            footer_pattern, postprocess=float,
+                                            last_one_only=True)
+
+        # Dipolar hyperfine coupling parameters (MHz)
+        header_pattern2 = r"\s*Dipolar hyperfine coupling parameters \(MHz\)\s+" \
+                          r"\s*\-+" \
+                          r"\s*ion\s+A_xx\s+A_yy\s+A_zz\s+A_xy\s+A_xz\s+A_yz\s+" \
+                          r"\s*\-+"
+        row_pattern2 = r'(?:\d+)\s+' + r'\s+'.join([r'([-]?\d+\.\d+)'] * 6)
+        dh_table = self.read_table_pattern(header_pattern2, row_pattern2,
+                                           footer_pattern, postprocess=float,
+                                           last_one_only=True)
+
+        # Total hyperfine coupling parameters after diagonalization (MHz)
+        header_pattern3 = r"\s*Total hyperfine coupling parameters after diagonalization \(MHz\)\s+" \
+                          r"\s*\(convention: \|A_zz\| > \|A_xx\| > \|A_yy\|\)\s+" \
+                          r"\s*\-+" \
+                          r"\s*ion\s+A_xx\s+A_yy\s+A_zz\s+asymmetry \(A_yy - A_xx\)/ A_zz\s+" \
+                          r"\s*\-+"
+        row_pattern3 = r'(?:\d+)\s+' + r'\s+'.join([r'([-]?\d+\.\d+)'] * 4)
+        th_table = self.read_table_pattern(header_pattern3, row_pattern3,
+                                           footer_pattern, postprocess=float,
+                                           last_one_only=True)
+
+        fc_shift_table = {'fch': fch_table, 'dh': dh_table, 'th': th_table}
+
+        self.data["fermi_contact_shift"] = fc_shift_table
+
 
 class VolumetricData(object):
     """
