@@ -2175,7 +2175,23 @@ class Outcar(MSONable):
         return d
 
     def read_fermi_contact_shift(self):
-        # Fermi contact (isotropic) hyperfine coupling parameter (MHz)
+    	'''
+        output example:
+        Fermi contact (isotropic) hyperfine coupling parameter (MHz)
+        -------------------------------------------------------------
+        ion      A_pw      A_1PS     A_1AE     A_1c      A_tot
+        -------------------------------------------------------------
+         1      -0.002    -0.002    -0.051     0.000    -0.052
+         2      -0.002    -0.002    -0.051     0.000    -0.052
+         3       0.056     0.056     0.321    -0.048     0.321
+        -------------------------------------------------------------
+    	, which corresponds to
+        [[-0.002, -0.002, -0.051, 0.0, -0.052],
+     	[-0.002, -0.002, -0.051, 0.0, -0.052],
+     	[0.056, 0.056, 0.321, -0.048, 0.321]] from 'fch' data
+    	'''
+
+	# Fermi contact (isotropic) hyperfine coupling parameter (MHz)
         header_pattern1 = r"\s*Fermi contact \(isotropic\) hyperfine coupling parameter \(MHz\)\s+" \
                          r"\s*\-+" \
                          r"\s*ion\s+A_pw\s+A_1PS\s+A_1AE\s+A_1c\s+A_tot\s+" \

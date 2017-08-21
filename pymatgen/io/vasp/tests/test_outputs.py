@@ -585,9 +585,9 @@ class OutcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, "OUTCAR_fc")
         outcar = Outcar(filepath)
         outcar.read_fermi_contact_shift()
-        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'fch'][0][0], 0.004)
-        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'th'][0][0], 0.136)
-        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'dh'][0][0], 0.088)
+        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'fch'][0][0], -0.002)
+        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'th'][0][0], -0.052)
+        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'dh'][0][0], 0.0)
 
 
 class BSVasprunTest(unittest.TestCase):
