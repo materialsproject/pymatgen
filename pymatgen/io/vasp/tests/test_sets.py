@@ -592,6 +592,7 @@ class MVLGWSetTest(PymatgenTest):
                                             mode="BSE")
         mvlgwgbse.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVEDER")))
 
         prev_run = os.path.join(test_dir, "relaxation")
         mvlgwgbse = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=False,

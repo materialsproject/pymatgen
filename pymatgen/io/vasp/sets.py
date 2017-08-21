@@ -17,6 +17,7 @@ import six
 import numpy as np
 
 from monty.serialization import loadfn
+from monty.io import zopen
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
@@ -405,7 +406,8 @@ class DictSet(VaspInputSet):
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
         for k, v in self.files_to_transfer.items():
-            shutil.copy(v, os.path.join(output_dir, k))
+            with zopen(v, "rb") as fin, zopen(os.path.join(output_dir, k), "wb") as fout:
+                shutil.copyfileobj(fin, fout)
 
 
 class MITRelaxSet(DictSet):
@@ -1165,7 +1167,8 @@ class MVLGWSet(DictSet):
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml of previous vasp run.
-            copy_wavecar: Whether to copy the old WAVECAR. Defaults to True.
+            copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and
+                associated files. Defaults to True.
             mode (str): Supported modes are "STATIC" (default), "DIAG", "GW",
                 and "BSE".
             nbands_factor (int): Multiplicative factor for NBANDS. Only applies
@@ -1188,9 +1191,16 @@ class MVLGWSet(DictSet):
         # copy WAVECAR, WAVEDER (derivatives)
         files_to_transfer = {}
         if copy_wavecar:
-            wavecar = sorted(glob.glob(os.path.join(prev_calc_dir, "WAVECAR")))
-            if wavecar:
-                files_to_transfer["WAVECAR"] = str(wavecar[-1])
+            for fname in ("WAVECAR", "WAVEDER", "WFULL"):
+                w = sorted(glob.glob(os.path.join(prev_calc_dir, fname + "*")))
+                if w:
+                    if fname == "WFULL":
+                        for f in w:
+                            fname = os.path.basename(f)
+                            fname = fname.split(".")[0]
+                            files_to_transfer[fname] = f
+                    else:
+                        files_to_transfer[fname] = str(w[-1])
 
         return MVLGWSet(structure=structure, prev_incar=prev_incar,
                         nbands=nbands, mode=mode,
