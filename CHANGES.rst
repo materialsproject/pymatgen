@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2017.8.21
+----------
+* Minor bug fixes.
+
 v2017.8.20
 ----------
 * Input sets for GW and BSE calculations (Zhenbin Wang) and grain boundary
