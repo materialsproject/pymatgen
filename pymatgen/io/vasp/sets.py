@@ -1169,7 +1169,7 @@ class MVLGWSet(DictSet):
                 vasprun.xml of previous vasp run.
             copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and
                 associated files. Defaults to True.
-            mode (str): Supported modes are "STATIC" (default), "DIAG", "GW",
+            mode (str): Supported modes are "STATIC", "DIAG" (default), "GW",
                 and "BSE".
             nbands_factor (int): Multiplicative factor for NBANDS. Only applies
                 if mode=="DIAG". Need to be tested for convergence.
