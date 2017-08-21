@@ -17,7 +17,7 @@ from monty.json import MSONable
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
-__credits__ = 'Brandon Wood'
+__credits__ = 'Brandon Wood, Rishi Gurnani'
 
 
 class ForceField(MSONable):

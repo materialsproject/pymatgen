@@ -8,7 +8,6 @@ from __future__ import division, print_function, unicode_literals, absolute_impo
 This module implements classes for reading and generating Lammps input.
 """
 
-import os
 from string import Template
 
 from monty.json import MSONable
@@ -16,8 +15,6 @@ from monty.json import MSONable
 __author__ = "Kiran Mathew, Brandon Wood"
 __email__ = "kmathew@lbl.gov, b.wood@berkeley.edu"
 __credits__ = "Navnidhi Rajput"
-
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class LammpsInput(MSONable):

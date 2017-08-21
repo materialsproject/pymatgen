@@ -27,7 +27,8 @@ from monty.json import MSONable, MontyDecoder
 from pymatgen.io.lammps.data import LammpsForceFieldData, LammpsData
 from pymatgen.io.lammps.input import LammpsInput
 
-module_dir = os.path.dirname(__file__)
+__author__ = "Kiran Mathew"
+__email__ = "kmathew@lbl.gov"
 
 
 class LammpsInputSet(MSONable):
