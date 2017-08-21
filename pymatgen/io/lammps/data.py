@@ -192,8 +192,8 @@ class LammpsData(MSONable):
                 This corresponds to lammps command: "atom_style charge" or
                  "atom_style full"
             Structure:
-                atom_id, atom_type, x, y, z
-                atom_style = atomic
+                atom_id, atom_type, species oxidation state, x, y, z
+                atom_style = atomic/charge
 
         Args:
             structure (Structure/Molecule)
@@ -208,6 +208,7 @@ class LammpsData(MSONable):
                 [[atom_id, atom_type, charge(if present), x, y, z], ... ]
         """
         atoms_data = []
+        # to comply with atom_style='molecular' and 'full'
         mol_id = 1 if isinstance(structure, Molecule) else None
 
         for i, site in enumerate(structure):
