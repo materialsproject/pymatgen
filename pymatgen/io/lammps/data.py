@@ -208,33 +208,22 @@ class LammpsData(MSONable):
                 [[atom_id, atom_type, charge(if present), x, y, z], ... ]
         """
         atoms_data = []
+        mol_id = 1 if isinstance(structure, Molecule) else None
+
         for i, site in enumerate(structure):
             atom_type = atomic_masses_dict[site.specie.symbol][0]
-            # Structure
-            if isinstance(site, PeriodicSite):
-                if set_charge:
-                    if hasattr(site.specie, "oxi_state"):
-                        atoms_data.append([i + 1, atom_type,
-                                           site.specie.oxi_state,
-                                           site.x, site.y, site.z])
-                    else:
-                        atoms_data.append([i + 1, atom_type, 0.0,
-                                           site.x, site.y, site.z])
+            line = [i + 1]
+            line += [mol_id] if mol_id else []
+            line.append(atom_type)
+            if set_charge:
+                if isinstance(site, PeriodicSite):
+                    charge = getattr(site.specie, "oxi_state", 0.0)
                 else:
-                    atoms_data.append([i + 1, atom_type,
-                                       site.x, site.y, site.z])
-            # Molecule
-            else:
-                if set_charge:
-                    if hasattr(site, "charge"):
-                        atoms_data.append([i + 1, 1, atom_type, site.charge,
-                                           site.x, site.y, site.z])
-                    else:
-                        atoms_data.append([i + 1, 1, atom_type, 0.0,
-                                           site.x, site.y, site.z])
-                else:
-                    atoms_data.append([i + 1, 1, atom_type,
-                                       site.x, site.y, site.z])
+                    charge = getattr(site, "charge", 0.0)
+                line.append(charge)
+            line.extend([site.x, site.y, site.z])
+            atoms_data.append(line)
+
         return atoms_data
 
     @staticmethod
