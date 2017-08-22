@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.diffusion_analyzer module &#8212; pymatgen 2017.8.16 documentation</title>
+    <title>pymatgen.analysis.diffusion_analyzer module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.16',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -323,7 +323,8 @@ checking convergence. This can be written to an image file.</p>
 <li><strong>plt</strong> – A plot object. Defaults to None, which means one will be
 generated.</li>
 <li><strong>mode</strong> (<em>str</em>) – Determines type of msd plot. By “species”, “sites”,
-or direction (default).</li>
+or direction (default). If mode = “mscd”, the smoothed mscd vs.
+time will be plotted.</li>
 </ul>
 </td>
 </tr>
@@ -333,16 +334,22 @@ or direction (default).</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_summary_dict">
-<code class="descname">get_summary_dict</code><span class="sig-paren">(</span><em>include_msd_t=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.get_summary_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_summary_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_summary_dict</code><span class="sig-paren">(</span><em>include_msd_t=False</em>, <em>include_mscd_t=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.get_summary_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_summary_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides a summary of diffusion information.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>include_msd_t</strong> (<em>bool</em>) – Whether to include mean square displace and
-time data with the data.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>include_msd_t</strong> (<em>bool</em>) – Whether to include mean square displace and
+time data with the data.</li>
+<li><strong>include_msd_t</strong> – Whether to include mean square charge displace and
+time data with the data.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(dict) of diffusion and conductivity data.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(dict) of diffusion and conductivity data.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -356,10 +363,11 @@ time data with the data.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mode</strong> (<em>str</em>) – Either “default” (the default, shows only the MSD for
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mode</strong> (<em>str</em>) – Can be “default” (the default, shows only the MSD for
 the diffusing specie, and its components), “ions” (individual
-square displacements of all ions), or “species” (mean square
-displacement by specie).</td>
+square displacements of all ions), “species” (mean square
+displacement by specie), or “mscd” (overall mean square charge
+displacement for diffusing specie).</td>
 </tr>
 </tbody>
 </table>
@@ -527,7 +535,7 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 

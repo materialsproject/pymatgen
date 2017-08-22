@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2017.8.16 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.16',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,7 +56,7 @@
 <span id="pymatgen-io-vasp-sets-module"></span><h1>pymatgen.io.vasp.sets module<a class="headerlink" href="#module-pymatgen.io.vasp.sets" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.DictSet">
-<em class="property">class </em><code class="descname">DictSet</code><span class="sig-paren">(</span><em>structure</em>, <em>config_dict</em>, <em>files_to_transfer=None</em>, <em>user_incar_settings=None</em>, <em>user_kpoints_settings=None</em>, <em>constrain_total_magmom=False</em>, <em>sort_structure=True</em>, <em>potcar_functional='PBE'</em>, <em>force_gamma=False</em>, <em>reduce_structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#DictSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">DictSet</code><span class="sig-paren">(</span><em>structure</em>, <em>config_dict</em>, <em>files_to_transfer=None</em>, <em>user_incar_settings=None</em>, <em>user_kpoints_settings=None</em>, <em>user_potcar_settings=None</em>, <em>constrain_total_magmom=False</em>, <em>sort_structure=True</em>, <em>potcar_functional='PBE'</em>, <em>force_gamma=False</em>, <em>reduce_structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#DictSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.VaspInputSet" title="pymatgen.io.vasp.sets.VaspInputSet"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.sets.VaspInputSet</span></code></a></p>
 <p>Concrete implementation of VaspInputSet that is initialized from a dict
 settings. This allows arbitrary settings to be input. In general,
@@ -101,6 +101,8 @@ for Fe to 5 in an oxide, or {“LDAUU”:{“Fe”:5}} to set LDAUU to
 <li><strong>user_kpoints_settings</strong> (<em>dict</em><em> or </em><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints" title="pymatgen.io.vasp.inputs.Kpoints"><em>Kpoints</em></a>) – Allow user to override kpoints
 setting by supplying a dict E.g., {“reciprocal_density”: 1000}.
 User can also supply Kpoints object. Default is None.</li>
+<li><strong>(</strong><strong>dict</strong> (<em>user_potcar_settings</em>) – Allow user to override POTCARs. E.g.,
+{“Gd”: “Gd_3”}. This is generally not recommended. Default is None.</li>
 <li><strong>constrain_total_magmom</strong> (<em>bool</em>) – Whether to constrain the total magmom
 (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
 species. Defaults to False.</li>
@@ -306,8 +308,8 @@ bandstructure. “Uniform” - generate uniform k-points grid</li>
 <dt id="pymatgen.io.vasp.sets.MPHSEBSSet.from_prev_calc">
 <em class="property">classmethod </em><code class="descname">from_prev_calc</code><span class="sig-paren">(</span><em>prev_calc_dir</em>, <em>mode='gap'</em>, <em>reciprocal_density=50</em>, <em>copy_chgcar=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPHSEBSSet.from_prev_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPHSEBSSet.from_prev_calc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a set of Vasp input files for HSE calculations from a
-directory of previous Vasp run. if mode==”gap”, it explicitly adds VBM and CBM
-of the prev. run to the k-point list of this run.</p>
+directory of previous Vasp run. if mode==”gap”, it explicitly adds VBM
+and CBM of the prev run to the k-point list of this run.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -615,8 +617,142 @@ settings.</li>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.io.vasp.sets.MVLGBSet">
+<em class="property">class </em><code class="descname">MVLGBSet</code><span class="sig-paren">(</span><em>structure</em>, <em>k_product=40</em>, <em>slab_mode=False</em>, <em>is_metal=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLGBSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGBSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
+<p>Class for writing a vasp input files for grain boundary calculations, slab
+or bulk.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – provide the structure</li>
+<li><strong>k_product</strong> – Kpoint number * length for a &amp; b directions, also for c
+direction in bulk calculations. Default to 40.</li>
+<li><strong>slab_mode</strong> (<em>bool</em>) – Defaults to False. Use default (False) for a
+bulk supercell. Use True if you are performing calculations on a
+slab-like (i.e., surface) of the GB, for example, when you are
+calculating the work of separation.</li>
+<li><strong>is_metal</strong> (<em>bool</em>) – Defaults to True. This determines whether an ISMEAR of
+1 is used (for metals) or not (for insulators and semiconductors)
+by default. Note that it does <em>not</em> override user_incar_settings,
+which can be set by the user to be anything desired.</li>
+<li><strong>**kwargs</strong> – Other kwargs supported by <code class="xref py py-class docutils literal"><span class="pre">DictVaspInputSet</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.sets.MVLGBSet.incar">
+<code class="descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGBSet.incar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.sets.MVLGBSet.kpoints">
+<code class="descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGBSet.kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>k_product, default to 40, is kpoint number * length for a &amp; b
+directions, also for c direction in bulk calculations
+Automatic mesh &amp; Gamma is the default setting.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.vasp.sets.MVLGWSet">
+<em class="property">class </em><code class="descname">MVLGWSet</code><span class="sig-paren">(</span><em>structure</em>, <em>prev_incar=None</em>, <em>nbands=None</em>, <em>potcar_functional='PBE_54'</em>, <em>reciprocal_density=100</em>, <em>mode='STATIC'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLGWSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.sets.DictSet</span></code></a></p>
+<p>MVL denotes VASP input sets that are implemented by the Materials Virtual
+Lab (<a class="reference external" href="http://www.materialsvirtuallab.org">http://www.materialsvirtuallab.org</a>) for various research. This is a
+flexible input set for GW calculations.</p>
+<p>Note that unlike all other input sets in this module, the PBE_54 series of
+functional is set as the default. These have much improved performance for
+GW calculations.</p>
+<p>A typical sequence is mode=”STATIC” -&gt; mode=”DIAG” -&gt; mode=”GW” -&gt;
+mode=”BSE”. For all steps other than the first one (static), the
+recommendation is to use from_prev_calculation on the preceding run in
+the series.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</li>
+<li><strong>prev_incar</strong> (<em>Incar/string</em>) – Incar file from previous run.</li>
+<li><strong>mode</strong> (<em>str</em>) – Supported modes are “STATIC” (default), “DIAG”, “GW”,
+and “BSE”.</li>
+<li><strong>nbands</strong> (<em>int</em>) – For subsequent calculations, it is generally
+recommended to perform NBANDS convergence starting from the
+NBANDS of the previous run for DIAG, and to use the exact same
+NBANDS for GW and BSE. This parameter is used by
+from_previous_calculation to set nband.</li>
+<li><strong>potcar_functional</strong> (<em>str</em>) – Defaults to “PBE_54”.</li>
+<li><strong>**kwargs</strong> – All kwargs supported by DictSet. Typically,
+user_incar_settings is a commonly used option.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.sets.MVLGWSet.CONFIG">
+<code class="descname">CONFIG</code><em class="property"> = {'INCAR': {'ALGO': 'Normal', 'EDIFF': 1e-08, 'IBRION': -1, 'ICHARG': 1, 'ISMEAR': 0, 'ISPIN': 2, 'LORBIT': 11, 'LREAL': 'AUTO', 'LWAVE': True, 'MAGMOM': {'Co': 5, 'Cr': 5, 'Fe': 5, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Ni': 5, 'V': 5, 'W': 5, 'Eu': 10, 'Ce': 3}, 'NELM': 100, 'PREC': 'Accurate', 'SIGMA': 0.01}, 'KPOINTS': {'reciprocal_density': 100}, 'POTCAR': {'Ac': 'Ac', 'Ag': 'Ag_sv_GW', 'Al': 'Al_GW', 'Ar': 'Ar_GW', 'As': 'As_GW', 'At': 'At_d_GW', 'Au': 'Au_sv_GW', 'B': 'B_GW', 'Ba': 'Ba_sv_GW', 'Be': 'Be_sv_GW', 'Bi': 'Bi_d_GW', 'Br': 'Br_GW', 'C': 'C_GW', 'Ca': 'Ca_sv_GW', 'Cd': 'Cd_sv_GW', 'Ce': 'Ce_GW', 'Cl': 'Cl_GW', 'Co': 'Co_sv_GW', 'Cr': 'Cr_sv_GW', 'Cs': 'Cs_sv_GW', 'Cu': 'Cu_sv_GW', 'Dy': 'Dy_3', 'Er': 'Er_3', 'Eu': 'Eu', 'F': 'F_GW', 'Fe': 'Fe_sv_GW', 'Ga': 'Ga_d_GW', 'Gd': 'Gd', 'Ge': 'Ge_d_GW', 'H': 'H_GW', 'He': 'He_GW', 'Hf': 'Hf_sv_GW', 'Hg': 'Hg_sv_GW', 'Ho': 'Ho_3', 'I': 'I_GW', 'In': 'In_d_GW', 'Ir': 'Ir_sv_GW', 'K': 'K_sv_GW', 'Kr': 'Kr_GW', 'La': 'La_GW', 'Li': 'Li_sv_GW', 'Lu': 'Lu_3', 'Mg': 'Mg_sv_GW', 'Mn': 'Mn_sv_GW', 'Mo': 'Mo_sv_GW', 'N': 'N_GW', 'Na': 'Na_sv_GW', 'Nb': 'Nb_sv_GW', 'Nd': 'Nd_3', 'Ne': 'Ne_GW', 'Ni': 'Ni_sv_GW', 'Np': 'Np', 'O': 'O_GW', 'Os': 'Os_sv_GW', 'P': 'P_GW', 'Pa': 'Pa', 'Pb': 'Pb_d_GW', 'Pd': 'Pd_sv_GW', 'Pm': 'Pm_3', 'Po': 'Po_d_GW', 'Pr': 'Pr_3', 'Pt': 'Pt_sv_GW', 'Pu': 'Pu', 'Rb': 'Rb_sv_GW', 'Re': 'Re_sv_GW', 'Rh': 'Rh_sv_GW', 'Rn': 'Rn_d_GW', 'Ru': 'Ru_sv_GW', 'S': 'S_GW', 'Sb': 'Sb_d_GW', 'Sc': 'Sc_sv_GW', 'Se': 'Se_GW', 'Si': 'Si_GW', 'Sm': 'Sm_3', 'Sn': 'Sn_d_GW', 'Sr': 'Sr_sv_GW', 'Ta': 'Ta_sv_GW', 'Tb': 'Tb_3', 'Tc': 'Tc_sv_GW', 'Te': 'Te_GW', 'Th': 'Th', 'Ti': 'Ti_sv_GW', 'Tl': 'Tl_d_GW', 'Tm': 'Tm_3', 'U': 'U', 'V': 'V_sv_GW', 'W': 'W_sv_GW', 'Xe': 'Xe_GW', 'Y': 'Y_sv_GW', 'Yb': 'Yb_2', 'Zn': 'Zn_sv_GW', 'Zr': 'Zr_sv_GW'}}</em><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.sets.MVLGWSet.SUPPORTED_MODES">
+<code class="descname">SUPPORTED_MODES</code><em class="property"> = ('DIAG', 'GW', 'STATIC', 'BSE')</em><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.SUPPORTED_MODES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.vasp.sets.MVLGWSet.from_prev_calc">
+<em class="property">classmethod </em><code class="descname">from_prev_calc</code><span class="sig-paren">(</span><em>prev_calc_dir</em>, <em>copy_wavecar=True</em>, <em>mode='DIAG'</em>, <em>nbands_factor=5</em>, <em>ncores=16</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLGWSet.from_prev_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.from_prev_calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a set of Vasp input files for GW or BSE calculations from a
+directory of previous Exact Diag Vasp run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>prev_calc_dir</strong> (<em>str</em>) – The directory contains the outputs(
+vasprun.xml of previous vasp run.</li>
+<li><strong>copy_wavecar</strong> – Whether to copy the old WAVECAR, WAVEDER and
+associated files. Defaults to True.</li>
+<li><strong>mode</strong> (<em>str</em>) – Supported modes are “STATIC”, “DIAG” (default), “GW”,
+and “BSE”.</li>
+<li><strong>nbands_factor</strong> (<em>int</em>) – Multiplicative factor for NBANDS. Only applies
+if mode==”DIAG”. Need to be tested for convergence.</li>
+<li><strong>ncores</strong> (<em>int</em>) – numbers of cores you do calculations. VASP will alter
+NBANDS if it was not dividable by ncores. Only applies
+if mode==”DIAG”.</li>
+<li><strong>**kwargs</strong> – All kwargs supported by MVLGWSet,
+other than structure, prev_incar and mode, which
+are determined from the prev_calc_dir.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.sets.MVLGWSet.incar">
+<code class="descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.incar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.sets.MVLGWSet.kpoints">
+<code class="descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate gamma center k-points mesh grid for GW calc,
+which is requested by GW calculation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.io.vasp.sets.MVLSlabSet">
-<em class="property">class </em><code class="descname">MVLSlabSet</code><span class="sig-paren">(</span><em>structure</em>, <em>k_product=50</em>, <em>bulk=False</em>, <em>auto_dipole=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLSlabSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLSlabSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MVLSlabSet</code><span class="sig-paren">(</span><em>slab</em>, <em>k_product=50</em>, <em>bulk=False</em>, <em>auto_dipole=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLSlabSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLSlabSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
 <p>Class for writing a set of slab vasp runs,
 including both slabs (along the c direction) and orient unit cells (bulk),
@@ -755,8 +891,8 @@ are generally easier for viewing and certain forms of analysis.
 Defaults to False.</li>
 <li><strong>include_cif</strong> (<em>bool</em>) – Whether to output a CIF as well. CIF files are
 generally better supported in visualization programs.</li>
-<li><strong>**kwargs</strong> – Additional kwargs are passed to the vasp_input_set class in
-addition to structure.</li>
+<li><strong>**kwargs</strong> – Additional kwargs are passed to the vasp_input_set class
+in addition to structure.</li>
 </ul>
 </td>
 </tr>
@@ -835,7 +971,7 @@ Vasp input files, e.g. get_kpoints.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 

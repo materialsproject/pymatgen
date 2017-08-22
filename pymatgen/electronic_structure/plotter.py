@@ -1332,59 +1332,82 @@ class BSPlotterProjected(BSPlotter):
                                              selected_branches=None,
                                              w_h_size=(12, 8), num_column=None):
         """
-        Method returns a plot composed of subplots for different atoms and orbitals (subshell orbitals such as
-        's', 'p', 'd' and 'f' defined by azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
-        individual orbitals like 'px', 'py' and 'pz' defined by magnetic quantum numbers m = -1, 1 and 0, respectively).
+        Method returns a plot composed of subplots for different atoms and
+        orbitals (subshell orbitals such as 's', 'p', 'd' and 'f' defined by
+        azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
+        individual orbitals like 'px', 'py' and 'pz' defined by magnetic
+        quantum numbers m = -1, 1 and 0, respectively).
         This is an extension of "get_projected_plots_dots" method.
 
         Args:
-            dictio: The elements and the orbitals you need to project on. The format is {Element:[Orbitals]},
-                for instance:
-                {'Cu':['dxy','s','px'],'O':['px','py','pz']} will give projections for Cu on orbitals dxy, s, px and
-                for O on orbitals px, py, pz. If you want to sum over all individual orbitals of subshell orbitals,
+            dictio: The elements and the orbitals you need to project on. The
+                format is {Element:[Orbitals]}, for instance:
+                {'Cu':['dxy','s','px'],'O':['px','py','pz']} will give
+                projections for Cu on orbitals dxy, s, px and
+                for O on orbitals px, py, pz. If you want to sum over all
+                individual orbitals of subshell orbitals,
                 for example, 'px', 'py' and 'pz' of O, just simply set
-                {'Cu':['dxy','s','px'],'O':['p']} and set sum_morbs (see explainations below) as {'O':[p],...}.
+                {'Cu':['dxy','s','px'],'O':['p']} and set sum_morbs (see
+                explanations below) as {'O':[p],...}.
                 Otherwise, you will get an error.
-
-            dictpa: The elements and their sites (defined by site numbers) you need to project on. The format is
-                {Element: [Site numbers]}, for instance: {'Cu':[1,5],'O':[3,4]} will give projections for Cu on site-1
+            dictpa: The elements and their sites (defined by site numbers) you
+                need to project on. The format is
+                {Element: [Site numbers]}, for instance: {'Cu':[1,5],'O':[3,4]}
+                will give projections for Cu on site-1
                 and on site-5, O on site-3 and on site-4 in the cell.
                 Attention:
-                The correct site numbers of atoms are consistent with themselves in the structure computed. Normally,
-                the structure should be totally similar with POSCAR file, however, sometimes VASP can rotate or
-                translate the cell. Thus, it would be safe if using Vasprun class to get the final_structure and as a
+                The correct site numbers of atoms are consistent with
+                themselves in the structure computed. Normally,
+                the structure should be totally similar with POSCAR file,
+                however, sometimes VASP can rotate or
+                translate the cell. Thus, it would be safe if using Vasprun
+                class to get the final_structure and as a
                 result, correct index numbers of atoms.
-
-            sum_atoms: Sum projection of the similar atoms together (e.g.: Cu on site-1 and Cu on site-5). The format is
+            sum_atoms: Sum projection of the similar atoms together (e.g.: Cu
+                on site-1 and Cu on site-5). The format is
                 {Element: [Site numbers]}, for instance:
-                 {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on site-1 and Cu on site-5 and O on site-3
-                 and on site-4. If you do not want to use this functional, just turn it off by setting sum_atoms = None.
-
-            sum_morbs: Sum projections of individual orbitals of similar atoms together (e.g.: 'dxy' and 'dxz'). The
+                 {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on
+                 site-1 and Cu on site-5 and O on site-3
+                 and on site-4. If you do not want to use this functional, just
+                 turn it off by setting sum_atoms = None.
+            sum_morbs: Sum projections of individual orbitals of similar atoms
+                together (e.g.: 'dxy' and 'dxz'). The
                 format is {Element: [individual orbitals]}, for instance:
-                {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing projections over 'dxy' and 'dxz' of Cu and 'px'
-                and 'py' of O. If you do not want to use this functional, just turn it off by setting sum_morbs = None.
-
-            selected_branches: The index of symmetry lines you chose for plotting. This can be useful when the number of
-                symmetry lines (in KPOINTS file) are manny while you only want to show for certain ones. The format is
+                {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing
+                projections over 'dxy' and 'dxz' of Cu and 'px'
+                and 'py' of O. If you do not want to use this functional, just
+                turn it off by setting sum_morbs = None.
+            selected_branches: The index of symmetry lines you chose for
+                plotting. This can be useful when the number of
+                symmetry lines (in KPOINTS file) are manny while you only want
+                to show for certain ones. The format is
                 [index of line], for instance:
-                [1, 3, 4] means you just need to do projection along lines number 1, 3 and 4 while neglecting lines
-                number 2 and so on. By default, this is None type and all symmetry lines will be plotted.
-
-            w_h_size: This variable help you to control the width and height of figure. By default, width = 12 and
-                height = 8 (inches). The width/height ratio is kept the same for subfigures and the size of each depends
+                [1, 3, 4] means you just need to do projection along lines
+                number 1, 3 and 4 while neglecting lines
+                number 2 and so on. By default, this is None type and all
+                symmetry lines will be plotted.
+            w_h_size: This variable help you to control the width and height
+                of figure. By default, width = 12 and
+                height = 8 (inches). The width/height ratio is kept the same
+                for subfigures and the size of each depends
                 on how many number of subfigures are plotted.
-
-            num_column: This variable help you to manage how the subfigures are arranged in the figure by setting
-                up the number of columns of subfigures. The value should be an int number. For example, num_column = 3
-                means you want to plot subfigures in 3 columns. By default, num_column = None and subfigures are
+            num_column: This variable help you to manage how the subfigures are
+                arranged in the figure by setting
+                up the number of columns of subfigures. The value should be an
+                int number. For example, num_column = 3
+                means you want to plot subfigures in 3 columns. By default,
+                num_column = None and subfigures are
                 aligned in 2 columns.
 
         Returns:
-            A pylab object with different subfigures for different projections. The blue and red colors lines are bands
-            for spin up and spin down. The green and cyan dots are projections for spin up and spin down. The bigger
-            the green or cyan dots in the projected band structures, the higher character for the corresponding elements
-            and orbitals. List of individual orbitals and their numbers (set up by VASP and no special meaning):
+            A pylab object with different subfigures for different projections.
+            The blue and red colors lines are bands
+            for spin up and spin down. The green and cyan dots are projections
+            for spin up and spin down. The bigger
+            the green or cyan dots in the projected band structures, the higher
+            character for the corresponding elements
+            and orbitals. List of individual orbitals and their numbers (set up
+            by VASP and no special meaning):
             s = 0; py = 1 pz = 2 px = 3; dxy = 4 dyz = 5 dz2 = 6 dxz = 7 dx2 = 8;
             f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15
         """
@@ -1708,7 +1731,7 @@ class BSPlotterProjected(BSPlotter):
                         _sites = self._bs.structure.sites
                         indices = []
                         for i in range(0, len(_sites)):
-                            if _sites[i]._species.keys()[0].__eq__(
+                            if list(_sites[i]._species.keys())[0].__eq__(
                                     Element(elt)):
                                 indices.append(i + 1)
                         for number in dictpa[elt]:
@@ -1743,7 +1766,7 @@ class BSPlotterProjected(BSPlotter):
                     raise KeyError(
                         "The invalid element was put into 'dictpa' as a key: %s" % elt)
 
-        if len(dictio.keys()) != len(dictpa.keys()):
+        if len(list(dictio.keys())) != len(list(dictpa.keys())):
             raise KeyError(
                 "The number of keys in 'dictio' and 'dictpa' are not the same.")
         else:
@@ -1771,7 +1794,7 @@ class BSPlotterProjected(BSPlotter):
                         _sites = self._bs.structure.sites
                         indices = []
                         for i in range(0, len(_sites)):
-                            if _sites[i]._species.keys()[0].__eq__(
+                            if list(_sites[i]._species.keys())[0].__eq__(
                                     Element(elt)):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
