@@ -72,7 +72,10 @@ class LammpsData(MSONable):
 
 {ntypes} atom types
 
-{box}
+{xlo} {xhi} xlo xhi
+{ylo} {yhi} ylo yhi
+{zlo} {zhi} zlo zhi
+{tilt}
 
 Masses 
 
@@ -98,14 +101,6 @@ Atoms
         Returns:
             String representation of the data file
         """
-        box = "{} {:.6f} xlo xhi\n{} {:.6f} ylo yhi\n{} {:.6f} zlo zhi".format(
-            self.box_size[0][0], self.box_size[0][1],
-            self.box_size[1][0], self.box_size[1][1],
-            self.box_size[2][0], self.box_size[2][1])
-        if self.box_tilt:
-            box += "\n{:.6f} {:.6f} {:.6f} xy xz yz".format(
-                self.box_tilt[0], self.box_tilt[1], self.box_tilt[2])
-
         def list_str(l):
             return "\n".join([" ".join([str(x) for x in ad])
                               for ad in l])
@@ -113,7 +108,14 @@ Atoms
         return LammpsData.TEMPLATE.format(
             natoms=self.natoms,
             ntypes=self.natom_types,
-            box=box,
+            xlo=self.box_size[0][0],
+            xhi=self.box_size[0][1],
+            ylo=self.box_size[1][0],
+            yhi=self.box_size[1][1],
+            zlo=self.box_size[2][0],
+            zhi=self.box_size[2][1],
+            tilt="{:.6f} {:.6f} {:.6f} xy xz yz".format(
+                self.box_tilt[0], self.box_tilt[1], self.box_tilt[2]) if self.box_tilt else "",
             masses=list_str(self.atomic_masses),
             atoms=list_str(self.atoms_data)
         )
