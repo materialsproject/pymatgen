@@ -10,17 +10,17 @@ import warnings
 from collections import OrderedDict
 
 import numpy as np
-from matplotlib import patches
 
 from monty.json import jsanitize
 
-from pymatgen import Element
+from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.plotting import pretty_plot, \
     add_fig_kwargs, get_ax3d_fig_plt
+from collections import Counter
+import copy
 
-from pymatgen.core.units import Energy
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -1526,9 +1526,6 @@ class BSPlotterProjected(BSPlotter):
         return plt
 
     def _Orbitals_SumOrbitals(self, dictio, sum_morbs):
-        from pymatgen.core.periodic_table import Element
-        from collections import Counter
-        import copy
         all_orbitals = ['s', 'p', 'd', 'f', 'px', 'py', 'pz', 'dxy', 'dyz',
                         'dxz', 'dx2', 'dz2',
                         'f_3', 'f_2', 'f_1', 'f0', 'f1', 'f2', 'f3']
