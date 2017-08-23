@@ -247,17 +247,6 @@ Atoms
                 line.append(charge)
             line.extend([site.x, site.y, site.z])
             atoms_data.append(line)
-<<<<<<< HEAD
-
-        return atoms_data
-
-    @staticmethod
-    def set_lines_from_list(lines, block_name, input_list):
-        """
-        Append the values from the input list that corresponds to the block
-        with name 'block_name' to the list of lines.
-=======
->>>>>>> 6a8fb7f7b32a5af6507849be18b2bfdab0a99249
 
         return atoms_data
 
