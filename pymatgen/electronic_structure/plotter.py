@@ -10,17 +10,17 @@ import warnings
 from collections import OrderedDict
 
 import numpy as np
-from matplotlib import patches
 
 from monty.json import jsanitize
 
-from pymatgen import Element
+from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.plotting import pretty_plot, \
     add_fig_kwargs, get_ax3d_fig_plt
+from collections import Counter
+import copy
 
-from pymatgen.core.units import Energy
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -1332,59 +1332,82 @@ class BSPlotterProjected(BSPlotter):
                                              selected_branches=None,
                                              w_h_size=(12, 8), num_column=None):
         """
-        Method returns a plot composed of subplots for different atoms and orbitals (subshell orbitals such as
-        's', 'p', 'd' and 'f' defined by azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
-        individual orbitals like 'px', 'py' and 'pz' defined by magnetic quantum numbers m = -1, 1 and 0, respectively).
+        Method returns a plot composed of subplots for different atoms and
+        orbitals (subshell orbitals such as 's', 'p', 'd' and 'f' defined by
+        azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
+        individual orbitals like 'px', 'py' and 'pz' defined by magnetic
+        quantum numbers m = -1, 1 and 0, respectively).
         This is an extension of "get_projected_plots_dots" method.
 
         Args:
-            dictio: The elements and the orbitals you need to project on. The format is {Element:[Orbitals]},
-                for instance:
-                {'Cu':['dxy','s','px'],'O':['px','py','pz']} will give projections for Cu on orbitals dxy, s, px and
-                for O on orbitals px, py, pz. If you want to sum over all individual orbitals of subshell orbitals,
+            dictio: The elements and the orbitals you need to project on. The
+                format is {Element:[Orbitals]}, for instance:
+                {'Cu':['dxy','s','px'],'O':['px','py','pz']} will give
+                projections for Cu on orbitals dxy, s, px and
+                for O on orbitals px, py, pz. If you want to sum over all
+                individual orbitals of subshell orbitals,
                 for example, 'px', 'py' and 'pz' of O, just simply set
-                {'Cu':['dxy','s','px'],'O':['p']} and set sum_morbs (see explainations below) as {'O':[p],...}.
+                {'Cu':['dxy','s','px'],'O':['p']} and set sum_morbs (see
+                explanations below) as {'O':[p],...}.
                 Otherwise, you will get an error.
-
-            dictpa: The elements and their sites (defined by site numbers) you need to project on. The format is
-                {Element: [Site numbers]}, for instance: {'Cu':[1,5],'O':[3,4]} will give projections for Cu on site-1
+            dictpa: The elements and their sites (defined by site numbers) you
+                need to project on. The format is
+                {Element: [Site numbers]}, for instance: {'Cu':[1,5],'O':[3,4]}
+                will give projections for Cu on site-1
                 and on site-5, O on site-3 and on site-4 in the cell.
                 Attention:
-                The correct site numbers of atoms are consistent with themselves in the structure computed. Normally,
-                the structure should be totally similar with POSCAR file, however, sometimes VASP can rotate or
-                translate the cell. Thus, it would be safe if using Vasprun class to get the final_structure and as a
+                The correct site numbers of atoms are consistent with
+                themselves in the structure computed. Normally,
+                the structure should be totally similar with POSCAR file,
+                however, sometimes VASP can rotate or
+                translate the cell. Thus, it would be safe if using Vasprun
+                class to get the final_structure and as a
                 result, correct index numbers of atoms.
-
-            sum_atoms: Sum projection of the similar atoms together (e.g.: Cu on site-1 and Cu on site-5). The format is
+            sum_atoms: Sum projection of the similar atoms together (e.g.: Cu
+                on site-1 and Cu on site-5). The format is
                 {Element: [Site numbers]}, for instance:
-                 {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on site-1 and Cu on site-5 and O on site-3
-                 and on site-4. If you do not want to use this functional, just turn it off by setting sum_atoms = None.
-
-            sum_morbs: Sum projections of individual orbitals of similar atoms together (e.g.: 'dxy' and 'dxz'). The
+                 {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on
+                 site-1 and Cu on site-5 and O on site-3
+                 and on site-4. If you do not want to use this functional, just
+                 turn it off by setting sum_atoms = None.
+            sum_morbs: Sum projections of individual orbitals of similar atoms
+                together (e.g.: 'dxy' and 'dxz'). The
                 format is {Element: [individual orbitals]}, for instance:
-                {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing projections over 'dxy' and 'dxz' of Cu and 'px'
-                and 'py' of O. If you do not want to use this functional, just turn it off by setting sum_morbs = None.
-
-            selected_branches: The index of symmetry lines you chose for plotting. This can be useful when the number of
-                symmetry lines (in KPOINTS file) are manny while you only want to show for certain ones. The format is
+                {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing
+                projections over 'dxy' and 'dxz' of Cu and 'px'
+                and 'py' of O. If you do not want to use this functional, just
+                turn it off by setting sum_morbs = None.
+            selected_branches: The index of symmetry lines you chose for
+                plotting. This can be useful when the number of
+                symmetry lines (in KPOINTS file) are manny while you only want
+                to show for certain ones. The format is
                 [index of line], for instance:
-                [1, 3, 4] means you just need to do projection along lines number 1, 3 and 4 while neglecting lines
-                number 2 and so on. By default, this is None type and all symmetry lines will be plotted.
-
-            w_h_size: This variable help you to control the width and height of figure. By default, width = 12 and
-                height = 8 (inches). The width/height ratio is kept the same for subfigures and the size of each depends
+                [1, 3, 4] means you just need to do projection along lines
+                number 1, 3 and 4 while neglecting lines
+                number 2 and so on. By default, this is None type and all
+                symmetry lines will be plotted.
+            w_h_size: This variable help you to control the width and height
+                of figure. By default, width = 12 and
+                height = 8 (inches). The width/height ratio is kept the same
+                for subfigures and the size of each depends
                 on how many number of subfigures are plotted.
-
-            num_column: This variable help you to manage how the subfigures are arranged in the figure by setting
-                up the number of columns of subfigures. The value should be an int number. For example, num_column = 3
-                means you want to plot subfigures in 3 columns. By default, num_column = None and subfigures are
+            num_column: This variable help you to manage how the subfigures are
+                arranged in the figure by setting
+                up the number of columns of subfigures. The value should be an
+                int number. For example, num_column = 3
+                means you want to plot subfigures in 3 columns. By default,
+                num_column = None and subfigures are
                 aligned in 2 columns.
 
         Returns:
-            A pylab object with different subfigures for different projections. The blue and red colors lines are bands
-            for spin up and spin down. The green and cyan dots are projections for spin up and spin down. The bigger
-            the green or cyan dots in the projected band structures, the higher character for the corresponding elements
-            and orbitals. List of individual orbitals and their numbers (set up by VASP and no special meaning):
+            A pylab object with different subfigures for different projections.
+            The blue and red colors lines are bands
+            for spin up and spin down. The green and cyan dots are projections
+            for spin up and spin down. The bigger
+            the green or cyan dots in the projected band structures, the higher
+            character for the corresponding elements
+            and orbitals. List of individual orbitals and their numbers (set up
+            by VASP and no special meaning):
             s = 0; py = 1 pz = 2 px = 3; dxy = 4 dyz = 5 dz2 = 6 dxz = 7 dx2 = 8;
             f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15
         """
@@ -1443,16 +1466,14 @@ class BSPlotterProjected(BSPlotter):
                     for b in branches:
                         br += 1
                         for i in range(self._nb_bands):
-                            plt.plot(map(lambda x: x - shift[br],
-                                         data['distances'][b]),
+                            plt.plot(list(map(lambda x: x - shift[br], data['distances'][b])),
                                      [data['energy'][b][str(Spin.up)][i][j]
                                       for j in
                                       range(len(data['distances'][b]))],
                                      'b-', linewidth=band_linewidth)
 
                             if self._bs.is_spin_polarized:
-                                plt.plot(map(lambda x: x - shift[br],
-                                             data['distances'][b]),
+                                plt.plot(list(map(lambda x: x - shift[br], data['distances'][b])),
                                          [data['energy'][b][str(Spin.down)][i][
                                               j]
                                           for j in
@@ -1505,9 +1526,6 @@ class BSPlotterProjected(BSPlotter):
         return plt
 
     def _Orbitals_SumOrbitals(self, dictio, sum_morbs):
-        from pymatgen.core.periodic_table import Element
-        from collections import Counter
-        import copy
         all_orbitals = ['s', 'p', 'd', 'f', 'px', 'py', 'pz', 'dxy', 'dyz',
                         'dxz', 'dx2', 'dz2',
                         'f_3', 'f_2', 'f_1', 'f0', 'f1', 'f2', 'f3']
@@ -1708,7 +1726,7 @@ class BSPlotterProjected(BSPlotter):
                         _sites = self._bs.structure.sites
                         indices = []
                         for i in range(0, len(_sites)):
-                            if _sites[i]._species.keys()[0].__eq__(
+                            if list(_sites[i]._species.keys())[0].__eq__(
                                     Element(elt)):
                                 indices.append(i + 1)
                         for number in dictpa[elt]:
@@ -1743,7 +1761,7 @@ class BSPlotterProjected(BSPlotter):
                     raise KeyError(
                         "The invalid element was put into 'dictpa' as a key: %s" % elt)
 
-        if len(dictio.keys()) != len(dictpa.keys()):
+        if len(list(dictio.keys())) != len(list(dictpa.keys())):
             raise KeyError(
                 "The number of keys in 'dictio' and 'dictpa' are not the same.")
         else:
@@ -1771,7 +1789,7 @@ class BSPlotterProjected(BSPlotter):
                         _sites = self._bs.structure.sites
                         indices = []
                         for i in range(0, len(_sites)):
-                            if _sites[i]._species.keys()[0].__eq__(
+                            if list(_sites[i]._species.keys())[0].__eq__(
                                     Element(elt)):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
@@ -2131,7 +2149,7 @@ class BSDOSPlotter(object):
         self.rgb_legend = rgb_legend
         self.fig_size = fig_size
 
-    def get_plot(self, bs, dos):
+    def get_plot(self, bs, dos=None):
         """
         Get a matplotlib plot object.
         Args:
@@ -2149,19 +2167,25 @@ class BSDOSPlotter(object):
         import matplotlib.pyplot as mplt
 
         # make sure the user-specified band structure projection is valid
-        elements = [e.symbol for e in dos.structure.composition.elements]
         bs_projection = self.bs_projection
+        if dos:
+            elements = [e.symbol for e in dos.structure.composition.elements]
+        elif bs_projection and bs.structure:
+            elements = [e.symbol for e in bs.structure.composition.elements]
+        else:
+            elements = []
+
         rgb_legend = self.rgb_legend and bs_projection and \
                      bs_projection.lower() == "elements" and \
                      len(elements) in [2, 3]
 
         if bs_projection and bs_projection.lower() == "elements" and \
-                (len(elements) not in [2,
-                                       3] or not bs.get_projection_on_elements()):
+                (len(elements) not in [2, 3] or
+                     not bs.get_projection_on_elements()):
             warnings.warn(
                 "Cannot get element projected data; either the projection data "
-                "doesn't exist, or you don't have a compound with exactly 2 or 3"
-                " unique elements.")
+                "doesn't exist, or you don't have a compound with exactly 2 "
+                "or 3 unique elements.")
             bs_projection = None
 
         # specify energy range of plot
@@ -2210,16 +2234,19 @@ class BSDOSPlotter(object):
                 x_distances.append(x_distances[-1] + distance_interval)
 
         # set up bs and dos plot
-        gs = GridSpec(1, 2, width_ratios=[2, 1])
+        gs = GridSpec(1, 2, width_ratios=[2, 1]) if dos else GridSpec(1, 1)
+
         fig = mplt.figure(figsize=self.fig_size)
         fig.patch.set_facecolor('white')
         bs_ax = mplt.subplot(gs[0])
-        dos_ax = mplt.subplot(gs[1])
+        if dos:
+            dos_ax = mplt.subplot(gs[1])
 
         # set basic axes limits for the plot
         bs_ax.set_xlim(0, x_distances[-1])
         bs_ax.set_ylim(emin, emax)
-        dos_ax.set_ylim(emin, emax)
+        if dos:
+            dos_ax.set_ylim(emin, emax)
 
         # add BS xticks, labels, etc.
         bs_ax.set_xticks(xlabel_distances)
@@ -2234,11 +2261,12 @@ class BSDOSPlotter(object):
         bs_ax.set_yticks(np.arange(emin, emax + 1E-5, self.egrid_interval))
         bs_ax.set_yticklabels(np.arange(emin, emax + 1E-5, self.egrid_interval),
                               size=self.tick_fontsize)
-        dos_ax.set_yticks(np.arange(emin, emax + 1E-5, self.egrid_interval))
         bs_ax.set_axisbelow(True)
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
-        dos_ax.set_yticklabels([])
-        dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
+        if dos:
+            dos_ax.set_yticks(np.arange(emin, emax + 1E-5, self.egrid_interval))
+            dos_ax.set_yticklabels([])
+            dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
 
         # renormalize the band energy to the Fermi level
         band_energies = {}
@@ -2249,7 +2277,8 @@ class BSDOSPlotter(object):
                     band_energies[spin].append([e - bs.efermi for e in band])
 
         # renormalize the DOS energies to Fermi level
-        dos_energies = [e - dos.efermi for e in dos.energies]
+        if dos:
+            dos_energies = [e - dos.efermi for e in dos.energies]
 
         # get the projection data to set colors for the band structure
         colordata = self._get_colordata(bs, elements, bs_projection)
@@ -2265,59 +2294,64 @@ class BSDOSPlotter(object):
                                   colordata[spin][band_idx, :, 2],
                                   linestyles=linestyles)
 
-        # Plot the DOS and projected DOS
-        for spin in (Spin.up, Spin.down):
-            if spin in dos.densities:
-                # plot the total DOS
-                dos_densities = dos.densities[spin] * int(spin)
-                label = "total" if spin == Spin.up else None
-                dos_ax.plot(dos_densities, dos_energies, color=(0.6, 0.6, 0.6),
-                            label=label)
-                dos_ax.fill_between(dos_densities, 0, dos_energies,
-                                    color=(0.7, 0.7, 0.7),
-                                    facecolor=(0.7, 0.7, 0.7))
+        if dos:
+            # Plot the DOS and projected DOS
+            for spin in (Spin.up, Spin.down):
+                if spin in dos.densities:
+                    # plot the total DOS
+                    dos_densities = dos.densities[spin] * int(spin)
+                    label = "total" if spin == Spin.up else None
+                    dos_ax.plot(dos_densities, dos_energies,
+                                color=(0.6, 0.6, 0.6), label=label)
+                    dos_ax.fill_between(dos_densities, 0, dos_energies,
+                                        color=(0.7, 0.7, 0.7),
+                                        facecolor=(0.7, 0.7, 0.7))
 
-                # plot the atom-projected DOS
-                if self.dos_projection.lower() == "elements":
-                    colors = ['b', 'r', 'g', 'm', 'y', 'c', 'k', 'w']
-                    el_dos = dos.get_element_dos()
-                    for idx, el in enumerate(elements):
-                        dos_densities = el_dos[Element(el)].densities[spin] * \
-                                        int(spin)
-                        label = el if spin == Spin.up else None
-                        dos_ax.plot(dos_densities, dos_energies,
-                                    color=colors[idx], label=label)
-
-                elif self.dos_projection.lower() == "orbitals":
-                    # plot each of the atomic projected DOS
-                    colors = ['b', 'r', 'g', 'm']
-                    spd_dos = dos.get_spd_dos()
-                    for idx, orb in enumerate([OrbitalType.s, OrbitalType.p,
-                                               OrbitalType.d, OrbitalType.f]):
-                        if orb in spd_dos:
-                            dos_densities = spd_dos[orb].densities[spin] * \
-                                            int(spin)
-                            label = orb if spin == Spin.up else None
+                    # plot the atom-projected DOS
+                    if self.dos_projection.lower() == "elements":
+                        colors = ['b', 'r', 'g', 'm', 'y', 'c', 'k', 'w']
+                        el_dos = dos.get_element_dos()
+                        for idx, el in enumerate(elements):
+                            dos_densities = el_dos[Element(el)].densities[
+                                                spin] * int(spin)
+                            label = el if spin == Spin.up else None
                             dos_ax.plot(dos_densities, dos_energies,
                                         color=colors[idx], label=label)
 
-        # get index of lowest and highest energy being plotted, used to help auto-scale DOS x-axis
-        emin_idx = next(x[0] for x in enumerate(dos_energies) if x[1] >= emin)
-        emax_idx = len(dos_energies) - next(x[0] for x in
-                                            enumerate(reversed(dos_energies))
-                                            if x[1] <= emax)
+                    elif self.dos_projection.lower() == "orbitals":
+                        # plot each of the atomic projected DOS
+                        colors = ['b', 'r', 'g', 'm']
+                        spd_dos = dos.get_spd_dos()
+                        for idx, orb in enumerate([OrbitalType.s,
+                                                   OrbitalType.p,
+                                                   OrbitalType.d,
+                                                   OrbitalType.f]):
+                            if orb in spd_dos:
+                                dos_densities = spd_dos[orb].densities[spin] * \
+                                                int(spin)
+                                label = orb if spin == Spin.up else None
+                                dos_ax.plot(dos_densities, dos_energies,
+                                            color=colors[idx], label=label)
 
-        # determine DOS x-axis range
-        dos_xmin = 0 if Spin.down not in dos.densities else -max(
-            dos.densities[Spin.down][emin_idx:emax_idx + 1] * 1.05)
-        dos_xmax = max([max(dos.densities[Spin.up][emin_idx:emax_idx]) *
-                        1.05, abs(dos_xmin)])
+            # get index of lowest and highest energy being plotted, used to help auto-scale DOS x-axis
+            emin_idx = next(x[0] for x in enumerate(dos_energies) if
+                            x[1] >= emin)
+            emax_idx = len(dos_energies) - \
+                       next(x[0] for x in enumerate(reversed(dos_energies))
+                            if x[1] <= emax)
 
-        # set up the DOS x-axis and add Fermi level line
-        dos_ax.set_xlim(dos_xmin, dos_xmax)
-        dos_ax.set_xticklabels([])
-        dos_ax.hlines(y=0, xmin=dos_xmin, xmax=dos_xmax, color="k", lw=2)
-        dos_ax.set_xlabel('DOS', fontsize=self.axis_fontsize, family=self.font)
+            # determine DOS x-axis range
+            dos_xmin = 0 if Spin.down not in dos.densities else -max(
+                dos.densities[Spin.down][emin_idx:emax_idx + 1] * 1.05)
+            dos_xmax = max([max(dos.densities[Spin.up][emin_idx:emax_idx]) *
+                            1.05, abs(dos_xmin)])
+
+            # set up the DOS x-axis and add Fermi level line
+            dos_ax.set_xlim(dos_xmin, dos_xmax)
+            dos_ax.set_xticklabels([])
+            dos_ax.hlines(y=0, xmin=dos_xmin, xmax=dos_xmax, color="k", lw=2)
+            dos_ax.set_xlabel('DOS', fontsize=self.axis_fontsize,
+                              family=self.font)
 
         # add legend for band structure
         if self.bs_legend and not rgb_legend:
@@ -2350,7 +2384,7 @@ class BSDOSPlotter(object):
                                    loc=self.bs_legend)
 
         # add legend for DOS
-        if self.dos_legend:
+        if dos and self.dos_legend:
             dos_ax.legend(fancybox=True, prop={'size': self.legend_fontsize,
                                                'family': self.font},
                           loc=self.dos_legend)

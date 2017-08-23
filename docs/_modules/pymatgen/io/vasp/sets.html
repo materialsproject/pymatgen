@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2017.8.20 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.20',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.20 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -74,6 +74,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span>
@@ -315,10 +316,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">user_kpoints_settings</span> <span class="o">=</span> <span class="n">user_kpoints_settings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_potcar_settings</span> <span class="o">=</span> <span class="n">user_potcar_settings</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_potcar_settings</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Overriding POTCARs is generally not recommended as it significantly affect the results of&quot;</span>
-                          <span class="s2">&quot;calculations and the compatibility with other calculations done with the same input set. &quot;</span>
-                          <span class="s2">&quot;In many instances, it is better to write a subclass of a desired input set and &quot;</span>
-                          <span class="s2">&quot;override the POTCAR in the subclass to be explicit on the differences.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Overriding POTCARs is generally not recommended as it &quot;</span>
+                <span class="s2">&quot;significantly affect the results of calculations and &quot;</span>
+                <span class="s2">&quot;compatibility with other calculations done with the same &quot;</span>
+                <span class="s2">&quot;input set. In many instances, it is better to write a &quot;</span>
+                <span class="s2">&quot;subclass of a desired input set and override the POTCAR in &quot;</span>
+                <span class="s2">&quot;the subclass to be explicit on the differences.&quot;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_potcar_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;POTCAR&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 
@@ -462,7 +466,8 @@
             <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="n">make_dir_if_not_present</span><span class="p">,</span>
             <span class="n">include_cif</span><span class="o">=</span><span class="n">include_cif</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files_to_transfer</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span></div></div>
+            <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">,</span> <span class="n">zopen</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span> <span class="n">fout</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="MITRelaxSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MITRelaxSet">[docs]</a><span class="k">class</span> <span class="nc">MITRelaxSet</span><span class="p">(</span><span class="n">DictSet</span><span class="p">):</span>
@@ -702,8 +707,14 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">MPHSEBSSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s2">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;NELMIN&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s2">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+            <span class="s2">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;NELMIN&quot;</span><span class="p">:</span> <span class="mi">5</span>
+        <span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">added_kpoints</span> <span class="o">=</span> <span class="n">added_kpoints</span> <span class="k">if</span> <span class="n">added_kpoints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_density</span> <span class="o">=</span> <span class="n">reciprocal_density</span> <span class="ow">or</span> \
@@ -744,8 +755,9 @@
                 <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
                 <span class="n">all_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
 
-        <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;HSE run along symmetry lines&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;line&quot;</span> \
-            <span class="k">else</span> <span class="s2">&quot;HSE run on uniform grid&quot;</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;HSE run along symmetry lines&quot;</span>
+                   <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;line&quot;</span>
+                   <span class="k">else</span> <span class="s2">&quot;HSE run on uniform grid&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">Kpoints</span><span class="p">(</span><span class="n">comment</span><span class="o">=</span><span class="n">comment</span><span class="p">,</span>
                        <span class="n">style</span><span class="o">=</span><span class="n">Kpoints</span><span class="o">.</span><span class="n">supported_modes</span><span class="o">.</span><span class="n">Reciprocal</span><span class="p">,</span>
@@ -757,8 +769,8 @@
                        <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">copy_chgcar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a set of Vasp input files for HSE calculations from a</span>
-<span class="sd">        directory of previous Vasp run. if mode==&quot;gap&quot;, it explicitly adds VBM and CBM</span>
-<span class="sd">        of the prev. run to the k-point list of this run.</span>
+<span class="sd">        directory of previous Vasp run. if mode==&quot;gap&quot;, it explicitly adds VBM</span>
+<span class="sd">        and CBM of the prev run to the k-point list of this run.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            prev_calc_dir (str): Directory containing the outputs</span>
@@ -986,9 +998,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;magmom&quot;</span><span class="p">)</span> <span class="ow">and</span> \
                 <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">magmom</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The structure must have the &#39;magmom&#39; site &quot;</span>
-                             <span class="s2">&quot;property and each magnetic moment value must have 3 &quot;</span>
-                             <span class="s2">&quot;components. eg:- magmom = [0,0,2]&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The structure must have the &#39;magmom&#39; site &quot;</span>
+                <span class="s2">&quot;property and each magnetic moment value must have 3 &quot;</span>
+                <span class="s2">&quot;components. eg:- magmom = [0,0,2]&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">saxis</span> <span class="o">=</span> <span class="n">saxis</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MPSOCSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">prev_incar</span><span class="p">,</span>
@@ -1222,15 +1235,15 @@
 <span class="sd">        Args:</span>
 <span class="sd">            prev_calc_dir (str): The directory contains the outputs(</span>
 <span class="sd">                vasprun.xml of previous vasp run.</span>
-<span class="sd">            copy_wavecar: Whether to copy the old WAVECAR. Defaults to True.</span>
-<span class="sd">            mode (str): Supported modes are &quot;STATIC&quot; (default), &quot;DIAG&quot;, &quot;GW&quot;,</span>
+<span class="sd">            copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and</span>
+<span class="sd">                associated files. Defaults to True.</span>
+<span class="sd">            mode (str): Supported modes are &quot;STATIC&quot;, &quot;DIAG&quot; (default), &quot;GW&quot;,</span>
 <span class="sd">                and &quot;BSE&quot;.</span>
 <span class="sd">            nbands_factor (int): Multiplicative factor for NBANDS. Only applies</span>
-<span class="sd">                if mode==&quot;DIAG&quot;.</span>
+<span class="sd">                if mode==&quot;DIAG&quot;. Need to be tested for convergence.</span>
 <span class="sd">            ncores (int): numbers of cores you do calculations. VASP will alter</span>
 <span class="sd">                NBANDS if it was not dividable by ncores. Only applies</span>
 <span class="sd">                if mode==&quot;DIAG&quot;.</span>
-<span class="sd">            Need to be tested for convergence.</span>
 <span class="sd">            \\*\\*kwargs: All kwargs supported by MVLGWSet,</span>
 <span class="sd">                other than structure, prev_incar and mode, which</span>
 <span class="sd">                are determined from the prev_calc_dir.</span>
@@ -1246,9 +1259,16 @@
         <span class="c1"># copy WAVECAR, WAVEDER (derivatives)</span>
         <span class="n">files_to_transfer</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">copy_wavecar</span><span class="p">:</span>
-            <span class="n">wavecar</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prev_calc_dir</span><span class="p">,</span> <span class="s2">&quot;WAVECAR&quot;</span><span class="p">)))</span>
-            <span class="k">if</span> <span class="n">wavecar</span><span class="p">:</span>
-                <span class="n">files_to_transfer</span><span class="p">[</span><span class="s2">&quot;WAVECAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">wavecar</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;WAVECAR&quot;</span><span class="p">,</span> <span class="s2">&quot;WAVEDER&quot;</span><span class="p">,</span> <span class="s2">&quot;WFULL&quot;</span><span class="p">):</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prev_calc_dir</span><span class="p">,</span> <span class="n">fname</span> <span class="o">+</span> <span class="s2">&quot;*&quot;</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="n">w</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">fname</span> <span class="o">==</span> <span class="s2">&quot;WFULL&quot;</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">w</span><span class="p">:</span>
+                            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                            <span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">files_to_transfer</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">files_to_transfer</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">MVLGWSet</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">prev_incar</span><span class="p">,</span>
                         <span class="n">nbands</span><span class="o">=</span><span class="n">nbands</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
@@ -1459,7 +1479,7 @@
             <span class="n">prev</span> <span class="o">=</span> <span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">prev</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">-</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">&gt;</span><span class="mf">0.5</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">):</span>
                     <span class="n">s</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">([</span><span class="n">i</span><span class="p">],</span> <span class="n">t</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">structures</span>
@@ -1677,8 +1697,8 @@
 <span class="sd">            Defaults to False.</span>
 <span class="sd">        include_cif (bool): Whether to output a CIF as well. CIF files are</span>
 <span class="sd">            generally better supported in visualization programs.</span>
-<span class="sd">        \\*\\*kwargs: Additional kwargs are passed to the vasp_input_set class in</span>
-<span class="sd">            addition to structure.</span>
+<span class="sd">        \\*\\*kwargs: Additional kwargs are passed to the vasp_input_set class</span>
+<span class="sd">            in addition to structure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structures</span><span class="p">):</span>
         <span class="n">formula</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">formula</span><span class="p">)</span>
@@ -1722,7 +1742,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.20 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

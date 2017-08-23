@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2017.8.20 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.20',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.20 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -308,8 +308,8 @@ bandstructure. “Uniform” - generate uniform k-points grid</li>
 <dt id="pymatgen.io.vasp.sets.MPHSEBSSet.from_prev_calc">
 <em class="property">classmethod </em><code class="descname">from_prev_calc</code><span class="sig-paren">(</span><em>prev_calc_dir</em>, <em>mode='gap'</em>, <em>reciprocal_density=50</em>, <em>copy_chgcar=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPHSEBSSet.from_prev_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPHSEBSSet.from_prev_calc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a set of Vasp input files for HSE calculations from a
-directory of previous Vasp run. if mode==”gap”, it explicitly adds VBM and CBM
-of the prev. run to the k-point list of this run.</p>
+directory of previous Vasp run. if mode==”gap”, it explicitly adds VBM
+and CBM of the prev run to the k-point list of this run.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -717,15 +717,15 @@ directory of previous Exact Diag Vasp run.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>prev_calc_dir</strong> (<em>str</em>) – The directory contains the outputs(
 vasprun.xml of previous vasp run.</li>
-<li><strong>copy_wavecar</strong> – Whether to copy the old WAVECAR. Defaults to True.</li>
-<li><strong>mode</strong> (<em>str</em>) – Supported modes are “STATIC” (default), “DIAG”, “GW”,
+<li><strong>copy_wavecar</strong> – Whether to copy the old WAVECAR, WAVEDER and
+associated files. Defaults to True.</li>
+<li><strong>mode</strong> (<em>str</em>) – Supported modes are “STATIC”, “DIAG” (default), “GW”,
 and “BSE”.</li>
 <li><strong>nbands_factor</strong> (<em>int</em>) – Multiplicative factor for NBANDS. Only applies
-if mode==”DIAG”.</li>
+if mode==”DIAG”. Need to be tested for convergence.</li>
 <li><strong>ncores</strong> (<em>int</em>) – numbers of cores you do calculations. VASP will alter
 NBANDS if it was not dividable by ncores. Only applies
 if mode==”DIAG”.</li>
-<li><strong>to be tested for convergence.</strong> (<em>Need</em>) – </li>
 <li><strong>**kwargs</strong> – All kwargs supported by MVLGWSet,
 other than structure, prev_incar and mode, which
 are determined from the prev_calc_dir.</li>
@@ -891,8 +891,8 @@ are generally easier for viewing and certain forms of analysis.
 Defaults to False.</li>
 <li><strong>include_cif</strong> (<em>bool</em>) – Whether to output a CIF as well. CIF files are
 generally better supported in visualization programs.</li>
-<li><strong>**kwargs</strong> – Additional kwargs are passed to the vasp_input_set class in
-addition to structure.</li>
+<li><strong>**kwargs</strong> – Additional kwargs are passed to the vasp_input_set class
+in addition to structure.</li>
 </ul>
 </td>
 </tr>
@@ -971,7 +971,7 @@ Vasp input files, e.g. get_kpoints.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.20 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -17,6 +17,7 @@ import six
 import numpy as np
 
 from monty.serialization import loadfn
+from monty.io import zopen
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
@@ -258,10 +259,13 @@ class DictSet(VaspInputSet):
         self.user_kpoints_settings = user_kpoints_settings
         self.user_potcar_settings = user_potcar_settings
         if self.user_potcar_settings:
-            warnings.warn("Overriding POTCARs is generally not recommended as it significantly affect the results of"
-                          "calculations and the compatibility with other calculations done with the same input set. "
-                          "In many instances, it is better to write a subclass of a desired input set and "
-                          "override the POTCAR in the subclass to be explicit on the differences.")
+            warnings.warn(
+                "Overriding POTCARs is generally not recommended as it "
+                "significantly affect the results of calculations and "
+                "compatibility with other calculations done with the same "
+                "input set. In many instances, it is better to write a "
+                "subclass of a desired input set and override the POTCAR in "
+                "the subclass to be explicit on the differences.")
             for k, v in self.user_potcar_settings.items():
                 self._config_dict["POTCAR"][k] = v
 
@@ -405,7 +409,8 @@ class DictSet(VaspInputSet):
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
         for k, v in self.files_to_transfer.items():
-            shutil.copy(v, os.path.join(output_dir, k))
+            with zopen(v, "rb") as fin, zopen(os.path.join(output_dir, k), "wb") as fout:
+                shutil.copyfileobj(fin, fout)
 
 
 class MITRelaxSet(DictSet):
@@ -645,8 +650,14 @@ class MPHSEBSSet(MPHSERelaxSet):
         super(MPHSEBSSet, self).__init__(structure, **kwargs)
         self.structure = structure
         self.user_incar_settings = user_incar_settings or {}
-        self._config_dict["INCAR"].update(
-            {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 3, "LCHARG": False, "NELMIN": 5})
+        self._config_dict["INCAR"].update({
+            "NSW": 0,
+            "ISMEAR": 0,
+            "SIGMA": 0.05,
+            "ISYM": 3,
+            "LCHARG": False,
+            "NELMIN": 5
+        })
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
         self.reciprocal_density = reciprocal_density or \
@@ -687,8 +698,9 @@ class MPHSEBSSet(MPHSERelaxSet):
                 weights.append(0.0)
                 all_labels.append(labels[k])
 
-        comment = "HSE run along symmetry lines" if self.mode.lower() == "line" \
-            else "HSE run on uniform grid"
+        comment = ("HSE run along symmetry lines"
+                   if self.mode.lower() == "line"
+                   else "HSE run on uniform grid")
 
         return Kpoints(comment=comment,
                        style=Kpoints.supported_modes.Reciprocal,
@@ -700,8 +712,8 @@ class MPHSEBSSet(MPHSERelaxSet):
                        reciprocal_density=50, copy_chgcar=True, **kwargs):
         """
         Generate a set of Vasp input files for HSE calculations from a
-        directory of previous Vasp run. if mode=="gap", it explicitly adds VBM and CBM
-        of the prev. run to the k-point list of this run.
+        directory of previous Vasp run. if mode=="gap", it explicitly adds VBM
+        and CBM of the prev run to the k-point list of this run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs
@@ -929,9 +941,10 @@ class MPSOCSet(MPStaticSet):
         """
         if not hasattr(structure[0], "magmom") and \
                 not isinstance(structure[0].magmom, list):
-            raise ValueError("The structure must have the 'magmom' site "
-                             "property and each magnetic moment value must have 3 "
-                             "components. eg:- magmom = [0,0,2]")
+            raise ValueError(
+                "The structure must have the 'magmom' site "
+                "property and each magnetic moment value must have 3 "
+                "components. eg:- magmom = [0,0,2]")
         self.saxis = saxis
         super(MPSOCSet, self).__init__(
             structure, prev_incar=prev_incar,
@@ -1165,8 +1178,9 @@ class MVLGWSet(DictSet):
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml of previous vasp run.
-            copy_wavecar: Whether to copy the old WAVECAR. Defaults to True.
-            mode (str): Supported modes are "STATIC" (default), "DIAG", "GW",
+            copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and
+                associated files. Defaults to True.
+            mode (str): Supported modes are "STATIC", "DIAG" (default), "GW",
                 and "BSE".
             nbands_factor (int): Multiplicative factor for NBANDS. Only applies
                 if mode=="DIAG". Need to be tested for convergence.
@@ -1188,9 +1202,16 @@ class MVLGWSet(DictSet):
         # copy WAVECAR, WAVEDER (derivatives)
         files_to_transfer = {}
         if copy_wavecar:
-            wavecar = sorted(glob.glob(os.path.join(prev_calc_dir, "WAVECAR")))
-            if wavecar:
-                files_to_transfer["WAVECAR"] = str(wavecar[-1])
+            for fname in ("WAVECAR", "WAVEDER", "WFULL"):
+                w = sorted(glob.glob(os.path.join(prev_calc_dir, fname + "*")))
+                if w:
+                    if fname == "WFULL":
+                        for f in w:
+                            fname = os.path.basename(f)
+                            fname = fname.split(".")[0]
+                            files_to_transfer[fname] = f
+                    else:
+                        files_to_transfer[fname] = str(w[-1])
 
         return MVLGWSet(structure=structure, prev_incar=prev_incar,
                         nbands=nbands, mode=mode,
@@ -1401,7 +1422,7 @@ class MITNEBSet(MITRelaxSet):
             prev = structures[-1]
             for i in range(len(s)):
                 t = np.round(prev[i].frac_coords - s[i].frac_coords)
-                if np.any(np.abs(t)>0.5):
+                if np.any(np.abs(t) > 0.5):
                     s.translate_sites([i], t, to_unit_cell=False)
             structures.append(s)
         return structures
@@ -1619,8 +1640,8 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
             Defaults to False.
         include_cif (bool): Whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.
-        \\*\\*kwargs: Additional kwargs are passed to the vasp_input_set class in
-            addition to structure.
+        \\*\\*kwargs: Additional kwargs are passed to the vasp_input_set class
+            in addition to structure.
     """
     for i, s in enumerate(structures):
         formula = re.sub(r'\s+', "", s.formula)
