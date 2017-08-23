@@ -1466,16 +1466,14 @@ class BSPlotterProjected(BSPlotter):
                     for b in branches:
                         br += 1
                         for i in range(self._nb_bands):
-                            plt.plot(map(lambda x: x - shift[br],
-                                         data['distances'][b]),
+                            plt.plot(list(map(lambda x: x - shift[br], data['distances'][b])),
                                      [data['energy'][b][str(Spin.up)][i][j]
                                       for j in
                                       range(len(data['distances'][b]))],
                                      'b-', linewidth=band_linewidth)
 
                             if self._bs.is_spin_polarized:
-                                plt.plot(map(lambda x: x - shift[br],
-                                             data['distances'][b]),
+                                plt.plot(list(map(lambda x: x - shift[br], data['distances'][b])),
                                          [data['energy'][b][str(Spin.down)][i][
                                               j]
                                           for j in
