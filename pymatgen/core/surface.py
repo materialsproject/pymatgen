@@ -446,7 +446,7 @@ class Slab(Structure):
             site_properties=s.site_properties, energy=d["energy"]
         )
 
-    def get_surface_sites(self, decimal=5, tag=False):
+    def get_surface_sites(self, tag=False):
         """
         Returns the surface sites and their site indices in a dictionary. The oriented unit
         cell of the slab will determine the coordination number of a typical site. We use
@@ -457,8 +457,6 @@ class Slab(Structure):
         broken bonds and for finding adsorption sites.
 
             Args:
-                decimal (int): The decimal place to determine a unique
-                    coordination number
                 tag (bool): Option to adds site attribute "is_surfsite" (bool) to
                     all sites of slab. Defaults to False
 
@@ -488,10 +486,10 @@ class Slab(Structure):
                 cn_dict[el] = []
             # Since this will get the cn as a result of the weighted polyhedra, the
             # slightest difference in cn will indicate a different environment for a
-            # species, eg. bond distance of each neighbor or neighbor species. We
-            # need a tol value, the decimal place to get some cn to be equal.
+            # species, eg. bond distance of each neighbor or neighbor species. The
+            # decimal place to get some cn to be equal.
             cn = v.get_coordination_number(i)
-            cn = round(cn, decimal)
+            cn = float('%.5f' %(round(cn, 5)))
             if cn not in cn_dict[el]:
                 cn_dict[el].append(cn)
 
@@ -505,8 +503,8 @@ class Slab(Structure):
             try:
                 # A site is a surface site, if its environment does
                 # not fit the environment of other sites
-                cn = round(v.get_coordination_number(i), decimal)
-                if cn not in cn_dict[site.species_string]:
+                cn = float('%.5f' %(round(v.get_coordination_number(i), 5)))
+                if cn < min(cn_dict[site.species_string]):
                     properties.append(True)
                     key = "top" if top else "bottom"
                     surf_sites_dict[key].append([site, i])
