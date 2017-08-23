@@ -96,7 +96,7 @@ class TestLammpsDataMolecule(unittest.TestCase):
         self.assertEqual(self.lammps_data.natoms, natoms)
 
     def test_from_file(self):
-        self.lammps_data.write_data_file(
+        self.lammps_data.write_file(
             os.path.join(test_dir, "lammps_data.dat"))
         lammps_data = LammpsData.from_file(
             os.path.join(test_dir, "lammps_data.dat"))
@@ -146,7 +146,7 @@ class TestLammpsDataStructure(unittest.TestCase):
                                        neutral_atoms_data, decimal=6)
 
     def test_from_file(self):
-        self.lammps_data.write_data_file(
+        self.lammps_data.write_file(
             os.path.join(test_dir, "lammps_data.dat"))
         lammps_data = LammpsData.from_file(
             os.path.join(test_dir, "lammps_data.dat"), atom_style="atomic")
@@ -320,7 +320,7 @@ class TestLammpsForceFieldData(unittest.TestCase):
             self.assertEqual(atom[2], atomic_masses_dict[key][0])
 
     def test_to_and_from_file(self):
-        self.lammps_ff_data_1.write_data_file(
+        self.lammps_ff_data_1.write_file(
             os.path.join(test_dir,"lammps_ff_data.dat"))
         lammps_ff_data_2 = LammpsForceFieldData.from_file(
             os.path.join(test_dir,"lammps_ff_data.dat"))

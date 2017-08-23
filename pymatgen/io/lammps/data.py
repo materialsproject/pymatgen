@@ -171,7 +171,7 @@ Atoms
             box_tilt = [xy, xz, yz]
         return box_size, box_tilt
 
-    def write_data_file(self, filename):
+    def write_file(self, filename):
         """
         write lammps data input file from the string representation
         of the data.
