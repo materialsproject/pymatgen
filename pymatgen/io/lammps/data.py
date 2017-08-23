@@ -98,15 +98,13 @@ Atoms
         Returns:
             String representation of the data file
         """
-        box = []
-        box.append("{} {:.6f} xlo xhi\n{} {:.6f} ylo yhi\n{} {:.6f} zlo zhi"
-            .format(self.box_size[0][0], self.box_size[0][1],
-                    self.box_size[1][0], self.box_size[1][1],
-                    self.box_size[2][0], self.box_size[2][1]))
+        box = "{} {:.6f} xlo xhi\n{} {:.6f} ylo yhi\n{} {:.6f} zlo zhi".format(
+            self.box_size[0][0], self.box_size[0][1],
+            self.box_size[1][0], self.box_size[1][1],
+            self.box_size[2][0], self.box_size[2][1])
         if self.box_tilt:
-            box.append("{:.6f} {:.6f} {:.6f} xy xz yz".format(
-                self.box_tilt[0], self.box_tilt[1], self.box_tilt[2]))
-        box = "\n".join(box)
+            box += "\n{:.6f} {:.6f} {:.6f} xy xz yz".format(
+                self.box_tilt[0], self.box_tilt[1], self.box_tilt[2])
 
         def list_str(l):
             return "\n".join([" ".join([str(x) for x in ad])
