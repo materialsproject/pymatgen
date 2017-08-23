@@ -413,28 +413,34 @@ class LammpsForceFieldData(LammpsData):
             self.box_size[1][0], self.box_size[1][1],
             self.box_size[2][0], self.box_size[2][1]))
 
+        def set_lines_from_list(lines, block_name, input_list):
+            if input_list:
+                lines.append("\n" + block_name + " \n")
+                for ad in input_list:
+                    lines.append(" ".join([str(x) for x in ad]))
+
         # masses
-        self.set_lines_from_list(lines, "Masses", self.atomic_masses)
+        set_lines_from_list(lines, "Masses", self.atomic_masses)
 
         # coefficients
-        self.set_lines_from_list(lines, "Pair Coeffs", self.pair_coeffs)
-        self.set_lines_from_list(lines, "Bond Coeffs", self.bond_coeffs)
-        self.set_lines_from_list(lines, "Angle Coeffs", self.angle_coeffs)
+        set_lines_from_list(lines, "Pair Coeffs", self.pair_coeffs)
+        set_lines_from_list(lines, "Bond Coeffs", self.bond_coeffs)
+        set_lines_from_list(lines, "Angle Coeffs", self.angle_coeffs)
         if self.ndih > 0:
-            self.set_lines_from_list(lines, "Dihedral Coeffs",
+            set_lines_from_list(lines, "Dihedral Coeffs",
                                      self.dihedral_coeffs)
         if self.nimdihs > 0:
-            self.set_lines_from_list(lines, "Improper Coeffs",
+            set_lines_from_list(lines, "Improper Coeffs",
                                      self.improper_coeffs)
 
         # data
-        self.set_lines_from_list(lines, "Atoms", self.atoms_data)
-        self.set_lines_from_list(lines, "Bonds", self.bonds_data)
-        self.set_lines_from_list(lines, "Angles", self.angles_data)
+        set_lines_from_list(lines, "Atoms", self.atoms_data)
+        set_lines_from_list(lines, "Bonds", self.bonds_data)
+        set_lines_from_list(lines, "Angles", self.angles_data)
         if self.ndih > 0:
-            self.set_lines_from_list(lines, "Dihedrals", self.dihedrals_data)
+            set_lines_from_list(lines, "Dihedrals", self.dihedrals_data)
         if self.nimdihs > 0:
-            self.set_lines_from_list(lines, "Impropers", self.imdihedrals_data)
+            set_lines_from_list(lines, "Impropers", self.imdihedrals_data)
         return '\n'.join(lines)
 
     @staticmethod
