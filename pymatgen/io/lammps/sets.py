@@ -76,7 +76,7 @@ class LammpsInputSet(MSONable):
         self.lammps_input.write_file(input_filename)
         # write the data file if present
         if self.lammps_data:
-            self.lammps_data.write_data_file(filename=self.data_filename)
+            self.lammps_data.write_file(filename=self.data_filename)
 
     @classmethod
     def from_file(cls, name, input_template, user_settings,
