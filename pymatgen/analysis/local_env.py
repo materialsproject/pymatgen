@@ -729,6 +729,43 @@ def get_okeeffe_distance_prediction(el1, el2):
             sqrt(c1) - sqrt(c2), 2) / (c1 * r1 + c2 * r2)
 
 
+def get_neighbors_of_site_with_index(struct, n, approach="min_dist", delta=0.1, \
+        cutoff=10.0):
+    """
+    Returns the neighbors of a given site using a specific neighbor-finding
+    method.
+
+    Args:
+        struct (Structure): input structure.
+        n (int): index of site in Structure object for which motif type
+                is to be determined.
+        approach (str): type of neighbor-finding approach, where
+              "min_dist" will use the MinimumDistanceNN class,
+              "voronoi" the VoronoiNN class, "min_OKeeffe" the
+              MinimumOKeeffe class, and "min_VIRE" the MinimumVIRENN class.
+        delta (float): tolerance involved in neighbor finding.
+        cutoff (float): (large) radius to find tentative neighbors.
+
+    Returns: neighbor sites.
+    """
+
+    if approach == "min_dist":
+        return MinimumDistanceNN(tol=delta, cutoff=cutoff).get_nn(
+                struct, n)
+    elif approach == "voronoi":
+        return VoronoiNN(tol=delta, cutoff=cutoff).get_nn(
+                struct, n)
+    elif approach == "min_OKeeffe":
+        return MinimumOKeeffeNN(tol=delta, cutoff=cutoff).get_nn(
+                struct, n)
+    elif approach == "min_VIRE":
+        return MinimumVIRENN(tol=delta, cutoff=cutoff).get_nn(
+                struct, n)
+    else:
+        raise RuntimeError("unsupported neighbor-finding method ({}).".format(
+                approach))
+
+
 def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, \
         cutoff=10.0, thresh=None):
     """
@@ -764,22 +801,8 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, \
     ops = OrderParameters([
             "cn", "tet", "oct", "bcc", "q6", "sq_pyr", "tri_bipyr"])
 
-    if approach == "min_dist":
-        neighs_cent = MinimumDistanceNN(tol=delta, cutoff=cutoff).get_nn(
-                struct, n)
-    elif approach == "voronoi":
-        neighs_cent = VoronoiNN(tol=delta, cutoff=cutoff).get_nn(
-                struct, n)
-    elif approach == "min_OKeeffe":
-        neighs_cent = MinimumOKeeffeNN(tol=delta, cutoff=cutoff).get_nn(
-                struct, n)
-    elif approach == "min_VIRE":
-        neighs_cent = MinimumVIRENN(tol=delta, cutoff=cutoff).get_nn(
-                struct, n)
-    else:
-        raise RuntimeError("unsupported neighbor-finding method ({}).".format(
-                approach))
-
+    neighs_cent = get_neighbors_of_site_with_index(
+            struct, n, approach=approach, delta=delta, cutoff=cutoff)
     neighs_cent.append(struct.sites[n])
     opvals = ops.get_order_parameters(
             neighs_cent, len(neighs_cent)-1, indeces_neighs=[
