@@ -3,11 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 from monty.json import MSONable
-import abc
+from abc import ABC
+import six
+from pymatgen.core.units import EnergyArray, Energy
 from scipy.interpolate import interp1d
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen import Structure
-import json
 import numpy as np
 
 """
@@ -22,32 +22,44 @@ __email__ = "chz022@ucsd.edu"
 __date__ = "Aug 9, 2017"
 
 
-class Spectrum(abc.ABC, MSONable):
+class Spectrum(ABC, MSONable):
     """
-    Base class for Xanespectrum and Exafspectrum.
+    Base class for Xane spectrum, Exaf spectrum, NMR.
     Not meant to be instantiated directly
     """
 
-    @property
-    def spectrum_structure(self):
-        """
-        Returns the structure associated with the spectrum
-        """
-        return self.structure
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
     @property
-    def spectrum_type(self):
-        """
-        Returns the spectrum type
-        """
-        return self.type
+    def x_value(self):
+        return self.x
 
     @property
-    def spectrum_data(self):
+    def y_value(self):
+        return self.y
+
+    @property
+    def xlabel(self):
+        return self.xlabel
+
+    @property
+    def ylabel(self):
+        return self.ylabel
+
+    def intensity_sum_norm(self):
         """
-        Returns the spectrum
+        Normalize the spectrum with respect to the sum of intensity
+        :return:
         """
-        return self.spectrum
+        self.y = self.y / np.sum(self.y)
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def __repr__(self):
+        return self.__class__.__name__
 
 
 class XANES(Spectrum):
@@ -66,37 +78,25 @@ class XANES(Spectrum):
         The absorption_species of the spectrum
     """
 
-    def __init__(self, structure, energies, mu, absorption_specie, edge):
-        try:
-            self.structure = Structure.from_dict(structure)
-        except:
-            self.structure = structure
-        self.energies = np.array(energies)
-        self.mu = np.array(mu)
+    def __init__(self, x, y, structure, absorption_specie, edge):
+        super(XANES, self).__init__(x, y)
+        self.x = EnergyArray(x, 'eV')
+        self.structure = structure
         self.absorption_specie = absorption_specie
         self.edge = edge
-        self.type = 'XANES'
-        self.spectrum = np.column_stack((self.energies, self.mu))
 
     def find_e0(self):
         """
         Use the maximum gradient to find e0
         """
-        self.e0 = self.energies[np.argmax(np.gradient(self.mu) / np.gradient(self.energies))]
-
-    def spectrum_norm(self):
-        """
-        Normalize the peak intentsity according to the cumulative sum of the intensity.
-        Therefore, peaks retain properties required from probability mass function
-        """
-        return np.column_stack((self.energies, (self.mu / self.mu.sum())))
+        self.e0 = self.x[np.argmax(np.gradient(self.y) / np.gradient(self.x))]
 
     @classmethod
     def from_dict(cls, d):
         """
         Return XANES object from dict representation of XANES
         """
-        return XANES(d['structure'], d['energies'], d['mu'],
+        return XANES(d['energies'], d['mu'], d['structure'],
                      d['absorption_specie'], d['edge'])
 
     def as_dict(self):

@@ -7,6 +7,7 @@ from pymatgen.analysis.spectra.spectrum import XANES
 import unittest
 import json
 from monty.json import MontyDecoder
+import numpy as np
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files/spectrum_test")
@@ -26,3 +27,7 @@ class XANESSetTest(unittest.TestCase):
     def test_find_e0(self):
         self.xaneobj.find_e0()
         self.assertAlmostEqual(24374.508999999998, self.xaneobj.e0)
+
+    def test_normalization(self):
+        self.xaneobj.intensity_sum_norm()
+        self.assertAlmostEqual(1.0, np.sum(self.xaneobj.y_value))
