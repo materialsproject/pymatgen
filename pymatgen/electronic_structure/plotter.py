@@ -10,17 +10,17 @@ import warnings
 from collections import OrderedDict
 
 import numpy as np
-from matplotlib import patches
 
 from monty.json import jsanitize
 
-from pymatgen import Element
+from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.plotting import pretty_plot, \
     add_fig_kwargs, get_ax3d_fig_plt
+from collections import Counter
+import copy
 
-from pymatgen.core.units import Energy
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -1466,16 +1466,14 @@ class BSPlotterProjected(BSPlotter):
                     for b in branches:
                         br += 1
                         for i in range(self._nb_bands):
-                            plt.plot(map(lambda x: x - shift[br],
-                                         data['distances'][b]),
+                            plt.plot(list(map(lambda x: x - shift[br], data['distances'][b])),
                                      [data['energy'][b][str(Spin.up)][i][j]
                                       for j in
                                       range(len(data['distances'][b]))],
                                      'b-', linewidth=band_linewidth)
 
                             if self._bs.is_spin_polarized:
-                                plt.plot(map(lambda x: x - shift[br],
-                                             data['distances'][b]),
+                                plt.plot(list(map(lambda x: x - shift[br], data['distances'][b])),
                                          [data['energy'][b][str(Spin.down)][i][
                                               j]
                                           for j in
@@ -1528,9 +1526,6 @@ class BSPlotterProjected(BSPlotter):
         return plt
 
     def _Orbitals_SumOrbitals(self, dictio, sum_morbs):
-        from pymatgen.core.periodic_table import Element
-        from collections import Counter
-        import copy
         all_orbitals = ['s', 'p', 'd', 'f', 'px', 'py', 'pz', 'dxy', 'dyz',
                         'dxz', 'dx2', 'dz2',
                         'f_3', 'f_2', 'f_1', 'f0', 'f1', 'f2', 'f3']
@@ -2154,7 +2149,7 @@ class BSDOSPlotter(object):
         self.rgb_legend = rgb_legend
         self.fig_size = fig_size
 
-    def get_plot(self, bs, dos):
+    def get_plot(self, bs, dos=None):
         """
         Get a matplotlib plot object.
         Args:
@@ -2172,19 +2167,25 @@ class BSDOSPlotter(object):
         import matplotlib.pyplot as mplt
 
         # make sure the user-specified band structure projection is valid
-        elements = [e.symbol for e in dos.structure.composition.elements]
         bs_projection = self.bs_projection
+        if dos:
+            elements = [e.symbol for e in dos.structure.composition.elements]
+        elif bs_projection and bs.structure:
+            elements = [e.symbol for e in bs.structure.composition.elements]
+        else:
+            elements = []
+
         rgb_legend = self.rgb_legend and bs_projection and \
                      bs_projection.lower() == "elements" and \
                      len(elements) in [2, 3]
 
         if bs_projection and bs_projection.lower() == "elements" and \
-                (len(elements) not in [2,
-                                       3] or not bs.get_projection_on_elements()):
+                (len(elements) not in [2, 3] or
+                     not bs.get_projection_on_elements()):
             warnings.warn(
                 "Cannot get element projected data; either the projection data "
-                "doesn't exist, or you don't have a compound with exactly 2 or 3"
-                " unique elements.")
+                "doesn't exist, or you don't have a compound with exactly 2 "
+                "or 3 unique elements.")
             bs_projection = None
 
         # specify energy range of plot
@@ -2233,16 +2234,19 @@ class BSDOSPlotter(object):
                 x_distances.append(x_distances[-1] + distance_interval)
 
         # set up bs and dos plot
-        gs = GridSpec(1, 2, width_ratios=[2, 1])
+        gs = GridSpec(1, 2, width_ratios=[2, 1]) if dos else GridSpec(1, 1)
+
         fig = mplt.figure(figsize=self.fig_size)
         fig.patch.set_facecolor('white')
         bs_ax = mplt.subplot(gs[0])
-        dos_ax = mplt.subplot(gs[1])
+        if dos:
+            dos_ax = mplt.subplot(gs[1])
 
         # set basic axes limits for the plot
         bs_ax.set_xlim(0, x_distances[-1])
         bs_ax.set_ylim(emin, emax)
-        dos_ax.set_ylim(emin, emax)
+        if dos:
+            dos_ax.set_ylim(emin, emax)
 
         # add BS xticks, labels, etc.
         bs_ax.set_xticks(xlabel_distances)
@@ -2257,11 +2261,12 @@ class BSDOSPlotter(object):
         bs_ax.set_yticks(np.arange(emin, emax + 1E-5, self.egrid_interval))
         bs_ax.set_yticklabels(np.arange(emin, emax + 1E-5, self.egrid_interval),
                               size=self.tick_fontsize)
-        dos_ax.set_yticks(np.arange(emin, emax + 1E-5, self.egrid_interval))
         bs_ax.set_axisbelow(True)
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
-        dos_ax.set_yticklabels([])
-        dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
+        if dos:
+            dos_ax.set_yticks(np.arange(emin, emax + 1E-5, self.egrid_interval))
+            dos_ax.set_yticklabels([])
+            dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
 
         # renormalize the band energy to the Fermi level
         band_energies = {}
@@ -2272,7 +2277,8 @@ class BSDOSPlotter(object):
                     band_energies[spin].append([e - bs.efermi for e in band])
 
         # renormalize the DOS energies to Fermi level
-        dos_energies = [e - dos.efermi for e in dos.energies]
+        if dos:
+            dos_energies = [e - dos.efermi for e in dos.energies]
 
         # get the projection data to set colors for the band structure
         colordata = self._get_colordata(bs, elements, bs_projection)
@@ -2288,59 +2294,64 @@ class BSDOSPlotter(object):
                                   colordata[spin][band_idx, :, 2],
                                   linestyles=linestyles)
 
-        # Plot the DOS and projected DOS
-        for spin in (Spin.up, Spin.down):
-            if spin in dos.densities:
-                # plot the total DOS
-                dos_densities = dos.densities[spin] * int(spin)
-                label = "total" if spin == Spin.up else None
-                dos_ax.plot(dos_densities, dos_energies, color=(0.6, 0.6, 0.6),
-                            label=label)
-                dos_ax.fill_between(dos_densities, 0, dos_energies,
-                                    color=(0.7, 0.7, 0.7),
-                                    facecolor=(0.7, 0.7, 0.7))
+        if dos:
+            # Plot the DOS and projected DOS
+            for spin in (Spin.up, Spin.down):
+                if spin in dos.densities:
+                    # plot the total DOS
+                    dos_densities = dos.densities[spin] * int(spin)
+                    label = "total" if spin == Spin.up else None
+                    dos_ax.plot(dos_densities, dos_energies,
+                                color=(0.6, 0.6, 0.6), label=label)
+                    dos_ax.fill_between(dos_densities, 0, dos_energies,
+                                        color=(0.7, 0.7, 0.7),
+                                        facecolor=(0.7, 0.7, 0.7))
 
-                # plot the atom-projected DOS
-                if self.dos_projection.lower() == "elements":
-                    colors = ['b', 'r', 'g', 'm', 'y', 'c', 'k', 'w']
-                    el_dos = dos.get_element_dos()
-                    for idx, el in enumerate(elements):
-                        dos_densities = el_dos[Element(el)].densities[spin] * \
-                                        int(spin)
-                        label = el if spin == Spin.up else None
-                        dos_ax.plot(dos_densities, dos_energies,
-                                    color=colors[idx], label=label)
-
-                elif self.dos_projection.lower() == "orbitals":
-                    # plot each of the atomic projected DOS
-                    colors = ['b', 'r', 'g', 'm']
-                    spd_dos = dos.get_spd_dos()
-                    for idx, orb in enumerate([OrbitalType.s, OrbitalType.p,
-                                               OrbitalType.d, OrbitalType.f]):
-                        if orb in spd_dos:
-                            dos_densities = spd_dos[orb].densities[spin] * \
-                                            int(spin)
-                            label = orb if spin == Spin.up else None
+                    # plot the atom-projected DOS
+                    if self.dos_projection.lower() == "elements":
+                        colors = ['b', 'r', 'g', 'm', 'y', 'c', 'k', 'w']
+                        el_dos = dos.get_element_dos()
+                        for idx, el in enumerate(elements):
+                            dos_densities = el_dos[Element(el)].densities[
+                                                spin] * int(spin)
+                            label = el if spin == Spin.up else None
                             dos_ax.plot(dos_densities, dos_energies,
                                         color=colors[idx], label=label)
 
-        # get index of lowest and highest energy being plotted, used to help auto-scale DOS x-axis
-        emin_idx = next(x[0] for x in enumerate(dos_energies) if x[1] >= emin)
-        emax_idx = len(dos_energies) - next(x[0] for x in
-                                            enumerate(reversed(dos_energies))
-                                            if x[1] <= emax)
+                    elif self.dos_projection.lower() == "orbitals":
+                        # plot each of the atomic projected DOS
+                        colors = ['b', 'r', 'g', 'm']
+                        spd_dos = dos.get_spd_dos()
+                        for idx, orb in enumerate([OrbitalType.s,
+                                                   OrbitalType.p,
+                                                   OrbitalType.d,
+                                                   OrbitalType.f]):
+                            if orb in spd_dos:
+                                dos_densities = spd_dos[orb].densities[spin] * \
+                                                int(spin)
+                                label = orb if spin == Spin.up else None
+                                dos_ax.plot(dos_densities, dos_energies,
+                                            color=colors[idx], label=label)
 
-        # determine DOS x-axis range
-        dos_xmin = 0 if Spin.down not in dos.densities else -max(
-            dos.densities[Spin.down][emin_idx:emax_idx + 1] * 1.05)
-        dos_xmax = max([max(dos.densities[Spin.up][emin_idx:emax_idx]) *
-                        1.05, abs(dos_xmin)])
+            # get index of lowest and highest energy being plotted, used to help auto-scale DOS x-axis
+            emin_idx = next(x[0] for x in enumerate(dos_energies) if
+                            x[1] >= emin)
+            emax_idx = len(dos_energies) - \
+                       next(x[0] for x in enumerate(reversed(dos_energies))
+                            if x[1] <= emax)
 
-        # set up the DOS x-axis and add Fermi level line
-        dos_ax.set_xlim(dos_xmin, dos_xmax)
-        dos_ax.set_xticklabels([])
-        dos_ax.hlines(y=0, xmin=dos_xmin, xmax=dos_xmax, color="k", lw=2)
-        dos_ax.set_xlabel('DOS', fontsize=self.axis_fontsize, family=self.font)
+            # determine DOS x-axis range
+            dos_xmin = 0 if Spin.down not in dos.densities else -max(
+                dos.densities[Spin.down][emin_idx:emax_idx + 1] * 1.05)
+            dos_xmax = max([max(dos.densities[Spin.up][emin_idx:emax_idx]) *
+                            1.05, abs(dos_xmin)])
+
+            # set up the DOS x-axis and add Fermi level line
+            dos_ax.set_xlim(dos_xmin, dos_xmax)
+            dos_ax.set_xticklabels([])
+            dos_ax.hlines(y=0, xmin=dos_xmin, xmax=dos_xmax, color="k", lw=2)
+            dos_ax.set_xlabel('DOS', fontsize=self.axis_fontsize,
+                              family=self.font)
 
         # add legend for band structure
         if self.bs_legend and not rgb_legend:
@@ -2373,7 +2384,7 @@ class BSDOSPlotter(object):
                                    loc=self.bs_legend)
 
         # add legend for DOS
-        if self.dos_legend:
+        if dos and self.dos_legend:
             dos_ax.legend(fancybox=True, prop={'size': self.legend_fontsize,
                                                'family': self.font},
                           loc=self.dos_legend)
