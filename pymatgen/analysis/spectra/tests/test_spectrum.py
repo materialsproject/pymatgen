@@ -12,7 +12,7 @@ import numpy as np
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files/spectrum_test")
 
-with open(os.path.join(test_dir,'Pd2O.json')) as fp:
+with open(os.path.join(test_dir, 'Pd2O.json')) as fp:
     spect_data_dict = json.load(fp, cls=MontyDecoder)
 
 
@@ -30,4 +30,8 @@ class XANESSetTest(unittest.TestCase):
 
     def test_normalization(self):
         self.xaneobj.intensity_sum_norm()
-        self.assertAlmostEqual(1.0, np.sum(self.xaneobj.y_value))
+        self.assertAlmostEqual(1.0, np.sum(self.xaneobj.y))
+
+    def test_ensemble_average(self):
+        ensemble_spect = self.xaneobj.ensemble_average([self.xaneobj] * 4, [0, 1, 3, 5])
+        self.assertTrue(np.allclose(ensemble_spect.y, self.xaneobj.y))
