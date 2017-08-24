@@ -27,7 +27,8 @@ from pymatgen.symmetry.analyzer import generate_full_symmops
 from pymatgen.util.coord_utils import in_coord_list, in_coord_list_pbc
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
-from pymatgen.core.surface import generate_all_slabs
+from pymatgen.core.surface import generate_all_slabs, Slab
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 from matplotlib import patches
 from matplotlib.path import Path
@@ -59,7 +60,7 @@ class AdsorbateSiteFinder(object):
     """
 
     def __init__(self, slab, selective_dynamics=False, 
-                 height=0.9, mi_vec=None):
+                 height=0.9, mi_vec=None, top_surface=True):
         """
         Create an AdsorbateSiteFinder object.  
 
@@ -72,8 +73,13 @@ class AdsorbateSiteFinder(object):
                 concurrent with the miller index, this enables use with
                 slabs that have been reoriented, but the miller vector
                 must be supplied manually
+            top_surface (bool): Which surface to adsorb, True for the surface
+                above the center of mass, False for the surface below
+                center of mass
+
         """
         # get surface normal from miller index
+        self.top_surface = top_surface
         if mi_vec:
             self.mvec = mi_vec
         else:
@@ -170,9 +176,12 @@ class AdsorbateSiteFinder(object):
         m_projs = np.array([np.dot(site.coords, self.mvec)
                             for site in slab.sites])
 
-        # Mask based on window threshold along the miller index
-        mask = (m_projs - np.amax(m_projs)) >= -height
-        surf_sites = [slab.sites[n] for n in np.where(mask)[0]] 
+        # Mask based on window threshold along the miller index.
+        topmask = (m_projs - np.amax(m_projs)) >= -height
+        bottommask = (np.min(m_projs) - m_projs) >= -height
+        mask = topmask if self.top_surface else bottommask
+
+        surf_sites = [slab.sites[n] for n in np.where(mask)[0]]
         if xy_tol:
             # sort surface sites by height
             surf_sites = [s for (h, s) in zip(m_projs[mask], surf_sites)]
@@ -294,8 +303,8 @@ class AdsorbateSiteFinder(object):
                 frac_coords = [frac_coord for frac_coord in frac_coords 
                                if (frac_coord[0]>1 and frac_coord[0]<4
                                and frac_coord[1]>1 and frac_coord[1]<4)]
-                sites = [frac_to_cart(self.slab.lattice, frac_coord) 
-                        for frac_coord in frac_coords]
+                sites = [frac_to_cart(self.slab.lattice, frac_coord)
+                         for frac_coord in frac_coords]
             if near_reduce:
                 sites = self.near_reduce(sites, threshold=near_reduce)
             if put_inside:
@@ -303,7 +312,15 @@ class AdsorbateSiteFinder(object):
                          for coord in sites]
             if symm_reduce:
                 sites = self.symm_reduce(sites, threshold=symm_reduce)
-            sites = [site + distance*self.mvec for site in sites]
+                # we substract the distance from the bottom site if we
+                # wish to adsorb at the surface below the center of mass
+                com = frac_to_cart(self.slab.lattice,
+                                   self.slab.center_of_mass)
+
+                sites = [site - distance * self.mvec if
+                         site[2] < com[2] else
+                         site + distance*self.mvec for site in sites]
+
             ads_sites[key] = sites
         return ads_sites
 
@@ -422,7 +439,7 @@ class AdsorbateSiteFinder(object):
         return slab.copy(site_properties = new_sp)
 
     def generate_adsorption_structures(self, molecule, repeat=None, min_lw=5.0,
-                                       reorient = True, find_args={}):
+                                       reorient=True, find_args={}):
         """
         Function that generates all adsorption structures for a given
         molecular adsorbate.  Can take repeat argument or minimum
@@ -443,10 +460,40 @@ class AdsorbateSiteFinder(object):
             yrep = np.ceil(min_lw / np.linalg.norm(self.slab.lattice.matrix[1]))
             repeat = [xrep, yrep, 1]
         structs = []
+
         for coords in self.find_adsorption_sites(**find_args)['all']:
             structs.append(self.add_adsorbate(
                 molecule, coords, repeat=repeat, reorient=reorient))
         return structs
+
+
+def adsorb_both_surfaces(slab, molecule, selective_dynamics=False,
+                         height=0.9, mi_vec=None):
+
+    adsgen_top = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
+                                     height=height, mi_vec=mi_vec, top_surface=True)
+    adslabs = adsgen_top.generate_adsorption_structures(molecule)
+    adsgen_bottom = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
+                                     height=height, mi_vec=mi_vec, top_surface=False)
+    adslabs.extend(adsgen_bottom.generate_adsorption_structures(molecule))
+
+    matcher = StructureMatcher()
+    adsorbed_slabs = []
+    for group in matcher.group_structures(adslabs):
+        coords = list(group[0].frac_coords)
+        species = group[0].species
+        lattice = group[0].lattice
+        coords.extend([site.frac_coords for site in group[1]
+                       if site.surface_properties == "adsorbate"])
+        species.extend([site.specie for site in group[1]
+                        if site.surface_properties == "adsorbate"])
+
+        slab = Slab(lattice, species, coords, slab.miller_index,
+                    slab.oriented_unit_cell, slab.shift, slab.scale_factor)
+        adsorbed_slabs.append(slab)
+
+    return adsorbed_slabs
+
 
 def get_mi_vec(slab):
     """

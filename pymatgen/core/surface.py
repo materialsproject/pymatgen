@@ -86,7 +86,7 @@ class Slab(Structure):
     """
 
     def __init__(self, lattice, species, coords, miller_index,
-                 oriented_unit_cell, shift, scale_factor,
+                 oriented_unit_cell, shift, scale_factor, reorient_lattice=True,
                  validate_proximity=False, to_unit_cell=False,
                  coords_are_cartesian=False, site_properties=None, energy=None):
         """
@@ -121,6 +121,8 @@ class Slab(Structure):
                 termination.
             scale_factor (array): scale_factor Final computed scale factor
                 that brings the parent cell to the surface cell.
+            reorient_lattice (bool): reorients the lattice parameters such that
+                the c direction is the third vector of the lattice matrix
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
@@ -136,6 +138,9 @@ class Slab(Structure):
         self.shift = shift
         self.scale_factor = scale_factor
         self.energy = energy
+        lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,
+                                          lattice.alpha, lattice.beta,
+                                          lattice.gamma) if reorient_lattice else lattice
         super(Slab, self).__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
