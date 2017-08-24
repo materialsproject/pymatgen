@@ -138,9 +138,10 @@ class Slab(Structure):
         self.shift = shift
         self.scale_factor = scale_factor
         self.energy = energy
+        self.reorient_lattice = reorient_lattice
         lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,
                                           lattice.alpha, lattice.beta,
-                                          lattice.gamma) if reorient_lattice else lattice
+                                          lattice.gamma) if self.reorient_lattice else lattice
         super(Slab, self).__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
@@ -166,7 +167,8 @@ class Slab(Structure):
                     coords=self.cart_coords, miller_index=self.miller_index,
                     oriented_unit_cell=self.oriented_unit_cell,
                     shift=self.shift, scale_factor=self.scale_factor,
-                    coords_are_cartesian=True, energy=self.energy)
+                    coords_are_cartesian=True, energy=self.energy,
+                    reorient_lattice=self.reorient_lattice)
 
     def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
         """
@@ -255,7 +257,8 @@ class Slab(Structure):
                 fcoords = [x[1] for x in sp_fcoord]
                 slab = Slab(self.lattice, species, fcoords, self.miller_index,
                             self.oriented_unit_cell, self.shift,
-                            self.scale_factor, energy=self.energy)
+                            self.scale_factor, energy=self.energy,
+                            reorient_lattice=self.reorient_lattice)
                 slabs.append(slab)
         s = StructureMatcher()
         unique = [ss[0] for ss in s.group_structures(slabs)]
@@ -293,7 +296,8 @@ class Slab(Structure):
         s = Structure.from_sites(sites)
         return Slab(s.lattice, s.species_and_occu, s.frac_coords,
                     self.miller_index, self.oriented_unit_cell, self.shift,
-                    self.scale_factor, site_properties=s.site_properties)
+                    self.scale_factor, site_properties=s.site_properties,
+                    reorient_lattice=self.reorient_lattice)
 
     def copy(self, site_properties=None, sanitize=False):
         """
@@ -322,7 +326,8 @@ class Slab(Structure):
             props.update(site_properties)
         return Slab(self.lattice, self.species_and_occu, self.frac_coords,
                     self.miller_index, self.oriented_unit_cell, self.shift,
-                    self.scale_factor, site_properties=props)
+                    self.scale_factor, site_properties=props,
+                    reorient_lattice=self.reorient_lattice)
 
     @property
     def dipole(self):
@@ -604,7 +609,7 @@ class SlabGenerator(object):
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
                  min_vacuum_size, lll_reduce=False, center_slab=False,
-                 primitive=True, max_normal_search=None):
+                 primitive=True, max_normal_search=None, reorient_lattice=True):
         """
         Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
@@ -642,6 +647,9 @@ class SlabGenerator(object):
                 vector as normal as possible (within the search range) to the
                 surface. A value of up to the max absolute Miller index is
                 usually sufficient.
+            reorient_lattice (bool): reorients the lattice parameters such that
+                the c direction is the third vector of the lattice matrix
+
         """
         latt = initial_structure.lattice
         miller_index = reduce_vector(miller_index)
@@ -730,6 +738,7 @@ class SlabGenerator(object):
         self._normal = normal
         a, b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
+        self.reorient_lattice = reorient_lattice
 
     def get_slab(self, shift=0, tol=0.1, energy=None):
         """
@@ -795,7 +804,7 @@ class SlabGenerator(object):
                     slab.frac_coords, self.miller_index,
                     self.oriented_unit_cell, shift,
                     scale_factor, site_properties=slab.site_properties,
-                    energy=energy)
+                    energy=energy, reorient_lattice=self.reorient_lattice)
 
     def _calculate_possible_shifts(self, tol=0.1):
         frac_coords = self.oriented_unit_cell.frac_coords

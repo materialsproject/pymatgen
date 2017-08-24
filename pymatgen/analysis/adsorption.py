@@ -20,6 +20,7 @@ import itertools
 import os
 from monty.serialization import loadfn
 from scipy.spatial import Delaunay
+import warnings
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -469,23 +470,61 @@ class AdsorbateSiteFinder(object):
 
 def adsorb_both_surfaces(slab, molecule, selective_dynamics=False,
                          height=0.9, mi_vec=None):
+    """
+    Function that generates all adsorption structures for a given
+    molecular adsorbate on both surfaces of a slab.
 
-    adsgen_top = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
-                                     height=height, mi_vec=mi_vec, top_surface=True)
-    adslabs = adsgen_top.generate_adsorption_structures(molecule)
-    adsgen_bottom = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
-                                     height=height, mi_vec=mi_vec, top_surface=False)
-    adslabs.extend(adsgen_bottom.generate_adsorption_structures(molecule))
+    Args:
+        slab (Slab): slab object for which to find adsorbate sites
+        selective_dynamics (bool): flag for whether to assign
+            non-surface sites as fixed for selective dynamics
+        molecule (Molecule): molecule corresponding to adsorbate
+        selective_dynamics (bool): flag for whether to assign
+            non-surface sites as fixed for selective dynamics
+        height (float): height criteria for selection of surface sites
+        mi_vec (3-D array-like): vector corresponding to the vector
+            concurrent with the miller index, this enables use with
+            slabs that have been reoriented, but the miller vector
+            must be supplied manually
+    """
 
     matcher = StructureMatcher()
+
+    # Get adsorption on top
+    adsgen_top = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
+                                     height=height, mi_vec=mi_vec, top_surface=True)
+    structs = adsgen_top.generate_adsorption_structures(molecule)
+    adslabs = [g[0] for g in matcher.group_structures(structs)]
+    # Get adsorption on bottom
+    adsgen_bottom = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
+                                     height=height, mi_vec=mi_vec, top_surface=False)
+    structs = adsgen_bottom.generate_adsorption_structures(molecule)
+    adslabs.extend([g[0] for g in matcher.group_structures(structs)])
+
+    # Group symmetrically similar slabs
     adsorbed_slabs = []
     for group in matcher.group_structures(adslabs):
-        coords = list(group[0].frac_coords)
-        species = group[0].species
-        lattice = group[0].lattice
-        coords.extend([site.frac_coords for site in group[1]
+        # Further group each group by which surface adsorbed
+        top_ads, bottom_ads = [], []
+        for s in group:
+            sites = sorted(s, key=lambda site: site.frac_coords[2])
+            if sites[0].surface_properties == "adsorbate":
+                bottom_ads.append(s)
+            else:
+                top_ads.append(s)
+        if not top_ads or not bottom_ads:
+            warnings.warn("There are not enough sites at the bottom or "
+                          "top to generate a symmetric adsorbed slab")
+            continue
+
+        # Combine the adsorbates of both top and bottom slabs
+        # into one slab with one adsorbate on each side
+        coords = list(top_ads[0].frac_coords)
+        species = top_ads[0].species
+        lattice = top_ads[0].lattice
+        coords.extend([site.frac_coords for site in bottom_ads[0]
                        if site.surface_properties == "adsorbate"])
-        species.extend([site.specie for site in group[1]
+        species.extend([site.specie for site in bottom_ads[0]
                         if site.surface_properties == "adsorbate"])
 
         slab = Slab(lattice, species, coords, slab.miller_index,
