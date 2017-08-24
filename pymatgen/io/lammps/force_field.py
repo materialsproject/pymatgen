@@ -10,14 +10,14 @@ angles and dihedrals.
 """
 
 import six
-from collections import defaultdict
 import ruamel.yaml as yaml
+from collections import defaultdict
 
 from monty.json import MSONable
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
-__credits__ = 'Brandon Wood'
+__credits__ = 'Brandon Wood, Rishi Gurnani'
 
 
 class ForceField(MSONable):

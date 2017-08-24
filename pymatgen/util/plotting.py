@@ -190,7 +190,8 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None,
 
 
 def periodic_table_heatmap(elemental_data, cbar_label="",
-                           show_plot=False, cmap="YlOrRd", blank_color="grey"):
+                           show_plot=False, cmap="YlOrRd", blank_color="grey",
+                           show_value=True):
     """
     A static method that generates a heat map overlapped on a periodic table.
 
@@ -212,25 +213,27 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     max_val = max(elemental_data.values())
     min_val = min(elemental_data.values())
     value_table = np.empty((9, 18)) * np.nan
+    blank_value = min_val - 0.01
 
     for el in Element:
-        value = elemental_data.get(el.symbol, min_val * 2.0)
+        value = elemental_data.get(el.symbol, blank_value)
         value_table[el.row - 1, el.group - 1] = value
 
     # Initialize the plt object
     import matplotlib.pyplot as plt
-    plt.figure(facecolor="w")
     fig, ax = plt.subplots()
+    plt.gcf().set_size_inches(12, 8)
 
     # We set nan type values to masked values (ie blank spaces)
     data_mask = np.ma.masked_invalid(value_table.tolist())
     heatmap = ax.pcolor(data_mask, cmap=cmap, edgecolors='w', linewidths=1,
-                        vmin=min_val*0.995, vmax=max_val*1.005)
+                        vmin=min_val-0.001, vmax=max_val+0.001)
     cbar = fig.colorbar(heatmap)
 
     # Grey out missing elements in input data
     cbar.cmap.set_under(blank_color)
     cbar.set_label(cbar_label, rotation=270, labelpad=15)
+    cbar.ax.tick_params(labelsize=14)
 
     # Refine and make the table look nice
     ax.axis('off')
@@ -243,11 +246,11 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
                 symbol = Element.from_row_and_group(i+1, j+1).symbol
                 plt.text(j + 0.5, i + 0.25, symbol,
                          horizontalalignment='center',
-                         verticalalignment='center', fontsize=7)
-                if el != min_val * 2.0:
+                         verticalalignment='center', fontsize=14)
+                if el != blank_value and show_value:
                     plt.text(j + 0.5, i + 0.5, "%.2f" % (el),
                              horizontalalignment='center',
-                             verticalalignment='center', fontsize=5)
+                             verticalalignment='center', fontsize=10)
 
     plt.tight_layout()
 

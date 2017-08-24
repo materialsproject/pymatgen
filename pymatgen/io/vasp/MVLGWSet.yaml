@@ -1,10 +1,10 @@
 INCAR:
   ALGO: Normal
-  EDIFF: 1.0e-10
+  EDIFF: 1.0e-8
   IBRION: -1
   ICHARG: 1
-  ISMEAR: -5
-  ISPIN: 1
+  ISMEAR: 0
+  ISPIN: 2
   LORBIT: 11
   LREAL: AUTO
   LWAVE: true
@@ -19,23 +19,25 @@ INCAR:
     Ni: 5
     V: 5
     W: 5
+    Eu: 10
+    Ce: 3
   NELM: 100
-  NPAR: 1
-  PREC: Medium
+  PREC: Accurate
   SIGMA: 0.01
 KPOINTS:
-  grid_density: 500
+  reciprocal_density: 100
 POTCAR:
   Ac: Ac
-  Ag: Ag_GW
-  Al: Al_sv_GW
+  Ag: Ag_sv_GW
+  Al: Al_GW
   Ar: Ar_GW
   As: As_GW
-  Au: Au_GW
+  At: At_d_GW
+  Au: Au_sv_GW
   B: B_GW
   Ba: Ba_sv_GW
   Be: Be_sv_GW
-  Bi: Bi_GW
+  Bi: Bi_d_GW
   Br: Br_GW
   C: C_GW
   Ca: Ca_sv_GW
@@ -45,7 +47,7 @@ POTCAR:
   Co: Co_sv_GW
   Cr: Cr_sv_GW
   Cs: Cs_sv_GW
-  Cu: Cu_pv_GW
+  Cu: Cu_sv_GW
   Dy: Dy_3
   Er: Er_3
   Eu: Eu
@@ -57,45 +59,47 @@ POTCAR:
   H: H_GW
   He: He_GW
   Hf: Hf_sv_GW
-  Hg: Hg
+  Hg: Hg_sv_GW
   Ho: Ho_3
   I: I_GW
   In: In_d_GW
   Ir: Ir_sv_GW
   K: K_sv_GW
   Kr: Kr_GW
-  La: La
+  La: La_GW
   Li: Li_sv_GW
   Lu: Lu_3
-  Mg: Mg_pv_GW
+  Mg: Mg_sv_GW
   Mn: Mn_sv_GW
   Mo: Mo_sv_GW
-  N: N_GW_new
+  N: N_GW
   Na: Na_sv_GW
   Nb: Nb_sv_GW
   Nd: Nd_3
   Ne: Ne_GW
   Ni: Ni_sv_GW
   Np: Np
-  O: O_GW_new
+  O: O_GW
   Os: Os_sv_GW
   P: P_GW
   Pa: Pa
   Pb: Pb_d_GW
-  Pd: Pd_GW
+  Pd: Pd_sv_GW
   Pm: Pm_3
+  Po: Po_d_GW
   Pr: Pr_3
-  Pt: Pt_pv_GW
+  Pt: Pt_sv_GW
   Pu: Pu
   Rb: Rb_sv_GW
   Re: Re_sv_GW
-  Rh: Rh_pv_GW
+  Rh: Rh_sv_GW
+  Rn: Rn_d_GW
   Ru: Ru_sv_GW
   S: S_GW
-  Sb: Sb_GW
+  Sb: Sb_d_GW
   Sc: Sc_sv_GW
   Se: Se_GW
-  Si: Si_sv_GW
+  Si: Si_GW
   Sm: Sm_3
   Sn: Sn_d_GW
   Sr: Sr_sv_GW
@@ -105,7 +109,7 @@ POTCAR:
   Te: Te_GW
   Th: Th
   Ti: Ti_sv_GW
-  Tl: Tl_d
+  Tl: Tl_d_GW
   Tm: Tm_3
   U: U
   V: V_sv_GW
@@ -113,5 +117,5 @@ POTCAR:
   Xe: Xe_GW
   Y: Y_sv_GW
   Yb: Yb_2
-  Zn: Zn_pv_GW
+  Zn: Zn_sv_GW
   Zr: Zr_sv_GW

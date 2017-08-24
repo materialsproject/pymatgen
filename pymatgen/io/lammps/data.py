@@ -4,6 +4,20 @@
 
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
+<<<<<<< HEAD
+=======
+
+import re
+from io import open
+from collections import OrderedDict
+
+import numpy as np
+
+from monty.json import MSONable, MontyDecoder
+
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.sites import PeriodicSite
+>>>>>>> 797e95c1a700e70d08ce54af5360c2ee5c7b96fc
 
 import re
 from io import open
@@ -854,6 +868,7 @@ def parse_data_file(filename):
     return data
 
 
+<<<<<<< HEAD
 from pymatgen.io.lammps.data import parse_data_file
 from pymatgen import Element
 from itertools import groupby
@@ -972,3 +987,5 @@ def to_POSCAR(filename, data_type = 'charge',significant_fig = 6 ):
 
     return '\n'.join(lines)
 
+=======
+>>>>>>> 797e95c1a700e70d08ce54af5360c2ee5c7b96fc

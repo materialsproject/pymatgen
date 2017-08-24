@@ -4,18 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module implements classes to perform bond valence analyses.
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Oct 26, 2012"
-
 import collections
 import numpy as np
 import operator
@@ -30,15 +18,25 @@ from monty.serialization import loadfn
 import six
 
 from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import get_el_sp
 
+"""
+This module implements classes to perform bond valence analyses.
+"""
 
-#Let's initialize some module level properties.
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Oct 26, 2012"
 
-#List of electronegative elements specified in M. O'Keefe, & N. Brese,
-#JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
+
+# Let's initialize some module level properties.
+
+# List of electronegative elements specified in M. O'Keefe, & N. Brese,
+# JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
 ELECTRONEG = [Element(sym) for sym in ["H", "B", "C", "Si",
                                        "N", "P", "As", "Sb",
                                        "O", "S", "Se", "Te",
@@ -46,12 +44,12 @@ ELECTRONEG = [Element(sym) for sym in ["H", "B", "C", "Si",
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
-#Read in BV parameters.
+# Read in BV parameters.
 BV_PARAMS = {}
 for k, v in loadfn(os.path.join(module_dir, "bvparam_1991.yaml")).items():
     BV_PARAMS[Element(k)] = v
 
-#Read in yaml containing data-mined ICSD BV data.
+# Read in yaml containing data-mined ICSD BV data.
 all_data = loadfn(os.path.join(module_dir, "icsd_bv.yaml"))
 ICSD_BV_DATA = {Specie.from_string(sp): data
                 for sp, data in all_data["bvsum"].items()}
@@ -68,8 +66,6 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
             The site
         nn_list:
             List of nearest neighbors in the format [(nn_site, dist), ...].
-        anion_el:
-            The most electronegative element in the structure.
         scale_factor:
             A scale factor to be applied. This is useful for scaling distance,
             esp in the case of calculation-relaxed structures which may tend
@@ -100,8 +96,6 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
             The site
         nn_list:
             List of nearest neighbors in the format [(nn_site, dist), ...].
-        anion_el:
-            The most electronegative element in the structure.
         scale_factor:
             A scale factor to be applied. This is useful for scaling distance,
             esp in the case of calculation-relaxed structures which may tend
@@ -192,7 +186,7 @@ class BVAnalyzer(object):
             forbidden_species else []
         self.icsd_bv_data = {get_el_sp(specie): data
                              for specie, data in ICSD_BV_DATA.items()
-                             if not specie in forbidden_species} \
+                             if specie not in forbidden_species} \
             if len(forbidden_species) > 0 else ICSD_BV_DATA
 
     def _calc_site_probabilities(self, site, nn):
@@ -228,12 +222,12 @@ class BVAnalyzer(object):
                 if sp.symbol == el and sp.oxi_state != 0 and data["std"] > 0:
                     u = data["mean"]
                     sigma = data["std"]
-                    #Calculate posterior probability. Note that constant
-                    #factors are ignored. They have no effect on the results.
+                    # Calculate posterior probability. Note that constant
+                    # factors are ignored. They have no effect on the results.
                     prob[el][sp.oxi_state] = exp(-(bv_sum - u) ** 2 / 2 /
                                                  (sigma ** 2)) \
                         / sigma * PRIOR_PROB[sp]
-            #Normalize the probabilities
+            # Normalize the probabilities
             try:
                 prob[el] = {k: v / sum(prob[el].values())
                             for k, v in prob[el].items()}
@@ -266,7 +260,7 @@ class BVAnalyzer(object):
                 "Structure contains elements not in set of BV parameters!"
             )
 
-        #Perform symmetry determination and get sites grouped by symmetry.
+        # Perform symmetry determination and get sites grouped by symmetry.
         if self.symm_tol:
             finder = SpacegroupAnalyzer(structure, self.symm_tol)
             symm_structure = finder.get_symmetrized_structure()
@@ -274,13 +268,13 @@ class BVAnalyzer(object):
         else:
             equi_sites = [[site] for site in structure]
 
-        #Sort the equivalent sites by decreasing electronegativity.
+        # Sort the equivalent sites by decreasing electronegativity.
         equi_sites = sorted(equi_sites,
                             key=lambda sites: -sites[0].species_and_occu
                             .average_electroneg)
 
-        #Get a list of valences and probabilities for each symmetrically
-        #distinct site.
+        # Get a list of valences and probabilities for each symmetrically
+        # distinct site.
         valences = []
         all_prob = []
         if structure.is_ordered:
@@ -290,9 +284,9 @@ class BVAnalyzer(object):
                 prob = self._calc_site_probabilities(test_site, nn)
                 all_prob.append(prob)
                 val = list(prob.keys())
-                #Sort valences in order of decreasing probability.
+                # Sort valences in order of decreasing probability.
                 val = sorted(val, key=lambda v: -prob[v])
-                #Retain probabilities that are at least 1/100 of highest prob.
+                # Retain probabilities that are at least 1/100 of highest prob.
                 valences.append(
                     list(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
                                 val)))
@@ -308,7 +302,7 @@ class BVAnalyzer(object):
                 for (elsp, occ) in get_z_ordered_elmap(
                         test_site.species_and_occu):
                     val = list(prob[elsp.symbol].keys())
-                    #Sort valences in order of decreasing probability.
+                    # Sort valences in order of decreasing probability.
                     val = sorted(val, key=lambda v: -prob[elsp.symbol][v])
                     # Retain probabilities that are at least 1/100 of highest
                     # prob.
@@ -318,7 +312,7 @@ class BVAnalyzer(object):
                                 elsp.symbol][val[0]], val)))
                 valences.append(vals)
 
-        #make variables needed for recursion
+        # make variables needed for recursion
         if structure.is_ordered:
             nsites = np.array([len(i) for i in equi_sites])
             vmin = np.array([min(i) for i in valences])
@@ -342,8 +336,8 @@ class BVAnalyzer(object):
                     self._best_score = score
 
             def _recurse(assigned=[]):
-                #recurses to find permutations of valences based on whether a
-                #charge balanced assignment can still be found
+                # recurses to find permutations of valences based on whether a
+                # charge balanced assignment can still be found
                 if self._n > self.max_permutations:
                     return
 
@@ -418,8 +412,8 @@ class BVAnalyzer(object):
                     self._best_score = score
 
             def _recurse(assigned=[]):
-                #recurses to find permutations of valences based on whether a
-                #charge balanced assignment can still be found
+                # recurses to find permutations of valences based on whether a
+                # charge balanced assignment can still be found
                 if self._n > self.max_permutations:
                     return
 

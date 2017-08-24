@@ -610,7 +610,6 @@ class StructureMotifInterstitialTest(PymatgenTest):
             to_unit_cell=False, coords_are_cartesian=True,
             site_properties=None)
 
-
     def test_all(self):
         self.assertIsInstance(self.smi, StructureMotifInterstitial)
 
@@ -628,36 +627,6 @@ class StructureMotifInterstitialTest(PymatgenTest):
         structs = self.smi.make_supercells_with_defects(np.array([1, 1, 1]))
         self.assertEqual(len(structs), 2)
         self.assertIsInstance(structs[0], Structure)
-
-    def test_get_neighbors_of_site_with_index(self):
-        self.assertAlmostEqual(len(get_neighbors_of_site_with_index(
-            self.diamond, 0)), 4)
-        self.assertAlmostEqual(len(get_neighbors_of_site_with_index(
-            self.nacl, 0)), 6)
-        self.assertAlmostEqual(len(get_neighbors_of_site_with_index(
-            self.cscl, 0)), 8)
-
-    def test_site_is_of_motif_type(self):
-        for i in range(self.diamond.num_sites):
-            self.assertEqual(site_is_of_motif_type(
-                    self.diamond, i), "tetrahedral")
-        for i in range(self.nacl.num_sites):
-            self.assertEqual(site_is_of_motif_type(
-                    self.nacl, i), "octahedral")
-        for i in range(self.cscl.num_sites):
-            self.assertEqual(site_is_of_motif_type(
-                    self.cscl, i), "bcc")
-        self.assertEqual(site_is_of_motif_type(
-                self.square_pyramid, 0), "square pyramidal")
-        for i in range(1, self.square_pyramid.num_sites):
-            self.assertEqual(site_is_of_motif_type(
-                    self.square_pyramid, i), "unrecognized")
-        self.assertEqual(site_is_of_motif_type(
-                self.trigonal_bipyramid, 0), "trigonal bipyramidal")
-        for i in range(1, self.trigonal_bipyramid.num_sites):
-            self.assertEqual(site_is_of_motif_type(
-                    self.trigonal_bipyramid, i), "unrecognized")
-
 
     def tearDown(self):
         del self.smi

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.surface module &#8212; pymatgen 2017.8.16 documentation</title>
+    <title>pymatgen.core.surface module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.16',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -165,6 +165,12 @@ given site in Angstroms.</li>
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.core.surface.Slab.center_of_mass">
+<code class="descname">center_of_mass</code><a class="headerlink" href="#pymatgen.core.surface.Slab.center_of_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the center of mass of the slab</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.copy">
 <code class="descname">copy</code><span class="sig-paren">(</span><em>site_properties=None</em>, <em>sanitize=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.copy" title="Permalink to this definition">¶</a></dt>
@@ -247,6 +253,36 @@ as if each comparison were reversed.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.core.surface.Slab.get_surface_sites">
+<code class="descname">get_surface_sites</code><span class="sig-paren">(</span><em>decimal=5</em>, <em>tag=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_surface_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_surface_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the surface sites and their site indices in a dictionary. The oriented unit
+cell of the slab will determine the coordination number of a typical site. We use
+VoronoiCoordFinder to determine the coordination number of bulk sites and slab
+sites. Due to the pathological error resulting from some surface sites in the
+VoronoiCoordFinder, we assume any site that has this error is a surface site as well.
+This will work for elemental systems only for now. Useful for analysis involving
+broken bonds and for finding adsorption sites.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>decimal (int): The decimal place to determine a unique</dt>
+<dd>coordination number</dd>
+<dt>tag (bool): Option to adds site attribute “is_surfsite” (bool) to</dt>
+<dd>all sites of slab. Defaults to False</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>A dictionary grouping sites on top and bottom of the slab together.</dt>
+<dd>{“top”: [sites with indices], “bottom”: [sites with indices}</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.core.surface.Slab.get_tasker2_slabs">
 <code class="descname">get_tasker2_slabs</code><span class="sig-paren">(</span><em>tol=0.01</em>, <em>same_species_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_tasker2_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_tasker2_slabs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of slabs that have been Tasker 2 corrected.</p>
@@ -271,6 +307,11 @@ the desired behavior).</li>
 </tbody>
 </table>
 </dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.surface.Slab.have_equivalent_surfaces">
+<code class="descname">have_equivalent_surfaces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.have_equivalent_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.have_equivalent_surfaces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.is_polar">
@@ -492,16 +533,15 @@ Slabs are sorted by the # of bonds broken.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.core.surface.SlabGenerator.symmetrize_slab">
-<code class="descname">symmetrize_slab</code><span class="sig-paren">(</span><em>slab</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.symmetrize_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.symmetrize_slab" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab">
+<code class="descname">nonstoichiometric_symmetrized_slab</code><span class="sig-paren">(</span><em>slab</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.nonstoichiometric_symmetrized_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method checks whether or not the two surfaces of the slab are
 equivalent. If the point group of the slab has an inversion symmetry (
 ie. belong to one of the Laue groups), then it is assumed that the
 surfaces should be equivalent. Otherwise, sites at the bottom of the
-slab will be removed until the slab is symmetric. Note that this method
-should only be limited to elemental structures as the removal of sites
+slab will be removed until the slab is symmetric. Note the removal of sites
 can destroy the stoichiometry of the slab. For non-elemental
-structures, use is_polar().</p>
+structures, the chemical potential will be needed to calculate surface energy.</p>
 <dl class="docutils">
 <dt>Arg:</dt>
 <dd>slab (Structure): A single slab structure
@@ -655,7 +695,7 @@ structure. All other indices are equivalent to one of these.</div></blockquote>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
