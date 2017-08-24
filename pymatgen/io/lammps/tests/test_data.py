@@ -11,22 +11,15 @@ from collections import OrderedDict
 
 import numpy as np
 
-<<<<<<< HEAD
 from pymatgen.io.lammps.data import LammpsData, parse_data_file, to_POSCAR
-=======
-from pymatgen.io.lammps.data import LammpsData, parse_data_file
->>>>>>> 797e95c1a700e70d08ce54af5360c2ee5c7b96fc
 from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.io.lammps.data import LammpsForceFieldData
 from pymatgen.io.lammps.force_field import ForceField
 from pymatgen.io.lammps.topology import Topology
-<<<<<<< HEAD
 
 from pymatgen.io.vasp.inputs import Poscar
-=======
->>>>>>> 797e95c1a700e70d08ce54af5360c2ee5c7b96fc
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
@@ -355,7 +348,6 @@ class TestLammpsForceFieldData(unittest.TestCase):
             if os.path.exists(os.path.join(test_dir, x)):
                 os.remove(os.path.join(test_dir, x))
 
-<<<<<<< HEAD
 class TesttoPOSCAR(unittest.TestCase):
     @classmethod
     def setUp(self):
@@ -367,8 +359,6 @@ class TesttoPOSCAR(unittest.TestCase):
         self.assertEqual(type(s).__name__,'Structure')
         self.assertEqual(len(self.POSCAR.site_symbols), 4)
         self.assertEqual(np.sum(self.POSCAR.natoms), 432)
-=======
->>>>>>> 797e95c1a700e70d08ce54af5360c2ee5c7b96fc
 
 if __name__ == "__main__":
     unittest.main()
