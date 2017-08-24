@@ -120,21 +120,6 @@ Atoms
             **d
         )
 
-        return LammpsData.TEMPLATE.format(
-            natoms=self.natoms,
-            natom_types=self.natom_types,
-            xlo=self.box_size[0][0],
-            xhi=self.box_size[0][1],
-            ylo=self.box_size[1][0],
-            yhi=self.box_size[1][1],
-            zlo=self.box_size[2][0],
-            zhi=self.box_size[2][1],
-            tilt="{:.6f} {:.6f} {:.6f} xy xz yz".format(
-                self.box_tilt[0], self.box_tilt[1], self.box_tilt[2]) if self.box_tilt else "",
-            masses=list_str(self.atomic_masses),
-            atoms=list_str(self.atoms_data)
-        )
-
     @staticmethod
     def check_box_size(structure, box_size, translate=False):
         """
@@ -836,8 +821,8 @@ def parse_data_file(filename):
     data = {}
     count_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)$')
     types_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$')
-    box_pattern = re.compile(r'^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([xyz])lo\s+([xyz])hi$')
-    tilt_pattern = re.compile(r'^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+xy\s+xz\s+yz$')
+    box_pattern = re.compile(r'^\s*([0-9eE.+-]+)\s+([0-9eE.+-]+)\s+([xyz])lo\s+([xyz])hi$')
+    tilt_pattern = re.compile(r'^\s*([0-9eE.+-]+)\s+([0-9eE.+-]+)\s+([0-9eE.+-]+)\s+xy\s+xz\s+yz$')
     key = None
     with open(filename) as f:
         for line in f:
