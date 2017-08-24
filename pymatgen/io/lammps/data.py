@@ -105,8 +105,8 @@ Atoms
             return "\n".join([" ".join([str(x) for x in ad])
                               for ad in l])
 
+        d = {k: v for k, v in self.__dict__.items()}
         return LammpsData.TEMPLATE.format(
-            **self.__dict__,
             xlo=self.box_size[0][0],
             xhi=self.box_size[0][1],
             ylo=self.box_size[1][0],
@@ -116,7 +116,8 @@ Atoms
             tilt="{:.6f} {:.6f} {:.6f} xy xz yz".format(
                 self.box_tilt[0], self.box_tilt[1], self.box_tilt[2]) if self.box_tilt else "",
             masses=list_str(self.atomic_masses),
-            atoms=list_str(self.atoms_data)
+            atoms=list_str(self.atoms_data),
+            **d
         )
 
         return LammpsData.TEMPLATE.format(
@@ -474,7 +475,6 @@ Impropers
             d["%s_coeffs" % k] = list_str(d["%s_coeffs" % k])
 
         output = LammpsForceFieldData.TEMPLATE.format(
-            **d,
             xlo=self.box_size[0][0],
             xhi=self.box_size[0][1],
             ylo=self.box_size[1][0],
@@ -489,6 +489,7 @@ Impropers
             angles=list_str(self.angles_data),
             dihedrals=list_str(self.dihedrals_data),
             impropers=list_str(self.imdihedrals_data),
+            **d
         )
 
         return output
