@@ -38,6 +38,19 @@ class Spectrum(MSONable):
         """
         self.y = self.y / np.sum(self.y)
 
+    def get_smeared_density(self, sigma):
+        """
+        Return Gaussian smeared spectrum
+        :param sigma: Std dev of Gaussian smearing function
+        :return: Gaussian-smeared densities
+        """
+
+        from scipy.ndimage.filters import gaussian_filter1d
+        diff = [self.x[i + 1] - self.x[i] for i in range(len(self.x) - 1)]
+        avg_eV_per_step = np.sum(diff) / len(diff)
+        rv = gaussian_filter1d(self.y, sigma / avg_eV_per_step).tolist()
+        return rv
+
     def ensemble_average(self, spect_list, spect_multi):
         """
         Checks that energy scales and spectral sample points number are identical
@@ -73,15 +86,17 @@ class XANES(Spectrum):
     Basic XANES object.
 
     Args:
-        energies: A sequence of x-ray energies in eV
-        mu: A sequence of mu(E)
+        x: A sequence of x-ray energies in eV
+        y: A sequence of mu(E)
 
-    .. attribute: energies
+    .. attribute: x
         The sequence of energies
-    .. attribute: mu
+    .. attribute: y
         The sequence of mu(E)
     .. attribute: absorption_specie
         The absorption_species of the spectrum
+    .. attribute: edge
+        The edge of XANES spectrum
     """
 
     def __init__(self, x, y, structure, absorption_specie, edge):

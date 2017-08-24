@@ -35,3 +35,6 @@ class XANESSetTest(unittest.TestCase):
     def test_ensemble_average(self):
         ensemble_spect = self.xaneobj.ensemble_average([self.xaneobj] * 4, [0, 1, 3, 5])
         self.assertTrue(np.allclose(ensemble_spect.y, self.xaneobj.y))
+
+    def test_smeared_gaussian(self):
+        self.assertAlmostEqual(sum(self.xaneobj.get_smeared_density(0.2)), sum(self.xaneobj.x))
