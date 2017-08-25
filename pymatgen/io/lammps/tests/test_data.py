@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from pymatgen.io.lammps.data import LammpsData, parse_data_file, to_structure
+from pymatgen.io.lammps.data import LammpsData, parse_data_file, to_Structure
 from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import PymatgenTest
 
@@ -19,7 +19,6 @@ from pymatgen.io.lammps.data import LammpsForceFieldData
 from pymatgen.io.lammps.force_field import ForceField
 from pymatgen.io.lammps.topology import Topology
 
-from pymatgen.io.vasp.inputs import Poscar
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
@@ -351,7 +350,7 @@ class TestLammpsForceFieldData(unittest.TestCase):
 class Testtostructure(unittest.TestCase):
     @classmethod
     def setUp(self):
-        self.structure = to_structure(os.path.join(test_dir, "nvt.data"),'full')
+        self.structure = to_Structure(os.path.join(test_dir, "nvt.data"),'full')
 
     def test_structure(self):
         self.assertEqual(type(self.structure).__name__,'Structure')

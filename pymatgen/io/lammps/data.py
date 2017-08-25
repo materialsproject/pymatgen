@@ -17,9 +17,7 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.sites import PeriodicSite
 
 from pymatgen import Element
-from itertools import groupby
-
-from pymatgen.io.vasp.inputs import Poscar
+import pymatgen as mg
 """
 This module implements classes for generating/parsing Lammps data file i.e
 the file that defines the system configuration(atomic positions, bonds,
@@ -855,20 +853,14 @@ def parse_data_file(filename):
                                             float(m.group(3))]
     return data
 
-
-from pymatgen.io.lammps.data import parse_data_file
-from pymatgen import Element
-from itertools import groupby
-
-def to_structure(filename, data_type = 'charge',significant_fig = 6 ):
+def to_Structure(filename, data_type = 'charge'):
     """
     Transform from LammpsData file to a pymatgen structure object
 
     Args:
         filename: name of the LammpsDate
-        data_type: type of the data file, 
-                   e.g. 'charge', 'atomic','molecular'...,default to 'charge'
-        significant_fig (int): No. of significant figures to output. Default to 6.
+        data_type: type of the data file, e.g. 'charge', 'atomic','molecular'...,
+                   default to 'charge'
 
     Return:
         A pymatgen structure object
@@ -888,89 +880,68 @@ def to_structure(filename, data_type = 'charge',significant_fig = 6 ):
     group9 = ['template']
     group10 = ['wavepacket']
 
-    #define data format
-    float_fmt = '%.{}f'.format(significant_fig)
-
-    #title
-    lines = ['POSCAR from lammpsData']
-
-    #scale
-    lines.extend(['1.0'])
-
-    #lattice vectors
-    L_a = float_fmt % (data['x'][1] - data['x'][0]) + ' ' + float_fmt % 0 + ' ' + float_fmt % 0
+    # lattice vectors
+    L_a = [(data['x'][1] - data['x'][0]), 0.00, 0.00]
     if ('xy-xz-yz' in data.keys()):
-        L_b = float_fmt % data['xy-xz-yz'][0] + ' ' + \
-                float_fmt % (data['y'][1] - data['y'][0]) + ' ' + float_fmt % 0
-        L_c = float_fmt % data['xy-xz-yz'][1] + ' ' + \
-                float_fmt % data['xy-xz-yz'][2] + ' ' + float_fmt % (data['z'][1] - data['z'][0])
+        L_b = [data['xy-xz-yz'][0], data['y'][1] - data['y'][0], 0.00]
+        L_c = [data['xy-xz-yz'][1], data['xy-xz-yz'][2], data['z'][1] - data['z'][0]]
     else:
-        L_b = float_fmt % 0 + ' ' + float_fmt % (data['y'][1] - data['y'][0]) +\
-                ' ' + float_fmt % 0
-        L_c = float_fmt % 0 + ' ' + float_fmt % 0 + ' ' + \
-                float_fmt % (data['z'][1] - data['z'][0])
-    lines.extend([L_a, L_b, L_c])
+        L_b = [0.00, data['y'][1] - data['y'][0], 0.00]
+        L_c = [0.00, 0.00, data['z'][1] - data['z'][0]]
+    lattice = [L_a, L_b, L_c]
 
-    # atom types
-    el_list = ''
-    for el_mass in data['masses']:
-        mlist = [[abs(el.atomic_mass - el_mass[1]), el] for el in Element]
-        mlist_sorted = sorted(mlist, key=lambda mel: mel[0])
-        el_list = el_list + ' ' + str(mlist_sorted[0][1])
-    lines.extend([el_list])
+    #species and coords
 
-    #extract number of each atom type and atom_coordinate for different group type
+    #function to extract the species and coords
+    def get_species_coords(i,j):
+        """
+        From the column of the stom type and the starting of the coordinates
+        to extract the atom species and coordinates.
+
+        Args:
+            i: column index of the atom type
+            j: column index of the starting of the atom coordinates
+
+        Returns:
+            atom species and coordinates for structure object
+        """
+        # get atom types
+        el_list = []
+        for el_mass in data['masses']:
+            mlist = [[abs(el.atomic_mass - el_mass[1]), el] for el in Element]
+            mlist_sorted = sorted(mlist, key=lambda mel: mel[0])
+            el_list.append(str(mlist_sorted[0][1]))
+
+        coords = []
+        species = []
+        for atom in data['atoms']:
+            species.append(el_list[int(atom[i] - 1)])
+            coords.append(atom[j:j+3])
+        return species, coords
+
     if(data_type.lower() in group1):
-        atoms = sorted(data['atoms'], key=lambda atom: atom[:][1])
-        num_atom_type = [len(list(group)) for key, group in groupby([i[1] for i in atoms])]
-        atom_vasp = [i[4:7] for i in atoms]
+        species, coords = get_species_coords(1,4)
     elif (data_type.lower() in group2):
-        atoms = sorted(data['atoms'], key=lambda atom: atom[:][2])
-        num_atom_type = [len(list(group)) for key, group in groupby([i[2] for i in atoms])]
-        atom_vasp = [i[3:6] for i in atoms]
+        species, coords = get_species_coords(2, 3)
     elif (data_type.lower() in group3):
-        atoms = sorted(data['atoms'], key=lambda atom: atom[:][1])
-        num_atom_type = [len(list(group)) for key, group in groupby([i[1] for i in atoms])]
-        atom_vasp = [i[3:6] for i in atoms]
+        species, coords = get_species_coords(1, 3)
     elif (data_type.lower() in group4):
-        atoms = sorted(data['atoms'], key=lambda atom: atom[:][1])
-        num_atom_type = [len(list(group)) for key, group in groupby([i[1] for i in atoms])]
-        atom_vasp = [i[2:5] for i in atoms]
+        species, coords = get_species_coords(1, 2)
     elif (data_type.lower() in group5):
-        atoms = sorted(data['atoms'], key=lambda atom: atom[:][1])
-        num_atom_type = [len(list(group)) for key, group in groupby([i[1] for i in atoms])]
-        atom_vasp = [i[5:8] for i in atoms]
+        species, coords = get_species_coords(1, 5)
     elif (data_type.lower() in group6):
-        atoms = sorted(data['atoms'], key=lambda atom: atom[:][2])
-        num_atom_type = [len(list(group)) for key, group in groupby([i[2] for i in atoms])]
-        atom_vasp = [i[5:8] for i in atoms]
+        species, coords = get_species_coords(2, 5)
     elif (data_type.lower() in group7):
-        atoms = sorted(data['atoms'], key=lambda atom: atom[:][2])
-        num_atom_type = [len(list(group)) for key, group in groupby([i[2] for i in atoms])]
-        atom_vasp = [i[4:7] for i in atoms]
+        species, coords = get_species_coords(2, 4)
     elif (data_type.lower() in group8):
-        atoms = sorted(data['atoms'], key=lambda atom: atom[:][1])
-        num_atom_type = [len(list(group)) for key, group in groupby([i[1] for i in atoms])]
-        atom_vasp = [i[7:10] for i in atoms]
+        species, coords = get_species_coords(1, 7)
     elif (data_type.lower() in group9):
-        atoms = sorted(data['atoms'], key=lambda atom: atom[:][4])
-        num_atom_type = [len(list(group)) for key, group in groupby([i[4] for i in atoms])]
-        atom_vasp = [i[5:8] for i in atoms]
+        species, coords = get_species_coords(4, 5)
     elif (data_type.lower() in group10):
-        atoms = sorted(data['atoms'], key=lambda atom: atom[:][1])
-        num_atom_type = [len(list(group)) for key, group in groupby([i[1] for i in atoms])]
-        atom_vasp = [i[8:11] for i in atoms]
+        species, coords = get_species_coords(1, 8)
     else:
         RuntimeError('no such data type')
-    #number of each type of atom
-    lines.extend([' '.join(str(i) for i in num_atom_type)])
 
-    #coordinate method
-    lines.extend(['Cartesian'])
+    Structure = mg.Structure(lattice,species,coords, coords_are_cartesian='True')
 
-    #atom_coordinate
-    for atom_coord in atom_vasp:
-        lines.extend([' '.join(str(float_fmt % i) for i in atom_coord)])
-
-    return Poscar.from_string('\n'.join(lines)).structure
-
+    return Structure
