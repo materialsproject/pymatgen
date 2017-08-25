@@ -102,7 +102,7 @@ class SlabTest(PymatgenTest):
         self.assertFalse(self.zno55.is_polar())
         cscl = self.get_structure("CsCl")
         cscl.add_oxidation_state_by_element({"Cs": 1, "Cl": -1})
-        slab = SlabGenerator(cscl, [1, 0, 0], 5, 5,
+        slab = SlabGenerator(cscl, [1, 0, 0], 5, 5, reorient_lattice=False,
                              lll_reduce=False, center_slab=False).get_slab()
         self.assertArrayAlmostEqual(slab.dipole, [-4.209, 0, 0])
         self.assertTrue(slab.is_polar())
