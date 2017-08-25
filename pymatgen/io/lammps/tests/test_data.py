@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from pymatgen.io.lammps.data import LammpsData, parse_data_file, to_Structure
+from pymatgen.io.lammps.data import LammpsData, parse_data_file
 from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import PymatgenTest
 
@@ -152,7 +152,7 @@ class TestLammpsDataStructure(unittest.TestCase):
         self.lammps_data.write_file(
             os.path.join(test_dir, "lammps_data.dat"))
         lammps_data = LammpsData.from_file(
-            os.path.join(test_dir, "lammps_data.dat"), atom_style="atomic")
+            os.path.join(test_dir, "lammps_data.dat"), atom_style="charge")
         self.assertEqual(lammps_data.structure, self.lammps_data.structure)
 
     def test_structure(self):
@@ -160,6 +160,14 @@ class TestLammpsDataStructure(unittest.TestCase):
         self.assertEqual(len(structure.composition.elements), 2)
         self.assertEqual(structure.num_sites, 3)
         self.assertEqual(structure.formula, "Li2 O1")
+        
+        lammps_data = LammpsData.from_file(os.path.join(test_dir, "nvt.data"),'full')
+        self.assertEqual(type(lammps_data.structure).__name__,'Structure')
+        self.assertEqual(len(lammps_data.structure.composition.elements), 2)
+        self.assertEqual(lammps_data.structure.num_sites, 648)
+        self.assertEqual(lammps_data.structure.symbol_set[0], 'O')
+        self.assertEqual(lammps_data.structure.symbol_set[1], 'H')
+        self.assertEqual(lammps_data.structure.volume, 27000)
 
     def tearDown(self):
         for x in ["lammps_data.dat"]:
@@ -354,19 +362,6 @@ class TestLammpsForceFieldData(unittest.TestCase):
         for x in ["lammps_ff_data.dat"]:
             if os.path.exists(os.path.join(test_dir, x)):
                 os.remove(os.path.join(test_dir, x))
-
-class Testtostructure(unittest.TestCase):
-    @classmethod
-    def setUp(self):
-        self.structure = to_Structure(os.path.join(test_dir, "nvt.data"),'full')
-
-    def test_structure(self):
-        self.assertEqual(type(self.structure).__name__,'Structure')
-        self.assertEqual(len(self.structure.composition.elements), 2)
-        self.assertEqual(self.structure.num_sites, 648)
-        self.assertEqual(self.structure.symbol_set[0], 'O')
-        self.assertEqual(self.structure.symbol_set[1], 'H')
-        self.assertEqual(self.structure.volume, 27000)
 
 if __name__ == "__main__":
     unittest.main()
