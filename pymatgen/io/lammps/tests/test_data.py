@@ -30,7 +30,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class TestLammpsDataMolecule(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        polymer_chain = Molecule.from_file(os.path.join(test_dir,"polymer_chain.xyz"))
+        polymer_chain = Molecule.from_file(os.path.join(test_dir, "polymer_chain.xyz"))
         box_size = [[0.0, 20.0], [0.0, 20.0], [0.0, 20.0]]
         cls.lammps_data = LammpsData.from_structure(polymer_chain, box_size)
 
@@ -123,13 +123,15 @@ class TestLammpsDataStructure(unittest.TestCase):
         natom_types = 2
         natoms = 3
         atomic_masses = [[1, 6.941], [2, 15.9994]]
-        box_size = [[0.0, 3.259762],
-                    [0.0, 2.823037],
-                    [0.0, 2.661585]]
-        box_tilt = [1.629881, 1.629881, 0.941012]
-        atoms_data = [[1, 1, 1.0, -1.1525, -1.1525, -1.1525],
-                      [2, 1, 1.0, -3.4575, -3.4575, -3.4575],
-                      [3, 2, -2.0, 0.0, 0.0, 0.0]]
+        box_size = [[0., 3.291072],
+                    [0., 2.85387],
+                    [0., 2.691534]]
+        box_tilt = [1.63908, 1.639079, 0.948798]
+        atoms_data = [[1, 2, -2.0, 0.0, 0.0, 0.0],
+                      [2, 1, 1, 3.0121376101748445, 2.2136444099840591,
+                       4.7463233003201788],
+                      [3, 1, 1, 1.0030913698251558, 0.73718000001594119,
+                       1.5806037296798212]]
 
         self.assertEqual(self.lammps_data.natom_types, natom_types)
         self.assertEqual(self.lammps_data.natoms, natoms)
@@ -151,7 +153,13 @@ class TestLammpsDataStructure(unittest.TestCase):
             os.path.join(test_dir, "lammps_data.dat"))
         lammps_data = LammpsData.from_file(
             os.path.join(test_dir, "lammps_data.dat"), atom_style="atomic")
-        self.assertEqual(str(lammps_data), str(self.lammps_data))
+        self.assertEqual(lammps_data.structure, self.lammps_data.structure)
+
+    def test_structure(self):
+        structure = self.lammps_data.structure
+        self.assertEqual(len(structure.composition.elements), 2)
+        self.assertEqual(structure.num_sites, 3)
+        self.assertEqual(structure.formula, "Li2 O1")
 
     def tearDown(self):
         for x in ["lammps_data.dat"]:

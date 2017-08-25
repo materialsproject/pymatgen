@@ -157,7 +157,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
             self.assertEqual(a, 90)
         self.assertEqual(refined.lattice.a, refined.lattice.b)
         s = self.get_structure('Li2O')
-        sg = SpacegroupAnalyzer(s, 0.001)
+        sg = SpacegroupAnalyzer(s, 0.01)
         self.assertEqual(sg.get_refined_structure().num_sites, 4 * s.num_sites)
 
     def test_get_symmetrized_structure(self):

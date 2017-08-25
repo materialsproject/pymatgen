@@ -6,6 +6,8 @@ from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
 import re
+
+import math
 from io import open
 from collections import OrderedDict
 
@@ -15,6 +17,8 @@ from monty.json import MSONable, MontyDecoder
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.lattice import Lattice
 
 from pymatgen import Element
 import pymatgen as mg
@@ -122,6 +126,39 @@ Atoms
             **d
         )
 
+    @property
+    def structure(self):
+        """
+        Transform from LammpsData file to a pymatgen structure object
+
+        Return:
+            A pymatgen structure object
+        """
+        species_map = {}
+        for sp in self.atomic_masses:
+            for el in Element:
+                if abs(el.atomic_mass - sp[1]) < 1:
+                    species_map[sp[0]] = el
+        xhi, yhi, zhi = self.box_size[0][1], self.box_size[1][1], self.box_size[2][1]
+        xy, xz, yz = self.box_tilt
+        a = xhi
+        b = np.sqrt(yhi ** 2 + xy ** 2)
+        c = np.sqrt(zhi**2 + xz ** 2 + yz ** 2)
+
+        gamma = math.degrees(math.acos(xy / b))
+        beta = math.degrees(math.acos(xz / c))
+        alpha = math.degrees(math.acos((yhi * yz + xy * xz) / a / c))
+        lattice = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
+        species = []
+        coords = []
+        for d in self.atoms_data:
+            if d[2] != 0:
+                species.append(Specie(species_map[d[1]].symbol, d[2]))
+            else:
+                species.append(species_map[d[1]])
+            coords.append(d[3:])
+        return Structure(lattice, species, coords, coords_are_cartesian=True)
+
     @staticmethod
     def check_box_size(structure, box_size, translate=False):
         """
@@ -213,7 +250,8 @@ Atoms
         """
         return the atoms data:
             Molecule:
-                atom_id, molecule tag, atom_type, charge(if present else 0), x, y, z.
+                atom_id, molecule tag, atom_type, charge(if present else 0),
+                x, y, z.
                 The molecule_tag is set to 1(i.e the whole structure corresponds to
                 just one molecule).
                 This corresponds to lammps command: "atom_style charge" or
@@ -230,7 +268,8 @@ Atoms
 
         Returns:
             For Molecule:
-                [[atom_id, molecule tag, atom_type, charge(if present), x, y, z], ... ]
+                [[atom_id, molecule tag, atom_type, charge(if present),
+                x, y, z], ... ]
             For Structure:
                 [[atom_id, atom_type, charge(if present), x, y, z], ... ]
         """
@@ -284,7 +323,8 @@ Atoms
         atoms_data = cls.get_atoms_data(input_structure, atomic_masses_dict,
                                         set_charge=set_charge)
 
-        return cls(box_size, atomic_masses_dict.values(), atoms_data, box_tilt=box_tilt)
+        return cls(box_size, atomic_masses_dict.values(), atoms_data,
+                   box_tilt=box_tilt)
 
     @classmethod
     def from_file(cls, data_file, atom_style="full"):
@@ -852,6 +892,7 @@ def parse_data_file(filename):
                                             float(m.group(2)),
                                             float(m.group(3))]
     return data
+<<<<<<< HEAD
 
 def to_Structure(filename, data_type = 'charge'):
     """
@@ -945,3 +986,5 @@ def to_Structure(filename, data_type = 'charge'):
     Structure = mg.Structure(lattice,species,coords, coords_are_cartesian='True')
 
     return Structure
+=======
+>>>>>>> 8b20d0c7a80a164633c311abe3a825921b544f7a
