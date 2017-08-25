@@ -452,7 +452,7 @@ class StructureTest(PymatgenTest):
 
         # Test slice replacement.
         s = PymatgenTest.get_structure("Li2O")
-        s[1:3] = "S"
+        s[0:2] = "S"
         self.assertEqual(s.formula, "Li1 S2")
 
     def test_non_hash(self):
