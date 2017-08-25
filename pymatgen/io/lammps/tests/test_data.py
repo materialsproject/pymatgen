@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from pymatgen.io.lammps.data import LammpsData, parse_data_file, to_POSCAR
+from pymatgen.io.lammps.data import LammpsData, parse_data_file, to_structure
 from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import PymatgenTest
 
@@ -348,17 +348,18 @@ class TestLammpsForceFieldData(unittest.TestCase):
             if os.path.exists(os.path.join(test_dir, x)):
                 os.remove(os.path.join(test_dir, x))
 
-class TesttoPOSCAR(unittest.TestCase):
+class Testtostructure(unittest.TestCase):
     @classmethod
     def setUp(self):
-        data = to_POSCAR(os.path.join(test_dir, "const_pot.data"),'full')
-        self.POSCAR = Poscar.from_string(data)
+        self.structure = to_structure(os.path.join(test_dir, "nvt.data"),'full')
 
     def test_structure(self):
-        s = self.POSCAR.structure
-        self.assertEqual(type(s).__name__,'Structure')
-        self.assertEqual(len(self.POSCAR.site_symbols), 4)
-        self.assertEqual(np.sum(self.POSCAR.natoms), 432)
+        self.assertEqual(type(self.structure).__name__,'Structure')
+        self.assertEqual(len(self.structure.composition.elements), 2)
+        self.assertEqual(self.structure.num_sites, 648)
+        self.assertEqual(self.structure.symbol_set[0], 'O')
+        self.assertEqual(self.structure.symbol_set[1], 'H')
+        self.assertEqual(self.structure.volume, 27000)
 
 if __name__ == "__main__":
     unittest.main()

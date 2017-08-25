@@ -18,6 +18,8 @@ from pymatgen.core.sites import PeriodicSite
 
 from pymatgen import Element
 from itertools import groupby
+
+from pymatgen.io.vasp.inputs import Poscar
 """
 This module implements classes for generating/parsing Lammps data file i.e
 the file that defines the system configuration(atomic positions, bonds,
@@ -858,9 +860,9 @@ from pymatgen.io.lammps.data import parse_data_file
 from pymatgen import Element
 from itertools import groupby
 
-def to_POSCAR(filename, data_type = 'charge',significant_fig = 6 ):
+def to_structure(filename, data_type = 'charge',significant_fig = 6 ):
     """
-    Transform from LammpsData file to Vasp POSCAR format
+    Transform from LammpsData file to a pymatgen structure object
 
     Args:
         filename: name of the LammpsDate
@@ -869,7 +871,7 @@ def to_POSCAR(filename, data_type = 'charge',significant_fig = 6 ):
         significant_fig (int): No. of significant figures to output. Default to 6.
 
     Return:
-        String representation of POSCAR format
+        A pymatgen structure object
     """
     #load LammpsData
     data = parse_data_file(filename)
@@ -970,5 +972,5 @@ def to_POSCAR(filename, data_type = 'charge',significant_fig = 6 ):
     for atom_coord in atom_vasp:
         lines.extend([' '.join(str(float_fmt % i) for i in atom_coord)])
 
-    return '\n'.join(lines)
+    return Poscar.from_string('\n'.join(lines)).structure
 
