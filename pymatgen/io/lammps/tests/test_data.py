@@ -11,13 +11,14 @@ from collections import OrderedDict
 
 import numpy as np
 
-from pymatgen.io.lammps.data import LammpsData, parse_data_file
+from pymatgen.io.lammps.data import LammpsData, parse_data_file, to_Structure
 from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.io.lammps.data import LammpsForceFieldData
 from pymatgen.io.lammps.force_field import ForceField
 from pymatgen.io.lammps.topology import Topology
+
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
@@ -346,6 +347,18 @@ class TestLammpsForceFieldData(unittest.TestCase):
             if os.path.exists(os.path.join(test_dir, x)):
                 os.remove(os.path.join(test_dir, x))
 
+class Testtostructure(unittest.TestCase):
+    @classmethod
+    def setUp(self):
+        self.structure = to_Structure(os.path.join(test_dir, "nvt.data"),'full')
+
+    def test_structure(self):
+        self.assertEqual(type(self.structure).__name__,'Structure')
+        self.assertEqual(len(self.structure.composition.elements), 2)
+        self.assertEqual(self.structure.num_sites, 648)
+        self.assertEqual(self.structure.symbol_set[0], 'O')
+        self.assertEqual(self.structure.symbol_set[1], 'H')
+        self.assertEqual(self.structure.volume, 27000)
 
 if __name__ == "__main__":
     unittest.main()

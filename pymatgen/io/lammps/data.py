@@ -16,6 +16,8 @@ from monty.json import MSONable, MontyDecoder
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.sites import PeriodicSite
 
+from pymatgen import Element
+import pymatgen as mg
 """
 This module implements classes for generating/parsing Lammps data file i.e
 the file that defines the system configuration(atomic positions, bonds,
@@ -851,4 +853,95 @@ def parse_data_file(filename):
                                             float(m.group(3))]
     return data
 
+def to_Structure(filename, data_type = 'charge'):
+    """
+    Transform from LammpsData file to a pymatgen structure object
 
+    Args:
+        filename: name of the LammpsDate
+        data_type: type of the data file, e.g. 'charge', 'atomic','molecular'...,
+                   default to 'charge'
+
+    Return:
+        A pymatgen structure object
+    """
+    #load LammpsData
+    data = parse_data_file(filename)
+
+    #divide data type to groups according to atom entry
+    group1 = ['body', 'ellipsoid', 'peri', 'sphere']
+    group2 = ['angle','bond','molecular']
+    group3 = ['charge','dipole','dpd']
+    group4 = ['atomic','hybrid']
+    group5 = ['electron','meso']
+    group6 = ['line','tri']
+    group7 = ['full',]
+    group8 = ['smd']
+    group9 = ['template']
+    group10 = ['wavepacket']
+
+    # lattice vectors
+    L_a = [(data['x'][1] - data['x'][0]), 0.00, 0.00]
+    if ('xy-xz-yz' in data.keys()):
+        L_b = [data['xy-xz-yz'][0], data['y'][1] - data['y'][0], 0.00]
+        L_c = [data['xy-xz-yz'][1], data['xy-xz-yz'][2], data['z'][1] - data['z'][0]]
+    else:
+        L_b = [0.00, data['y'][1] - data['y'][0], 0.00]
+        L_c = [0.00, 0.00, data['z'][1] - data['z'][0]]
+    lattice = [L_a, L_b, L_c]
+
+    #species and coords
+
+    #function to extract the species and coords
+    def get_species_coords(i,j):
+        """
+        From the column of the stom type and the starting of the coordinates
+        to extract the atom species and coordinates.
+
+        Args:
+            i: column index of the atom type
+            j: column index of the starting of the atom coordinates
+
+        Returns:
+            atom species and coordinates for structure object
+        """
+        # get atom types
+        el_list = []
+        for el_mass in data['masses']:
+            mlist = [[abs(el.atomic_mass - el_mass[1]), el] for el in Element]
+            mlist_sorted = sorted(mlist, key=lambda mel: mel[0])
+            el_list.append(str(mlist_sorted[0][1]))
+
+        coords = []
+        species = []
+        for atom in data['atoms']:
+            species.append(el_list[int(atom[i] - 1)])
+            coords.append(atom[j:j+3])
+        return species, coords
+
+    if(data_type.lower() in group1):
+        species, coords = get_species_coords(1,4)
+    elif (data_type.lower() in group2):
+        species, coords = get_species_coords(2, 3)
+    elif (data_type.lower() in group3):
+        species, coords = get_species_coords(1, 3)
+    elif (data_type.lower() in group4):
+        species, coords = get_species_coords(1, 2)
+    elif (data_type.lower() in group5):
+        species, coords = get_species_coords(1, 5)
+    elif (data_type.lower() in group6):
+        species, coords = get_species_coords(2, 5)
+    elif (data_type.lower() in group7):
+        species, coords = get_species_coords(2, 4)
+    elif (data_type.lower() in group8):
+        species, coords = get_species_coords(1, 7)
+    elif (data_type.lower() in group9):
+        species, coords = get_species_coords(4, 5)
+    elif (data_type.lower() in group10):
+        species, coords = get_species_coords(1, 8)
+    else:
+        RuntimeError('no such data type')
+
+    Structure = mg.Structure(lattice,species,coords, coords_are_cartesian='True')
+
+    return Structure
