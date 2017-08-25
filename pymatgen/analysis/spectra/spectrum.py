@@ -28,8 +28,8 @@ class Spectrum(MSONable):
     """
 
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.x = np.array(x)
+        self.y = np.array(y)
 
     def intensity_sum_norm(self):
         """
@@ -51,28 +51,25 @@ class Spectrum(MSONable):
         rv = gaussian_filter1d(self.y, sigma / avg_eV_per_step).tolist()
         return rv
 
-    def ensemble_average(self, spect_list, spect_multi):
+    def __add__(self, other):
         """
-        Checks that energy scales and spectral sample points number are identical
-        Otherwise, ValueError is thrown.
-        Calculate ensemble average given a list of spectrum object and each object's spectrum multiplicity
-        :param spect_list: Sequence of spectrum object
-        :param spect_multi: Sequence of spectrum's multiplicity
-        :return: Ensemble average of spectra
+        Add two Spectrum object together. Checks that x scales are the same.
+        Otherwise, a ValueError is thrown
+        :param other: Another Spectrum object
+        :return: Sum of the two Spectrum objects
         """
+        if not all(np.equal(self.x, other.x)):
+            raise ValueError("X axis Values of both spectra are not compatible!")
+        y_value = self.y + other.y
+        return Spectrum(self.x, y_value)
 
-        if len(set([spect.x.shape[0] for spect in spect_list])) != 1:
-            raise ValueError('x axis values lengths of spectra are not equal')
-
-        x_axis_values = np.concatenate([spect.x for spect in spect_list])
-        if np.unique(x_axis_values).shape != spect_list[0].x.shape:
-            raise ValueError('x axis values of spectra are not compatible')
-
-        spect_y_value = np.stack([spect.y for spect in spect_list], axis=-1)
-        spect_y_value = np.multiply(spect_y_value, np.array(spect_multi))
-        spect_y_avg = np.sum(spect_y_value, axis=1) / np.sum(spect_multi)
-
-        return Spectrum(spect_list[0].x, spect_y_avg)
+    def __mul__(self, other):
+        """
+        Scale the Spectrum's y values
+        :param other: The scale amount
+        :return: Spectrum object with y values scaled
+        """
+        return Spectrum(self.x, other * self.y)
 
     def __str__(self):
         return self.__class__.__name__

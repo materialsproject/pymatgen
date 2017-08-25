@@ -32,9 +32,11 @@ class XANESSetTest(unittest.TestCase):
         self.xaneobj.intensity_sum_norm()
         self.assertAlmostEqual(1.0, np.sum(self.xaneobj.y))
 
-    def test_ensemble_average(self):
-        ensemble_spect = self.xaneobj.ensemble_average([self.xaneobj] * 4, [0, 1, 3, 5])
-        self.assertTrue(np.allclose(ensemble_spect.y, self.xaneobj.y))
+    def test_add_mul(self):
+        scaled_spect = self.xaneobj + self.xaneobj
+        scaled_spect2 = self.xaneobj * 3
+        self.assertTrue(np.allclose(scaled_spect.y, 2 * self.xaneobj.y))
+        self.assertTrue(np.allclose(scaled_spect2.y, 3 * self.xaneobj.y))
 
     def test_smeared_gaussian(self):
-        self.assertAlmostEqual(sum(self.xaneobj.get_smeared_density(0.2)), sum(self.xaneobj.x))
+        self.assertAlmostEqual(sum(self.xaneobj.get_smeared_density(0.2)), sum(self.xaneobj.y))
