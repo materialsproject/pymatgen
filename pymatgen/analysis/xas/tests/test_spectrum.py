@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 import os
-from pymatgen.analysis.spectra.spectrum import XANES
+from pymatgen.analysis.xas.spectrum import XANES
 import unittest
 import json
 from monty.json import MontyDecoder
@@ -25,7 +25,7 @@ class XANESSetTest(unittest.TestCase):
         self.assertAlmostEqual(24374.508999999998, self.xaneobj.e0)
 
     def test_normalization(self):
-        self.xaneobj.intensity_sum_norm()
+        self.xaneobj.normalize(mode="sum")
         self.assertAlmostEqual(1.0, np.sum(self.xaneobj.y))
 
     def test_add_mul(self):
@@ -35,5 +35,6 @@ class XANESSetTest(unittest.TestCase):
         self.assertTrue(np.allclose(scaled_spect2.y, 3 * self.xaneobj.y))
         self.assertAlmostEqual(0.348883, self.xaneobj.get_interpolated_value(24374.509))
 
-    def test_smeared_gaussian(self):
-        self.assertAlmostEqual(sum(self.xaneobj.get_smeared_density(0.2)), sum(self.xaneobj.y))
+
+if __name__ == '__main__':
+    unittest.main()
