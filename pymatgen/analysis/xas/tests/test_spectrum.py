@@ -5,6 +5,7 @@
 import os
 from pymatgen.analysis.xas.spectrum import XANES
 import unittest
+from pymatgen.util.testing import PymatgenTest
 import json
 from monty.json import MontyDecoder
 import numpy as np
@@ -16,7 +17,7 @@ with open(os.path.join(test_dir, 'Pd2O.json')) as fp:
     spect_data_dict = json.load(fp, cls=MontyDecoder)
 
 
-class XANESSetTest(unittest.TestCase):
+class XANESSetTest(PymatgenTest):
     def setUp(self):
         self.xaneobj = XANES.from_dict(spect_data_dict)
 
@@ -34,6 +35,10 @@ class XANESSetTest(unittest.TestCase):
         self.assertTrue(np.allclose(scaled_spect.y, 2 * self.xaneobj.y))
         self.assertTrue(np.allclose(scaled_spect2.y, 3 * self.xaneobj.y))
         self.assertAlmostEqual(0.348883, self.xaneobj.get_interpolated_value(24374.509))
+
+    def test_to_from_dict(self):
+        s = XANES.from_dict(self.xaneobj.as_dict())
+        self.assertArrayAlmostEqual(s.y, self.xaneobj.y)
 
 
 if __name__ == '__main__':

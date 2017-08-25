@@ -3,7 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.core.units import EnergyArray, Energy
 import numpy as np
 
 """
@@ -35,38 +34,18 @@ class XANES(Spectrum):
     .. attribute: edge
         The edge of XANES spectrum
     """
+    XLABEL = 'Energy (eV)'
+    YLABEL = 'Intensity (mu)'
 
     def __init__(self, x, y, structure, absorption_specie, edge):
         super(XANES, self).__init__(x, y, structure, absorption_specie, edge)
-        self.x = EnergyArray(x, 'eV')
         self.structure = structure
         self.absorption_specie = absorption_specie
         self.edge = edge
-        self.xlabel = 'Energy (eV)'
-        self.ylabel = 'Intensity (mu)'
 
     def find_e0(self):
         """
         Use the maximum gradient to find e0
         """
-        self.e0 = Energy(self.x[np.argmax(np.gradient(self.y) / np.gradient(self.x))], "eV")
+        self.e0 = self.x[np.argmax(np.gradient(self.y) / np.gradient(self.x))]
 
-    @classmethod
-    def from_dict(cls, d):
-        """
-        Return XANES object from dict representation of XANES
-        """
-        return XANES(d['energies'], d['mu'], d['structure'],
-                     d['absorption_specie'], d['edge'])
-
-    def as_dict(self):
-        """
-        Json-serializable dict representation of XANES
-        """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "energies": list(self.energies),
-                "mu": list(self.mu),
-                "absorption_specie": list(self.absorption_specie),
-                "edge": self.edge
-                }

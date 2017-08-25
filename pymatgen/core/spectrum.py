@@ -9,7 +9,8 @@ from scipy.ndimage.filters import gaussian_filter1d
 from pymatgen.util.coord_utils import get_linear_interpolated_value
 
 """
-This module defines classes to represent all xas
+This module defines classes to represent any type of spectrum, essentially any
+x y value pairs. 
 """
 
 __author__ = "Chen Zheng"
@@ -28,8 +29,12 @@ class Spectrum(MSONable):
     Implements basic tools like application of smearing, normalization, addition
     multiplication, etc.
 
-    Subclasses should extend this object.
+    Subclasses should extend this object and ensure that super is called with
+    ALL args and kwargs. That ensures subsequent things like add and mult work
+    properly.
     """
+    XLABEL = "x"
+    YLABEL = "y"
 
     def __init__(self, x, y, *args, **kwargs):
         if len(x) != len(y):
@@ -56,8 +61,8 @@ class Spectrum(MSONable):
         Apply Gaussian smearing.
         """
         diff = [self.x[i + 1] - self.x[i] for i in range(len(self.x) - 1)]
-        avg_eV_per_step = np.sum(diff) / len(diff)
-        self.y = gaussian_filter1d(self.y, sigma / avg_eV_per_step)
+        avg_x_per_step = np.sum(diff) / len(diff)
+        self.y = gaussian_filter1d(self.y, sigma / avg_x_per_step)
 
     def get_interpolated_value(self, x_value):
         """
@@ -74,8 +79,7 @@ class Spectrum(MSONable):
         :return: Sum of the two Spectrum objects
         """
         if not all(np.equal(self.x, other.x)):
-            raise ValueError(
-                "X axis Values of both xas are not compatible!")
+            raise ValueError("X axis values are not compatible!")
         return self.__class__(self.x, self.y + other.y, *self.args,
                               **self.kwargs)
 
