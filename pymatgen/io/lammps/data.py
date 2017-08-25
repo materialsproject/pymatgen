@@ -39,11 +39,10 @@ __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
 __credits__ = 'Brandon Wood'
 
-
 # exhaustive(as far i know) list of lammps data file keywords
 
-HEADER_KEYWORDS = {"atoms", "bonds",  "angles", "dihedrals",  "impropers",
-                   "atom types", "bond types",  "angle types", "dihedral types",
+HEADER_KEYWORDS = {"atoms", "bonds", "angles", "dihedrals", "impropers",
+                   "atom types", "bond types", "angle types", "dihedral types",
                    "improper types", "extra bond per atom", "extra angle per atom",
                    "extra dihedral per atom", "extra improper per atom",
                    "extra special per atom", "ellipsoids", "lines", "triangles",
@@ -90,13 +89,14 @@ Atoms
 {atoms}
 """
 
-    def __init__(self, box_size, atomic_masses, atoms_data, box_tilt=None):
+    def __init__(self, box_size, atomic_masses, atoms_data, box_tilt=None, atom_style='full'):
         self.box_size = box_size
         self.natoms = len(atoms_data)
         self.natom_types = len(atomic_masses)
         self.atomic_masses = list(atomic_masses)
         self.atoms_data = atoms_data
         self.box_tilt = box_tilt
+        self.atom_style = atom_style
 
     def __str__(self):
         """
@@ -105,6 +105,7 @@ Atoms
         Returns:
             String representation of the data file
         """
+
         def list_str(l):
             return "\n".join([" ".join([str(x) for x in ad])
                               for ad in l])
@@ -135,13 +136,14 @@ Atoms
         species_map = {}
         for sp in self.atomic_masses:
             for el in Element:
-                if abs(el.atomic_mass - sp[1]) < 1:
+                if abs(el.atomic_mass - sp[1]) < 0.05:
                     species_map[sp[0]] = el
-        xhi, yhi, zhi = self.box_size[0][1], self.box_size[1][1], self.box_size[2][1]
-        xy, xz, yz = self.box_tilt
+        xhi, yhi, zhi = self.box_size[0][1] - self.box_size[0][0], self.box_size[1][1] - self.box_size[1][0], \
+                        self.box_size[2][1] - self.box_size[0][0]
+        xy, xz, yz = self.box_tilt if self.box_tilt is not None else [0.0, 0.0, 0.0]
         a = xhi
         b = np.sqrt(yhi ** 2 + xy ** 2)
-        c = np.sqrt(zhi**2 + xz ** 2 + yz ** 2)
+        c = np.sqrt(zhi ** 2 + xz ** 2 + yz ** 2)
 
         gamma = math.degrees(math.acos(xy / b))
         beta = math.degrees(math.acos(xz / c))
@@ -150,11 +152,24 @@ Atoms
         species = []
         coords = []
         for d in self.atoms_data:
-            if d[2] != 0:
-                species.append(Specie(species_map[d[1]].symbol, d[2]))
-            else:
+            if self.atom_style == 'full':
+                if d[3] != 0:
+                    species.append(Specie(species_map[d[2]].symbol, d[3]))
+                else:
+                    species.append(species_map[d[1]])
+                coords.append(d[4:7])
+            elif self.atom_style == 'charge':
+                if d[2] != 0:
+                    species.append(Specie(species_map[d[1]].symbol, d[2]))
+                else:
+                    species.append(species_map[d[1]])
+                coords.append(d[3:6])
+            elif self.atom_style == 'atomic':
                 species.append(species_map[d[1]])
-            coords.append(d[3:])
+                coords.append(d[2:5])
+            else:
+                raise RuntimeError('data style not implemented')
+
         return Structure(lattice, species, coords, coords_are_cartesian=True)
 
     @staticmethod
@@ -184,7 +199,7 @@ Atoms
             try:
                 np.testing.assert_array_less(box_lengths_req, box_lengths)
             except AssertionError:
-                box_size = [[0.0, np.ceil(i*1.1)] for i in box_lengths_req]
+                box_size = [[0.0, np.ceil(i * 1.1)] for i in box_lengths_req]
                 print("Minimum required box lengths {} larger than the provided "
                       "box lengths{}. Resetting the box size to {}".format(
                     box_lengths_req, box_lengths, box_size))
@@ -200,10 +215,10 @@ Atoms
             m = structure.lattice.matrix.copy()
             xhi = a
             xy = np.dot(m[1], m[0] / xhi)
-            yhi = np.sqrt(b**2 - xy**2)
+            yhi = np.sqrt(b ** 2 - xy ** 2)
             xz = np.dot(m[2], m[0] / xhi)
             yz = (np.dot(m[1], m[2]) - xy * xz) / yhi
-            zhi = np.sqrt(c**2 - xz**2 - yz**2)
+            zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2)
             box_size = [[0.0, xhi], [0.0, yhi], [0.0, zhi]]
             box_tilt = [xy, xz, yz]
         return box_size, box_tilt
@@ -321,8 +336,10 @@ Atoms
         atoms_data = cls.get_atoms_data(input_structure, atomic_masses_dict,
                                         set_charge=set_charge)
 
+        atom_style = 'full' if isinstance(input_structure, Molecule) else 'charge'
+
         return cls(box_size, atomic_masses_dict.values(), atoms_data,
-                   box_tilt=box_tilt)
+                   box_tilt=box_tilt, atom_style=atom_style)
 
     @classmethod
     def from_file(cls, data_file, atom_style="full"):
@@ -352,7 +369,7 @@ Atoms
 
         box_tilt = data.get("xy-xz-yz", None)
 
-        return cls(box_size, atomic_masses, atoms_data, box_tilt=box_tilt)
+        return cls(box_size, atomic_masses, atoms_data, box_tilt=box_tilt, atom_style=atom_style)
 
     def as_dict(self):
         d = MSONable.as_dict(self)
@@ -491,6 +508,7 @@ Impropers
         """
         returns a string of lammps data input file
         """
+
         def list_str(l):
             return "\n".join([" ".join([str(x) for x in ad])
                               for ad in l])
@@ -563,7 +581,7 @@ Impropers
             elif param:
                 for i, item in enumerate(param.items()):
                     param_coeffs.append([i + 1] + list(item[1]))
-                    param_map[item[0]] = i+1
+                    param_map[item[0]] = i + 1
             return param_coeffs, param_map
         else:
             raise AttributeError
@@ -842,10 +860,10 @@ Impropers
         imdihedral_data = cls._get_non_atoms_data(data, "impropers")
 
         return cls(box_size, atomic_masses, pair_coeffs,
-                    bond_coeffs, angle_coeffs,
-                    dihedral_coeffs, improper_coeffs,
-                    atoms_data, bonds_data, angles_data,
-                    dihedral_data, imdihedral_data)
+                   bond_coeffs, angle_coeffs,
+                   dihedral_coeffs, improper_coeffs,
+                   atoms_data, bonds_data, angles_data,
+                   dihedral_data, imdihedral_data)
 
 
 def parse_data_file(filename):
