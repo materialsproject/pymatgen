@@ -386,14 +386,17 @@ class Vasprun(MSONable):
             if parse_potcar_file:
                 self.update_potcar_spec(parse_potcar_file)
 
-        if self.incar["ALGO"] == "BSE":
+        try:
+            if "BSE" in self.incar["ALGO"]:
+                pass
+            if not self.converged:
+                msg = "%s is an unconverged VASP run.\n" % filename
+                msg += "Electronic convergence reached: %s.\n" % \
+                       self.converged_electronic
+                msg += "Ionic convergence reached: %s." % self.converged_ionic
+                warnings.warn(msg, UnconvergedVASPWarning)
+        except:
             pass
-        elif not self.converged:
-            msg = "%s is an unconverged VASP run.\n" % filename
-            msg += "Electronic convergence reached: %s.\n" % \
-                   self.converged_electronic
-            msg += "Ionic convergence reached: %s." % self.converged_ionic
-            warnings.warn(msg, UnconvergedVASPWarning)
 
     def _parse(self, stream, parse_dos, parse_eigen, parse_projected_eigen):
         self.efermi = None
