@@ -41,8 +41,8 @@ class Spectrum(MSONable):
             raise ValueError("x and y values have different lengths!")
         self.x = np.array(x)
         self.y = np.array(y)
-        self.args = args
-        self.kwargs = kwargs
+        self._args = args
+        self._kwargs = kwargs
 
     def normalize(self, mode="max"):
         """
@@ -80,8 +80,8 @@ class Spectrum(MSONable):
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
-        return self.__class__(self.x, self.y + other.y, *self.args,
-                              **self.kwargs)
+        return self.__class__(self.x, self.y + other.y, *self._args,
+                              **self._kwargs)
 
     def __mul__(self, other):
         """
@@ -89,8 +89,8 @@ class Spectrum(MSONable):
         :param other: The scale amount
         :return: Spectrum object with y values scaled
         """
-        return self.__class__(self.x, other * self.y, *self.args,
-                              **self.kwargs)
+        return self.__class__(self.x, other * self.y, *self._args,
+                              **self._kwargs)
     __rmul__ = __mul__
 
     def __str__(self):
