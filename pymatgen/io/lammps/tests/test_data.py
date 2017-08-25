@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from pymatgen.io.lammps.data import LammpsData, parse_data_file, to_Structure
+from pymatgen.io.lammps.data import LammpsData, parse_data_file
 from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import PymatgenTest
 
@@ -30,7 +30,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class TestLammpsDataMolecule(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        polymer_chain = Molecule.from_file(os.path.join(test_dir,"polymer_chain.xyz"))
+        polymer_chain = Molecule.from_file(os.path.join(test_dir, "polymer_chain.xyz"))
         box_size = [[0.0, 20.0], [0.0, 20.0], [0.0, 20.0]]
         cls.lammps_data = LammpsData.from_structure(polymer_chain, box_size)
 
@@ -152,6 +152,19 @@ class TestLammpsDataStructure(unittest.TestCase):
         lammps_data = LammpsData.from_file(
             os.path.join(test_dir, "lammps_data.dat"), atom_style="atomic")
         self.assertEqual(str(lammps_data), str(self.lammps_data))
+
+    def test_structure(self):
+        structure = self.lammps_data.structure
+        # structure.to(filename="Li2O_lammps.cif")
+        print(self.structure)
+        print(structure)
+        # self.assertEqual(type(self.structure).__name__,'Structure')
+        # self.assertEqual(len(self.structure.composition.elements), 2)
+        # self.assertEqual(self.structure.num_sites, 648)
+        # self.assertEqual(self.structure.symbol_set[0], 'O')
+        # self.assertEqual(self.structure.symbol_set[1], 'H')
+        # self.assertEqual(self.structure.volume, 27000)
+
 
     def tearDown(self):
         for x in ["lammps_data.dat"]:
@@ -347,18 +360,6 @@ class TestLammpsForceFieldData(unittest.TestCase):
             if os.path.exists(os.path.join(test_dir, x)):
                 os.remove(os.path.join(test_dir, x))
 
-class Testtostructure(unittest.TestCase):
-    @classmethod
-    def setUp(self):
-        self.structure = to_Structure(os.path.join(test_dir, "nvt.data"),'full')
-
-    def test_structure(self):
-        self.assertEqual(type(self.structure).__name__,'Structure')
-        self.assertEqual(len(self.structure.composition.elements), 2)
-        self.assertEqual(self.structure.num_sites, 648)
-        self.assertEqual(self.structure.symbol_set[0], 'O')
-        self.assertEqual(self.structure.symbol_set[1], 'H')
-        self.assertEqual(self.structure.volume, 27000)
 
 if __name__ == "__main__":
     unittest.main()
