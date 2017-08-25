@@ -20,10 +20,6 @@ class XANESSetTest(unittest.TestCase):
     def setUp(self):
         self.xaneobj = XANES.from_dict(spect_data_dict)
 
-    def test_structure(self):
-        self.assertEqual(self.xaneobj.structure.composition.reduced_formula, 'Pd2O')
-        self.assertEqual(self.xaneobj.absorption_specie, 'Pd')
-
     def test_find_e0(self):
         self.xaneobj.find_e0()
         self.assertAlmostEqual(24374.508999999998, self.xaneobj.e0)
@@ -37,6 +33,7 @@ class XANESSetTest(unittest.TestCase):
         scaled_spect2 = self.xaneobj * 3
         self.assertTrue(np.allclose(scaled_spect.y, 2 * self.xaneobj.y))
         self.assertTrue(np.allclose(scaled_spect2.y, 3 * self.xaneobj.y))
+        self.assertAlmostEqual(0.348883, self.xaneobj.get_interpolated_value(24374.509))
 
     def test_smeared_gaussian(self):
         self.assertAlmostEqual(sum(self.xaneobj.get_smeared_density(0.2)), sum(self.xaneobj.y))

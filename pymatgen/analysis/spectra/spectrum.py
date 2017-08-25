@@ -3,11 +3,9 @@
 # Distributed under the terms of the MIT License.
 
 from monty.json import MSONable
-import six
 from pymatgen.core.units import EnergyArray, Energy
-from scipy.interpolate import interp1d
-from pymatgen import Structure
 import numpy as np
+from pymatgen.util.coord_utils import get_linear_interpolated_value
 
 """
 This module defines classes to represent all spectra
@@ -50,6 +48,14 @@ class Spectrum(MSONable):
         avg_eV_per_step = np.sum(diff) / len(diff)
         rv = gaussian_filter1d(self.y, sigma / avg_eV_per_step).tolist()
         return rv
+
+    def get_interpolated_value(self, x_value):
+        """
+        Returns an interpolated y value for a particular x value
+        :param x_value: x value to return the y value for
+        """
+        y_value = get_linear_interpolated_value(self.x, self.y, x_value)
+        return y_value
 
     def __add__(self, other):
         """
