@@ -20,8 +20,6 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.lattice import Lattice
 
-from pymatgen import Element
-import pymatgen as mg
 """
 This module implements classes for generating/parsing Lammps data file i.e
 the file that defines the system configuration(atomic positions, bonds,
