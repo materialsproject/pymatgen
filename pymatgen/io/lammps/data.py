@@ -17,10 +17,8 @@ from monty.json import MSONable, MontyDecoder
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.lattice import Lattice
-
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 """
 This module implements classes for generating/parsing Lammps data file i.e
@@ -152,9 +150,11 @@ Atoms
         species = []
         coords = []
         for d in self.atoms_data:
-            species.append(species_map[d[1]])
+            if d[2] != 0:
+                species.append(Specie(species_map[d[1]].symbol, d[2]))
+            else:
+                species.append(species_map[d[1]])
             coords.append(d[3:])
-        print(lattice.get_fractional_coords(coords))
         return Structure(lattice, species, coords, coords_are_cartesian=True)
 
     @staticmethod
