@@ -389,7 +389,7 @@ class Vasprun(MSONable):
         try:
             if "BSE" in self.incar["ALGO"]:
                 pass
-            if not self.converged:
+            elif not self.converged:
                 msg = "%s is an unconverged VASP run.\n" % filename
                 msg += "Electronic convergence reached: %s.\n" % \
                        self.converged_electronic
