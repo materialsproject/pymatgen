@@ -469,7 +469,8 @@ class AdsorbateSiteFinder(object):
 
 
 def adsorb_both_surfaces(slab, molecule, selective_dynamics=False,
-                         height=0.9, mi_vec=None):
+                         height=0.9, mi_vec=None, repeat=None,
+                         min_lw=5.0, reorient=True, find_args={}):
     """
     Function that generates all adsorption structures for a given
     molecular adsorbate on both surfaces of a slab.
@@ -486,6 +487,13 @@ def adsorb_both_surfaces(slab, molecule, selective_dynamics=False,
             concurrent with the miller index, this enables use with
             slabs that have been reoriented, but the miller vector
             must be supplied manually
+        repeat (3-tuple or list): repeat argument for supercell generation
+        min_lw (float): minimum length and width of the slab, only used
+            if repeat is None
+        reorient (bool): flag on whether or not to reorient adsorbate
+            along the miller index
+        find_args (dict): dictionary of arguments to be passed to the
+            call to self.find_adsorption_sites, e.g. {"distance":2.0}
     """
 
     matcher = StructureMatcher()
@@ -493,12 +501,16 @@ def adsorb_both_surfaces(slab, molecule, selective_dynamics=False,
     # Get adsorption on top
     adsgen_top = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
                                      height=height, mi_vec=mi_vec, top_surface=True)
-    structs = adsgen_top.generate_adsorption_structures(molecule)
+    structs = adsgen_top.generate_adsorption_structures(molecule, repeat=repeat,
+                                                        min_lw=min_lw, reorient=reorient,
+                                                        find_args=find_args)
     adslabs = [g[0] for g in matcher.group_structures(structs)]
     # Get adsorption on bottom
     adsgen_bottom = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
                                      height=height, mi_vec=mi_vec, top_surface=False)
-    structs = adsgen_bottom.generate_adsorption_structures(molecule)
+    structs = adsgen_bottom.generate_adsorption_structures(molecule, repeat=repeat,
+                                                           min_lw=min_lw, reorient=reorient,
+                                                           find_args=find_args)
     adslabs.extend([g[0] for g in matcher.group_structures(structs)])
 
     # Group symmetrically similar slabs

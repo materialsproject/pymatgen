@@ -268,89 +268,89 @@ class SurfaceEnergyAnalyzer(object):
 
 
 
-def get_cn_dict_ouc(slab, decimal=5):
-    """
-    For each species, get all unique coordination numbers.
-    Returns a dictionary with the species_string as key
-    and the value as a list of cn
-
-        Args:
-            decimal (int): The decimal place to determine a unique
-                coordination number
-    """
-
-    cn_dict = {}
-    ucell = slab.oriented_unit_cell
-    v = VoronoiCoordFinder(ucell)
-    for i, site in enumerate(ucell):
-        if ucell[i].species_string not in cn_dict.keys():
-            cn_dict[ucell[i].species_string] = []
-        # Since this will get the cn as a result of the weighted
-        # polyhedra, the slightest difference in cn will indicate
-        # a different coordination environment for a species, eg.
-        # bond distance of each neighbor or neighbor species.
-        cn = v.get_coordination_number(i)
-        cn = round(cn, decimal)
-        if cn not in cn_dict[ucell[i].species_string]:
-            cn_dict[ucell[i].species_string].append(cn)
-
-    return cn_dict
-
-
-def get_surface_sites(slab, decimal=5, top=True):
-    """
-    Returns a list of sites with undercoordination. Due to
-    pathological error resulting from some surface sites, we
-    assume any site that has this error is a surface site as well
-
-        Args:
-            decimal (int): The decimal place to determine a unique
-                coordination number
-    """
-
-    cn_dict = get_cn_dict_ouc(slab)
-
-    v = VoronoiCoordFinder(slab)
-    surface_sites = []
-    for i, site in enumerate(slab):
-        if site.frac_coords[2] > 0.5 and not top:
-            continue
-        try:
-            cn = round(v.get_coordination_number(i), decimal)
-            if cn not in cn_dict[site.species_string]:
-                surface_sites.append([site, i])
-        except RuntimeError:
-            surface_sites.append([site, i])
-
-    return surface_sites
-
-
-def are_surfaces_equal(slab):
-    # Check if we have same number of equivalent sites on both surfaces.
-    # This is an alternative to checking Laue symmetry if we want to
-    # ensure both surfaces in the slab are the same
-
-    # create a structure isolating the
-    # two surfaces from the rest of the slab
-    surfsites = get_surface_sites(slab)
-    species = [s[0].specie for s in surfsites]
-    coords = [s[0].frac_coords for s in surfsites]
-    surface = Structure(slab.lattice, species, coords)
-    a = SpacegroupAnalyzer(surface)
-    symm_structure = a.get_symmetrized_structure()
-
-    # ensure each site on one surface has a
-    # corresponding equivalent site on the other
-    equal_surf_sites, total = [], 0
-    for equ in symm_structure.equivalent_sites:
-        top, bottom = 0, 0
-        for s in equ:
-            total += 1
-            if s.frac_coords[2] > 0.5:
-                top += 1
-            else:
-                bottom += 1
-        equal_surf_sites.append(top == bottom)
-    equal_surf_sites.append(total == len(surface))
-
-    return all(equal_surf_sites)
+# def get_cn_dict_ouc(slab, decimal=5):
+#     """
+#     For each species, get all unique coordination numbers.
+#     Returns a dictionary with the species_string as key
+#     and the value as a list of cn
+#
+#         Args:
+#             decimal (int): The decimal place to determine a unique
+#                 coordination number
+#     """
+#
+#     cn_dict = {}
+#     ucell = slab.oriented_unit_cell
+#     v = VoronoiCoordFinder(ucell)
+#     for i, site in enumerate(ucell):
+#         if ucell[i].species_string not in cn_dict.keys():
+#             cn_dict[ucell[i].species_string] = []
+#         # Since this will get the cn as a result of the weighted
+#         # polyhedra, the slightest difference in cn will indicate
+#         # a different coordination environment for a species, eg.
+#         # bond distance of each neighbor or neighbor species.
+#         cn = v.get_coordination_number(i)
+#         cn = round(cn, decimal)
+#         if cn not in cn_dict[ucell[i].species_string]:
+#             cn_dict[ucell[i].species_string].append(cn)
+#
+#     return cn_dict
+#
+#
+# def get_surface_sites(slab, decimal=5, top=True):
+#     """
+#     Returns a list of sites with undercoordination. Due to
+#     pathological error resulting from some surface sites, we
+#     assume any site that has this error is a surface site as well
+#
+#         Args:
+#             decimal (int): The decimal place to determine a unique
+#                 coordination number
+#     """
+#
+#     cn_dict = get_cn_dict_ouc(slab)
+#
+#     v = VoronoiCoordFinder(slab)
+#     surface_sites = []
+#     for i, site in enumerate(slab):
+#         if site.frac_coords[2] > 0.5 and not top:
+#             continue
+#         try:
+#             cn = round(v.get_coordination_number(i), decimal)
+#             if cn not in cn_dict[site.species_string]:
+#                 surface_sites.append([site, i])
+#         except RuntimeError:
+#             surface_sites.append([site, i])
+#
+#     return surface_sites
+#
+#
+# def are_surfaces_equal(slab):
+#     # Check if we have same number of equivalent sites on both surfaces.
+#     # This is an alternative to checking Laue symmetry if we want to
+#     # ensure both surfaces in the slab are the same
+#
+#     # create a structure isolating the
+#     # two surfaces from the rest of the slab
+#     surfsites = get_surface_sites(slab)
+#     species = [s[0].specie for s in surfsites]
+#     coords = [s[0].frac_coords for s in surfsites]
+#     surface = Structure(slab.lattice, species, coords)
+#     a = SpacegroupAnalyzer(surface)
+#     symm_structure = a.get_symmetrized_structure()
+#
+#     # ensure each site on one surface has a
+#     # corresponding equivalent site on the other
+#     equal_surf_sites, total = [], 0
+#     for equ in symm_structure.equivalent_sites:
+#         top, bottom = 0, 0
+#         for s in equ:
+#             total += 1
+#             if s.frac_coords[2] > 0.5:
+#                 top += 1
+#             else:
+#                 bottom += 1
+#         equal_surf_sites.append(top == bottom)
+#     equal_surf_sites.append(total == len(surface))
+#
+#     return all(equal_surf_sites)
