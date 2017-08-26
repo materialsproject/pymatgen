@@ -60,16 +60,18 @@ class Spectrum(MSONable):
         Normalize the spectrum with respect to the sum of intensity
 
         Args:
-            mode (max): Normalization mode. Support modes are "max" (set the
+            mode (str/float): Normalization mode. Support modes are "max" (set the
                 max y value to 1, e.g., in XRD patterns), "sum" (set the sum of
-                y to 1, i.e., like a probability density). If mode is a float,
-                it is treated as a 
+                y to 1, i.e., like a probability density). If mode is not a str,
+                it is treated as a direct factor, e.g., 10.0
         """
-        if len(self.y.shape) > 1:
-            factor = np.sum(self.y, axis=1) if mode == "sum" else np.max(self.y, axis=1)
+        if mode == "sum":
+            factor = np.sum(self.y, axis=0)
+        elif mode == "max":
+            factor = np.max(self.y, axis=0)
         else:
-
-        self.y = self.y / factor
+            factor = mode
+        self.y /= factor
 
     def smear(self, sigma):
         """
@@ -77,14 +79,25 @@ class Spectrum(MSONable):
         """
         diff = [self.x[i + 1] - self.x[i] for i in range(len(self.x) - 1)]
         avg_x_per_step = np.sum(diff) / len(diff)
-        self.y = gaussian_filter1d(self.y, sigma / avg_x_per_step)
+        dim = self.y.shape
+        if len(dim) == 1:
+            self.y = gaussian_filter1d(self.y, sigma / avg_x_per_step)
+        else:
+            self.y = np.array([
+                gaussian_filter1d(self.y[:, k], sigma / avg_x_per_step)
+                for k in range(dim[1])]).T
 
     def get_interpolated_value(self, x_value):
         """
         Returns an interpolated y value for a particular x value
         :param x_value: x value to return the y value for
         """
-        return get_linear_interpolated_value(self.x, self.y, x_value)
+        dim = self.y.shape
+        if len(dim) == 1:
+            return get_linear_interpolated_value(self.x, self.y, x_value)
+        else:
+            return [get_linear_interpolated_value(self.x, self.y[:, k], x_value)
+                    for k in range(dim[1])]
 
     def __add__(self, other):
         """
