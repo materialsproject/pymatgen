@@ -114,6 +114,9 @@ class Spectrum(MSONable):
         return self.__class__(self.x, self.y / other, *self._args,
                               **self._kwargs)
 
+    __floordiv__ = __truediv__
+    __div__ = __truediv__
+
     def __str__(self):
         return self.__class__.__name__
 
