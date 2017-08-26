@@ -50,21 +50,21 @@ class AdsorbateSiteFinder(object):
     adsorbate structures according to user-defined criteria.
     The algorithm for finding sites is essentially as follows:
         1. Determine "surface sites" by finding those within
-            a height threshold along the miller index of the 
+            a height threshold along the miller index of the
             highest site
         2. Create a network of surface sites using the Delaunay
             triangulation of the surface sites
         3. Assign on-top, bridge, and hollow adsorption sites
             at the nodes, edges, and face centers of the Del.
             Triangulation
-        4. Generate structures from a molecule positioned at 
+        4. Generate structures from a molecule positioned at
             these sites
     """
 
     def __init__(self, slab, selective_dynamics=False,
                  height=0.9, mi_vec=None, top_surface=True):
         """
-        Create an AdsorbateSiteFinder object.  
+        Create an AdsorbateSiteFinder object.
 
         Args:
             slab (Slab): slab object for which to find adsorbate sites
@@ -97,9 +97,9 @@ class AdsorbateSiteFinder(object):
                              center_slab=True, selective_dynamics=False,
                              undercoord_threshold=0.09):
         """
-        This method constructs the adsorbate site finder from a bulk 
-        structure and a miller index, which allows the surface sites 
-        to be determined from the difference in bulk and slab coordination, 
+        This method constructs the adsorbate site finder from a bulk
+        structure and a miller index, which allows the surface sites
+        to be determined from the difference in bulk and slab coordination,
         as opposed to the height threshold.
 
         Args:
@@ -470,7 +470,8 @@ class AdsorbateSiteFinder(object):
 
 
 def adsorb_both_surfaces(slab, molecule, selective_dynamics=False,
-                         height=0.9, mi_vec=None):
+                         height=0.9, mi_vec=None, repeat=None,
+                         min_lw=5.0, reorient=True, find_args={}):
     """
     Function that generates all adsorption structures for a given
     molecular adsorbate on both surfaces of a slab.
@@ -487,6 +488,13 @@ def adsorb_both_surfaces(slab, molecule, selective_dynamics=False,
             concurrent with the miller index, this enables use with
             slabs that have been reoriented, but the miller vector
             must be supplied manually
+        repeat (3-tuple or list): repeat argument for supercell generation
+        min_lw (float): minimum length and width of the slab, only used
+            if repeat is None
+        reorient (bool): flag on whether or not to reorient adsorbate
+            along the miller index
+        find_args (dict): dictionary of arguments to be passed to the
+            call to self.find_adsorption_sites, e.g. {"distance":2.0}
     """
 
     matcher = StructureMatcher()
@@ -494,12 +502,16 @@ def adsorb_both_surfaces(slab, molecule, selective_dynamics=False,
     # Get adsorption on top
     adsgen_top = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
                                      height=height, mi_vec=mi_vec, top_surface=True)
-    structs = adsgen_top.generate_adsorption_structures(molecule)
+    structs = adsgen_top.generate_adsorption_structures(molecule, repeat=repeat,
+                                                        min_lw=min_lw, reorient=reorient,
+                                                        find_args=find_args)
     adslabs = [g[0] for g in matcher.group_structures(structs)]
     # Get adsorption on bottom
     adsgen_bottom = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
                                         height=height, mi_vec=mi_vec, top_surface=False)
-    structs = adsgen_bottom.generate_adsorption_structures(molecule)
+    structs = adsgen_bottom.generate_adsorption_structures(molecule, repeat=repeat,
+                                                           min_lw=min_lw, reorient=reorient,
+                                                           find_args=find_args)
     adslabs.extend([g[0] for g in matcher.group_structures(structs)])
 
     # Group symmetrically similar slabs
@@ -537,7 +549,7 @@ def adsorb_both_surfaces(slab, molecule, selective_dynamics=False,
 
 def get_mi_vec(slab):
     """
-    Convenience function which returns the unit vector aligned 
+    Convenience function which returns the unit vector aligned
     with the miller index.
     """
     mvec = np.cross(slab.lattice.matrix[0], slab.lattice.matrix[1])
@@ -571,7 +583,7 @@ def put_coord_inside(lattice, cart_coordinate):
 
 def reorient_z(structure):
     """
-    reorients a structure such that the z axis is concurrent with the 
+    reorients a structure such that the z axis is concurrent with the
     normal to the A-B plane
     """
     struct = structure.copy()
