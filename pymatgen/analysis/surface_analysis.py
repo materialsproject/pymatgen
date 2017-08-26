@@ -328,21 +328,75 @@ class SurfaceEnergyAnalyzer(object):
 
         return sorted(intersections, key=lambda ints: ints[0])
 
-    def area_frac_vs_chempot_plot(self, at_intersections=True):
+    def area_frac_vs_chempot_plot(self, cmap=cm.jet, at_intersections=False,
+                                  increments=10):
         """
         Plots the change in the area contribution of
         each facet as a function of chemical potential.
         Args:
+            cmap (cm): A matplotlib colormap object, defaults to jet.
             at_intersections (bool): Whether to generate a Wulff shape for each
                 intersection of surface energy for a specific facet (eg. at the
                 point where a (111) stoichiometric surface energy plot intersects
                 with the (111) nonstoichiometric plot) or to just generate two
                 Wulff shapes, one at the min and max chemical potential.
+            increments (bool): Number of data points between min/max or point
+                of intersection. Defaults to 5 points.
         """
 
+        # Choose unique colors for each facet
+        f = [int(i) for i in np.linspace(0, 255, len(self.vasprun_dict.keys()))]
 
+        # Get all points of min/max chempot and intersections
+        chempot_intersections = []
+        chempot_intersections.extend(self.chempot_range)
+        for hkl in self.vasprun_dict.keys():
+            chempot_intersections.extend([ints[0] for ints in
+                                          self.get_intersections(hkl)])
+        chempot_intersections = sorted(chempot_intersections)
 
-        return
+        # Get all chempots
+        if at_intersections:
+            all_chempots = []
+            for i, intersection in enumerate(chempot_intersections):
+                if i < len(chempot_intersections)-1:
+                    all_chempots.extend(np.linspace(intersection,
+                                                    chempot_intersections[i+1],
+                                                    increments))
+        else:
+            all_chempots = np.linspace(min(self.chempot_range),
+                                       max(self.chempot_range), increments)
+
+        # initialize a dictionary of lists of fractional areas for each hkl
+        hkl_area_dict = {}
+        for hkl in self.vasprun_dict.keys():
+            hkl_area_dict[hkl] = []
+
+        # Get plot points for each Miller index
+        for u in all_chempots:
+            wulffshape = self.wulff_shape_from_chempot(u)
+            for hkl in wulffshape.area_fraction_dict.keys():
+                hkl_area_dict[hkl].append(wulffshape.area_fraction_dict[hkl])
+
+        # Plot the area fraction vs chemical potential for each facet
+        plt = pretty_plot()
+        for i, hkl in enumerate(self.vasprun_dict.keys()):
+            # Ignore any facets that never show up on the
+            # Wulff shape regardless of chemical potential
+            if all([a == 0 for a in hkl_area_dict[hkl]]):
+                continue
+            else:
+                plt.plot(all_chempots, hkl_area_dict[hkl],
+                         '--', color=cmap(f[i]), label=str(hkl))
+
+        # Make the figure look nice
+        plt.ylim([0,1])
+        plt.xlim(self.chempot_range)
+        plt.ylabel(r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
+        plt.xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" %(self.ref_element))
+        plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
+
+        return plt
 
     def chempot_vs_gamma_plot(self, cmap=cm.jet, show_unstable_points=False):
         """
