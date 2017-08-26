@@ -22,7 +22,7 @@ from scipy.cluster.hierarchy import linkage, fcluster
 from monty.fractions import lcm
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 
@@ -530,11 +530,32 @@ class Slab(Structure):
             self.add_site_property("is_surf_site", properties)
         return surf_sites_dict
 
-    def have_equivalent_surfaces(self):
+    # def surface_composition(self, top=True):
+    #     """
+    #     Returns the composition at the surface. Useful
+    #     for determining the type of termination
+    #
+    #     Args:
+    #         top (bool): Get the composition at the top surface if True
+    #     """
+    #
+    #     surfsites = self.get_surface_sites()
+    #     sites = surfsites["top"] if top else surfsites["bottom"]
+    #
+    #     comp_dict = {}
+    #     for site in sites:
+    #         if site[0].species_string not in comp_dict.keys():
+    #             comp_dict[site[0].species_string] = 0
+    #         comp_dict[site[0].species_string] += 1
+    #
+    #     return Composition(comp_dict)
 
-        # Check if we have same number of equivalent sites on both surfaces.
-        # This is an alternative to checking Laue symmetry (is_symmetric())
-        # if we want to ensure both surfaces in the slab are the same
+    def have_equivalent_surfaces(self):
+        """
+        Check if we have same number of equivalent sites on both surfaces.
+        This is an alternative to checking Laue symmetry (is_symmetric())
+        if we want to ensure both surfaces in the slab are the same
+        """
 
         # tag the sites as either surface sites or not
         surf_sites_dict = self.get_surface_sites(tag=True)
