@@ -174,6 +174,7 @@ class SlabTest(PymatgenTest):
             self.assertEqual(assymetric_count, 0)
             self.assertEqual(symmetric_count, len(slabs))
 
+
 class SlabGeneratorTest(PymatgenTest):
 
     def test_get_slab(self):
@@ -343,9 +344,6 @@ class SlabGeneratorTest(PymatgenTest):
         for slab in slabs:
             self.assertTrue(slab.is_symmetric())
             self.assertFalse(slab.is_polar())
-
-
-
 
 
 class MillerIndexFinderTests(PymatgenTest):

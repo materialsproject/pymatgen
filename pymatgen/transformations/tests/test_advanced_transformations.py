@@ -24,11 +24,11 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.energy_models import IsingModel
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.surface import SlabGenerator
+from pymatgen.analysis.energy_models import SymmetryModel
 
 """
 Created on Jul 24, 2012
 """
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -36,7 +36,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 24, 2012"
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -60,7 +59,6 @@ enumlib_present = which('enum.x') and which('makestr.x')
 
 
 class SuperTransformationTest(unittest.TestCase):
-
     def test_apply_transformation(self):
         tl = [SubstitutionTransformation({"Li+": "Na+"}),
               SubstitutionTransformation({"Li+": "K+"})]
@@ -89,11 +87,10 @@ class SuperTransformationTest(unittest.TestCase):
 
     @unittest.skipIf(not enumlib_present, "enum_lib not present.")
     def test_apply_transformation_mult(self):
-        #Test returning multiple structures from each transformation.
+        # Test returning multiple structures from each transformation.
         disord = Structure(np.eye(3) * 4.209, [{"Cs+": 0.5, "K+": 0.5}, "Cl-"],
                            [[0, 0, 0], [0.5, 0.5, 0.5]])
         disord.make_supercell([2, 2, 1])
-
 
         tl = [EnumerateStructureTransformation(),
               OrderDisorderedStructureTransformation()]
@@ -106,7 +103,6 @@ class SuperTransformationTest(unittest.TestCase):
 
 
 class MultipleSubstitutionTransformationTest(unittest.TestCase):
-
     def test_apply_transformation(self):
         sub_dict = {1: ["Na", "K"]}
         t = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
@@ -125,7 +121,6 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
 
 
 class ChargeBalanceTransformationTest(unittest.TestCase):
-
     def test_apply_transformation(self):
         t = ChargeBalanceTransformation('Li+')
         coords = list()
@@ -150,7 +145,6 @@ class ChargeBalanceTransformationTest(unittest.TestCase):
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class EnumerateStructureTransformationTest(unittest.TestCase):
-
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
@@ -169,7 +163,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
             for s in alls:
                 self.assertIn("energy", s)
 
-        #make sure it works for non-oxidation state decorated structure
+        # make sure it works for non-oxidation state decorated structure
         trans = SubstitutionTransformation({'Fe': {'Fe': 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -214,7 +208,6 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class MagOrderingTransformationTest(PymatgenTest):
-
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
@@ -229,16 +222,16 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation({"Fe": 5},
                                           energy_model=model)
         alls2 = trans.apply_transformation(s, 10)
-        #Ising model with +J penalizes similar neighbor magmom.
+        # Ising model with +J penalizes similar neighbor magmom.
         self.assertNotEqual(alls[0]["structure"], alls2[0]["structure"])
         self.assertEqual(alls[0]["structure"], alls2[2]["structure"])
 
         s = self.get_structure('Li2O')
-        #Li2O doesn't have magnetism of course, but this is to test the
+        # Li2O doesn't have magnetism of course, but this is to test the
         # enumeration.
         trans = MagOrderingTransformation({"Li+": 1}, max_cell_size=3)
         alls = trans.apply_transformation(s, 100)
-        self.assertEqual(len(alls), 10)
+        self.assertEqual(len(alls), 12)
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, 0.75, max_cell_size=1)
@@ -251,27 +244,26 @@ class MagOrderingTransformationTest(PymatgenTest):
     def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, 0.75)
         d = trans.as_dict()
-        #Check json encodability
+        # Check json encodability
         s = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
-        from pymatgen.analysis.energy_models import SymmetryModel
+
         self.assertIsInstance(trans.energy_model, SymmetryModel)
 
     def test_zero_spin_case(self):
-        #ensure that zero spin case maintains sites and formula
+        # ensure that zero spin case maintains sites and formula
         s = self.get_structure('Li2O')
         trans = MagOrderingTransformation({"Li+": 0.0}, 0.5)
         alls = trans.apply_transformation(s)
-        #Ensure s does not have a spin property
-        self.assertFalse('spin' in s.sites[0].specie._properties)
-        #ensure sites are assigned a spin property in alls
-        self.assertTrue('spin' in alls.sites[0].specie._properties)
+        # Ensure s does not have a spin property
+        self.assertFalse('spin' in s.sites[1].specie._properties)
+        # ensure sites are assigned a spin property in alls
+        self.assertTrue('spin' in alls.sites[1].specie._properties)
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class DopingTransformationTest(PymatgenTest):
-
     def test_apply_transformation(self):
         structure = PymatgenTest.get_structure("LiFePO4")
         t = DopingTransformation("Ca2+", min_length=10)
@@ -327,16 +319,15 @@ class DopingTransformationTest(PymatgenTest):
 
 
 class SlabTransformationTest(PymatgenTest):
-
     def test_apply_transformation(self):
         s = self.get_structure("LiFePO4")
-        trans = SlabTransformation([0, 0, 1], 10, 10, shift = 0.25)
+        trans = SlabTransformation([0, 0, 1], 10, 10, shift=0.25)
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
         slab_from_gen = gen.get_slab(0.25)
         slab_from_trans = trans.apply_transformation(s)
-        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix, 
+        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix,
                                     slab_from_trans.lattice.matrix)
-        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
+        self.assertArrayAlmostEqual(slab_from_gen.cart_coords,
                                     slab_from_trans.cart_coords)
 
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"],
@@ -347,11 +338,12 @@ class SlabTransformationTest(PymatgenTest):
         slab_from_gen = gen.get_slab()
         self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix,
                                     slab_from_trans.lattice.matrix)
-        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
+        self.assertArrayAlmostEqual(slab_from_gen.cart_coords,
                                     slab_from_trans.cart_coords)
 
 
 if __name__ == "__main__":
     import logging
+
     logging.basicConfig(level=logging.INFO)
     unittest.main()
