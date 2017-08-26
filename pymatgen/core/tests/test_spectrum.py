@@ -63,5 +63,11 @@ class SpectrumTest(PymatgenTest):
         self.assertArrayAlmostEqual(np.sum(y, axis=0),
                                     np.sum(self.multi_spec1.y, axis=0))
 
+    def test_str(self):
+        # Just make sure that these methods work.
+        self.assertIsNotNone(str(self.spec1))
+        self.assertIsNotNone(str(self.multi_spec1))
+
+
 if __name__ == '__main__':
     unittest.main()

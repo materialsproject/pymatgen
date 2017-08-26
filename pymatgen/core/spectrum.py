@@ -52,6 +52,7 @@ class Spectrum(MSONable):
         self.y = np.array(y)
         if self.x.shape[0] != self.y.shape[0]:
             raise ValueError("x and y values have different first dimension!")
+        self.ydim = self.y.shape
         self._args = args
         self._kwargs = kwargs
 
@@ -79,25 +80,23 @@ class Spectrum(MSONable):
         """
         diff = [self.x[i + 1] - self.x[i] for i in range(len(self.x) - 1)]
         avg_x_per_step = np.sum(diff) / len(diff)
-        dim = self.y.shape
-        if len(dim) == 1:
+        if len(self.ydim) == 1:
             self.y = gaussian_filter1d(self.y, sigma / avg_x_per_step)
         else:
             self.y = np.array([
                 gaussian_filter1d(self.y[:, k], sigma / avg_x_per_step)
-                for k in range(dim[1])]).T
+                for k in range(self.ydim[1])]).T
 
     def get_interpolated_value(self, x_value):
         """
         Returns an interpolated y value for a particular x value
         :param x_value: x value to return the y value for
         """
-        dim = self.y.shape
-        if len(dim) == 1:
+        if len(self.ydim) == 1:
             return get_linear_interpolated_value(self.x, self.y, x_value)
         else:
             return [get_linear_interpolated_value(self.x, self.y[:, k], x_value)
-                    for k in range(dim[1])]
+                    for k in range(self.ydim[1])]
 
     def __add__(self, other):
         """
@@ -146,7 +145,10 @@ class Spectrum(MSONable):
     __div__ = __truediv__
 
     def __str__(self):
-        return self.__class__.__name__
+        output = [self.__class__.__name__,
+                  "%s: %s" % (self.XLABEL, self.x),
+                  "%s: %s" % (self.YLABEL, self.y)]
+        return "\n".join(output)
 
     def __repr__(self):
-        return self.__class__.__name__
+        return self.__str__()
