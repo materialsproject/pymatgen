@@ -7,18 +7,20 @@ from __future__ import division, unicode_literals
 import copy
 
 import numpy as np
-from scipy.optimize import curve_fit
+from scipy.stats import linregress
+from matplotlib import cm
+import itertools
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
-from pymatgen.core.surface import SlabGenerator, Slab
+from pymatgen.core.surface import Slab
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen import MPRester
 from pymatgen.phasediagram.maker import PhaseDiagram
 from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen import Element
-from pymatgen.util.coord_utils import Simplex
+from pymatgen.util.plotting import pretty_plot
+
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2014, The Materials Virtual Lab"
@@ -94,7 +96,7 @@ class SurfaceEnergyAnalyzer(object):
         # for a elemental system, the relative u of Cu for Cu is 0
         chempot_range = [chempot_ranges[entry] for entry in chempot_ranges.keys()
                          if entry.composition == self.ucell_entry.composition][0][0]._coords if \
-            chempot_ranges else Simplex([[0,0], [0,0]])._coords
+            chempot_ranges else [[0,0], [0,0]]
 
         e_of_element = [entry.energy_per_atom for entry in
                         entries if str(entry.composition.reduced_composition)
@@ -141,9 +143,7 @@ class SurfaceEnergyAnalyzer(object):
                                  * (delu + self.e_of_element))
                 for delu in self.chempot_range]
 
-
     def get_wulff_shape_dict(self, symprec=1e-5, sample_intersections=False):
-
         """
         As the surface energy is a function of chemical potential, so too is the
             Wulff shape. This methods generates a dictionary of Wulff shapes with
@@ -171,19 +171,115 @@ class SurfaceEnergyAnalyzer(object):
 
         return wulffshape
 
-    def get_intersects(self):
+    def get_intersections(self, miller_index):
+        """
+        Returns a all intersections for a specific facet. Useful for
+            finding when the configuration of a particular facet changes.
+
+        Args:
+            miller_index ((h, k, l)): Miller index of the facet we
+                are interested in
+        """
+
+        # First lets calculate the range of surface
+        # energies for all terminations of a specific facet
+        all_se_ranges = [self.calculate_gamma(vasprun) for vasprun
+                         in self.vasprun_dict[miller_index]]
+
+        if len(all_se_ranges) == 1:
+            return []
+
+        # Now get all possible intersection coordinates for each pair of lines
+        intersections = []
+        for pair_ranges in itertools.combinations(all_se_ranges, 2):
+            slope1, intercept1, r_value, p_value, std_err = \
+                linregress(self.chempot_range, pair_ranges[0])
+            slope1 = 0 if str(slope1) == 'nan' else slope1
+            intercept1 = 0 if str(intercept1) == 'nan' else intercept1
+            slope2, intercept2, r_value, p_value, std_err = \
+                linregress(self.chempot_range, pair_ranges[1])
+            slope2 = 0 if str(slope2) == 'nan' else slope2
+            intercept2 = 0 if str(intercept2) == 'nan' else intercept2
+            # Calculate the intersection coordinates
+            u = (intercept1-intercept2)/(slope2-slope1)
+            # if the intersection is beyond the chemical potential
+            # range or if the lines are parallel, we ignore it
+            if slope1-slope2 == 0 or u < min(self.chempot_range) \
+                    or u > max(self.chempot_range):
+                continue
+            intersections.append([u, slope1 * u + intercept1])
+
+        return sorted(intersections, key=lambda ints: ints[0])
+
+    def area_frac_vs_chempot_plot(self):
 
         return
 
-    def area_fraction_vs_chempot(self):
+    def chempot_vs_gamma_plot(self, cmap=cm.jet, show_unstable_points=False):
+        """
+        Plots the surface energy of all facets as a function of chemical potential.
+            Each facet will be associated with its own distinct colors. Dashed lines
+            will represent stoichiometries different from that of the mpid's compound.
 
-        return
+        Args:
+            cmap (cm): A matplotlib colormap object, defaults to jet.
+            show_unstable_points (bool): For each facet, there may be various terminations
+                or stoichiometries and the relative stability of these different slabs may
+                change with chemical potential. This option will only plot the most stable
+                surface energy for a given chemical potential.
+        """
 
-    def chemical_potential_vs_gamma(self, list_of_vaspruns, show_unstable_points=True):
+        plt = pretty_plot()
+        # Choose unique colors for each facet
+        f = [int(i) for i in np.linspace(0, 255, sum([len(vaspruns) for vaspruns in
+                                                      self.vasprun_dict.values()]))]
+        i, already_labelled, colors = 0, [], []
+        for hkl in self.vasprun_dict.keys():
+            for vasprun in self.vasprun_dict[hkl]:
+                # Generate a label for the type of slab
+                label = str(hkl)
+                # use dashed lines for slabs that are not stoichiometric
+                # wrt bulk. Label with formula if nonstoichiometric
+                if vasprun.final_structure.composition.reduced_composition != \
+                    self.ucell_entry.composition.reduced_composition:
+                    mark = '--'
+                    label += " %s" % (vasprun.final_structure.composition.reduced_composition)
+                else:
+                    mark = '-'
 
-        import matplotlib.pyplot as plt
+                # label the chemical environment at the surface if different from the bulk.
+                # First get the surface sites, then get the reduced composition at the surface
+                # s = vasprun.final_structure
+                # ucell = SpacegroupAnalyzer(self.ucell_entry.structure).\
+                #     get_conventional_standard_structure()
+                # slab = Slab(s.lattice, s.species, s.frac_coords, hkl, ucell, 0, None)
+                # surf_comp = slab.surface_composition()
+                #
+                # if surf_comp.reduced_composition != ucell.composition.reduced_composition:
+                #     label += " %s" %(surf_comp.reduced_composition)
 
-        return
+                if label in already_labelled:
+                    c = colors[already_labelled.index(label)]
+                    label = None
+                else:
+                    already_labelled.append(label)
+                    c = cmap(f[i])
+                    colors.append(c)
+
+                se_range = self.calculate_gamma(vasprun)
+                plt.plot(self.chempot_range, se_range, mark, color=c, label=label)
+                i += 1
+
+        # Make the figure look nice
+        axes = plt.gca()
+        ylim = axes.get_ylim()
+        plt.ylim(ylim)
+        plt.xlim(self.chempot_range)
+        plt.ylabel(r"Surface energy (eV/$\AA$)")
+        plt.xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" %(self.ref_element))
+        plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
+
+        return plt
 
     def broken_bond_vs_gamma(self):
 

@@ -42,13 +42,19 @@ class SurfaceEnergyAnalyzerTest(PymatgenTest):
 
         # make sure we've loaded all our files correctly
         self.assertEqual(len(self.vasprun_dict.keys()), 13)
-
         for hkl, vaspruns in self.vasprun_dict.items():
             se_range = self.Cu_analyzer.calculate_gamma(vaspruns[0])
             # For a stoichiometric system, we expect surface
             # energy to be independent of chemical potential
             self.assertEqual(se_range[0], se_range[1])
             print(hkl, se_range[0])
+
+    def test_get_intersections(self):
+
+        # Just test if its working, for Cu, there are no different
+        #  terminations so everything should be a nonetype
+        for hkl in self.vasprun_dict.keys():
+            self.assertFalse(self.Cu_analyzer.get_intersections(hkl))
 
 
 
