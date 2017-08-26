@@ -4,21 +4,21 @@
 
 from __future__ import division, unicode_literals
 
+import copy
+
 import numpy as np
+from scipy.optimize import curve_fit
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
-
-
 from pymatgen.core.surface import SlabGenerator, Slab
-import copy
-from pymatgen.io.vasp.sets import MVLSlabSet
-from pymacy.surface_adsorption.surface_updater import UpdateRepositoriesAndDBs, MPRester
-
-from matplotlib import pylab as plt
-from scipy.optimize import curve_fit
 from pymatgen.analysis.wulff import WulffShape
+from pymatgen import MPRester
+from pymatgen.phasediagram.maker import PhaseDiagram
+from pymatgen.phasediagram.analyzer import PDAnalyzer
+from pymatgen import Element
+from pymatgen.util.coord_utils import Simplex
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2014, The Materials Virtual Lab"
@@ -27,26 +27,21 @@ __maintainer__ = "Richard Tran"
 __email__ = "rit001@eng.ucsd.edu"
 __date__ = "8/24/17"
 
+
 class SurfaceEnergyAnalyzer(object):
 
-    def __init__(self, material_id, mapi_key):
+    def __init__(self, material_id, vasprun_dict, ref_element,
+                 exclude_ids=[], custom_entries=[], mapi_key=None):
         """
         Analyzes surface energy
         Args:
             material_id (str): Materials Project material_id (a string,
                 e.g., mp-1234).
-            mapi_key (str): Materials Project API key for accessing the
-                MP database via MPRester
-        """
-
-        self.material_id = material_id
-        self.mprester = MPRester(mapi_key)
-
-    def calculate_gamma(self, vasprun, element, exclude_ids=[], custom_entries=[]):
-        """
-        Calculates the surface energy for a single slab.
-        Args:
-            vasprun (Vasprun): A Vasprun object
+            vasprun_dict (dict): Dictionary containing a list of Vaspruns
+                for slab calculations as items and the corresponding Miller
+                index of the slab as the key.
+                eg. vasprun_dict = {(1,1,1): [vasprun_111_1, vasprun_111_2,
+                vasprun_111_3], (1,1,0): [vasprun_111_1, vasprun_111_2], ...}
             element: element to be considered as independent
                 variables. E.g., if you want to show the stability
                 ranges of all Li-Co-O phases wrt to uLi
@@ -56,26 +51,33 @@ class SurfaceEnergyAnalyzer(object):
             custom_entries (list of pymatgen-db type entries): List of
                 user specified pymatgen-db type entries to use in finding
                 decomposition components for the chemical potential
+            mapi_key (str): Materials Project API key for accessing the
+                MP database via MPRester
         """
 
-        ucell_entry = self.mprester.get_entry_by_material_id(self.material_id, inc_structure=True,
-                                                             property_data=["formation_energy_per_atom"])
-        ucell = ucell_entry.structure
-
-        # Calculate surface area
-        m = vasprun.structure.lattice.matrix
-        A = np.linalg.norm(np.cross(m[0], m[1]))
+        self.ref_element = ref_element
+        self.mprester = MPRester(mapi_key) if mapi_key else MPRester()
+        self.ucell_entry = \
+            self.mprester.get_entry_by_material_id(material_id,
+                                                   inc_structure=True,
+                                                   property_data=
+                                                   ["formation_energy_per_atom"])
+        ucell = self.ucell_entry.structure
 
         # Get x and y, the number of species in a formula unit of the bulk
         reduced_comp = ucell.composition.reduced_composition.as_dict()
-        for el in reduced_comp.keys():
-            if element == el:
-                y = reduced_comp[el]
-            else:
-                x = reduced_comp[el]
+        if len(reduced_comp.keys()) == 1:
+            y = reduced_comp[ucell[0].species_string]
+            x = y
+        else:
+            for el in reduced_comp.keys():
+                if self.ref_element == el:
+                    y = reduced_comp[el]
+                else:
+                    x = reduced_comp[el]
 
-        gbulk = ucell_entry.energy / (len([site for site in ucell
-                                           if site.species_string == element]) / y)
+        gbulk = self.ucell_entry.energy / (len([site for site in ucell
+                                                if site.species_string == self.ref_element]) / y)
 
         entries = [entry for entry in
                    self.mprester.get_entries_in_chemsys(list(reduced_comp.keys()),
@@ -87,49 +89,103 @@ class SurfaceEnergyAnalyzer(object):
 
         pd = PhaseDiagram(entries)
         pda = PDAnalyzer(pd)
-        chempot_ranges = pda.get_chempot_range_map([Element(element)])
-
+        chempot_ranges = pda.get_chempot_range_map([Element(self.ref_element)])
+        # If no chemical potential is found, we return u=0, eg.
+        # for a elemental system, the relative u of Cu for Cu is 0
         chempot_range = [chempot_ranges[entry] for entry in chempot_ranges.keys()
-                         if entry.composition == ucell_entry.composition][0]
-        print("range: ", chempot_range)
-        print(chempot_range[0])
-        print("gbulk", gbulk)
-
-        # Get the composition in the slab
-        comp = vasprun.structure.composition.as_dict()
-        for el in reduced_comp.keys():
-            if element == el:
-                Ny = comp[el]
-            else:
-                Nx = comp[el]
+                         if entry.composition == self.ucell_entry.composition][0][0]._coords if \
+            chempot_ranges else Simplex([[0,0], [0,0]])._coords
 
         e_of_element = [entry.energy_per_atom for entry in
                         entries if str(entry.composition.reduced_composition)
-                        == element + "1"][0]
-        print(e_of_element)
+                        == self.ref_element + "1"][0]
 
-        return [(1 / (2 * A)) * (vasprun.final_energy - (Nx / x) * gbulk - \
-                                 (Ny - (y / x) * Nx) * (delu + e_of_element))
-                for delu in chempot_range[0]._coords]
+        self.x = x
+        self.y = y
+        self.gbulk = gbulk
+        chempot_range = list(chempot_range)
+        self.chempot_range = [chempot_range[0][0], chempot_range[1][0]]
+        self.e_of_element = e_of_element
+        self.vasprun_dict = vasprun_dict
+
+    def calculate_gamma(self, vasprun):
+        """
+        Calculates the surface energy for a single slab.
+        Args:
+            vasprun (Vasprun): A Vasprun object
+
+        Returns (list): The surface energy for the minimum/maximun
+            chemical potential and the second list gives the range
+            of the chemical potential
+        """
+
+        reduced_comp = self.ucell_entry.composition.reduced_composition.as_dict()
+        # Get the composition in the slab
+        comp = vasprun.final_structure.composition.as_dict()
+        if len(reduced_comp.keys()) == 1:
+            Ny = comp[self.ucell_entry.structure[0].species_string]
+            Nx = Ny
+        else:
+            for el in reduced_comp.keys():
+                if self.ref_element == el:
+                    Ny = comp[el]
+                else:
+                    Nx = comp[el]
+
+        # Calculate surface area
+        m = vasprun.final_structure.lattice.matrix
+        A = np.linalg.norm(np.cross(m[0], m[1]))
+
+        return [(1 / (2 * A)) * (vasprun.final_energy - (Nx / self.x)
+                                 * self.gbulk - (Ny - (self.y / self.x) * Nx)
+                                 * (delu + self.e_of_element))
+                for delu in self.chempot_range]
 
 
-    def build_wulff_shape(self):
+    def get_wulff_shape_dict(self, symprec=1e-5, sample_intersections=False):
+
+        """
+        As the surface energy is a function of chemical potential, so too is the
+            Wulff shape. This methods generates a dictionary of Wulff shapes with
+            the keys being the chemical potential and the value is the
+            corresponding Wulff shape.
+
+        Args:
+            symprec (float): for recp_operation, default is 1e-5.
+            sample_intersections (bool): Whether to generate a Wulff shape for each
+                intersection of surface energy for a specific facet (eg. at the point
+                where a (111) stoichiometric surface energy plot intersects with the
+                (111) nonstoichiometric plot) or to just generate two Wulff shapes,
+                one at the min and max chemical potential.
+
+        """
+
+        miller_list = self.vasprun_dict.keys()
+        surf_e_list = [self.calculate_min_gamma_hkl(hkl) for
+                       hkl in miller_list]
+
+        ucell = SpacegroupAnalyzer(self.ucell_entry.structure).\
+            get_conventional_standard_structure()
+        wulffshape = WulffShape(ucell.lattice, miller_list,
+                                surf_e_list, symprec=symprec)
+
+        return wulffshape
+
+    def get_intersects(self):
 
         return
 
-    def chemical_potential_gamma_plot(self):
+    def area_fraction_vs_chempot(self):
 
         return
 
-    def broken_bond_gamma_plot(self):
+    def chemical_potential_vs_gamma(self, list_of_vaspruns, show_unstable_points=True):
+
+        import matplotlib.pyplot as plt
 
         return
 
-    def broken_bond_phi_plot(self):
-
-        return
-
-    def calculate_weighted_phi(self):
+    def broken_bond_vs_gamma(self):
 
         return
 
