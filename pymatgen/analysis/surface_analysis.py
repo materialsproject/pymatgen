@@ -10,6 +10,7 @@ import numpy as np
 from scipy.stats import linregress
 from matplotlib import cm
 import itertools
+import warnings
 
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -170,7 +171,7 @@ class SurfaceEnergyAnalyzer(object):
         self.y = y
         self.gbulk = gbulk
         chempot_range = list(chempot_range)
-        self.chempot_range = [chempot_range[0][0], chempot_range[1][0]]
+        self.chempot_range = sorted([chempot_range[0][0], chempot_range[1][0]])
         self.e_of_element = e_of_element
         self.vasprun_dict = vasprun_dict
 
@@ -208,33 +209,90 @@ class SurfaceEnergyAnalyzer(object):
                                  * (delu + self.e_of_element))
                 for delu in self.chempot_range]
 
-    def get_wulff_shape_dict(self, symprec=1e-5, sample_intersections=False):
+    def wulff_shape_from_chempot(self, chempot, symprec=1e-5):
+        """
+        Method to get the Wulff shape at a specific chemical potential.
+        Args:
+            chempot (float): The chemical potential the Wulff Shape exist in.
+        """
+
+        # Check if the user provided chemical potential is within the
+        # predetermine range of chemical potential. If not, raise a warning
+        if not max(self.chempot_range) >= chempot >= min(self.chempot_range):
+            warnings.warn("The provided chemical potential is outside the range "
+                          "of chemical potential (%s to %s). The resulting Wulff "
+                          "shape might not be reasonable." %(min(self.chempot_range),
+                                                             max(self.chempot_range)))
+
+        latt = SpacegroupAnalyzer(self.ucell_entry.structure).\
+            get_conventional_standard_structure().lattice
+
+        miller_list = self.vasprun_dict.keys()
+        e_surf_list = []
+        for hkl in miller_list:
+            # At each possible configuration, we calculate surface energy as a
+            # function of u and take the lowest surface energy (corresponds to
+            # the most stable slab termination at that particular u)
+            surf_e_range_list = [self.calculate_gamma(vasprun)
+                                 for vasprun in self.vasprun_dict[hkl]]
+            e_list = []
+            for e_range in surf_e_range_list:
+                slope, intercept = self.get_slope_and_intercept(e_range)
+                e_list.append(slope * chempot + intercept)
+            e_surf_list.append(min(e_list))
+
+        return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
+
+    def wulff_shape_dict(self, symprec=1e-5, at_intersections=False):
         """
         As the surface energy is a function of chemical potential, so too is the
-            Wulff shape. This methods generates a dictionary of Wulff shapes with
-            the keys being the chemical potential and the value is the
-            corresponding Wulff shape.
+            Wulff shape. This methods generates a dictionary of Wulff shapes at
+            certain chemical potentials where a facet goes through a transition.
+            Returns a dict, eg. {chempot1: WulffShape1, chempot2: WulffShape2}
 
         Args:
             symprec (float): for recp_operation, default is 1e-5.
-            sample_intersections (bool): Whether to generate a Wulff shape for each
-                intersection of surface energy for a specific facet (eg. at the point
-                where a (111) stoichiometric surface energy plot intersects with the
-                (111) nonstoichiometric plot) or to just generate two Wulff shapes,
-                one at the min and max chemical potential.
-
+            at_intersections (bool): Whether to generate a Wulff shape for each
+                intersection of surface energy for a specific facet (eg. at the
+                point where a (111) stoichiometric surface energy plot intersects
+                with the (111) nonstoichiometric plot) or to just generate two
+                Wulff shapes, one at the min and max chemical potential.
         """
 
-        miller_list = self.vasprun_dict.keys()
-        surf_e_list = [self.calculate_min_gamma_hkl(hkl) for
-                       hkl in miller_list]
+        # First lets get the Wulff shape at the
+        # minimum and maximum chemical potential
+        wulff_dict = {self.chempot_range[0]: self.wulff_shape_from_chempot(self.chempot_range[0],
+                                                                           symprec=symprec),
+                      self.chempot_range[1]: self.wulff_shape_from_chempot(self.chempot_range[1],
+                                                                           symprec=symprec)}
 
-        ucell = SpacegroupAnalyzer(self.ucell_entry.structure).\
-            get_conventional_standard_structure()
-        wulffshape = WulffShape(ucell.lattice, miller_list,
-                                surf_e_list, symprec=symprec)
+        # Now we get the Wulff shape each time a facet changes its configuration
+        # (ie, adsorption coverage, stoichiometric to nonstoichiometric, etc)
+        if at_intersections:
+            # Get all values of chemical potential where an intersection occurs
+            u_at_intersection = [self.get_intersections(hkl)[0] for hkl in
+                                 self.vasprun_dict.keys() if self.get_intersections(hkl)]
+            # Get a Wulff shape for each intersection. The change in the Wulff shape
+            # will vary if the rate of change in surface energy for any facet changes
+            for u in u_at_intersection:
+                wulff_dict[u] = self.wulff_shape_from_chempot(u, symprec=symprec)
 
-        return wulffshape
+        return wulff_dict
+
+    def get_slope_and_intercept(self, surf_e_pair):
+        """
+        Returns the slope and intercept of the surface
+            energy vs chemical potential line
+        Args:
+            surf_e_pair ([e_at_min_u, e_at_max_u]): The surface energy at the
+                minimum chemical potential and maximum chemical potential
+        """
+
+        slope, intercept, r_value, p_value, std_err = \
+            linregress(self.chempot_range, surf_e_pair)
+        slope = 0 if str(slope) == 'nan' else slope
+        intercept = surf_e_pair[0] if str(intercept) == 'nan' else intercept
+        return slope, intercept
 
     def get_intersections(self, miller_index):
         """
@@ -257,14 +315,8 @@ class SurfaceEnergyAnalyzer(object):
         # Now get all possible intersection coordinates for each pair of lines
         intersections = []
         for pair_ranges in itertools.combinations(all_se_ranges, 2):
-            slope1, intercept1, r_value, p_value, std_err = \
-                linregress(self.chempot_range, pair_ranges[0])
-            slope1 = 0 if str(slope1) == 'nan' else slope1
-            intercept1 = 0 if str(intercept1) == 'nan' else intercept1
-            slope2, intercept2, r_value, p_value, std_err = \
-                linregress(self.chempot_range, pair_ranges[1])
-            slope2 = 0 if str(slope2) == 'nan' else slope2
-            intercept2 = 0 if str(intercept2) == 'nan' else intercept2
+            slope1, intercept1 = self.get_slope_and_intercept(pair_ranges[0])
+            slope2, intercept2 = self.get_slope_and_intercept(pair_ranges[1])
             # Calculate the intersection coordinates
             u = (intercept1-intercept2)/(slope2-slope1)
             # if the intersection is beyond the chemical potential
@@ -276,7 +328,19 @@ class SurfaceEnergyAnalyzer(object):
 
         return sorted(intersections, key=lambda ints: ints[0])
 
-    def area_frac_vs_chempot_plot(self):
+    def area_frac_vs_chempot_plot(self, at_intersections=True):
+        """
+        Plots the change in the area contribution of
+        each facet as a function of chemical potential.
+        Args:
+            at_intersections (bool): Whether to generate a Wulff shape for each
+                intersection of surface energy for a specific facet (eg. at the
+                point where a (111) stoichiometric surface energy plot intersects
+                with the (111) nonstoichiometric plot) or to just generate two
+                Wulff shapes, one at the min and max chemical potential.
+        """
+
+
 
         return
 

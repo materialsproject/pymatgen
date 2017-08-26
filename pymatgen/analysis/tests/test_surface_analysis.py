@@ -47,7 +47,6 @@ class SurfaceEnergyAnalyzerTest(PymatgenTest):
             # For a stoichiometric system, we expect surface
             # energy to be independent of chemical potential
             self.assertEqual(se_range[0], se_range[1])
-            print(hkl, se_range[0])
 
     def test_get_intersections(self):
 
@@ -56,7 +55,26 @@ class SurfaceEnergyAnalyzerTest(PymatgenTest):
         for hkl in self.vasprun_dict.keys():
             self.assertFalse(self.Cu_analyzer.get_intersections(hkl))
 
+    def test_get_wulff_shape_dict(self):
 
+        # for pure Cu, all facets are independent of chemical potential,
+        # so we assume Wulff does not change wrt chemical potential
+        wulff_dict = self.Cu_analyzer.wulff_shape_dict(at_intersections=True)
+        self.assertEqual(len(wulff_dict.keys()), 1)
+        wulffshape = list(wulff_dict.values())[0]
+        # The Wulff shape of Cu should have at least 70% (100) and (111) facets
+        area_fraction_dict = wulffshape.area_fraction_dict
+        self.assertGreater(area_fraction_dict[(1,0,0)]+\
+                           area_fraction_dict[(1,1,1)], 0.7)
+        # test out self.wulff_shape_from_chempot(), all Wulff
+        # shapes should the same regardless of chemical potential
+        wulff1 = self.Cu_analyzer.wulff_shape_from_chempot(\
+            min(self.Cu_analyzer.chempot_range))
+        wulff2 = self.Cu_analyzer.wulff_shape_from_chempot(\
+            max(self.Cu_analyzer.chempot_range))
+        for hkl in self.Cu_analyzer.vasprun_dict.keys():
+            self.assertEqual(wulff1.area_fraction_dict[hkl],
+                             wulff2.area_fraction_dict[hkl])
 
 if __name__ == "__main__":
     unittest.main()
