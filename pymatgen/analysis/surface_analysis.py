@@ -32,10 +32,74 @@ __date__ = "8/24/17"
 
 class SurfaceEnergyAnalyzer(object):
 
+    """
+    A class used for analyzing the surface energies of a material of a given
+        material_id. By default, this will use entries calculated from the Materials
+        Project to obtain chemical potential and bulk energy. As a result, the
+        difference in VASP parameters between the user's entry (vasprun_dict) and the
+        parameters used by Materials Project, may lead to a rough estimate of the
+        surface energy. For best results, it is recommend that the user calculates all
+        decomposition components first, and insert the results into their own database
+        as a pymatgen-db entry and use those entries instead (custom_entries). In
+        addition, this code will only use one bulk entry to calculate surface energy.
+        Ideally, to get the most accurate surface energy, the user should compare their
+        slab energy to the energy of the oriented unit cell with both calculations
+        containing consistent k-points to avoid converegence problems as the slab size
+        is varied. See:
+            Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
+                Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
+        and
+            Rogal, J., & Reuter, K. (2007). Ab Initio Atomistic Thermodynamics for
+                Surfaces : A Primer. Experiment, Modeling and Simulation of Gas-Surface
+                Interactions for Reactive Flows in Hypersonic Flights, 2–1 – 2–18.
+
+    .. attribute:: ref_element
+
+        All chemical potentials cna be written in terms of the range of chemical potential
+            of this element which will be used to calculate surface energy.
+
+    .. attribute:: mprester
+
+        Materials project rester for querying entries from the materials project. Requires
+            user MAPIKEY.
+
+    .. attribute:: ucell_entry
+
+        Materials Project entry of the material of the slab.
+
+    .. attribute:: x
+
+        Reduced amount composition of decomposed compound A in the bulk.
+
+    .. attribute:: y
+
+        Reduced amount composition of ref_element in the bulk.
+
+    .. attribute:: gbulk
+
+        Gibbs free energy of the bulk per formula unit
+
+    .. attribute:: chempot_range
+
+        List of the min and max chemical potential of ref_element.
+
+    .. attribute:: e_of_element
+
+        Energy per atom of ground state ref_element, eg. if ref_element=O,
+            than e_of_element=1/2*E_O2.
+
+    .. attribute:: vasprun_dict
+
+        Dictionary containing a list of Vaspruns for slab calculations as
+            items and the corresponding Miller index of the slab as the key
+
+    """
+
     def __init__(self, material_id, vasprun_dict, ref_element,
                  exclude_ids=[], custom_entries=[], mapi_key=None):
         """
-        Analyzes surface energy
+        Analyzes surface energies and Wulff shape of a particular
+            material using the chemical potential.
         Args:
             material_id (str): Materials Project material_id (a string,
                 e.g., mp-1234).
@@ -138,6 +202,7 @@ class SurfaceEnergyAnalyzer(object):
         m = vasprun.final_structure.lattice.matrix
         A = np.linalg.norm(np.cross(m[0], m[1]))
 
+        # calculate the surface energy for the max and min chemical potential
         return [(1 / (2 * A)) * (vasprun.final_energy - (Nx / self.x)
                                  * self.gbulk - (Ny - (self.y / self.x) * Nx)
                                  * (delu + self.e_of_element))
