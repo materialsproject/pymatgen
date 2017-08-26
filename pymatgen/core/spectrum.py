@@ -105,6 +105,15 @@ class Spectrum(MSONable):
                               **self._kwargs)
     __rmul__ = __mul__
 
+    def __truediv__(self, other):
+        """
+        Scale the Spectrum's y values
+        :param other: The scale amount
+        :return: Spectrum object with y values scaled
+        """
+        return self.__class__(self.x, self.y / other, *self._args,
+                              **self._kwargs)
+
     def __str__(self):
         return self.__class__.__name__
 

@@ -24,12 +24,19 @@ class SpectrumTest(unittest.TestCase):
 
     def test_operators(self):
         scaled_spect = 3 * self.spec1 + self.spec2
-        self.assertTrue(np.allclose(scaled_spect.y, 3 * self.spec1.y + self.spec2.y))
+        self.assertTrue(np.allclose(scaled_spect.y,
+                                    3 * self.spec1.y + self.spec2.y))
         self.assertAlmostEqual(self.spec1.get_interpolated_value(0.05),
                                (self.spec1.y[0] + self.spec1.y[1]) / 2)
 
         scaled_spect = self.spec1 - self.spec2
-        self.assertTrue(np.allclose(scaled_spect.y, self.spec1.y - self.spec2.y))
+        self.assertTrue(np.allclose(scaled_spect.y,
+                                    self.spec1.y - self.spec2.y))
+
+        scaled_spect = self.spec1 / 3
+        self.assertTrue(np.allclose(scaled_spect.y,
+                                    self.spec1.y / 3))
+
 
     def test_smear(self):
         y = np.array(self.spec1.y)
