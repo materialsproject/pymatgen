@@ -37,10 +37,21 @@ class Spectrum(MSONable):
     YLABEL = "y"
 
     def __init__(self, x, y, *args, **kwargs):
-        if len(x) != len(y):
-            raise ValueError("x and y values have different lengths!")
+        """
+        Args:
+            x (ndarray): A ndarray of N values.
+            y (ndarray): A ndarray of N x k values. The first dimension must be
+                the same as that of x. Each of the k values are interpreted as
+            \\*args: All subclasses should provide args other than x and y
+                when calling super, e.g., super(Subclass, self).__init__(
+                x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -, *,
+                etc. operators work properly.
+            \\*\\*kwargs: Same as that for \\*args.
+        """
         self.x = np.array(x)
         self.y = np.array(y)
+        if self.x.shape[0] != self.y.shape[0]:
+            raise ValueError("x and y values have different first dimension!")
         self._args = args
         self._kwargs = kwargs
 
@@ -51,9 +62,13 @@ class Spectrum(MSONable):
         Args:
             mode (max): Normalization mode. Support modes are "max" (set the
                 max y value to 1, e.g., in XRD patterns), "sum" (set the sum of
-                y to 1, i.e., like a probability density)
+                y to 1, i.e., like a probability density). If mode is a float,
+                it is treated as a 
         """
-        factor = np.sum(self.y) if mode == "sum" else np.max(self.y)
+        if len(self.y.shape) > 1:
+            factor = np.sum(self.y, axis=1) if mode == "sum" else np.max(self.y, axis=1)
+        else:
+
         self.y = self.y / factor
 
     def smear(self, sigma):
