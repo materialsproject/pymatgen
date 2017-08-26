@@ -35,18 +35,19 @@ class SurfaceEnergyAnalyzer(object):
 
     """
     A class used for analyzing the surface energies of a material of a given
-        material_id. By default, this will use entries calculated from the Materials
-        Project to obtain chemical potential and bulk energy. As a result, the
-        difference in VASP parameters between the user's entry (vasprun_dict) and the
-        parameters used by Materials Project, may lead to a rough estimate of the
-        surface energy. For best results, it is recommend that the user calculates all
-        decomposition components first, and insert the results into their own database
-        as a pymatgen-db entry and use those entries instead (custom_entries). In
-        addition, this code will only use one bulk entry to calculate surface energy.
-        Ideally, to get the most accurate surface energy, the user should compare their
+        material_id. By default, this will use entries calculated from the
+        Materials Project to obtain chemical potential and bulk energy. As a
+        result, the difference in VASP parameters between the user's entry
+        (vasprun_dict) and the parameters used by Materials Project, may lead
+        to a rough estimate of the surface energy. For best results, it is
+        recommend that the user calculates all decomposition components first,
+        and insert the results into their own database as a pymatgen-db entry
+        and use those entries instead (custom_entries). In addition, this code
+        will only use one bulk entry to calculate surface energy. Ideally, to
+        get the most accurate surface energy, the user should compare their
         slab energy to the energy of the oriented unit cell with both calculations
-        containing consistent k-points to avoid converegence problems as the slab size
-        is varied. See:
+        containing consistent k-points to avoid converegence problems as the
+        slab size is varied. See:
             Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
                 Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
         and
@@ -56,13 +57,13 @@ class SurfaceEnergyAnalyzer(object):
 
     .. attribute:: ref_element
 
-        All chemical potentials cna be written in terms of the range of chemical potential
-            of this element which will be used to calculate surface energy.
+        All chemical potentials cna be written in terms of the range of chemical
+            potential of this element which will be used to calculate surface energy.
 
     .. attribute:: mprester
 
-        Materials project rester for querying entries from the materials project. Requires
-            user MAPIKEY.
+        Materials project rester for querying entries from the materials project.
+            Requires user MAPIKEY.
 
     .. attribute:: ucell_entry
 
@@ -134,8 +135,7 @@ class SurfaceEnergyAnalyzer(object):
         # Get x and y, the number of species in a formula unit of the bulk
         reduced_comp = ucell.composition.reduced_composition.as_dict()
         if len(reduced_comp.keys()) == 1:
-            y = reduced_comp[ucell[0].species_string]
-            x = y
+            x = y = reduced_comp[ucell[0].species_string]
         else:
             for el in reduced_comp.keys():
                 if self.ref_element == el:
@@ -143,8 +143,10 @@ class SurfaceEnergyAnalyzer(object):
                 else:
                     x = reduced_comp[el]
 
-        gbulk = self.ucell_entry.energy / (len([site for site in ucell
-                                                if site.species_string == self.ref_element]) / y)
+        # Calculate Gibbs free energy of the bulk per unit formula
+        gbulk = self.ucell_entry.energy /\
+                (len([site for site in ucell
+                      if site.species_string == self.ref_element]) / y)
 
         entries = [entry for entry in
                    self.mprester.get_entries_in_chemsys(list(reduced_comp.keys()),
@@ -160,7 +162,8 @@ class SurfaceEnergyAnalyzer(object):
         # If no chemical potential is found, we return u=0, eg.
         # for a elemental system, the relative u of Cu for Cu is 0
         chempot_range = [chempot_ranges[entry] for entry in chempot_ranges.keys()
-                         if entry.composition == self.ucell_entry.composition][0][0]._coords if \
+                         if entry.composition ==
+                         self.ucell_entry.composition][0][0]._coords if \
             chempot_ranges else [[0,0], [0,0]]
 
         e_of_element = [entry.energy_per_atom for entry in
@@ -188,7 +191,8 @@ class SurfaceEnergyAnalyzer(object):
 
         reduced_comp = self.ucell_entry.composition.reduced_composition.as_dict()
         # Get the composition in the slab
-        comp = vasprun.final_structure.composition.as_dict()
+        slab = vasprun.final_structure
+        comp = slab.composition.as_dict()
         if len(reduced_comp.keys()) == 1:
             Ny = comp[self.ucell_entry.structure[0].species_string]
             Nx = Ny
@@ -200,7 +204,7 @@ class SurfaceEnergyAnalyzer(object):
                     Nx = comp[el]
 
         # Calculate surface area
-        m = vasprun.final_structure.lattice.matrix
+        m = slab.lattice.matrix
         A = np.linalg.norm(np.cross(m[0], m[1]))
 
         # calculate the surface energy for the max and min chemical potential
@@ -261,17 +265,20 @@ class SurfaceEnergyAnalyzer(object):
 
         # First lets get the Wulff shape at the
         # minimum and maximum chemical potential
-        wulff_dict = {self.chempot_range[0]: self.wulff_shape_from_chempot(self.chempot_range[0],
-                                                                           symprec=symprec),
-                      self.chempot_range[1]: self.wulff_shape_from_chempot(self.chempot_range[1],
-                                                                           symprec=symprec)}
+        wulff_dict = {self.chempot_range[0]: \
+                          self.wulff_shape_from_chempot(self.chempot_range[0],
+                                                        symprec=symprec),
+                      self.chempot_range[1]: \
+                          self.wulff_shape_from_chempot(self.chempot_range[1],
+                                                        symprec=symprec)}
 
         # Now we get the Wulff shape each time a facet changes its configuration
         # (ie, adsorption coverage, stoichiometric to nonstoichiometric, etc)
         if at_intersections:
             # Get all values of chemical potential where an intersection occurs
             u_at_intersection = [self.get_intersections(hkl)[0] for hkl in
-                                 self.vasprun_dict.keys() if self.get_intersections(hkl)]
+                                 self.vasprun_dict.keys()
+                                 if self.get_intersections(hkl)]
             # Get a Wulff shape for each intersection. The change in the Wulff shape
             # will vary if the rate of change in surface energy for any facet changes
             for u in u_at_intersection:
@@ -406,10 +413,11 @@ class SurfaceEnergyAnalyzer(object):
 
         Args:
             cmap (cm): A matplotlib colormap object, defaults to jet.
-            show_unstable_points (bool): For each facet, there may be various terminations
-                or stoichiometries and the relative stability of these different slabs may
-                change with chemical potential. This option will only plot the most stable
-                surface energy for a given chemical potential.
+            show_unstable_points (bool): For each facet, there may be various
+                terminations or stoichiometries and the relative stability of
+                these different slabs may change with chemical potential. This
+                option will only plot the most stable surface energy for a
+                given chemical potential.
         """
 
         plt = pretty_plot()
@@ -419,14 +427,15 @@ class SurfaceEnergyAnalyzer(object):
         i, already_labelled, colors = 0, [], []
         for hkl in self.vasprun_dict.keys():
             for vasprun in self.vasprun_dict[hkl]:
+                slab = vasprun.final_structure
                 # Generate a label for the type of slab
                 label = str(hkl)
                 # use dashed lines for slabs that are not stoichiometric
                 # wrt bulk. Label with formula if nonstoichiometric
-                if vasprun.final_structure.composition.reduced_composition != \
-                    self.ucell_entry.composition.reduced_composition:
+                if slab.composition.reduced_composition != \
+                        self.ucell_entry.composition.reduced_composition:
                     mark = '--'
-                    label += " %s" % (vasprun.final_structure.composition.reduced_composition)
+                    label += " %s" % (slab.composition.reduced_composition)
                 else:
                     mark = '-'
 

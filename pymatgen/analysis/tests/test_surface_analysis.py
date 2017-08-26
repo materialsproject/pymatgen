@@ -24,7 +24,7 @@ def get_path(path_str):
                         path_str)
     return path
 
-
+@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
 class SurfaceEnergyAnalyzerTest(PymatgenTest):
 
     def setUp(self):
