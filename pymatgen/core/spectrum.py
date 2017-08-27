@@ -76,7 +76,10 @@ class Spectrum(MSONable):
 
     def smear(self, sigma):
         """
-        Apply Gaussian smearing.
+        Apply Gaussian smearing to spectrum y value.
+
+        Args:
+            sigma: Std dev for Gaussian smear function
         """
         diff = [self.x[i + 1] - self.x[i] for i in range(len(self.x) - 1)]
         avg_x_per_step = np.sum(diff) / len(diff)
@@ -89,8 +92,13 @@ class Spectrum(MSONable):
 
     def get_interpolated_value(self, x_value):
         """
-        Returns an interpolated y value for a particular x value
-        :param x_value: x value to return the y value for
+        Returns an interpolated y value for a particular x value.
+
+        Args:
+             x_value: x value to return the y value for
+
+        Returns:
+            Value of y at x_value
         """
         if len(self.ydim) == 1:
             return get_linear_interpolated_value(self.x, self.y, x_value)
@@ -101,9 +109,13 @@ class Spectrum(MSONable):
     def __add__(self, other):
         """
         Add two Spectrum object together. Checks that x scales are the same.
-        Otherwise, a ValueError is thrown
-        :param other: Another Spectrum object
-        :return: Sum of the two Spectrum objects
+        Otherwise, a ValueError is thrown.
+
+        Args:
+            other: Another Spectrum object
+
+        Returns:
+            Sum of the two Spectrum objects
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
@@ -112,10 +124,13 @@ class Spectrum(MSONable):
 
     def __sub__(self, other):
         """
-        Add two Spectrum object together. Checks that x scales are the same.
+        Substract one Spectrum object from another. Checks that x scales are the same.
         Otherwise, a ValueError is thrown
-        :param other: Another Spectrum object
-        :return: Sum of the two Spectrum objects
+        Args:
+            other: Another Spectrum object
+
+        Returns:
+            Substraction of the two Spectrum objects
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
@@ -125,8 +140,11 @@ class Spectrum(MSONable):
     def __mul__(self, other):
         """
         Scale the Spectrum's y values
-        :param other: The scale amount
-        :return: Spectrum object with y values scaled
+
+        Args:
+            other: scalar, The scale amount
+        Returns:
+            Spectrum object with y values scaled
         """
         return self.__class__(self.x, other * self.y, *self._args,
                               **self._kwargs)
@@ -134,9 +152,13 @@ class Spectrum(MSONable):
 
     def __truediv__(self, other):
         """
-        Scale the Spectrum's y values
-        :param other: The scale amount
-        :return: Spectrum object with y values scaled
+        True division of y_value
+
+        Args:
+            other: The divisor
+
+        Returns:
+            Spectrum object with y values divided
         """
         return self.__class__(self.x, self.y / other, *self._args,
                               **self._kwargs)
@@ -145,10 +167,16 @@ class Spectrum(MSONable):
     __div__ = __truediv__
 
     def __str__(self):
+        """
+        Returns a string contains values and labels of spectrum object for plotting
+        """
         output = [self.__class__.__name__,
                   "%s: %s" % (self.XLABEL, self.x),
                   "%s: %s" % (self.YLABEL, self.y)]
         return "\n".join(output)
 
     def __repr__(self):
+        """
+        Returns a printable representation of the class
+        """
         return self.__str__()
