@@ -90,20 +90,20 @@ class Spectrum(MSONable):
                 gaussian_filter1d(self.y[:, k], sigma / avg_x_per_step)
                 for k in range(self.ydim[1])]).T
 
-    def get_interpolated_value(self, x_value):
+    def get_interpolated_value(self, x):
         """
         Returns an interpolated y value for a particular x value.
 
         Args:
-             x_value: x value to return the y value for
+             x: x value to return the y value for
 
         Returns:
-            Value of y at x_value
+            Value of y at x
         """
         if len(self.ydim) == 1:
-            return get_linear_interpolated_value(self.x, self.y, x_value)
+            return get_linear_interpolated_value(self.x, self.y, x)
         else:
-            return [get_linear_interpolated_value(self.x, self.y[:, k], x_value)
+            return [get_linear_interpolated_value(self.x, self.y[:, k], x)
                     for k in range(self.ydim[1])]
 
     def __add__(self, other):
@@ -124,8 +124,10 @@ class Spectrum(MSONable):
 
     def __sub__(self, other):
         """
-        Substract one Spectrum object from another. Checks that x scales are the same.
+        Substract one Spectrum object from another. Checks that x scales are
+        the same.
         Otherwise, a ValueError is thrown
+
         Args:
             other: Another Spectrum object
 
@@ -152,8 +154,7 @@ class Spectrum(MSONable):
 
     def __truediv__(self, other):
         """
-        True division of y_value
-
+        True division of y
         Args:
             other: The divisor
 
@@ -168,7 +169,8 @@ class Spectrum(MSONable):
 
     def __str__(self):
         """
-        Returns a string contains values and labels of spectrum object for plotting
+        Returns a string containing values and labels of spectrum object for
+        plotting.
         """
         output = [self.__class__.__name__,
                   "%s: %s" % (self.XLABEL, self.x),
