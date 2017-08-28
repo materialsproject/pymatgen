@@ -56,6 +56,9 @@ class Spectrum(MSONable):
         self._args = args
         self._kwargs = kwargs
 
+    def __len__(self):
+        return self.ydim[0]
+
     def normalize(self, mode="max", value=1):
         """
         Normalize the spectrum with respect to the sum of intensity
