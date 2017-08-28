@@ -9,13 +9,8 @@ import json
 
 from io import open
 
-try:
-    import matplotlib
-
-    matplotlib.use("pdf")  # Use non-graphical display backend during test.
-    have_matplotlib = "DISPLAY" in os.environ
-except ImportError:
-    have_matplotlib = False
+import matplotlib
+matplotlib.use("pdf")  # Use non-graphical display backend during test.
 
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, \
@@ -143,6 +138,8 @@ class BSDOSPlotterTest(unittest.TestCase):
     def test_methods(self):
         v = Vasprun(os.path.join(test_dir, "vasprun_Si_bands.xml"))
         p = BSDOSPlotter()
+        plt = p.get_plot(v.get_band_structure(
+            kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")))
         plt = p.get_plot(v.get_band_structure(
             kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")),
             v.complete_dos)

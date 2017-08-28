@@ -22,7 +22,7 @@ from scipy.cluster.hierarchy import linkage, fcluster
 from monty.fractions import lcm
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 
@@ -86,7 +86,7 @@ class Slab(Structure):
     """
 
     def __init__(self, lattice, species, coords, miller_index,
-                 oriented_unit_cell, shift, scale_factor,
+                 oriented_unit_cell, shift, scale_factor, reorient_lattice=True,
                  validate_proximity=False, to_unit_cell=False,
                  coords_are_cartesian=False, site_properties=None, energy=None):
         """
@@ -121,6 +121,8 @@ class Slab(Structure):
                 termination.
             scale_factor (array): scale_factor Final computed scale factor
                 that brings the parent cell to the surface cell.
+            reorient_lattice (bool): reorients the lattice parameters such that
+                the c direction is the third vector of the lattice matrix
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
@@ -136,6 +138,10 @@ class Slab(Structure):
         self.shift = shift
         self.scale_factor = scale_factor
         self.energy = energy
+        self.reorient_lattice = reorient_lattice
+        lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,
+                                          lattice.alpha, lattice.beta,
+                                          lattice.gamma) if self.reorient_lattice else lattice
         super(Slab, self).__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
@@ -161,7 +167,8 @@ class Slab(Structure):
                     coords=self.cart_coords, miller_index=self.miller_index,
                     oriented_unit_cell=self.oriented_unit_cell,
                     shift=self.shift, scale_factor=self.scale_factor,
-                    coords_are_cartesian=True, energy=self.energy)
+                    coords_are_cartesian=True, energy=self.energy,
+                    reorient_lattice=self.reorient_lattice)
 
     def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
         """
@@ -250,7 +257,8 @@ class Slab(Structure):
                 fcoords = [x[1] for x in sp_fcoord]
                 slab = Slab(self.lattice, species, fcoords, self.miller_index,
                             self.oriented_unit_cell, self.shift,
-                            self.scale_factor, energy=self.energy)
+                            self.scale_factor, energy=self.energy,
+                            reorient_lattice=self.reorient_lattice)
                 slabs.append(slab)
         s = StructureMatcher()
         unique = [ss[0] for ss in s.group_structures(slabs)]
@@ -288,7 +296,8 @@ class Slab(Structure):
         s = Structure.from_sites(sites)
         return Slab(s.lattice, s.species_and_occu, s.frac_coords,
                     self.miller_index, self.oriented_unit_cell, self.shift,
-                    self.scale_factor, site_properties=s.site_properties)
+                    self.scale_factor, site_properties=s.site_properties,
+                    reorient_lattice=self.reorient_lattice)
 
     def copy(self, site_properties=None, sanitize=False):
         """
@@ -317,7 +326,8 @@ class Slab(Structure):
             props.update(site_properties)
         return Slab(self.lattice, self.species_and_occu, self.frac_coords,
                     self.miller_index, self.oriented_unit_cell, self.shift,
-                    self.scale_factor, site_properties=props)
+                    self.scale_factor, site_properties=props,
+                    reorient_lattice=self.reorient_lattice)
 
     @property
     def dipole(self):
@@ -446,7 +456,7 @@ class Slab(Structure):
             site_properties=s.site_properties, energy=d["energy"]
         )
 
-    def get_surface_sites(self, decimal=5, tag=False):
+    def get_surface_sites(self, tag=False):
         """
         Returns the surface sites and their site indices in a dictionary. The oriented unit
         cell of the slab will determine the coordination number of a typical site. We use
@@ -457,8 +467,6 @@ class Slab(Structure):
         broken bonds and for finding adsorption sites.
 
             Args:
-                decimal (int): The decimal place to determine a unique
-                    coordination number
                 tag (bool): Option to adds site attribute "is_surfsite" (bool) to
                     all sites of slab. Defaults to False
 
@@ -488,10 +496,10 @@ class Slab(Structure):
                 cn_dict[el] = []
             # Since this will get the cn as a result of the weighted polyhedra, the
             # slightest difference in cn will indicate a different environment for a
-            # species, eg. bond distance of each neighbor or neighbor species. We
-            # need a tol value, the decimal place to get some cn to be equal.
+            # species, eg. bond distance of each neighbor or neighbor species. The
+            # decimal place to get some cn to be equal.
             cn = v.get_coordination_number(i)
-            cn = round(cn, decimal)
+            cn = float('%.5f' %(round(cn, 5)))
             if cn not in cn_dict[el]:
                 cn_dict[el].append(cn)
 
@@ -505,8 +513,8 @@ class Slab(Structure):
             try:
                 # A site is a surface site, if its environment does
                 # not fit the environment of other sites
-                cn = round(v.get_coordination_number(i), decimal)
-                if cn not in cn_dict[site.species_string]:
+                cn = float('%.5f' %(round(v.get_coordination_number(i), 5)))
+                if cn < min(cn_dict[site.species_string]):
                     properties.append(True)
                     key = "top" if top else "bottom"
                     surf_sites_dict[key].append([site, i])
@@ -522,11 +530,32 @@ class Slab(Structure):
             self.add_site_property("is_surf_site", properties)
         return surf_sites_dict
 
-    def have_equivalent_surfaces(self):
+    # def surface_composition(self, top=True):
+    #     """
+    #     Returns the composition at the surface. Useful
+    #     for determining the type of termination
+    #
+    #     Args:
+    #         top (bool): Get the composition at the top surface if True
+    #     """
+    #
+    #     surfsites = self.get_surface_sites()
+    #     sites = surfsites["top"] if top else surfsites["bottom"]
+    #
+    #     comp_dict = {}
+    #     for site in sites:
+    #         if site[0].species_string not in comp_dict.keys():
+    #             comp_dict[site[0].species_string] = 0
+    #         comp_dict[site[0].species_string] += 1
+    #
+    #     return Composition(comp_dict)
 
-        # Check if we have same number of equivalent sites on both surfaces.
-        # This is an alternative to checking Laue symmetry (is_symmetric())
-        # if we want to ensure both surfaces in the slab are the same
+    def have_equivalent_surfaces(self):
+        """
+        Check if we have same number of equivalent sites on both surfaces.
+        This is an alternative to checking Laue symmetry (is_symmetric())
+        if we want to ensure both surfaces in the slab are the same
+        """
 
         # tag the sites as either surface sites or not
         surf_sites_dict = self.get_surface_sites(tag=True)
@@ -601,7 +630,7 @@ class SlabGenerator(object):
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
                  min_vacuum_size, lll_reduce=False, center_slab=False,
-                 primitive=True, max_normal_search=None):
+                 primitive=True, max_normal_search=None, reorient_lattice=True):
         """
         Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
@@ -639,6 +668,9 @@ class SlabGenerator(object):
                 vector as normal as possible (within the search range) to the
                 surface. A value of up to the max absolute Miller index is
                 usually sufficient.
+            reorient_lattice (bool): reorients the lattice parameters such that
+                the c direction is the third vector of the lattice matrix
+
         """
         latt = initial_structure.lattice
         miller_index = reduce_vector(miller_index)
@@ -727,6 +759,7 @@ class SlabGenerator(object):
         self._normal = normal
         a, b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
+        self.reorient_lattice = reorient_lattice
 
     def get_slab(self, shift=0, tol=0.1, energy=None):
         """
@@ -792,7 +825,7 @@ class SlabGenerator(object):
                     slab.frac_coords, self.miller_index,
                     self.oriented_unit_cell, shift,
                     scale_factor, site_properties=slab.site_properties,
-                    energy=energy)
+                    energy=energy, reorient_lattice=self.reorient_lattice)
 
     def _calculate_possible_shifts(self, tol=0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
