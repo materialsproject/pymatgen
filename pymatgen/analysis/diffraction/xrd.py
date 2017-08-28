@@ -319,14 +319,16 @@ class XRDCalculator(object):
         d_hkls = []
         for k in sorted(peaks.keys()):
             v = peaks[k]
-            scaled_intensity = v[0] / max_intensity * 100 if scaled else v[0]
             fam = get_unique_families(v[1])
-            if scaled_intensity > XRDCalculator.SCALED_INTENSITY_TOL:
+            if v[0] / max_intensity * 100 > XRDCalculator.SCALED_INTENSITY_TOL:
                 x.append(k)
-                y.append(scaled_intensity)
+                y.append(v[0])
                 hkls.append(fam)
                 d_hkls.append(v[2])
-        return XRDPattern(x, y, hkls, d_hkls)
+        xrd = XRDPattern(x, y, hkls, d_hkls)
+        if scaled:
+            xrd.normalize(mode="max", value=100)
+        return xrd
 
     def get_xrd_plot(self, structure, two_theta_range=(0, 90),
                      annotate_peaks=True, ax=None, with_labels=True,
