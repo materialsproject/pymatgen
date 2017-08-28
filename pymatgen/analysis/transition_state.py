@@ -58,6 +58,9 @@ class NEBAnalysis(MSONable):
                 be zero.
         """
         self.r = np.array(r)
+        self.ref_energy = energies[0]
+        energies = np.array(energies)
+        energies -= energies[0] 
         self.energies = np.array(energies)
         self.forces = np.array(forces)
         self.structures = structures
@@ -142,9 +145,7 @@ class NEBAnalysis(MSONable):
             if i in [0, len(outcars) - 1]:
                 forces.append(0)
             else:
-                forces.append(o.data["tangent_force"])
-        energies = np.array(energies)
-        energies -= energies[0]
+                forces.append(o.data["tangent_force"]) 
         forces = np.array(forces)
         r = np.array(r)
         return cls(r=r, energies=energies, forces=forces,
