@@ -29,6 +29,10 @@ class SpectrumTest(PymatgenTest):
         self.assertAlmostEqual(np.sum(self.multi_spec1.y[:, 0]), 1)
         self.assertAlmostEqual(np.sum(self.multi_spec1.y[:, 1]), 1)
 
+        # XRD style mode.
+        self.spec1.normalize(mode="max", value=100)
+        self.assertAlmostEqual(np.max(self.spec1.y), 100)
+
     def test_operators(self):
         scaled_spect = 3 * self.spec1 + self.spec2
         self.assertTrue(np.allclose(scaled_spect.y,

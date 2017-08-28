@@ -56,23 +56,24 @@ class Spectrum(MSONable):
         self._args = args
         self._kwargs = kwargs
 
-    def normalize(self, mode="max"):
+    def normalize(self, mode="max", value=1):
         """
         Normalize the spectrum with respect to the sum of intensity
 
         Args:
-            mode (str/float): Normalization mode. Support modes are "max" (set the
-                max y value to 1, e.g., in XRD patterns), "sum" (set the sum of
-                y to 1, i.e., like a probability density). If mode is not a str,
-                it is treated as a direct factor, e.g., 10.0
+            mode (str): Normalization mode. Supported modes are "max" (set the
+                max y value to value, e.g., in XRD patterns), "sum" (set the
+                sum of y to a value, i.e., like a probability density).
+            value (float): Value to normalize to. Defaults to 1.
         """
-        if mode == "sum":
+        if mode.lower() == "sum":
             factor = np.sum(self.y, axis=0)
-        elif mode == "max":
+        elif mode.lower() == "max":
             factor = np.max(self.y, axis=0)
         else:
-            factor = mode
-        self.y /= factor
+            raise ValueError("Unsupported normalization mode %s!" % mode)
+
+        self.y /= factor / value
 
     def smear(self, sigma):
         """
