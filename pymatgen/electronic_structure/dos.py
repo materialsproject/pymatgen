@@ -115,7 +115,13 @@ class DOS(Spectrum):
             (cbm, vbm): float in eV corresponding to the gap
         """
         # determine tolerance
-        tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
+        if spin is None:
+            tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
+        elif spin == Spin.up:
+            tdos = self.y[:, 0]
+        else:
+            tdos = self.y[:, 1]
+
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 

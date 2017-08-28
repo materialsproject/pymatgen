@@ -10,6 +10,7 @@ import json
 
 from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.electronic_structure.dos import CompleteDos, DOS
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -128,7 +129,7 @@ class CompleteDosTest(unittest.TestCase):
         self.assertIsNotNone(str(self.dos))
 
 
-class DOSTest(unittest.TestCase):
+class DOSTest(PymatgenTest):
 
     def setUp(self):
         with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
@@ -144,7 +145,8 @@ class DOSTest(unittest.TestCase):
                                                         abs_tol=False,
                                                         spin=None)[0],
                                2.16815942458015, 7)
-        self.assertAlmostEqual(dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
+        self.assertArrayAlmostEqual(dos.get_cbm_vbm(),
+                                    (3.8729, 1.8140000000000001))
 
         self.assertAlmostEqual(dos.get_interpolated_value(9.9)[0],
                                1.744588888888891, 7)
@@ -152,6 +154,11 @@ class DOSTest(unittest.TestCase):
                                1.756888888888886, 7)
         self.assertRaises(ValueError, dos.get_interpolated_value, 1000)
 
+        self.assertArrayAlmostEqual(dos.get_cbm_vbm(spin=Spin.up),
+                                    (3.8729, 1.2992999999999999))
+
+        self.assertArrayAlmostEqual(dos.get_cbm_vbm(spin=Spin.down),
+                                    (4.645, 1.8140000000000001))
 
 if __name__ == '__main__':
     unittest.main()
