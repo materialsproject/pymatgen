@@ -46,7 +46,7 @@ class XANESTest(PymatgenTest):
 
     def test_str(self):
         self.assertIsNotNone(str(self.xanes))
-        
+
 
 if __name__ == '__main__':
     unittest.main()
