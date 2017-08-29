@@ -34,18 +34,13 @@ class XANES(Spectrum):
     .. attribute: edge
         The edge of XANES spectrum
     """
-    XLABEL = 'Energy (eV)'
-    YLABEL = 'Intensity (mu)'
+    XLABEL = 'Energy'
+    YLABEL = 'Intensity'
 
     def __init__(self, x, y, structure, absorption_specie, edge):
         super(XANES, self).__init__(x, y, structure, absorption_specie, edge)
         self.structure = structure
         self.absorption_specie = absorption_specie
         self.edge = edge
-
-    def find_e0(self):
-        """
-        Use the maximum gradient to find e0
-        """
         self.e0 = self.x[np.argmax(np.gradient(self.y) / np.gradient(self.x))]
 

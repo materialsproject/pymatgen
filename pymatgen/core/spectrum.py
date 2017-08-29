@@ -56,6 +56,14 @@ class Spectrum(MSONable):
         self._args = args
         self._kwargs = kwargs
 
+    def __getattr__(self, item):
+        if item == self.XLABEL.lower():
+            return self.x
+        elif item == self.YLABEL.lower():
+            return self.y
+        else:
+            return super(Spectrum, self).__getattr__(item)
+
     def __len__(self):
         return self.ydim[0]
 
