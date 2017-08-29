@@ -72,6 +72,12 @@ class SpectrumTest(PymatgenTest):
         self.assertIsNotNone(str(self.spec1))
         self.assertIsNotNone(str(self.multi_spec1))
 
+    def test_copy(self):
+        spec1copy = self.spec1.copy()
+        spec1copy.y[0] = spec1copy.y[0] + 1
+        self.assertNotEqual(spec1copy.y[0], self.spec1.y[0])
+        self.assertEqual(spec1copy.y[1], self.spec1.y[1])
+
 
 if __name__ == '__main__':
     unittest.main()

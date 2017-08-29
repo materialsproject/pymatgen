@@ -581,7 +581,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 "nelements": len(self.as_dict().keys())}
 
     def oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
-                          all_oxi_states=False):
+                          all_oxi_states=False, max_sites=None):
         """
         Checks if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
@@ -589,7 +589,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         more degrees of freedom. e.g., if possible oxidation states of
         element X are [2,4] and Y are [-3], then XY is not charge balanced
         but X2Y2 is. Results are returned from most to least probable based
-        on ICSD statistics.
+        on ICSD statistics. Use max_sites to improve performance if needed.
 
         Args:
             oxi_states_override (dict): dict of str->list to override an
@@ -601,12 +601,31 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 Otherwise, default is Element.common_oxidation_states. Note
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
+            max_sites (int): if possible, will reduce Compositions to at most
+                this many many sites to speed up oxidation state guesses. Set
+                to -1 to just reduce fully.
 
         Returns:
             A list of dicts - each dict reports an element symbol and average
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
+
+        comp = self.copy()
+
+        # reduce Composition if necessary
+        if max_sites == -1:
+            comp = self.reduced_composition
+
+        elif max_sites and comp.num_atoms > max_sites:
+            reduced_comp, reduced_factor = self.\
+                get_reduced_composition_and_factor()
+            if reduced_factor > 1:
+                reduced_comp *= max(1, int(max_sites / reduced_comp.num_atoms))
+                comp = reduced_comp  # as close to max_sites as possible
+            if comp.num_atoms > max_sites:
+                raise ValueError("Composition {} cannot accommodate max_sites "
+                                 "setting!".format(comp))
 
         # Load prior probabilities of oxidation states, used to rank solutions
         if not Composition.oxi_prob:
@@ -621,13 +640,13 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         oxi_states_override = oxi_states_override or {}
 
         # assert: Composition only has integer amounts
-        if not all(amt == int(amt) for amt in self.values()):
+        if not all(amt == int(amt) for amt in comp.values()):
             raise ValueError("Charge balance analysis requires integer "
                              "values in Composition!")
 
         # for each element, determine all possible sum of oxidations
         # (taking into account nsites for that particular element)
-        el_amt = self.get_el_amt_dict()
+        el_amt = comp.get_el_amt_dict()
         els = el_amt.keys()
         el_sums = []  # matrix: dim1= el_idx, dim2=possible sums
         el_sum_scores = defaultdict(set)  # dict of el_idx, sum -> score

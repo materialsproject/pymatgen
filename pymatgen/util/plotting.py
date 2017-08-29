@@ -162,8 +162,7 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
     return plt
 
 
-def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None,
-                        **kwargs):
+def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
     """
     Convenience method to plot data with trend lines based on polynomial fit.
 
