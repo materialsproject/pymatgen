@@ -3,11 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import datetime
+import unittest
+import numpy as np
+
+from pymatgen import Structure, Molecule
+from pymatgen.util.provenance import StructureNL, HistoryNode, Author
 
 """
 Unit tests for StructureNL (SNL) format
 """
-
 
 __author__ = "Anubhav Jain"
 __credits__ = "Shyue Ping Ong"
@@ -16,13 +21,6 @@ __version__ = "0.1"
 __maintainer__ = "Anubhav Jain"
 __email__ = "ajain@lbl.gov"
 __date__ = "2/14/13"
-
-import datetime
-import unittest
-import numpy as np
-
-from pymatgen import Structure, Molecule
-from pymatgen.matproj.snl import StructureNL, HistoryNode, Author
 
 
 class StructureNLCase(unittest.TestCase):
