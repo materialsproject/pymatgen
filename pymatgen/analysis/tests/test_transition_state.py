@@ -43,7 +43,6 @@ class NEBAnalysisTest(PymatgenTest):
         self.assertArrayAlmostEqual(neb_analysis1.energies, neb_analysis1_from_dict.energies)
         self.assertArrayAlmostEqual(neb_analysis1.forces, neb_analysis1_from_dict.forces)
         self.assertEqual(neb_analysis1.structures, neb_analysis1_from_dict.structures)
-        self.assertEqual(neb_analysis1.structures, neb_analysis1_from_dict.structures)
 
         self.assertArrayAlmostEqual(neb_analysis1.r, neb_analysis1_from_json_data.r)
         self.assertArrayAlmostEqual(neb_analysis1.energies, neb_analysis1_from_json_data.energies)
