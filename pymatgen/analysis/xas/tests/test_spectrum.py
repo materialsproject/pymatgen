@@ -44,6 +44,9 @@ class XANESTest(PymatgenTest):
         self.assertArrayEqual(self.xanes.energy, self.xanes.x)
         self.assertArrayEqual(self.xanes.intensity, self.xanes.y)
 
+    def test_str(self):
+        self.assertIsNotNone(str(self.xanes))
+        
 
 if __name__ == '__main__':
     unittest.main()

@@ -62,7 +62,7 @@ class Spectrum(MSONable):
         elif item == self.YLABEL.lower():
             return self.y
         else:
-            return super(Spectrum, self).__getattr__(item)
+            raise AttributeError
 
     def __len__(self):
         return self.ydim[0]
