@@ -50,9 +50,9 @@ class Spectrum(MSONable):
         """
         self.x = np.array(x)
         self.y = np.array(y)
-        if self.x.shape[0] != self.y.shape[0]:
-            raise ValueError("x and y values have different first dimension!")
         self.ydim = self.y.shape
+        if self.x.shape[0] != self.ydim[0]:
+            raise ValueError("x and y values have different first dimension!")
         self._args = args
         self._kwargs = kwargs
 

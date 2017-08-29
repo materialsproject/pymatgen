@@ -17,7 +17,7 @@ with open(os.path.join(test_dir, 'Pd2O.json')) as fp:
     spect_data_dict = json.load(fp, cls=MontyDecoder)
 
 
-class XANESSetTest(PymatgenTest):
+class XANESTest(PymatgenTest):
     def setUp(self):
         self.xanes = XANES.from_dict(spect_data_dict)
 
