@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.plotter module &#8212; pymatgen 2017.8.14 documentation</title>
+    <title>pymatgen.electronic_structure.plotter module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.14',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -351,59 +351,88 @@ character for the corresponding element and orbital.</td>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots_patom_pmorb">
 <code class="descname">get_projected_plots_dots_patom_pmorb</code><span class="sig-paren">(</span><em>dictio</em>, <em>dictpa</em>, <em>sum_atoms=None</em>, <em>sum_morbs=None</em>, <em>zero_to_efermi=True</em>, <em>ylim=None</em>, <em>vbm_cbm_marker=False</em>, <em>selected_branches=None</em>, <em>w_h_size=(12</em>, <em>8)</em>, <em>num_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotterProjected.get_projected_plots_dots_patom_pmorb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots_patom_pmorb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method returns a plot composed of subplots for different atoms and orbitals (subshell orbitals such as
-‘s’, ‘p’, ‘d’ and ‘f’ defined by azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
-individual orbitals like ‘px’, ‘py’ and ‘pz’ defined by magnetic quantum numbers m = -1, 1 and 0, respectively).
+<dd><p>Method returns a plot composed of subplots for different atoms and
+orbitals (subshell orbitals such as ‘s’, ‘p’, ‘d’ and ‘f’ defined by
+azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
+individual orbitals like ‘px’, ‘py’ and ‘pz’ defined by magnetic
+quantum numbers m = -1, 1 and 0, respectively).
 This is an extension of “get_projected_plots_dots” method.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dictio</strong> – The elements and the orbitals you need to project on. The format is {Element:[Orbitals]},
-for instance:
-{‘Cu’:[‘dxy’,’s’,’px’],’O’:[‘px’,’py’,’pz’]} will give projections for Cu on orbitals dxy, s, px and
-for O on orbitals px, py, pz. If you want to sum over all individual orbitals of subshell orbitals,
+<li><strong>dictio</strong> – The elements and the orbitals you need to project on. The
+format is {Element:[Orbitals]}, for instance:
+{‘Cu’:[‘dxy’,’s’,’px’],’O’:[‘px’,’py’,’pz’]} will give
+projections for Cu on orbitals dxy, s, px and
+for O on orbitals px, py, pz. If you want to sum over all
+individual orbitals of subshell orbitals,
 for example, ‘px’, ‘py’ and ‘pz’ of O, just simply set
-{‘Cu’:[‘dxy’,’s’,’px’],’O’:[‘p’]} and set sum_morbs (see explainations below) as {‘O’:[p],…}.
+{‘Cu’:[‘dxy’,’s’,’px’],’O’:[‘p’]} and set sum_morbs (see
+explanations below) as {‘O’:[p],…}.
 Otherwise, you will get an error.</li>
-<li><strong>dictpa</strong> – The elements and their sites (defined by site numbers) you need to project on. The format is
-{Element: [Site numbers]}, for instance: {‘Cu’:[1,5],’O’:[3,4]} will give projections for Cu on site-1
+<li><strong>dictpa</strong> – The elements and their sites (defined by site numbers) you
+need to project on. The format is
+{Element: [Site numbers]}, for instance: {‘Cu’:[1,5],’O’:[3,4]}
+will give projections for Cu on site-1
 and on site-5, O on site-3 and on site-4 in the cell.
 Attention:
-The correct site numbers of atoms are consistent with themselves in the structure computed. Normally,
-the structure should be totally similar with POSCAR file, however, sometimes VASP can rotate or
-translate the cell. Thus, it would be safe if using Vasprun class to get the final_structure and as a
+The correct site numbers of atoms are consistent with
+themselves in the structure computed. Normally,
+the structure should be totally similar with POSCAR file,
+however, sometimes VASP can rotate or
+translate the cell. Thus, it would be safe if using Vasprun
+class to get the final_structure and as a
 result, correct index numbers of atoms.</li>
-<li><strong>sum_atoms</strong> – <p>Sum projection of the similar atoms together (e.g.: Cu on site-1 and Cu on site-5). The format is
+<li><strong>sum_atoms</strong> – <p>Sum projection of the similar atoms together (e.g.: Cu
+on site-1 and Cu on site-5). The format is
 {Element: [Site numbers]}, for instance:</p>
 <blockquote>
-<div>{‘Cu’: [1,5], ‘O’: [3,4]} means summing projections over Cu on site-1 and Cu on site-5 and O on site-3
-and on site-4. If you do not want to use this functional, just turn it off by setting sum_atoms = None.</div></blockquote>
+<div>{‘Cu’: [1,5], ‘O’: [3,4]} means summing projections over Cu on
+site-1 and Cu on site-5 and O on site-3
+and on site-4. If you do not want to use this functional, just
+turn it off by setting sum_atoms = None.</div></blockquote>
 </li>
-<li><strong>sum_morbs</strong> – Sum projections of individual orbitals of similar atoms together (e.g.: ‘dxy’ and ‘dxz’). The
+<li><strong>sum_morbs</strong> – Sum projections of individual orbitals of similar atoms
+together (e.g.: ‘dxy’ and ‘dxz’). The
 format is {Element: [individual orbitals]}, for instance:
-{‘Cu’: [‘dxy’, ‘dxz’], ‘O’: [‘px’, ‘py’]} means summing projections over ‘dxy’ and ‘dxz’ of Cu and ‘px’
-and ‘py’ of O. If you do not want to use this functional, just turn it off by setting sum_morbs = None.</li>
-<li><strong>selected_branches</strong> – The index of symmetry lines you chose for plotting. This can be useful when the number of
-symmetry lines (in KPOINTS file) are manny while you only want to show for certain ones. The format is
+{‘Cu’: [‘dxy’, ‘dxz’], ‘O’: [‘px’, ‘py’]} means summing
+projections over ‘dxy’ and ‘dxz’ of Cu and ‘px’
+and ‘py’ of O. If you do not want to use this functional, just
+turn it off by setting sum_morbs = None.</li>
+<li><strong>selected_branches</strong> – The index of symmetry lines you chose for
+plotting. This can be useful when the number of
+symmetry lines (in KPOINTS file) are manny while you only want
+to show for certain ones. The format is
 [index of line], for instance:
-[1, 3, 4] means you just need to do projection along lines number 1, 3 and 4 while neglecting lines
-number 2 and so on. By default, this is None type and all symmetry lines will be plotted.</li>
-<li><strong>w_h_size</strong> – This variable help you to control the width and height of figure. By default, width = 12 and
-height = 8 (inches). The width/height ratio is kept the same for subfigures and the size of each depends
+[1, 3, 4] means you just need to do projection along lines
+number 1, 3 and 4 while neglecting lines
+number 2 and so on. By default, this is None type and all
+symmetry lines will be plotted.</li>
+<li><strong>w_h_size</strong> – This variable help you to control the width and height
+of figure. By default, width = 12 and
+height = 8 (inches). The width/height ratio is kept the same
+for subfigures and the size of each depends
 on how many number of subfigures are plotted.</li>
-<li><strong>num_column</strong> – This variable help you to manage how the subfigures are arranged in the figure by setting
-up the number of columns of subfigures. The value should be an int number. For example, num_column = 3
-means you want to plot subfigures in 3 columns. By default, num_column = None and subfigures are
+<li><strong>num_column</strong> – This variable help you to manage how the subfigures are
+arranged in the figure by setting
+up the number of columns of subfigures. The value should be an
+int number. For example, num_column = 3
+means you want to plot subfigures in 3 columns. By default,
+num_column = None and subfigures are
 aligned in 2 columns.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A pylab object with different subfigures for different projections. The blue and red colors lines are bands
-for spin up and spin down. The green and cyan dots are projections for spin up and spin down. The bigger
-the green or cyan dots in the projected band structures, the higher character for the corresponding elements
-and orbitals. List of individual orbitals and their numbers (set up by VASP and no special meaning):
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A pylab object with different subfigures for different projections.
+The blue and red colors lines are bands
+for spin up and spin down. The green and cyan dots are projections
+for spin up and spin down. The bigger
+the green or cyan dots in the projected band structures, the higher
+character for the corresponding elements
+and orbitals. List of individual orbitals and their numbers (set up
+by VASP and no special meaning):
 s = 0; py = 1 pz = 2 px = 3; dxy = 4 dyz = 5 dz2 = 6 dxz = 7 dx2 = 8;
 f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15</p>
 </td>
@@ -1416,7 +1445,7 @@ and linewidth to 1.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 

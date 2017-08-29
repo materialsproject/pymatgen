@@ -8,6 +8,8 @@ import numpy as np
 
 from monty.dev import deprecated
 
+from pymatgen.core.periodic_table import Element
+
 """
 Utilities for generating nicer plots.
 """
@@ -184,6 +186,77 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None,
         plt.xlabel(xlabel)
     if ylabel:
         plt.ylabel(ylabel)
+    return plt
+
+
+def periodic_table_heatmap(elemental_data, cbar_label="",
+                           show_plot=False, cmap="YlOrRd", blank_color="grey",
+                           show_value=True):
+    """
+    A static method that generates a heat map overlapped on a periodic table.
+
+    Args:
+         elemental_data (dict): A dictionary with the element as a key and a
+            value assigned to it, e.g. surface energy and frequency, etc.
+            Elements missing in the elemental_data will be grey by default
+            in the final table elemental_data={"Fe": 4.2, "O": 5.0}.
+         cbar_label (string): Label of the colorbar. Default is "".
+         figure_name (string): Name of the plot (absolute path) being saved
+            if not None.
+         show_plot (bool): Whether to show the heatmap. Default is False.
+         cmap (string): Color scheme of the heatmap. Default is 'coolwarm'.
+         blank_color (string): Color assigned for the missing elements in
+            elemental_data. Default is "grey".
+    """
+
+    # Convert elemental data in the form of numpy array for plotting.
+    max_val = max(elemental_data.values())
+    min_val = min(elemental_data.values())
+    value_table = np.empty((9, 18)) * np.nan
+    blank_value = min_val - 0.01
+
+    for el in Element:
+        value = elemental_data.get(el.symbol, blank_value)
+        value_table[el.row - 1, el.group - 1] = value
+
+    # Initialize the plt object
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    plt.gcf().set_size_inches(12, 8)
+
+    # We set nan type values to masked values (ie blank spaces)
+    data_mask = np.ma.masked_invalid(value_table.tolist())
+    heatmap = ax.pcolor(data_mask, cmap=cmap, edgecolors='w', linewidths=1,
+                        vmin=min_val-0.001, vmax=max_val+0.001)
+    cbar = fig.colorbar(heatmap)
+
+    # Grey out missing elements in input data
+    cbar.cmap.set_under(blank_color)
+    cbar.set_label(cbar_label, rotation=270, labelpad=15)
+    cbar.ax.tick_params(labelsize=14)
+
+    # Refine and make the table look nice
+    ax.axis('off')
+    ax.invert_yaxis()
+
+    # Label each block with corresponding element and value
+    for i, row in enumerate(value_table):
+        for j, el in enumerate(row):
+            if not np.isnan(el):
+                symbol = Element.from_row_and_group(i+1, j+1).symbol
+                plt.text(j + 0.5, i + 0.25, symbol,
+                         horizontalalignment='center',
+                         verticalalignment='center', fontsize=14)
+                if el != blank_value and show_value:
+                    plt.text(j + 0.5, i + 0.5, "%.2f" % (el),
+                             horizontalalignment='center',
+                             verticalalignment='center', fontsize=10)
+
+    plt.tight_layout()
+
+    if show_plot:
+        plt.show()
+
     return plt
 
 

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.symmetry.analyzer module &#8212; pymatgen 2017.8.14 documentation</title>
+    <title>pymatgen.symmetry.analyzer module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.14',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -106,6 +106,32 @@ symmetry operations of the point group.</li>
 </tbody>
 </table>
 <dl class="method">
+<dt id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms">
+<code class="descname">get_equivalent_atoms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#PointGroupAnalyzer.get_equivalent_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns sets of equivalent atoms with symmetry operations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The returned dictionary has two possible keys:<p><code class="docutils literal"><span class="pre">eq_sets</span></code>:
+A dictionary of indices mapping to sets of indices,
+each key maps to indices of all equivalent atoms.
+The keys are guaranteed to be not equivalent.</p>
+<p><code class="docutils literal"><span class="pre">sym_ops</span></code>:
+Twofold nested dictionary.
+<code class="docutils literal"><span class="pre">operations[i][j]</span></code> gives the symmetry operation
+that maps atom <code class="docutils literal"><span class="pre">i</span></code> unto <code class="docutils literal"><span class="pre">j</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_pointgroup">
 <code class="descname">get_pointgroup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#PointGroupAnalyzer.get_pointgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_pointgroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a PointGroup object for the molecule.</p>
@@ -131,6 +157,41 @@ equivalent atom.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Whether SymmOp is valid for Molecule.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">(bool)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.symmetrize_molecule">
+<code class="descname">symmetrize_molecule</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#PointGroupAnalyzer.symmetrize_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.symmetrize_molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a symmetrized molecule</p>
+<p>The equivalent atoms obtained via
+<a class="reference internal" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms" title="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms"><code class="xref py py-meth docutils literal"><span class="pre">get_equivalent_atoms()</span></code></a>
+are rotated, mirrored… unto one position.
+Then the average position is calculated.
+The average position is rotated, mirrored… back with the inverse
+of the previous symmetry operations, which gives the
+symmetrized molecule</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The returned dictionary has three possible keys:<p><code class="docutils literal"><span class="pre">sym_mol</span></code>:
+A symmetrized molecule instance.</p>
+<p><code class="docutils literal"><span class="pre">eq_sets</span></code>:
+A dictionary of indices mapping to sets of indices,
+each key maps to indices of all equivalent atoms.
+The keys are guaranteed to be not equivalent.</p>
+<p><code class="docutils literal"><span class="pre">sym_ops</span></code>:
+Twofold nested dictionary.
+<code class="docutils literal"><span class="pre">operations[i][j]</span></code> gives the symmetry operation
+that maps atom <code class="docutils literal"><span class="pre">i</span></code> unto <code class="docutils literal"><span class="pre">j</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
 </tr>
 </tbody>
 </table>
@@ -517,6 +578,15 @@ But cartesian can be returned too.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.is_laue">
+<code class="descname">is_laue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#SpacegroupAnalyzer.is_laue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.is_laue" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Check if the point group of the structure</dt>
+<dd>has Laue symmetry (centrosymmetry)</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -574,7 +644,7 @@ equivalent.</p>
 
 <dl class="function">
 <dt id="pymatgen.symmetry.analyzer.cluster_sites">
-<code class="descname">cluster_sites</code><span class="sig-paren">(</span><em>mol</em>, <em>tol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#cluster_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.cluster_sites" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cluster_sites</code><span class="sig-paren">(</span><em>mol</em>, <em>tol</em>, <em>give_only_index=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#cluster_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.cluster_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cluster sites based on distance and species type.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -600,7 +670,7 @@ dict of {(avg_dist, species_and_occu): [list of sites]}</p>
 
 <dl class="function">
 <dt id="pymatgen.symmetry.analyzer.generate_full_symmops">
-<code class="descname">generate_full_symmops</code><span class="sig-paren">(</span><em>symmops</em>, <em>tol</em>, <em>max_recursion_depth=300</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#generate_full_symmops"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.generate_full_symmops" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_full_symmops</code><span class="sig-paren">(</span><em>symmops</em>, <em>tol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#generate_full_symmops"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.generate_full_symmops" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recursive algorithm to permute through all possible combinations of the
 initially supplied symmetry operations to arrive at a complete set of
 operations mapping a single atom to all other equivalent atoms in the
@@ -613,6 +683,41 @@ identifies all operations.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symmops</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a><em>]</em>) – Initial set of symmetry operations.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full set of symmetry operations.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.symmetry.analyzer.iterative_symmetrize">
+<code class="descname">iterative_symmetrize</code><span class="sig-paren">(</span><em>mol</em>, <em>max_n=10</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#iterative_symmetrize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.iterative_symmetrize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a symmetrized molecule</p>
+<p>The equivalent atoms obtained via
+<a class="reference internal" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms" title="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms"><code class="xref py py-meth docutils literal"><span class="pre">get_equivalent_atoms()</span></code></a>
+are rotated, mirrored… unto one position.
+Then the average position is calculated.
+The average position is rotated, mirrored… back with the inverse
+of the previous symmetry operations, which gives the
+symmetrized molecule</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The returned dictionary has three possible keys:<p><code class="docutils literal"><span class="pre">sym_mol</span></code>:
+A symmetrized molecule instance.</p>
+<p><code class="docutils literal"><span class="pre">eq_sets</span></code>:
+A dictionary of indices mapping to sets of indices,
+each key maps to indices of all equivalent atoms.
+The keys are guaranteed to be not equivalent.</p>
+<p><code class="docutils literal"><span class="pre">sym_ops</span></code>:
+Twofold nested dictionary.
+<code class="docutils literal"><span class="pre">operations[i][j]</span></code> gives the symmetry operation
+that maps atom <code class="docutils literal"><span class="pre">i</span></code> unto <code class="docutils literal"><span class="pre">j</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
 </tr>
 </tbody>
 </table>
@@ -656,7 +761,7 @@ identifies all operations.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 

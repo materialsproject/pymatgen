@@ -63,6 +63,12 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(len(s), 4)
         self.assertEqual(len(a.find_primitive()), 1)
 
+    def test_is_laue(self):
+        s = Structure.from_spacegroup("Fm-3m", np.eye(3) * 3, ["Cu"],
+                                      [[0, 0, 0]])
+        a = SpacegroupAnalyzer(s)
+        self.assertTrue(a.is_laue())
+
     def test_magnetic(self):
         lfp = PymatgenTest.get_structure("LiFePO4")
         sg = SpacegroupAnalyzer(lfp, 0.1)
@@ -151,7 +157,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
             self.assertEqual(a, 90)
         self.assertEqual(refined.lattice.a, refined.lattice.b)
         s = self.get_structure('Li2O')
-        sg = SpacegroupAnalyzer(s, 0.001)
+        sg = SpacegroupAnalyzer(s, 0.01)
         self.assertEqual(sg.get_refined_structure().num_sites, 4 * s.num_sites)
 
     def test_get_symmetrized_structure(self):

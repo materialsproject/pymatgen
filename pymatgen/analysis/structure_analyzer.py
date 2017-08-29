@@ -4,6 +4,7 @@
 
 from __future__ import division, unicode_literals
 
+import warnings
 import six
 import ruamel.yaml as yaml
 import os
@@ -52,6 +53,9 @@ class VoronoiCoordFinder(object):
 
     def __init__(self, structure, target=None, cutoff=10.0,
                  allow_pathological=False):
+        warnings.warn("VoronoiCoordFinder will be moved to local_env.py"
+                      " with pymatgen >= 2018")
+
         self._structure = structure
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
@@ -158,6 +162,9 @@ class JMolCoordFinder:
             el_radius_updates: (dict) symbol->float to override default atomic 
                 radii table values 
         """
+
+        warnings.warn("JMolCoordFinder will be moved to local_env.py"
+                " with pymatgen >= 2018")
 
         # load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),

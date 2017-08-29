@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v2017.8.14
+v2017.8.21
 ----------
-* Fixes and minor improvements to elastic, bader and defect analyses.
+* Minor bug fixes.

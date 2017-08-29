@@ -1218,9 +1218,9 @@ class GaussianOutput(object):
 
     def get_spectre_plot(self, sigma=0.05, step=0.01):
         """
-        Get a matplotlib plot of the UV-visible spectra. Transition are plotted
+        Get a matplotlib plot of the UV-visible xas. Transition are plotted
         as vertical lines and as a sum of normal functions with sigma with. The
-        broadening is applied in energy and the spectra is plotted as a function
+        broadening is applied in energy and the xas is plotted as a function
         of the wavelength.
 
         Args:
@@ -1228,9 +1228,9 @@ class GaussianOutput(object):
             step: bin interval in eV
 
         Returns:
-            A dict: {"energies": values, "lambda": values, "spectra": values}
+            A dict: {"energies": values, "lambda": values, "xas": values}
                     where values are lists of abscissa (energies, lamba) and
-                    the sum of gaussian functions (spectra).
+                    the sum of gaussian functions (xas).
             A matplotlib plot.
         """
         from pymatgen.util.plotting import pretty_plot
@@ -1253,7 +1253,7 @@ class GaussianOutput(object):
         spectre /= spectre.max()
         plt.plot(lambdaval, spectre, "r-", label="spectre")
 
-        data = {"energies": eneval, "lambda": lambdaval, "spectra": spectre}
+        data = {"energies": eneval, "lambda": lambdaval, "xas": spectre}
 
         # plot transitions as vlines
         plt.vlines([val[1] for val in transitions], \

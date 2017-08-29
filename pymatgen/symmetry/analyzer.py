@@ -14,7 +14,6 @@ from math import sin
 from fractions import Fraction
 
 import numpy as np
-from numpy.linalg import matrix_power, multi_dot
 
 from six.moves import filter, map, zip
 from monty.dev import deprecated
@@ -800,6 +799,18 @@ class SpacegroupAnalyzer(object):
             raise ValueError("Unable to find 1:1 corresponding between input "
                              "kpoints and irreducible grid!")
         return [w/sum(weights) for w in weights]
+
+    def is_laue(self):
+
+        """
+        Check if the point group of the structure
+            has Laue symmetry (centrosymmetry)
+        """
+
+        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
+                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
+
+        return str(self.get_point_group_symbol()) in laue
 
 
 class PointGroupAnalyzer(object):
