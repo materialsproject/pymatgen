@@ -589,7 +589,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         more degrees of freedom. e.g., if possible oxidation states of
         element X are [2,4] and Y are [-3], then XY is not charge balanced
         but X2Y2 is. Results are returned from most to least probable based
-        on ICSD statistics.
+        on ICSD statistics. Use max_sites to improve performance if needed.
 
         Args:
             oxi_states_override (dict): dict of str->list to override an
@@ -601,8 +601,9 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 Otherwise, default is Element.common_oxidation_states. Note
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
-            max_sites (int): if enabled, will reduce Compositions with too
-                many sites to speed up oxidation state guesses.
+            max_sites (int): if possible, will reduce Compositions to at most
+                this many many sites to speed up oxidation state guesses. Set
+                to -1 to just reduce fully.
 
         Returns:
             A list of dicts - each dict reports an element symbol and average
@@ -613,7 +614,10 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         comp = self.copy()
 
         # reduce Composition if necessary
-        if max_sites and comp.num_atoms > max_sites:
+        if max_sites == -1:
+            comp = self.reduced_composition
+
+        elif max_sites and comp.num_atoms > max_sites:
             reduced_comp, reduced_factor = self.\
                 get_reduced_composition_and_factor()
             if reduced_factor > 1:
