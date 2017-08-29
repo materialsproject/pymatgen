@@ -110,6 +110,13 @@ class Spectrum(MSONable):
             return [get_linear_interpolated_value(self.x, self.y[:, k], x)
                     for k in range(self.ydim[1])]
 
+    def copy(self):
+        """
+        Returns:
+            Copy of Spectrum object.
+        """
+        return self.__class__(self.x, self.y, *self._args, **self._kwargs)
+
     def __add__(self, other):
         """
         Add two Spectrum object together. Checks that x scales are the same.
@@ -165,10 +172,21 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(self.x, self.y / other, *self._args,
+        return self.__class__(self.x, self.y.__truediv__(other), *self._args,
                               **self._kwargs)
 
-    __floordiv__ = __truediv__
+    def __floordiv__(self, other):
+        """
+        True division of y
+        Args:
+            other: The divisor
+
+        Returns:
+            Spectrum object with y values divided
+        """
+        return self.__class__(self.x, self.y.__floordiv__(other), *self._args,
+                              **self._kwargs)
+
     __div__ = __truediv__
 
     def __str__(self):
@@ -176,10 +194,9 @@ class Spectrum(MSONable):
         Returns a string containing values and labels of spectrum object for
         plotting.
         """
-        output = [self.__class__.__name__,
-                  "%s: %s" % (self.XLABEL, self.x),
-                  "%s: %s" % (self.YLABEL, self.y)]
-        return "\n".join(output)
+        return "\n".join([self.__class__.__name__,
+                          "%s: %s" % (self.XLABEL, self.x),
+                          "%s: %s" % (self.YLABEL, self.y)])
 
     def __repr__(self):
         """
