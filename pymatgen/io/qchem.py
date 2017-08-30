@@ -1513,6 +1513,7 @@ class QcOutput(object):
         corr_energy_pattern = re.compile(r'(?P<name>[A-Z\-\(\)0-9]+)\s+'
                                          r'([tT]otal\s+)?[eE]nergy\s+=\s+'
                                          r'(?P<energy>-\d+\.\d+)')
+        gen_scfman_energy_pattern = re.compile(r'Convergence criterion met')
         coord_pattern = re.compile(
             r'\s*\d+\s+(?P<element>[A-Z][a-zH]*)\s+(?P<x>\-?\d+\.\d+)\s+'
             r'(?P<y>\-?\d+\.\d+)\s+(?P<z>\-?\d+\.\d+)')
@@ -1839,6 +1840,10 @@ class QcOutput(object):
                 if m and m.group("name") != "SCF":
                     name = m.group("name")
                     energy = Energy(m.group("energy"), "Ha").to("eV")
+                m = gen_scfman_energy_pattern.search(line)
+                if m and name != "SCF":
+                    name = "Gen_SCFMAN"
+                    energy = Energy(float(line.split()[1]), "Ha").to("eV")
                 m = detailed_charge_pattern.search(line)
                 if m:
                     pop_method = m.group("method").lower()
