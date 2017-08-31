@@ -368,12 +368,6 @@ class PDPlotter(object):
 
         plt.savefig(stream, format=image_format)
 
-    def plot_phase_map(self, energy_function, xlim = [], ylim = [],
-                       energy_function_kwargs={}):
-        """
-        """
-        pass
-
     def plot_chempot_range_map(self, elements, referenced=True):
         """
         Plot the chemical potential range _map. Currently works only for
