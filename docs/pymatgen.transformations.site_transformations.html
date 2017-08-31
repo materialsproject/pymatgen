@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.transformations.site_transformations module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.transformations.site_transformations module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -66,7 +63,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site_properties</strong> (<em>dict</em>) &#8211; site properties to be added to a structure</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site_properties</strong> (<em>dict</em>) – site properties to be added to a structure</td>
 </tr>
 </tbody>
 </table>
@@ -78,7 +75,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; structure to add site properties to</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to add site properties to</td>
 </tr>
 </tbody>
 </table>
@@ -106,13 +103,13 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>species</strong> &#8211; A list of species. e.g., [&#8220;Li&#8221;, &#8220;Fe&#8221;]</li>
-<li><strong>coords</strong> &#8211; A list of coords corresponding to those species. e.g.,
+<li><strong>species</strong> – A list of species. e.g., [“Li”, “Fe”]</li>
+<li><strong>coords</strong> – A list of coords corresponding to those species. e.g.,
 [[0,0,0],[0.5,0.5,0.5]].</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) &#8211; Set to True if coords are given in
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if coords are given in
 cartesian coords. Defaults to False.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Set to False if you do not wish to ensure that added sites are
-not too close to other sites. Defaults to True.</li>
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Set to False if you do not wish to ensure
+that added sites are not too close to other sites. Defaults to True.</li>
 </ul>
 </td>
 </tr>
@@ -147,11 +144,11 @@ computed.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>indices</strong> &#8211; A list of list of indices.
+<li><strong>indices</strong> – A list of list of indices.
 e.g. [[0, 1], [2, 3, 4, 5]]</li>
-<li><strong>fractions</strong> &#8211; The corresponding fractions to remove. Must be same length as
+<li><strong>fractions</strong> – The corresponding fractions to remove. Must be same length as
 indices. e.g., [0.5, 0.25]</li>
-<li><strong>algo</strong> &#8211; This parameter allows you to choose the algorithm to perform
+<li><strong>algo</strong> – This parameter allows you to choose the algorithm to perform
 ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*
 variables to set the algo.</li>
 </ul>
@@ -186,7 +183,7 @@ in a reasonable time, but it is also likely to be highly inaccurate.</dd>
 <dd>This algorithm uses the EnumerateStructureTransformation to perform
 ordering. This algo returns <em>complete</em> orderings up to a single unit
 cell size. It is more robust than the ALGO_COMPLETE, but requires
-Gus Hart&#8217;s enumlib to be installed.</dd>
+Gus Hart’s enumlib to be installed.</dd>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_BEST_FIRST">
@@ -217,8 +214,8 @@ Gus Hart&#8217;s enumlib to be installed.</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; input structure</li>
-<li><strong>return_ranked_list</strong> (<em>bool</em>) &#8211; Whether or not multiple structures are
+<li><strong>structure</strong> – input structure</li>
+<li><strong>return_ranked_list</strong> (<em>bool</em>) – Whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
 structures is returned.</li>
 </ul>
@@ -226,8 +223,8 @@ structures is returned.</li>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Depending on returned_ranked list, either a transformed structure
 or a list of dictionaries, where each dictionary is of the form
-{&#8220;structure&#8221; = .... , &#8220;other_arguments&#8221;}
-the key &#8220;transformation&#8221; is reserved for the transformation that
+{“structure” = …. , “other_arguments”}
+the key “transformation” is reserved for the transformation that
 was actually applied to the structure.
 This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
@@ -286,7 +283,7 @@ until the number of permutations is on the order of 30,000.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices_to_remove</strong> &#8211; List of indices to remove. E.g., [0, 1, 2]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices_to_remove</strong> – List of indices to remove. E.g., [0, 1, 2]</td>
 </tr>
 </tbody>
 </table>
@@ -316,12 +313,12 @@ until the number of permutations is on the order of 30,000.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices_species_map</strong> &#8211; A dict containing the species mapping in
-int-string pairs. E.g., { 1:&#8221;Na&#8221;} or {2:&#8221;Mn2+&#8221;}. Multiple
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices_species_map</strong> – A dict containing the species mapping in
+int-string pairs. E.g., { 1:”Na”} or {2:”Mn2+”}. Multiple
 substitutions can be done. Overloaded to accept sp_and_occu
-dictionary. E.g. {&#8220;Si: {&#8220;Ge&#8221;:0.75, &#8220;C&#8221;:0.25} }, which
-substitutes a single species with multiple species to generate a disordered
-structure.</td>
+dictionary. E.g. {1: {“Ge”:0.75, “C”:0.25} }, which
+substitutes a single species with multiple species to generate a
+disordered structure.</td>
 </tr>
 </tbody>
 </table>
@@ -352,12 +349,12 @@ structure.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>indices_to_move</strong> &#8211; The indices of the sites to move</li>
-<li><strong>translation_vector</strong> &#8211; Vector to move the sites. If a list of list or numpy
+<li><strong>indices_to_move</strong> – The indices of the sites to move</li>
+<li><strong>translation_vector</strong> – Vector to move the sites. If a list of list or numpy
 array of shape, (len(indices_to_move), 3), is provided then each
 translation vector is applied to the corresponding site in the
 indices_to_move.</li>
-<li><strong>vector_in_frac_coords</strong> &#8211; Set to True if the translation vector is in
+<li><strong>vector_in_frac_coords</strong> – Set to True if the translation vector is in
 fractional coordinates, and False if it is in cartesian
 coordinations. Defaults to True.</li>
 </ul>
@@ -426,13 +423,13 @@ coordinations. Defaults to True.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

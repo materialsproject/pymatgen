@@ -1,5 +1,5 @@
-pymatgen.phasediagram package
-=============================
+pymatgen\.phasediagram package
+==============================
 
 Subpackages
 -----------

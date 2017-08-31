@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.qchem module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.qchem module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -66,7 +63,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>jobs</strong> &#8211; The QChem jobs (List of QcInput object)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>jobs</strong> – The QChem jobs (List of QcInput object)</td>
 </tr>
 </tbody>
 </table>
@@ -171,47 +168,47 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>molecule</strong> &#8211; The input molecule. If it is None of string &#8220;read&#8221;,
+<li><strong>molecule</strong> – The input molecule. If it is None of string “read”,
 QChem will read geometry from checkpoint file. If it is a
 Molecule object, QcInput will convert it into Cartesian
-coordinates. Valid values: pymatgen Molecule object, &#8220;read&#8221;, None
+coordinates. Valid values: pymatgen Molecule object, “read”, None
 Defaults to None.</li>
-<li><strong>charge</strong> (<em>int</em>) &#8211; Charge of the molecule. If None, charge on molecule is
+<li><strong>charge</strong> (<em>int</em>) – Charge of the molecule. If None, charge on molecule is
 used. Defaults to None.</li>
-<li><strong>spin_multiplicity</strong> (<em>int</em>) &#8211; Spin multiplicity of molecule. Defaults to
+<li><strong>spin_multiplicity</strong> (<em>int</em>) – Spin multiplicity of molecule. Defaults to
 None, which means that the spin multiplicity is set to 1 if the
 molecule has no unpaired electrons and to 2 if there are
 unpaired electrons.</li>
-<li><strong>jobtype</strong> (<em>str</em>) &#8211; The type the QChem job. &#8220;SP&#8221; for Single Point Energy,
-&#8220;opt&#8221; for geometry optimization, &#8220;freq&#8221; for
+<li><strong>jobtype</strong> (<em>str</em>) – The type the QChem job. “SP” for Single Point Energy,
+“opt” for geometry optimization, “freq” for
 vibrational frequency.</li>
-<li><strong>title</strong> (<em>str</em>) &#8211; Comments for the job. Defaults to None. Which means the
+<li><strong>title</strong> (<em>str</em>) – Comments for the job. Defaults to None. Which means the
 $comment section will be discarded.</li>
-<li><strong>exchange</strong> (<em>str</em>) &#8211; The exchange methods of the theory. Examples including:
-&#8220;B&#8221; (in pure BLYP), &#8220;PW91&#8221;, &#8220;PBE&#8221;, &#8220;TPSS&#8221;.
-Defaults to &#8220;HF&#8221;.
+<li><strong>exchange</strong> (<em>str</em>) – The exchange methods of the theory. Examples including:
+“B” (in pure BLYP), “PW91”, “PBE”, “TPSS”.
+Defaults to “HF”.
 This parameter can also be common names of hybrid
 functionals, such as B3LYP, TPSSh, XYGJOS. In such cases,
 the correlation parameter should be left as None.</li>
-<li><strong>correlation</strong> (<em>str</em>) &#8211; The correlation level of the theory. Example
-including: &#8220;MP2&#8221;, &#8220;RI-MP2&#8221;, &#8220;CCSD(T)&#8221;, &#8220;LYP&#8221;, &#8220;PBE&#8221;, &#8220;TPSS&#8221;
+<li><strong>correlation</strong> (<em>str</em>) – The correlation level of the theory. Example
+including: “MP2”, “RI-MP2”, “CCSD(T)”, “LYP”, “PBE”, “TPSS”
 Defaults to None.</li>
-<li><strong>basis_set</strong> (<em>str/dict</em>) &#8211; The basis set.
+<li><strong>basis_set</strong> (<em>str/dict</em>) – The basis set.
 If it is a dict, each element can use different basis set.</li>
-<li><strong>aux_basis_set</strong> (<em>str/dict</em>) &#8211; Auxiliary basis set. For methods,
+<li><strong>aux_basis_set</strong> (<em>str/dict</em>) – Auxiliary basis set. For methods,
 like RI-MP2, XYG3, OXYJ-OS, auxiliary basis set is required.
 If it is a dict, each element can use different auxiliary
 basis set.</li>
-<li><strong>ecp</strong> &#8211; Effective core potential (ECP) to be used.
+<li><strong>ecp</strong> – Effective core potential (ECP) to be used.
 If it is a dict, each element can use different ECP.</li>
-<li><strong>rem_params</strong> (<em>dict</em>) &#8211; The parameters supposed to write in the $rem
+<li><strong>rem_params</strong> (<em>dict</em>) – The parameters supposed to write in the $rem
 section. Dict of key/value pairs.
-Example: {&#8220;scf_algorithm&#8221;: &#8220;diis_gdm&#8221;, &#8220;scf_max_cycles&#8221;: 100}</li>
-<li><strong>optional_params</strong> (<em>dict</em>) &#8211; The parameter for keywords other than $rem
+Example: {“scf_algorithm”: “diis_gdm”, “scf_max_cycles”: 100}</li>
+<li><strong>optional_params</strong> (<em>dict</em>) – The parameter for keywords other than $rem
 section. Dict of key/value pairs.
-Example: {&#8220;basis&#8221;: {&#8220;Li&#8221;: &#8220;cc-PVTZ&#8221;, &#8220;B&#8221;: &#8220;aug-cc-PVTZ&#8221;,
-&#8220;F&#8221;: &#8220;aug-cc-PVTZ&#8221;} &#8220;ecp&#8221;: {&#8220;Cd&#8221;: &#8220;srsc&#8221;, &#8220;Br&#8221;: &#8220;srlc&#8221;}}</li>
-<li><strong>ghost_atom</strong> (<em>list</em>) &#8211; List of ghost atoms indices. Indices start from 0.
+Example: {“basis”: {“Li”: “cc-PVTZ”, “B”: “aug-cc-PVTZ”,
+“F”: “aug-cc-PVTZ”} “ecp”: {“Cd”: “srsc”, “Br”: “srlc”}}</li>
+<li><strong>ghost_atom</strong> (<em>list</em>) – List of ghost atoms indices. Indices start from 0.
 The ghost atom will be represented in of the form of &#64;element_symmbol</li>
 </ul>
 </td>
@@ -257,7 +254,7 @@ The ghost atom will be represented in of the form of &#64;element_symmbol</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>contents</strong> &#8211; String representing a QChem input file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>contents</strong> – String representing a QChem input file.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">QcInput object</td>
 </tr>
@@ -272,7 +269,7 @@ The ghost atom will be represented in of the form of &#64;element_symmbol</li>
 
 <dl class="attribute">
 <dt id="pymatgen.io.qchem.QcTask.optional_keywords_list">
-<code class="descname">optional_keywords_list</code><em class="property"> = {'xc_functional', 'localized_diabatization', 'svp', 'nbo', 'swap_occupied_virtual', 'plots', 'qm_atoms', 'basis2', 'intracule', 'pcm', 'empirical_dispersion', 'force_field_params', 'efp_params', 'occupied', 'solvent', 'van_der_waals', 'velocity', 'isotopes', 'aux_basis', 'pcm_solvent', 'ecp', 'efp_fragments', 'cdft', 'opt', 'svpirf', 'basis', 'multipole_field', 'alist', 'external_charges'}</em><a class="headerlink" href="#pymatgen.io.qchem.QcTask.optional_keywords_list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">optional_keywords_list</code><em class="property"> = {'intracule', 'qm_atoms', 'pcm', 'isotopes', 'nbo', 'aux_basis', 'empirical_dispersion', 'basis', 'localized_diabatization', 'external_charges', 'svp', 'swap_occupied_virtual', 'solvent', 'plots', 'occupied', 'cdft', 'ecp', 'pcm_solvent', 'opt', 'efp_fragments', 'basis2', 'van_der_waals', 'xc_functional', 'alist', 'force_field_params', 'velocity', 'multipole_field', 'efp_params', 'svpirf'}</em><a class="headerlink" href="#pymatgen.io.qchem.QcTask.optional_keywords_list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -284,13 +281,13 @@ The ghost atom will be represented in of the form of &#64;element_symmbol</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>gradient</strong> &#8211; the scale factor for gradient criteria. If less than
+<li><strong>gradient</strong> – the scale factor for gradient criteria. If less than
 1.0, you are tightening the threshold. The base value is
 300 × 10E−6</li>
-<li><strong>displacement</strong> &#8211; the scale factor for atomic displacement. If less
+<li><strong>displacement</strong> – the scale factor for atomic displacement. If less
 then 1.0, you are tightening the threshold. The base value is
 1200 × 10E−6</li>
-<li><strong>energy</strong> &#8211; the scale factor for energy change between successive
+<li><strong>energy</strong> – the scale factor for energy change between successive
 iterations. If less than 1.0, you are tightening the
 threshold. The base value is 100 × 10E−8.</li>
 </ul>
@@ -324,11 +321,11 @@ threshold. The base value is 100 × 10E−8.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>radical_points</strong> &#8211; Radical points. (Integer)</li>
-<li><strong>angular_points</strong> &#8211; Angular points. (Integer)</li>
-<li><strong>grid_type</strong> &#8211; The type of of the grid. There are two standard grids:
-SG-1 and SG-0. The other two supported grids are &#8220;Lebedev&#8221; and
-&#8220;Gauss-Legendre&#8221;</li>
+<li><strong>radical_points</strong> – Radical points. (Integer)</li>
+<li><strong>angular_points</strong> – Angular points. (Integer)</li>
+<li><strong>grid_type</strong> – The type of of the grid. There are two standard grids:
+SG-1 and SG-0. The other two supported grids are “Lebedev” and
+“Gauss-Legendre”</li>
 </ul>
 </td>
 </tr>
@@ -350,8 +347,8 @@ SG-1 and SG-0. The other two supported grids are &#8220;Lebedev&#8221; and
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>iterations</strong> &#8211; the maximum iterations of geometry optimization.</li>
-<li><strong></strong><strong>(</strong><strong>Integer</strong><strong>)</strong><strong></strong> &#8211; </li>
+<li><strong>iterations</strong> – the maximum iterations of geometry optimization.</li>
+<li><strong>(</strong><strong>Integer</strong><strong>)</strong> – </li>
 </ul>
 </td>
 </tr>
@@ -363,18 +360,18 @@ SG-1 and SG-0. The other two supported grids are &#8220;Lebedev&#8221; and
 <dt id="pymatgen.io.qchem.QcTask.set_geom_opt_coords_type">
 <code class="descname">set_geom_opt_coords_type</code><span class="sig-paren">(</span><em>coords_type='internal_switch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem.html#QcTask.set_geom_opt_coords_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.QcTask.set_geom_opt_coords_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the coordinates system used in geometry optimization.
-&#8220;cartesian&#8221;       &#8212; always cartesian coordinates.
-&#8220;internal&#8221;        &#8212; always internal coordinates.
-&#8220;internal-switch&#8221; &#8212; try internal coordinates first, if fails, switch
+“cartesian”       — always cartesian coordinates.
+“internal”        — always internal coordinates.
+“internal-switch” — try internal coordinates first, if fails, switch
 to cartesian coordinates.
-&#8220;z-matrix&#8221;        &#8212; always z-matrix coordinates.
-&#8220;z-matrix-switch&#8221; &#8212; try z-matrix first, if fails, switch to
+“z-matrix”        — always z-matrix coordinates.
+“z-matrix-switch” — try z-matrix first, if fails, switch to
 cartesian coordinates.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coords_type</strong> &#8211; The type of the coordinates. (str)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coords_type</strong> – The type of the coordinates. (str)</td>
 </tr>
 </tbody>
 </table>
@@ -388,7 +385,7 @@ cartesian coordinates.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subspace_size</strong> &#8211; The size of the DIIS subsapce. None for default
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subspace_size</strong> – The size of the DIIS subsapce. None for default
 value. The default value is min(NDEG, NATOMS, 4) NDEG = number
 of moleculardegrees of freedom.</td>
 </tr>
@@ -408,7 +405,7 @@ In QChem, the default values are:
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>thresh</strong> &#8211; The exponent of the threshold. (Integer)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>thresh</strong> – The exponent of the threshold. (Integer)</td>
 </tr>
 </tbody>
 </table>
@@ -425,7 +422,7 @@ to increase the number of scratch files:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>num</strong> &#8211; The max number of the scratch files. (Integer)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>num</strong> – The max number of the scratch files. (Integer)</td>
 </tr>
 </tbody>
 </table>
@@ -440,9 +437,9 @@ to increase the number of scratch files:</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>total</strong> &#8211; The total memory. Integer. Unit: MBytes. If set to None,
+<li><strong>total</strong> – The total memory. Integer. Unit: MBytes. If set to None,
 this parameter will be neglected.</li>
-<li><strong>static</strong> &#8211; The static memory. Integer. Unit MBytes. If set to None,
+<li><strong>static</strong> – The static memory. Integer. Unit MBytes. If set to None,
 this parameterwill be neglected.</li>
 </ul>
 </td>
@@ -465,8 +462,8 @@ this parameterwill be neglected.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>algorithm</strong> &#8211; The algorithm used for converging SCF. (str)</li>
-<li><strong>iterations</strong> &#8211; The max number of SCF iterations. (Integer)</li>
+<li><strong>algorithm</strong> – The algorithm used for converging SCF. (str)</li>
+<li><strong>iterations</strong> – The max number of SCF iterations. (Integer)</li>
 </ul>
 </td>
 </tr>
@@ -487,7 +484,7 @@ In QChem, the default values are:
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>exponent</strong> &#8211; The exponent of the threshold. (Integer)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>exponent</strong> – The exponent of the threshold. (Integer)</td>
 </tr>
 </tbody>
 </table>
@@ -501,7 +498,7 @@ In QChem, the default values are:
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>guess</strong> &#8211; The initial guess method. (str)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>guess</strong> – The initial guess method. (str)</td>
 </tr>
 </tbody>
 </table>
@@ -514,7 +511,7 @@ In QChem, the default values are:
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong></strong><strong>(</strong><strong>au</strong><strong>)</strong><strong></strong> (<a class="reference internal" href="#pymatgen.io.qchem.QcNucVeloc.velocities" title="pymatgen.io.qchem.QcNucVeloc.velocities"><em>velocities</em></a>) &#8211; list of list of atom velocities</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>au</strong><strong>)</strong> (<a class="reference internal" href="#pymatgen.io.qchem.QcNucVeloc.velocities" title="pymatgen.io.qchem.QcNucVeloc.velocities"><em>velocities</em></a>) – list of list of atom velocities</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
@@ -530,7 +527,7 @@ In QChem, the default values are:
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dielectric_constant</strong> &#8211; the dielectric constant for the solvent.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dielectric_constant</strong> – the dielectric constant for the solvent.</td>
 </tr>
 </tbody>
 </table>
@@ -546,10 +543,10 @@ gaussian default value</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pcm_params</strong> (<em>dict</em>) &#8211; The parameters of &#8220;$pcm&#8221; section.</li>
-<li><strong>solvent_key</strong> (<em>str</em>) &#8211; for versions &lt; 4.2 the section name is &#8220;pcm_solvent&#8221;</li>
-<li><strong>solvent_params</strong> (<em>dict</em>) &#8211; The parameters of solvent_key section</li>
-<li><strong>radii_force_field</strong> (<em>str</em>) &#8211; The force fied used to set the solute
+<li><strong>pcm_params</strong> (<em>dict</em>) – The parameters of “$pcm” section.</li>
+<li><strong>solvent_key</strong> (<em>str</em>) – for versions &lt; 4.2 the section name is “pcm_solvent”</li>
+<li><strong>solvent_params</strong> (<em>dict</em>) – The parameters of solvent_key section</li>
+<li><strong>radii_force_field</strong> (<em>str</em>) – The force fied used to set the solute
 radii. Default to UFF.</li>
 </ul>
 </td>
@@ -613,13 +610,13 @@ radii. Default to UFF.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

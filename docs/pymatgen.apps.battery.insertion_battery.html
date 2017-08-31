@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.apps.battery.insertion_battery module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.apps.battery.insertion_battery module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -70,10 +67,10 @@ insertion battery electrode.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entries</strong> &#8211; A list of ComputedStructureEntries (or subclasses)
+<li><strong>entries</strong> – A list of ComputedStructureEntries (or subclasses)
 representing the different topotactic states of the battery,
 e.g. TiO2 and LiTiO2.</li>
-<li><strong>working_ion_entry</strong> &#8211; A single ComputedEntry or PDEntry
+<li><strong>working_ion_entry</strong> – A single ComputedEntry or PDEntry
 representing the element that carries charge across the
 battery, e.g. Li.</li>
 </ul>
@@ -94,10 +91,10 @@ battery, e.g. Li.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>print_subelectrodes</strong> &#8211; Also print data on all the possible
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>print_subelectrodes</strong> – Also print data on all the possible
 subelectrodes.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A summary of this electrode&#8221;s properties in dict format.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A summary of this electrode”s properties in dict format.</td>
 </tr>
 </tbody>
 </table>
@@ -128,7 +125,7 @@ subelectrodes.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_to_discharge</strong> &#8211; order from most charge to most discharged state? Defaults to
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_to_discharge</strong> – order from most charge to most discharged state? Defaults to
 True.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of all entries in the electrode (both stable and unstable),
@@ -147,8 +144,8 @@ ordered by amount of the working ion.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>min_voltage</strong> &#8211; The minimum allowable voltage.</li>
-<li><strong>max_voltage</strong> &#8211; The maximum allowable voltage.</li>
+<li><strong>min_voltage</strong> – The minimum allowable voltage.</li>
+<li><strong>max_voltage</strong> – The maximum allowable voltage.</li>
 </ul>
 </td>
 </tr>
@@ -169,8 +166,8 @@ path (a subset of the path can be chosen by the optional arguments)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>min_voltage</strong> &#8211; The minimum allowable voltage.</li>
-<li><strong>max_voltage</strong> &#8211; The maximum allowable voltage.</li>
+<li><strong>min_voltage</strong> – The minimum allowable voltage.</li>
+<li><strong>max_voltage</strong> – The maximum allowable voltage.</li>
 </ul>
 </td>
 </tr>
@@ -192,8 +189,8 @@ arguments).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>min_voltage</strong> &#8211; The minimum allowable voltage.</li>
-<li><strong>max_voltage</strong> &#8211; The maximum allowable voltage.</li>
+<li><strong>min_voltage</strong> – The minimum allowable voltage.</li>
+<li><strong>max_voltage</strong> – The maximum allowable voltage.</li>
 </ul>
 </td>
 </tr>
@@ -214,8 +211,8 @@ path (a subset of the path can be chosen by the optional arguments)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>min_voltage</strong> &#8211; The minimum allowable voltage for a given step</li>
-<li><strong>max_voltage</strong> &#8211; The maximum allowable voltage allowable for a given
+<li><strong>min_voltage</strong> – The minimum allowable voltage for a given step</li>
+<li><strong>max_voltage</strong> – The maximum allowable voltage allowable for a given
 step</li>
 </ul>
 </td>
@@ -237,7 +234,7 @@ arguments).</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_to_discharge</strong> &#8211; order from most charge to most discharged
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_to_discharge</strong> – order from most charge to most discharged
 state? Default to True.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of stable entries in the electrode, ordered by amount of the
@@ -253,7 +250,7 @@ working ion.</td>
 <dd><p>If this electrode contains multiple voltage steps, then it is possible
 to use only a subset of the voltage steps to define other electrodes.
 For example, an LiTiO2 electrode might contain three subelectrodes:
-[LiTiO2 &#8211;&gt; TiO2, LiTiO2 &#8211;&gt; Li0.5TiO2, Li0.5TiO2 &#8211;&gt; TiO2]
+[LiTiO2 –&gt; TiO2, LiTiO2 –&gt; Li0.5TiO2, Li0.5TiO2 –&gt; TiO2]
 This method can be used to return all the subelectrodes with some
 options</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -261,10 +258,10 @@ options</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>adjacent_only</strong> &#8211; Only return electrodes from compounds that are
+<li><strong>adjacent_only</strong> – Only return electrodes from compounds that are
 adjacent on the convex hull, i.e. no electrodes returned
 will have multiple voltage steps if this is set True.</li>
-<li><strong>include_myself</strong> &#8211; Include this identical electrode in the list of
+<li><strong>include_myself</strong> – Include this identical electrode in the list of
 results.</li>
 </ul>
 </td>
@@ -284,7 +281,7 @@ results.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_to_discharge</strong> &#8211; Order from most charge to most discharged
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_to_discharge</strong> – Order from most charge to most discharged
 state? Defaults to True.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of unstable entries in the electrode, ordered by amount of
@@ -322,9 +319,9 @@ the working ion.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entry1</strong> &#8211; Entry corresponding to one of the entries in the voltage step.</li>
-<li><strong>entry2</strong> &#8211; Entry corresponding to the other entry in the voltage step.</li>
-<li><strong>working_ion_entry</strong> &#8211; A single ComputedEntry or PDEntry representing
+<li><strong>entry1</strong> – Entry corresponding to one of the entries in the voltage step.</li>
+<li><strong>entry2</strong> – Entry corresponding to the other entry in the voltage step.</li>
+<li><strong>working_ion_entry</strong> – A single ComputedEntry or PDEntry representing
 the element that carries charge across the battery, e.g. Li.</li>
 </ul>
 </td>
@@ -416,13 +413,13 @@ the element that carries charge across the battery, e.g. Li.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

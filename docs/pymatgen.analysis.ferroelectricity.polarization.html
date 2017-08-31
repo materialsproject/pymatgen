@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.ferroelectricity.polarization module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.ferroelectricity.polarization module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -201,28 +198,28 @@ in the same branch polarizaiton.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lattice</strong> &#8211; The lattice, either as a pymatgen.core.lattice.Lattice or
+<li><strong>lattice</strong> – The lattice, either as a pymatgen.core.lattice.Lattice or
 simply as any 2D array. Each row should correspond to a lattice
 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</li>
-<li><strong>species</strong> &#8211; <p>List of species on each site. Can take in flexible input,
+<li><strong>species</strong> – <p>List of species on each site. Can take in flexible input,
 including:</p>
 <ol class="lowerroman">
 <li>A sequence of element / specie specified either as string
-symbols, e.g. [&#8220;Li&#8221;, &#8220;Fe2+&#8221;, &#8220;P&#8221;, ...] or atomic numbers,
-e.g., (3, 56, ...) or actual Element or Specie objects.</li>
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</li>
 <li>List of dict of elements/species and occupancies, e.g.,
-[{&#8220;Fe&#8221; : 0.5, &#8220;Mn&#8221;:0.5}, ...]. This allows the setup of
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
 disordered structures.</li>
 </ol>
 </li>
-<li><strong>fractional_coords</strong> &#8211; list of fractional coordinates of each species.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if there are sites
+<li><strong>fractional_coords</strong> – list of fractional coordinates of each species.</li>
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) &#8211; Set to True if you are providing
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
-<li><strong>site_properties</strong> (<em>dict</em>) &#8211; Properties associated with the sites as a
-dict of sequences, e.g., {&#8220;magmom&#8221;:[5,5,5,5]}. The sequences
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
 have to be the same length as the atomic species and
 fractional_coords. Defaults to None for no properties.</li>
 </ul>
@@ -316,13 +313,13 @@ Potcar object</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

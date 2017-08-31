@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.structure &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.structure &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -132,8 +129,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span>
 
-    <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="SiteCollection.get_distance"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.get_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.get_distance"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.get_distance">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns distance between sites at index i and j.</span>
 
@@ -359,25 +356,25 @@
         <span class="n">all_dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="mi">1</span><span class="p">)]</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">all_dists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">)</span></div>
 
-    <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="SiteCollection.to"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.to"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.to">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates well-known string representations of SiteCollections (e.g.,</span>
 <span class="sd">        molecules / structures). Should return a string type or write to a file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SiteCollection.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.from_str">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="SiteCollection.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.from_str">[docs]</a>    <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads in SiteCollection from a string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SiteCollection.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="SiteCollection.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads in SiteCollection from a filename.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -455,8 +452,8 @@
             <span class="k">raise</span> <span class="n">StructureError</span><span class="p">((</span><span class="s2">&quot;Structure contains sites that are &quot;</span><span class="p">,</span>
                                   <span class="s2">&quot;less than 0.01 Angstrom apart!&quot;</span><span class="p">))</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IStructure.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_sites">[docs]</a>    <span class="k">def</span> <span class="nf">from_sites</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="IStructure.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_sites">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_sites</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience constructor to make a Structure from a list of sites.</span>
@@ -509,8 +506,8 @@
                    <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
                    <span class="n">to_unit_cell</span><span class="o">=</span><span class="n">to_unit_cell</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IStructure.from_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_spacegroup">[docs]</a>    <span class="k">def</span> <span class="nf">from_spacegroup</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sg</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="IStructure.from_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_spacegroup">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_spacegroup</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sg</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a structure using a spacegroup. Note that only symmetrically</span>
@@ -594,8 +591,8 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">latt</span><span class="p">,</span> <span class="n">all_sp</span><span class="p">,</span> <span class="n">all_coords</span><span class="p">,</span>
                    <span class="n">site_properties</span><span class="o">=</span><span class="n">all_site_properties</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IStructure.from_magnetic_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_magnetic_spacegroup">[docs]</a>    <span class="k">def</span> <span class="nf">from_magnetic_spacegroup</span><span class="p">(</span>
+<div class="viewcode-block" id="IStructure.from_magnetic_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_magnetic_spacegroup">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_magnetic_spacegroup</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="p">,</span>
             <span class="n">transform_setting</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
          <span class="sd">&quot;&quot;&quot;</span>
@@ -1459,8 +1456,8 @@
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IStructure.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reconstitute a Structure object from a dict representation of Structure</span>
 <span class="sd">        created using as_dict().</span>
@@ -1541,8 +1538,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">writer</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IStructure.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_str">[docs]</a>    <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="IStructure.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_str">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">merge_tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads a structure from a string.</span>
@@ -1592,8 +1589,8 @@
             <span class="n">s</span><span class="o">.</span><span class="n">merge_sites</span><span class="p">(</span><span class="n">merge_tol</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IStructure.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">merge_tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">merge_tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads a structure from a file. For example, anything ending in</span>
 <span class="sd">        a &quot;cif&quot; is assumed to be a Crystallographic Information Format file.</span>
@@ -1779,8 +1776,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IMolecule.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_sites">[docs]</a>    <span class="k">def</span> <span class="nf">from_sites</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="IMolecule.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_sites">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_sites</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience constructor to make a Molecule from a list of sites.</span>
@@ -1920,8 +1917,8 @@
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IMolecule.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reconstitute a Molecule object from a dict representation created using</span>
 <span class="sd">        as_dict().</span>
@@ -2177,8 +2174,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">writer</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IMolecule.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_str">[docs]</a>    <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_str">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads the molecule from a string.</span>
 
@@ -2212,8 +2209,8 @@
                                             <span class="n">file_format</span><span class="o">=</span><span class="n">fmt</span><span class="p">)</span><span class="o">.</span><span class="n">pymatgen_mol</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IMolecule.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads a molecule from a file. Supported formats include xyz,</span>
 <span class="sd">        gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and</span>
@@ -2770,6 +2767,19 @@
                                     <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                     <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span></div>
+
+<div class="viewcode-block" id="Structure.add_oxidation_state_by_guess"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.add_oxidation_state_by_guess">[docs]</a>    <span class="k">def</span> <span class="nf">add_oxidation_state_by_guess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decorates the structure with oxidation state, guessing</span>
+<span class="sd">        using Composition.oxi_state_guesses()</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *kwargs: parameters to pass into oxi_state_guesses()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">oxid_guess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">oxi_state_guesses</span><span class="p">(</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">oxid_guess</span> <span class="o">=</span> <span class="n">oxid_guess</span> <span class="ow">or</span> \
+                     <span class="p">[</span><span class="nb">dict</span><span class="p">([(</span><span class="n">e</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="p">])]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_oxidation_state_by_element</span><span class="p">(</span><span class="n">oxid_guess</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Structure.add_spin_by_element"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.add_spin_by_element">[docs]</a>    <span class="k">def</span> <span class="nf">add_spin_by_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spins</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3396,7 +3406,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -3404,7 +3414,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

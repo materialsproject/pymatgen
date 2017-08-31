@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.phonon.bandstructure module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.phonon.bandstructure module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,7 +59,7 @@
 <em class="property">class </em><code class="descname">PhononBandStructure</code><span class="sig-paren">(</span><em>qpoints</em>, <em>frequencies</em>, <em>lattice</em>, <em>nac_frequencies=None</em>, <em>eigendisplacements=None</em>, <em>nac_eigendisplacements=None</em>, <em>labels_dict=None</em>, <em>coords_are_cartesian=False</em>, <em>structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This is the most generic phonon band structure data possible
-it&#8217;s defined by a list of qpoints + frequencies for each of them.
+it’s defined by a list of qpoints + frequencies for each of them.
 Additional information may be given for frequencies at Gamma, where
 non-analytical contribution may be taken into account.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -70,34 +67,34 @@ non-analytical contribution may be taken into account.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>qpoints</strong> &#8211; list of qpoint as numpy arrays, in frac_coords of the
+<li><strong>qpoints</strong> – list of qpoint as numpy arrays, in frac_coords of the
 given lattice by default</li>
-<li><strong>frequencies</strong> &#8211; list of phonon frequencies in THz as a numpy array with shape
+<li><strong>frequencies</strong> – list of phonon frequencies in THz as a numpy array with shape
 (3*len(structure), len(qpoints)). The First index of the array
 refers to the band and the second to the index of the qpoint.</li>
-<li><strong>lattice</strong> &#8211; The reciprocal lattice as a pymatgen Lattice object.
+<li><strong>lattice</strong> – The reciprocal lattice as a pymatgen Lattice object.
 Pymatgen uses the physics convention of reciprocal lattice vectors
 WITH a 2*pi coefficient.</li>
-<li><strong>nac_frequencies</strong> &#8211; Frequencies with non-analytical contributions at Gamma in THz.
+<li><strong>nac_frequencies</strong> – Frequencies with non-analytical contributions at Gamma in THz.
 A list of tuples. The first element of each tuple should be a list
 defining the direction (not necessarily a versor, will be normalized
 internally). The second element containing the 3*len(structure)
 phonon frequencies with non-analytical correction for that direction.</li>
-<li><strong>eigendisplacements</strong> &#8211; the phonon eigendisplacements associated to the
+<li><strong>eigendisplacements</strong> – the phonon eigendisplacements associated to the
 frequencies in cartesian coordinates. A numpy array of complex
 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
 he First index of the array refers to the band, the second to the index
 of the qpoint, the third to the atom in the structure and the fourth
 to the cartesian coordinates.</li>
-<li><strong>nac_eigendisplacements</strong> &#8211; the phonon eigendisplacements associated to the
+<li><strong>nac_eigendisplacements</strong> – the phonon eigendisplacements associated to the
 non-analytical frequencies in nac_frequencies in cartesian coordinates.
 A list of tuples. The first element of each tuple should be a list
 defining the direction. The second element containing a numpy array of
 complex numbers with shape (3*len(structure), len(structure), 3).</li>
-<li><strong>labels_dict</strong> &#8211; (dict) of {} this links a qpoint (in frac coords or
+<li><strong>labels_dict</strong> – (dict) of {} this links a qpoint (in frac coords or
 cartesian coordinates depending on the coords) to a label.</li>
-<li><strong>coords_are_cartesian</strong> &#8211; Whether the qpoint coordinates are cartesian.</li>
-<li><strong>structure</strong> &#8211; The crystal structure (as a pymatgen Structure object)
+<li><strong>coords_are_cartesian</strong> – Whether the qpoint coordinates are cartesian.</li>
+<li><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
 associated with the band structure. This is needed if we
 provide projections to the band structure</li>
 </ul>
@@ -136,7 +133,7 @@ None if the direction is not present or nac_eigendisplacements has not been calc
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>direction</strong> &#8211; the direction as a list of 3 elements</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>direction</strong> – the direction as a list of 3 elements</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the eigendisplacements as a numpy array of complex numbers with shape
 (3*len(structure), len(structure), 3). None if not found.</td>
@@ -154,7 +151,7 @@ None if the direction is not present or nac_frequencies has not been calculated.
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>direction</strong> &#8211; the direction as a list of 3 elements</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>direction</strong> – the direction as a list of 3 elements</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the frequencies as a numpy array o(3*len(structure), len(qpoints)).
 None if not found.</td>
@@ -195,32 +192,32 @@ None if not found.</td>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="pymatgen.phonon.bandstructure.PhononBandStructure"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.phonon.bandstructure.PhononBandStructure</span></code></a></p>
 <p>This object stores phonon band structures along selected (symmetry) lines in the
 Brillouin zone. We call the different symmetry lines (ex: Gamma to Z)
-&#8220;branches&#8221;.</p>
+“branches”.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>qpoints</strong> &#8211; list of qpoints as numpy arrays, in frac_coords of the
+<li><strong>qpoints</strong> – list of qpoints as numpy arrays, in frac_coords of the
 given lattice by default</li>
-<li><strong>frequencies</strong> &#8211; list of phonon frequencies in eV as a numpy array with shape
+<li><strong>frequencies</strong> – list of phonon frequencies in eV as a numpy array with shape
 (3*len(structure), len(qpoints))</li>
-<li><strong>lattice</strong> &#8211; The reciprocal lattice as a pymatgen Lattice object.
+<li><strong>lattice</strong> – The reciprocal lattice as a pymatgen Lattice object.
 Pymatgen uses the physics convention of reciprocal lattice vectors
 WITH a 2*pi coefficient</li>
-<li><strong>has_nac</strong> &#8211; specify if the band structure has been produced taking into account
+<li><strong>has_nac</strong> – specify if the band structure has been produced taking into account
 non-analytical corrections at Gamma. If True frequenciens at Gamma from
 diffent directions will be stored in naf. Default False.</li>
-<li><strong>eigendisplacements</strong> &#8211; the phonon eigendisplacements associated to the
+<li><strong>eigendisplacements</strong> – the phonon eigendisplacements associated to the
 frequencies in cartesian coordinates. A numpy array of complex
 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
 he First index of the array refers to the band, the second to the index
 of the qpoint, the third to the atom in the structure and the fourth
 to the cartesian coordinates.</li>
-<li><strong>labels_dict</strong> &#8211; (dict) of {} this links a qpoint (in frac coords or
+<li><strong>labels_dict</strong> – (dict) of {} this links a qpoint (in frac coords or
 cartesian coordinates depending on the coords) to a label.</li>
-<li><strong>coords_are_cartesian</strong> &#8211; Whether the qpoint coordinates are cartesian.</li>
-<li><strong>structure</strong> &#8211; The crystal structure (as a pymatgen Structure object)
+<li><strong>coords_are_cartesian</strong> – Whether the qpoint coordinates are cartesian.</li>
+<li><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
 associated with the band structure. This is needed if we
 provide projections to the band structure</li>
 </ul>
@@ -247,9 +244,9 @@ branches.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> &#8211; the qpoint index</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> – the qpoint index</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries [{&#8220;name&#8221;,&#8221;start_index&#8221;,&#8221;end_index&#8221;,&#8221;index&#8221;}]
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries [{“name”,”start_index”,”end_index”,”index”}]
 indicating all branches in which the qpoint is. It takes into
 account the fact that one qpoint (e.g., Gamma) can be in several
 branches</td>
@@ -267,7 +264,7 @@ same frac coords) to the given one.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> &#8211; the qpoint index</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> – the qpoint index</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of equivalent indices</td>
 </tr>
@@ -317,13 +314,13 @@ same frac coords) to the given one.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

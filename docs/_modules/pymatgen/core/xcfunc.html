@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.xcfunc &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.xcfunc &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -170,20 +167,20 @@
     <span class="p">}</span>
     <span class="k">del</span> <span class="n">xcf</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="XcFunc.aliases"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.aliases">[docs]</a>    <span class="k">def</span> <span class="nf">aliases</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<div class="viewcode-block" id="XcFunc.aliases"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.aliases">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">aliases</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;List of registered names.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">nt</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">nt</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">defined_aliases</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="XcFunc.asxc"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.asxc">[docs]</a>    <span class="k">def</span> <span class="nf">asxc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="XcFunc.asxc"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.asxc">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">asxc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert object into Xcfunc.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span> <span class="k">return</span> <span class="n">obj</span>
         <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span> <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert &lt;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&gt; to Xcfunc&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)))</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="XcFunc.from_abinit_ixc"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_abinit_ixc">[docs]</a>    <span class="k">def</span> <span class="nf">from_abinit_ixc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ixc</span><span class="p">):</span>
+<div class="viewcode-block" id="XcFunc.from_abinit_ixc"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_abinit_ixc">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_abinit_ixc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ixc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build the object from Abinit ixc (integer)&quot;&quot;&quot;</span>
         <span class="n">ixc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ixc</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ixc</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -201,13 +198,13 @@
             <span class="k">assert</span> <span class="n">x</span><span class="o">.</span><span class="n">is_x_kind</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">is_c_kind</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="XcFunc.from_name"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_name">[docs]</a>    <span class="k">def</span> <span class="nf">from_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<div class="viewcode-block" id="XcFunc.from_name"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_name">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build the object from one of the registered names&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_type_name</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="XcFunc.from_type_name"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_type_name">[docs]</a>    <span class="k">def</span> <span class="nf">from_type_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">typ</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<div class="viewcode-block" id="XcFunc.from_type_name"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_type_name">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_type_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">typ</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build the object from (type, name).&quot;&quot;&quot;</span>
         <span class="c1"># Try aliases first.</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">nt</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">defined_aliases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -235,8 +232,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find type=</span><span class="si">%s</span><span class="s2">, name=</span><span class="si">%s</span><span class="s2"> in defined_aliases&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="XcFunc.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="XcFunc.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -276,8 +273,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">xc</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">c</span>
 
-    <span class="nd">@lazy_property</span>
-<div class="viewcode-block" id="XcFunc.type"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.type">[docs]</a>    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="XcFunc.type"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.type">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The type of the functional.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined_aliases</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined_aliases</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
         <span class="n">xc</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
@@ -287,8 +284,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="o">.</span><span class="n">family</span>
         <span class="k">return</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">family</span><span class="p">])</span></div>
 
-    <span class="nd">@lazy_property</span>
-<div class="viewcode-block" id="XcFunc.name"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.name">[docs]</a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="XcFunc.name"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.name">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The name of the functional. If the functional is not found in the aliases,</span>
 <span class="sd">        the string has the form X_NAME+C_NAME</span>
@@ -352,7 +349,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -360,7 +357,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

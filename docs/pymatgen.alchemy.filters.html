@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.alchemy.filters module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.alchemy.filters module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -107,11 +104,11 @@ By default compares by atomic number</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>species</strong> (<em></em><em>[</em><em>Specie/Element</em><em>]</em><em></em>) &#8211; list of species to look for</li>
-<li><strong>AND</strong> &#8211; whether all species must be present to pass (or fail) filter.</li>
-<li><strong>strict_compare</strong> &#8211; if true, compares objects by specie or element
+<li><strong>species</strong> (<em>[</em><em>Specie/Element</em><em>]</em>) – list of species to look for</li>
+<li><strong>AND</strong> – whether all species must be present to pass (or fail) filter.</li>
+<li><strong>strict_compare</strong> – if true, compares objects by specie or element
 object if false, compares atomic number</li>
-<li><strong>exclude</strong> &#8211; If true, returns false for any structures with the specie
+<li><strong>exclude</strong> – If true, returns false for any structures with the specie
 (excludes them from the Transmuter)</li>
 </ul>
 </td>
@@ -147,9 +144,9 @@ and symmetry (if symprec is given).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure_matcher</strong> &#8211; Provides a structure matcher to be used for
+<li><strong>structure_matcher</strong> – Provides a structure matcher to be used for
 structure comparison.</li>
-<li><strong>symprec</strong> &#8211; The precision in the symmetry finder algorithm if None (
+<li><strong>symprec</strong> – The precision in the symmetry finder algorithm if None (
 default value), no symmetry check is performed and only the
 structure matcher is used. A recommended value is 1e-5.</li>
 </ul>
@@ -176,10 +173,10 @@ and symmetry (if symprec is given).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>existing_structures</strong> &#8211; List of existing structures to compare with</li>
-<li><strong>structure_matcher</strong> &#8211; Provides a structure matcher to be used for
+<li><strong>existing_structures</strong> – List of existing structures to compare with</li>
+<li><strong>structure_matcher</strong> – Provides a structure matcher to be used for
 structure comparison.</li>
-<li><strong>symprec</strong> &#8211; The precision in the symmetry finder algorithm if None (
+<li><strong>symprec</strong> – The precision in the symmetry finder algorithm if None (
 default value), no symmetry check is performed and only the
 structure matcher is used. A recommended value is 1e-5.</li>
 </ul>
@@ -209,11 +206,11 @@ together.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>specie_and_min_dist_dict</strong> &#8211; A species string to float mapping. For
-example, {&#8220;Na+&#8221;: 1} means that all Na+ ions must be at least 1
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>specie_and_min_dist_dict</strong> – A species string to float mapping. For
+example, {“Na+”: 1} means that all Na+ ions must be at least 1
 Angstrom away from each other. Multiple species criteria can be
 applied. Note that the testing is done based on the actual object
-. If you have a structure with Element, you must use {&#8220;Na&#8221;:1}
+. If you have a structure with Element, you must use {“Na”:1}
 instead to filter based on Element and not Specie.</td>
 </tr>
 </tbody>
@@ -291,13 +288,13 @@ assumed to have net charge of 0.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

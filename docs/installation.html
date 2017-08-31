@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Requirements &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>Requirements &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,7 +35,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -54,7 +51,7 @@
         <li class="right" >
           <a href="index.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -96,12 +93,12 @@ easy_install.</p>
 crystal structures using the pymatgen.vis package. Note that the VTK
 package is incompatible with Python 3.x at the moment.</li>
 <li>Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
-adapters in pymatgen.io.aseio between pymatgen&#8217;s core Structure object and
+adapters in pymatgen.io.aseio between pymatgen’s core Structure object and
 the Atoms object used by ASE. Get it at <a class="reference external" href="https://wiki.fysik.dtu.dk/ase/">https://wiki.fysik.dtu.dk/ase/</a>.
 Note that the ASE package is incompatible with Python 3.x at the moment.</li>
 <li>OpenBabel with Python bindings (<a class="reference external" href="http://openbabel.org">http://openbabel.org</a>): Required for the
-usage of the adapters in pymatgen.io.babelio between pymatgen&#8217;s Molecule
-and OpenBabel&#8217;s OBMol. Opens up input and output support for the very large
+usage of the adapters in pymatgen.io.babelio between pymatgen’s Molecule
+and OpenBabel’s OBMol. Opens up input and output support for the very large
 number of input and output formats supported by OpenBabel.</li>
 <li>nose - For unittesting. Not optional for developers.</li>
 </ol>
@@ -187,7 +184,7 @@ then do pip install:</p>
 </div>
 <div class="section" id="step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux">
 <h2>Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)<a class="headerlink" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux" title="Permalink to this headline">¶</a></h2>
-<p>If you would like to use the enumeration capabilities powered by Gus Hart&#8217;s
+<p>If you would like to use the enumeration capabilities powered by Gus Hart’s
 enumlib or perform Bader charge analysis powered by the Bader analysis code
 of the Henkelmann group, the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on Anaconda cloud</a> has builds for enumlib and bader for OSX and
 Linux (sorry, Windows users, you are on your own as the develpers of these
@@ -326,7 +323,7 @@ privileges):</p>
 <p>I recommend that you start by reading some of the unittests in the tests
 subdirectory for each package. The unittests demonstrate the expected behavior
 and functionality of the code.</p>
-<p>Please read up on pymatgen&#8217;s <a class="reference internal" href="contributing.html"><span class="doc">coding guidelines</span></a> before
+<p>Please read up on pymatgen’s <a class="reference internal" href="contributing.html"><span class="doc">coding guidelines</span></a> before
 you start coding. It will make integration much easier.</p>
 </div>
 </div>
@@ -349,7 +346,7 @@ gcc and other compilers (e.g., Xcode on Macs) already installed.</p>
 <span class="n">ccmake</span> <span class="o">..</span> <span class="p">(</span><span class="n">this</span> <span class="n">uses</span> <span class="n">cmake</span> <span class="ow">in</span> <span class="n">an</span> <span class="n">interactive</span> <span class="n">manner</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Press &#8220;t&#8221; to toggle advanced mode. Then press &#8220;c&#8221; to do an initial
+<p>Press “t” to toggle advanced mode. Then press “c” to do an initial
 configuration. After the list of parameters come out, ensure that the
 PYTHON_VERSION is set to 3, the VTK_WRAP_PYTHON is set to ON, and
 BUILD_SHARED_LIBS is set to ON. You may also need to modify the python
@@ -366,7 +363,7 @@ below (only variables that need to be modified/checked are shown):</p>
 <span class="n">VTK_WRAP_PYTHON</span><span class="p">:</span><span class="n">BOOL</span><span class="o">=</span><span class="n">ON</span>
 </pre></div>
 </div>
-<p>Then press &#8220;c&#8221; again to configure and finally &#8220;g&#8221; to generate the required
+<p>Then press “c” again to configure and finally “g” to generate the required
 make files After the CMakeCache.txt file is generated, type:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
 <span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
@@ -414,8 +411,8 @@ Here are the steps that I took to make it work:</p>
 </div>
 </li>
 <li><p class="first">Now you should have two directories. Assuming that your openbabel src is in
-a directory called &#8220;openbabel-2.3.2&#8221; and your eigen source is in a directory
-called &#8220;eigen3&#8221;, do the following steps:</p>
+a directory called “openbabel-2.3.2” and your eigen source is in a directory
+called “eigen3”, do the following steps:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mv</span> <span class="n">openbabel</span><span class="o">-</span><span class="mf">2.3</span><span class="o">.</span><span class="mi">2</span> <span class="n">ob</span><span class="o">-</span><span class="n">src</span>
 <span class="n">cd</span> <span class="n">ob</span><span class="o">-</span><span class="n">src</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">python</span><span class="p">;</span> <span class="n">rm</span> <span class="n">openbabel</span><span class="o">.</span><span class="n">py</span> <span class="n">openbabel</span><span class="o">-</span><span class="n">python</span><span class="o">.</span><span class="n">cpp</span><span class="p">;</span> <span class="n">cd</span> <span class="o">../../..</span>
 </pre></div>
@@ -424,7 +421,7 @@ called &#8220;eigen3&#8221;, do the following steps:</p>
 <li><p class="first">Edit ob-src/scripts/CMakeLists.txt, jump to line 70, change “eigen2_define”
 to “eigen_define”.</p>
 </li>
-<li><p class="first">Let&#8217;s create a build directory:</p>
+<li><p class="first">Let’s create a build directory:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">ob</span><span class="o">-</span><span class="n">build</span>
 <span class="n">cd</span> <span class="n">ob</span><span class="o">-</span><span class="n">build</span>
 <span class="n">cmake</span> <span class="o">-</span><span class="n">DPYTHON_BINDINGS</span><span class="o">=</span><span class="n">ON</span> <span class="o">-</span><span class="n">DRUN_SWIG</span><span class="o">=</span><span class="n">ON</span> <span class="o">-</span><span class="n">DEIGEN3_INCLUDE_DIR</span><span class="o">=../</span><span class="n">eigen3</span> <span class="o">../</span><span class="n">ob</span><span class="o">-</span><span class="n">src</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span> <span class="o">|</span> <span class="n">tee</span> <span class="n">cmake</span><span class="o">.</span><span class="n">out</span>
@@ -611,13 +608,13 @@ can do using pymatgen:</p>
         <li class="right" >
           <a href="index.html" title="Introduction"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

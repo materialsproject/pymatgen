@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.matproj.snl &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.matproj.snl &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -149,13 +146,13 @@
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
                 <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">}</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="HistoryNode.from_dict"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.HistoryNode.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">h_node</span><span class="p">):</span>
+<div class="viewcode-block" id="HistoryNode.from_dict"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.HistoryNode.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">h_node</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">HistoryNode</span><span class="p">(</span><span class="n">h_node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">h_node</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">],</span>
                            <span class="n">h_node</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">])</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="HistoryNode.parse_history_node"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.HistoryNode.parse_history_node">[docs]</a>    <span class="k">def</span> <span class="nf">parse_history_node</span><span class="p">(</span><span class="n">h_node</span><span class="p">):</span>
+<div class="viewcode-block" id="HistoryNode.parse_history_node"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.HistoryNode.parse_history_node">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_history_node</span><span class="p">(</span><span class="n">h_node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses a History Node object from either a dict or a tuple.</span>
 
@@ -199,12 +196,12 @@
 <div class="viewcode-block" id="Author.as_dict"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.Author.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">email</span><span class="p">}</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Author.from_dict"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.Author.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Author.from_dict"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.Author.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Author</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">])</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Author.parse_author"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.Author.parse_author">[docs]</a>    <span class="k">def</span> <span class="nf">parse_author</span><span class="p">(</span><span class="n">author</span><span class="p">):</span>
+<div class="viewcode-block" id="Author.parse_author"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.Author.parse_author">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_author</span><span class="p">(</span><span class="n">author</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses an Author object from either a String, dict, or tuple</span>
 
@@ -345,8 +342,8 @@
                                                 <span class="bp">cls</span><span class="o">=</span><span class="n">MontyEncoder</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="StructureNL.from_dict"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.StructureNL.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureNL.from_dict"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.StructureNL.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;about&quot;</span><span class="p">]</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
 
@@ -362,8 +359,8 @@
                    <span class="n">remarks</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;remarks&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
                    <span class="n">history</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;history&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">created_at</span><span class="o">=</span><span class="n">created_at</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="StructureNL.from_structures"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.StructureNL.from_structures">[docs]</a>    <span class="k">def</span> <span class="nf">from_structures</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">authors</span><span class="p">,</span> <span class="n">projects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="StructureNL.from_structures"><a class="viewcode-back" href="../../../pymatgen.matproj.snl.html#pymatgen.matproj.snl.StructureNL.from_structures">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_structures</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">authors</span><span class="p">,</span> <span class="n">projects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">references</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">remarks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">histories</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">created_at</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -448,7 +445,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -456,7 +453,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

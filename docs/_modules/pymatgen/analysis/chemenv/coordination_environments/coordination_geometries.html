@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -107,8 +104,8 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm_type</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_algorithm_type</span> <span class="o">=</span> <span class="n">algorithm_type</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-<div class="viewcode-block" id="AbstractChemenvAlgorithm.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractChemenvAlgorithm.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm.as_dict">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A JSON serializable dict representation of the algorithm</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -145,8 +142,8 @@
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;permutations&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_permutations</span><span class="p">}</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ExplicitPermutationsAlgorithm.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
+<div class="viewcode-block" id="ExplicitPermutationsAlgorithm.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;permutations&#39;</span><span class="p">])</span></div></div>
 
 
@@ -342,8 +339,8 @@
                 <span class="s2">&quot;other_plane_points&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_plane_points</span><span class="p">,</span>
                 <span class="s2">&quot;minimum_number_of_points&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_number_of_points</span><span class="p">}</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="SeparationPlane.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
+<div class="viewcode-block" id="SeparationPlane.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
         <span class="n">eop</span> <span class="o">=</span> <span class="n">dd</span><span class="p">[</span>
             <span class="s1">&#39;explicit_optimized_permutations&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;explicit_optimized_permutations&#39;</span> <span class="ow">in</span> <span class="n">dd</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">plane_points</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;plane_points&#39;</span><span class="p">],</span>
@@ -454,8 +451,8 @@
             <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;hints_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hints_type</span><span class="p">,</span>
                     <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">}</span></div>
 
-        <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="CoordinationGeometry.NeighborsSetsHints.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.from_dict">[docs]</a>        <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
+<div class="viewcode-block" id="CoordinationGeometry.NeighborsSetsHints.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.from_dict">[docs]</a>        <span class="nd">@classmethod</span>
+        <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">hints_type</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;hints_type&#39;</span><span class="p">],</span>
                        <span class="n">options</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">])</span></div></div>
 
@@ -534,8 +531,8 @@
                 <span class="s1">&#39;neighbors_sets_hints&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">nbsh</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">nbsh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets_hints</span><span class="p">]</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets_hints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="CoordinationGeometry.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
+<div class="viewcode-block" id="CoordinationGeometry.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">mp_symbol</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;mp_symbol&#39;</span><span class="p">],</span>
                    <span class="n">name</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
@@ -1223,7 +1220,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1231,7 +1228,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

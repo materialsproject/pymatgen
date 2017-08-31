@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.nodes &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.nodes &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -128,14 +125,14 @@
         <span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_STATUS2STR</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Status.as_status"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Status.as_status">[docs]</a>    <span class="k">def</span> <span class="nf">as_status</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="Status.as_status"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Status.as_status">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">as_status</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert obj into Status.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">obj</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Status.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Status.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="Status.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Status.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a `Status` instance from its string representation.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_STATUS2STR</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">text</span> <span class="o">==</span> <span class="n">s</span><span class="p">:</span>
@@ -143,8 +140,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong string </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">s</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Status.all_status_strings"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Status.all_status_strings">[docs]</a>    <span class="k">def</span> <span class="nf">all_status_strings</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<div class="viewcode-block" id="Status.all_status_strings"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Status.all_status_strings">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">all_status_strings</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;List of strings with all possible values status.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_STATUS_INFO</span><span class="p">]</span></div>
 
@@ -219,8 +216,8 @@
         <span class="sd">&quot;&quot;&quot;The status of the dependency, i.e. the status of the :class:`Node`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">status</span>
 
-    <span class="nd">@lazy_property</span>
-<div class="viewcode-block" id="Dependency.products"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Dependency.products">[docs]</a>    <span class="k">def</span> <span class="nf">products</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Dependency.products"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Dependency.products">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">products</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;List of output files produces by self.&quot;&quot;&quot;</span>
         <span class="n">_products</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exts</span><span class="p">:</span>
@@ -287,8 +284,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ext</span> <span class="o">=</span> <span class="n">ext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Product.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Product.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+<div class="viewcode-block" id="Product.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Product.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build a :class:`Product` instance from a filepath.&quot;&quot;&quot;</span>
         <span class="c1"># Find the abinit extension.</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">filepath</span><span class="p">)):</span>
@@ -340,8 +337,8 @@
         <span class="p">},</span>
     <span class="p">}</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NodeResults.from_node"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.from_node">[docs]</a>    <span class="k">def</span> <span class="nf">from_node</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="NodeResults.from_node"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.from_node">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_node</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize an instance of `NodeResults` from a `Node` subclass.&quot;&quot;&quot;</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">node_id</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span>
@@ -400,19 +397,19 @@
             <span class="k">if</span> <span class="n">newstr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="p">:</span>
                 <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;exceptions&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">newstr</span><span class="p">,]</span></div>
 
-    <span class="nd">@pmg_serialize</span>
-<div class="viewcode-block" id="NodeResults.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="NodeResults.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NodeResults.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="NodeResults.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;@module&quot;</span><span class="p">,</span> <span class="s2">&quot;@class&quot;</span><span class="p">)})</span></div>
 
 <div class="viewcode-block" id="NodeResults.json_dump"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.json_dump">[docs]</a>    <span class="k">def</span> <span class="nf">json_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="n">json_pretty_dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NodeResults.json_load"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.json_load">[docs]</a>    <span class="k">def</span> <span class="nf">json_load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="NodeResults.json_load"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.json_load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">json_load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">loadfn</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="NodeResults.validate_json_schema"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.validate_json_schema">[docs]</a>    <span class="k">def</span> <span class="nf">validate_json_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -586,8 +583,8 @@
     <span class="c1">#        raise RuntimeError(&quot;You should not call __setattr__ in spectator_mode&quot;)</span>
     <span class="c1">#    return super(Node, self).__setattr__(name,value)</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Node.as_node"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.as_node">[docs]</a>    <span class="k">def</span> <span class="nf">as_node</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.as_node"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.as_node">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">as_node</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert obj into a Node instance.</span>
 
@@ -641,8 +638,8 @@
         <span class="sd">&quot;&quot;&quot;Node identifier.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_id</span>
 
-    <span class="nd">@check_spectator</span>
-<div class="viewcode-block" id="Node.set_node_id"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.set_node_id">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.set_node_id"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.set_node_id">[docs]</a>    <span class="nd">@check_spectator</span>
+    <span class="k">def</span> <span class="nf">set_node_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the node identifier. Use it carefully!&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_node_id</span> <span class="o">=</span> <span class="n">node_id</span></div>
 
@@ -727,8 +724,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deps</span>
 
-    <span class="nd">@check_spectator</span>
-<div class="viewcode-block" id="Node.add_deps"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.add_deps">[docs]</a>    <span class="k">def</span> <span class="nf">add_deps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deps</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.add_deps"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.add_deps">[docs]</a>    <span class="nd">@check_spectator</span>
+    <span class="k">def</span> <span class="nf">add_deps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deps</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a list of dependencies to the :class:`Node`.</span>
 
@@ -754,8 +751,8 @@
             <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
                 <span class="n">task</span><span class="o">.</span><span class="n">add_deps</span><span class="p">(</span><span class="n">deps</span><span class="p">)</span></div>
 
-    <span class="nd">@check_spectator</span>
-<div class="viewcode-block" id="Node.remove_deps"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.remove_deps">[docs]</a>    <span class="k">def</span> <span class="nf">remove_deps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deps</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.remove_deps"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.remove_deps">[docs]</a>    <span class="nd">@check_spectator</span>
+    <span class="k">def</span> <span class="nf">remove_deps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deps</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove a list of dependencies from the :class:`Node`.</span>
 
@@ -853,8 +850,8 @@
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">_event_handlers</span>
 
-    <span class="nd">@check_spectator</span>
-<div class="viewcode-block" id="Node.install_event_handlers"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.install_event_handlers">[docs]</a>    <span class="k">def</span> <span class="nf">install_event_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">handlers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.install_event_handlers"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.install_event_handlers">[docs]</a>    <span class="nd">@check_spectator</span>
+    <span class="k">def</span> <span class="nf">install_event_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">handlers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Install the `EventHandlers for this `Node`. If no argument is provided</span>
 <span class="sd">        the default list of handlers is installed.</span>
@@ -918,8 +915,8 @@
     <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The status of the `Node`.&quot;&quot;&quot;</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-<div class="viewcode-block" id="Node.check_status"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.check_status">[docs]</a>    <span class="k">def</span> <span class="nf">check_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.check_status"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.check_status">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">check_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check the status of the `Node`.&quot;&quot;&quot;</span></div></div>
 
 
@@ -1083,13 +1080,13 @@
 
         <span class="k">return</span> <span class="n">msg</span></div>
 
-    <span class="nd">@pmg_serialize</span>
-<div class="viewcode-block" id="HistoryRecord.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.HistoryRecord.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HistoryRecord.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.HistoryRecord.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">levelno</span><span class="p">,</span> <span class="s1">&#39;pathname&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathname</span><span class="p">,</span> <span class="s1">&#39;lineno&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span> <span class="s1">&#39;msg&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">,</span>
                 <span class="s1">&#39;args&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="s1">&#39;exc_info&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">exc_info</span><span class="p">,</span> <span class="s1">&#39;func&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="HistoryRecord.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.HistoryRecord.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="HistoryRecord.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.HistoryRecord.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;level&#39;</span><span class="p">],</span> <span class="n">pathname</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;pathname&#39;</span><span class="p">],</span> <span class="n">lineno</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lineno&#39;</span><span class="p">]),</span> <span class="n">msg</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">],</span> <span class="n">args</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">],</span>
                    <span class="n">exc_info</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;exc_info&#39;</span><span class="p">],</span> <span class="n">func</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;func&#39;</span><span class="p">])</span></div></div>
 
@@ -1233,7 +1230,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1241,7 +1238,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

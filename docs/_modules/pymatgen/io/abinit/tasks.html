@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -314,8 +311,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ParalConf</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">confs</span><span class="p">]</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ParalHints.from_mpi_omp_lists"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.from_mpi_omp_lists">[docs]</a>    <span class="k">def</span> <span class="nf">from_mpi_omp_lists</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">):</span>
+<div class="viewcode-block" id="ParalHints.from_mpi_omp_lists"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.from_mpi_omp_lists">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_mpi_omp_lists</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build a list of Parallel configurations from two lists</span>
 <span class="sd">        containing the number of MPI processes and the number of OpenMP threads</span>
@@ -344,32 +341,32 @@
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="nd">@lazy_property</span>
-<div class="viewcode-block" id="ParalHints.max_cores"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_cores">[docs]</a>    <span class="k">def</span> <span class="nf">max_cores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ParalHints.max_cores"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_cores">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">max_cores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Maximum number of cores.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">omp_threads</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span></div>
 
-    <span class="nd">@lazy_property</span>
-<div class="viewcode-block" id="ParalHints.max_mem_per_proc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_mem_per_proc">[docs]</a>    <span class="k">def</span> <span class="nf">max_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ParalHints.max_mem_per_proc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_mem_per_proc">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">max_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Maximum memory per MPI process.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">mem_per_proc</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span></div>
 
-    <span class="nd">@lazy_property</span>
-<div class="viewcode-block" id="ParalHints.max_speedup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_speedup">[docs]</a>    <span class="k">def</span> <span class="nf">max_speedup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ParalHints.max_speedup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_speedup">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">max_speedup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Maximum speedup.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">speedup</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span></div>
 
-    <span class="nd">@lazy_property</span>
-<div class="viewcode-block" id="ParalHints.max_efficiency"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">max_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ParalHints.max_efficiency"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_efficiency">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">max_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Maximum parallel efficiency.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">efficiency</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span></div>
 
-    <span class="nd">@pmg_serialize</span>
-<div class="viewcode-block" id="ParalHints.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ParalHints.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="s2">&quot;confs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="p">}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ParalHints.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="ParalHints.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">],</span> <span class="n">confs</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;confs&quot;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="ParalHints.copy"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -597,8 +594,8 @@
 
     <span class="n">ENTRIES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;policy&quot;</span><span class="p">,</span> <span class="s2">&quot;qadapters&quot;</span><span class="p">,</span> <span class="s2">&quot;db_connector&quot;</span><span class="p">,</span> <span class="s2">&quot;batch_adapter&quot;</span><span class="p">}</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="TaskManager.autodoc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.autodoc">[docs]</a>    <span class="k">def</span> <span class="nf">autodoc</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskManager.autodoc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.autodoc">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">autodoc</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">.db</span> <span class="k">import</span> <span class="n">DBConnector</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2"># TaskManager configuration file (YAML Format)</span>
@@ -627,8 +624,8 @@
         <span class="c1">#s += &quot;db_connector: &quot; + DBConnector.autodoc()</span>
         <span class="k">return</span> <span class="n">s</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="TaskManager.from_user_config"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_user_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_user_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskManager.from_user_config"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_user_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_user_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the :class:`TaskManager` from the YAML file &#39;manager.yaml&#39;.</span>
 <span class="sd">        Search first in the working directory and then in the abipy configuration directory.</span>
@@ -656,8 +653,8 @@
         <span class="n">_USER_CONFIG_TASKMANAGER</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_USER_CONFIG_TASKMANAGER</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="TaskManager.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskManager.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read the configuration parameters from the Yaml file filename.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
@@ -666,13 +663,13 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error while reading TaskManager parameters from </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
             <span class="k">raise</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="TaskManager.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskManager.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create an instance from string s containing a YAML dictionary.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">s</span><span class="p">))</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="TaskManager.as_manager"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.as_manager">[docs]</a>    <span class="k">def</span> <span class="nf">as_manager</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskManager.as_manager"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.as_manager">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">as_manager</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert obj into TaskManager instance. Accepts string, filepath, dictionary, `TaskManager` object.</span>
 <span class="sd">        If obj is None, the manager is initialized from the user config file.</span>
@@ -691,13 +688,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert type </span><span class="si">%s</span><span class="s2"> to TaskManager&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="TaskManager.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskManager.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create an instance from a dictionary.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ENTRIES</span><span class="p">})</span></div>
 
-    <span class="nd">@pmg_serialize</span>
-<div class="viewcode-block" id="TaskManager.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskManager.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -747,8 +744,8 @@
         <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Found invalid keywords in the taskmanager file:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
 
-    <span class="nd">@lazy_property</span>
-<div class="viewcode-block" id="TaskManager.abinit_build"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.abinit_build">[docs]</a>    <span class="k">def</span> <span class="nf">abinit_build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskManager.abinit_build"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.abinit_build">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">abinit_build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;:class:`AbinitBuild` object with Abinit version and options used to build the code&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">AbinitBuild</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
 
@@ -2523,8 +2520,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Results</span> <span class="o">=</span> <span class="n">TaskResults</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="AbinitTask.from_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.from_input">[docs]</a>    <span class="k">def</span> <span class="nf">from_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="AbinitTask.from_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.from_input">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an instance of `AbinitTask` from an ABINIT input.</span>
 
@@ -2535,8 +2532,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="AbinitTask.temp_shell_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.temp_shell_task">[docs]</a>    <span class="k">def</span> <span class="nf">temp_shell_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="AbinitTask.temp_shell_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.temp_shell_task">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">temp_shell_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build a Task with a temporary workdir. The task is executed via the shell with 1 MPI proc.</span>
 <span class="sd">        Mainly used for invoking Abinit to get important parameters needed to prepare the real task.</span>
@@ -4398,8 +4395,8 @@
 
         <span class="nb">super</span><span class="p">(</span><span class="n">AnaddbTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">anaddb_input</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="n">deps</span><span class="p">)</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="AnaddbTask.temp_shell_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AnaddbTask.temp_shell_task">[docs]</a>    <span class="k">def</span> <span class="nf">temp_shell_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">ddb_node</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<div class="viewcode-block" id="AnaddbTask.temp_shell_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AnaddbTask.temp_shell_task">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">temp_shell_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">ddb_node</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                         <span class="n">gkk_node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">md_node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ddk_node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build a :class:`AnaddbTask` with a temporary workdir. The task is executed via</span>
@@ -4553,7 +4550,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4561,7 +4558,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

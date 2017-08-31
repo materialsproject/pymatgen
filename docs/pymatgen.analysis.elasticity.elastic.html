@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.elasticity.elastic module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.elasticity.elastic module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -85,9 +82,9 @@ subclassing numpy ndarrays.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input_array</strong> (<em>3x3x3x3 array-like</em>) &#8211; the 3x3x3x3 array-like
+<li><strong>input_array</strong> (<em>3x3x3x3 array-like</em>) – the 3x3x3x3 array-like
 representing the elastic tensor</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; tolerance for initial symmetry test of tensor</li>
+<li><strong>tol</strong> (<em>float</em>) – tolerance for initial symmetry test of tensor</li>
 </ul>
 </td>
 </tr>
@@ -96,31 +93,31 @@ representing the elastic tensor</li>
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensor.cahill_thermalcond">
 <code class="descname">cahill_thermalcond</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensor.cahill_thermalcond"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.cahill_thermalcond" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates Cahill&#8217;s thermal conductivity (in SI units)</p>
+<dd><p>Calculates Cahill’s thermal conductivity (in SI units)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; pymatgen structure object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – pymatgen structure object</td>
 </tr>
 </tbody>
 </table>
-<p>Returns: Cahill&#8217;s thermal conductivity (in SI units)</p>
+<p>Returns: Cahill’s thermal conductivity (in SI units)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensor.clarke_thermalcond">
 <code class="descname">clarke_thermalcond</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensor.clarke_thermalcond"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.clarke_thermalcond" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates Clarke&#8217;s thermal conductivity (in SI units)</p>
+<dd><p>Calculates Clarke’s thermal conductivity (in SI units)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; pymatgen structure object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – pymatgen structure object</td>
 </tr>
 </tbody>
 </table>
-<p>Returns: Clarke&#8217;s thermal conductivity (in SI units)</p>
+<p>Returns: Clarke’s thermal conductivity (in SI units)</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -139,7 +136,7 @@ Voigt-notation elastic tensor</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; pymatgen structure object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – pymatgen structure object</td>
 </tr>
 </tbody>
 </table>
@@ -161,7 +158,7 @@ formulation (in SI units)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; pymatgen structure object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – pymatgen structure object</td>
 </tr>
 </tbody>
 </table>
@@ -184,9 +181,9 @@ relative to a second, orthogonal direction</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n</strong> (<em>3-d vector</em>) &#8211; principal direction</li>
-<li><strong>m</strong> (<em>3-d vector</em>) &#8211; secondary direction orthogonal to n</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; tolerance for testing of orthogonality</li>
+<li><strong>n</strong> (<em>3-d vector</em>) – principal direction</li>
+<li><strong>m</strong> (<em>3-d vector</em>) – secondary direction orthogonal to n</li>
+<li><strong>tol</strong> (<em>float</em>) – tolerance for testing of orthogonality</li>
 </ul>
 </td>
 </tr>
@@ -208,10 +205,10 @@ relative to a second, orthogonal direction</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>eq_stress</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress" title="pymatgen.analysis.elasticity.stress.Stress"><em>Stress</em></a>) &#8211; equilibrium stress to use in fitting</li>
-<li><strong>vasp</strong> (<em>boolean</em>) &#8211; flag for whether the stress tensor should be
+<li><strong>eq_stress</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress" title="pymatgen.analysis.elasticity.stress.Stress"><em>Stress</em></a>) – equilibrium stress to use in fitting</li>
+<li><strong>vasp</strong> (<em>boolean</em>) – flag for whether the stress tensor should be
 converted based on vasp units/convention for stress</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; tolerance for removing near-zero elements of the
+<li><strong>tol</strong> (<em>float</em>) – tolerance for removing near-zero elements of the
 resulting tensor</li>
 </ul>
 </td>
@@ -232,8 +229,8 @@ strain in voigt notation</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stresses</strong> (<em>Nx3x3 array-like</em>) &#8211; list or array of stresses</li>
-<li><strong>strains</strong> (<em>Nx3x3 array-like</em>) &#8211; list or array of strains</li>
+<li><strong>stresses</strong> (<em>Nx3x3 array-like</em>) – list or array of stresses</li>
+<li><strong>strains</strong> (<em>Nx3x3 array-like</em>) – list or array of strains</li>
 </ul>
 </td>
 </tr>
@@ -305,7 +302,7 @@ using the Voigt-Reuss-Hill average bulk modulus</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; pymatgen structure object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – pymatgen structure object</td>
 </tr>
 </tbody>
 </table>
@@ -321,46 +318,46 @@ using the Voigt-Reuss-Hill average bulk modulus</p>
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_ac">
 <code class="descname">snyder_ac</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensor.snyder_ac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_ac" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates Snyder&#8217;s acoustic sound velocity (in SI units)</p>
+<dd><p>Calculates Snyder’s acoustic sound velocity (in SI units)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; pymatgen structure object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – pymatgen structure object</td>
 </tr>
 </tbody>
 </table>
-<p>Returns: Snyder&#8217;s acoustic sound velocity (in SI units)</p>
+<p>Returns: Snyder’s acoustic sound velocity (in SI units)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_opt">
 <code class="descname">snyder_opt</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensor.snyder_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_opt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates Snyder&#8217;s optical sound velocity (in SI units)</p>
+<dd><p>Calculates Snyder’s optical sound velocity (in SI units)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; pymatgen structure object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – pymatgen structure object</td>
 </tr>
 </tbody>
 </table>
-<p>Returns: Snyder&#8217;s optical sound velocity (in SI units)</p>
+<p>Returns: Snyder’s optical sound velocity (in SI units)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_total">
 <code class="descname">snyder_total</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensor.snyder_total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_total" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates Snyder&#8217;s total sound velocity (in SI units)</p>
+<dd><p>Calculates Snyder’s total sound velocity (in SI units)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; pymatgen structure object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – pymatgen structure object</td>
 </tr>
 </tbody>
 </table>
-<p>Returns: Snyder&#8217;s total sound velocity (in SI units)</p>
+<p>Returns: Snyder’s total sound velocity (in SI units)</p>
 </dd></dl>
 
 <dl class="method">
@@ -372,7 +369,7 @@ Voigt-Reuss-Hill average bulk modulus</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; pymatgen structure object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – pymatgen structure object</td>
 </tr>
 </tbody>
 </table>
@@ -388,7 +385,7 @@ Voigt-Reuss-Hill average bulk modulus</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensor.y_mod">
 <code class="descname">y_mod</code><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.y_mod" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates Young&#8217;s modulus (in SI units) using the
+<dd><p>Calculates Young’s modulus (in SI units) using the
 Voigt-Reuss-Hill averages of bulk and shear moduli</p>
 </dd></dl>
 
@@ -408,7 +405,7 @@ of the list-based properties of TensorCollection
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>c_list</strong> (<em>list</em><em> or </em><em>tuple</em>) &#8211; sequence of Tensor inputs
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>c_list</strong> (<em>list</em><em> or </em><em>tuple</em>) – sequence of Tensor inputs
 or tensors from which the elastic tensor
 expansion is constructed.</td>
 </tr>
@@ -417,7 +414,7 @@ expansion is constructed.</td>
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.calculate_stress">
 <code class="descname">calculate_stress</code><span class="sig-paren">(</span><em>strain</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensorExpansion.calculate_stress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.calculate_stress" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate&#8217;s a given elastic tensor&#8217;s contribution to the
+<dd><p>Calculate’s a given elastic tensor’s contribution to the
 stress using Einstein summation</p>
 </dd></dl>
 
@@ -451,9 +448,9 @@ from the elastic tensor expansion.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>strain</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain" title="pymatgen.analysis.elasticity.strain.Strain"><em>Strain</em></a><em> or </em><em>3x3 array-like</em>) &#8211; strain condition
+<li><strong>strain</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain" title="pymatgen.analysis.elasticity.strain.Strain"><em>Strain</em></a><em> or </em><em>3x3 array-like</em>) – strain condition
 under which to calculate the effective constants</li>
-<li><strong>order</strong> (<em>int</em>) &#8211; order of the ecs to be returned</li>
+<li><strong>order</strong> (<em>int</em>) – order of the ecs to be returned</li>
 </ul>
 </td>
 </tr>
@@ -471,8 +468,8 @@ third-order elastic tensor expansion.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n</strong> (<em>3x1 array-like</em>) &#8211; normal mode direction</li>
-<li><strong>u</strong> (<em>3x1 array-like</em>) &#8211; polarization direction</li>
+<li><strong>n</strong> (<em>3x1 array-like</em>) – normal mode direction</li>
+<li><strong>u</strong> (<em>3x1 array-like</em>) – polarization direction</li>
 </ul>
 </td>
 </tr>
@@ -489,13 +486,13 @@ third-order elastic tensor expansion.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>temperature</strong> (<em>float</em>) &#8211; Temperature in kelvin, if not specified
+<li><strong>temperature</strong> (<em>float</em>) – Temperature in kelvin, if not specified
 will return non-cv-normalized value</li>
-<li><strong>structure</strong> (<em>float</em>) &#8211; Structure to be used in directional heat
+<li><strong>structure</strong> (<em>float</em>) – Structure to be used in directional heat
 capacity determination, only necessary if temperature
 is specified</li>
-<li><strong>quad</strong> (<em>dict</em>) &#8211; quadrature for integration, should be
-dictionary with &#8220;points&#8221; and &#8220;weights&#8221; keys defaults
+<li><strong>quad</strong> (<em>dict</em>) – quadrature for integration, should be
+dictionary with “points” and “weights” keys defaults
 to quadpy.sphere.Lebedev(19) as read from file</li>
 </ul>
 </td>
@@ -506,7 +503,7 @@ to quadpy.sphere.Lebedev(19) as read from file</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_heat_capacity">
-<code class="descname">get_heat_capacity</code><span class="sig-paren">(</span><em>temperature</em>, <em>structure</em>, <em>n</em>, <em>u</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensorExpansion.get_heat_capacity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_heat_capacity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_heat_capacity</code><span class="sig-paren">(</span><em>temperature</em>, <em>structure</em>, <em>n</em>, <em>u</em>, <em>cutoff=100.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensorExpansion.get_heat_capacity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_heat_capacity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the directional heat capacity for a higher order tensor
 expansion as a function of direction and polarization.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -514,12 +511,13 @@ expansion as a function of direction and polarization.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>temperature</strong> (<em>float</em>) &#8211; Temperature in kelvin</li>
-<li><strong>structure</strong> (<em>float</em>) &#8211; Structure to be used in directional heat
+<li><strong>temperature</strong> (<em>float</em>) – Temperature in kelvin</li>
+<li><strong>structure</strong> (<em>float</em>) – Structure to be used in directional heat
 capacity determination</li>
-<li><strong>n</strong> (<em>3x1 array-like</em>) &#8211; direction for Cv determination</li>
-<li><strong>u</strong> (<em>3x1 array-like</em>) &#8211; polarization direction, note that
+<li><strong>n</strong> (<em>3x1 array-like</em>) – direction for Cv determination</li>
+<li><strong>u</strong> (<em>3x1 array-like</em>) – polarization direction, note that
 no attempt for verification of eigenvectors is made</li>
+<li><strong>overflow_cutoff</strong> (<em>float</em>) – </li>
 </ul>
 </td>
 </tr>
@@ -538,9 +536,9 @@ value.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>s</strong> (<em>float</em>) &#8211; Stress value at which to evaluate
+<li><strong>s</strong> (<em>float</em>) – Stress value at which to evaluate
 the stability criteria</li>
-<li><strong>n</strong> (<em>3x1 array-like</em>) &#8211; direction of the applied
+<li><strong>n</strong> (<em>3x1 array-like</em>) – direction of the applied
 stress</li>
 </ul>
 </td>
@@ -566,7 +564,7 @@ yield strength criteria.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tau</strong> (<em>3x3 array-like</em>) &#8211; stress at which to evaluate
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tau</strong> (<em>3x3 array-like</em>) – stress at which to evaluate
 the wallace tensor.</td>
 </tr>
 </tbody>
@@ -589,13 +587,13 @@ K. Brugger Phys. Rev. 137, A1826 (1965).</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>temperature</strong> (<em>float</em>) &#8211; Temperature in kelvin, if not specified
+<li><strong>temperature</strong> (<em>float</em>) – Temperature in kelvin, if not specified
 will return non-cv-normalized value</li>
-<li><strong>structure</strong> (<em>float</em>) &#8211; Structure to be used in directional heat
+<li><strong>structure</strong> (<em>float</em>) – Structure to be used in directional heat
 capacity determination, only necessary if temperature
 is specified</li>
-<li><strong>quad</strong> (<em>dict</em>) &#8211; quadrature for integration, should be
-dictionary with &#8220;points&#8221; and &#8220;weights&#8221; keys defaults
+<li><strong>quad</strong> (<em>dict</em>) – quadrature for integration, should be
+dictionary with “points” and “weights” keys defaults
 to quadpy.sphere.Lebedev(19) as read from file</li>
 </ul>
 </td>
@@ -613,7 +611,7 @@ criteria.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tau</strong> (<em>3x3 array-like</em>) &#8211; stress at which to evaluate
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tau</strong> (<em>3x3 array-like</em>) – stress at which to evaluate
 the wallace tensor</td>
 </tr>
 </tbody>
@@ -628,7 +626,7 @@ the wallace tensor</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>3x1 array-like</em>) &#8211; direction for which to find the
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>3x1 array-like</em>) – direction for which to find the
 yield stress</td>
 </tr>
 </tbody>
@@ -645,10 +643,10 @@ capacity from direction and polarization</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Structure to be used in directional heat
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to be used in directional heat
 capacity determination</li>
-<li><strong>n</strong> (<em>3x1 array-like</em>) &#8211; direction for Cv determination</li>
-<li><strong>u</strong> (<em>3x1 array-like</em>) &#8211; polarization direction, note that
+<li><strong>n</strong> (<em>3x1 array-like</em>) – direction for Cv determination</li>
+<li><strong>u</strong> (<em>3x1 array-like</em>) – polarization direction, note that
 no attempt for verification of eigenvectors is made</li>
 </ul>
 </td>
@@ -673,13 +671,13 @@ highest included set of elastic constants</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>temperature</strong> (<em>float</em>) &#8211; Temperature in kelvin, if not specified
+<li><strong>temperature</strong> (<em>float</em>) – Temperature in kelvin, if not specified
 will return non-cv-normalized value</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Structure to be used in directional heat
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to be used in directional heat
 capacity determination, only necessary if temperature
 is specified</li>
-<li><strong>mode</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; mode for finding average heat-capacity,
-current supported modes are &#8216;debye&#8217; and &#8216;dulong-petit&#8217;</li>
+<li><strong>mode</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – mode for finding average heat-capacity,
+current supported modes are ‘debye’ and ‘dulong-petit’</li>
 </ul>
 </td>
 </tr>
@@ -695,16 +693,21 @@ current supported modes are &#8216;debye&#8217; and &#8216;dulong-petit&#8217;</
 <dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor" title="pymatgen.analysis.elasticity.tensors.Tensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.elasticity.tensors.Tensor</span></code></a></p>
 <p>An object representing an nth-order tensor expansion
 of the stress-strain constitutive equations</p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.GPa_to_eV_A3">
+<code class="descname">GPa_to_eV_A3</code><em class="property"> = 0.006241509125883258</em><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.GPa_to_eV_A3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.calculate_stress">
 <code class="descname">calculate_stress</code><span class="sig-paren">(</span><em>strain</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#NthOrderElasticTensor.calculate_stress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.calculate_stress" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate&#8217;s a given elastic tensor&#8217;s contribution to the
+<dd><p>Calculate’s a given elastic tensor’s contribution to the
 stress using Einstein summation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strain</strong> (<em>3x3 array-like</em>) &#8211; matrix corresponding to strain</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strain</strong> (<em>3x3 array-like</em>) – matrix corresponding to strain</td>
 </tr>
 </tbody>
 </table>
@@ -757,17 +760,17 @@ constants appropriately.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>order</strong> (<em>int</em>) &#8211; order of the elastic tensor set to return</li>
-<li><strong>strains</strong> (<em>nx3x3 array-like</em>) &#8211; Array of 3x3 strains
+<li><strong>order</strong> (<em>int</em>) – order of the elastic tensor set to return</li>
+<li><strong>strains</strong> (<em>nx3x3 array-like</em>) – Array of 3x3 strains
 to use in fitting of ECs</li>
-<li><strong>stresses</strong> (<em>nx3x3 array-like</em>) &#8211; Array of 3x3 stresses
+<li><strong>stresses</strong> (<em>nx3x3 array-like</em>) – Array of 3x3 stresses
 to use in fitting ECs.  These should be PK2 stresses.</li>
-<li><strong>eq_stress</strong> (<em>3x3 array-like</em>) &#8211; stress corresponding to
-equilibrium strain (i. e. &#8220;0&#8221; strain state).
+<li><strong>eq_stress</strong> (<em>3x3 array-like</em>) – stress corresponding to
+equilibrium strain (i. e. “0” strain state).
 If not specified, function will try to find
 the state in the list of provided stresses
 and strains.  If not found, defaults to 0.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; value for which strains below
+<li><strong>tol</strong> (<em>float</em>) – value for which strains below
 are ignored in identifying strain states.</li>
 </ul>
 </td>
@@ -789,9 +792,9 @@ the stress/strain relation</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>strains</strong> (<em>Nx3x3 array-like</em>) &#8211; array corresponding to strains</li>
-<li><strong>stresses</strong> (<em>Nx3x3 array-like</em>) &#8211; array corresponding to stresses</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; tolerance to find zero strain state</li>
+<li><strong>strains</strong> (<em>Nx3x3 array-like</em>) – array corresponding to strains</li>
+<li><strong>stresses</strong> (<em>Nx3x3 array-like</em>) – array corresponding to stresses</li>
+<li><strong>tol</strong> (<em>float</em>) – tolerance to find zero strain state</li>
 </ul>
 </td>
 </tr>
@@ -808,10 +811,10 @@ the stress/strain relation</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>strain_states</strong> (<em>6xN array like</em>) &#8211; a list of voigt-notation
-&#8220;strain-states&#8221;, i. e. perturbed indices of the strain
+<li><strong>strain_states</strong> (<em>6xN array like</em>) – a list of voigt-notation
+“strain-states”, i. e. perturbed indices of the strain
 as a function of the smallest strain e. g. (0, 1, 0, 0, 1, 0)</li>
-<li><strong>order</strong> (<em>int</em>) &#8211; order of pseudoinverse to calculate</li>
+<li><strong>order</strong> (<em>int</em>) – order of pseudoinverse to calculate</li>
 </ul>
 </td>
 </tr>
@@ -844,8 +847,8 @@ derivative on an arbitrary mesh.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>hvec</strong> (<em>1D array-like</em>) &#8211; sampling stencil</li>
-<li><strong>n</strong> (<em>int</em>) &#8211; degree of derivative to find</li>
+<li><strong>hvec</strong> (<em>1D array-like</em>) – sampling stencil</li>
+<li><strong>n</strong> (<em>int</em>) – degree of derivative to find</li>
 </ul>
 </td>
 </tr>
@@ -857,7 +860,7 @@ derivative on an arbitrary mesh.</p>
 <dt id="pymatgen.analysis.elasticity.elastic.get_strain_state_dict">
 <code class="descname">get_strain_state_dict</code><span class="sig-paren">(</span><em>strains</em>, <em>stresses</em>, <em>eq_stress=None</em>, <em>tol=1e-10</em>, <em>add_eq=True</em>, <em>sort=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#get_strain_state_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.get_strain_state_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a dictionary of voigt-notation stress-strain sets
-keyed by &#8220;strain state&#8221;, i. e. a tuple corresponding to
+keyed by “strain state”, i. e. a tuple corresponding to
 the non-zero entries in ratios to the lowest nonzero value,
 e.g. [0, 0.1, 0, 0.2, 0, 0] -&gt; (0,1,0,2,0,0)
 This allows strains to be collected in stencils as to
@@ -867,13 +870,13 @@ evaluate parameterized finite difference derivatives</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>strains</strong> (<em>Nx3x3 array-like</em>) &#8211; strain matrices</li>
-<li><strong>stresses</strong> (<em>Nx3x3 array-like</em>) &#8211; stress matrices</li>
-<li><strong>eq_stress</strong> (<em>Nx3x3 array-like</em>) &#8211; equilibrium stress</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; tolerance for sorting strain states</li>
-<li><strong>add_eq</strong> (<em>bool</em>) &#8211; flag for whether to add eq_strain
+<li><strong>strains</strong> (<em>Nx3x3 array-like</em>) – strain matrices</li>
+<li><strong>stresses</strong> (<em>Nx3x3 array-like</em>) – stress matrices</li>
+<li><strong>eq_stress</strong> (<em>Nx3x3 array-like</em>) – equilibrium stress</li>
+<li><strong>tol</strong> (<em>float</em>) – tolerance for sorting strain states</li>
+<li><strong>add_eq</strong> (<em>bool</em>) – flag for whether to add eq_strain
 to stress-strain sets for each strain state</li>
-<li><strong>sort</strong> (<em>bool</em>) &#8211; flag for whether to sort strain states</li>
+<li><strong>sort</strong> (<em>bool</em>) – flag for whether to sort strain states</li>
 </ul>
 </td>
 </tr>
@@ -896,9 +899,9 @@ by index transposition, i. e. C_1121 = C_1211 etc.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dim</strong> (<em>int</em>) &#8211; dimension of matrix/tensor, e. g. 6 for
+<li><strong>dim</strong> (<em>int</em>) – dimension of matrix/tensor, e. g. 6 for
 voigt notation and 3 for standard</li>
-<li><strong>rank</strong> (<em>int</em>) &#8211; rank of tensor, e. g. 3 for third-order ECs</li>
+<li><strong>rank</strong> (<em>int</em>) – rank of tensor, e. g. 3 for third-order ECs</li>
 </ul>
 </td>
 </tr>
@@ -927,8 +930,8 @@ of numpy vectorization</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>entry</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.DummySpecie.symbol" title="pymatgen.core.periodic_table.DummySpecie.symbol"><em>symbol</em></a><em> or </em><em>exp</em>) &#8211; sympy expr to undergo subs</li>
-<li><strong>cmap</strong> (<em>dict</em>) &#8211; map for symbols to values to use in subs</li>
+<li><strong>entry</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.DummySpecie.symbol" title="pymatgen.core.periodic_table.DummySpecie.symbol"><em>symbol</em></a><em> or </em><em>exp</em>) – sympy expr to undergo subs</li>
+<li><strong>cmap</strong> (<em>dict</em>) – map for symbols to values to use in subs</li>
 </ul>
 </td>
 </tr>
@@ -977,13 +980,13 @@ of numpy vectorization</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

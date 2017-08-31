@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.composition module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.composition module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -69,7 +66,7 @@ added/subtracted with other ChemicalPotentials.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> (<em>*args</em><em>,</em><em></em>) &#8211; <p>any valid dict init arguments</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> (<em>*args</em><em>,</em>) – <p>any valid dict init arguments</p>
 </td>
 </tr>
 </tbody>
@@ -83,8 +80,8 @@ added/subtracted with other ChemicalPotentials.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>composition</strong> (<a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) &#8211; input composition</li>
-<li><strong>strict</strong> (<em>bool</em>) &#8211; Whether all potentials must be specified</li>
+<li><strong>composition</strong> (<a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – input composition</li>
+<li><strong>strict</strong> (<em>bool</em>) – Whether all potentials must be specified</li>
 </ul>
 </td>
 </tr>
@@ -113,8 +110,8 @@ get_fraction.</p>
 <p>It should also be noted that many Composition related functionality takes
 in a standard string as a convenient input. For example,
 even though the internal representation of a Fe2O3 composition is
-{Element(&#8220;Fe&#8221;): 2, Element(&#8220;O&#8221;): 3}, you can obtain the amount of Fe
-simply by comp[&#8220;Fe&#8221;] instead of the more verbose comp[Element(&#8220;Fe&#8221;)].</p>
+{Element(“Fe”): 2, Element(“O”): 3}, you can obtain the amount of Fe
+simply by comp[“Fe”] instead of the more verbose comp[Element(“Fe”)].</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;LiFePO4&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">))</span>
 <span class="go">0.14285714285714285</span>
@@ -137,16 +134,16 @@ dict(). Also extended to allow simple string init.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>form supported by the Python built-in dict</strong><strong>(</strong><strong></strong><strong>) </strong><strong>function.</strong> (<em>Any</em>) &#8211; </li>
-<li><strong>A dict of either {Element/Specie</strong> (<em>1.</em>) &#8211; <p>amount},</p>
+<li><strong>form supported by the Python built-in dict</strong><strong>(</strong><strong>) </strong><strong>function.</strong> (<em>Any</em>) – </li>
+<li><strong>A dict of either {Element/Specie</strong> (<em>1.</em>) – <p>amount},</p>
 <p>{string symbol:amount}, or {atomic number:amount} or any mixture
-of these. E.g., {Element(&#8220;Li&#8221;):2 ,Element(&#8220;O&#8221;):1},
-{&#8220;Li&#8221;:2, &#8220;O&#8221;:1}, {3:2, 8:1} all result in a Li2O composition.</p>
+of these. E.g., {Element(“Li”):2 ,Element(“O”):1},
+{“Li”:2, “O”:1}, {3:2, 8:1} all result in a Li2O composition.</p>
 </li>
-<li><strong>Keyword arg initialization</strong><strong>, </strong><strong>similar to a dict</strong><strong>, </strong><strong>e.g.</strong><strong>,</strong><strong></strong> (<em>2.</em>) &#8211; Composition(Li = 2, O = 1)</li>
-<li><strong>addition</strong><strong>, </strong><strong>the Composition constructor also allows a single</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.In" title="pymatgen.core.periodic_table.Element.In"><em>In</em></a>) &#8211; </li>
-<li><strong>as an input formula. E.g.</strong><strong>, </strong><strong>Composition</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; </li>
-<li><strong>allow_negative</strong> &#8211; Whether to allow negative compositions. This
+<li><strong>Keyword arg initialization</strong><strong>, </strong><strong>similar to a dict</strong><strong>, </strong><strong>e.g.</strong><strong>,</strong> (<em>2.</em>) – Composition(Li = 2, O = 1)</li>
+<li><strong>addition</strong><strong>, </strong><strong>the Composition constructor also allows a single</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.In" title="pymatgen.core.periodic_table.Element.In"><em>In</em></a>) – </li>
+<li><strong>as an input formula. E.g.</strong><strong>, </strong><strong>Composition</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – </li>
+<li><strong>allow_negative</strong> – Whether to allow negative compositions. This
 argument must be popped from the **kwargs due to *args
 ambiguity.</li>
 </ul>
@@ -163,9 +160,9 @@ ambiguity.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) &#8211; Other composition to check</li>
-<li><strong>rtol</strong> (<em>float</em>) &#8211; Relative tolerance</li>
-<li><strong>atol</strong> (<em>float</em>) &#8211; Absolute tolerance</li>
+<li><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Other composition to check</li>
+<li><strong>rtol</strong> (<em>float</em>) – Relative tolerance</li>
+<li><strong>atol</strong> (<em>float</em>) – Absolute tolerance</li>
 </ul>
 </td>
 </tr>
@@ -204,7 +201,7 @@ anonymized_formula ABC3.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict with species symbol and (unreduced) amount e.g.,
-{&#8220;Fe&#8221;: 4.0, &#8220;O&#8221;:6.0} or {&#8220;Fe3+&#8221;: 4.0, &#8220;O2-&#8221;:6.0}</td>
+{“Fe”: 4.0, “O”:6.0} or {“Fe3+”: 4.0, “O2-“:6.0}</td>
 </tr>
 </tbody>
 </table>
@@ -267,7 +264,7 @@ for easier introspection.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) &#8211; {symbol: amount} dict.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – {symbol: amount} dict.</td>
 </tr>
 </tbody>
 </table>
@@ -281,7 +278,7 @@ for easier introspection.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> (<em>Element/Specie</em>) &#8211; Element or Specie to get fraction for.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> (<em>Element/Specie</em>) – Element or Specie to get fraction for.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Atomic fraction for element el in Composition</td>
 </tr>
@@ -297,7 +294,7 @@ for easier introspection.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dict with element symbol and (unreduced) amount e.g.,
-{&#8220;Fe&#8221;: 4.0, &#8220;O&#8221;:6.0} or {&#8220;Fe3+&#8221;: 4.0, &#8220;O2-&#8221;:6.0}</td>
+{“Fe”: 4.0, “O”:6.0} or {“Fe3+”: 4.0, “O2-“:6.0}</td>
 </tr>
 </tbody>
 </table>
@@ -311,7 +308,7 @@ for easier introspection.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>max_denominator</strong> (<em>int</em>) &#8211; all amounts in the el:amt dict are
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>max_denominator</strong> (<em>int</em>) – all amounts in the el:amt dict are
 first converted to a Fraction with this maximum denominator</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A pretty normalized formula and a multiplicative factor, i.e.,
@@ -330,7 +327,7 @@ Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A normalized composition and a multiplicative factor, i.e.,
-Li4Fe4P4O16 returns (Composition(&#8220;LiFePO4&#8221;), 4).</td>
+Li4Fe4P4O16 returns (Composition(“LiFePO4”), 4).</td>
 </tr>
 </tbody>
 </table>
@@ -359,7 +356,7 @@ Li4Fe4P4O16 returns (LiFePO4, 4).</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> (<em>Element/Specie</em>) &#8211; Element or Specie to get fraction for.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> (<em>Element/Specie</em>) – Element or Specie to get fraction for.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Weight fraction for element el in Composition</td>
 </tr>
@@ -385,6 +382,11 @@ Li4Fe4P4O16 returns (LiFePO4, 4).</td>
 of absolute values</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.oxi_prob">
+<code class="descname">oxi_prob</code><em class="property"> = None</em><a class="headerlink" href="#pymatgen.core.composition.Composition.oxi_prob" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.oxi_state_guesses">
 <code class="descname">oxi_state_guesses</code><span class="sig-paren">(</span><em>oxi_states_override=None</em>, <em>target_charge=0</em>, <em>all_oxi_states=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.oxi_state_guesses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.oxi_state_guesses" title="Permalink to this definition">¶</a></dt>
@@ -393,18 +395,19 @@ charge-balanced oxidation state combinations. Composition must have
 integer values. Note that more num_atoms in the composition gives
 more degrees of freedom. e.g., if possible oxidation states of
 element X are [2,4] and Y are [-3], then XY is not charge balanced
-but X2Y2 is.</p>
+but X2Y2 is. Results are returned from most to least probable based
+on ICSD statistics.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>oxi_states_override</strong> (<em>dict</em>) &#8211; dict of str-&gt;list to override an
-element&#8217;s common oxidation states, e.g. {&#8220;V&#8221;: [2,3,4,5]}</li>
-<li><strong>target_charge</strong> (<em>int</em>) &#8211; the desired total charge on the structure.
+<li><strong>oxi_states_override</strong> (<em>dict</em>) – dict of str-&gt;list to override an
+element’s common oxidation states, e.g. {“V”: [2,3,4,5]}</li>
+<li><strong>target_charge</strong> (<em>int</em>) – the desired total charge on the structure.
 Default is 0 signifying charge balance.</li>
-<li><strong>all_oxi_states</strong> (<em>bool</em>) &#8211; if True, an element defaults to
-all oxidation states in pymatgen Element.oxidation_states.
+<li><strong>all_oxi_states</strong> (<em>bool</em>) – if True, an element defaults to
+all oxidation states in pymatgen Element.icsd_oxidation_states.
 Otherwise, default is Element.common_oxidation_states. Note
 that the full oxidation state list is <em>very</em> inclusive and
 can produce nonsensical results.</li>
@@ -435,12 +438,12 @@ Author: Anubhav Jain</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fuzzy_formula</strong> (<em>str</em>) &#8211; A formula string, such as &#8220;co2o3&#8221; or &#8220;MN&#8221;,
+<li><strong>fuzzy_formula</strong> (<em>str</em>) – A formula string, such as “co2o3” or “MN”,
 that may or may not have multiple interpretations</li>
-<li><strong>lock_if_strict</strong> (<em>bool</em>) &#8211; If true, a properly entered formula will
+<li><strong>lock_if_strict</strong> (<em>bool</em>) – If true, a properly entered formula will
 only return the one correct interpretation. For example,
-&#8220;Co1&#8221; will only return &#8220;Co1&#8221; if true, but will return both
-&#8220;Co1&#8221; and &#8220;C1 O1&#8221; if false.</li>
+“Co1” will only return “Co1” if true, but will return both
+“Co1” and “C1 O1” if false.</li>
 </ul>
 </td>
 </tr>
@@ -455,8 +458,8 @@ only return the one correct interpretation. For example,
 <dt id="pymatgen.core.composition.Composition.reduced_composition">
 <code class="descname">reduced_composition</code><a class="headerlink" href="#pymatgen.core.composition.Composition.reduced_composition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the reduced composition,i.e. amounts normalized by greatest
-common denominator. e.g., Composition(&#8220;FePO4&#8221;) for
-Composition(&#8220;Fe4P4O16&#8221;).</p>
+common denominator. e.g., Composition(“FePO4”) for
+Composition(“Fe4P4O16”).</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -474,7 +477,7 @@ Li4Fe4P4O16.</p>
 <dl class="attribute">
 <dt id="pymatgen.core.composition.Composition.to_data_dict">
 <code class="descname">to_data_dict</code><a class="headerlink" href="#pymatgen.core.composition.Composition.to_data_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Returns</em> &#8211; A dict with many keys and values relating to Composition/Formula,
+<dd><p><em>Returns</em> – A dict with many keys and values relating to Composition/Formula,
 including reduced_cell_composition, unit_cell_composition,
 reduced_cell_formula, elements and nelements.</p>
 </dd></dl>
@@ -482,8 +485,8 @@ reduced_cell_formula, elements and nelements.</p>
 <dl class="attribute">
 <dt id="pymatgen.core.composition.Composition.to_reduced_dict">
 <code class="descname">to_reduced_dict</code><a class="headerlink" href="#pymatgen.core.composition.Composition.to_reduced_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Returns</em> &#8211; Dict with element symbol and reduced amount e.g.,
-{&#8220;Fe&#8221;: 2.0, &#8220;O&#8221;:3.0}</p>
+<dd><p><em>Returns</em> – Dict with element symbol and reduced amount e.g.,
+{“Fe”: 2.0, “O”:3.0}</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -508,7 +511,7 @@ reduced_cell_formula, elements and nelements.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sym_amt</strong> (<em>dict</em>) &#8211; {symbol: amount}.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sym_amt</strong> (<em>dict</em>) – {symbol: amount}.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(reduced_formula, factor).</td>
 </tr>
@@ -554,13 +557,13 @@ reduced_cell_formula, elements and nelements.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.defects.dilute_solution_model module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.defects.dilute_solution_model module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -72,25 +69,25 @@ The computed plot data is prepared based on plot_style.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure object representing the
+<li><strong>structure</strong> – pymatgen.core.structure.Structure object representing the
 primitive or unitcell of the crystal.</li>
-<li><strong>e0</strong> &#8211; The total energy of the undefected system.
+<li><strong>e0</strong> – The total energy of the undefected system.
 This is E0 from VASP calculation.</li>
-<li><strong>vac_defs</strong> &#8211; List of vacancy defect parameters in the dictionary format.
+<li><strong>vac_defs</strong> – List of vacancy defect parameters in the dictionary format.
 The keys of the dict associated with each vacancy defect are
 1) site_index, 2) site_specie, 3) site_multiplicity, and
 4) energy. 1-3 can be obtained from
 pymatgen.analysis.defects.point_defects.Vacancy class.
 Site index is expected to start with 1 (fortran index).</li>
-<li><strong>antisite_defs</strong> &#8211; List of antisite defect parameters in the dictionary
+<li><strong>antisite_defs</strong> – List of antisite defect parameters in the dictionary
 format. The keys of the dict associated with each antisite defect
 are 1) site_index, 2) site_specie, 3) site_multiplicity,
 4) substitution_specie, and 5) energy. 1-3 can be obtained
 from pymatgen.analysis.defects.point_defects.Vacancy class.</li>
-<li><strong>T</strong> &#8211; Temperature in Kelvin</li>
-<li><strong>trial_chem_pot</strong> (<em>optional</em>) &#8211; Trial chemical potentials to speedup
-the plot generation. Format is {el1:mu1,...}</li>
-<li><strong>plot_style</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; Allowed options are
+<li><strong>T</strong> – Temperature in Kelvin</li>
+<li><strong>trial_chem_pot</strong> (<em>optional</em>) – Trial chemical potentials to speedup
+the plot generation. Format is {el1:mu1,…}</li>
+<li><strong>plot_style</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – Allowed options are
 1) highcharts (default)
 2) gnuplot</li>
 </ul>
@@ -112,25 +109,25 @@ the plot generation. Format is {el1:mu1,...}</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure object representing the
+<li><strong>structure</strong> – pymatgen.core.structure.Structure object representing the
 primitive or unitcell of the crystal.</li>
-<li><strong>e0</strong> &#8211; The total energy of the undefected system.
+<li><strong>e0</strong> – The total energy of the undefected system.
 This is E0 from VASP calculation.</li>
-<li><strong>vac_defs</strong> &#8211; List of vacancy defect parameters in the dictionary format.
+<li><strong>vac_defs</strong> – List of vacancy defect parameters in the dictionary format.
 The keys of the dict associated with each vacancy defect are
 1) site_index, 2) site_specie, 3) site_multiplicity, and
 4) energy. 1-3 can be obtained from
 pymatgen.analysis.defects.point_defects.Vacancy class.
 Site index is expected to start with 1 (fortran index).</li>
-<li><strong>antisite_defs</strong> &#8211; List of antisite defect parameters in the dictionary
+<li><strong>antisite_defs</strong> – List of antisite defect parameters in the dictionary
 format. The keys of the dict associated with each antisite defect
 are 1) site_index, 2) site_specie, 3) site_multiplicity,
 4) substitution_specie, and 5) energy. 1-3 can be obtained
 from pymatgen.analysis.defects.point_defects.Vacancy class.</li>
-<li><strong>T</strong> &#8211; Temperature in Kelvin</li>
-<li><strong>trial_chem_pot</strong> (<em>optional</em>) &#8211; Trial chemical potentials to speedup
-the plot generation. Format is {el1:mu1,...}</li>
-<li><strong>generate</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; Options are plot or energy
+<li><strong>T</strong> – Temperature in Kelvin</li>
+<li><strong>trial_chem_pot</strong> (<em>optional</em>) – Trial chemical potentials to speedup
+the plot generation. Format is {el1:mu1,…}</li>
+<li><strong>generate</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – Options are plot or energy
 Chemical potentials are also returned with energy option.
 If energy option is not chosen, plot is generated.</li>
 </ul>
@@ -156,29 +153,29 @@ The computed plot data is prepared based on plot_style.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure object representing the
+<li><strong>structure</strong> – pymatgen.core.structure.Structure object representing the
 primitive or unitcell of the crystal.</li>
-<li><strong>e0</strong> &#8211; The total energy of the undefected system.
+<li><strong>e0</strong> – The total energy of the undefected system.
 This is E0 from VASP calculation.</li>
-<li><strong>vac_defs</strong> &#8211; List of vacancy defect parameters in the dictionary format.
+<li><strong>vac_defs</strong> – List of vacancy defect parameters in the dictionary format.
 The keys of the dict associated with each vacancy defect are
 1) site_index, 2) site_specie, 3) site_multiplicity, and
 4) energy. 1-3 can be obtained from
 pymatgen.analysis.defects.point_defects.Vacancy class.
 Site index is expected to start with 1 (fortran index).</li>
-<li><strong>antisite_defs</strong> &#8211; List of antisite defect parameters in the dictionary
+<li><strong>antisite_defs</strong> – List of antisite defect parameters in the dictionary
 format. The keys of the dict associated with each antisite defect
 are 1) site_index, 2) site_specie, 3) site_multiplicity,
 4) substitution_specie, and 5) energy. 1-3 can be obtained
 from pymatgen.analysis.defects.point_defects.Vacancy class.</li>
-<li><strong>solute_defs</strong> &#8211; List of solute defect parameters in the dictionary
+<li><strong>solute_defs</strong> – List of solute defect parameters in the dictionary
 format. Similary to that of antisite defs, wtih solute specie
 specified in substitution_specie</li>
-<li><strong>solute_concen</strong> &#8211; Solute concentration (in fractional value)</li>
-<li><strong>T</strong> &#8211; Temperature in Kelvin</li>
-<li><strong>trial_chem_pot</strong> (<em>optional</em>) &#8211; Trial chemical potentials to speedup
-the plot generation. Format is {el1:mu1,...}</li>
-<li><strong>plot_style</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; Allowed options are
+<li><strong>solute_concen</strong> – Solute concentration (in fractional value)</li>
+<li><strong>T</strong> – Temperature in Kelvin</li>
+<li><strong>trial_chem_pot</strong> (<em>optional</em>) – Trial chemical potentials to speedup
+the plot generation. Format is {el1:mu1,…}</li>
+<li><strong>plot_style</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – Allowed options are
 1) highcharts (default)
 2) gnuplot</li>
 </ul>
@@ -203,26 +200,26 @@ the plot generation. Format is {el1:mu1,...}</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>e0</strong> &#8211; The total energy of the undefected system.
+<li><strong>e0</strong> – The total energy of the undefected system.
 This is E0 from VASP calculation.</li>
-<li><strong>T</strong> &#8211; Temperature in Kelvin</li>
-<li><strong>vac_defs</strong> &#8211; List of vacancy defect parameters in the dictionary format.
+<li><strong>T</strong> – Temperature in Kelvin</li>
+<li><strong>vac_defs</strong> – List of vacancy defect parameters in the dictionary format.
 The keys of the dict associated with each vacancy defect are
 1) site_index, 2) site_specie, 3) site_multiplicity, and
 4) energy. 1-3 can be obtained from
 pymatgen.analysis.defects.point_defects.Vacancy class.
 Site index is expected to start with 1 (fortran index).</li>
-<li><strong>antisite_defs</strong> &#8211; List of antisite defect parameters in the dictionary
+<li><strong>antisite_defs</strong> – List of antisite defect parameters in the dictionary
 format. The keys of the dict associated with each antisite
 defect are 1) site_index, 2) site_specie, 3) site_multiplicity,
 4) substitution_specie, and 5) energy. 1-3 can be obtained
 from pymatgen.analysis.defects.point_defects.Vacancy class.</li>
-<li><strong>solute_defs</strong> &#8211; List of solute defect parameters in the dictionary
+<li><strong>solute_defs</strong> – List of solute defect parameters in the dictionary
 format. Similary to that of antisite defs, wtih solute specie
 specified in substitution_specie</li>
-<li><strong>solute_concen</strong> &#8211; Solute concentration (in fractional value)</li>
-<li><strong>trial_chem_pot</strong> &#8211; Trial chemical potentials to speedup the plot
-generation. Format is {el1:mu1,...}</li>
+<li><strong>solute_concen</strong> – Solute concentration (in fractional value)</li>
+<li><strong>trial_chem_pot</strong> – Trial chemical potentials to speedup the plot
+generation. Format is {el1:mu1,…}</li>
 </ul>
 </td>
 </tr>
@@ -274,13 +271,13 @@ generation. Format is {el1:mu1,...}</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

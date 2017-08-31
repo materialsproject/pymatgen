@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.electronic_structure.core module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.electronic_structure.core module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -73,7 +70,7 @@ expected, e.g. m[0] gives 1.0</li>
 <li>For collinear calculations, Magmom can assumed to be scalar-like,
 e.g. m = Magmom(5.0) will work as expected, e.g. float(m) gives 5.0</li>
 </ul>
-<p>Both of these cases should be safe and shouldn&#8217;t give any surprises,
+<p>Both of these cases should be safe and shouldn’t give any surprises,
 but more advanced functionality is available if required.</p>
 <p>There also exist useful static methods for lists of magmoms:</p>
 <ul class="simple">
@@ -101,8 +98,8 @@ VASP calculations:</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>moment</strong> &#8211; magnetic moment, supplied as float or list/np.ndarray</li>
-<li><strong>saxis</strong> &#8211; spin axis, supplied as list/np.ndarray, parameter will</li>
+<li><strong>moment</strong> – magnetic moment, supplied as float or list/np.ndarray</li>
+<li><strong>saxis</strong> – spin axis, supplied as list/np.ndarray, parameter will</li>
 </ul>
 </td>
 </tr>
@@ -132,8 +129,8 @@ magnetic moment in frame of your desired saxis.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>global_moment</strong> &#8211; </li>
-<li><strong>saxis</strong> &#8211; desired saxis</li>
+<li><strong>global_moment</strong> – </li>
+<li><strong>saxis</strong> – desired saxis</li>
 </ul>
 </td>
 </tr>
@@ -191,8 +188,8 @@ Returns a tuple of a list of Magmoms and their global spin axis.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>magmoms</strong> &#8211; list of magmoms (Magmoms, scalars or vectors)</li>
-<li><strong>saxis</strong> &#8211; can provide a specific global spin axis</li>
+<li><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</li>
+<li><strong>saxis</strong> – can provide a specific global spin axis</li>
 </ul>
 </td>
 </tr>
@@ -208,13 +205,13 @@ Returns a tuple of a list of Magmoms and their global spin axis.</p>
 <code class="descname">get_moment</code><span class="sig-paren">(</span><em>saxis=(0</em>, <em>0</em>, <em>1)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/core.html#Magmom.get_moment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_moment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get magnetic moment relative to a given spin quantization axis.
 If no axis is provided, moment will be given relative to the
-Magmom&#8217;s internal spin quantization axis, i.e. equivalent to
+Magmom’s internal spin quantization axis, i.e. equivalent to
 Magmom.moment</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> &#8211; (list/numpy array) spin quantization axis</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> – (list/numpy array) spin quantization axis</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">np.ndarray of length 3</td>
 </tr>
@@ -232,8 +229,8 @@ Used for writing moments to magCIF file.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>magmom</strong> &#8211; Magmom</li>
-<li><strong>lattice</strong> &#8211; Lattice</li>
+<li><strong>magmom</strong> – Magmom</li>
+<li><strong>lattice</strong> – Lattice</li>
 </ul>
 </td>
 </tr>
@@ -255,7 +252,7 @@ calculation.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>magmoms</strong> &#8211; list of magmoms (Magmoms, scalars or vectors)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">np.ndarray of length 3</td>
 </tr>
@@ -304,7 +301,7 @@ Magmom.get_consistent_set(magmoms)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>magmoms</strong> &#8211; list of magmoms (Magmoms, scalars or vectors)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">bool</td>
 </tr>
@@ -507,13 +504,13 @@ Usage: Spin.up, Spin.down.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

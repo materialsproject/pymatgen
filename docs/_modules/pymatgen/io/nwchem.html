@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.nwchem &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.nwchem &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -242,8 +239,8 @@
                 <span class="s2">&quot;theory_directives&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">theory_directives</span><span class="p">,</span>
                 <span class="s2">&quot;alternate_directives&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alternate_directives</span><span class="p">}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NwTask.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwTask.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="NwTask.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwTask.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">NwTask</span><span class="p">(</span><span class="n">charge</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;charge&quot;</span><span class="p">],</span>
                       <span class="n">spin_multiplicity</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;spin_multiplicity&quot;</span><span class="p">],</span>
                       <span class="n">title</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span> <span class="n">theory</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;theory&quot;</span><span class="p">],</span>
@@ -252,8 +249,8 @@
                       <span class="n">theory_directives</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;theory_directives&quot;</span><span class="p">],</span>
                       <span class="n">alternate_directives</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;alternate_directives&quot;</span><span class="p">])</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NwTask.from_molecule"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwTask.from_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">from_molecule</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">theory</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="NwTask.from_molecule"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwTask.from_molecule">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_molecule</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">theory</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-31g&quot;</span><span class="p">,</span> <span class="n">basis_set_option</span><span class="o">=</span><span class="s2">&quot;cartesian&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;optimize&quot;</span><span class="p">,</span> <span class="n">theory_directives</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">alternate_directives</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -315,8 +312,8 @@
                       <span class="n">theory_directives</span><span class="o">=</span><span class="n">theory_directives</span><span class="p">,</span>
                       <span class="n">alternate_directives</span><span class="o">=</span><span class="n">alternate_directives</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NwTask.dft_task"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwTask.dft_task">[docs]</a>    <span class="k">def</span> <span class="nf">dft_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s2">&quot;b3lyp&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="NwTask.dft_task"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwTask.dft_task">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">dft_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s2">&quot;b3lyp&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A class method for quickly creating DFT tasks with optional</span>
 <span class="sd">        cosmo parameter .</span>
@@ -333,8 +330,8 @@
                                     <span class="s2">&quot;mult&quot;</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">t</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NwTask.esp_task"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwTask.esp_task">[docs]</a>    <span class="k">def</span> <span class="nf">esp_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="NwTask.esp_task"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwTask.esp_task">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">esp_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A class method for quickly creating ESP tasks with RESP</span>
 <span class="sd">        charge fitting.</span>
@@ -422,8 +419,8 @@
             <span class="s2">&quot;memory_options&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory_options</span>
         <span class="p">}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NwInput.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwInput.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="NwInput.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwInput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">NwInput</span><span class="p">(</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mol&quot;</span><span class="p">]),</span>
                        <span class="n">tasks</span><span class="o">=</span><span class="p">[</span><span class="n">NwTask</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]],</span>
                        <span class="n">directives</span><span class="o">=</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">li</span><span class="p">)</span> <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;directives&quot;</span><span class="p">]],</span>
@@ -431,8 +428,8 @@
                        <span class="n">symmetry_options</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;symmetry_options&quot;</span><span class="p">],</span>
                        <span class="n">memory_options</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;memory_options&quot;</span><span class="p">])</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NwInput.from_string"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwInput.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string_input</span><span class="p">):</span>
+<div class="viewcode-block" id="NwInput.from_string"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwInput.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string_input</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read an NwInput from a string. Currently tested to work with</span>
 <span class="sd">        files generated from this class itself.</span>
@@ -521,8 +518,8 @@
                        <span class="n">symmetry_options</span><span class="o">=</span><span class="n">symmetry_options</span><span class="p">,</span>
                        <span class="n">memory_options</span><span class="o">=</span><span class="n">memory_options</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NwInput.from_file"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwInput.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="NwInput.from_file"><a class="viewcode-back" href="../../../pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwInput.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read an NwInput from a file. Currently tested to work with</span>
 <span class="sd">        files generated from this class itself.</span>
@@ -882,7 +879,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -890,7 +887,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

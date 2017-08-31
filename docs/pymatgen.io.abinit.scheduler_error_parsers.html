@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.scheduler_error_parsers module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.scheduler_error_parsers module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -73,7 +70,7 @@ contain the arguments.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.scheduler_error_parsers.AbstractError.last_resort_solution">
 <code class="descname">last_resort_solution</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_parsers.html#AbstractError.last_resort_solution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_parsers.AbstractError.last_resort_solution" title="Permalink to this definition">¶</a></dt>
-<dd><p>what to do if every thing else fails...</p>
+<dd><p>what to do if every thing else fails…</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -102,9 +99,9 @@ dictionary specifying error:</p>
 <dl class="docutils">
 <dt>ERRORS = {ErrorClass: {</dt>
 <dd><dl class="first docutils">
-<dt>&#8216;file_specifier&#8217; <span class="classifier-delimiter">:</span> <span class="classifier">{</span></dt>
-<dd>&#8216;string&#8217;: &#8220;the string to be looked for&#8221;,
-&#8216;meta_filter&#8217;: &#8220;string specifing the regular expression to obtain the meta data&#8221;
+<dt>‘file_specifier’ <span class="classifier-delimiter">:</span> <span class="classifier">{</span></dt>
+<dd>‘string’: “the string to be looked for”,
+‘meta_filter’: “string specifing the regular expression to obtain the meta data”
 }</dd>
 </dl>
 <p class="last">}</p>
@@ -139,7 +136,7 @@ dictionary specifying error:</p>
 <em class="property">class </em><code class="descname">CorrectorProtocolApplication</code><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_parsers.html#CorrectorProtocolApplication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolApplication" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
-script generator method / ... should implement these methods.</p>
+script generator method / … should implement these methods.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolApplication.decrease_mem">
 <code class="descname">decrease_mem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_parsers.html#CorrectorProtocolApplication.decrease_mem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolApplication.decrease_mem" title="Permalink to this definition">¶</a></dt>
@@ -167,7 +164,7 @@ due to a insufficient memory.</p>
 <em class="property">class </em><code class="descname">CorrectorProtocolScheduler</code><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_parsers.html#CorrectorProtocolScheduler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
-script generator method / ... should implement these methods.</p>
+script generator method / … should implement these methods.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler.exclude_nodes">
 <code class="descname">exclude_nodes</code><span class="sig-paren">(</span><em>nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_parsers.html#CorrectorProtocolScheduler.exclude_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler.exclude_nodes" title="Permalink to this definition">¶</a></dt>
@@ -400,13 +397,13 @@ batch_err_file  stderr of the submission</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

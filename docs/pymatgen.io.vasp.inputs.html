@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -68,7 +65,7 @@ a dictionary with some helper functions</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; A set of input parameters as a dictionary.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) – A set of input parameters as a dictionary.</td>
 </tr>
 </tbody>
 </table>
@@ -87,12 +84,12 @@ two runs were done using the same parameters.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> (<a class="reference internal" href="#pymatgen.io.vasp.inputs.Incar" title="pymatgen.io.vasp.inputs.Incar"><em>Incar</em></a>) &#8211; The other Incar object to compare to.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> (<a class="reference internal" href="#pymatgen.io.vasp.inputs.Incar" title="pymatgen.io.vasp.inputs.Incar"><em>Incar</em></a>) – The other Incar object to compare to.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{&#8220;Same&#8221; : parameters_that_are_the_same,
-&#8220;Different&#8221;: parameters_that_are_different}
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{“Same” : parameters_that_are_the_same,
+“Different”: parameters_that_are_different}
 Note that the parameters are return as full dictionaries of values.
-E.g. {&#8220;ISIF&#8221;:3}</td>
+E.g. {“ISIF”:3}</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Dict of the following format</td>
 </tr>
@@ -113,7 +110,7 @@ E.g. {&#8220;ISIF&#8221;:3}</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Filename for file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename for file</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Incar object</td>
 </tr>
@@ -129,7 +126,7 @@ E.g. {&#8220;ISIF&#8221;:3}</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) &#8211; Incar string</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) – Incar string</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Incar object</td>
 </tr>
@@ -148,9 +145,9 @@ pretty printing.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>sort_keys</strong> (<em>bool</em>) &#8211; Set to True to sort the INCAR parameters
+<li><strong>sort_keys</strong> (<em>bool</em>) – Set to True to sort the INCAR parameters
 alphabetically. Defaults to False.</li>
-<li><strong>pretty</strong> (<em>bool</em>) &#8211; Set to True for pretty aligned output. Defaults
+<li><strong>pretty</strong> (<em>bool</em>) – Set to True for pretty aligned output. Defaults
 to False.</li>
 </ul>
 </td>
@@ -169,8 +166,8 @@ integers, floats, lists, etc.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> &#8211; INCAR parameter key</li>
-<li><strong>val</strong> &#8211; Actual value of INCAR parameter.</li>
+<li><strong>key</strong> – INCAR parameter key</li>
+<li><strong>val</strong> – Actual value of INCAR parameter.</li>
 </ul>
 </td>
 </tr>
@@ -186,7 +183,7 @@ integers, floats, lists, etc.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; filename to write to.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – filename to write to.</td>
 </tr>
 </tbody>
 </table>
@@ -211,32 +208,32 @@ is recommended that you use those.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>comment</strong> (<em>str</em>) &#8211; String comment for Kpoints</li>
-<li><strong>num_kpts</strong> &#8211; Following VASP method of defining the KPOINTS file, this
+<li><strong>comment</strong> (<em>str</em>) – String comment for Kpoints</li>
+<li><strong>num_kpts</strong> – Following VASP method of defining the KPOINTS file, this
 parameter is the number of kpoints specified. If set to 0
 (or negative), VASP automatically generates the KPOINTS.</li>
-<li><strong>style</strong> &#8211; Style for generating KPOINTS.  Use one of the
+<li><strong>style</strong> – Style for generating KPOINTS.  Use one of the
 Kpoints.supported_modes enum types.</li>
-<li><strong>kpts</strong> (<em>2D array</em>) &#8211; 2D array of kpoints.  Even when only a single
+<li><strong>kpts</strong> (<em>2D array</em>) – 2D array of kpoints.  Even when only a single
 specification is required, e.g. in the automatic scheme,
 the kpts should still be specified as a 2D array. e.g.,
 [[20]] or [[2,2,2]].</li>
-<li><strong>kpts_shift</strong> (<em>3x1 array</em>) &#8211; Shift for Kpoints.</li>
-<li><strong>kpts_weights</strong> &#8211; Optional weights for kpoints.  Weights should be
+<li><strong>kpts_shift</strong> (<em>3x1 array</em>) – Shift for Kpoints.</li>
+<li><strong>kpts_weights</strong> – Optional weights for kpoints.  Weights should be
 integers. For explicit kpoints.</li>
-<li><strong>coord_type</strong> &#8211; In line-mode, this variable specifies whether the
+<li><strong>coord_type</strong> – In line-mode, this variable specifies whether the
 Kpoints were given in Cartesian or Reciprocal coordinates.</li>
-<li><strong>labels</strong> &#8211; In line-mode, this should provide a list of labels for
+<li><strong>labels</strong> – In line-mode, this should provide a list of labels for
 each kpt. It is optional in explicit kpoint mode as comments for
 k-points.</li>
-<li><strong>tet_number</strong> &#8211; For explicit kpoints, specifies the number of
+<li><strong>tet_number</strong> – For explicit kpoints, specifies the number of
 tetrahedrons for the tetrahedron method.</li>
-<li><strong>tet_weight</strong> &#8211; For explicit kpoints, specifies the weight for each
+<li><strong>tet_weight</strong> – For explicit kpoints, specifies the weight for each
 tetrahedron for the tetrahedron method.</li>
-<li><strong>tet_connections</strong> &#8211; For explicit kpoints, specifies the connections
+<li><strong>tet_connections</strong> – For explicit kpoints, specifies the connections
 of the tetrahedrons for the tetrahedron method.
 Format is a list of tuples, [ (sym_weight, [tet_vertices]),
-...]</li>
+…]</li>
 </ul>
 </td>
 </tr>
@@ -261,7 +258,7 @@ VASP manual.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subdivisions</strong> &#8211; Parameter determining number of subdivisions along
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subdivisions</strong> – Parameter determining number of subdivisions along
 each reciprocal lattice vector.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Kpoints object</td>
@@ -286,9 +283,9 @@ reciprocal lattice vector proportional to its length.</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure</li>
-<li><strong>kppa</strong> (<em>int</em>) &#8211; Grid density</li>
-<li><strong>force_gamma</strong> (<em>bool</em>) &#8211; Force a gamma centered mesh (default is to
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
+<li><strong>kppa</strong> (<em>int</em>) – Grid density</li>
+<li><strong>force_gamma</strong> (<em>bool</em>) – Force a gamma centered mesh (default is to
 use gamma only for hexagonal cells or odd meshes)</li>
 </ul>
 </td>
@@ -314,9 +311,9 @@ density per inverse Angstrom of reciprocal cell.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure</li>
-<li><strong>kppvol</strong> (<em>int</em>) &#8211; Grid density per Angstrom^(-3) of reciprocal cell</li>
-<li><strong>force_gamma</strong> (<em>bool</em>) &#8211; Force a gamma centered mesh</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
+<li><strong>kppvol</strong> (<em>int</em>) – Grid density per Angstrom^(-3) of reciprocal cell</li>
+<li><strong>force_gamma</strong> (<em>bool</em>) – Force a gamma centered mesh</li>
 </ul>
 </td>
 </tr>
@@ -342,8 +339,8 @@ reciprocal lattice vector proportional to its length.</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; Input structure</li>
-<li><strong>kppa</strong> &#8211; Grid density</li>
+<li><strong>structure</strong> – Input structure</li>
+<li><strong>kppa</strong> – Grid density</li>
 </ul>
 </td>
 </tr>
@@ -363,9 +360,9 @@ VASP manual.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>divisions</strong> &#8211; Parameter determining the number of k-points along each
+<li><strong>divisions</strong> – Parameter determining the number of k-points along each
 hight symetry lines.</li>
-<li><strong>ibz</strong> &#8211; HighSymmKpath object (pymatgen.symmetry.bandstructure)</li>
+<li><strong>ibz</strong> – HighSymmKpath object (pymatgen.symmetry.bandstructure)</li>
 </ul>
 </td>
 </tr>
@@ -389,7 +386,7 @@ hight symetry lines.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; filename to read from.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – filename to read from.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Kpoints object</td>
 </tr>
@@ -405,7 +402,7 @@ hight symetry lines.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) &#8211; KPOINTS string.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) – KPOINTS string.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Kpoints object</td>
 </tr>
@@ -423,9 +420,9 @@ grid.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>kpts</strong> &#8211; Subdivisions N_1, N_2 and N_3 along reciprocal lattice
+<li><strong>kpts</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice
 vectors. Defaults to (1,1,1)</li>
-<li><strong>shift</strong> &#8211; Shift to be applied to the kpoints. Defaults to (0,0,0).</li>
+<li><strong>shift</strong> – Shift to be applied to the kpoints. Defaults to (0,0,0).</li>
 </ul>
 </td>
 </tr>
@@ -446,9 +443,9 @@ grid.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>kpts</strong> &#8211; Subdivisions N_1, N_2 and N_3 along reciprocal lattice
+<li><strong>kpts</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice
 vectors. Defaults to (2,2,2)</li>
-<li><strong>shift</strong> &#8211; Shift to be applied to the kpoints. Defaults to (0,0,0).</li>
+<li><strong>shift</strong> – Shift to be applied to the kpoints. Defaults to (0,0,0).</li>
 </ul>
 </td>
 </tr>
@@ -478,7 +475,7 @@ vectors. Defaults to (2,2,2)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Filename to write to.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename to write to.</td>
 </tr>
 </tbody>
 </table>
@@ -620,18 +617,18 @@ directly.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Structure object.</li>
-<li><strong>comment</strong> (<em>str</em>) &#8211; Optional comment line for POSCAR. Defaults to unit
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object.</li>
+<li><strong>comment</strong> (<em>str</em>) – Optional comment line for POSCAR. Defaults to unit
 cell formula of structure. Defaults to None.</li>
-<li><strong>selective_dynamics</strong> (<em>Nx3 array</em>) &#8211; bool values for selective dynamics,
+<li><strong>selective_dynamics</strong> (<em>Nx3 array</em>) – bool values for selective dynamics,
 where N is number of sites. Defaults to None.</li>
-<li><strong>true_names</strong> (<em>bool</em>) &#8211; Set to False is the names in the POSCAR are not
+<li><strong>true_names</strong> (<em>bool</em>) – Set to False is the names in the POSCAR are not
 well-defined and ambiguous. This situation arises commonly in
 vasp &lt; 5 where the POSCAR sometimes does not contain element
 symbols. Defaults to True.</li>
-<li><strong>velocities</strong> (<em>Nx3 array</em>) &#8211; Velocities for the POSCAR. Typically parsed
+<li><strong>velocities</strong> (<em>Nx3 array</em>) – Velocities for the POSCAR. Typically parsed
 in MD runs or can be used to initialize velocities.</li>
-<li><strong>predictor_corrector</strong> (<em>Nx3 array</em>) &#8211; Predictor corrector for the POSCAR.
+<li><strong>predictor_corrector</strong> (<em>Nx3 array</em>) – Predictor corrector for the POSCAR.
 Typically parsed in MD runs.</li>
 </ul>
 </td>
@@ -691,7 +688,7 @@ corrector data in MD CONTCAR</p>
 <dt id="pymatgen.io.vasp.inputs.Poscar.temperature">
 <code class="descname">temperature</code><a class="headerlink" href="#pymatgen.io.vasp.inputs.Poscar.temperature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature of velocity Maxwell-Boltzmann initialization. Initialized
-to -1 (MB hasn&#8221;t been performed).</p>
+to -1 (MB hasn”t been performed).</p>
 </dd></dl>
 
 <dl class="method">
@@ -720,7 +717,7 @@ is no POTCAR found.
 of each coordinate.</p>
 <p>If all else fails, the code will just assign the first n elements in
 increasing atomic number, where n is the number of species, to the
-Poscar. For example, H, He, Li, ....  This will ensure at least a
+Poscar. For example, H, He, Li, ….  This will ensure at least a
 unique element is assigned to each site and any analysis that does not
 require specific elemental properties should work fine.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -728,10 +725,10 @@ require specific elemental properties should work fine.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>filename</strong> (<em>str</em>) &#8211; File name containing Poscar data.</li>
-<li><strong>check_for_POTCAR</strong> (<em>bool</em>) &#8211; Whether to check if a POTCAR is present
+<li><strong>filename</strong> (<em>str</em>) – File name containing Poscar data.</li>
+<li><strong>check_for_POTCAR</strong> (<em>bool</em>) – Whether to check if a POTCAR is present
 in the same directory as the POSCAR. Defaults to True.</li>
-<li><strong>read_velocities</strong> (<em>bool</em>) &#8211; Whether to read or not velocities if they
+<li><strong>read_velocities</strong> (<em>bool</em>) – Whether to read or not velocities if they
 are present in the POSCAR. Default is True.</li>
 </ul>
 </td>
@@ -758,7 +755,7 @@ and contains element symbols in the 6th line, the code will use that.
 of each coordinate.</p>
 <p>If all else fails, the code will just assign the first n elements in
 increasing atomic number, where n is the number of species, to the
-Poscar. For example, H, He, Li, ....  This will ensure at least a
+Poscar. For example, H, He, Li, ….  This will ensure at least a
 unique element is assigned to each site and any analysis that does not
 require specific elemental properties should work fine.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -766,10 +763,10 @@ require specific elemental properties should work fine.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> (<em>str</em>) &#8211; String containing Poscar data.</li>
-<li><strong>default_names</strong> (<em></em><em>[</em><em>str</em><em>]</em><em></em>) &#8211; Default symbols for the POSCAR file,
+<li><strong>data</strong> (<em>str</em>) – String containing Poscar data.</li>
+<li><strong>default_names</strong> (<em>[</em><em>str</em><em>]</em>) – Default symbols for the POSCAR file,
 usually coming from a POTCAR in the same directory.</li>
-<li><strong>read_velocities</strong> (<em>bool</em>) &#8211; Whether to read or not velocities if they
+<li><strong>read_velocities</strong> (<em>bool</em>) – Whether to read or not velocities if they
 are present in the POSCAR. Default is True.</li>
 </ul>
 </td>
@@ -791,12 +788,12 @@ symbols are written, which means compatibility is for vasp &gt;= 5.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>direct</strong> (<em>bool</em>) &#8211; Whether coordinates are output in direct or
+<li><strong>direct</strong> (<em>bool</em>) – Whether coordinates are output in direct or
 cartesian. Defaults to True.</li>
-<li><strong>vasp4_compatible</strong> (<em>bool</em>) &#8211; Set to True to omit site symbols on 6th
+<li><strong>vasp4_compatible</strong> (<em>bool</em>) – Set to True to omit site symbols on 6th
 line to maintain backward vasp 4.x compatibility. Defaults
 to False.</li>
-<li><strong>significant_figures</strong> (<em>int</em>) &#8211; No. of significant figures to
+<li><strong>significant_figures</strong> (<em>int</em>) – No. of significant figures to
 output all quantities. Defaults to 6. Note that positions are
 output in fixed point, while velocities are output in
 scientific format.</li>
@@ -841,7 +838,7 @@ direct coordinates)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temperature</strong> (<em>float</em>) &#8211; Temperature in Kelvin.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temperature</strong> (<em>float</em>) – Temperature in Kelvin.</td>
 </tr>
 </tbody>
 </table>
@@ -879,9 +876,9 @@ list of PotcarSingle.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symbols</strong> (<em></em><em>[</em><em>str</em><em>]</em><em></em>) &#8211; Element symbols for POTCAR. This should correspond
-to the symbols used by VASP. E.g., &#8220;Mg&#8221;, &#8220;Fe_pv&#8221;, etc.</li>
-<li><strong>functional</strong> (<em>str</em>) &#8211; Functional used. To know what functional options
+<li><strong>symbols</strong> (<em>[</em><em>str</em><em>]</em>) – Element symbols for POTCAR. This should correspond
+to the symbols used by VASP. E.g., “Mg”, “Fe_pv”, etc.</li>
+<li><strong>functional</strong> (<em>str</em>) – Functional used. To know what functional options
 there are, use Potcar.FUNCTIONAL_CHOICES. Note that VASP has
 different versions of the same functional. By default, the old
 PBE functional is used. If you want the newer ones, use PBE_52 or
@@ -889,7 +886,7 @@ PBE_54. Note that if you intend to compare your results with the
 Materials Project, you should use the default setting. You can also
 override the default by setting PMG_DEFAULT_FUNCTIONAL in your
 .pmgrc.yaml.</li>
-<li><strong>sym_potcar_map</strong> (<em>dict</em>) &#8211; Allows a user to specify a specific element
+<li><strong>sym_potcar_map</strong> (<em>dict</em>) – Allows a user to specify a specific element
 symbol to raw POTCAR mapping.</li>
 </ul>
 </td>
@@ -927,11 +924,11 @@ to add this setting.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symbols</strong> (<em></em><em>[</em><em>str</em><em>]</em><em></em>) &#8211; A list of element symbols</li>
-<li><strong>functional</strong> (<em>str</em>) &#8211; The functional to use. If None, the setting
+<li><strong>symbols</strong> (<em>[</em><em>str</em><em>]</em>) – A list of element symbols</li>
+<li><strong>functional</strong> (<em>str</em>) – The functional to use. If None, the setting
 PMG_DEFAULT_FUNCTIONAL in .pmgrc.yaml is used, or if this is
 not set, it will default to PBE.</li>
-<li><strong>sym_potcar_map</strong> (<em>dict</em>) &#8211; A map of symbol:raw POTCAR string. If
+<li><strong>sym_potcar_map</strong> (<em>dict</em>) – A map of symbol:raw POTCAR string. If
 sym_potcar_map is specified, POTCARs will be generated from
 the given map data rather than the config file location.</li>
 </ul>
@@ -961,7 +958,7 @@ the given map data rather than the config file location.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; filename to write to.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – filename to write to.</td>
 </tr>
 </tbody>
 </table>
@@ -974,13 +971,13 @@ the given map data rather than the config file location.</li>
 <em class="property">class </em><code class="descname">PotcarSingle</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#PotcarSingle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Object for a <strong>single</strong> POTCAR. The builder assumes the complete string is
-the POTCAR contains the complete untouched data in &#8220;data&#8221; as a string and
+the POTCAR contains the complete untouched data in “data” as a string and
 a dict of keywords.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> &#8211; Complete and single potcar file as a string.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> – Complete and single potcar file as a string.</td>
 </tr>
 </tbody>
 </table>
@@ -1088,11 +1085,11 @@ potcar.encut, etc.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>incar</strong> &#8211; Incar object.</li>
-<li><strong>kpoints</strong> &#8211; Kpoints object.</li>
-<li><strong>poscar</strong> &#8211; Poscar object.</li>
-<li><strong>potcar</strong> &#8211; Potcar object.</li>
-<li><strong>optional_files</strong> &#8211; Other input files supplied as a dict of {
+<li><strong>incar</strong> – Incar object.</li>
+<li><strong>kpoints</strong> – Kpoints object.</li>
+<li><strong>poscar</strong> – Poscar object.</li>
+<li><strong>potcar</strong> – Potcar object.</li>
+<li><strong>optional_files</strong> – Other input files supplied as a dict of {
 filename: object}. The object should follow standard pymatgen
 conventions in implementing a as_dict() and from_dict method.</li>
 </ul>
@@ -1121,8 +1118,8 @@ optional_filenames is specified.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input_dir</strong> (<em>str</em>) &#8211; Directory to read VASP input from.</li>
-<li><strong>optional_files</strong> (<em>dict</em>) &#8211; Optional files to read in as well as a
+<li><strong>input_dir</strong> (<em>str</em>) – Directory to read VASP input from.</li>
+<li><strong>optional_files</strong> (<em>dict</em>) – Optional files to read in as well as a
 dict of {filename: Object type}. Object type must have a
 static method from_file.</li>
 </ul>
@@ -1141,9 +1138,9 @@ static method from_file.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>output_dir</strong> (<em>str</em>) &#8211; Directory to write to. Defaults to current
-directory (&#8221;.&#8221;).</li>
-<li><strong>make_dir_if_not_present</strong> (<em>bool</em>) &#8211; Create the directory if not
+<li><strong>output_dir</strong> (<em>str</em>) – Directory to write to. Defaults to current
+directory (“.”).</li>
+<li><strong>make_dir_if_not_present</strong> (<em>bool</em>) – Create the directory if not
 present. Defaults to True.</li>
 </ul>
 </td>
@@ -1217,13 +1214,13 @@ present. Defaults to True.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

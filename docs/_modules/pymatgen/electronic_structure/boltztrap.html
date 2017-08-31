@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.electronic_structure.boltztrap &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.electronic_structure.boltztrap &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -960,8 +957,8 @@
                 <span class="s2">&quot;Bands are not in output of BoltzTraP.</span><span class="se">\n</span><span class="s2">BolztrapRunner must &quot;</span>
                 <span class="s2">&quot;be run with run_type=BANDS&quot;</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BoltztrapAnalyzer.check_acc_bzt_bands"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.check_acc_bzt_bands">[docs]</a>    <span class="k">def</span> <span class="nf">check_acc_bzt_bands</span><span class="p">(</span><span class="n">sbs_bz</span><span class="p">,</span> <span class="n">sbs_ref</span><span class="p">,</span> <span class="n">warn_thr</span><span class="o">=</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">)):</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.check_acc_bzt_bands"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.check_acc_bzt_bands">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">check_acc_bzt_bands</span><span class="p">(</span><span class="n">sbs_bz</span><span class="p">,</span> <span class="n">sbs_ref</span><span class="p">,</span> <span class="n">warn_thr</span><span class="o">=</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Compare sbs_bz BandStructureSymmLine calculated with boltztrap with</span>
 <span class="sd">            the sbs_ref BandStructureSymmLine as reference (from MP for</span>
@@ -1773,8 +1770,8 @@
                     <span class="n">result</span><span class="p">[</span><span class="n">temp</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BoltztrapAnalyzer.parse_outputtrans"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_outputtrans">[docs]</a>    <span class="k">def</span> <span class="nf">parse_outputtrans</span><span class="p">(</span><span class="n">path_dir</span><span class="p">):</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.parse_outputtrans"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_outputtrans">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_outputtrans</span><span class="p">(</span><span class="n">path_dir</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses .outputtrans file</span>
 
@@ -1807,8 +1804,8 @@
 
         <span class="k">return</span> <span class="n">run_type</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">doping_levels</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BoltztrapAnalyzer.parse_transdos"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_transdos">[docs]</a>    <span class="k">def</span> <span class="nf">parse_transdos</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">dos_spin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">trim_dos</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.parse_transdos"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_transdos">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_transdos</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">dos_spin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">trim_dos</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files</span>
@@ -1886,8 +1883,8 @@
 
         <span class="k">return</span> <span class="n">dos</span><span class="p">,</span> <span class="n">dos_partial</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BoltztrapAnalyzer.parse_intrans"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_intrans">[docs]</a>    <span class="k">def</span> <span class="nf">parse_intrans</span><span class="p">(</span><span class="n">path_dir</span><span class="p">):</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.parse_intrans"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_intrans">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_intrans</span><span class="p">(</span><span class="n">path_dir</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses boltztrap.intrans mainly to extract the value of scissor applied to the bands or some other inputs</span>
 <span class="sd">        Args:</span>
@@ -1905,8 +1902,8 @@
                     <span class="n">intrans</span><span class="p">[</span><span class="s2">&quot;dos_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">intrans</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BoltztrapAnalyzer.parse_struct"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_struct">[docs]</a>    <span class="k">def</span> <span class="nf">parse_struct</span><span class="p">(</span><span class="n">path_dir</span><span class="p">):</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.parse_struct"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_struct">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_struct</span><span class="p">(</span><span class="n">path_dir</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses boltztrap.struct file (only the volume)</span>
 <span class="sd">        Args:</span>
@@ -1921,8 +1918,8 @@
                            <span class="n">to</span><span class="p">(</span><span class="s2">&quot;ang&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
                             <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)])</span><span class="o">.</span><span class="n">volume</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BoltztrapAnalyzer.parse_cond_and_hall"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_cond_and_hall">[docs]</a>    <span class="k">def</span> <span class="nf">parse_cond_and_hall</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="n">doping_levels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.parse_cond_and_hall"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_cond_and_hall">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_cond_and_hall</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="n">doping_levels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses the conductivity and Hall tensors</span>
 <span class="sd">        Args:</span>
@@ -2055,8 +2052,8 @@
                <span class="n">mu_doping</span><span class="p">,</span> <span class="n">seebeck_doping</span><span class="p">,</span> <span class="n">cond_doping</span><span class="p">,</span> <span class="n">kappa_doping</span><span class="p">,</span> \
                <span class="n">hall_doping</span><span class="p">,</span> <span class="n">carrier_conc</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BoltztrapAnalyzer.from_files"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_files">[docs]</a>    <span class="k">def</span> <span class="nf">from_files</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="n">dos_spin</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.from_files"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_files">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_files</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="n">dos_spin</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        get a BoltztrapAnalyzer object from a set of files</span>
 
@@ -2143,8 +2140,8 @@
                    <span class="s1">&#39;warning&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BoltztrapAnalyzer.from_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.from_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">_make_float_array</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
             <span class="n">res</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
@@ -2431,7 +2428,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2439,7 +2436,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

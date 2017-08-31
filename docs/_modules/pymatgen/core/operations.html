@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.operations &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.operations &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -118,8 +115,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">affine_matrix</span> <span class="o">=</span> <span class="n">affine_transformation_matrix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="SymmOp.from_rotation_and_translation"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_rotation_and_translation">[docs]</a>    <span class="k">def</span> <span class="nf">from_rotation_and_translation</span><span class="p">(</span>
+<div class="viewcode-block" id="SymmOp.from_rotation_and_translation"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_rotation_and_translation">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_rotation_and_translation</span><span class="p">(</span>
             <span class="n">rotation_matrix</span><span class="o">=</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
             <span class="n">translation_vec</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -270,8 +267,8 @@
         <span class="n">invr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">affine_matrix</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">SymmOp</span><span class="p">(</span><span class="n">invr</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="SymmOp.from_axis_angle_and_translation"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_axis_angle_and_translation">[docs]</a>    <span class="k">def</span> <span class="nf">from_axis_angle_and_translation</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">angle_in_radians</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="SymmOp.from_axis_angle_and_translation"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_axis_angle_and_translation">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_axis_angle_and_translation</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">angle_in_radians</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                         <span class="n">translation_vec</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates a SymmOp for a rotation about a given axis plus translation.</span>
@@ -312,8 +309,8 @@
 
         <span class="k">return</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">vec</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="SymmOp.from_origin_axis_angle"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_origin_axis_angle">[docs]</a>    <span class="k">def</span> <span class="nf">from_origin_axis_angle</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">angle_in_radians</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="SymmOp.from_origin_axis_angle"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_origin_axis_angle">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_origin_axis_angle</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">angle_in_radians</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates a SymmOp for a rotation about a given axis through an</span>
 <span class="sd">        origin.</span>
@@ -370,8 +367,8 @@
         <span class="k">return</span> <span class="n">SymmOp</span><span class="p">([[</span><span class="n">m11</span><span class="p">,</span> <span class="n">m12</span><span class="p">,</span> <span class="n">m13</span><span class="p">,</span> <span class="n">m14</span><span class="p">],</span> <span class="p">[</span><span class="n">m21</span><span class="p">,</span> <span class="n">m22</span><span class="p">,</span> <span class="n">m23</span><span class="p">,</span> <span class="n">m24</span><span class="p">],</span>
                        <span class="p">[</span><span class="n">m31</span><span class="p">,</span> <span class="n">m32</span><span class="p">,</span> <span class="n">m33</span><span class="p">,</span> <span class="n">m34</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="SymmOp.reflection"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.reflection">[docs]</a>    <span class="k">def</span> <span class="nf">reflection</span><span class="p">(</span><span class="n">normal</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+<div class="viewcode-block" id="SymmOp.reflection"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.reflection">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">reflection</span><span class="p">(</span><span class="n">normal</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns reflection symmetry operation.</span>
 
@@ -406,8 +403,8 @@
                                 <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">mirror_mat</span><span class="p">,</span> <span class="n">translation</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">SymmOp</span><span class="p">(</span><span class="n">mirror_mat</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="SymmOp.inversion"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.inversion">[docs]</a>    <span class="k">def</span> <span class="nf">inversion</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+<div class="viewcode-block" id="SymmOp.inversion"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.inversion">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">inversion</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inversion symmetry operation about axis.</span>
 
@@ -423,8 +420,8 @@
         <span class="n">mat</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">SymmOp</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="SymmOp.rotoreflection"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.rotoreflection">[docs]</a>    <span class="k">def</span> <span class="nf">rotoreflection</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+<div class="viewcode-block" id="SymmOp.rotoreflection"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.rotoreflection">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">rotoreflection</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a roto-reflection symmetry operation</span>
 
@@ -463,8 +460,8 @@
 
         <span class="k">return</span> <span class="n">transformation_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">translation_vec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="s2">&quot;, &quot;</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="SymmOp.from_xyz_string"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_xyz_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_xyz_string</span><span class="p">(</span><span class="n">xyz_string</span><span class="p">):</span>
+<div class="viewcode-block" id="SymmOp.from_xyz_string"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_xyz_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_xyz_string</span><span class="p">(</span><span class="n">xyz_string</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            xyz_string: string of the form &#39;x, y, z&#39;, &#39;-x, -y, z&#39;,</span>
@@ -494,8 +491,8 @@
                 <span class="n">trans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span> <span class="o">*</span> <span class="n">factor</span>
         <span class="k">return</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">rot_matrix</span><span class="p">,</span> <span class="n">trans</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="SymmOp.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="SymmOp.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;matrix&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;tolerance&quot;</span><span class="p">])</span></div></div>
 
 
@@ -571,8 +568,8 @@
         <span class="c1"># retains input spin axis if different from default</span>
         <span class="k">return</span> <span class="n">Magmom</span><span class="o">.</span><span class="n">from_global_moment_and_saxis</span><span class="p">(</span><span class="n">transformed_moment</span><span class="p">,</span> <span class="n">magmom</span><span class="o">.</span><span class="n">saxis</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MagSymmOp.from_symmop"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.MagSymmOp.from_symmop">[docs]</a>    <span class="k">def</span> <span class="nf">from_symmop</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">symmop</span><span class="p">,</span> <span class="n">time_reversal</span><span class="p">):</span>
+<div class="viewcode-block" id="MagSymmOp.from_symmop"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.MagSymmOp.from_symmop">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_symmop</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">symmop</span><span class="p">,</span> <span class="n">time_reversal</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize a MagSymmOp from a SymmOp and time reversal operator.</span>
 <span class="sd">        </span>
@@ -586,8 +583,8 @@
         <span class="n">magsymmop</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">symmop</span><span class="o">.</span><span class="n">affine_matrix</span><span class="p">,</span> <span class="n">time_reversal</span><span class="p">,</span> <span class="n">symmop</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">magsymmop</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="MagSymmOp.from_rotation_and_translation_and_time_reversal"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.MagSymmOp.from_rotation_and_translation_and_time_reversal">[docs]</a>    <span class="k">def</span> <span class="nf">from_rotation_and_translation_and_time_reversal</span><span class="p">(</span>
+<div class="viewcode-block" id="MagSymmOp.from_rotation_and_translation_and_time_reversal"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.MagSymmOp.from_rotation_and_translation_and_time_reversal">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_rotation_and_translation_and_time_reversal</span><span class="p">(</span>
             <span class="n">rotation_matrix</span><span class="o">=</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
             <span class="n">translation_vec</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">time_reversal</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -608,8 +605,8 @@
                                                       <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_symmop</span><span class="p">(</span><span class="n">symmop</span><span class="p">,</span> <span class="n">time_reversal</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="MagSymmOp.from_xyzt_string"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.MagSymmOp.from_xyzt_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_xyzt_string</span><span class="p">(</span><span class="n">xyzt_string</span><span class="p">):</span>
+<div class="viewcode-block" id="MagSymmOp.from_xyzt_string"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.MagSymmOp.from_xyzt_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_xyzt_string</span><span class="p">(</span><span class="n">xyzt_string</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            xyz_string: string of the form &#39;x, y, z, +1&#39;, &#39;-x, -y, z, -1&#39;,</span>
@@ -638,8 +635,8 @@
                 <span class="s2">&quot;matrix&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">affine_matrix</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="s2">&quot;tolerance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">,</span>
                 <span class="s2">&quot;time_reversal&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_reversal</span><span class="p">}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MagSymmOp.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.MagSymmOp.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="MagSymmOp.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.operations.html#pymatgen.core.operations.MagSymmOp.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;matrix&quot;</span><span class="p">],</span> <span class="n">tol</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;tolerance&quot;</span><span class="p">],</span>
                    <span class="n">time_reversal</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;time_reversal&quot;</span><span class="p">])</span></div></div>
 </pre></div>
@@ -672,7 +669,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -680,7 +677,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

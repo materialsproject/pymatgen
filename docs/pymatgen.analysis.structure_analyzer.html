@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.structure_analyzer module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.structure_analyzer module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,14 +59,14 @@
 <em class="property">class </em><code class="descname">JMolCoordFinder</code><span class="sig-paren">(</span><em>el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#JMolCoordFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.JMolCoordFinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Determine coordinated sites and coordination number using an emulation of
-JMol&#8217;s default autoBond() algorithm. This version of the algorithm does not
+JMol’s default autoBond() algorithm. This version of the algorithm does not
 take into account any information regarding known charge states.</p>
 <p>Initialize coordination finder parameters (atomic radii)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el_radius_updates</strong> &#8211; (dict) symbol-&gt;float to override default atomic
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el_radius_updates</strong> – (dict) symbol-&gt;float to override default atomic
 radii table values</td>
 </tr>
 </tbody>
@@ -112,45 +109,59 @@ radii table values</td>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class permits the calculation of various types of local order
 parameters.</p>
-<p>Create an OrderParameter analyzer instance.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>types</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a><em>]</em><em></em>) &#8211; <p>List of strings representing the types of order parameters
-to be calculated. Note that multiple mentions of the
-same type may occur. Currently available types are
-&#8220;cn&#8221;  (simple coordination number&#8212;normalized,</p>
+<li><strong>types</strong> (<em>[</em><a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a><em>]</em>) – <p>list of strings representing the types of
+order parameters to be calculated. Note that multiple
+mentions of the same type may occur. Currently available
+types are:</p>
 <blockquote>
-<div>if desired),</div></blockquote>
-<dl class="docutils">
-<dt>&#8220;lin&#8221; [Peters-style OP recognizing linear coordination</dt>
-<dd>(Zimmermann &amp; Jain, in progress, 2017)],</dd>
-<dt>&#8220;bent&#8221; [Peters-style OP recognizing bent coordination</dt>
-<dd>(Zimmermann &amp; Jain, in progress, 2017)],</dd>
-<dt>&#8220;tet&#8221; [Peters-style OP recognizing tetrahedral</dt>
-<dd>coordination (Zimmermann et al.,
-J. Am. Chem. Soc., 137, 13352-13361, 2015)],</dd>
-<dt>&#8220;oct&#8221; [Peters-style OP recognizing octahedral</dt>
-<dd>coordination (Zimmermann et al.,
-J. Am. Chem. Soc., 137, 13352-13361, 2015)],</dd>
-<dt>&#8220;bcc&#8221; [Peters-style OP recognizing local</dt>
+<div><dl class="docutils">
+<dt>”cn”: simple coordination number—normalized</dt>
+<dd>if desired;</dd>
+<dt>”lin”: Peters-style OP recognizing linear coordination</dt>
+<dd>(Zimmermann &amp; Jain, in progress, 2017);</dd>
+<dt>”bent”: Peters-style OP recognizing bent coordination</dt>
+<dd>(Zimmermann &amp; Jain, in progress, 2017);</dd>
+<dt>”tet”: Peters-style OP recognizing tetrahedral</dt>
+<dd>environments (Zimmermann et al., submitted,
+2017);</dd>
+<dt>”oct”: Peters-style OP recognizing octahedral</dt>
+<dd>environments (Zimmermann et al., submitted,
+2017);</dd>
+<dt>”bcc”: Peters-style OP recognizing local</dt>
 <dd>body-centered cubic environment (Peters,
-J. Chem. Phys., 131, 244103, 2009)],</dd>
+J. Chem. Phys., 131, 244103, 2009);</dd>
 </dl>
-<p>&#8220;reg_tri&#8221; (OP recognizing coordination with a regular triangle),
-&#8220;sq&#8221; (OP recognizing square coordination),
-&#8220;sq_pyr&#8221; (OP recognizing square pyramidal coordination),
-&#8220;tri_bipyr&#8221; (OP recognizing trigonal bipyramidal coord.),
-&#8220;q2&#8221;  [Bond orientational order parameter (BOOP)</p>
+<p>”reg_tri”: OP recognizing coordination with a regular triangle;
+“sq”: OP recognizing square coordination;
+“sq_pyr”: OP recognizing square pyramidal coordination;
+“tri_bipyr”: OP recognizing trigonal bipyramidal coord.;
+“q2”: bond orientational order parameter (BOOP)</p>
 <blockquote>
 <div>of weight l=2 (Steinhardt et al., Phys. Rev. B,
-28, 784-805, 1983)],</div></blockquote>
-<p>&#8220;q4&#8221;  (BOOP of weight l=4),
-&#8220;q6&#8221;  (BOOP of weight l=6).</p>
+28, 784-805, 1983);</div></blockquote>
+<p>”q4”: BOOP of weight l=4;
+“q6”: BOOP of weight l=6.
+“tet_legacy”: original Peters-style OP recognizing</p>
+<blockquote>
+<div>tetrahedral coordination environments
+(Zimmermann et al., J. Am. Chem. Soc.,
+137, 13352-13361, 2015) that can, however,
+produce small negative values sometimes;</div></blockquote>
+<dl class="docutils">
+<dt>”oct_legacy”: original Peters-style OP recognizing</dt>
+<dd>octahedral coordination environments
+(Zimmermann et al., J. Am. Chem. Soc.,
+137, 13352-13361, 2015) that can, however,
+produce small negative values sometimes.</dd>
+</dl>
+</div></blockquote>
 </li>
-<li><strong>parameters</strong> (<em></em><em>[</em><em></em><em>[</em><em>float</em><em>]</em><em></em><em>]</em><em></em>) &#8211; <p>2D list of floating point numbers that store
+<li><strong>parameters</strong> (<em>[</em><em>[</em><em>float</em><em>]</em><em>]</em>) – <p>2D list of floating point numbers that store
 parameters associated with the different order parameters
 that are to be calculated (1st dimension = length of
 types tuple; any 2nd dimension may be zero, in which case
@@ -159,57 +170,66 @@ parameters q_i are listed that require further parameters
 for their computation (values in brackets denote default
 values):</p>
 <blockquote>
-<div>&#8220;cn&#8221;:  normalizing constant (1);
-&#8220;lin&#8221;: Gaussian width in fractions of pi (180 degrees)<blockquote>
-<div>reflecting the &#8220;speed of penalizing&#8221; deviations
+<div>”cn”:  normalizing constant (1);
+“lin”: Gaussian width in fractions of pi (180 degrees)<blockquote>
+<div>reflecting the “speed of penalizing” deviations
 away from 180 degrees of any individual
 neighbor1-center-neighbor2 configuration (0.0667);</div></blockquote>
 <dl class="docutils">
-<dt>&#8220;bent&#8221;: target angle in degrees (180);</dt>
+<dt>”bent”: target angle in degrees (180);</dt>
 <dd>Gaussian width for penalizing deviations away
 from perfect target angle in fractions of pi
 (0.0667);</dd>
-<dt>&#8220;tet&#8221;: Gaussian width for penalizing deviations away</dt>
-<dd>perfecttetrahedral angle (0.0667);</dd>
-<dt>&#8220;oct&#8221;: threshold angle in degrees distinguishing a second</dt>
-<dd>neighbor to be either close to the south pole or
-close to the equator (160.0);
-Gaussian width for penalizing deviations away
-from south pole (0.0667);
-Gaussian width for penalizing deviations away
-from equator (0.0556);
-constant for shifting q_oct toward smaller
-values, which can be helpful when trying to fine-
-tune the capabilities of distinguishing between
-different environments (e.g., tet vs oct)
-given a single mutual threshold q_thresh;</dd>
-<dt>&#8220;bcc&#8221;: south-pole threshold angle as for &#8220;oct&#8221; (160.0);</dt>
-<dd>south-pole Gaussian width as for &#8220;oct&#8221; (0.0667);</dd>
-<dt>&#8220;reg_tri&#8221;: Gaussian width for penalizing angles away from</dt>
+<dt>”tet”: Gaussian width for penalizing deviations</dt>
+<dd>away perfect tetrahedral angle (0.0667);</dd>
+<dt>”oct”: threshold angle in degrees distinguishing</dt>
+<dd>a second neighbor to be either close to the
+south pole or close to the equator (160.0);
+Gaussian width for penalizing deviations
+away from south pole (0.0667); Gaussian
+width for penalizing deviations away from
+equator (0.0556);</dd>
+<dt>”bcc”: south-pole threshold angle as for “oct” (160.0);</dt>
+<dd>south-pole Gaussian width as for “oct” (0.0667);</dd>
+<dt>”reg_tri”: Gaussian width for penalizing angles away from</dt>
 <dd>the expected angles, given the estimated
 height-to-side ratio of the trigonal pyramid
 in which the central atom is located at the
 tip (0.0222);</dd>
-<dt>&#8220;sq&#8221;: Gaussian width for penalizing angles away from</dt>
+<dt>”sq”: Gaussian width for penalizing angles away from</dt>
 <dd>the expected angles, given the estimated
 height-to-diagonal ratio of the pyramid in which
 the central atom is located at the tip
 (0.0333);</dd>
-<dt>&#8220;sq_pyr&#8221;: Gaussian width in fractions of pi</dt>
+<dt>”sq_pyr”: Gaussian width in fractions of pi</dt>
 <dd>for penalizing angles away from 90 degrees
 (0.0333);
 Gaussian width in Angstrom for penalizing
 variations in neighbor distances (0.1);</dd>
-<dt>&#8220;tri_bipyr&#8221;: threshold angle to identify close to</dt>
+<dt>”tri_bipyr”: threshold angle to identify close to</dt>
 <dd>South pole positions (160.0, cf., oct).
 Gaussian width for penalizing deviations away
 from south pole (0.0667);
 Gaussian width for penalizing deviations away
 from equator (0.0556).</dd>
+<dt>”tet_legacy”: Gaussian width for penalizing deviations</dt>
+<dd>away perfect tetrahedral angle (0.0667);</dd>
+<dt>”oct_legacy”: threshold angle in degrees distinguishing</dt>
+<dd>a second neighbor to be either close to the
+south pole or close to the equator (160.0);
+Gaussian width for penalizing deviations
+away from south pole (0.0667); Gaussian
+width for penalizing deviations away from
+equator (0.0556); constant for shifting
+q_oct_legacy toward smaller values, which
+can be helpful when trying to fine-tune
+the capabilities of distinguishing between
+different environments (e.g., tet vs oct)
+given a single mutual threshold q_thresh;</dd>
 </dl>
 </div></blockquote>
 </li>
-<li><strong>cutoff</strong> (<em>float</em>) &#8211; Cutoff radius to determine which nearest neighbors are
+<li><strong>cutoff</strong> (<em>float</em>) – Cutoff radius to determine which nearest neighbors are
 supposed to contribute to the order parameters.
 If the value is negative the neighboring sites found by
 distance and cutoff radius are further
@@ -223,7 +243,7 @@ VoronoiCoordFinder class.</li>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.OrderParameters.compute_trigonometric_terms">
 <code class="descname">compute_trigonometric_terms</code><span class="sig-paren">(</span><em>thetas</em>, <em>phis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OrderParameters.compute_trigonometric_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.compute_trigonometric_terms" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#8221;
+<dd><p>”
 Computes trigonometric terms that are required to
 calculate bond orientational order parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -231,8 +251,8 @@ calculate bond orientational order parameters.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>thetas</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; polar angles of all neighbors in radians.</li>
-<li><strong>phis</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; azimuth angles of all neighbors in radians.  The list of
+<li><strong>thetas</strong> (<em>[</em><em>float</em><em>]</em>) – polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em>[</em><em>float</em><em>]</em>) – azimuth angles of all neighbors in radians.  The list of
 azimuth angles is expected to have the same size as the list
 of polar angles; otherwise, a ValueError is raised.  Also,
 the two lists of angles have to be coherent in order. That
@@ -256,11 +276,11 @@ of neighbors in the list of polar angles.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; input structure.</li>
-<li><strong>n</strong> (<em>int</em>) &#8211; index of site in input structure, for which OPs are to be
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
+<li><strong>n</strong> (<em>int</em>) – index of site in input structure, for which OPs are to be
 calculated.  Note that we do not use the sites iterator
 here, but directly access sites via struct[index].</li>
-<li><strong>indeces_neighs</strong> (<em></em><em>[</em><em>int</em><em>]</em><em></em>) &#8211; list of indeces of those neighbors in Structure object
+<li><strong>indeces_neighs</strong> (<em>[</em><em>int</em><em>]</em>) – list of indeces of those neighbors in Structure object
 structure that are to be considered for OP computation.
 This optional argument overwrites the way neighbors are
 to be determined as defined in the constructor (i.e.,
@@ -275,11 +295,11 @@ of neighbors are determined when providing an index list.
 Note furthermore that this neighbor
 determination type ignores the optional target_spec
 argument.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; threshold of weight (= solid angle / maximal solid angle)
+<li><strong>tol</strong> (<em>float</em>) – threshold of weight (= solid angle / maximal solid angle)
 to determine if a particular pair is
 considered neighbors; this is relevant only in the case
 when Voronoi polyhedra are used to determine coordination</li>
-<li><strong>target_spec</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) &#8211; target specie to be considered when calculating the order
+<li><strong>target_spec</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – target specie to be considered when calculating the order
 parameters of site n; None includes all species of input
 structure.</li>
 </ul>
@@ -288,8 +308,8 @@ structure.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of floats representing order parameters.  Should it not be
 possible to compute a given OP for a conceptual reason, the
 corresponding entry is None instead of a float.  For Steinhardt
-et al.&#8217;s bond orientational OPs and the other geometric OPs
-(&#8220;tet&#8221;, &#8220;oct&#8221;, &#8220;bcc&#8221;), this can happen if there is a single
+et al.’s bond orientational OPs and the other geometric OPs
+(“tet”, “oct”, “bcc”), this can happen if there is a single
 neighbor around site n in the structure because that, obviously,
 does not permit calculation of angles between multiple
 neighbors.</p>
@@ -311,7 +331,7 @@ inputted because of processing out of efficiency reasons.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) &#8211; index of order-parameter for which associated parameters
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) – index of order-parameter for which associated parameters
 are to be returned</td>
 </tr>
 </tbody>
@@ -331,8 +351,8 @@ compute_trigonometric_terms function has been just called.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>thetas</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; polar angles of all neighbors in radians.</li>
-<li><strong>phis</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; azimuth angles of all neighbors in radians.</li>
+<li><strong>thetas</strong> (<em>[</em><em>float</em><em>]</em>) – polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em>[</em><em>float</em><em>]</em>) – azimuth angles of all neighbors in radians.</li>
 </ul>
 </td>
 </tr>
@@ -364,8 +384,8 @@ compute_trigonometric_terms function has been just called.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>thetas</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; polar angles of all neighbors in radians.</li>
-<li><strong>phis</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; azimuth angles of all neighbors in radians.</li>
+<li><strong>thetas</strong> (<em>[</em><em>float</em><em>]</em>) – polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em>[</em><em>float</em><em>]</em>) – azimuth angles of all neighbors in radians.</li>
 </ul>
 </td>
 </tr>
@@ -397,8 +417,8 @@ compute_trigonometric_terms function has been just called.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>thetas</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; polar angles of all neighbors in radians.</li>
-<li><strong>phis</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; azimuth angles of all neighbors in radians.</li>
+<li><strong>thetas</strong> (<em>[</em><em>float</em><em>]</em>) – polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em>[</em><em>float</em><em>]</em>) – azimuth angles of all neighbors in radians.</li>
 </ul>
 </td>
 </tr>
@@ -426,7 +446,7 @@ represented by a short string.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) &#8211; index of order-parameter for which type is to be returned</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) – index of order-parameter for which type is to be returned</td>
 </tr>
 </tbody>
 </table>
@@ -435,7 +455,7 @@ represented by a short string.</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.structure_analyzer.OrderParameters.last_nneigh">
 <code class="descname">last_nneigh</code><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.last_nneigh" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#8221;
+<dd><p>”
 Returns the number of neighbors encountered during the most
 recent order-parameter calculation. A value of -1 indicates that
 no such calculation has yet been performed for this instance.</p>
@@ -444,7 +464,7 @@ no such calculation has yet been performed for this instance.</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.structure_analyzer.OrderParameters.num_ops">
 <code class="descname">num_ops</code><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OrderParameters.num_ops" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#8221;
+<dd><p>”
 Returns the number of different order parameters that are targeted
 to be calculated.</p>
 </dd></dl>
@@ -461,8 +481,8 @@ to be calculated.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; Input structure.</li>
-<li><strong>relative_cutoff</strong> &#8211; Relative_cutoff * act. cutoff stipulates the max.
+<li><strong>structure</strong> – Input structure.</li>
+<li><strong>relative_cutoff</strong> – Relative_cutoff * act. cutoff stipulates the max.
 distance two O atoms must be from each other. Default value is
 1.1. At most 1.1 is recommended, nothing larger, otherwise the
 script cannot distinguish between superoxides and peroxides.</li>
@@ -505,9 +525,9 @@ codes.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Initial input structure to
+<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure to
 calculation.</li>
-<li><strong>final_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Final output structure from
+<li><strong>final_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Final output structure from
 calculation.</li>
 </ul>
 </td>
@@ -523,12 +543,12 @@ maximum radius for nearest neighbors.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>max_radius</strong> (<em>float</em>) &#8211; Maximum radius to search for nearest
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>max_radius</strong> (<em>float</em>) – Maximum radius to search for nearest
 neighbors. This radius is applied to the initial structure,
 not the final structure.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Bond distance changes as a dict of dicts. E.g.,
-{index1: {index2: 0.011, ...}}. For economy of representation, the
+{index1: {index2: 0.011, …}}. For economy of representation, the
 index1 is always less than index2, i.e., since bonding between
 site1 and siten is the same as bonding between siten and site1,
 there is no reason to duplicate the information or computation.</td>
@@ -546,7 +566,7 @@ there is no reason to duplicate the information or computation.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dict of the percentage change in lattice parameter, e.g.,
-{&#8216;a&#8217;: 0.012, &#8216;b&#8217;: 0.021, &#8216;c&#8217;: -0.031} implies a change of 1.2%,
+{‘a’: 0.012, ‘b’: 0.021, ‘c’: -0.031} implies a change of 1.2%,
 2.1% and -3.1% in the a, b and c lattice parameters respectively.</td>
 </tr>
 </tbody>
@@ -577,7 +597,7 @@ there is no reason to duplicate the information or computation.</td>
 Each Voronoi polyhedron is described using Schaefli notation.
 That is a set of indices {c_i} where c_i is the number of faces with i
 number of vertices.  E.g. for a bcc crystal, there is only one polyhedron
-notation of which is [0,6,0,8,0,0,...].
+notation of which is [0,6,0,8,0,0,…].
 In perfect crystals, these also corresponds to the Wigner-Seitz cells.
 For distorted-crystals, liquids or amorphous structures, rather than one-type,
 there is a statistical distribution of polyhedra.
@@ -590,9 +610,9 @@ simulated by molecular dynamics,</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cutoff</strong> (<em>float</em>) &#8211; cutoff distance to search for neighbors of a given atom
+<li><strong>cutoff</strong> (<em>float</em>) – cutoff distance to search for neighbors of a given atom
 (default = 5.0)</li>
-<li><strong>qhull_options</strong> (<em>str</em>) &#8211; options to pass to qhull (optional)</li>
+<li><strong>qhull_options</strong> (<em>str</em>) – options to pass to qhull (optional)</li>
 </ul>
 </td>
 </tr>
@@ -608,8 +628,8 @@ in Schlaefli notation.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; structure to analyze</li>
-<li><strong>n</strong> (<em>int</em>) &#8211; index of the center atom in structure</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to analyze</li>
+<li><strong>n</strong> (<em>int</em>) – index of the center atom in structure</li>
 </ul>
 </td>
 </tr>
@@ -639,12 +659,12 @@ size and number of structures.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structures</strong> (<em>list</em>) &#8211; list of Structures</li>
-<li><strong></strong><strong>(</strong><strong>float</strong> (<em>cutoff</em>) &#8211; cutoff distance around an atom to search for
+<li><strong>structures</strong> (<em>list</em>) – list of Structures</li>
+<li><strong>(</strong><strong>float</strong> (<em>cutoff</em>) – cutoff distance around an atom to search for
 neighbors</li>
-<li><strong>step_freq</strong> (<em>int</em>) &#8211; perform analysis every step_freq steps</li>
-<li><strong>qhull_options</strong> (<em>str</em>) &#8211; options to pass to qhull</li>
-<li><strong>most_frequent_polyhedra</strong> (<em>int</em>) &#8211; this many unique polyhedra with
+<li><strong>step_freq</strong> (<em>int</em>) – perform analysis every step_freq steps</li>
+<li><strong>qhull_options</strong> (<em>str</em>) – options to pass to qhull</li>
+<li><strong>most_frequent_polyhedra</strong> (<em>int</em>) – this many unique polyhedra with
 highest frequences is stored.</li>
 </ul>
 </td>
@@ -674,8 +694,8 @@ polyhedron between two sites.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure</li>
-<li><strong>cutoff</strong> (<em>float</em>) &#8211; </li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
+<li><strong>cutoff</strong> (<em>float</em>) – </li>
 </ul>
 </td>
 </tr>
@@ -719,8 +739,8 @@ with their real-space distances.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>site_index</strong> (<em>int</em>) &#8211; index of the site (3 in the example)</li>
-<li><strong>image_index</strong> (<em>int</em>) &#8211; index of the image (12 in the example)</li>
+<li><strong>site_index</strong> (<em>int</em>) – index of the site (3 in the example)</li>
+<li><strong>image_index</strong> (<em>int</em>) – index of the image (12 in the example)</li>
 </ul>
 </td>
 </tr>
@@ -749,12 +769,12 @@ structure.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure</li>
-<li><strong>target</strong> (<em></em><em>[</em><em>Element/Specie</em><em>]</em><em></em>) &#8211; A list of target species to determine
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
+<li><strong>target</strong> (<em>[</em><em>Element/Specie</em><em>]</em>) – A list of target species to determine
 coordination for.</li>
-<li><strong>cutoff</strong> (<em>float</em>) &#8211; Radius in Angstrom cutoff to look for coordinating
+<li><strong>cutoff</strong> (<em>float</em>) – Radius in Angstrom cutoff to look for coordinating
 atoms. Defaults to 10.0.</li>
-<li><strong>allow_pathological</strong> (<em>bool</em>) &#8211; whether to allow infinite vertices in
+<li><strong>allow_pathological</strong> (<em>bool</em>) – whether to allow infinite vertices in
 determination of Voronoi coordination</li>
 </ul>
 </td>
@@ -771,10 +791,10 @@ index n.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>n</strong> (<em>int</em>) &#8211; Site index.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Weight tolerance to determine if a particular pair is
+<li><strong>n</strong> (<em>int</em>) – Site index.</li>
+<li><strong>tol</strong> (<em>float</em>) – Weight tolerance to determine if a particular pair is
 considered a neighbor.</li>
-<li><strong>target</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a>) &#8211; Target element</li>
+<li><strong>target</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a>) – Target element</li>
 </ul>
 </td>
 </tr>
@@ -793,7 +813,7 @@ considered a neighbor.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>int</em>) &#8211; Site index</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>int</em>) – Site index</td>
 </tr>
 </tbody>
 </table>
@@ -805,12 +825,12 @@ considered a neighbor.</li>
 <dd><p>Gives a weighted polyhedra around a site. This uses the voronoi
 construction with solid angle weights.
 See ref: A Proposed Rigorous Definition of Coordination Number,
-M. O&#8217;Keeffe, Acta Cryst. (1979). A35, 772-775</p>
+M. O’Keeffe, Acta Cryst. (1979). A35, 772-775</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>int</em>) &#8211; Site index</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>int</em>) – Site index</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dict of sites sharing a common Voronoi facet with the site
 n and their solid angle weights</td>
@@ -850,8 +870,8 @@ Typically used for analyzing the output of a Molecular Dynamics run.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure.</li>
-<li><strong>relative_cutoff</strong> &#8211; The peroxide bond distance is 1.49 Angstrom.
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</li>
+<li><strong>relative_cutoff</strong> – The peroxide bond distance is 1.49 Angstrom.
 Relative_cutoff * 1.49 stipulates the maximum distance two O
 atoms must be to each other to be considered a peroxide.</li>
 </ul>
@@ -883,18 +903,18 @@ Note that if you pass both, el_radius_updates are ignored.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; (Structure) structure to analyze dimensionality for</li>
-<li><strong>max_hkl</strong> &#8211; (int) max index of planes to look for layers</li>
-<li><strong>el_radius_updates</strong> &#8211; (dict) symbol-&gt;float to update atomic radii</li>
-<li><strong>min_slab_size</strong> &#8211; (float) internal surface construction parameter</li>
-<li><strong>min_vacuum_size</strong> &#8211; (float) internal surface construction parameter</li>
-<li><strong>standardize</strong> (<em>bool</em>) &#8211; whether to standardize the structure before
+<li><strong>structure</strong> – (Structure) structure to analyze dimensionality for</li>
+<li><strong>max_hkl</strong> – (int) max index of planes to look for layers</li>
+<li><strong>el_radius_updates</strong> – (dict) symbol-&gt;float to update atomic radii</li>
+<li><strong>min_slab_size</strong> – (float) internal surface construction parameter</li>
+<li><strong>min_vacuum_size</strong> – (float) internal surface construction parameter</li>
+<li><strong>standardize</strong> (<em>bool</em>) – whether to standardize the structure before
 analysis. Set to False only if you already have the structure in a
 convention where layers / chains will be along low &lt;hkl&gt; indexes.</li>
-<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) &#8211; max_bond_dist}: bonds are
+<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
 specified as a dict of tuples: float of specie1, specie2
 and the max bonding distance. For example, PO4 groups may be
-defined as {(&#8220;P&#8221;, &#8220;O&#8221;): 3}.</li>
+defined as {(“P”, “O”): 3}.</li>
 </ul>
 </td>
 </tr>
@@ -916,8 +936,8 @@ table and algorithms.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; (structure)</li>
-<li><strong>el_radius_updates</strong> &#8211; (dict) symbol-&gt;float to update atomic radii</li>
+<li><strong>structure</strong> – (structure)</li>
+<li><strong>el_radius_updates</strong> – (dict) symbol-&gt;float to update atomic radii</li>
 </ul>
 </td>
 </tr>
@@ -940,8 +960,8 @@ The output vector is not normalized.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vin</strong> (<em>numpy array</em>) &#8211; first input vector</li>
-<li><strong>uin</strong> (<em>numpy array</em>) &#8211; second input vector</li>
+<li><strong>vin</strong> (<em>numpy array</em>) – first input vector</li>
+<li><strong>uin</strong> (<em>numpy array</em>) – second input vector</li>
 </ul>
 </td>
 </tr>
@@ -958,10 +978,10 @@ The output vector is not normalized.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure.</li>
-<li><strong>relative_cutoff</strong> (<em>float</em>) &#8211; Relative_cutoff * act. cutoff stipulates the
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</li>
+<li><strong>relative_cutoff</strong> (<em>float</em>) – Relative_cutoff * act. cutoff stipulates the
 max distance two O atoms must be from each other.</li>
-<li><strong>return_nbonds</strong> (<em>bool</em>) &#8211; Should number of bonds be requested?</li>
+<li><strong>return_nbonds</strong> (<em>bool</em>) – Should number of bonds be requested?</li>
 </ul>
 </td>
 </tr>
@@ -979,8 +999,8 @@ center.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>center</strong> (<em>3x1 array</em>) &#8211; Center to measure solid angle from.</li>
-<li><strong>coords</strong> (<em>Nx3 array</em>) &#8211; List of coords to determine solid angle.</li>
+<li><strong>center</strong> (<em>3x1 array</em>) – Center to measure solid angle from.</li>
+<li><strong>coords</strong> (<em>Nx3 array</em>) – List of coords to determine solid angle.</li>
 </ul>
 </td>
 </tr>
@@ -999,7 +1019,7 @@ center.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str) sulfide/polysulfide/sulfate</td>
 </tr>
@@ -1045,13 +1065,13 @@ center.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

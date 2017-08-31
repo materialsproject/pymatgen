@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -69,13 +66,13 @@ sites, etc.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symbol</strong> (<em>str</em>) &#8211; An assigned symbol for the dummy specie. Strict
+<li><strong>symbol</strong> (<em>str</em>) – An assigned symbol for the dummy specie. Strict
 rules are applied to the choice of the symbol. The dummy
 symbol cannot have any part of first two letters that will
 constitute an Element symbol. Otherwise, a composition may
-be parsed wrongly. E.g., &#8220;X&#8221; is fine, but &#8220;Vac&#8221; is not
+be parsed wrongly. E.g., “X” is fine, but “Vac” is not
 because Vac contains V, a valid Element.</li>
-<li><strong>oxidation_state</strong> (<em>float</em>) &#8211; Oxidation state for dummy specie.
+<li><strong>oxidation_state</strong> (<em>float</em>) – Oxidation state for dummy specie.
 Defaults to zero.</li>
 </ul>
 </td>
@@ -139,8 +136,8 @@ to use atomic numbers for a Dummy specie.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_string</strong> (<em>str</em>) &#8211; A string representation of a dummy
-species, e.g., &#8220;X2+&#8221;, &#8220;X3+&#8221;.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_string</strong> (<em>str</em>) – A string representation of a dummy
+species, e.g., “X2+”, “X3+”.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A DummySpecie object.</td>
 </tr>
@@ -183,7 +180,7 @@ represented by a None unless otherwise stated.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symbol</strong> (<em>str</em>) &#8211; Element symbol, e.g., &#8220;H&#8221;, &#8220;Fe&#8221;</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symbol</strong> (<em>str</em>) – Element symbol, e.g., “H”, “Fe”</td>
 </tr>
 </tbody>
 </table>
@@ -241,8 +238,8 @@ number are assigned a value of zero by default.</p>
 <code class="descname">full_electronic_structure</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.full_electronic_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Full electronic structure as tuple.
 E.g., The electronic structure for Fe is represented as:
-[(1, &#8220;s&#8221;, 2), (2, &#8220;s&#8221;, 2), (2, &#8220;p&#8221;, 6), (3, &#8220;s&#8221;, 2), (3, &#8220;p&#8221;, 6),
-(3, &#8220;d&#8221;, 6), (4, &#8220;s&#8221;, 2)]</p>
+[(1, “s”, 2), (2, “s”, 2), (2, “p”, 6), (3, “s”, 2), (3, “p”, 6),
+(3, “d”, 6), (4, “s”, 2)]</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -260,7 +257,7 @@ E.g., The electronic structure for Fe is represented as:
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.block">
 <code class="descname">block</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.block" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the block character &#8220;s,p,d,f&#8221;</p>
+<dd><p>Return the block character “s,p,d,f”</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -320,7 +317,7 @@ E.g., The electronic structure for Fe is represented as:
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.name">
 <code class="descname">name</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Long name for element. E.g., &#8220;Hydrogen&#8221;.</p>
+<dd><p>Long name for element. E.g., “Hydrogen”.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -386,7 +383,7 @@ value. Data is obtained from
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.poissons_ratio">
 <code class="descname">poissons_ratio</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.poissons_ratio" title="Permalink to this definition">¶</a></dt>
-<dd><p>Poisson&#8217;s ratio</p>
+<dd><p>Poisson’s ratio</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -448,7 +445,7 @@ E.g., The electronic structure for Fe is represented as
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.youngs_modulus">
 <code class="descname">youngs_modulus</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.youngs_modulus" title="Permalink to this definition">¶</a></dt>
-<dd><p>Young&#8217;s modulus</p>
+<dd><p>Young’s modulus</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -472,7 +469,7 @@ E.g., The electronic structure for Fe is represented as
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.vickers_hardness">
 <code class="descname">vickers_hardness</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.vickers_hardness" title="Permalink to this definition">¶</a></dt>
-<dd><p>Vicker&#8217;s hardness</p>
+<dd><p>Vicker’s hardness</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1036,7 +1033,7 @@ easier serialization.</p>
 <dl class="attribute">
 <dt>
 <code class="descname">block</code></dt>
-<dd><p>Return the block character &#8220;s,p,d,f&#8221;</p>
+<dd><p>Return the block character “s,p,d,f”</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1059,7 +1056,7 @@ easier serialization.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>z</strong> (<em>int</em>) &#8211; Atomic number</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>z</strong> (<em>int</em>) – Atomic number</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Element with atomic number z.</td>
 </tr>
@@ -1083,8 +1080,8 @@ easier serialization.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>row</strong> (<em>int</em>) &#8211; Row number</li>
-<li><strong>group</strong> (<em>int</em>) &#8211; Group number</li>
+<li><strong>row</strong> (<em>int</em>) – Row number</li>
+<li><strong>group</strong> (<em>int</em>) – Group number</li>
 </ul>
 </td>
 </tr>
@@ -1101,14 +1098,21 @@ easier serialization.</p>
 <code class="descname">full_electronic_structure</code></dt>
 <dd><p>Full electronic structure as tuple.
 E.g., The electronic structure for Fe is represented as:
-[(1, &#8220;s&#8221;, 2), (2, &#8220;s&#8221;, 2), (2, &#8220;p&#8221;, 6), (3, &#8220;s&#8221;, 2), (3, &#8220;p&#8221;, 6),
-(3, &#8220;d&#8221;, 6), (4, &#8220;s&#8221;, 2)]</p>
+[(1, “s”, 2), (2, “s”, 2), (2, “p”, 6), (3, “s”, 2), (3, “p”, 6),
+(3, “d”, 6), (4, “s”, 2)]</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt>
 <code class="descname">group</code></dt>
 <dd><p>Returns the periodic table group of the element.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.icsd_oxidation_states">
+<code class="descname">icsd_oxidation_states</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.icsd_oxidation_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple of all oxidation states with at least 10 instances in
+ICSD database AND at least 1% of entries for that element</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1184,10 +1188,10 @@ E.g., The electronic structure for Fe is represented as:
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symbol</strong> (<em>str</em>) &#8211; Element symbol</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symbol</strong> (<em>str</em>) – Element symbol</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if symbol is a valid element (e.g., &#8220;H&#8221;). False otherwise
-(e.g., &#8220;Zebra&#8221;).</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if symbol is a valid element (e.g., “H”). False otherwise
+(e.g., “Zebra”).</td>
 </tr>
 </tbody>
 </table>
@@ -1226,7 +1230,7 @@ filter_function.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filter_function</strong> &#8211; A filtering function taking an Element as input
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filter_function</strong> – A filtering function taking an Element as input
 and returning a boolean. For example, setting
 filter_function = lambda el: el.X &gt; 2 will print a periodic
 table containing only elements with electronegativity &gt; 2.</td>
@@ -1248,7 +1252,7 @@ table containing only elements with electronegativity &gt; 2.</td>
 <em class="property">class </em><code class="descname">Specie</code><span class="sig-paren">(</span><em>symbol</em>, <em>oxidation_state=None</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An extension of Element with an oxidation state and other optional
-properties. Properties associated with Specie should be &#8220;idealized&#8221;
+properties. Properties associated with Specie should be “idealized”
 values, not calculated values. For example, high-spin Fe2+ may be
 assigned an idealized spin of +5, but an actual Fe2+ site may be
 calculated to have a magmom of +4.5. Calculated properties should be
@@ -1258,10 +1262,10 @@ assigned to Site objects, and not Specie.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symbol</strong> (<em>str</em>) &#8211; Element symbol, e.g., Fe</li>
-<li><strong>oxidation_state</strong> (<em>float</em>) &#8211; Oxidation state of element, e.g., 2 or -2</li>
-<li><strong>properties</strong> &#8211; Properties associated with the Specie, e.g.,
-{&#8220;spin&#8221;: 5}. Defaults to None. Properties must be one of the
+<li><strong>symbol</strong> (<em>str</em>) – Element symbol, e.g., Fe</li>
+<li><strong>oxidation_state</strong> (<em>float</em>) – Oxidation state of element, e.g., 2 or -2</li>
+<li><strong>properties</strong> – Properties associated with the Specie, e.g.,
+{“spin”: 5}. Defaults to None. Properties must be one of the
 Specie supported_properties.</li>
 </ul>
 </td>
@@ -1312,8 +1316,8 @@ Specie supported_properties.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_string</strong> (<em>str</em>) &#8211; A typical string representation of a
-species, e.g., &#8220;Mn2+&#8221;, &#8220;Fe3+&#8221;, &#8220;O2-&#8221;.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_string</strong> (<em>str</em>) – A typical string representation of a
+species, e.g., “Mn2+”, “Fe3+”, “O2-“.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Specie object.</td>
 </tr>
@@ -1333,8 +1337,8 @@ configuration. Only works for transition metal species.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coordination</strong> (<em>str</em>) &#8211; Only oct and tet are supported at the moment.</li>
-<li><strong>spin_config</strong> (<em>str</em>) &#8211; Supported keywords are &#8220;high&#8221; or &#8220;low&#8221;.</li>
+<li><strong>coordination</strong> (<em>str</em>) – Only oct and tet are supported at the moment.</li>
+<li><strong>spin_config</strong> (<em>str</em>) – Supported keywords are “high” or “low”.</li>
 </ul>
 </td>
 </tr>
@@ -1385,7 +1389,7 @@ DummyElement parsing will be attempted.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> (<em>Element/Specie/str/int</em>) &#8211; An arbitrary object.  Supported objects
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> (<em>Element/Specie/str/int</em>) – An arbitrary object.  Supported objects
 are actual Element/Specie objects, integers (representing atomic
 numbers) or strings (element symbols or species strings).</td>
 </tr>
@@ -1436,13 +1440,13 @@ that can be determined.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

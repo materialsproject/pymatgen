@@ -1,5 +1,5 @@
-pymatgen.io.abinit.qadapters module
-===================================
+pymatgen\.io\.abinit\.qadapters module
+======================================
 
 .. automodule:: pymatgen.io.abinit.qadapters
     :members:

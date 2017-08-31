@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.matproj.snl module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.matproj.snl module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -93,7 +90,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>author</strong> &#8211; A String formatted as &#8220;NAME &lt;<a class="reference external" href="mailto:email&#37;&#52;&#48;domain&#46;com">email<span>&#64;</span>domain<span>&#46;</span>com</a>&gt;&#8221;,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>author</strong> – A String formatted as “NAME &lt;<a class="reference external" href="mailto:email&#37;&#52;&#48;domain&#46;com">email<span>&#64;</span>domain<span>&#46;</span>com</a>&gt;”,
 (name, email) tuple, or a dict with name and email keys.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An Author object.</td>
@@ -109,7 +106,7 @@
 <em class="property">class </em><code class="descname">HistoryNode</code><a class="reference internal" href="_modules/pymatgen/matproj/snl.html#HistoryNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.matproj.snl.HistoryNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.matproj.snl.HistoryNode" title="pymatgen.matproj.snl.HistoryNode"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.matproj.snl.HistoryNode</span></code></a></p>
 <p>A HistoryNode represents a step in the chain of events that lead to a
-Structure. HistoryNodes leave &#8216;breadcrumbs&#8217; so that you can trace back how
+Structure. HistoryNodes leave ‘breadcrumbs’ so that you can trace back how
 a Structure was created. For example, a HistoryNode might represent pulling
 a Structure from an external database such as the ICSD or CSD. Or, it might
 represent the application of a code (e.g. pymatgen) to the Structure, with
@@ -155,7 +152,7 @@ Structure (dict).</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>h_node</strong> &#8211; A dict with name/url/description fields or a 3-element
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>h_node</strong> – A dict with name/url/description fields or a 3-element
 tuple.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">History node.</td>
@@ -170,7 +167,7 @@ tuple.</td>
 <dt id="pymatgen.matproj.snl.StructureNL">
 <em class="property">class </em><code class="descname">StructureNL</code><span class="sig-paren">(</span><em>struct_or_mol</em>, <em>authors</em>, <em>projects=None</em>, <em>references=''</em>, <em>remarks=None</em>, <em>data=None</em>, <em>history=None</em>, <em>created_at=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/matproj/snl.html#StructureNL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.matproj.snl.StructureNL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>The Structure Notation Language (SNL, pronounced &#8216;snail&#8217;) is container
+<p>The Structure Notation Language (SNL, pronounced ‘snail’) is container
 for a pymatgen Structure/Molecule object with some additional fields for
 enhanced provenance. It is meant to be imported/exported in a JSON file
 format with the following structure:</p>
@@ -197,17 +194,17 @@ format with the following structure:</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>struct_or_mol</strong> &#8211; A pymatgen.core.structure Structure/Molecule object</li>
-<li><strong>authors</strong> &#8211; <em>List</em> of {&#8220;name&#8221;:&#8217;&#8216;, &#8220;email&#8221;:&#8217;&#8216;} dicts,
-<em>list</em> of Strings as &#8216;John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;&#8217;,
+<li><strong>struct_or_mol</strong> – A pymatgen.core.structure Structure/Molecule object</li>
+<li><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
+<em>list</em> of Strings as ‘John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;’,
 or a single String with commas separating authors</li>
-<li><strong>projects</strong> &#8211; List of Strings [&#8216;Project A&#8217;, &#8216;Project B&#8217;]</li>
-<li><strong>references</strong> &#8211; A String in BibTeX format</li>
-<li><strong>remarks</strong> &#8211; List of Strings [&#8216;Remark A&#8217;, &#8216;Remark B&#8217;]</li>
-<li><strong>data</strong> &#8211; A free form dict. Namespaced at the root level with an
-underscore, e.g. {&#8220;_materialsproject&#8221;: &lt;custom data&gt;}</li>
-<li><strong>history</strong> &#8211; List of dicts - [{&#8216;name&#8217;:&#8217;&#8216;, &#8216;url&#8217;:&#8217;&#8216;, &#8216;description&#8217;:{}}]</li>
-<li><strong>created_at</strong> &#8211; A datetime object</li>
+<li><strong>projects</strong> – List of Strings [‘Project A’, ‘Project B’]</li>
+<li><strong>references</strong> – A String in BibTeX format</li>
+<li><strong>remarks</strong> – List of Strings [‘Remark A’, ‘Remark B’]</li>
+<li><strong>data</strong> – A free form dict. Namespaced at the root level with an
+underscore, e.g. {“_materialsproject”: &lt;custom data&gt;}</li>
+<li><strong>history</strong> – List of dicts - [{‘name’:’‘, ‘url’:’‘, ‘description’:{}}]</li>
+<li><strong>created_at</strong> – A datetime object</li>
 </ul>
 </td>
 </tr>
@@ -234,23 +231,23 @@ is applied to all of the structures for ease of use.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structures</strong> &#8211; A list of Structure objects</li>
-<li><strong>authors</strong> &#8211; <em>List</em> of {&#8220;name&#8221;:&#8217;&#8216;, &#8220;email&#8221;:&#8217;&#8216;} dicts,
-<em>list</em> of Strings as &#8216;John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;&#8217;,
+<li><strong>structures</strong> – A list of Structure objects</li>
+<li><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
+<em>list</em> of Strings as ‘John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;’,
 or a single String with commas separating authors</li>
-<li><strong>projects</strong> &#8211; List of Strings [&#8216;Project A&#8217;, &#8216;Project B&#8217;]. This
+<li><strong>projects</strong> – List of Strings [‘Project A’, ‘Project B’]. This
 applies to all structures.</li>
-<li><strong>references</strong> &#8211; A String in BibTeX format. Again, this applies to all
+<li><strong>references</strong> – A String in BibTeX format. Again, this applies to all
 structures.</li>
-<li><strong>remarks</strong> &#8211; List of Strings [&#8216;Remark A&#8217;, &#8216;Remark B&#8217;]</li>
-<li><strong>data</strong> &#8211; A list of free form dict. Namespaced at the root level
-with an underscore, e.g. {&#8220;_materialsproject&#8221;:&lt;custom data&gt;}
+<li><strong>remarks</strong> – List of Strings [‘Remark A’, ‘Remark B’]</li>
+<li><strong>data</strong> – A list of free form dict. Namespaced at the root level
+with an underscore, e.g. {“_materialsproject”:&lt;custom data&gt;}
 . The length of data should be the same as the list of
 structures if not None.</li>
-<li><strong>histories</strong> &#8211; List of list of dicts - [[{&#8216;name&#8217;:&#8217;&#8216;, &#8216;url&#8217;:&#8217;&#8216;,
-&#8216;description&#8217;:{}}], ...] The length of histories should be the
+<li><strong>histories</strong> – List of list of dicts - [[{‘name’:’‘, ‘url’:’‘,
+‘description’:{}}], …] The length of histories should be the
 same as the list of structures if not None.</li>
-<li><strong>created_at</strong> &#8211; A datetime object</li>
+<li><strong>created_at</strong> – A datetime object</li>
 </ul>
 </td>
 </tr>
@@ -268,7 +265,7 @@ same as the list of structures if not None.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reference</strong> &#8211; A String reference in BibTeX format.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reference</strong> – A String reference in BibTeX format.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Boolean indicating if reference is valid bibtex.</td>
 </tr>
@@ -314,13 +311,13 @@ same as the list of structures if not None.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

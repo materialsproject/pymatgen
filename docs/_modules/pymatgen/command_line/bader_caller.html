@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.command_line.bader_caller &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.command_line.bader_caller &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -69,6 +66,7 @@
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Chgcar</span>
@@ -98,7 +96,6 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Beta&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;4/5/13&quot;</span>
-
 
 <span class="n">BADEREXE</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s2">&quot;bader&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s2">&quot;bader.exe&quot;</span><span class="p">)</span>
 
@@ -149,6 +146,19 @@
 <span class="sd">    </span>
 <span class="sd">        Chgcar reference which calculated by AECCAR0 + AECCAR2.</span>
 <span class="sd">        (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)</span>
+
+<span class="sd">    .. attribute: atomic_densities</span>
+
+<span class="sd">        list of charge densities for each atom centered on the atom</span>
+<span class="sd">        excess 0&#39;s are removed from the array to reduce the size of the array</span>
+<span class="sd">        the charge densities are dicts with the charge density map,</span>
+<span class="sd">        the shift vector applied to move the data to the center, and the original dimension of the charge density map</span>
+<span class="sd">        charge:</span>
+<span class="sd">            {</span>
+<span class="sd">            &quot;data&quot;: charge density array</span>
+<span class="sd">            &quot;shift&quot;: shift used to center the atomic charge density</span>
+<span class="sd">            &quot;dim&quot;: dimension of the original charge density map</span>
+<span class="sd">            }</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@requires</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;bader&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s2">&quot;bader.exe&quot;</span><span class="p">),</span>
@@ -156,7 +166,7 @@
               <span class="s2">&quot; Please download the library at http://theory.cm.utexas&quot;</span>
               <span class="s2">&quot;.edu/vasp/bader/ and compile the executable.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chgcar_filename</span><span class="p">,</span> <span class="n">potcar_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">chgref_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">chgref_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parse_atomic_densities</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the Bader caller.</span>
 
@@ -168,6 +178,9 @@
 <span class="sd">            chgref_filename (str): Optional. The filename of the reference</span>
 <span class="sd">                CHGCAR, which calculated by AECCAR0 + AECCAR2. (See</span>
 <span class="sd">                http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)</span>
+<span class="sd">            parse_atomic_densities (bool): Optional. turns on atomic partition of the charge density</span>
+<span class="sd">                charge densities are atom centered</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">BADEREXE</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
@@ -181,6 +194,7 @@
         <span class="n">chgcarpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">chgcar_filename</span><span class="p">)</span>
         <span class="n">chgrefpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">chgref_filename</span><span class="p">)</span> <span class="k">if</span> <span class="n">chgref_filename</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reference_used</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">chgref_filename</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse_atomic_densities</span> <span class="o">=</span> <span class="n">parse_atomic_densities</span>
         <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">chgcarpath</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;CHGCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
@@ -191,6 +205,8 @@
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;CHGCAR_ref&quot;</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
                         <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">f_out</span><span class="p">)</span>
                 <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-ref&#39;</span><span class="p">,</span> <span class="s1">&#39;CHGCAR_ref&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">parse_atomic_densities</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="s1">&#39;all_atom&#39;</span><span class="p">]</span>
             <span class="n">rs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span>
                                   <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
                                   <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">close_fds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -229,6 +245,56 @@
                     <span class="k">elif</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;NUMBER OF ELECTRONS&quot;</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">nelectrons</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_atomic_densities</span><span class="p">:</span>
+                <span class="c1"># convert the charge denisty for each atom spit out by Bader into Chgcar objects for easy parsing</span>
+                <span class="n">atom_chgcars</span> <span class="o">=</span> <span class="p">[</span><span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;BvAt</span><span class="si">{}</span><span class="s2">.dat&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">4</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+                                <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+
+                <span class="n">atomic_densities</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="c1"># For each atom in the structure</span>
+                <span class="k">for</span> <span class="n">atom</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="n">chg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                                          <span class="n">atom_chgcars</span><span class="p">):</span>
+                    <span class="c1"># Find the index of the atom in the charge density atom</span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">chg</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">chg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>
+                    <span class="c1"># Find the shift vector in the array</span>
+                    <span class="n">shift</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">chg</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+                    <span class="c1"># Shift the data so that the atomic charge density to the center for easier manipulation</span>
+                    <span class="n">shifted_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">shift</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+                    <span class="c1"># Slices a central window from the data array</span>
+                    <span class="k">def</span> <span class="nf">slice_from_center</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xwidth</span><span class="p">,</span> <span class="n">ywidth</span><span class="p">,</span> <span class="n">zwidth</span><span class="p">):</span>
+                        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+                        <span class="n">startx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">xwidth</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="n">starty</span> <span class="o">=</span> <span class="n">y</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">ywidth</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="n">startz</span> <span class="o">=</span> <span class="n">z</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">zwidth</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">startx</span><span class="p">:</span><span class="n">startx</span> <span class="o">+</span> <span class="n">xwidth</span><span class="p">,</span> <span class="n">starty</span><span class="p">:</span><span class="n">starty</span> <span class="o">+</span> <span class="n">ywidth</span><span class="p">,</span> <span class="n">startz</span><span class="p">:</span><span class="n">startz</span> <span class="o">+</span> <span class="n">zwidth</span><span class="p">]</span>
+
+                    <span class="c1"># Finds the central encompassing volume which holds all the data within a precision</span>
+                    <span class="k">def</span> <span class="nf">find_encompassing_vol</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">prec</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+                        <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)):</span>
+                            <span class="n">sliced_data</span> <span class="o">=</span> <span class="n">slice_from_center</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">total</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sliced_data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+                                <span class="k">return</span> <span class="n">sliced_data</span>
+                        <span class="k">return</span> <span class="kc">None</span>
+
+                    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">find_encompassing_vol</span><span class="p">(</span><span class="n">shifted_data</span><span class="p">),</span>
+                        <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="n">shift</span><span class="p">,</span>
+                        <span class="s2">&quot;dim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">dim</span>
+                    <span class="p">}</span>
+                    <span class="n">atomic_densities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">atomic_densities</span> <span class="o">=</span> <span class="n">atomic_densities</span>
+
+<div class="viewcode-block" id="BaderAnalysis.rebuild_chgcar"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.rebuild_chgcar">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">rebuild_chgcar</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class="n">atomic_densities</span><span class="p">):</span>
+
+        <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="BaderAnalysis.get_charge"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge">[docs]</a>    <span class="k">def</span> <span class="nf">get_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -293,14 +359,17 @@
             <span class="s2">&quot;bader_version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
         <span class="p">}</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_atomic_densities</span><span class="p">:</span>
+            <span class="n">summary</span><span class="p">[</span><span class="s2">&quot;charge_densities&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_densities</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">:</span>
             <span class="n">charge_transfer</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_charge_transfer</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))]</span>
             <span class="n">summary</span><span class="p">[</span><span class="s1">&#39;charge_transfer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">charge_transfer</span>
 
         <span class="k">return</span> <span class="n">summary</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="BaderAnalysis.from_path"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.from_path">[docs]</a>    <span class="k">def</span> <span class="nf">from_path</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="BaderAnalysis.from_path"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.from_path">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_path</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient constructor that takes in the path name of VASP run</span>
 <span class="sd">        to perform Bader analysis.</span>
@@ -325,7 +394,7 @@
                 <span class="c1"># however, better to use &#39;suffix&#39; kwarg to avoid this!</span>
                 <span class="n">paths</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="n">warning_msg</span> <span class="o">=</span> <span class="s2">&quot;Multiple files detected, using </span><span class="si">%s</span><span class="s2">&quot;</span> \
-                              <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>\
+                              <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> \
                     <span class="k">else</span> <span class="kc">None</span>
                 <span class="n">fpath</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
@@ -375,7 +444,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_get_filepath</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">):</span>
-        <span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="n">suffix</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="p">))</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="n">suffix</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">paths</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -459,7 +528,6 @@
             <span class="n">summary</span><span class="p">[</span><span class="s1">&#39;charge_transfer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">charge_transfer</span>
 
         <span class="k">if</span> <span class="n">chgcar</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
-
             <span class="c1"># write a CHGCAR containing magnetization density only</span>
             <span class="n">chgcar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chgcar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]</span>
             <span class="n">chgcar</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="o">=</span> <span class="kc">False</span>
@@ -500,7 +568,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -508,7 +576,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

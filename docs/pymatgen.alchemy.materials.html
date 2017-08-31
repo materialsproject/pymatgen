@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.alchemy.materials module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.alchemy.materials module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -71,11 +68,11 @@ associated transformation history.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure</li>
-<li><strong>transformations</strong> (<em></em><em>[</em><em>Transformations</em><em>]</em><em></em>) &#8211; List of transformations to
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
+<li><strong>transformations</strong> (<em>[</em><em>Transformations</em><em>]</em>) – List of transformations to
 apply.</li>
-<li><strong>history</strong> (<em>list</em>) &#8211; Previous history.</li>
-<li><strong>other_parameters</strong> (<em>dict</em>) &#8211; Additional parameters to be added.</li>
+<li><strong>history</strong> (<em>list</em>) – Previous history.</li>
+<li><strong>other_parameters</strong> (<em>dict</em>) – Additional parameters to be added.</li>
 </ul>
 </td>
 </tr>
@@ -89,7 +86,7 @@ apply.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure_filter</strong> (<em>StructureFilter</em>) &#8211; A filter implementating the
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure_filter</strong> (<em>StructureFilter</em>) – A filter implementating the
 AbstractStructureFilter API. Tells transmuter waht structures
 to retain.</td>
 </tr>
@@ -106,12 +103,12 @@ to retain.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>transformation</strong> &#8211; Transformation to append</li>
-<li><strong>return_alternatives</strong> &#8211; Whether to return alternative
+<li><strong>transformation</strong> – Transformation to append</li>
+<li><strong>return_alternatives</strong> – Whether to return alternative
 TransformedStructures for one-to-many transformations.
 return_alternatives can be a number, which stipulates the
 total number of structures to return.</li>
-<li><strong>clear_redo</strong> &#8211; Boolean indicating whether to clear the redo list.
+<li><strong>clear_redo</strong> – Boolean indicating whether to clear the redo list.
 By default, this is True, meaning any appends clears the
 history of undoing. However, when using append_transformation
 to do a redo, the redo list should not be cleared to allow
@@ -138,8 +135,8 @@ multiple redos.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>transformations</strong> &#8211; Sequence of Transformations</li>
-<li><strong>return_alternatives</strong> &#8211; Whether to return alternative
+<li><strong>transformations</strong> – Sequence of Transformations</li>
+<li><strong>return_alternatives</strong> – Whether to return alternative
 TransformedStructures for one-to-many transformations.
 return_alternatives can be a number, which stipulates the
 total number of structures to return.</li>
@@ -159,17 +156,17 @@ total number of structures to return.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cif_string</strong> (<em>str</em>) &#8211; Input cif string. Should contain only one
+<li><strong>cif_string</strong> (<em>str</em>) – Input cif string. Should contain only one
 structure. For cifs containing multiple structures, please use
 CifTransmuter.</li>
-<li><strong>transformations</strong> (<em></em><em>[</em><em>Transformations</em><em>]</em><em></em>) &#8211; Sequence of transformations
+<li><strong>transformations</strong> (<em>[</em><em>Transformations</em><em>]</em>) – Sequence of transformations
 to be applied to the input structure.</li>
-<li><strong>primitive</strong> (<em>bool</em>) &#8211; Option to set if the primitive cell should be
+<li><strong>primitive</strong> (<em>bool</em>) – Option to set if the primitive cell should be
 extracted. Defaults to True. However, there are certain
 instances where you might want to use a non-primitive cell,
 e.g., if you are trying to generate all possible orderings of partial removals
 or order a disordered structure.</li>
-<li><strong>occupancy_tolerance</strong> (<em>float</em>) &#8211; If total occupancy of a site is
+<li><strong>occupancy_tolerance</strong> (<em>float</em>) – If total occupancy of a site is
 between 1 and occupancy_tolerance, the occupancies will be
 scaled down to 1.</li>
 </ul>
@@ -197,8 +194,8 @@ scaled down to 1.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>poscar_string</strong> (<em>str</em>) &#8211; Input POSCAR string.</li>
-<li><strong>transformations</strong> (<em></em><em>[</em><em>Transformations</em><em>]</em><em></em>) &#8211; Sequence of transformations
+<li><strong>poscar_string</strong> (<em>str</em>) – Input POSCAR string.</li>
+<li><strong>transformations</strong> (<em>[</em><em>Transformations</em><em>]</em>) – Sequence of transformations
 to be applied to the input structure.</li>
 </ul>
 </td>
@@ -215,7 +212,7 @@ to be applied to the input structure.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>snl</strong> (<a class="reference internal" href="pymatgen.matproj.snl.html#pymatgen.matproj.snl.StructureNL" title="pymatgen.matproj.snl.StructureNL"><em>StructureNL</em></a>) &#8211; Starting snl</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>snl</strong> (<a class="reference internal" href="pymatgen.matproj.snl.html#pymatgen.matproj.snl.StructureNL" title="pymatgen.matproj.snl.StructureNL"><em>StructureNL</em></a>) – Starting snl</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">TransformedStructure</td>
 </tr>
@@ -231,7 +228,7 @@ to be applied to the input structure.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vasp_input_set</strong> (<em>pymatgen.io.vaspio_set.VaspInputSet</em>) &#8211; input set
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vasp_input_set</strong> (<em>pymatgen.io.vaspio_set.VaspInputSet</em>) – input set
 to create vasp input files from structures</td>
 </tr>
 </tbody>
@@ -246,7 +243,7 @@ to create vasp input files from structures</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">IndexError</span></code> &#8211; If already at the latest change.</td>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">IndexError</span></code> – If already at the latest change.</td>
 </tr>
 </tbody>
 </table>
@@ -277,7 +274,7 @@ structure is stored after every single transformation.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">IndexError</span></code> &#8211; If already at the oldest change.</td>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">IndexError</span></code> – If already at the oldest change.</td>
 </tr>
 </tbody>
 </table>
@@ -289,7 +286,7 @@ structure is stored after every single transformation.</p>
 <dd><p>Boolean describing whether the last transformation on the structure
 made any alterations to it one example of when this would return false
 is in the case of performing a substitution transformation on the
-structure when the specie to replace isn&#8217;t in the structure.</p>
+structure when the specie to replace isn’t in the structure.</p>
 </dd></dl>
 
 <dl class="method">
@@ -301,11 +298,11 @@ structure when the specie to replace isn&#8217;t in the structure.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vasp_input_set</strong> &#8211; pymatgen.io.vaspio_set.VaspInputSet like object that creates
+<li><strong>vasp_input_set</strong> – pymatgen.io.vaspio_set.VaspInputSet like object that creates
 vasp input files from structures</li>
-<li><strong>output_dir</strong> &#8211; Directory to output files</li>
-<li><strong>create_directory</strong> &#8211; Create the directory if not present. Defaults to True.</li>
-<li><strong>**kwargs</strong> &#8211; All keyword args supported by the VASP input set.</li>
+<li><strong>output_dir</strong> – Directory to output files</li>
+<li><strong>create_directory</strong> – Create the directory if not present. Defaults to True.</li>
+<li><strong>**kwargs</strong> – All keyword args supported by the VASP input set.</li>
 </ul>
 </td>
 </tr>
@@ -353,13 +350,13 @@ vasp input files from structures</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

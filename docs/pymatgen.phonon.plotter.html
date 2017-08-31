@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.phonon.plotter module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.phonon.plotter module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -66,7 +63,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bs</strong> &#8211; A BandStructureSymmLine object.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bs</strong> – A BandStructureSymmLine object.</td>
 </tr>
 </tbody>
 </table>
@@ -78,7 +75,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">ticks: A dict with the &#8216;distances&#8217; at which there is a qpoint (the
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">ticks: A dict with the ‘distances’ at which there is a qpoint (the
 x axis) and the labels (None if no label)
 frequencies: A list (one element for each branch) of frequencies for
 each qpoint: [branch][qpoint][mode]. The data is
@@ -99,7 +96,7 @@ lattice: The reciprocal lattice.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ylim</strong> &#8211; Specify the y-axis (frequency) limits; by default None let
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ylim</strong> – Specify the y-axis (frequency) limits; by default None let
 the code choose.</td>
 </tr>
 </tbody>
@@ -115,9 +112,9 @@ the code choose.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of distance at which ticks should
-be set and &#8216;label&#8217;: a list of label for each of those ticks.</td>
+be set and ‘label’: a list of label for each of those ticks.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dict with &#8216;distance&#8217;</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dict with ‘distance’</td>
 </tr>
 </tbody>
 </table>
@@ -140,7 +137,7 @@ the one of the band structure used to build the PhononBSPlotter</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>PhononBSPlotter object defined along the same symmetry lines</strong> (<em>another</em>) &#8211; </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>PhononBSPlotter object defined along the same symmetry lines</strong> (<em>another</em>) – </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a matplotlib object with both band structures</td>
 </tr>
@@ -157,9 +154,9 @@ the one of the band structure used to build the PhononBSPlotter</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> &#8211; Filename to write to.</li>
-<li><strong>img_format</strong> &#8211; Image format to use. Defaults to EPS.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>filename</strong> – Filename to write to.</li>
+<li><strong>img_format</strong> – Image format to use. Defaults to EPS.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
 </ul>
 </td>
 </tr>
@@ -175,7 +172,7 @@ the one of the band structure used to build the PhononBSPlotter</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ylim</strong> &#8211; Specify the y-axis (frequency) limits; by default None let
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ylim</strong> – Specify the y-axis (frequency) limits; by default None let
 the code choose.</td>
 </tr>
 </tbody>
@@ -207,9 +204,9 @@ DOS. The typical usage is:</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stack</strong> &#8211; Whether to plot the DOS as a stacked area graph</li>
-<li><strong>key_sort_func</strong> &#8211; function used to sort the dos_dict keys.</li>
-<li><strong>sigma</strong> &#8211; A float specifying a standard deviation for Gaussian smearing
+<li><strong>stack</strong> – Whether to plot the DOS as a stacked area graph</li>
+<li><strong>key_sort_func</strong> – function used to sort the dos_dict keys.</li>
+<li><strong>sigma</strong> – A float specifying a standard deviation for Gaussian smearing
 the DOS for nicer looking plots. Defaults to None for no
 smearing.</li>
 </ul>
@@ -226,8 +223,8 @@ smearing.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>label</strong> &#8211; label for the DOS. Must be unique.</li>
-<li><strong>dos</strong> &#8211; PhononDos object</li>
+<li><strong>label</strong> – label for the DOS. Must be unique.</li>
+<li><strong>dos</strong> – PhononDos object</li>
 </ul>
 </td>
 </tr>
@@ -245,8 +242,8 @@ keys.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dos_dict</strong> &#8211; dict of {label: Dos}</li>
-<li><strong>key_sort_func</strong> &#8211; function used to sort the dos_dict keys.</li>
+<li><strong>dos_dict</strong> – dict of {label: Dos}</li>
+<li><strong>key_sort_func</strong> – function used to sort the dos_dict keys.</li>
 </ul>
 </td>
 </tr>
@@ -264,8 +261,8 @@ be the smeared densities, not the original densities.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{&#8216;frequencies&#8217;:..,
-&#8216;densities&#8217;: ...}}</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{‘frequencies’:..,
+‘densities’: …}}</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dict of dos data. Generally of the form, {label</td>
 </tr>
@@ -282,9 +279,9 @@ be the smeared densities, not the original densities.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xlim</strong> &#8211; Specifies the x-axis limits. Set to None for automatic
+<li><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
 determination.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
 </ul>
 </td>
 </tr>
@@ -301,11 +298,11 @@ determination.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> &#8211; Filename to write to.</li>
-<li><strong>img_format</strong> &#8211; Image format to use. Defaults to EPS.</li>
-<li><strong>xlim</strong> &#8211; Specifies the x-axis limits. Set to None for automatic
+<li><strong>filename</strong> – Filename to write to.</li>
+<li><strong>img_format</strong> – Image format to use. Defaults to EPS.</li>
+<li><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
 determination.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
 </ul>
 </td>
 </tr>
@@ -322,9 +319,9 @@ determination.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xlim</strong> &#8211; Specifies the x-axis limits. Set to None for automatic
+<li><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
 determination.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
 </ul>
 </td>
 </tr>
@@ -372,13 +369,13 @@ determination.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

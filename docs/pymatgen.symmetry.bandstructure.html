@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.symmetry.bandstructure module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.symmetry.bandstructure module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -80,12 +77,12 @@ with the given structure.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Structure object</li>
-<li><strong>symprec</strong> (<em>float</em>) &#8211; Tolerance for symmetry finding</li>
-<li><strong>angle_tolerance</strong> (<em>float</em>) &#8211; Angle tolerance for symmetry finding.</li>
-<li><strong>atol</strong> (<em>float</em>) &#8211; Absolute tolerance used to compare the input
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object</li>
+<li><strong>symprec</strong> (<em>float</em>) – Tolerance for symmetry finding</li>
+<li><strong>angle_tolerance</strong> (<em>float</em>) – Angle tolerance for symmetry finding.</li>
+<li><strong>atol</strong> (<em>float</em>) – Absolute tolerance used to compare the input
 structure with the one expected as primitive standard.
-A warning will be issued if the lattices don&#8217;t match.</li>
+A warning will be issued if the lattices don’t match.</li>
 </ul>
 </td>
 </tr>
@@ -109,7 +106,7 @@ A warning will be issued if the lattices don&#8217;t match.</li>
 <dl class="attribute">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.conventional">
 <code class="descname">conventional</code><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.conventional" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Returns</em> &#8211; The conventional cell structure</p>
+<dd><p><em>Returns</em> – The conventional cell structure</p>
 </dd></dl>
 
 <dl class="method">
@@ -144,7 +141,7 @@ together with the labels for symmetry points -Wei</td>
 <dl class="attribute">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.kpath">
 <code class="descname">kpath</code><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.kpath" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Returns</em> &#8211; The symmetry line path in reciprocal space</p>
+<dd><p><em>Returns</em> – The symmetry line path in reciprocal space</p>
 </dd></dl>
 
 <dl class="method">
@@ -210,13 +207,13 @@ together with the labels for symmetry points -Wei</td>
 <dl class="attribute">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.prim">
 <code class="descname">prim</code><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.prim" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Returns</em> &#8211; The primitive cell structure</p>
+<dd><p><em>Returns</em> – The primitive cell structure</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.prim_rec">
 <code class="descname">prim_rec</code><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.prim_rec" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Returns</em> &#8211; The primitive reciprocal cell structure</p>
+<dd><p><em>Returns</em> – The primitive reciprocal cell structure</p>
 </dd></dl>
 
 <dl class="method">
@@ -232,7 +229,7 @@ together with the labels for symmetry points -Wei</td>
 <dl class="attribute">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.structure">
 <code class="descname">structure</code><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.structure" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Returns</em> &#8211; The standardized primitive structure</p>
+<dd><p><em>Returns</em> – The standardized primitive structure</p>
 </dd></dl>
 
 <dl class="method">
@@ -290,13 +287,13 @@ together with the labels for symmetry points -Wei</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

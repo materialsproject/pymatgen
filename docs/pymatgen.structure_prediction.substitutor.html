@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.structure_prediction.substitutor module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.structure_prediction.substitutor module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -73,10 +70,10 @@ find good substitutions for a given chemistry or structure.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>threshold</strong> &#8211; probability threshold for predictions</li>
-<li><strong>symprec</strong> &#8211; symmetry precision to determine if two structures
+<li><strong>threshold</strong> – probability threshold for predictions</li>
+<li><strong>symprec</strong> – symmetry precision to determine if two structures
 are duplicates</li>
-<li><strong>kwargs</strong> &#8211; kwargs for the SubstitutionProbability object
+<li><strong>kwargs</strong> – kwargs for the SubstitutionProbability object
 lambda_table, alpha</li>
 </ul>
 </td>
@@ -128,7 +125,7 @@ through these possibilities. The brute force method would be:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_list</strong> &#8211; list of species in the starting structure</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_list</strong> – list of species in the starting structure</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of dictionaries, each including a substitutions
 dictionary, and a probability value</td>
@@ -156,14 +153,14 @@ if the number of target species is 3, only input structures containing
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target_species</strong> &#8211; a list of species with oxidation states
-e.g., [Specie(&#8216;Li&#8217;,1),Specie(&#8216;Ni&#8217;,2), Specie(&#8216;O&#8217;,-2)]</li>
-<li><strong>structures_list</strong> &#8211; a list of dictionnary of the form {&#8216;structure&#8217;:Structure object
-,&#8217;id&#8217;:some id where it comes from}
+<li><strong>target_species</strong> – a list of species with oxidation states
+e.g., [Specie(‘Li’,1),Specie(‘Ni’,2), Specie(‘O’,-2)]</li>
+<li><strong>structures_list</strong> – a list of dictionnary of the form {‘structure’:Structure object
+,’id’:some id where it comes from}
 the id can for instance refer to an ICSD id.</li>
-<li><strong>remove_duplicates</strong> &#8211; if True, the duplicates in the predicted structures will
+<li><strong>remove_duplicates</strong> – if True, the duplicates in the predicted structures will
 be removed</li>
-<li><strong>remove_existing</strong> &#8211; if True, the predicted structures that already exist in the
+<li><strong>remove_existing</strong> – if True, the predicted structures that already exist in the
 structures_list will be removed</li>
 </ul>
 </td>
@@ -215,13 +212,13 @@ structures_list will be removed</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

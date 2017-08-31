@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Collaborative Github Workflow &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>Collaborative Github Workflow &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,7 +56,7 @@
 <h1>Collaborative Github Workflow<a class="headerlink" href="#collaborative-github-workflow" title="Permalink to this headline">¶</a></h1>
 <p>For developers interested in expanding pymatgen for their own purposes, we
 recommend forking pymatgen directly from the
-<a class="reference external" href="https://github.com/materialsproject/pymatgen">pymatgen GitHub repo</a>. Here&#8217;s a typical workflow (adapted from
+<a class="reference external" href="https://github.com/materialsproject/pymatgen">pymatgen GitHub repo</a>. Here’s a typical workflow (adapted from
 <a class="reference external" href="http://www.eqqon.com/index.php/Collaborative_Github_Workflow">http://www.eqqon.com/index.php/Collaborative_Github_Workflow</a>):</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -67,14 +64,14 @@ recommend forking pymatgen directly from the
 the fork queue.</p>
 </div>
 <ol class="arabic">
-<li><p class="first">Create a free GitHub account (if you don&#8217;t already have one) and perform the
+<li><p class="first">Create a free GitHub account (if you don’t already have one) and perform the
 necessary setup (e.g., install SSH keys etc.).</p>
 </li>
 <li><p class="first">Fork the pymatgen GitHub repo, i.e., go to the main
 <a class="reference external" href="https://github.com/materialsproject/pymatgen">pymatgen GitHub repo</a> and click fork to create a copy of the pymatgen code
 base on your own Github account.</p>
 </li>
-<li><p class="first">Install git on your local machine (if you don&#8217;t already have it).</p>
+<li><p class="first">Install git on your local machine (if you don’t already have it).</p>
 </li>
 <li><p class="first">Clone <em>your forked repo</em> to your local machine. You will work mostly with
 your local repo and only publish changes when they are ready to be merged:</p>
@@ -89,7 +86,7 @@ code.</p>
 </li>
 <li><p class="first">Code (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Commit early and commit often. Keep your
 code up to date. You need to add the main repository to the list of your
-remotes. Let&#8217;s name the upstream repo as mpmaster (materialsproject master).</p>
+remotes. Let’s name the upstream repo as mpmaster (materialsproject master).</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">remote</span> <span class="n">add</span> <span class="n">mpmaster</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">materialsproject</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
 </div>
@@ -128,9 +125,9 @@ must be <strong>no errors</strong> for the nosetest.</p>
 </li>
 </ol>
 </li>
-<li><p class="first">Now that your commit is published, it doesn&#8217;t mean that it has already been
+<li><p class="first">Now that your commit is published, it doesn’t mean that it has already been
 merged into the main repository. You should issue a merge request to
-pymatgen&#8217; maintainers. They will pull your commits and run their own tests
+pymatgen’ maintainers. They will pull your commits and run their own tests
 before releasing.</p>
 </li>
 </ol>
@@ -145,13 +142,13 @@ following must be satisfied for your contributions to be accepted into pymatgen.
 minimize code regression is to ensure that all code are well-tested. If the
 maintainer cannot test your code, the contribution will be rejected.</li>
 <li><strong>Python PEP 8</strong> <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">code style</a>.
-We allow a few exceptions when they are well-justified (e.g., Element&#8217;s
+We allow a few exceptions when they are well-justified (e.g., Element’s
 atomic number is given a variable name of capital Z, in line with accepted
 scientific convention), but generally, PEP 8 must be observed.</li>
 <li><strong>Python 3</strong>. All code should seamless work with Python 2.7 and Python 3.x.
-Please read <a class="reference external" href="https://docs.python.org/3/howto/pyporting.html">Python&#8217;s official guidelines</a> on how to write Python 3.x
-compatible code, including the usage of the &#8220;six&#8221; package. It is recommended
-that you install the &#8220;python-modernize&#8221; package and run it before submitting
+Please read <a class="reference external" href="https://docs.python.org/3/howto/pyporting.html">Python’s official guidelines</a> on how to write Python 3.x
+compatible code, including the usage of the “six” package. It is recommended
+that you install the “python-modernize” package and run it before submitting
 any pull requests.</li>
 <li><strong>Documentation</strong> required for all modules, classes and methods. In
 particular, the method docstrings should make clear the arguments expected
@@ -181,7 +178,7 @@ which is more intuitive scientifically, instead of 0 (default integer
 division in Python 2). print_function ensures that print() is used instead
 of the print statement. And unicode_literals makes it such that all
 strings are treated as unicode by default. If you need to use bytes,
-those should be marked up explicitly as b&#8217;byte literal&#8217;.</p>
+those should be marked up explicitly as b’byte literal’.</p>
 </li>
 <li><p class="first"><strong>Use of the six package</strong>. Where necessary, use the six package to handle
 interoperability between Python 2 and 3. Examples include the six.moves
@@ -244,13 +241,13 @@ tests, you need to fix it.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

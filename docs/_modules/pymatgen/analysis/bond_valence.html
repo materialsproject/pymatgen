@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.bond_valence &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.bond_valence &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -64,18 +61,6 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements classes to perform bond valence analyses.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Oct 26, 2012&quot;</span>
-
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">operator</span>
@@ -90,15 +75,25 @@
 <span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements classes to perform bond valence analyses.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-<span class="c1">#Let&#39;s initialize some module level properties.</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Oct 26, 2012&quot;</span>
 
-<span class="c1">#List of electronegative elements specified in M. O&#39;Keefe, &amp; N. Brese,</span>
-<span class="c1">#JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.</span>
+
+<span class="c1"># Let&#39;s initialize some module level properties.</span>
+
+<span class="c1"># List of electronegative elements specified in M. O&#39;Keefe, &amp; N. Brese,</span>
+<span class="c1"># JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.</span>
 <span class="n">ELECTRONEG</span> <span class="o">=</span> <span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;Si&quot;</span><span class="p">,</span>
                                        <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="s2">&quot;As&quot;</span><span class="p">,</span> <span class="s2">&quot;Sb&quot;</span><span class="p">,</span>
                                        <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;Se&quot;</span><span class="p">,</span> <span class="s2">&quot;Te&quot;</span><span class="p">,</span>
@@ -106,12 +101,12 @@
 
 <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
-<span class="c1">#Read in BV parameters.</span>
+<span class="c1"># Read in BV parameters.</span>
 <span class="n">BV_PARAMS</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s2">&quot;bvparam_1991.yaml&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="n">BV_PARAMS</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">v</span>
 
-<span class="c1">#Read in yaml containing data-mined ICSD BV data.</span>
+<span class="c1"># Read in yaml containing data-mined ICSD BV data.</span>
 <span class="n">all_data</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s2">&quot;icsd_bv.yaml&quot;</span><span class="p">))</span>
 <span class="n">ICSD_BV_DATA</span> <span class="o">=</span> <span class="p">{</span><span class="n">Specie</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">sp</span><span class="p">):</span> <span class="n">data</span>
                 <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">all_data</span><span class="p">[</span><span class="s2">&quot;bvsum&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -128,8 +123,6 @@
 <span class="sd">            The site</span>
 <span class="sd">        nn_list:</span>
 <span class="sd">            List of nearest neighbors in the format [(nn_site, dist), ...].</span>
-<span class="sd">        anion_el:</span>
-<span class="sd">            The most electronegative element in the structure.</span>
 <span class="sd">        scale_factor:</span>
 <span class="sd">            A scale factor to be applied. This is useful for scaling distance,</span>
 <span class="sd">            esp in the case of calculation-relaxed structures which may tend</span>
@@ -160,8 +153,6 @@
 <span class="sd">            The site</span>
 <span class="sd">        nn_list:</span>
 <span class="sd">            List of nearest neighbors in the format [(nn_site, dist), ...].</span>
-<span class="sd">        anion_el:</span>
-<span class="sd">            The most electronegative element in the structure.</span>
 <span class="sd">        scale_factor:</span>
 <span class="sd">            A scale factor to be applied. This is useful for scaling distance,</span>
 <span class="sd">            esp in the case of calculation-relaxed structures which may tend</span>
@@ -252,7 +243,7 @@
             <span class="n">forbidden_species</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">icsd_bv_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">specie</span><span class="p">):</span> <span class="n">data</span>
                              <span class="k">for</span> <span class="n">specie</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">ICSD_BV_DATA</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                             <span class="k">if</span> <span class="ow">not</span> <span class="n">specie</span> <span class="ow">in</span> <span class="n">forbidden_species</span><span class="p">}</span> \
+                             <span class="k">if</span> <span class="n">specie</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">forbidden_species</span><span class="p">}</span> \
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">forbidden_species</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">ICSD_BV_DATA</span>
 
     <span class="k">def</span> <span class="nf">_calc_site_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="p">):</span>
@@ -288,12 +279,12 @@
                 <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="n">el</span> <span class="ow">and</span> <span class="n">sp</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">u</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span>
                     <span class="n">sigma</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]</span>
-                    <span class="c1">#Calculate posterior probability. Note that constant</span>
-                    <span class="c1">#factors are ignored. They have no effect on the results.</span>
+                    <span class="c1"># Calculate posterior probability. Note that constant</span>
+                    <span class="c1"># factors are ignored. They have no effect on the results.</span>
                     <span class="n">prob</span><span class="p">[</span><span class="n">el</span><span class="p">][</span><span class="n">sp</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">bv_sum</span> <span class="o">-</span> <span class="n">u</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span>
                                                  <span class="p">(</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span> \
                         <span class="o">/</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">PRIOR_PROB</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
-            <span class="c1">#Normalize the probabilities</span>
+            <span class="c1"># Normalize the probabilities</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">prob</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">prob</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
                             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">prob</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -326,7 +317,7 @@
                 <span class="s2">&quot;Structure contains elements not in set of BV parameters!&quot;</span>
             <span class="p">)</span>
 
-        <span class="c1">#Perform symmetry determination and get sites grouped by symmetry.</span>
+        <span class="c1"># Perform symmetry determination and get sites grouped by symmetry.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_tol</span><span class="p">:</span>
             <span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_tol</span><span class="p">)</span>
             <span class="n">symm_structure</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
@@ -334,13 +325,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">equi_sites</span> <span class="o">=</span> <span class="p">[[</span><span class="n">site</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
 
-        <span class="c1">#Sort the equivalent sites by decreasing electronegativity.</span>
+        <span class="c1"># Sort the equivalent sites by decreasing electronegativity.</span>
         <span class="n">equi_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">equi_sites</span><span class="p">,</span>
                             <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">sites</span><span class="p">:</span> <span class="o">-</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species_and_occu</span>
                             <span class="o">.</span><span class="n">average_electroneg</span><span class="p">)</span>
 
-        <span class="c1">#Get a list of valences and probabilities for each symmetrically</span>
-        <span class="c1">#distinct site.</span>
+        <span class="c1"># Get a list of valences and probabilities for each symmetrically</span>
+        <span class="c1"># distinct site.</span>
         <span class="n">valences</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">all_prob</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
@@ -350,9 +341,9 @@
                 <span class="n">prob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_site_probabilities</span><span class="p">(</span><span class="n">test_site</span><span class="p">,</span> <span class="n">nn</span><span class="p">)</span>
                 <span class="n">all_prob</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">prob</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-                <span class="c1">#Sort valences in order of decreasing probability.</span>
+                <span class="c1"># Sort valences in order of decreasing probability.</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="o">-</span><span class="n">prob</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
-                <span class="c1">#Retain probabilities that are at least 1/100 of highest prob.</span>
+                <span class="c1"># Retain probabilities that are at least 1/100 of highest prob.</span>
                 <span class="n">valences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">prob</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">prob</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
                                 <span class="n">val</span><span class="p">)))</span>
@@ -368,7 +359,7 @@
                 <span class="k">for</span> <span class="p">(</span><span class="n">elsp</span><span class="p">,</span> <span class="n">occ</span><span class="p">)</span> <span class="ow">in</span> <span class="n">get_z_ordered_elmap</span><span class="p">(</span>
                         <span class="n">test_site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">):</span>
                     <span class="n">val</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">prob</span><span class="p">[</span><span class="n">elsp</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-                    <span class="c1">#Sort valences in order of decreasing probability.</span>
+                    <span class="c1"># Sort valences in order of decreasing probability.</span>
                     <span class="n">val</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="o">-</span><span class="n">prob</span><span class="p">[</span><span class="n">elsp</span><span class="o">.</span><span class="n">symbol</span><span class="p">][</span><span class="n">v</span><span class="p">])</span>
                     <span class="c1"># Retain probabilities that are at least 1/100 of highest</span>
                     <span class="c1"># prob.</span>
@@ -378,7 +369,7 @@
                                 <span class="n">elsp</span><span class="o">.</span><span class="n">symbol</span><span class="p">][</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">val</span><span class="p">)))</span>
                 <span class="n">valences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
 
-        <span class="c1">#make variables needed for recursion</span>
+        <span class="c1"># make variables needed for recursion</span>
         <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
             <span class="n">nsites</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">equi_sites</span><span class="p">])</span>
             <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">valences</span><span class="p">])</span>
@@ -402,8 +393,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_best_score</span> <span class="o">=</span> <span class="n">score</span>
 
             <span class="k">def</span> <span class="nf">_recurse</span><span class="p">(</span><span class="n">assigned</span><span class="o">=</span><span class="p">[]):</span>
-                <span class="c1">#recurses to find permutations of valences based on whether a</span>
-                <span class="c1">#charge balanced assignment can still be found</span>
+                <span class="c1"># recurses to find permutations of valences based on whether a</span>
+                <span class="c1"># charge balanced assignment can still be found</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_permutations</span><span class="p">:</span>
                     <span class="k">return</span>
 
@@ -478,8 +469,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_best_score</span> <span class="o">=</span> <span class="n">score</span>
 
             <span class="k">def</span> <span class="nf">_recurse</span><span class="p">(</span><span class="n">assigned</span><span class="o">=</span><span class="p">[]):</span>
-                <span class="c1">#recurses to find permutations of valences based on whether a</span>
-                <span class="c1">#charge balanced assignment can still be found</span>
+                <span class="c1"># recurses to find permutations of valences based on whether a</span>
+                <span class="c1"># charge balanced assignment can still be found</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_permutations</span><span class="p">:</span>
                     <span class="k">return</span>
 
@@ -627,7 +618,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -635,7 +626,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

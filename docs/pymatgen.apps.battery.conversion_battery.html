@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.apps.battery.conversion_battery module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.apps.battery.conversion_battery module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -70,12 +67,12 @@ constructors provided.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>voltage_pairs</strong> &#8211; The voltage pairs making up the Conversion
+<li><strong>voltage_pairs</strong> – The voltage pairs making up the Conversion
 Electrode.</li>
-<li><strong>working_ion_entry</strong> &#8211; A single ComputedEntry or PDEntry
+<li><strong>working_ion_entry</strong> – A single ComputedEntry or PDEntry
 representing the element that carries charge across the
 battery, e.g. Li.</li>
-<li><strong>initial_comp</strong> &#8211; Starting composition for ConversionElectrode.</li>
+<li><strong>initial_comp</strong> – Starting composition for ConversionElectrode.</li>
 </ul>
 </td>
 </tr>
@@ -101,11 +98,11 @@ composition and all entries in a chemical system.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>comp</strong> &#8211; Starting composition for ConversionElectrode, e.g.,
-Composition(&#8220;FeF3&#8221;)</li>
-<li><strong>entries_in_chemsys</strong> &#8211; Sequence containing all entries in a
+<li><strong>comp</strong> – Starting composition for ConversionElectrode, e.g.,
+Composition(“FeF3”)</li>
+<li><strong>entries_in_chemsys</strong> – Sequence containing all entries in a
 chemical system. E.g., all Li-Fe-F containing entries.</li>
-<li><strong>working_ion_symbol</strong> &#8211; Element symbol of working ion. Defaults to Li.</li>
+<li><strong>working_ion_symbol</strong> – Element symbol of working ion. Defaults to Li.</li>
 </ul>
 </td>
 </tr>
@@ -123,10 +120,10 @@ composition and a phase diagram.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>comp</strong> &#8211; Starting composition for ConversionElectrode, e.g.,
-Composition(&#8220;FeF3&#8221;)</li>
-<li><strong>pd</strong> &#8211; A PhaseDiagram of the relevant system (e.g., Li-Fe-F)</li>
-<li><strong>working_ion_symbol</strong> &#8211; Element symbol of working ion. Defaults to Li.</li>
+<li><strong>comp</strong> – Starting composition for ConversionElectrode, e.g.,
+Composition(“FeF3”)</li>
+<li><strong>pd</strong> – A PhaseDiagram of the relevant system (e.g., Li-Fe-F)</li>
+<li><strong>working_ion_symbol</strong> – Element symbol of working ion. Defaults to Li.</li>
 </ul>
 </td>
 </tr>
@@ -145,14 +142,14 @@ Composition(&#8220;FeF3&#8221;)</li>
 <dd><p>If this electrode contains multiple voltage steps, then it is possible
 to use only a subset of the voltage steps to define other electrodes.
 For example, an LiTiO2 electrode might contain three subelectrodes:
-[LiTiO2 &#8211;&gt; TiO2, LiTiO2 &#8211;&gt; Li0.5TiO2, Li0.5TiO2 &#8211;&gt; TiO2]
+[LiTiO2 –&gt; TiO2, LiTiO2 –&gt; Li0.5TiO2, Li0.5TiO2 –&gt; TiO2]
 This method can be used to return all the subelectrodes with some
 options</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>adjacent_only</strong> &#8211; Only return electrodes from compounds that are
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>adjacent_only</strong> – Only return electrodes from compounds that are
 adjacent on the convex hull, i.e. no electrodes returned
 will have multiple voltage steps if this is set true</td>
 </tr>
@@ -169,9 +166,9 @@ will have multiple voltage steps if this is set true</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>print_subelectrodes</strong> &#8211; Also print data on all the possible subelectrodes</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>print_subelectrodes</strong> – Also print data on all the possible subelectrodes</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a summary of this electrode&#8221;s properties in dictionary format</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a summary of this electrode”s properties in dictionary format</td>
 </tr>
 </tbody>
 </table>
@@ -217,18 +214,18 @@ Typically not initialized directly but rather used by ConversionElectrode.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>balanced_rxn</strong> (<a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction" title="pymatgen.analysis.reaction_calculator.BalancedReaction"><em>BalancedReaction</em></a>) &#8211; BalancedReaction for the step</li>
-<li><strong>voltage</strong> (<em>float</em>) &#8211; Voltage for the step</li>
-<li><strong>mAh</strong> (<em>float</em>) &#8211; Capacity of the step</li>
-<li><strong>vol_charge</strong> (<em>float</em>) &#8211; Volume of charged state</li>
-<li><strong>vol_discharge</strong> (<em>float</em>) &#8211; Volume of discharged state</li>
-<li><strong>mass_charge</strong> (<em>float</em>) &#8211; Mass of charged state</li>
-<li><strong>mass_discharge</strong> (<em>float</em>) &#8211; Mass of discharged state</li>
-<li><strong>frac_charge</strong> (<em>float</em>) &#8211; Fraction of working ion in the charged state</li>
-<li><strong>frac_discharge</strong> (<em>float</em>) &#8211; Fraction of working ion in the discharged state</li>
-<li><strong>entries_charge</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em><em></em>) &#8211; Entries in the charged state</li>
-<li><strong>entries_discharge</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em><em></em>) &#8211; Entries in discharged state</li>
-<li><strong>working_ion_entry</strong> (<a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a>) &#8211; Entry of the working ion.</li>
+<li><strong>balanced_rxn</strong> (<a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction" title="pymatgen.analysis.reaction_calculator.BalancedReaction"><em>BalancedReaction</em></a>) – BalancedReaction for the step</li>
+<li><strong>voltage</strong> (<em>float</em>) – Voltage for the step</li>
+<li><strong>mAh</strong> (<em>float</em>) – Capacity of the step</li>
+<li><strong>vol_charge</strong> (<em>float</em>) – Volume of charged state</li>
+<li><strong>vol_discharge</strong> (<em>float</em>) – Volume of discharged state</li>
+<li><strong>mass_charge</strong> (<em>float</em>) – Mass of charged state</li>
+<li><strong>mass_discharge</strong> (<em>float</em>) – Mass of discharged state</li>
+<li><strong>frac_charge</strong> (<em>float</em>) – Fraction of working ion in the charged state</li>
+<li><strong>frac_discharge</strong> (<em>float</em>) – Fraction of working ion in the discharged state</li>
+<li><strong>entries_charge</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em>) – Entries in the charged state</li>
+<li><strong>entries_discharge</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em>) – Entries in discharged state</li>
+<li><strong>working_ion_entry</strong> (<a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a>) – Entry of the working ion.</li>
 </ul>
 </td>
 </tr>
@@ -274,9 +271,9 @@ from a PD analysis.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>step1</strong> &#8211; Starting step</li>
-<li><strong>step2</strong> &#8211; Ending step</li>
-<li><strong>normalization_els</strong> &#8211; Elements to normalize the reaction by. To
+<li><strong>step1</strong> – Starting step</li>
+<li><strong>step2</strong> – Ending step</li>
+<li><strong>normalization_els</strong> – Elements to normalize the reaction by. To
 ensure correct capacities.</li>
 </ul>
 </td>
@@ -370,13 +367,13 @@ ensure correct capacities.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

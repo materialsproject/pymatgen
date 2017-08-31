@@ -490,16 +490,16 @@ loop_
         ans = """# generated using pymatgen
 data_Li2O
 _symmetry_space_group_name_H-M   Fm-3m
-_cell_length_a   4.61000000
-_cell_length_b   4.61000000
-_cell_length_c   4.61000000
+_cell_length_a   4.65884171
+_cell_length_b   4.65884171
+_cell_length_c   4.65884171
 _cell_angle_alpha   90.00000000
 _cell_angle_beta   90.00000000
 _cell_angle_gamma   90.00000000
 _symmetry_Int_Tables_number   225
 _chemical_formula_structural   Li2O
 _chemical_formula_sum   'Li8 O4'
-_cell_volume   97.972181
+_cell_volume   101.119255769
 _cell_formula_units_Z   4
 loop_
  _symmetry_equiv_pos_site_id
@@ -709,8 +709,8 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Li+  Li1  8  0.250000  0.250000  0.250000  1.0
-  O2-  O2  4  0.000000  0.000000  0.000000  1.0"""
+  Li+  Li1  8  0.250000  0.250000  0.250000  1
+  O2-  O2  4  0.000000  0.000000  0.000000  1"""
 
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())

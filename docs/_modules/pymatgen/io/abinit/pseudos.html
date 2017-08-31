@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.pseudos &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.pseudos &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -158,8 +155,8 @@
 <span class="sd">    implemented by the concrete pseudopotential sub-classes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Pseudo.as_pseudo"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.as_pseudo">[docs]</a>    <span class="k">def</span> <span class="nf">as_pseudo</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="Pseudo.as_pseudo"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.as_pseudo">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">as_pseudo</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert obj into a pseudo. Accepts:</span>
 
@@ -168,8 +165,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">obj</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Pseudo.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Pseudo.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build an instance of a concrete Pseudo subclass from filename.</span>
 <span class="sd">        Note: the parser knows the concrete class that should be instantiated</span>
@@ -281,8 +278,8 @@
         <span class="sd">&quot;&quot;&quot;True if PAW pseudopotential.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PawPseudo</span><span class="p">)</span>
 
-    <span class="nd">@lazy_property</span>
-<div class="viewcode-block" id="Pseudo.md5"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.md5">[docs]</a>    <span class="k">def</span> <span class="nf">md5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Pseudo.md5"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.md5">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">md5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;MD5 hash value.&quot;&quot;&quot;</span>
         <span class="c1">#if self.has_dojo_report and &quot;md5&quot; in self.dojo_report: return self.dojo_report[&quot;md5&quot;]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_md5</span><span class="p">()</span></div>
@@ -303,8 +300,8 @@
 <span class="sd">        Base classes should provide a concrete implementation that computes this value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="nd">@pmg_serialize</span>
-<div class="viewcode-block" id="Pseudo.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Pseudo.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">basename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
@@ -317,8 +314,8 @@
             <span class="c1">#xc=self.xc.as_dict(),</span>
         <span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Pseudo.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Pseudo.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">new</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;filepath&#39;</span><span class="p">])</span>
 
         <span class="c1"># Consistency test based on md5</span>
@@ -1599,16 +1596,16 @@
 <span class="sd">    print elements.isotope(&#39;Fe&#39;)</span>
 <span class="sd">    Fe</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PseudoTable.as_table"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.as_table">[docs]</a>    <span class="k">def</span> <span class="nf">as_table</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+<div class="viewcode-block" id="PseudoTable.as_table"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.as_table">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">as_table</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return an instance of :class:`PseudoTable` from the iterable items.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span> <span class="k">return</span> <span class="n">items</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">items</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PseudoTable.from_dir"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.from_dir">[docs]</a>    <span class="k">def</span> <span class="nf">from_dir</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">exts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude_dirs</span><span class="o">=</span><span class="s2">&quot;_*&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="PseudoTable.from_dir"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.from_dir">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dir</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">exts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude_dirs</span><span class="o">=</span><span class="s2">&quot;_*&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find all pseudos in the directory tree starting from top.</span>
 
@@ -1742,8 +1739,8 @@
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;@class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PseudoTable.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="PseudoTable.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">pseudos</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1962,7 +1959,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1970,7 +1967,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.entries.compatibility module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.entries.compatibility module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -68,8 +65,8 @@ this depends on calculations being run within the same input set.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config_file</strong> &#8211; Path to the selected compatibility.yaml config file.</li>
-<li><strong>correct_peroxide</strong> &#8211; Specify whether peroxide/superoxide/ozonide
+<li><strong>config_file</strong> – Path to the selected compatibility.yaml config file.</li>
+<li><strong>correct_peroxide</strong> – Specify whether peroxide/superoxide/ozonide
 corrections are to be applied or not.</li>
 </ul>
 </td>
@@ -88,7 +85,7 @@ and H2O.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config_file</strong> &#8211; Path to the selected compatibility.yaml config file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config_file</strong> – Path to the selected compatibility.yaml config file.</td>
 </tr>
 </tbody>
 </table>
@@ -97,19 +94,19 @@ and H2O.</p>
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.Compatibility">
 <em class="property">class </em><code class="descname">Compatibility</code><span class="sig-paren">(</span><em>corrections</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/compatibility.html#Compatibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>The Compatibility class combines a list of corrections to be applied to
 an entry or a set of entries. Note that some of the Corrections have
 interdependencies. For example, PotcarCorrection must always be used
-before any other compatibility. Also, GasCorrection(&#8220;MP&#8221;) must be used
-with PotcarCorrection(&#8220;MP&#8221;) (similarly with &#8220;MIT&#8221;). Typically,
+before any other compatibility. Also, GasCorrection(“MP”) must be used
+with PotcarCorrection(“MP”) (similarly with “MIT”). Typically,
 you should use the specific MaterialsProjectCompatibility and
 MITCompatibility subclasses instead.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>corrections</strong> &#8211; List of corrections to apply.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>corrections</strong> – List of corrections to apply.</td>
 </tr>
 </tbody>
 </table>
@@ -117,13 +114,13 @@ MITCompatibility subclasses instead.</p>
 <dt id="pymatgen.entries.compatibility.Compatibility.explain">
 <code class="descname">explain</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/compatibility.html#Compatibility.explain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.explain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints an explanation of the corrections that are being applied for a
-given compatibility scheme. Inspired by the &#8220;explain&#8221; methods in many
+given compatibility scheme. Inspired by the “explain” methods in many
 database methodologies.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> &#8211; A ComputedEntry.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A ComputedEntry.</td>
 </tr>
 </tbody>
 </table>
@@ -137,7 +134,7 @@ database methodologies.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> &#8211; A ComputedEntry object.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A ComputedEntry object.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">value})</td>
 </tr>
@@ -151,20 +148,20 @@ database methodologies.</p>
 <dt id="pymatgen.entries.compatibility.Compatibility.get_explanation_dict">
 <code class="descname">get_explanation_dict</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/compatibility.html#Compatibility.get_explanation_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.get_explanation_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides an explanation dict of the corrections that are being applied
-for a given compatibility scheme. Inspired by the &#8220;explain&#8221; methods
+for a given compatibility scheme. Inspired by the “explain” methods
 in many database methodologies.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> &#8211; A ComputedEntry.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A ComputedEntry.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(dict) of the form
-{&#8220;Compatibility&#8221;: &#8220;string&#8221;,
-&#8220;Uncorrected_energy&#8221;: float,
-&#8220;Corrected_energy&#8221;: float,
-&#8220;Corrections&#8221;: [{&#8220;Name of Correction&#8221;: {
-&#8220;Value&#8221;: float, &#8220;Explanation&#8221;: &#8220;string&#8221;}]}</td>
+{“Compatibility”: “string”,
+“Uncorrected_energy”: float,
+“Corrected_energy”: float,
+“Corrections”: [{“Name of Correction”: {
+“Value”: float, “Explanation”: “string”}]}</td>
 </tr>
 </tbody>
 </table>
@@ -178,7 +175,7 @@ in many database methodologies.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entries</strong> &#8211; A sequence of entries.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entries</strong> – A sequence of entries.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An list of adjusted entries.  Entries in the original list which
 are not compatible are excluded.</td>
@@ -195,7 +192,7 @@ are not compatible are excluded.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> &#8211; A ComputedEntry object.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A ComputedEntry object.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An adjusted entry if entry is compatible, otherwise None is
 returned.</td>
@@ -230,7 +227,7 @@ correct_entry method.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> &#8211; A ComputedEntry object.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A ComputedEntry object.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An processed entry.</td>
 </tr>
@@ -248,7 +245,7 @@ correct_entry method.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> &#8211; A ComputedEntry object.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A ComputedEntry object.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The energy correction to be applied.</td>
 </tr>
@@ -271,8 +268,8 @@ this depends on calculations being run within the same input set.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config_file</strong> &#8211; Path to the selected compatibility.yaml config file.</li>
-<li><strong>correct_peroxide</strong> &#8211; Specify whether peroxide/superoxide/ozonide
+<li><strong>config_file</strong> – Path to the selected compatibility.yaml config file.</li>
+<li><strong>correct_peroxide</strong> – Specify whether peroxide/superoxide/ozonide
 corrections are to be applied or not.</li>
 </ul>
 </td>
@@ -294,16 +291,16 @@ this compatibility scheme on runs with different parameters is not valid.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>compat_type</strong> &#8211; Two options, GGA or Advanced.  GGA means all GGA+U
+<li><strong>compat_type</strong> – Two options, GGA or Advanced.  GGA means all GGA+U
 entries are excluded.  Advanced means mixing scheme is
 implemented to make entries compatible with each other,
 but entries which are supposed to be done in GGA+U will have the
 equivalent GGA entries excluded. For example, Fe oxides should
 have a U value under the Advanced scheme. A GGA Fe oxide run
 will therefore be excluded under the scheme.</li>
-<li><strong>correct_peroxide</strong> &#8211; Specify whether peroxide/superoxide/ozonide
+<li><strong>correct_peroxide</strong> – Specify whether peroxide/superoxide/ozonide
 corrections are to be applied or not.</li>
-<li><strong>check_potcar_hash</strong> (<em>bool</em>) &#8211; Use potcar hash to verify potcars are correct.</li>
+<li><strong>check_potcar_hash</strong> (<em>bool</em>) – Use potcar hash to verify potcars are correct.</li>
 </ul>
 </td>
 </tr>
@@ -324,16 +321,16 @@ this compatibility scheme on runs with different parameters is not valid.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>compat_type</strong> &#8211; Two options, GGA or Advanced.  GGA means all GGA+U
+<li><strong>compat_type</strong> – Two options, GGA or Advanced.  GGA means all GGA+U
 entries are excluded.  Advanced means mixing scheme is
 implemented to make entries compatible with each other,
 but entries which are supposed to be done in GGA+U will have the
 equivalent GGA entries excluded. For example, Fe oxides should
 have a U value under the Advanced scheme. A GGA Fe oxide run
 will therefore be excluded under the scheme.</li>
-<li><strong>correct_peroxide</strong> &#8211; Specify whether peroxide/superoxide/ozonide
+<li><strong>correct_peroxide</strong> – Specify whether peroxide/superoxide/ozonide
 corrections are to be applied or not.</li>
-<li><strong>check_potcar_hash</strong> (<em>bool</em>) &#8211; Use potcar hash to verify potcars are correct.</li>
+<li><strong>check_potcar_hash</strong> (<em>bool</em>) – Use potcar hash to verify potcars are correct.</li>
 </ul>
 </td>
 </tr>
@@ -355,16 +352,16 @@ valid.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>compat_type</strong> &#8211; Two options, GGA or Advanced.  GGA means all GGA+U
+<li><strong>compat_type</strong> – Two options, GGA or Advanced.  GGA means all GGA+U
 entries are excluded.  Advanced means mixing scheme is
 implemented to make entries compatible with each other,
 but entries which are supposed to be done in GGA+U will have the
 equivalent GGA entries excluded. For example, Fe oxides should
 have a U value under the Advanced scheme. A GGA Fe oxide run
 will therefore be excluded under the scheme.</li>
-<li><strong>correct_peroxide</strong> &#8211; Specify whether peroxide/superoxide/ozonide
+<li><strong>correct_peroxide</strong> – Specify whether peroxide/superoxide/ozonide
 corrections are to be applied or not.</li>
-<li><strong>check_potcar_hash</strong> (<em>bool</em>) &#8211; Use potcar hash to verify potcars are correct.</li>
+<li><strong>check_potcar_hash</strong> (<em>bool</em>) – Use potcar hash to verify potcars are correct.</li>
 </ul>
 </td>
 </tr>
@@ -386,16 +383,16 @@ valid.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>compat_type</strong> &#8211; Two options, GGA or Advanced.  GGA means all GGA+U
+<li><strong>compat_type</strong> – Two options, GGA or Advanced.  GGA means all GGA+U
 entries are excluded.  Advanced means mixing scheme is
 implemented to make entries compatible with each other,
 but entries which are supposed to be done in GGA+U will have the
 equivalent GGA entries excluded. For example, Fe oxides should
 have a U value under the Advanced scheme. A GGA Fe oxide run
 will therefore be excluded under the scheme.</li>
-<li><strong>correct_peroxide</strong> &#8211; Specify whether peroxide/superoxide/ozonide
+<li><strong>correct_peroxide</strong> – Specify whether peroxide/superoxide/ozonide
 corrections are to be applied or not.</li>
-<li><strong>check_potcar_hash</strong> (<em>bool</em>) &#8211; Use potcar hash to verify potcars are correct.</li>
+<li><strong>check_potcar_hash</strong> (<em>bool</em>) – Use potcar hash to verify potcars are correct.</li>
 </ul>
 </td>
 </tr>
@@ -410,26 +407,26 @@ corrections are to be applied or not.</li>
 <p>Checks that POTCARs are valid within a pre-defined input set. This
 ensures that calculations performed using different InputSets are not
 compared against each other.</p>
-<p>Entry.parameters must contain a &#8220;potcar_symbols&#8221; key that is a list of
+<p>Entry.parameters must contain a “potcar_symbols” key that is a list of
 all POTCARs used in the run. Again, using the example of an Fe2O3 run
 using Materials Project parameters, this would look like
-entry.parameters[&#8220;potcar_symbols&#8221;] = [&#8216;PAW_PBE Fe_pv 06Sep2000&#8217;,
-&#8216;PAW_PBE O 08Apr2002&#8217;].</p>
+entry.parameters[“potcar_symbols”] = [‘PAW_PBE Fe_pv 06Sep2000’,
+‘PAW_PBE O 08Apr2002’].</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>input_set</strong> &#8211; InputSet object used to generate the runs (used to check
+<li><strong>input_set</strong> – InputSet object used to generate the runs (used to check
 for correct potcar symbols)</li>
-<li><strong>check_hash</strong> (<em>bool</em>) &#8211; If true, uses the potcar hash to check for valid
+<li><strong>check_hash</strong> (<em>bool</em>) – If true, uses the potcar hash to check for valid
 potcars. If false, uses the potcar symbol (Less reliable).
 Defaults to True</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li>ValueError if entry do not contain &#8220;potcar_symbols&#8221; key.</li>
+<li>ValueError if entry do not contain “potcar_symbols” key.</li>
 <li>CombatibilityError if wrong potcar symbols</li>
 </ul>
 </td>
@@ -448,11 +445,11 @@ Defaults to True</li>
 <em class="property">class </em><code class="descname">UCorrection</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/compatibility.html#UCorrection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.UCorrection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.UCorrection" title="pymatgen.entries.compatibility.UCorrection"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.entries.compatibility.UCorrection</span></code></a></p>
 <p>This class implements the GGA/GGA+U mixing scheme, which allows mixing of
-entries. Entry.parameters must contain a &#8220;hubbards&#8221; key which is a dict
+entries. Entry.parameters must contain a “hubbards” key which is a dict
 of all non-zero Hubbard U values used in the calculation. For example,
 if you ran a Fe2O3 calculation with Materials Project parameters,
-this would look like entry.parameters[&#8220;hubbards&#8221;] = {&#8220;Fe&#8221;: 5.3}
-If the &#8220;hubbards&#8221; key is missing, a GGA run is assumed.</p>
+this would look like entry.parameters[“hubbards”] = {“Fe”: 5.3}
+If the “hubbards” key is missing, a GGA run is assumed.</p>
 <p>It should be noted that ComputedEntries assimilated using the
 pymatgen.apps.borg package and obtained via the MaterialsProject REST
 interface using the pymatgen.matproj.rest package will automatically have
@@ -462,9 +459,9 @@ these fields populated.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config_file</strong> &#8211; Path to the selected compatibility.yaml config file.</li>
-<li><strong>input_set</strong> &#8211; InputSet object (to check for the +U settings)</li>
-<li><strong>compat_type</strong> &#8211; Two options, GGA or Advanced.  GGA means all GGA+U
+<li><strong>config_file</strong> – Path to the selected compatibility.yaml config file.</li>
+<li><strong>input_set</strong> – InputSet object (to check for the +U settings)</li>
+<li><strong>compat_type</strong> – Two options, GGA or Advanced.  GGA means all GGA+U
 entries are excluded.  Advanced means mixing scheme is
 implemented to make entries compatible with each other,
 but entries which are supposed to be done in GGA+U will have the
@@ -516,13 +513,13 @@ will therefore be excluded under the scheme.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

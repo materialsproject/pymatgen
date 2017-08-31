@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -252,8 +249,8 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Poscar</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Poscar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">check_for_POTCAR</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_velocities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Poscar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">check_for_POTCAR</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_velocities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads a Poscar from a file.</span>
 
@@ -299,8 +296,8 @@
             <span class="k">return</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">names</span><span class="p">,</span>
                                       <span class="n">read_velocities</span><span class="o">=</span><span class="n">read_velocities</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Poscar.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">default_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_velocities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Poscar.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">default_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_velocities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads a Poscar from a string.</span>
 
@@ -596,8 +593,8 @@
                 <span class="s2">&quot;predictor_corrector&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictor_corrector</span><span class="p">,</span>
                 <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span><span class="p">}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Poscar.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Poscar.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">]),</span>
                       <span class="n">comment</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">],</span>
                       <span class="n">selective_dynamics</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;selective_dynamics&quot;</span><span class="p">],</span>
@@ -702,8 +699,8 @@
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Incar.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Incar.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">Magmom</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">]]</span>
         <span class="k">return</span> <span class="n">Incar</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;@module&quot;</span><span class="p">,</span>
@@ -766,8 +763,8 @@
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Incar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Incar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads an Incar object from a file.</span>
 
@@ -780,8 +777,8 @@
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Incar.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+<div class="viewcode-block" id="Incar.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads an Incar object from a string.</span>
 
@@ -802,8 +799,8 @@
                 <span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
         <span class="k">return</span> <span class="n">Incar</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Incar.proc_val"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar.proc_val">[docs]</a>    <span class="k">def</span> <span class="nf">proc_val</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<div class="viewcode-block" id="Incar.proc_val"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar.proc_val">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">proc_val</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Static helper method to convert INCAR parameters to proper types, e.g.,</span>
 <span class="sd">        integers, floats, lists, etc.</span>
@@ -939,8 +936,8 @@
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Kpoints_supported_modes.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints_supported_modes.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="Kpoints_supported_modes.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints_supported_modes.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">Kpoints_supported_modes</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">c</span><span class="p">:</span>
@@ -1033,8 +1030,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_style</span> <span class="o">=</span> <span class="n">style</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Kpoints.automatic"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.automatic">[docs]</a>    <span class="k">def</span> <span class="nf">automatic</span><span class="p">(</span><span class="n">subdivisions</span><span class="p">):</span>
+<div class="viewcode-block" id="Kpoints.automatic"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.automatic">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">automatic</span><span class="p">(</span><span class="n">subdivisions</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient static constructor for a fully automatic Kpoint grid, with</span>
 <span class="sd">        gamma centered Monkhorst-Pack grids and the number of subdivisions</span>
@@ -1052,8 +1049,8 @@
                        <span class="n">style</span><span class="o">=</span><span class="n">Kpoints</span><span class="o">.</span><span class="n">supported_modes</span><span class="o">.</span><span class="n">Automatic</span><span class="p">,</span>
                        <span class="n">kpts</span><span class="o">=</span><span class="p">[[</span><span class="n">subdivisions</span><span class="p">]])</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Kpoints.gamma_automatic"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.gamma_automatic">[docs]</a>    <span class="k">def</span> <span class="nf">gamma_automatic</span><span class="p">(</span><span class="n">kpts</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">shift</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+<div class="viewcode-block" id="Kpoints.gamma_automatic"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.gamma_automatic">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">gamma_automatic</span><span class="p">(</span><span class="n">kpts</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">shift</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient static constructor for an automatic Gamma centered Kpoint</span>
 <span class="sd">        grid.</span>
@@ -1070,8 +1067,8 @@
                        <span class="n">Kpoints</span><span class="o">.</span><span class="n">supported_modes</span><span class="o">.</span><span class="n">Gamma</span><span class="p">,</span> <span class="n">kpts</span><span class="o">=</span><span class="p">[</span><span class="n">kpts</span><span class="p">],</span>
                        <span class="n">kpts_shift</span><span class="o">=</span><span class="n">shift</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Kpoints.monkhorst_automatic"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.monkhorst_automatic">[docs]</a>    <span class="k">def</span> <span class="nf">monkhorst_automatic</span><span class="p">(</span><span class="n">kpts</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">shift</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+<div class="viewcode-block" id="Kpoints.monkhorst_automatic"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.monkhorst_automatic">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">monkhorst_automatic</span><span class="p">(</span><span class="n">kpts</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">shift</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient static constructor for an automatic Monkhorst pack Kpoint</span>
 <span class="sd">        grid.</span>
@@ -1088,8 +1085,8 @@
                        <span class="n">Kpoints</span><span class="o">.</span><span class="n">supported_modes</span><span class="o">.</span><span class="n">Monkhorst</span><span class="p">,</span> <span class="n">kpts</span><span class="o">=</span><span class="p">[</span><span class="n">kpts</span><span class="p">],</span>
                        <span class="n">kpts_shift</span><span class="o">=</span><span class="n">shift</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Kpoints.automatic_density"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.automatic_density">[docs]</a>    <span class="k">def</span> <span class="nf">automatic_density</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppa</span><span class="p">,</span> <span class="n">force_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Kpoints.automatic_density"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.automatic_density">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">automatic_density</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppa</span><span class="p">,</span> <span class="n">force_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an automatic Kpoint object based on a structure and a kpoint</span>
 <span class="sd">        density. Uses Gamma centered meshes for hexagonal cells and</span>
@@ -1110,6 +1107,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;pymatgen 4.7.6+ generated KPOINTS with grid density = &quot;</span> <span class="o">+</span> \
             <span class="s2">&quot;</span><span class="si">%.0f</span><span class="s2"> / atom&quot;</span> <span class="o">%</span> <span class="n">kppa</span>
+        <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">((</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">kppa</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">kppa</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">kppa</span> <span class="o">+=</span> <span class="n">kppa</span> <span class="o">*</span> <span class="mf">0.01</span>
         <span class="n">latt</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
         <span class="n">lengths</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">abc</span>
         <span class="n">ngrid</span> <span class="o">=</span> <span class="n">kppa</span> <span class="o">/</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
@@ -1127,8 +1126,8 @@
 
         <span class="k">return</span> <span class="n">Kpoints</span><span class="p">(</span><span class="n">comment</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="p">[</span><span class="n">num_div</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Kpoints.automatic_gamma_density"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.automatic_gamma_density">[docs]</a>    <span class="k">def</span> <span class="nf">automatic_gamma_density</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppa</span><span class="p">):</span>
+<div class="viewcode-block" id="Kpoints.automatic_gamma_density"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.automatic_gamma_density">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">automatic_gamma_density</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppa</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an automatic Kpoint object based on a structure and a kpoint</span>
 <span class="sd">        density. Uses Gamma centered meshes always. For GW.</span>
@@ -1165,8 +1164,8 @@
         <span class="n">num_kpts</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">Kpoints</span><span class="p">(</span><span class="n">comment</span><span class="p">,</span> <span class="n">num_kpts</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="p">[</span><span class="n">num_div</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Kpoints.automatic_density_by_vol"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.automatic_density_by_vol">[docs]</a>    <span class="k">def</span> <span class="nf">automatic_density_by_vol</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppvol</span><span class="p">,</span> <span class="n">force_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Kpoints.automatic_density_by_vol"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.automatic_density_by_vol">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">automatic_density_by_vol</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppvol</span><span class="p">,</span> <span class="n">force_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an automatic Kpoint object based on a structure and a kpoint</span>
 <span class="sd">        density per inverse Angstrom of reciprocal cell.</span>
@@ -1187,8 +1186,8 @@
         <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">automatic_density</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppa</span><span class="p">,</span>
                                          <span class="n">force_gamma</span><span class="o">=</span><span class="n">force_gamma</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Kpoints.automatic_linemode"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.automatic_linemode">[docs]</a>    <span class="k">def</span> <span class="nf">automatic_linemode</span><span class="p">(</span><span class="n">divisions</span><span class="p">,</span> <span class="n">ibz</span><span class="p">):</span>
+<div class="viewcode-block" id="Kpoints.automatic_linemode"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.automatic_linemode">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">automatic_linemode</span><span class="p">(</span><span class="n">divisions</span><span class="p">,</span> <span class="n">ibz</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient static constructor for a KPOINTS in mode line_mode.</span>
 <span class="sd">        gamma centered Monkhorst-Pack grids and the number of subdivisions</span>
@@ -1224,8 +1223,8 @@
                        <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
                        <span class="n">num_kpts</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">divisions</span><span class="p">))</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Kpoints.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Kpoints.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads a Kpoints object from a KPOINTS file.</span>
 
@@ -1238,8 +1237,8 @@
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Kpoints.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+<div class="viewcode-block" id="Kpoints.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads a Kpoints object from a KPOINTS string.</span>
 
@@ -1404,8 +1403,8 @@
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Kpoints.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Kpoints.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">comment</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">generation_style</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;generation_style&quot;</span><span class="p">)</span>
         <span class="n">kpts</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;kpoints&quot;</span><span class="p">,</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
@@ -1618,8 +1617,8 @@
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="PotcarSingle.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.PotcarSingle.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="PotcarSingle.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.PotcarSingle.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">PotcarSingle</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
@@ -1631,8 +1630,8 @@
                              <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">PotcarSingle</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="PotcarSingle.from_symbol_and_functional"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.PotcarSingle.from_symbol_and_functional">[docs]</a>    <span class="k">def</span> <span class="nf">from_symbol_and_functional</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">functional</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PotcarSingle.from_symbol_and_functional"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.PotcarSingle.from_symbol_and_functional">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_symbol_and_functional</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">functional</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">functional</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">functional</span> <span class="o">=</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PMG_DEFAULT_FUNCTIONAL&quot;</span><span class="p">,</span> <span class="s2">&quot;PBE&quot;</span><span class="p">)</span>
         <span class="n">funcdir</span> <span class="o">=</span> <span class="n">PotcarSingle</span><span class="o">.</span><span class="n">functional_dir</span><span class="p">[</span><span class="n">functional</span><span class="p">]</span>
@@ -1777,12 +1776,12 @@
                 <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Potcar.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Potcar.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Potcar.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Potcar.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Potcar</span><span class="p">(</span><span class="n">symbols</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;symbols&quot;</span><span class="p">],</span> <span class="n">functional</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;functional&quot;</span><span class="p">])</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Potcar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Potcar.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Potcar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Potcar.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">fdata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -1903,8 +1902,8 @@
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="VaspInput.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.VaspInput.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="VaspInput.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.VaspInput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="n">sub_d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;optional_files&quot;</span><span class="p">:</span> <span class="p">{}}</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1930,8 +1929,8 @@
             <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="VaspInput.from_directory"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.VaspInput.from_directory">[docs]</a>    <span class="k">def</span> <span class="nf">from_directory</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">optional_files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="VaspInput.from_directory"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.VaspInput.from_directory">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_directory</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">optional_files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read in a set of VASP input from a directory. Note that only the</span>
 <span class="sd">        standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless</span>
@@ -1984,7 +1983,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1992,7 +1991,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

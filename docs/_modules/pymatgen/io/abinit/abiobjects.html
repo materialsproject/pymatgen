@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.abiobjects &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.abiobjects &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -298,8 +295,8 @@
 <span class="sd">    that returns a dictionary with the abinit variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-<div class="viewcode-block" id="AbivarAble.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.AbivarAble.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AbivarAble.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.AbivarAble.to_abivars">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a dictionary with the abinit variables.&quot;&quot;&quot;</span></div>
 
     <span class="c1">#@abc.abstractmethod</span>
@@ -341,8 +338,8 @@
 <span class="sd">        - spinor (non-collinear magnetism)</span>
 <span class="sd">        - spinor_nomag (non-collinear, no magnetism)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="SpinMode.as_spinmode"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.as_spinmode">[docs]</a>    <span class="k">def</span> <span class="nf">as_spinmode</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="SpinMode.as_spinmode"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.as_spinmode">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">as_spinmode</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Converts obj into a `SpinMode` instance&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">obj</span>
@@ -360,12 +357,12 @@
             <span class="s2">&quot;nspden&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspden</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-    <span class="nd">@pmg_serialize</span>
-<div class="viewcode-block" id="SpinMode.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SpinMode.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="SpinMode.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="SpinMode.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_fields</span><span class="p">})</span></div></div>
 
 
@@ -416,8 +413,8 @@
     <span class="c1"># py2 old version</span>
     <span class="n">__nonzero__</span> <span class="o">=</span> <span class="fm">__bool__</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Smearing.as_smearing"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.as_smearing">[docs]</a>    <span class="k">def</span> <span class="nf">as_smearing</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="Smearing.as_smearing"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.as_smearing">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">as_smearing</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs an instance of `Smearing` from obj. Accepts obj in the form:</span>
 
@@ -455,8 +452,8 @@
                 <span class="k">return</span> <span class="n">mode_str</span>
         <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Unknown occopt </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">occopt</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Smearing.nosmearing"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.nosmearing">[docs]</a>    <span class="k">def</span> <span class="nf">nosmearing</span><span class="p">():</span>
+<div class="viewcode-block" id="Smearing.nosmearing"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.nosmearing">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">nosmearing</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">Smearing</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Smearing.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -465,13 +462,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;occopt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">occopt</span><span class="p">,</span> <span class="s2">&quot;tsmear&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span><span class="p">,}</span></div>
 
-    <span class="nd">@pmg_serialize</span>
-<div class="viewcode-block" id="Smearing.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Smearing.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;json friendly dict representation of Smearing&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;occopt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">occopt</span><span class="p">,</span> <span class="s2">&quot;tsmear&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span><span class="p">}</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Smearing.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Smearing.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Smearing</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;occopt&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;tsmear&quot;</span><span class="p">])</span></div></div>
 
 
@@ -493,12 +490,12 @@
 <div class="viewcode-block" id="ElectronsAlgorithm.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
-    <span class="nd">@pmg_serialize</span>
-<div class="viewcode-block" id="ElectronsAlgorithm.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ElectronsAlgorithm.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ElectronsAlgorithm.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="ElectronsAlgorithm.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;@module&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;@class&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -552,8 +549,8 @@
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Electrons.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Electrons.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;@module&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;@class&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -705,13 +702,13 @@
     <span class="k">def</span> <span class="nf">is_homogeneous</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="KSampling.gamma_only"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.gamma_only">[docs]</a>    <span class="k">def</span> <span class="nf">gamma_only</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<div class="viewcode-block" id="KSampling.gamma_only"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.gamma_only">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">gamma_only</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Gamma-only sampling&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">kpt_shifts</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">),</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Gamma-only sampling&quot;</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="KSampling.gamma_centered"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.gamma_centered">[docs]</a>    <span class="k">def</span> <span class="nf">gamma_centered</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">kpts</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_time_reversal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="KSampling.gamma_centered"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.gamma_centered">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">gamma_centered</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">kpts</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_time_reversal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient static constructor for an automatic Gamma centered Kpoint grid.</span>
 
@@ -729,8 +726,8 @@
                    <span class="n">use_symmetries</span><span class="o">=</span><span class="n">use_symmetries</span><span class="p">,</span> <span class="n">use_time_reversal</span><span class="o">=</span><span class="n">use_time_reversal</span><span class="p">,</span>
                    <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;gamma-centered mode&quot;</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="KSampling.monkhorst"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.monkhorst">[docs]</a>    <span class="k">def</span> <span class="nf">monkhorst</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ngkpt</span><span class="p">,</span> <span class="n">shiftk</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="viewcode-block" id="KSampling.monkhorst"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.monkhorst">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">monkhorst</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ngkpt</span><span class="p">,</span> <span class="n">shiftk</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                   <span class="n">use_time_reversal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient static constructor for a Monkhorst-Pack mesh.</span>
@@ -749,8 +746,8 @@
             <span class="n">use_symmetries</span><span class="o">=</span><span class="n">use_symmetries</span><span class="p">,</span> <span class="n">use_time_reversal</span><span class="o">=</span><span class="n">use_time_reversal</span><span class="p">,</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="n">chksymbreak</span><span class="p">,</span>
             <span class="n">comment</span><span class="o">=</span><span class="n">comment</span> <span class="k">if</span> <span class="n">comment</span> <span class="k">else</span> <span class="s2">&quot;Monkhorst-Pack scheme with user-specified shiftk&quot;</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="KSampling.monkhorst_automatic"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.monkhorst_automatic">[docs]</a>    <span class="k">def</span> <span class="nf">monkhorst_automatic</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">ngkpt</span><span class="p">,</span>
+<div class="viewcode-block" id="KSampling.monkhorst_automatic"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.monkhorst_automatic">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">monkhorst_automatic</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">ngkpt</span><span class="p">,</span>
                             <span class="n">use_symmetries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_time_reversal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient static constructor for an automatic Monkhorst-Pack mesh.</span>
@@ -813,18 +810,18 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">KSamplingModes</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">num_kpts</span><span class="o">=</span><span class="n">ndivsm</span><span class="p">,</span> <span class="n">kpts</span><span class="o">=</span><span class="n">kpath_bounds</span><span class="p">,</span>
                    <span class="n">comment</span><span class="o">=</span><span class="n">comment</span> <span class="k">if</span> <span class="n">comment</span> <span class="k">else</span> <span class="s2">&quot;K-Path scheme&quot;</span><span class="p">)</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="KSampling.path_from_structure"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.path_from_structure">[docs]</a>    <span class="k">def</span> <span class="nf">path_from_structure</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ndivsm</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+<div class="viewcode-block" id="KSampling.path_from_structure"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.path_from_structure">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">path_from_structure</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ndivsm</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;See _path for the meaning of the variables&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_path</span><span class="p">(</span><span class="n">ndivsm</span><span class="p">,</span>  <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;K-path generated automatically from structure&quot;</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="KSampling.explicit_path"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.explicit_path">[docs]</a>    <span class="k">def</span> <span class="nf">explicit_path</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ndivsm</span><span class="p">,</span> <span class="n">kpath_bounds</span><span class="p">):</span>
+<div class="viewcode-block" id="KSampling.explicit_path"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.explicit_path">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">explicit_path</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ndivsm</span><span class="p">,</span> <span class="n">kpath_bounds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;See _path for the meaning of the variables&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_path</span><span class="p">(</span><span class="n">ndivsm</span><span class="p">,</span> <span class="n">kpath_bounds</span><span class="o">=</span><span class="n">kpath_bounds</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Explicit K-path&quot;</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="KSampling.automatic_density"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.automatic_density">[docs]</a>    <span class="k">def</span> <span class="nf">automatic_density</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">kppa</span><span class="p">,</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_time_reversal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="viewcode-block" id="KSampling.automatic_density"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.automatic_density">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">automatic_density</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">kppa</span><span class="p">,</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_time_reversal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                           <span class="n">shifts</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an automatic Kpoint object based on a structure and a kpoint</span>
@@ -887,8 +884,8 @@
                 <span class="s1">&#39;use_time_reversal&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_time_reversal</span><span class="p">,</span> <span class="s1">&#39;chksymbreak&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chksymbreak</span><span class="p">,</span>
                 <span class="s1">&#39;@module&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span> <span class="s1">&#39;@class&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="KSampling.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="KSampling.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;@module&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;@class&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -946,15 +943,15 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: No default value has been provided for the mandatory key </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
                                  <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="RelaxationMethod.atoms_only"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_only">[docs]</a>    <span class="k">def</span> <span class="nf">atoms_only</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">atoms_constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RelaxationMethod.atoms_only"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_only">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">atoms_only</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">atoms_constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">atoms_constraints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">ionmov</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">IONMOV_DEFAULT</span><span class="p">,</span> <span class="n">optcell</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">ionmov</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">IONMOV_DEFAULT</span><span class="p">,</span> <span class="n">optcell</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atoms_constraints</span><span class="o">=</span><span class="n">atoms_constraints</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="RelaxationMethod.atoms_and_cell"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_and_cell">[docs]</a>    <span class="k">def</span> <span class="nf">atoms_and_cell</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">atoms_constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RelaxationMethod.atoms_and_cell"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_and_cell">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">atoms_and_cell</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">atoms_constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">atoms_constraints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">ionmov</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">IONMOV_DEFAULT</span><span class="p">,</span> <span class="n">optcell</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">OPTCELL_DEFAULT</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1007,8 +1004,8 @@
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;@class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="RelaxationMethod.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="RelaxationMethod.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;@module&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;@class&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -1030,8 +1027,8 @@
 <span class="sd">    The common way to instanciate a PPModel object is via the class method PPModel.as_ppmodel(string)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PPModel.as_ppmodel"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.as_ppmodel">[docs]</a>    <span class="k">def</span> <span class="nf">as_ppmodel</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="PPModel.as_ppmodel"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.as_ppmodel">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">as_ppmodel</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs an instance of PPModel from obj.</span>
 
@@ -1094,8 +1091,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{}</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PPModel.get_noppmodel"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.get_noppmodel">[docs]</a>    <span class="k">def</span> <span class="nf">get_noppmodel</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<div class="viewcode-block" id="PPModel.get_noppmodel"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.get_noppmodel">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_noppmodel</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;noppmodel&quot;</span><span class="p">,</span> <span class="n">plasmon_freq</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PPModel.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1103,8 +1100,8 @@
                 <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="PPModel.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="PPModel.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">PPModel</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">],</span> <span class="n">plasmon_freq</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;plasmon_freq&quot;</span><span class="p">])</span></div></div>
 
 
@@ -1545,7 +1542,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1553,7 +1550,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

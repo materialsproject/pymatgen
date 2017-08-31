@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -82,8 +79,8 @@ etc. are ignored.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>Poscar</em></a>) &#8211; Poscar object containing structure.</li>
-<li><strong>data</strong> &#8211; Actual data.</li>
+<li><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>Poscar</em></a>) – Poscar object containing structure.</li>
+<li><strong>data</strong> – Actual data.</li>
 </ul>
 </td>
 </tr>
@@ -110,7 +107,7 @@ etc. are ignored.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; Name of file containing DYNMAT.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Name of file containing DYNMAT.</td>
 </tr>
 </tbody>
 </table>
@@ -118,11 +115,11 @@ etc. are ignored.</p>
 <dt id="pymatgen.io.vasp.outputs.Dynmat.data">
 <code class="descname">data</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Dynmat.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>A nested dict containing the DYNMAT data of the form::
-[atom &lt;int&gt;][disp &lt;int&gt;][&#8216;dispvec&#8217;] =</p>
+[atom &lt;int&gt;][disp &lt;int&gt;][‘dispvec’] =</p>
 <blockquote>
-<div>displacement vector (part of first line in dynmat block, e.g. &#8220;0.01 0 0&#8221;)</div></blockquote>
+<div>displacement vector (part of first line in dynmat block, e.g. “0.01 0 0”)</div></blockquote>
 <dl class="docutils">
-<dt>[atom &lt;int&gt;][disp &lt;int&gt;][&#8216;dynmat&#8217;] =</dt>
+<dt>[atom &lt;int&gt;][disp &lt;int&gt;][‘dynmat’] =</dt>
 <dd>&lt;list&gt; list of dynmat lines for this atom and this displacement</dd>
 </dl>
 </dd></dl>
@@ -170,8 +167,8 @@ etc. are ignored.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>Poscar</em></a>) &#8211; Poscar object containing structure.</li>
-<li><strong>data</strong> &#8211; Actual data.</li>
+<li><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>Poscar</em></a>) – Poscar object containing structure.</li>
+<li><strong>data</strong> – Actual data.</li>
 </ul>
 </td>
 </tr>
@@ -196,7 +193,7 @@ information about a run.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Filename of file to parse</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename of file to parse</td>
 </tr>
 </tbody>
 </table>
@@ -204,21 +201,21 @@ information about a run.</p>
 <dt id="pymatgen.io.vasp.outputs.Oszicar.electronic_steps">
 <code class="descname">electronic_steps</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Oszicar.electronic_steps" title="Permalink to this definition">¶</a></dt>
 <dd><p>All electronic steps as a list of list of dict. e.g.,
-[[{&#8220;rms&#8221;: 160.0, &#8220;E&#8221;: 4507.24605593, &#8220;dE&#8221;: 4507.2, &#8220;N&#8221;: 1,
-&#8220;deps&#8221;: -17777.0, &#8220;ncg&#8221;: 16576}, ...], [....]
+[[{“rms”: 160.0, “E”: 4507.24605593, “dE”: 4507.2, “N”: 1,
+“deps”: -17777.0, “ncg”: 16576}, …], [….]
 where electronic_steps[index] refers the list of electronic steps
 in one ionic_step, electronic_steps[index][subindex] refers to a
 particular electronic step at subindex in ionic step at index. The
 dict of properties depends on the type of VASP run, but in general,
-&#8220;E&#8221;, &#8220;dE&#8221; and &#8220;rms&#8221; should be present in almost all runs.</p>
+“E”, “dE” and “rms” should be present in almost all runs.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt>
 <code class="descname">ionic_steps:</code></dt>
 <dd><p>All ionic_steps as a list of dict, e.g.,
-[{&#8220;dE&#8221;: -526.36, &#8220;E0&#8221;: -526.36024, &#8220;mag&#8221;: 0.0, &#8220;F&#8221;: -526.36024},
-...]
+[{“dE”: -526.36, “E0”: -526.36024, “mag”: 0.0, “F”: -526.36024},
+…]
 This is the typical output from VASP at the end of each ionic step.</p>
 </dd></dl>
 
@@ -227,7 +224,7 @@ This is the typical output from VASP at the end of each ionic step.</p>
 <code class="descname">all_energies</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Oszicar.all_energies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compilation of all energies from all electronic steps and ionic steps
 as a tuple of list of energies, e.g.,
-((4507.24605593, 143.824705755, -512.073149912, ...), ...)</p>
+((4507.24605593, 143.824705755, -512.073149912, …), …)</p>
 </dd></dl>
 
 <dl class="method">
@@ -249,14 +246,14 @@ as a tuple of list of energies, e.g.,
 <p>Parser for data in OUTCAR that is not available in Vasprun.xml</p>
 <p>Note, this class works a bit differently than most of the other
 VaspObjects, since the OUTCAR can be very different depending on which
-&#8220;type of run&#8221; performed.</p>
-<p>Creating the OUTCAR class with a filename reads &#8220;regular parameters&#8221; that
+“type of run” performed.</p>
+<p>Creating the OUTCAR class with a filename reads “regular parameters” that
 are always present.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; OUTCAR filename to parse.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – OUTCAR filename to parse.</td>
 </tr>
 </tbody>
 </table>
@@ -264,7 +261,7 @@ are always present.</p>
 <dt id="pymatgen.io.vasp.outputs.Outcar.magnetization">
 <code class="descname">magnetization</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.magnetization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Magnetization on each ion as a tuple of dict, e.g.,
-({&#8220;d&#8221;: 0.0, &#8220;p&#8221;: 0.003, &#8220;s&#8221;: 0.002, &#8220;tot&#8221;: 0.005}, ... )
+({“d”: 0.0, “p”: 0.003, “s”: 0.002, “tot”: 0.005}, … )
 Note that this data is not always present.  LORBIT must be set to some
 other value than the default.</p>
 </dd></dl>
@@ -273,7 +270,7 @@ other value than the default.</p>
 <dt id="pymatgen.io.vasp.outputs.Outcar.chemical_shifts">
 <code class="descname">chemical_shifts</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.chemical_shifts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Chemical Shift on each ion as a tuple of ChemicalShiftNotation, e.g.,
-(cs1, cs2, ...)</p>
+(cs1, cs2, …)</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -286,7 +283,7 @@ e.g.,
 <div><blockquote>
 <div>[sigma21, sigma22, sigma23],
 [sigma31, sigma32, sigma33]],
-...</div></blockquote>
+…</div></blockquote>
 <dl class="docutils">
 <dt>[[sigma11, sigma12, sigma13],</dt>
 <dd>[sigma21, sigma22, sigma23],
@@ -315,17 +312,17 @@ e.g.,
 <dt id="pymatgen.io.vasp.outputs.Outcar.efg">
 <code class="descname">efg</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.efg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Electric Field Gradient (EFG) tensor on each ion as a tuple of dict, e.g.,
-({&#8220;cq&#8221;: 0.1, &#8220;eta&#8221;, 0.2, &#8220;nuclear_quadrupole_moment&#8221;: 0.3},</p>
+({“cq”: 0.1, “eta”, 0.2, “nuclear_quadrupole_moment”: 0.3},</p>
 <blockquote>
-<div>{&#8220;cq&#8221;: 0.7, &#8220;eta&#8221;, 0.8, &#8220;nuclear_quadrupole_moment&#8221;: 0.9},
-...)</div></blockquote>
+<div>{“cq”: 0.7, “eta”, 0.8, “nuclear_quadrupole_moment”: 0.9},
+…)</div></blockquote>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Outcar.charge">
 <code class="descname">charge</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.charge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Charge on each ion as a tuple of dict, e.g.,
-({&#8220;p&#8221;: 0.154, &#8220;s&#8221;: 0.078, &#8220;d&#8221;: 0.0, &#8220;tot&#8221;: 0.232}, ...)
+({“p”: 0.154, “s”: 0.078, “d”: 0.0, “tot”: 0.232}, …)
 Note that this data is not always present.  LORBIT must be set to some
 other value than the default.</p>
 </dd></dl>
@@ -339,10 +336,10 @@ other value than the default.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Outcar.run_stats">
 <code class="descname">run_stats</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.run_stats" title="Permalink to this definition">¶</a></dt>
-<dd><p>Various useful run stats as a dict including &#8220;System time (sec)&#8221;,
-&#8220;Total CPU time used (sec)&#8221;, &#8220;Elapsed time (sec)&#8221;,
-&#8220;Maximum memory used (kb)&#8221;, &#8220;Average memory used (kb)&#8221;,
-&#8220;User time (sec)&#8221;.</p>
+<dd><p>Various useful run stats as a dict including “System time (sec)”,
+“Total CPU time used (sec)”, “Elapsed time (sec)”,
+“Maximum memory used (kb)”, “Average memory used (kb)”,
+“User time (sec)”.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -383,7 +380,7 @@ last ionic step is: [-1][1]</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_chemical_shifts">
 <code class="descname">read_chemical_shifts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_chemical_shifts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_chemical_shifts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the NMR chemical shifts data. Only the second part &#8220;absolute, valence and core&#8221;
+<dd><p>Parse the NMR chemical shifts data. Only the second part “absolute, valence and core”
 will be parsed. And only the three right most field (ISO_SHIFT, SPAN, SKEW) will be retrieved.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -407,13 +404,13 @@ will be parsed. And only the three right most field (ISO_SHIFT, SPAN, SKEW) will
 The core state eigenenergie list for each AO is over all ionic
 step.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A list of dict over the atom such as [{&#8220;AO&#8221;</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A list of dict over the atom such as [{“AO”</td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Example</p>
 <p>The core state eigenenergie of the 2s AO of the 6th atom of the
-structure at the last ionic step is [5][&#8220;2s&#8221;][-1]</p>
+structure at the last ionic step is [5][“2s”][-1]</p>
 </dd></dl>
 
 <dl class="method">
@@ -479,7 +476,7 @@ er_bp_tot = spin up + spin down summed
 p_elc = spin up + spin down summed
 p_ion = spin up + spin down summed</dd>
 </dl>
-<p>(See VASP section &#8220;LBERRY,  IGPAR,  NPPSTR,  DIPOL tags&#8221; for info on
+<p>(See VASP section “LBERRY,  IGPAR,  NPPSTR,  DIPOL tags” for info on
 what these are).</p>
 </dd></dl>
 
@@ -509,11 +506,11 @@ Henkelman et al.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>reverse</strong> (<em>bool</em>) &#8211; Read files in reverse. Defaults to false. Useful for
+<li><strong>reverse</strong> (<em>bool</em>) – Read files in reverse. Defaults to false. Useful for
 large files, esp OUTCARs, especially when used with
 terminate_on_match. Defaults to True here since we usually
 want only the final value.</li>
-<li><strong>terminate_on_match</strong> (<em>bool</em>) &#8211; Whether to terminate when there is at
+<li><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
 least one match in each key in pattern. Defaults to True here
 since we usually want only the final value.</li>
 </ul>
@@ -547,21 +544,21 @@ Each dict key/value pair corresponds to a component of the tensors.</td>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_pattern">
 <code class="descname">read_pattern</code><span class="sig-paren">(</span><em>patterns</em>, <em>reverse=False</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_pattern" title="Permalink to this definition">¶</a></dt>
-<dd><p>General pattern reading. Uses monty&#8217;s regrep method. Takes the same
+<dd><p>General pattern reading. Uses monty’s regrep method. Takes the same
 arguments.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>patterns</strong> (<em>dict</em>) &#8211; A dict of patterns, e.g.,
-{&#8220;energy&#8221;: r&#8221;energy(sigma-&gt;0)s+=s+([d-.]+)&#8221;}.</li>
-<li><strong>reverse</strong> (<em>bool</em>) &#8211; Read files in reverse. Defaults to false. Useful for
+<li><strong>patterns</strong> (<em>dict</em>) – A dict of patterns, e.g.,
+{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”}.</li>
+<li><strong>reverse</strong> (<em>bool</em>) – Read files in reverse. Defaults to false. Useful for
 large files, esp OUTCARs, especially when used with
 terminate_on_match.</li>
-<li><strong>terminate_on_match</strong> (<em>bool</em>) &#8211; Whether to terminate when there is at
+<li><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
 least one match in each key in pattern.</li>
-<li><strong>postprocess</strong> (<em>callable</em>) &#8211; A post processing function to convert all
+<li><strong>postprocess</strong> (<em>callable</em>) – A post processing function to convert all
 matches. Defaults to str, i.e., no change.</li>
 </ul>
 </td>
@@ -571,8 +568,8 @@ matches. Defaults to str, i.e., no change.</li>
 <dl class="docutils">
 <dt>Renders accessible:</dt>
 <dd>Any attribute in patterns. For example,
-{&#8220;energy&#8221;: r&#8221;energy(sigma-&gt;0)s+=s+([d-.]+)&#8221;} will set the
-value of self.data[&#8220;energy&#8221;] = [[-1234], [-3453], ...], to the
+{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”} will set the
+value of self.data[“energy”] = [[-1234], [-3453], …], to the
 results from regex and postprocess. Note that the returned values
 are lists of lists, because you can grep multiple items on one line.</dd>
 </dl>
@@ -595,7 +592,7 @@ are lists of lists, because you can grep multiple items on one line.</dd>
 <code class="descname">read_table_pattern</code><span class="sig-paren">(</span><em>header_pattern</em>, <em>row_pattern</em>, <em>footer_pattern</em>, <em>postprocess=&lt;class 'str'&gt;</em>, <em>attribute_name=None</em>, <em>last_one_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_table_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_table_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
 <div><p>Parse table-like data. A table composes of three parts: header,
-main body, footer. All the data matches &#8220;row pattern&#8221; in the main body
+main body, footer. All the data matches “row pattern” in the main body
 will be returned.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -605,13 +602,13 @@ will be returned.</p>
 immediately before the main body of the table. For multiple
 sections table match the text until the section of
 interest. MULTILINE and DOTALL options are enforced, as a
-result, the &#8221;.&#8221; meta-character will also match &#8220;</dd>
+result, the “.” meta-character will also match “</dd>
 </dl>
 </dd>
 </dl>
 </div></blockquote>
 <dl class="docutils">
-<dt>&#8221; in this</dt>
+<dt>” in this</dt>
 <dd><blockquote class="first">
 <div><blockquote>
 <div>section.</div></blockquote>
@@ -624,7 +621,7 @@ groups.</dd>
 <dt>postprocess (callable): A post processing function to convert all</dt>
 <dd>matches. Defaults to str, i.e., no change.</dd>
 <dt>attribute_name (str): Name of this table. If present the parsed data</dt>
-<dd>will be attached to &#8220;data. e.g. self.data[&#8220;efg&#8221;] = [...]</dd>
+<dd>will be attached to “data. e.g. self.data[“efg”] = […]</dd>
 <dt>last_one_only (bool): All the tables will be parsed, if this option</dt>
 <dd>is set to True, only the last table will be returned. The
 enclosing list will be removed. i.e. Only a single table will
@@ -653,7 +650,7 @@ row_pattern.</dd>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; Name of file containing PROCAR.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Name of file containing PROCAR.</td>
 </tr>
 </tbody>
 </table>
@@ -702,11 +699,11 @@ nkpoints.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>atom_num</strong> (<em>int</em>) &#8211; Index of atom in the PROCAR. It should be noted
+<li><strong>atom_num</strong> (<em>int</em>) – Index of atom in the PROCAR. It should be noted
 that VASP uses 1-based indexing for atoms, but this is
 converted to 0-based indexing in this parser to be
 consistent with representation of structures in pymatgen.</li>
-<li><strong>orbital</strong> (<em>str</em>) &#8211; An orbital. If it is a single character, e.g., s,
+<li><strong>orbital</strong> (<em>str</em>) – An orbital. If it is a single character, e.g., s,
 p, d or f, the sum of all s-type, p-type, d-type or f-type
 orbitals occupations are returned respectively. If it is a
 specific orbital, e.g., px, dxy, etc., only the occupation
@@ -729,7 +726,7 @@ of that orbital is returned.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">[k index][b index][{Element:values}]]</td>
 </tr>
@@ -768,14 +765,14 @@ magnitude for larger files (~10Mb).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) &#8211; Filename to parse</li>
-<li><strong>ionic_step_skip</strong> (<em>int</em>) &#8211; If ionic_step_skip is a number &gt; 1,
+<li><strong>filename</strong> (<em>str</em>) – Filename to parse</li>
+<li><strong>ionic_step_skip</strong> (<em>int</em>) – If ionic_step_skip is a number &gt; 1,
 only every ionic_step_skip ionic steps will be read for
 structure and energies. This is very useful if you are parsing
 very large vasprun.xml files and you are not interested in every
 single ionic step. Note that the final energies may not be the
 actual final energy in the vasprun.</li>
-<li><strong>ionic_step_offset</strong> (<em>int</em>) &#8211; Used together with ionic_step_skip. If set,
+<li><strong>ionic_step_offset</strong> (<em>int</em>) – Used together with ionic_step_skip. If set,
 the first ionic step read will be offset by the amount of
 ionic_step_offset. For example, if you want to start reading
 every 10th structure but only from the 3rd structure onwards,
@@ -783,28 +780,28 @@ set ionic_step_skip to 10 and ionic_step_offset to 3. Main use
 case is when doing statistical structure analysis with
 extremely long time scale multiple VASP calculations of
 varying numbers of steps.</li>
-<li><strong>parse_dos</strong> (<em>bool</em>) &#8211; Whether to parse the dos. Defaults to True. Set
+<li><strong>parse_dos</strong> (<em>bool</em>) – Whether to parse the dos. Defaults to True. Set
 to False to shave off significant time from the parsing if you
 are not interested in getting those data.</li>
-<li><strong>parse_eigen</strong> (<em>bool</em>) &#8211; Whether to parse the eigenvalues. Defaults to
+<li><strong>parse_eigen</strong> (<em>bool</em>) – Whether to parse the eigenvalues. Defaults to
 True. Set to False to shave off significant time from the
 parsing if you are not interested in getting those data.</li>
-<li><strong>parse_projected_eigen</strong> (<em>bool</em>) &#8211; Whether to parse the projected
+<li><strong>parse_projected_eigen</strong> (<em>bool</em>) – Whether to parse the projected
 eigenvalues. Defaults to False. Set to True to obtain projected
 eigenvalues. <strong>Note that this can take an extreme amount of time
 and memory.</strong> So use this wisely.</li>
-<li><strong>parse_potcar_file</strong> (<em>bool/str</em>) &#8211; <p>Whether to parse the potcar file to read
+<li><strong>parse_potcar_file</strong> (<em>bool/str</em>) – <p>Whether to parse the potcar file to read
 the potcar hashes for the potcar_spec attribute. Defaults to True,
 where no hashes will be determined and the potcar_spec dictionaries
-will read {&#8220;symbol&#8221;: ElSymbol, &#8220;hash&#8221;: None}. By Default, looks in
+will read {“symbol”: ElSymbol, “hash”: None}. By Default, looks in
 the same directory as the vasprun.xml, with same extensions as</p>
 <blockquote>
 <div>Vasprun.xml. If a string is provided, looks at that filepath.</div></blockquote>
 </li>
-<li><strong>occu_tol</strong> (<em>float</em>) &#8211; Sets the minimum tol for the determination of the
+<li><strong>occu_tol</strong> (<em>float</em>) – Sets the minimum tol for the determination of the
 vbm and cbm. Usually the default of 1e-8 works well enough,
 but there may be pathological cases.</li>
-<li><strong>exception_on_bad_xml</strong> (<em>bool</em>) &#8211; Whether to throw a ParseException if a
+<li><strong>exception_on_bad_xml</strong> (<em>bool</em>) – Whether to throw a ParseException if a
 malformed XML is detected. Default to True, which ensures only
 proper vasprun.xml are parsed. You can set to False if you want
 partial results (e.g., if you are monitoring a calculation during a
@@ -819,9 +816,9 @@ run), but use the results with care. A warning is issued.</li>
 <dt id="pymatgen.io.vasp.outputs.Vasprun.ionic_steps">
 <code class="descname">ionic_steps</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.ionic_steps" title="Permalink to this definition">¶</a></dt>
 <dd><p>All ionic steps in the run as a list of
-{&#8220;structure&#8221;: structure at end of run,
-&#8220;electronic_steps&#8221;: {All electronic step data in vasprun file},
-&#8220;stresses&#8221;: stress matrix}</p>
+{“structure”: structure at end of run,
+“electronic_steps”: {All electronic step data in vasprun file},
+“stresses”: stress matrix}</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -906,7 +903,7 @@ imag_partxy, imag_partyz, imag_partxz]])</p>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.epsilon_static">
 <code class="descname">epsilon_static</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.epsilon_static" title="Permalink to this definition">¶</a></dt>
-<dd><p>The static part of the dielectric constant. Present when it&#8217;s a DFPT run
+<dd><p>The static part of the dielectric constant. Present when it’s a DFPT run
 (LEPSILON=TRUE)</p>
 </dd></dl>
 
@@ -914,13 +911,13 @@ imag_partxy, imag_partyz, imag_partxz]])</p>
 <dt id="pymatgen.io.vasp.outputs.Vasprun.epsilon_static_wolfe">
 <code class="descname">epsilon_static_wolfe</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.epsilon_static_wolfe" title="Permalink to this definition">¶</a></dt>
 <dd><p>The static part of the dielectric constant without any local field
-effects. Present when it&#8217;s a DFPT run (LEPSILON=TRUE)</p>
+effects. Present when it’s a DFPT run (LEPSILON=TRUE)</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.epsilon_ionic">
 <code class="descname">epsilon_ionic</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.epsilon_ionic" title="Permalink to this definition">¶</a></dt>
-<dd><p>The ionic part of the static dielectric constant. Present when it&#8217;s a
+<dd><p>The ionic part of the static dielectric constant. Present when it’s a
 DFPT run (LEPSILON=TRUE) and IBRION=5, 6, 7 or 8</p>
 </dd></dl>
 
@@ -978,27 +975,27 @@ defaults.</p>
 <code class="descname">actual_kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.actual_kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of actual kpoints, e.g.,
 [[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333],
-[0.25, 0.375, 0.08333333], ....]</p>
+[0.25, 0.375, 0.08333333], ….]</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.actual_kpoints_weights">
 <code class="descname">actual_kpoints_weights</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.actual_kpoints_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of kpoint weights, E.g.,
-[0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, ....]</p>
+[0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, ….]</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.atomic_symbols">
 <code class="descname">atomic_symbols</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.atomic_symbols" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of atomic symbols, e.g., [&#8220;Li&#8221;, &#8220;Fe&#8221;, &#8220;Fe&#8221;, &#8220;P&#8221;, &#8220;P&#8221;, &#8220;P&#8221;]</p>
+<dd><p>List of atomic symbols, e.g., [“Li”, “Fe”, “Fe”, “P”, “P”, “P”]</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.potcar_symbols">
 <code class="descname">potcar_symbols</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.potcar_symbols" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of POTCAR symbols. e.g.,
-[&#8220;PAW_PBE Li 17Jan2003&#8221;, &#8220;PAW_PBE Fe 06Sep2000&#8221;, ..]</p>
+[“PAW_PBE Li 17Jan2003”, “PAW_PBE Fe 06Sep2000”, ..]</p>
 </dd></dl>
 
 <p>Author: Shyue Ping Ong</p>
@@ -1074,16 +1071,16 @@ exited before reaching the max ionic steps for a relaxation run</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>kpoints_filename</strong> (<em>str</em>) &#8211; Full path of the KPOINTS file from which
+<li><strong>kpoints_filename</strong> (<em>str</em>) – Full path of the KPOINTS file from which
 the band structure is generated.
 If none is provided, the code will try to intelligently
 determine the appropriate KPOINTS file by substituting the
 filename of the vasprun.xml with KPOINTS.
 The latter is the default behavior.</li>
-<li><strong>efermi</strong> (<em>float</em>) &#8211; If you want to specify manually the fermi energy
+<li><strong>efermi</strong> (<em>float</em>) – If you want to specify manually the fermi energy
 this is where you should do it. By default, the None value
 means the code will get it from the vasprun.</li>
-<li><strong>line_mode</strong> (<em>bool</em>) &#8211; Force the band structure to be considered as
+<li><strong>line_mode</strong> (<em>bool</em>) – Force the band structure to be considered as
 a run along symmetry lines.</li>
 </ul>
 </td>
@@ -1094,7 +1091,7 @@ along symmetry lines)</p>
 <p>Two types of runs along symmetry lines are accepted: non-sc with
 Line-Mode in the KPOINT file or hybrid, self-consistent with a
 uniform grid+a few kpoints along symmetry lines (explicit KPOINTS
-file) (it&#8217;s not possible to run a non-sc band structure with hybrid
+file) (it’s not possible to run a non-sc band structure with hybrid
 functionals). The explicit KPOINTS file needs to have data on the
 kpoint label as commentary.</p>
 </p>
@@ -1113,14 +1110,14 @@ kpoint label as commentary.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inc_structure</strong> (<em>bool</em>) &#8211; Set to True if you want
+<li><strong>inc_structure</strong> (<em>bool</em>) – Set to True if you want
 ComputedStructureEntries to be returned instead of
 ComputedEntries.</li>
-<li><strong>parameters</strong> (<em>list</em>) &#8211; Input parameters to include. It has to be one of
+<li><strong>parameters</strong> (<em>list</em>) – Input parameters to include. It has to be one of
 the properties supported by the Vasprun object. If
 parameters is None, a default set of parameters that are
 necessary for typical post-processing will be set.</li>
-<li><strong>data</strong> (<em>list</em>) &#8211; Output data to include. Has to be one of the properties
+<li><strong>data</strong> (<em>list</em>) – Output data to include. Has to be one of the properties
 supported by the Vasprun object.</li>
 </ul>
 </td>
@@ -1198,8 +1195,8 @@ supported by the Vasprun object.</li>
 <div>Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).</div></blockquote>
 <p>..attribute:: data</p>
 <blockquote>
-<div>Actual data as a dict of {string: np.array}. The string are &#8220;total&#8221;
-and &#8220;diff&#8221;, in accordance to the output format of vasp LOCPOT and
+<div>Actual data as a dict of {string: np.array}. The string are “total”
+and “diff”, in accordance to the output format of vasp LOCPOT and
 CHGCAR files where the total spin density is written first, followed
 by the difference spin density.</div></blockquote>
 <dl class="attribute">
@@ -1216,11 +1213,11 @@ summation and other operations between VolumetricData objects.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; Structure associated with the volumetric data</li>
-<li><strong>data</strong> &#8211; Actual volumetric data.</li>
-<li><strong>data_aug</strong> &#8211; Any extra information associated with volumetric data
+<li><strong>structure</strong> – Structure associated with the volumetric data</li>
+<li><strong>data</strong> – Actual volumetric data.</li>
+<li><strong>data_aug</strong> – Any extra information associated with volumetric data
 (typically augmentation charges)</li>
-<li><strong>distance_matrix</strong> &#8211; A pre-computed distance matrix if available.
+<li><strong>distance_matrix</strong> – A pre-computed distance matrix if available.
 Useful so pass distance_matrices between sums,
 shortcircuiting an otherwise expensive operation.</li>
 </ul>
@@ -1238,7 +1235,7 @@ file.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ind</strong> (<em>int</em>) &#8211; Index of axis.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ind</strong> (<em>int</em>) – Index of axis.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Average total along axis</td>
 </tr>
@@ -1254,7 +1251,7 @@ file.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ind</strong> (<em>int</em>) &#8211; Axis index.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ind</strong> (<em>int</em>) – Axis index.</td>
 </tr>
 </tbody>
 </table>
@@ -1271,17 +1268,17 @@ grid points are in the VolumetricData.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ind</strong> (<em>int</em>) &#8211; Index of atom.</li>
-<li><strong>radius</strong> (<em>float</em>) &#8211; Radius of integration.</li>
-<li><strong>nbins</strong> (<em>int</em>) &#8211; Number of bins. Defaults to 1. This allows one to
+<li><strong>ind</strong> (<em>int</em>) – Index of atom.</li>
+<li><strong>radius</strong> (<em>float</em>) – Radius of integration.</li>
+<li><strong>nbins</strong> (<em>int</em>) – Number of bins. Defaults to 1. This allows one to
 obtain the charge integration up to a list of the cumulative
 charge integration values for radii for [radius/nbins,
-2 * radius/nbins, ....].</li>
+2 * radius/nbins, ….].</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Differential integrated charge as a np array of [[radius, value],
-...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
+…]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
 data[:,1])</p>
 </td>
 </tr>
@@ -1300,8 +1297,8 @@ linear sum.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>other</strong> (<a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><em>VolumetricData</em></a>) &#8211; Another VolumetricData object</li>
-<li><strong>scale_factor</strong> (<em>float</em>) &#8211; Factor to scale the other data by.</li>
+<li><strong>other</strong> (<a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><em>VolumetricData</em></a>) – Another VolumetricData object</li>
+<li><strong>scale_factor</strong> (<em>float</em>) – Factor to scale the other data by.</li>
 </ul>
 </td>
 </tr>
@@ -1321,7 +1318,7 @@ like format. Used by subclasses for parsing file.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Path of file to parse</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Path of file to parse</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(poscar, data)</td>
 </tr>
@@ -1332,7 +1329,7 @@ like format. Used by subclasses for parsing file.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.spin_data">
 <code class="descname">spin_data</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.spin_data" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>The data decomposed into actual spin data as {spin</em> &#8211; data}.
+<dd><p><em>The data decomposed into actual spin data as {spin</em> – data}.
 Essentially, this provides the actual Spin.up and Spin.down data
 instead of the total and diff.  Note that by definition, a
 non-spin-polarized run would have Spin.up data == Spin.down data.</p>
@@ -1347,8 +1344,8 @@ non-spin-polarized run would have Spin.up data == Spin.down data.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>file_name</strong> (<em>str</em>) &#8211; Path to a file</li>
-<li><strong>vasp4_compatible</strong> (<em>bool</em>) &#8211; True if the format is vasp4 compatible</li>
+<li><strong>file_name</strong> (<em>str</em>) – Path to a file</li>
+<li><strong>vasp4_compatible</strong> (<em>bool</em>) – True if the format is vasp4 compatible</li>
 </ul>
 </td>
 </tr>
@@ -1370,7 +1367,7 @@ WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; Name of file containing WAVEDERF.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Name of file containing WAVEDERF.</td>
 </tr>
 </tbody>
 </table>
@@ -1417,8 +1414,8 @@ real/imaginary parts, abs/phase, etc. )</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>band_i</strong> (<em>Integer</em>) &#8211; Index of band i</li>
-<li><strong>band_j</strong> (<em>Integer</em>) &#8211; Index of band j</li>
+<li><strong>band_i</strong> (<em>Integer</em>) – Index of band i</li>
+<li><strong>band_j</strong> (<em>Integer</em>) – Index of band j</li>
 </ul>
 </td>
 </tr>
@@ -1467,9 +1464,9 @@ real/imaginary parts, abs/phase, etc. )</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) &#8211; Filename of input XDATCAR file.</li>
-<li><strong>ionicstep_start</strong> (<em>int</em>) &#8211; Starting number of ionic step.</li>
-<li><strong>ionicstep_end</strong> (<em>int</em>) &#8211; Ending number of ionic step.</li>
+<li><strong>filename</strong> (<em>str</em>) – Filename of input XDATCAR file.</li>
+<li><strong>ionicstep_start</strong> (<em>int</em>) – Starting number of ionic step.</li>
+<li><strong>ionicstep_end</strong> (<em>int</em>) – Ending number of ionic step.</li>
 </ul>
 </td>
 </tr>
@@ -1484,9 +1481,9 @@ real/imaginary parts, abs/phase, etc. )</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) &#8211; Filename of XDATCAR file to be concatenated.</li>
-<li><strong>ionicstep_start</strong> (<em>int</em>) &#8211; Starting number of ionic step.</li>
-<li><strong>ionicstep_end</strong> (<em>int</em>) &#8211; Ending number of ionic step.</li>
+<li><strong>filename</strong> (<em>str</em>) – Filename of XDATCAR file to be concatenated.</li>
+<li><strong>ionicstep_start</strong> (<em>int</em>) – Starting number of ionic step.</li>
+<li><strong>ionicstep_end</strong> (<em>int</em>) – Ending number of ionic step.</li>
 </ul>
 </td>
 </tr>
@@ -1494,7 +1491,8 @@ real/imaginary parts, abs/phase, etc. )</p>
 </table>
 <dl class="docutils">
 <dt>TODO(rambalachandran):</dt>
-<dd>Requires a check to ensure if the new concatenating file has the same lattice structure and atoms as the Xdatcar class.</dd>
+<dd>Requires a check to ensure if the new concatenating file has the
+same lattice structure and atoms as the Xdatcar class.</dd>
 </dl>
 </dd></dl>
 
@@ -1530,7 +1528,8 @@ vasp 5+ Xdatcar.</p>
 <dd><p>Write  Xdatcar class into a file.
 :param filename: Filename of output XDATCAR file.
 :type filename: str
-:param The supported kwargs are the same as those for the Xdatcar.get_string method and are passed through directly.:</p>
+:param The supported kwargs are the same as those for the:
+:param Xdatcar.get_string method and are passed through directly.:</p>
 </dd></dl>
 
 </dd></dl>
@@ -1553,9 +1552,9 @@ level. This procedure has shown to detect correctly most insulators.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>efermi</strong> (<em>float</em>) &#8211; Fermi energy of the static run</li>
-<li><strong>cbm</strong> (<em>float</em>) &#8211; Conduction band minimum of the static run</li>
-<li><strong>run_bandstructure</strong> &#8211; a band_structure object</li>
+<li><strong>efermi</strong> (<em>float</em>) – Fermi energy of the static run</li>
+<li><strong>cbm</strong> (<em>float</em>) – Conduction band minimum of the static run</li>
+<li><strong>run_bandstructure</strong> – a band_structure object</li>
 </ul>
 </td>
 </tr>
@@ -1571,17 +1570,17 @@ level. This procedure has shown to detect correctly most insulators.</p>
 <code class="descname">get_band_structure_from_vasp_multiple_branches</code><span class="sig-paren">(</span><em>dir_name</em>, <em>efermi=None</em>, <em>projections=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#get_band_structure_from_vasp_multiple_branches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.get_band_structure_from_vasp_multiple_branches" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used to get band structure info from a VASP directory. It
 takes into account that the run can be divided in several branches named
-&#8220;branch_x&#8221;. If the run has not been divided in branches the method will
+“branch_x”. If the run has not been divided in branches the method will
 turn to parsing vasprun.xml directly.</p>
-<p>The method returns None is there&#8221;s a parsing error</p>
+<p>The method returns None is there”s a parsing error</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dir_name</strong> &#8211; Directory containing all bandstructure runs.</li>
-<li><strong>efermi</strong> &#8211; Efermi for bandstructure.</li>
-<li><strong>projections</strong> &#8211; True if you want to get the data on site projections if
+<li><strong>dir_name</strong> – Directory containing all bandstructure runs.</li>
+<li><strong>efermi</strong> – Efermi for bandstructure.</li>
+<li><strong>projections</strong> – True if you want to get the data on site projections if
 any. Note that this is sometimes very large</li>
 </ul>
 </td>
@@ -1631,13 +1630,13 @@ any. Note that this is sometimes very large</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.vis.structure_vtk module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.vis.structure_vtk module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -163,21 +160,21 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>element_color_mapping</strong> &#8211; Optional color mapping for the elements,
-as a dict of {symbol: rgb tuple}. For example, {&#8220;Fe&#8221;: (255,
-123,0), ....} If None is specified, a default based on
-Jmol&#8221;s color scheme is used.</li>
-<li><strong>show_unit_cell</strong> &#8211; Set to False to not show the unit cell
+<li><strong>element_color_mapping</strong> – Optional color mapping for the elements,
+as a dict of {symbol: rgb tuple}. For example, {“Fe”: (255,
+123,0), ….} If None is specified, a default based on
+Jmol”s color scheme is used.</li>
+<li><strong>show_unit_cell</strong> – Set to False to not show the unit cell
 boundaries. Defaults to True.</li>
-<li><strong>show_bonds</strong> &#8211; Set to True to show bonds. Defaults to True.</li>
-<li><strong>show_polyhedron</strong> &#8211; Set to True to show polyhedrons. Defaults to
+<li><strong>show_bonds</strong> – Set to True to show bonds. Defaults to True.</li>
+<li><strong>show_polyhedron</strong> – Set to True to show polyhedrons. Defaults to
 False.</li>
-<li><strong>poly_radii_tol_factor</strong> &#8211; The polyhedron and bonding code uses the
+<li><strong>poly_radii_tol_factor</strong> – The polyhedron and bonding code uses the
 ionic radii of the elements or species to determine if two
 atoms are bonded. This specifies a tolerance scaling factor
 such that atoms which are (1 + poly_radii_tol_factor) * sum
 of ionic radii apart are still considered as bonded.</li>
-<li><strong>excluded_bonding_elements</strong> &#8211; List of atom types to exclude from
+<li><strong>excluded_bonding_elements</strong> – List of atom types to exclude from
 bonding determination. Defaults to an empty list. Useful
 when trying to visualize a certain atom type in the
 framework (e.g., Li in a Li-ion battery cathode material).</li>
@@ -211,11 +208,11 @@ clock/anticlockwise</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>neighbors</strong> &#8211; Neighbors of the site.</li>
-<li><strong>center</strong> &#8211; The site in the center for all bonds.</li>
-<li><strong>color</strong> &#8211; Color of the tubes representing the bonds</li>
-<li><strong>opacity</strong> &#8211; Opacity of the tubes representing the bonds</li>
-<li><strong>radius</strong> &#8211; Radius of tube s representing the bonds</li>
+<li><strong>neighbors</strong> – Neighbors of the site.</li>
+<li><strong>center</strong> – The site in the center for all bonds.</li>
+<li><strong>color</strong> – Color of the tubes representing the bonds</li>
+<li><strong>opacity</strong> – Opacity of the tubes representing the bonds</li>
+<li><strong>radius</strong> – Radius of tube s representing the bonds</li>
 </ul>
 </td>
 </tr>
@@ -242,10 +239,10 @@ clock/anticlockwise</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>start</strong> &#8211; Starting coordinates for line.</li>
-<li><strong>end</strong> &#8211; Ending coordinates for line.</li>
-<li><strong>color</strong> &#8211; Color for text as RGB. Defaults to grey.</li>
-<li><strong>width</strong> &#8211; Width of line. Defaults to 1.</li>
+<li><strong>start</strong> – Starting coordinates for line.</li>
+<li><strong>end</strong> – Ending coordinates for line.</li>
+<li><strong>color</strong> – Color for text as RGB. Defaults to grey.</li>
+<li><strong>width</strong> – Width of line. Defaults to 1.</li>
 </ul>
 </td>
 </tr>
@@ -277,13 +274,13 @@ clock/anticlockwise</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>neighbors</strong> &#8211; Neighbors of the polyhedron (the vertices).</li>
-<li><strong>center</strong> &#8211; The atom in the center of the polyhedron.</li>
-<li><strong>color</strong> &#8211; Color for text as RGB.</li>
-<li><strong>opacity</strong> &#8211; Opacity of the polyhedron</li>
-<li><strong>draw_edges</strong> &#8211; If set to True, the a line will be drawn at each edge</li>
-<li><strong>edges_color</strong> &#8211; Color of the line for the edges</li>
-<li><strong>edges_linewidth</strong> &#8211; Width of the line drawn for the edges</li>
+<li><strong>neighbors</strong> – Neighbors of the polyhedron (the vertices).</li>
+<li><strong>center</strong> – The atom in the center of the polyhedron.</li>
+<li><strong>color</strong> – Color for text as RGB.</li>
+<li><strong>opacity</strong> – Opacity of the polyhedron</li>
+<li><strong>draw_edges</strong> – If set to True, the a line will be drawn at each edge</li>
+<li><strong>edges_color</strong> – Color of the line for the edges</li>
+<li><strong>edges_linewidth</strong> – Width of the line drawn for the edges</li>
 </ul>
 </td>
 </tr>
@@ -302,7 +299,7 @@ still shows the partial occupancy.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> &#8211; Site to add.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> – Site to add.</td>
 </tr>
 </tbody>
 </table>
@@ -317,9 +314,9 @@ still shows the partial occupancy.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>coords</strong> &#8211; Coordinates to add text at.</li>
-<li><strong>text</strong> &#8211; Text to place.</li>
-<li><strong>color</strong> &#8211; Color for text as RGB. Defaults to black.</li>
+<li><strong>coords</strong> – Coordinates to add text at.</li>
+<li><strong>text</strong> – Text to place.</li>
+<li><strong>color</strong> – Color for text as RGB. Defaults to black.</li>
 </ul>
 </td>
 </tr>
@@ -336,13 +333,13 @@ still shows the partial occupancy.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atoms</strong> &#8211; Atoms between which a triangle will be drawn.</li>
-<li><strong>color</strong> &#8211; Color for triangle as RGB.</li>
-<li><strong>center</strong> &#8211; The &#8220;central atom&#8221; of the triangle</li>
-<li><strong>opacity</strong> &#8211; opacity of the triangle</li>
-<li><strong>draw_edges</strong> &#8211; If set to True, the a line will be  drawn at each edge</li>
-<li><strong>edges_color</strong> &#8211; Color of the line for the edges</li>
-<li><strong>edges_linewidth</strong> &#8211; Width of the line drawn for the edges</li>
+<li><strong>atoms</strong> – Atoms between which a triangle will be drawn.</li>
+<li><strong>color</strong> – Color for triangle as RGB.</li>
+<li><strong>center</strong> – The “central atom” of the triangle</li>
+<li><strong>opacity</strong> – opacity of the triangle</li>
+<li><strong>draw_edges</strong> – If set to True, the a line will be  drawn at each edge</li>
+<li><strong>edges_color</strong> – Color of the line for the edges</li>
+<li><strong>edges_linewidth</strong> – Width of the line drawn for the edges</li>
 </ul>
 </td>
 </tr>
@@ -369,7 +366,7 @@ still shows the partial occupancy.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reset_camera</strong> &#8211; Set to True to reset the camera to a
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reset_camera</strong> – Set to True to reset the camera to a
 pre-determined default for each structure.  Defaults to False.</td>
 </tr>
 </tbody>
@@ -385,8 +382,8 @@ pre-determined default for each structure.  Defaults to False.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axis_ind</strong> &#8211; Index of axis to rotate. Defaults to 0, i.e., a-axis.</li>
-<li><strong>angle</strong> &#8211; Angle to rotate by. Defaults to 0.</li>
+<li><strong>axis_ind</strong> – Index of axis to rotate. Defaults to 0, i.e., a-axis.</li>
+<li><strong>angle</strong> – Angle to rotate by. Defaults to 0.</li>
 </ul>
 </td>
 </tr>
@@ -403,10 +400,10 @@ pre-determined default for each structure.  Defaults to False.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; structure to visualize</li>
-<li><strong>reset_camera</strong> &#8211; Set to True to reset the camera to a default
+<li><strong>structure</strong> – structure to visualize</li>
+<li><strong>reset_camera</strong> – Set to True to reset the camera to a default
 determined based on the structure.</li>
-<li><strong>to_unit_cell</strong> &#8211; Whether or not to fall back sites into the unit cell.</li>
+<li><strong>to_unit_cell</strong> – Whether or not to fall back sites into the unit cell.</li>
 </ul>
 </td>
 </tr>
@@ -429,9 +426,9 @@ determined based on the structure.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> &#8211; filename to save to. Defaults to image.png.</li>
-<li><strong>magnification</strong> &#8211; magnification. Use it to render high res images.</li>
-<li><strong>image_format</strong> &#8211; choose between jpeg, png.  Png is the default.</li>
+<li><strong>filename</strong> – filename to save to. Defaults to image.png.</li>
+<li><strong>magnification</strong> – magnification. Use it to render high res images.</li>
+<li><strong>image_format</strong> – choose between jpeg, png.  Png is the default.</li>
 </ul>
 </td>
 </tr>
@@ -456,15 +453,15 @@ determined based on the structure.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structures</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em><em></em>) &#8211; sequence of structures</li>
-<li><strong>output_filename</strong> (<em>str</em>) &#8211; filename for structure output. defaults to
+<li><strong>structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – sequence of structures</li>
+<li><strong>output_filename</strong> (<em>str</em>) – filename for structure output. defaults to
 movie.mp4</li>
-<li><strong>zoom</strong> (<em>float</em>) &#8211; A zoom to be applied to the visualizer. Defaults to 1.0.</li>
-<li><strong>fps</strong> (<em>int</em>) &#8211; Frames per second for the movie. Defaults to 20.</li>
-<li><strong>bitrate</strong> (<em>str</em>) &#8211; Video bitate.  Defaults to &#8220;10000k&#8221; (fairly high
+<li><strong>zoom</strong> (<em>float</em>) – A zoom to be applied to the visualizer. Defaults to 1.0.</li>
+<li><strong>fps</strong> (<em>int</em>) – Frames per second for the movie. Defaults to 20.</li>
+<li><strong>bitrate</strong> (<em>str</em>) – Video bitate.  Defaults to “10000k” (fairly high
 quality).</li>
-<li><strong>quality</strong> (<em>int</em>) &#8211; A quality scale. Defaults to 1.</li>
-<li><strong>**kwargs</strong> &#8211; Any kwargs supported by StructureVis to modify the images
+<li><strong>quality</strong> (<em>int</em>) – A quality scale. Defaults to 1.</li>
+<li><strong>**kwargs</strong> – Any kwargs supported by StructureVis to modify the images
 generated.</li>
 </ul>
 </td>
@@ -511,13 +508,13 @@ generated.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

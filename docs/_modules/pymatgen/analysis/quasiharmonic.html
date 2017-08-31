@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.quasiharmonic &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.quasiharmonic &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -86,7 +83,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">FloatWithUnit</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.eos</span> <span class="k">import</span> <span class="n">EOS</span><span class="p">,</span> <span class="n">PolynomialEOS</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew, Brandon Bocklund&quot;</span>
 <span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Cormac Toher&quot;</span>
 
 
@@ -109,10 +106,13 @@
 <span class="sd">        use_mie_gruneisen (bool): whether or not to use the mie-gruneisen</span>
 <span class="sd">            formulation to compute the gruneisen parameter.</span>
 <span class="sd">            The default is the slater-gamma formulation.</span>
+<span class="sd">        anharmonic_contribution (bool): whether or not to consider the anharmonic</span>
+<span class="sd">            contribution to the Debye temperature. Cannot be used with</span>
+<span class="sd">            use_mie_gruneisen. Defaults to False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">t_min</span><span class="o">=</span><span class="mf">300.0</span><span class="p">,</span> <span class="n">t_step</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                  <span class="n">t_max</span><span class="o">=</span><span class="mf">300.0</span><span class="p">,</span> <span class="n">eos</span><span class="o">=</span><span class="s2">&quot;vinet&quot;</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">poisson</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
-                 <span class="n">use_mie_gruneisen</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">use_mie_gruneisen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">anharmonic_contribution</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">energies</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span> <span class="o">=</span> <span class="n">volumes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
@@ -123,6 +123,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pressure</span> <span class="o">=</span> <span class="n">pressure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span> <span class="o">=</span> <span class="n">poisson</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_mie_gruneisen</span> <span class="o">=</span> <span class="n">use_mie_gruneisen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">anharmonic_contribution</span> <span class="o">=</span> <span class="n">anharmonic_contribution</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_mie_gruneisen</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">anharmonic_contribution</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and cannot be used together.&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">species</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">avg_mass</span> <span class="o">=</span> <span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;atomic mass constant&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> \
@@ -242,6 +245,15 @@
 <span class="sd">        Calculates the debye temperature.</span>
 <span class="sd">        Eq(6) in doi.org/10.1016/j.comphy.2003.12.001. Thanks to Joey.</span>
 
+<span class="sd">        Eq(6) above is equivalent to Eq(3) in doi.org/10.1103/PhysRevB.37.790</span>
+<span class="sd">        which does not consider anharmonic effects. Eq(20) in the same paper</span>
+<span class="sd">        and Eq(18) in doi.org/10.1016/j.commatsci.2009.12.006 both consider</span>
+<span class="sd">        anharmonic contributions to the Debye temperature through the Gruneisen</span>
+<span class="sd">        parameter at 0K (Gruneisen constant).</span>
+
+<span class="sd">        The anharmonic contribution is toggled by setting the anharmonic_contribution</span>
+<span class="sd">        to True or False in the QuasiharmonicDebyeApprox constructor.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            volume (float): in Ang^3</span>
 
@@ -251,11 +263,17 @@
         <span class="n">term1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">2.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span><span class="p">))</span><span class="o">**</span><span class="mf">1.5</span>
         <span class="n">term2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span><span class="p">))</span><span class="o">**</span><span class="mf">1.5</span>
         <span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">term1</span> <span class="o">+</span> <span class="n">term2</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mf">2.9772e-11</span> <span class="o">*</span> <span class="p">(</span><span class="n">volume</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">6.</span><span class="p">)</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> \
-               <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_modulus</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_mass</span><span class="p">)</span></div>
+        <span class="n">debye</span> <span class="o">=</span> <span class="mf">2.9772e-11</span> <span class="o">*</span> <span class="p">(</span><span class="n">volume</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">6.</span><span class="p">)</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> \
+               <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_modulus</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_mass</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">anharmonic_contribution</span><span class="p">:</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gruneisen_parameter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ev_eos_fit</span><span class="o">.</span><span class="n">v0</span><span class="p">)</span>  <span class="c1"># 0K equilibrium Gruneisen parameter</span>
+            <span class="k">return</span> <span class="n">debye</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ev_eos_fit</span><span class="o">.</span><span class="n">v0</span> <span class="o">/</span> <span class="n">volume</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">gamma</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">debye</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="QuasiharmonicDebyeApprox.debye_integral"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_integral">[docs]</a>    <span class="k">def</span> <span class="nf">debye_integral</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox.debye_integral"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_integral">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">debye_integral</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Debye integral. Eq(5) in  doi.org/10.1016/j.comphy.2003.12.001</span>
 
@@ -399,7 +417,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -407,7 +425,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

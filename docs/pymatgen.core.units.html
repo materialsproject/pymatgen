@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.units module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.units module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -117,15 +114,15 @@ Useful tool in interactive mode.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_unit</strong> &#8211; New unit type.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_unit</strong> – New unit type.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A ArrayWithFloatWithUnit object in the new units.</td>
 </tr>
 </tbody>
 </table>
 <p>Example usage:
-&gt;&gt;&gt; e = EnergyArray([1, 1.1], &#8220;Ha&#8221;)
-&gt;&gt;&gt; e.to(&#8220;eV&#8221;)
+&gt;&gt;&gt; e = EnergyArray([1, 1.1], “Ha”)
+&gt;&gt;&gt; e.to(“eV”)
 array([ 27.21138386,  29.93252225]) eV</p>
 </dd></dl>
 
@@ -150,8 +147,8 @@ array([ 27.21138386,  29.93252225]) eV</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) &#8211; Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) &#8211; E.g., C, e (electron charge). Must be valid unit or UnitError
+<li><strong>val</strong> (<em>float</em>) – Value</li>
+<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., C, e (electron charge). Must be valid unit or UnitError
 is raised.</li>
 </ul>
 </td>
@@ -169,8 +166,8 @@ is raised.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) &#8211; Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) &#8211; E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.</li>
+<li><strong>val</strong> (<em>float</em>) – Value</li>
+<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.</li>
 </ul>
 </td>
 </tr>
@@ -207,9 +204,9 @@ are expected.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) &#8211; Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) &#8211; A unit. E.g., &#8220;C&#8221;.</li>
-<li><strong>unit_type</strong> (<em>str</em>) &#8211; A type of unit. E.g., &#8220;charge&#8221;</li>
+<li><strong>val</strong> (<em>float</em>) – Value</li>
+<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – A unit. E.g., “C”.</li>
+<li><strong>unit_type</strong> (<em>str</em>) – A type of unit. E.g., “charge”</li>
 </ul>
 </td>
 </tr>
@@ -238,7 +235,7 @@ are expected.</p>
 <dl class="classmethod">
 <dt id="pymatgen.core.units.FloatWithUnit.from_string">
 <em class="property">classmethod </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.from_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize a FloatWithUnit from a string. Example Memory.from_string(&#8220;1. Mb&#8221;)</p>
+<dd><p>Initialize a FloatWithUnit from a string. Example Memory.from_string(“1. Mb”)</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -256,16 +253,16 @@ units of each type.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_unit</strong> &#8211; New unit type.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_unit</strong> – New unit type.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A FloatWithUnit object in the new units.</td>
 </tr>
 </tbody>
 </table>
 <p>Example usage:
-&gt;&gt;&gt; e = Energy(1.1, &#8220;eV&#8221;)
-&gt;&gt;&gt; e = Energy(1.1, &#8220;Ha&#8221;)
-&gt;&gt;&gt; e.to(&#8220;eV&#8221;)
+&gt;&gt;&gt; e = Energy(1.1, “eV”)
+&gt;&gt;&gt; e = Energy(1.1, “Ha”)
+&gt;&gt;&gt; e.to(“eV”)
 29.932522246 eV</p>
 </dd></dl>
 
@@ -290,8 +287,8 @@ units of each type.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) &#8211; Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) &#8211; E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
+<li><strong>val</strong> (<em>float</em>) – Value</li>
+<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
 raised.</li>
 </ul>
 </td>
@@ -309,8 +306,8 @@ raised.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) &#8211; Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) &#8211; E.g., amu, kg, etc. Must be valid unit or UnitError is
+<li><strong>val</strong> (<em>float</em>) – Value</li>
+<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., amu, kg, etc. Must be valid unit or UnitError is
 raised.</li>
 </ul>
 </td>
@@ -328,8 +325,8 @@ raised.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) &#8211; Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) &#8211; E.g., Kb, Mb, Gb, Tb. Must be valid unit or UnitError
+<li><strong>val</strong> (<em>float</em>) – Value</li>
+<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., Kb, Mb, Gb, Tb. Must be valid unit or UnitError
 is raised.</li>
 </ul>
 </td>
@@ -347,8 +344,8 @@ is raised.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) &#8211; Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) &#8211; E.g., K. Only K (kelvin) is supported.</li>
+<li><strong>val</strong> (<em>float</em>) – Value</li>
+<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., K. Only K (kelvin) is supported.</li>
 </ul>
 </td>
 </tr>
@@ -365,8 +362,8 @@ is raised.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) &#8211; Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) &#8211; E.g., s, min, h. Must be valid unit or UnitError is
+<li><strong>val</strong> (<em>float</em>) – Value</li>
+<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., s, min, h. Must be valid unit or UnitError is
 raised.</li>
 </ul>
 </td>
@@ -379,17 +376,17 @@ raised.</li>
 <dt id="pymatgen.core.units.Unit">
 <em class="property">class </em><code class="descname">Unit</code><span class="sig-paren">(</span><em>unit_def</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#Unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.Unit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Mapping</span></code></p>
-<p>Represents a unit, e.g., &#8220;m&#8221; for meters, etc. Supports compound units.
+<p>Represents a unit, e.g., “m” for meters, etc. Supports compound units.
 Only integer powers are supported for units.</p>
 <p>Constructs a unit.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unit_def</strong> &#8211; A definition for the unit. Either a mapping of unit to
-powers, e.g., {&#8220;m&#8221;: 2, &#8220;s&#8221;: -1} represents &#8220;m^2 s^-1&#8221;,
-or simply as a string &#8220;kg m^2 s^-1&#8221;. Note that the supported
-format uses &#8220;^&#8221; as the power operator and all units must be
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unit_def</strong> – A definition for the unit. Either a mapping of unit to
+powers, e.g., {“m”: 2, “s”: -1} represents “m^2 s^-1”,
+or simply as a string “kg m^2 s^-1”. Note that the supported
+format uses “^” as the power operator and all units must be
 space-separated.</td>
 </tr>
 </tbody>
@@ -425,7 +422,7 @@ unit type.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_unit</strong> &#8211; The new unit.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_unit</strong> – The new unit.</td>
 </tr>
 </tbody>
 </table>
@@ -463,7 +460,7 @@ objects with units if obj is a dict, else an instance of
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unit</strong> &#8211; Specific units (eV, Ha, m, ang, etc.).</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unit</strong> – Specific units (eV, Ha, m, ang, etc.).</td>
 </tr>
 </tbody>
 </table>
@@ -482,7 +479,7 @@ are assigned units.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unit</strong> &#8211; Specific unit (eV, Ha, m, ang, etc.).</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unit</strong> – Specific unit (eV, Ha, m, ang, etc.).</td>
 </tr>
 </tbody>
 </table>
@@ -532,13 +529,13 @@ are assigned units.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

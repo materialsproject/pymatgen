@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.command_line.gulp_caller module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.command_line.gulp_caller module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -79,7 +76,7 @@ G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmd</strong> &#8211; Command. Defaults to gulp.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmd</strong> – Command. Defaults to gulp.</td>
 </tr>
 </tbody>
 </table>
@@ -91,7 +88,7 @@ G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gin</strong> &#8211; GULP input string</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gin</strong> – GULP input string</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">GULP output string</td>
 </tr>
@@ -135,11 +132,11 @@ from library.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
-<li><strong>keywords</strong> &#8211; GULP first line keywords.</li>
-<li><strong>library</strong> (<em>Default=None</em>) &#8211; File containing the species and potential.</li>
-<li><strong>uc</strong> (<em>Default=True</em>) &#8211; Unit Cell Flag.</li>
-<li><strong>valence_dict</strong> &#8211; {El: valence}</li>
+<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
+<li><strong>keywords</strong> – GULP first line keywords.</li>
+<li><strong>library</strong> (<em>Default=None</em>) – File containing the species and potential.</li>
+<li><strong>uc</strong> (<em>Default=True</em>) – Unit Cell Flag.</li>
+<li><strong>valence_dict</strong> – {El: valence}</li>
 </ul>
 </td>
 </tr>
@@ -167,8 +164,8 @@ J. Mater Chem., 4, 831-837 (1994)</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
-<li><strong>val_dict</strong> (<em>Needed if structure is not charge neutral</em>) &#8211; {El:valence}
+<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
+<li><strong>val_dict</strong> (<em>Needed if structure is not charge neutral</em>) – {El:valence}
 dict, where El is element.</li>
 </ul>
 </td>
@@ -196,7 +193,7 @@ generates the 1st line of gulp input. Full keywords are expected.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*args</strong> &#8211; 1st line keywords</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*args</strong> – 1st line keywords</td>
 </tr>
 </tbody>
 </table>
@@ -206,14 +203,14 @@ generates the 1st line of gulp input. Full keywords are expected.</p>
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.library_line">
 <code class="descname">library_line</code><span class="sig-paren">(</span><em>file_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.library_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.library_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specifies GULP library file to read species and potential parameters.
-If using library don&#8217;t specify species and potential
+If using library don’t specify species and potential
 in the input file and vice versa. Make sure the elements of
 structure are in the library file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_name</strong> &#8211; Name of GULP library file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_name</strong> – Name of GULP library file</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">GULP input string specifying library option</td>
 </tr>
@@ -231,10 +228,10 @@ structure.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure object</li>
-<li><strong>potential</strong> &#8211; String specifying the type of potential used</li>
-<li><strong>**kwargs</strong> &#8211; Additional parameters related to potential. For
-potential == &#8220;buckingham&#8221;,
+<li><strong>structure</strong> – pymatgen.core.structure.Structure object</li>
+<li><strong>potential</strong> – String specifying the type of potential used</li>
+<li><strong>**kwargs</strong> – Additional parameters related to potential. For
+potential == “buckingham”,
 anion_shell_flg (default = False):
 If True, anions are considered polarizable.
 anion_core_chrg=float
@@ -263,20 +260,20 @@ input.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; pymatgen Structure object</li>
-<li><strong>cell_flg</strong> (<em>default = True</em>) &#8211; Option to use lattice parameters.</li>
-<li><strong>fractional_flg</strong> (<em>default = True</em>) &#8211; If True, fractional coordinates
+<li><strong>structure</strong> – pymatgen Structure object</li>
+<li><strong>cell_flg</strong> (<em>default = True</em>) – Option to use lattice parameters.</li>
+<li><strong>fractional_flg</strong> (<em>default = True</em>) – If True, fractional coordinates
 are used. Else, cartesian coodinates in Angstroms are used.
 <strong>**</strong>
 GULP convention is to use fractional coordinates for periodic
 structures and cartesian coordinates for non-periodic
 structures.
 <strong>**</strong></li>
-<li><strong>anion_shell_flg</strong> (<em>default = True</em>) &#8211; If True, anions are considered
+<li><strong>anion_shell_flg</strong> (<em>default = True</em>) – If True, anions are considered
 polarizable.</li>
-<li><strong>cation_shell_flg</strong> (<em>default = False</em>) &#8211; If True, cations are
+<li><strong>cation_shell_flg</strong> (<em>default = False</em>) – If True, cations are
 considered polarizable.</li>
-<li><strong>symm_flg</strong> (<em>default = True</em>) &#8211; If True, symmetry information is also
+<li><strong>symm_flg</strong> (<em>default = True</em>) – If True, symmetry information is also
 written.</li>
 </ul>
 </td>
@@ -297,12 +294,12 @@ written.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
-<li><strong>periodic</strong> (<em>Default=False</em>) &#8211; Flag denoting whether periodic
+<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
+<li><strong>periodic</strong> (<em>Default=False</em>) – Flag denoting whether periodic
 boundary conditions are used</li>
-<li><strong>library</strong> (<em>Default=None</em>) &#8211; File containing the species and potential.</li>
-<li><strong>uc</strong> (<em>Default=True</em>) &#8211; Unit Cell Flag.</li>
-<li><strong>keywords</strong> &#8211; GULP first line keywords.</li>
+<li><strong>library</strong> (<em>Default=None</em>) – File containing the species and potential.</li>
+<li><strong>uc</strong> (<em>Default=True</em>) – Unit Cell Flag.</li>
+<li><strong>keywords</strong> – GULP first line keywords.</li>
 </ul>
 </td>
 </tr>
@@ -318,7 +315,7 @@ boundary conditions are used</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – pymatgen.core.structure.Structure</td>
 </tr>
 </tbody>
 </table>
@@ -330,7 +327,7 @@ boundary conditions are used</li>
 <dt id="pymatgen.command_line.gulp_caller.TersoffPotential">
 <em class="property">class </em><code class="descname">TersoffPotential</code><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#TersoffPotential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.TersoffPotential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Generate Tersoff Potential Table from &#8220;OxideTersoffPotentialentials&#8221; file</p>
+<p>Generate Tersoff Potential Table from “OxideTersoffPotentialentials” file</p>
 </dd></dl>
 
 <dl class="function">
@@ -342,10 +339,10 @@ boundary conditions are used</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
-<li><strong>gulp_cmd</strong> &#8211; GULP command if not in standard place</li>
-<li><strong>keywords</strong> &#8211; GULP first line keywords</li>
-<li><strong>valence_dict</strong> &#8211; {El: valence}. Needed if the structure is not charge
+<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
+<li><strong>gulp_cmd</strong> – GULP command if not in standard place</li>
+<li><strong>keywords</strong> – GULP first line keywords</li>
+<li><strong>valence_dict</strong> – {El: valence}. Needed if the structure is not charge
 neutral.</li>
 </ul>
 </td>
@@ -363,10 +360,10 @@ neutral.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
-<li><strong>gulp_cmd</strong> &#8211; GULP command if not in standard place</li>
-<li><strong>keywords</strong> &#8211; GULP first line keywords</li>
-<li><strong>valence_dict</strong> &#8211; {El: valence}. Needed if the structure is not charge
+<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
+<li><strong>gulp_cmd</strong> – GULP command if not in standard place</li>
+<li><strong>keywords</strong> – GULP first line keywords</li>
+<li><strong>valence_dict</strong> – {El: valence}. Needed if the structure is not charge
 neutral.</li>
 </ul>
 </td>
@@ -384,8 +381,8 @@ neutral.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
-<li><strong>gulp_cmd</strong> &#8211; GULP command if not in standard place</li>
+<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
+<li><strong>gulp_cmd</strong> – GULP command if not in standard place</li>
 </ul>
 </td>
 </tr>
@@ -431,13 +428,13 @@ neutral.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

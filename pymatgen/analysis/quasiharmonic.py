@@ -26,7 +26,7 @@ from scipy.optimize import minimize
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.analysis.eos import EOS, PolynomialEOS
 
-__author__ = "Kiran Mathew"
+__author__ = "Kiran Mathew, Brandon Bocklund"
 __credits__ = "Cormac Toher"
 
 
@@ -49,10 +49,13 @@ class QuasiharmonicDebyeApprox(object):
         use_mie_gruneisen (bool): whether or not to use the mie-gruneisen
             formulation to compute the gruneisen parameter.
             The default is the slater-gamma formulation.
+        anharmonic_contribution (bool): whether or not to consider the anharmonic
+            contribution to the Debye temperature. Cannot be used with
+            use_mie_gruneisen. Defaults to False.
     """
     def __init__(self, energies, volumes, structure, t_min=300.0, t_step=100,
                  t_max=300.0, eos="vinet", pressure=0.0, poisson=0.25,
-                 use_mie_gruneisen=False):
+                 use_mie_gruneisen=False, anharmonic_contribution=False):
         self.energies = energies
         self.volumes = volumes
         self.structure = structure
@@ -63,6 +66,9 @@ class QuasiharmonicDebyeApprox(object):
         self.pressure = pressure
         self.poisson = poisson
         self.use_mie_gruneisen = use_mie_gruneisen
+        self.anharmonic_contribution = anharmonic_contribution
+        if self.use_mie_gruneisen and self.anharmonic_contribution:
+            raise ValueError('The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and cannot be used together.')
         self.mass = sum([e.atomic_mass for e in self.structure.species])
         self.natoms = self.structure.composition.num_atoms
         self.avg_mass = physical_constants["atomic mass constant"][0] \
@@ -182,6 +188,15 @@ class QuasiharmonicDebyeApprox(object):
         Calculates the debye temperature.
         Eq(6) in doi.org/10.1016/j.comphy.2003.12.001. Thanks to Joey.
 
+        Eq(6) above is equivalent to Eq(3) in doi.org/10.1103/PhysRevB.37.790
+        which does not consider anharmonic effects. Eq(20) in the same paper
+        and Eq(18) in doi.org/10.1016/j.commatsci.2009.12.006 both consider
+        anharmonic contributions to the Debye temperature through the Gruneisen
+        parameter at 0K (Gruneisen constant).
+
+        The anharmonic contribution is toggled by setting the anharmonic_contribution
+        to True or False in the QuasiharmonicDebyeApprox constructor.
+
         Args:
             volume (float): in Ang^3
 
@@ -191,8 +206,14 @@ class QuasiharmonicDebyeApprox(object):
         term1 = (2./3. * (1. + self.poisson) / (1. - 2. * self.poisson))**1.5
         term2 = (1./3. * (1. + self.poisson) / (1. - self.poisson))**1.5
         f = (3. / (2. * term1 + term2))**(1. / 3.)
-        return 2.9772e-11 * (volume / self.natoms) ** (-1. / 6.) * f * \
+        debye = 2.9772e-11 * (volume / self.natoms) ** (-1. / 6.) * f * \
                np.sqrt(self.bulk_modulus/self.avg_mass)
+        if self.anharmonic_contribution:
+            gamma = self.gruneisen_parameter(0, self.ev_eos_fit.v0)  # 0K equilibrium Gruneisen parameter
+            return debye * (self.ev_eos_fit.v0 / volume) ** (gamma)
+        else:
+            return debye
+
 
     @staticmethod
     def debye_integral(y):

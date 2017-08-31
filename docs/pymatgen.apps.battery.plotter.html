@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.apps.battery.plotter module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.apps.battery.plotter module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -66,7 +63,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xaxis</strong> &#8211; The quantity to use as the xaxis. Can be either capacity (the
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xaxis</strong> – The quantity to use as the xaxis. Can be either capacity (the
 default), or the frac_x.</td>
 </tr>
 </tbody>
@@ -80,10 +77,10 @@ default), or the frac_x.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>electrode</strong> &#8211; An electrode. All electrodes satisfying the
+<li><strong>electrode</strong> – An electrode. All electrodes satisfying the
 AbstractElectrode interface should work.</li>
-<li><strong>label</strong> &#8211; A label for the electrode. If None, defaults to a counting
-system, i.e. &#8216;Electrode 1&#8217;, &#8216;Electrode 2&#8217;, ...</li>
+<li><strong>label</strong> – A label for the electrode. If None, defaults to a counting
+system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</li>
 </ul>
 </td>
 </tr>
@@ -100,8 +97,8 @@ system, i.e. &#8216;Electrode 1&#8217;, &#8216;Electrode 2&#8217;, ...</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>width</strong> &#8211; Width of the plot. Defaults to 8 in.</li>
-<li><strong>height</strong> &#8211; Height of the plot. Defaults to 6 in.</li>
+<li><strong>width</strong> – Width of the plot. Defaults to 8 in.</li>
+<li><strong>height</strong> – Height of the plot. Defaults to 6 in.</li>
 </ul>
 </td>
 </tr>
@@ -126,8 +123,8 @@ system, i.e. &#8216;Electrode 1&#8217;, &#8216;Electrode 2&#8217;, ...</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> &#8211; Filename to save to.</li>
-<li><strong>image_format</strong> &#8211; Format to save to. Defaults to eps.</li>
+<li><strong>filename</strong> – Filename to save to.</li>
+<li><strong>image_format</strong> – Format to save to. Defaults to eps.</li>
 </ul>
 </td>
 </tr>
@@ -144,8 +141,8 @@ system, i.e. &#8216;Electrode 1&#8217;, &#8216;Electrode 2&#8217;, ...</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>width</strong> &#8211; Width of the plot. Defaults to 8 in.</li>
-<li><strong>height</strong> &#8211; Height of the plot. Defaults to 6 in.</li>
+<li><strong>width</strong> – Width of the plot. Defaults to 8 in.</li>
+<li><strong>height</strong> – Height of the plot. Defaults to 6 in.</li>
 </ul>
 </td>
 </tr>
@@ -193,13 +190,13 @@ system, i.e. &#8216;Electrode 1&#8217;, &#8216;Electrode 2&#8217;, ...</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

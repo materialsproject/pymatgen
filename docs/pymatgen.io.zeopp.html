@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.zeopp module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.zeopp module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -69,7 +66,7 @@ of Zeo++ (x-axis) for structurural modifications.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; A structure to create ZeoCssr object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – A structure to create ZeoCssr object</td>
 </tr>
 </tbody>
 </table>
@@ -81,7 +78,7 @@ of Zeo++ (x-axis) for structurural modifications.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; Filename to read from.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to read from.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ZeoCssr object.</td>
 </tr>
@@ -97,7 +94,7 @@ of Zeo++ (x-axis) for structurural modifications.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> &#8211; A string representation of a ZeoCSSR.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> – A string representation of a ZeoCSSR.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ZeoCssr object.</td>
 </tr>
@@ -118,7 +115,7 @@ The voronoi node radius is represented by the site property voronoi_radius.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mol</strong> &#8211; Input molecule holding the voronoi node information</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mol</strong> – Input molecule holding the voronoi node information</td>
 </tr>
 </tbody>
 </table>
@@ -130,7 +127,7 @@ The voronoi node radius is represented by the site property voronoi_radius.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; XYZ filename</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – XYZ filename</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">XYZ object</td>
 </tr>
@@ -147,7 +144,7 @@ from_string method of XYZ class is being redefined.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>contents</strong> &#8211; String representing Zeo++ Voronoi XYZ file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>contents</strong> – String representing Zeo++ Voronoi XYZ file.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ZeoVoronoiXYZ object</td>
 </tr>
@@ -167,12 +164,12 @@ Calls Zeo++ for Voronoi decomposition.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
-<li><strong>rad_dict</strong> (<em>optional</em>) &#8211; Dictionary of radii of elements in structure.
+<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
+<li><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
 If not given, Zeo++ default values are used.
 Note: Zeo++ uses atomic radii of elements.
 For ionic structures, pass rad_dict with ionic radii</li>
-<li><strong>probe_rad</strong> (<em>optional</em>) &#8211; Sampling probe radius in Angstroms. Default is
+<li><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms. Default is
 0.1 A</li>
 </ul>
 </td>
@@ -198,12 +195,12 @@ Calls Zeo++ for Voronoi decomposition.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
-<li><strong>rad_dict</strong> (<em>optional</em>) &#8211; Dictionary of radii of elements in structure.
+<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
+<li><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
 If not given, Zeo++ default values are used.
 Note: Zeo++ uses atomic radii of elements.
 For ionic structures, pass rad_dict with ionic radii</li>
-<li><strong>probe_rad</strong> (<em>optional</em>) &#8211; Sampling probe radius in Angstroms.
+<li><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms.
 Default is 0.1 A</li>
 </ul>
 </td>
@@ -228,11 +225,11 @@ Useful to compute the volume and surface area of vacant site.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; pymatgen Structure containing vacancy</li>
-<li><strong>rad_dict</strong> (<em>optional</em>) &#8211; Dictionary with short name of elements and their
+<li><strong>structure</strong> – pymatgen Structure containing vacancy</li>
+<li><strong>rad_dict</strong> (<em>optional</em>) – Dictionary with short name of elements and their
 radii.</li>
-<li><strong>chan_rad</strong> (<em>optional</em>) &#8211; Minimum channel Radius.</li>
-<li><strong>probe_rad</strong> (<em>optional</em>) &#8211; Probe radius for Monte Carlo sampling.</li>
+<li><strong>chan_rad</strong> (<em>optional</em>) – Minimum channel Radius.</li>
+<li><strong>probe_rad</strong> (<em>optional</em>) – Probe radius for Monte Carlo sampling.</li>
 </ul>
 </td>
 </tr>
@@ -256,12 +253,12 @@ Calls Zeo++ for Voronoi decomposition.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; pymatgen.core.structure.Structure</li>
-<li><strong>rad_dict</strong> (<em>optional</em>) &#8211; Dictionary of radii of elements in structure.
+<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
+<li><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
 If not given, Zeo++ default values are used.
 Note: Zeo++ uses atomic radii of elements.
 For ionic structures, pass rad_dict with ionic radii</li>
-<li><strong>probe_rad</strong> (<em>optional</em>) &#8211; Sampling probe radius in Angstroms. Default is
+<li><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms. Default is
 0.1 A</li>
 </ul>
 </td>
@@ -314,13 +311,13 @@ unit cell defined by the lattice of input structure</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

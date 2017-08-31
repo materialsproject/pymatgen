@@ -1,5 +1,5 @@
-pymatgen.entries.post_processors_abc module
-===========================================
+pymatgen\.entries\.post\_processors\_abc module
+===============================================
 
 .. automodule:: pymatgen.entries.post_processors_abc
     :members:

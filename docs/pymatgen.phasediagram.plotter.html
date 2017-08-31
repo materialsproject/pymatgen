@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.phasediagram.plotter module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.phasediagram.plotter module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -67,8 +64,8 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>phasediagram</strong> &#8211; PhaseDiagram object.</li>
-<li><strong>show_unstable</strong> (<em>float</em>) &#8211; Whether unstable phases will be plotted as
+<li><strong>phasediagram</strong> – PhaseDiagram object.</li>
+<li><strong>show_unstable</strong> (<em>float</em>) – Whether unstable phases will be plotted as
 well as red crosses. If a number &gt; 0 is entered, all phases with
 ehull &lt; show_unstable will be shown.</li>
 </ul>
@@ -86,11 +83,11 @@ only for 3-component PDs.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>elements</strong> &#8211; Sequence of elements to be considered as independent
+<li><strong>elements</strong> – Sequence of elements to be considered as independent
 variables. E.g., if you want to show the stability ranges of
 all Li-Co-O phases wrt to uLi and uO, you will supply
-[Element(&#8220;Li&#8221;), Element(&#8220;O&#8221;)]</li>
-<li><strong>referenced</strong> &#8211; if True, gives the results with a reference being the
+[Element(“Li”), Element(“O”)]</li>
+<li><strong>referenced</strong> – if True, gives the results with a reference being the
 energy of the elemental phase. If False, gives absolute values.</li>
 </ul>
 </td>
@@ -159,11 +156,11 @@ nodes in the phase diagram.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>elements</strong> &#8211; Sequence of elements to be considered as independent
+<li><strong>elements</strong> – Sequence of elements to be considered as independent
 variables. E.g., if you want to show the stability ranges of
 all Li-Co-O phases wrt to uLi and uO, you will supply
-[Element(&#8220;Li&#8221;), Element(&#8220;O&#8221;)]</li>
-<li><strong>referenced</strong> &#8211; if True, gives the results with a reference being the
+[Element(“Li”), Element(“O”)]</li>
+<li><strong>referenced</strong> – if True, gives the results with a reference being the
 energy of the elemental phase. If False, gives absolute values.</li>
 </ul>
 </td>
@@ -181,8 +178,8 @@ energy of the elemental phase. If False, gives absolute values.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>*args</strong> &#8211; Passed to get_plot.</li>
-<li><strong>**kwargs</strong> &#8211; Passed to get_plot.</li>
+<li><strong>*args</strong> – Passed to get_plot.</li>
+<li><strong>**kwargs</strong> – Passed to get_plot.</li>
 </ul>
 </td>
 </tr>
@@ -199,8 +196,8 @@ energy of the elemental phase. If False, gives absolute values.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stream</strong> &#8211; stream to write to. Can be a file stream or a StringIO stream.</li>
-<li><strong>image_format</strong> &#8211; format for image. Can be any of matplotlib supported formats.
+<li><strong>stream</strong> – stream to write to. Can be a file stream or a StringIO stream.</li>
+<li><strong>image_format</strong> – format for image. Can be any of matplotlib supported formats.
 Defaults to svg for best results for vector graphics.</li>
 </ul>
 </td>
@@ -216,7 +213,7 @@ Defaults to svg for best results for vector graphics.</li>
 <code class="descname">order_phase_diagram</code><span class="sig-paren">(</span><em>lines</em>, <em>stable_entries</em>, <em>unstable_entries</em>, <em>ordering</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phasediagram/plotter.html#order_phase_diagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phasediagram.plotter.order_phase_diagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Orders the entries (their coordinates) in a phase diagram plot according
 to the user specified ordering.
-Ordering should be given as [&#8216;Up&#8217;, &#8216;Left&#8217;, &#8216;Right&#8217;], where Up,
+Ordering should be given as [‘Up’, ‘Left’, ‘Right’], where Up,
 Left and Right are the names of the entries in the upper, left and right
 corners of the triangle respectively.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -224,13 +221,13 @@ corners of the triangle respectively.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lines</strong> &#8211; list of list of coordinates for lines in the PD.</li>
-<li><strong>stable_entries</strong> &#8211; {coordinate : entry} for each stable node in the
+<li><strong>lines</strong> – list of list of coordinates for lines in the PD.</li>
+<li><strong>stable_entries</strong> – {coordinate : entry} for each stable node in the
 phase diagram. (Each coordinate can only have one stable phase)</li>
-<li><strong>unstable_entries</strong> &#8211; {entry: coordinates} for all unstable nodes in the
+<li><strong>unstable_entries</strong> – {entry: coordinates} for all unstable nodes in the
 phase diagram.</li>
-<li><strong>ordering</strong> &#8211; Ordering of the phase diagram, given as a list [&#8216;Up&#8217;,
-&#8216;Left&#8217;,&#8217;Right&#8217;]</li>
+<li><strong>ordering</strong> – Ordering of the phase diagram, given as a list [‘Up’,
+‘Left’,’Right’]</li>
 </ul>
 </td>
 </tr>
@@ -261,7 +258,7 @@ prettier phase diagram.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordinate</strong> &#8211; coordinate used in the convex hull computation.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordinate</strong> – coordinate used in the convex hull computation.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">coordinates in a tetrahedron-based coordinate system.</td>
 </tr>
@@ -278,7 +275,7 @@ prettier phase diagram.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordinate</strong> &#8211; coordinate used in the convex hull computation.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordinate</strong> – coordinate used in the convex hull computation.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">coordinates in a triangular-based coordinate system.</td>
 </tr>
@@ -295,10 +292,10 @@ used for converting convex hull facets into line pairs of coordinates.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>q</strong> &#8211; A 2-dim sequence, where each row represents a facet. E.g.,
-[[1,2,3],[3,6,7],...]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>q</strong> – A 2-dim sequence, where each row represents a facet. E.g.,
+[[1,2,3],[3,6,7],…]</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ....)</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ….)</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">setoflines</td>
 </tr>
@@ -344,13 +341,13 @@ used for converting convex hull facets into line pairs of coordinates.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

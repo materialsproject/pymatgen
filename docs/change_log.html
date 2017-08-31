@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Change log &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>Change log &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,6 +54,43 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2017-8-21">
+<h2>v2017.8.21<a class="headerlink" href="#v2017-8-21" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Minor bug fixes.</li>
+</ul>
+</div>
+<div class="section" id="v2017-8-20">
+<h2>v2017.8.20<a class="headerlink" href="#v2017-8-20" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Input sets for GW and BSE calculations (Zhenbin Wang) and grain boundary
+calculations (Hui Zheng). Input sets now support overriding of POTCAR
+settings.</li>
+<li>Haven ratio calculation (Iek-Heng Chu).</li>
+<li>LAMMPS io updates (Kiran Matthews).</li>
+<li>Oxidation state guessing algorithms based on ICSD data (Anubhav Jain).</li>
+<li>New local_env module for local environment analysis. (Nils Zimmerman).</li>
+<li>pymatgen.util.plotting.periodic_table_heatmap (Iek-Heng Chu).</li>
+<li>Improvements to surface code for tasker 3 to 2 reconstructions.</li>
+<li>pymatgen.analysis.interface_reactions.py for analyzing interfacial reactions
+(Yihan Xiao).</li>
+</ul>
+</div>
+<div class="section" id="v2017-8-16">
+<h2>v2017.8.16<a class="headerlink" href="#v2017-8-16" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>PointGroupAnalyzer now allows for symmetrization of molecules. (&#64;mcocdawc)</li>
+<li>QuasiharmonicDebyeApprox with anharmonic contribution. (Brandon)</li>
+<li>Improvements to LAMMPS io. (Kiran)</li>
+<li>Misc bug fixes.</li>
+</ul>
+</div>
+<div class="section" id="v2017-8-14">
+<h2>v2017.8.14<a class="headerlink" href="#v2017-8-14" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fixes and minor improvements to elastic, bader and defect analyses.</li>
+</ul>
+</div>
 <div class="section" id="v2017-8-4">
 <h2>v2017.8.4<a class="headerlink" href="#v2017-8-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -90,8 +124,8 @@ sufficiently flexible for a lot of non-DFT applications.</li>
 <li>New package pymatgen.ext supporting external interfaces. Materials Project
 REST interface has been moved to pymatgen.ext.matproj. Backwards compatibility
 will be maintained until 2018.</li>
-<li>Two new interfaces have been added: i) Support for John Hopkin&#8217;s Mueller
-group&#8217;s efficient k-point servelet (J Montaya). ii) Support for
+<li>Two new interfaces have been added: i) Support for John Hopkin’s Mueller
+group’s efficient k-point servelet (J Montaya). ii) Support for
 Crystallography Open Database structure queries and downloads. (S. P. Ong).
 See the examples page for usage in getting structures from online sources.</li>
 </ul>
@@ -415,14 +449,14 @@ more rational command structure.</li>
 <h2>v4.2.3<a class="headerlink" href="#v4-2-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Minor cleanup.</li>
-<li>Simplified installation. enumlib and bader can now be installed using pmg setup &#8211;install.</li>
+<li>Simplified installation. enumlib and bader can now be installed using pmg setup –install.</li>
 </ul>
 </div>
 <div class="section" id="v4-2-2">
 <h2>v4.2.2<a class="headerlink" href="#v4-2-2" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p class="first">Global configuration variables such as VASP_PSP_DIR and MAPI_KEY are now
-stored in &#8220;~/.pmgrc.yaml&#8221;. If you are setting these as environmental
+stored in “~/.pmgrc.yaml”. If you are setting these as environmental
 variables right now, you can easily transition to the new system using:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>pmg config --add VASP_PSP_DIR $VASP_PSP_DIR MAPI_KEY $MAPI_KEY
 </pre></div>
@@ -513,7 +547,7 @@ may break backwards incompatibility!</li>
 <div class="section" id="v3-6-0">
 <h2>v3.6.0<a class="headerlink" href="#v3-6-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Pymatgen now uses spglib directly from Togo&#8217;s website. Spglib is no longer
+<li>Pymatgen now uses spglib directly from Togo’s website. Spglib is no longer
 bundled as a dependency.</li>
 <li>Improved support for velocities in Poscar (Germaine Vallverdu)</li>
 <li>Backwards incompatible change in Born charge format in Outcar.</li>
@@ -645,8 +679,8 @@ Structure * 3 or Structure * (3, 1, 1).</li>
 <li>Major PD stability improvements, especially for very high dim hulls with lots
 of entries.</li>
 <li>Improvements to Ewald summation to be close to GULP implementation.</li>
-<li>Deprecate physical constants module in favor of scipy&#8217;s version.</li>
-<li>Remove many pyhull references to use scipy&#8217;s ConvexHull implementation.</li>
+<li>Deprecate physical constants module in favor of scipy’s version.</li>
+<li>Remove many pyhull references to use scipy’s ConvexHull implementation.</li>
 <li>Bug fix for sulfide correction.</li>
 </ul>
 </div>
@@ -677,7 +711,7 @@ sulfide formation energies.</li>
 <div class="section" id="v3-2-5">
 <h2>v3.2.5<a class="headerlink" href="#v3-2-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improved potcar setup via &#8220;pmg setup&#8221;, with MAPI setup.</li>
+<li>Improved potcar setup via “pmg setup”, with MAPI setup.</li>
 <li>Support for new POTCARs issued by VASP.</li>
 <li>Improvements to ABINIT support.</li>
 <li>Improvement to Boltztrap support, e.g., scissor band gap, etc.</li>
@@ -693,7 +727,7 @@ sulfide formation energies.</li>
 Merkys).</li>
 <li>Specialized BSVasprun parser that is ~2-3x faster than Vasprun.</li>
 <li>Refactor the boltztrap package (merge a few methods together) and add several
-new methods (power factor, seebeck...)</li>
+new methods (power factor, seebeck…)</li>
 <li>Support of the new PCM format in QChem 4.3</li>
 <li>Local environment analysis to pmg script.</li>
 <li>Deprecate prettytable in favor of tabulate package.</li>
@@ -939,7 +973,7 @@ usage.</li>
 <li>~50% speedup to LinearAssignment code.</li>
 <li>Continuous integration and contribution guidelines now include Python 3.</li>
 <li><strong>Backwards incompatible changes</strong></li>
-<li>matgenie.py has now been renamed simply &#8220;pmg&#8221; for brevity.</li>
+<li>matgenie.py has now been renamed simply “pmg” for brevity.</li>
 <li>All deprecated methods in pymatgen 2.x have been removed. E.g.,
 pymatgen.core.structure_modifier is no longer available.</li>
 <li>Pymatgen classes now uses the as_dict() method protocol implemented in the
@@ -1161,7 +1195,7 @@ for pymatgen.</li>
 <h2>v2.8.7<a class="headerlink" href="#v2-8-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Massive update to pymatgen.io.abinitio package (by Matteo Giantomassi).</li>
-<li>Bug fixes for StructureMatcher&#8217;s group_structure.</li>
+<li>Bug fixes for StructureMatcher’s group_structure.</li>
 <li>Misc bug fixes and cleanup.</li>
 </ul>
 </div>
@@ -1292,7 +1326,7 @@ we have provided the IStructure and IMolecule classes (where I indicates
 immutability) which will perform exactly the same way as the previous
 classes. With this change, the <code class="xref py py-mod docutils literal"><span class="pre">pymatgen.core.structure_modifier</span></code>
 module is now deprecated and will be removed in a future version.</li>
-<li>read_structure and write_structure now supports pymatgen&#8217;s json serialized
+<li>read_structure and write_structure now supports pymatgen’s json serialized
 structures.</li>
 <li>read_mol and write_mol functions now available (analogues of
 read_structure and write_structure for molecules)</li>
@@ -1330,7 +1364,7 @@ precision errors.</li>
 <h2>v2.6.5<a class="headerlink" href="#v2-6-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added a command_line caller to do Bader charge analysis using Henkelmann
-et al.&#8217;s algorithm.</li>
+et al.’s algorithm.</li>
 <li>Bug fix for POSCAR parsing when title line is an empty string.</li>
 <li>Added __rmul__ operator for Composition.</li>
 <li>Vastly expanded available aliases.</li>
@@ -1372,7 +1406,7 @@ the species and occupancy, instead of a standard dict.</li>
 <h2>v2.6.1<a class="headerlink" href="#v2-6-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Use requests.Session in MPRester for connection pooling and code simplicity.</li>
-<li>Support for &#8220;with&#8221; context manager in MPRester.</li>
+<li>Support for “with” context manager in MPRester.</li>
 <li>Updated periodic table data to correct errors in Ru, Tc and other elements.</li>
 <li>New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.</li>
 <li>Miscellaneous bug fixes and speedups.</li>
@@ -1471,7 +1505,7 @@ Previously, the parsing was done incorrectly because VASP actually provides
 data by running through the x-axis first, followed by y, then z.</li>
 <li>Bug fix for reverse_readline so that it works for gzipped and bzipped
 strucutures (courtesy of Anubhav Jain).</li>
-<li>Fix &#8220;lossy&#8221; composition to_dict method.  Now composition.to_dict properly
+<li>Fix “lossy” composition to_dict method.  Now composition.to_dict properly
 returns a correct species string as a key for compositions using species,
 instead of just the element symbols.</li>
 <li>Miscellaneous bug fixes.</li>
@@ -1673,6 +1707,10 @@ environment variable.</li>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
+<li><a class="reference internal" href="#v2017-8-21">v2017.8.21</a></li>
+<li><a class="reference internal" href="#v2017-8-20">v2017.8.20</a></li>
+<li><a class="reference internal" href="#v2017-8-16">v2017.8.16</a></li>
+<li><a class="reference internal" href="#v2017-8-14">v2017.8.14</a></li>
 <li><a class="reference internal" href="#v2017-8-4">v2017.8.4</a></li>
 <li><a class="reference internal" href="#v2017-7-21">v2017.7.21</a></li>
 <li><a class="reference internal" href="#v2017-7-4">v2017.7.4</a></li>
@@ -1877,13 +1915,13 @@ environment variable.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

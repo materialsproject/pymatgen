@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.ext.matproj module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.ext.matproj module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -70,18 +67,18 @@ Raised when the query has problems, e.g., bad query format.</p>
 <em class="property">class </em><code class="descname">MPRester</code><span class="sig-paren">(</span><em>api_key=None</em>, <em>endpoint='https://www.materialsproject.org/rest/v2'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>A class to conveniently interface with the Materials Project REST
-interface. The recommended way to use MPRester is with the &#8220;with&#8221; context
+interface. The recommended way to use MPRester is with the “with” context
 manager to ensure that sessions are properly closed after usage:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">MPRester</span><span class="p">(</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">m</span><span class="p">:</span>
     <span class="n">do_something</span>
 </pre></div>
 </div>
-<p>MPRester uses the &#8220;requests&#8221; package, which provides for HTTP connection
+<p>MPRester uses the “requests” package, which provides for HTTP connection
 pooling. All connections are made via https for security.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The Materials Project recently switched to using string ids with a
-&#8220;mp-&#8221; prefix for greater flexibility going forward. The MPRester
+“mp-” prefix for greater flexibility going forward. The MPRester
 should still work as intended if you provide the proper string ids.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -89,14 +86,14 @@ should still work as intended if you provide the proper string ids.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>api_key</strong> (<em>str</em>) &#8211; A String API key for accessing the MaterialsProject
+<li><strong>api_key</strong> (<em>str</em>) – A String API key for accessing the MaterialsProject
 REST interface. Please obtain your API key at
 <a class="reference external" href="https://www.materialsproject.org/dashboard">https://www.materialsproject.org/dashboard</a>. If this is None,
-the code will check if there is a &#8220;PMG_MAPI_KEY&#8221; setting.
+the code will check if there is a “PMG_MAPI_KEY” setting.
 If so, it will use that environment variable. This makes
 easier for heavy users to simply add this environment variable to
 their setups and MPRester can then be called without any arguments.</li>
-<li><strong>endpoint</strong> (<em>str</em>) &#8211; Url of endpoint to access the MaterialsProject REST
+<li><strong>endpoint</strong> (<em>str</em>) – Url of endpoint to access the MaterialsProject REST
 interface. Defaults to the standard Materials Project REST
 address, but can be changed to other urls implementing a similar
 interface.</li>
@@ -119,7 +116,7 @@ the future.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>snl_ids</strong> &#8211; List of SNL ids.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>snl_ids</strong> – List of SNL ids.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#pymatgen.ext.matproj.MPRestError" title="pymatgen.ext.matproj.MPRestError"><code class="xref py py-exc docutils literal"><span class="pre">MPRestError</span></code></a></td>
 </tr>
@@ -135,7 +132,7 @@ the future.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename_or_structure</strong> &#8211; filename or Structure object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename_or_structure</strong> – filename or Structure object</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of matching structures.</td>
 </tr>
@@ -168,7 +165,7 @@ Materials Project substrate database</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) &#8211; Materials Project material_id (an int).</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) – Materials Project material_id (an int).</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A BandStructure object.</td>
 </tr>
@@ -183,17 +180,17 @@ Materials Project substrate database</p>
 interface. Generally used by other methods for more specific queries.</p>
 <p>Format of REST return is <em>always</em> a list of dict (regardless of the
 number of pieces of data returned. The general format is as follows:</p>
-<p>[{&#8220;material_id&#8221;: material_id, &#8220;property_name&#8221; : value}, ...]</p>
+<p>[{“material_id”: material_id, “property_name” : value}, …]</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>chemsys_formula_id</strong> (<em>str</em>) &#8211; A chemical system (e.g., Li-Fe-O),
+<li><strong>chemsys_formula_id</strong> (<em>str</em>) – A chemical system (e.g., Li-Fe-O),
 or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).</li>
-<li><strong>data_type</strong> (<em>str</em>) &#8211; Type of data to return. Currently can either be
-&#8220;vasp&#8221; or &#8220;exp&#8221;.</li>
-<li><strong>prop</strong> (<em>str</em>) &#8211; Property to be obtained. Should be one of the
+<li><strong>data_type</strong> (<em>str</em>) – Type of data to return. Currently can either be
+“vasp” or “exp”.</li>
+<li><strong>prop</strong> (<em>str</em>) – Property to be obtained. Should be one of the
 MPRester.supported_task_properties. Leave as empty string for a
 general list of useful properties.</li>
 </ul>
@@ -211,7 +208,7 @@ general list of useful properties.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) &#8211; Materials Project material_id (a string,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) – Materials Project material_id (a string,
 e.g., mp-1234).</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Dos object.</td>
@@ -230,21 +227,21 @@ to a chemical system, formula, or materials_id or full criteria.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>chemsys_formula_id_criteria</strong> (<em>str/dict</em>) &#8211; A chemical system
+<li><strong>chemsys_formula_id_criteria</strong> (<em>str/dict</em>) – A chemical system
 (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or materials_id
 (e.g., mp-1234) or full Mongo-style dict criteria.</li>
-<li><strong>compatible_only</strong> (<em>bool</em>) &#8211; Whether to return only &#8220;compatible&#8221;
+<li><strong>compatible_only</strong> (<em>bool</em>) – Whether to return only “compatible”
 entries. Compatible entries are entries that have been
 processed using the MaterialsProjectCompatibility class,
 which performs adjustments to allow mixing of GGA and GGA+U
 calculations for more accurate phase diagrams and reaction
 energies.</li>
-<li><strong>inc_structure</strong> (<em>str</em>) &#8211; If None, entries returned are
-ComputedEntries. If inc_structure=&#8221;final&#8221;,
+<li><strong>inc_structure</strong> (<em>str</em>) – If None, entries returned are
+ComputedEntries. If inc_structure=”final”,
 ComputedStructureEntries with final structures are returned.
 Otherwise, ComputedStructureEntries with initial structures
 are returned.</li>
-<li><strong>property_data</strong> (<em>list</em>) &#8211; Specify additional properties to include in
+<li><strong>property_data</strong> (<em>list</em>) – Specify additional properties to include in
 entry.data. If None, no data. Should be a subset of
 supported_properties.</li>
 </ul>
@@ -261,7 +258,7 @@ supported_properties.</li>
 <dt id="pymatgen.ext.matproj.MPRester.get_entries_in_chemsys">
 <code class="descname">get_entries_in_chemsys</code><span class="sig-paren">(</span><em>elements</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries_in_chemsys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries_in_chemsys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to get a list of ComputedEntries in a chemical system.
-For example, elements = [&#8220;Li&#8221;, &#8220;Fe&#8221;, &#8220;O&#8221;] will return a list of all
+For example, elements = [“Li”, “Fe”, “O”] will return a list of all
 entries in the Li-Fe-O chemical system, i.e., all LixOy,
 FexOy, LixFey, LixFeyOz, Li, Fe and O phases. Extremely useful for
 creating phase diagrams of entire chemical systems.</p>
@@ -270,20 +267,20 @@ creating phase diagrams of entire chemical systems.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>elements</strong> (<em></em><em>[</em><em>str</em><em>]</em><em></em>) &#8211; List of element symbols, e.g., [&#8220;Li&#8221;, &#8220;Fe&#8221;,
-&#8220;O&#8221;].</li>
-<li><strong>compatible_only</strong> (<em>bool</em>) &#8211; Whether to return only &#8220;compatible&#8221;
+<li><strong>elements</strong> (<em>[</em><em>str</em><em>]</em>) – List of element symbols, e.g., [“Li”, “Fe”,
+“O”].</li>
+<li><strong>compatible_only</strong> (<em>bool</em>) – Whether to return only “compatible”
 entries. Compatible entries are entries that have been
 processed using the MaterialsProjectCompatibility class,
 which performs adjustments to allow mixing of GGA and GGA+U
 calculations for more accurate phase diagrams and reaction
 energies.</li>
-<li><strong>inc_structure</strong> (<em>str</em>) &#8211; If None, entries returned are
-ComputedEntries. If inc_structure=&#8221;final&#8221;,
+<li><strong>inc_structure</strong> (<em>str</em>) – If None, entries returned are
+ComputedEntries. If inc_structure=”final”,
 ComputedStructureEntries with final structures are returned.
 Otherwise, ComputedStructureEntries with initial structures
 are returned.</li>
-<li><strong>property_data</strong> (<em>list</em>) &#8211; Specify additional properties to include in
+<li><strong>property_data</strong> (<em>list</em>) – Specify additional properties to include in
 entry.data. If None, no data. Should be a subset of
 supported_properties.</li>
 </ul>
@@ -305,20 +302,20 @@ supported_properties.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>material_id</strong> (<em>str</em>) &#8211; Materials Project material_id (a string,
+<li><strong>material_id</strong> (<em>str</em>) – Materials Project material_id (a string,
 e.g., mp-1234).</li>
-<li><strong>compatible_only</strong> (<em>bool</em>) &#8211; Whether to return only &#8220;compatible&#8221;
+<li><strong>compatible_only</strong> (<em>bool</em>) – Whether to return only “compatible”
 entries. Compatible entries are entries that have been
 processed using the MaterialsProjectCompatibility class,
 which performs adjustments to allow mixing of GGA and GGA+U
 calculations for more accurate phase diagrams and reaction
 energies.</li>
-<li><strong>inc_structure</strong> (<em>str</em>) &#8211; If None, entries returned are
-ComputedEntries. If inc_structure=&#8221;final&#8221;,
+<li><strong>inc_structure</strong> (<em>str</em>) – If None, entries returned are
+ComputedEntries. If inc_structure=”final”,
 ComputedStructureEntries with final structures are returned.
 Otherwise, ComputedStructureEntries with initial structures
 are returned.</li>
-<li><strong>property_data</strong> (<em>list</em>) &#8211; Specify additional properties to include in
+<li><strong>property_data</strong> (<em>list</em>) – Specify additional properties to include in
 entry.data. If None, no data. Should be a subset of
 supported_properties.</li>
 </ul>
@@ -340,7 +337,7 @@ ComputedEntry and can be used for analyses using experimental data.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> (<em>str</em>) &#8211; A formula to search for.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> (<em>str</em>) – A formula to search for.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An ExpEntry object.</td>
 </tr>
@@ -357,7 +354,7 @@ Materials Project REST interface.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> (<em>str</em>) &#8211; A formula to search for.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> (<em>str</em>) – A formula to search for.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of ThermoData objects.</td>
 </tr>
@@ -374,7 +371,7 @@ equivalent to an old materials id)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>task_id</strong> (<em>str</em>) &#8211; A task id.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>task_id</strong> (<em>str</em>) – A task id.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">materials_id (str)</td>
 </tr>
@@ -390,7 +387,7 @@ equivalent to an old materials id)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) &#8211; A material id.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) – A material id.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">BibTeX (str)</td>
 </tr>
@@ -407,8 +404,8 @@ equivalent to an old materials id)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>reactants</strong> (<em></em><em>[</em><em>str</em><em>]</em><em></em>) &#8211; List of formulas</li>
-<li><strong>products</strong> (<em></em><em>[</em><em>str</em><em>]</em><em></em>) &#8211; List of formulas</li>
+<li><strong>reactants</strong> (<em>[</em><em>str</em><em>]</em>) – List of formulas</li>
+<li><strong>products</strong> (<em>[</em><em>str</em><em>]</em>) – List of formulas</li>
 </ul>
 </td>
 </tr>
@@ -434,9 +431,9 @@ equivalent to an old materials id)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>material_id</strong> (<em>str</em>) &#8211; Materials Project material_id (a string,
+<li><strong>material_id</strong> (<em>str</em>) – Materials Project material_id (a string,
 e.g., mp-1234).</li>
-<li><strong>final</strong> (<em>bool</em>) &#8211; Whether to get the final structure, or the initial
+<li><strong>final</strong> (<em>bool</em>) – Whether to get the final structure, or the initial
 (pre-relaxation) structure. Defaults to True.</li>
 </ul>
 </td>
@@ -458,9 +455,9 @@ or materials_id.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>chemsys_formula_id</strong> (<em>str</em>) &#8211; A chemical system (e.g., Li-Fe-O),
+<li><strong>chemsys_formula_id</strong> (<em>str</em>) – A chemical system (e.g., Li-Fe-O),
 or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).</li>
-<li><strong>final</strong> (<em>bool</em>) &#8211; Whether to get the final structure, or the initial
+<li><strong>final</strong> (<em>bool</em>) – Whether to get the final structure, or the initial
 (pre-relaxation) structure. Defaults to True.</li>
 </ul>
 </td>
@@ -484,9 +481,9 @@ matching area.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>material_id</strong> (<em>str</em>) &#8211; Materials Project material_id, e.g. &#8216;mp-123&#8217;.</li>
-<li><strong>orient</strong> (<em>list</em>) &#8211; substrate orientation to look for</li>
-<li><strong>number</strong> (<em>int</em>) &#8211; number of substrates to return;
+<li><strong>material_id</strong> (<em>str</em>) – Materials Project material_id, e.g. ‘mp-123’.</li>
+<li><strong>orient</strong> (<em>list</em>) – substrate orientation to look for</li>
+<li><strong>number</strong> (<em>int</em>) – number of substrates to return;
 n=0 returns all available matches</li>
 </ul>
 </td>
@@ -507,15 +504,15 @@ Unlike the <a href="#id1"><span class="problematic" id="id2">:func:`get_data`_</
 for specific run information.</p>
 <p>Format of REST return is <em>always</em> a list of dict (regardless of the
 number of pieces of data returned. The general format is as follows:</p>
-<p>[{&#8220;material_id&#8221;: material_id, &#8220;property_name&#8221; : value}, ...]</p>
+<p>[{“material_id”: material_id, “property_name” : value}, …]</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>chemsys_formula_id</strong> (<em>str</em>) &#8211; A chemical system (e.g., Li-Fe-O),
+<li><strong>chemsys_formula_id</strong> (<em>str</em>) – A chemical system (e.g., Li-Fe-O),
 or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).</li>
-<li><strong>prop</strong> (<em>str</em>) &#8211; Property to be obtained. Should be one of the
+<li><strong>prop</strong> (<em>str</em>) – Property to be obtained. Should be one of the
 MPRester.supported_properties. Leave as empty string for a
 general list of useful properties.</li>
 </ul>
@@ -534,10 +531,10 @@ mongo syntax criteria.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>criteria_string</strong> (<em>str</em>) &#8211; <p>A string representing a search criteria.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>criteria_string</strong> (<em>str</em>) – <p>A string representing a search criteria.
 Also supports wild cards. E.g.,
-something like &#8220;<a href="#id3"><span class="problematic" id="id4">*</span></a>2O&#8221; gets converted to
-{&#8216;pretty_formula&#8217;: {&#8216;$in&#8217;: [u&#8217;B2O&#8217;, u&#8217;Xe2O&#8217;, u&#8221;Li2O&#8221;, ...]}}</p>
+something like “<a href="#id3"><span class="problematic" id="id4">*</span></a>2O” gets converted to
+{‘pretty_formula’: {‘$in’: [u’B2O’, u’Xe2O’, u”Li2O”, …]}}</p>
 <dl class="docutils">
 <dt>Other syntax examples:</dt>
 <dd>mp-1234: Interpreted as a Materials ID.
@@ -545,7 +542,7 @@ Fe2O3 or <a href="#id5"><span class="problematic" id="id6">*</span></a>2O3: Inte
 Li-Fe-O or <a href="#id7"><span class="problematic" id="id8">*</span></a>-Fe-O: Interpreted as chemical systems.</dd>
 </dl>
 <p>You can mix and match with spaces, which are interpreted as
-&#8220;OR&#8221;. E.g., &#8220;mp-1234 FeO&#8221; means query for all compounds with
+“OR”. E.g., “mp-1234 FeO” means query for all compounds with
 reduced formula FeO or with materials_id mp-1234.</p>
 </td>
 </tr>
@@ -578,11 +575,11 @@ you need.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>criteria</strong> (<em>str/dict</em>) &#8211; <p>Criteria of the query as a string or
+<li><strong>criteria</strong> (<em>str/dict</em>) – <p>Criteria of the query as a string or
 mongo-style dict.</p>
 <p>If string, it supports a powerful but simple string criteria.
-E.g., &#8220;Fe2O3&#8221; means search for materials with reduced_formula
-Fe2O3. Wild cards are also supported. E.g., &#8220;*2O&#8221; means get
+E.g., “Fe2O3” means search for materials with reduced_formula
+Fe2O3. Wild cards are also supported. E.g., “*2O” means get
 all materials whose formula can be formed as *2O, e.g.,
 Li2O, K2O, etc.</p>
 <p>Other syntax examples:
@@ -590,28 +587,28 @@ mp-1234: Interpreted as a Materials ID.
 Fe2O3 or *2O3: Interpreted as reduced formulas.
 Li-Fe-O or *-Fe-O: Interpreted as chemical systems.</p>
 <p>You can mix and match with spaces, which are interpreted as
-&#8220;OR&#8221;. E.g. &#8220;mp-1234 FeO&#8221; means query for all compounds with
+“OR”. E.g. “mp-1234 FeO” means query for all compounds with
 reduced formula FeO or with materials_id mp-1234.</p>
 <p>Using a full dict syntax, even more powerful queries can be
-constructed. For example, {&#8220;elements&#8221;:{&#8220;$in&#8221;:[&#8220;Li&#8221;,
-&#8220;Na&#8221;, &#8220;K&#8221;], &#8220;$all&#8221;: [&#8220;O&#8221;]}, &#8220;nelements&#8221;:2} selects all Li, Na
-and K oxides. {&#8220;band_gap&#8221;: {&#8220;$gt&#8221;: 1}} selects all materials
+constructed. For example, {“elements”:{“$in”:[“Li”,
+“Na”, “K”], “$all”: [“O”]}, “nelements”:2} selects all Li, Na
+and K oxides. {“band_gap”: {“$gt”: 1}} selects all materials
 with band gaps greater than 1 eV.</p>
 </li>
-<li><strong>properties</strong> (<em>list</em>) &#8211; Properties to request for as a list. For
-example, [&#8220;formula&#8221;, &#8220;formation_energy_per_atom&#8221;] returns
+<li><strong>properties</strong> (<em>list</em>) – Properties to request for as a list. For
+example, [“formula”, “formation_energy_per_atom”] returns
 the formula and formation energy per atom.</li>
-<li><strong>mp_decode</strong> (<em>bool</em>) &#8211; Whether to do a decoding to a Pymatgen object
+<li><strong>mp_decode</strong> (<em>bool</em>) – Whether to do a decoding to a Pymatgen object
 where possible. In some cases, it might be useful to just get
 the raw python dict, i.e., set to False.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List of results. E.g.,
-[{u&#8217;formula&#8217;: {u&#8217;O&#8217;: 1, u&#8217;Li&#8217;: 2.0}},
-{u&#8217;formula&#8217;: {u&#8217;Na&#8217;: 2.0, u&#8217;O&#8217;: 2.0}},
-{u&#8217;formula&#8217;: {u&#8217;K&#8217;: 1, u&#8217;O&#8217;: 3.0}},
-...]</p>
+[{u’formula’: {u’O’: 1, u’Li’: 2.0}},
+{u’formula’: {u’Na’: 2.0, u’O’: 2.0}},
+{u’formula’: {u’K’: 1, u’O’: 3.0}},
+…]</p>
 </td>
 </tr>
 </tbody>
@@ -632,9 +629,9 @@ the future.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>criteria</strong> (<em>dict</em>) &#8211; Query criteria.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>criteria</strong> (<em>dict</em>) – Query criteria.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dict, with a list of submitted SNLs in the &#8220;response&#8221; key.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dict, with a list of submitted SNLs in the “response” key.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#pymatgen.ext.matproj.MPRestError" title="pymatgen.ext.matproj.MPRestError"><code class="xref py py-exc docutils literal"><span class="pre">MPRestError</span></code></a></td>
 </tr>
@@ -657,8 +654,8 @@ the future.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>snl</strong> (<em>StructureNL/</em><em>[</em><a class="reference internal" href="pymatgen.matproj.snl.html#pymatgen.matproj.snl.StructureNL" title="pymatgen.matproj.snl.StructureNL"><em>StructureNL</em></a><em>]</em><em></em>) &#8211; A single StructureNL, or a list</li>
-<li><strong>StructureNL objects</strong> (<em>of</em>) &#8211; </li>
+<li><strong>snl</strong> (<em>StructureNL/</em><em>[</em><a class="reference internal" href="pymatgen.matproj.snl.html#pymatgen.matproj.snl.StructureNL" title="pymatgen.matproj.snl.StructureNL"><em>StructureNL</em></a><em>]</em>) – A single StructureNL, or a list</li>
+<li><strong>StructureNL objects</strong> (<em>of</em>) – </li>
 </ul>
 </td>
 </tr>
@@ -690,23 +687,23 @@ the future.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structures</strong> &#8211; A list of Structure objects</li>
-<li><strong>authors</strong> (<em>list</em>) &#8211; List of {&#8220;name&#8221;:&#8217;&#8216;, &#8220;email&#8221;:&#8217;&#8216;} dicts,
-<em>list</em> of Strings as &#8216;John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;&#8217;,
+<li><strong>structures</strong> – A list of Structure objects</li>
+<li><strong>authors</strong> (<em>list</em>) – List of {“name”:’‘, “email”:’‘} dicts,
+<em>list</em> of Strings as ‘John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;’,
 or a single String with commas separating authors</li>
-<li><strong>projects</strong> (<em></em><em>[</em><em>str</em><em>]</em><em></em>) &#8211; List of Strings [&#8216;Project A&#8217;, &#8216;Project B&#8217;].
+<li><strong>projects</strong> (<em>[</em><em>str</em><em>]</em>) – List of Strings [‘Project A’, ‘Project B’].
 This applies to all structures.</li>
-<li><strong>references</strong> (<em>str</em>) &#8211; A String in BibTeX format. Again, this applies to
+<li><strong>references</strong> (<em>str</em>) – A String in BibTeX format. Again, this applies to
 all structures.</li>
-<li><strong>remarks</strong> (<em></em><em>[</em><em>str</em><em>]</em><em></em>) &#8211; List of Strings [&#8216;Remark A&#8217;, &#8216;Remark B&#8217;]</li>
-<li><strong>data</strong> (<em></em><em>[</em><em>dict</em><em>]</em><em></em>) &#8211; A list of free form dict. Namespaced at the root
-level with an underscore, e.g. {&#8220;_materialsproject&#8221;:&lt;custom
+<li><strong>remarks</strong> (<em>[</em><em>str</em><em>]</em>) – List of Strings [‘Remark A’, ‘Remark B’]</li>
+<li><strong>data</strong> (<em>[</em><em>dict</em><em>]</em>) – A list of free form dict. Namespaced at the root
+level with an underscore, e.g. {“_materialsproject”:&lt;custom
 data&gt;}. The length of data should be the same as the list of
 structures if not None.</li>
-<li><strong>histories</strong> &#8211; List of list of dicts - [[{&#8216;name&#8217;:&#8217;&#8216;, &#8216;url&#8217;:&#8217;&#8216;,
-&#8216;description&#8217;:{}}], ...] The length of histories should be the
+<li><strong>histories</strong> – List of list of dicts - [[{‘name’:’‘, ‘url’:’‘,
+‘description’:{}}], …] The length of histories should be the
 same as the list of structures if not None.</li>
-<li><strong>created_at</strong> (<em>datetime</em>) &#8211; A datetime object</li>
+<li><strong>created_at</strong> (<em>datetime</em>) – A datetime object</li>
 </ul>
 </td>
 </tr>
@@ -735,24 +732,24 @@ the future.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>rootdir</strong> (<em>str</em>) &#8211; Rootdir to start assimilating VASP runs from.</li>
-<li><strong>authors</strong> &#8211; <em>List</em> of {&#8220;name&#8221;:&#8217;&#8216;, &#8220;email&#8221;:&#8217;&#8216;} dicts,
-<em>list</em> of Strings as &#8216;John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;&#8217;,
+<li><strong>rootdir</strong> (<em>str</em>) – Rootdir to start assimilating VASP runs from.</li>
+<li><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
+<em>list</em> of Strings as ‘John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;’,
 or a single String with commas separating authors. The same
 list of authors should apply to all runs.</li>
-<li><strong>projects</strong> (<em></em><em>[</em><em>str</em><em>]</em><em></em>) &#8211; List of Strings [&#8216;Project A&#8217;, &#8216;Project B&#8217;].
+<li><strong>projects</strong> (<em>[</em><em>str</em><em>]</em>) – List of Strings [‘Project A’, ‘Project B’].
 This applies to all structures.</li>
-<li><strong>references</strong> (<em>str</em>) &#8211; A String in BibTeX format. Again, this applies to
+<li><strong>references</strong> (<em>str</em>) – A String in BibTeX format. Again, this applies to
 all structures.</li>
-<li><strong>remarks</strong> (<em></em><em>[</em><em>str</em><em>]</em><em></em>) &#8211; List of Strings [&#8216;Remark A&#8217;, &#8216;Remark B&#8217;]</li>
-<li><strong>master_data</strong> (<em>dict</em>) &#8211; A free form dict. Namespaced at the root
-level with an underscore, e.g. {&#8220;_materialsproject&#8221;:&lt;custom
+<li><strong>remarks</strong> (<em>[</em><em>str</em><em>]</em>) – List of Strings [‘Remark A’, ‘Remark B’]</li>
+<li><strong>master_data</strong> (<em>dict</em>) – A free form dict. Namespaced at the root
+level with an underscore, e.g. {“_materialsproject”:&lt;custom
 data&gt;}. This data is added to all structures detected in the
 directory, in addition to other vasp data on a per structure
 basis.</li>
-<li><strong>master_history</strong> &#8211; A master history to be added to all entries.</li>
-<li><strong>created_at</strong> (<em>datetime</em>) &#8211; A datetime object</li>
-<li><strong>ncpus</strong> (<em>int</em>) &#8211; Number of cpus to use in using BorgQueen to
+<li><strong>master_history</strong> – A master history to be added to all entries.</li>
+<li><strong>created_at</strong> (<em>datetime</em>) – A datetime object</li>
+<li><strong>ncpus</strong> (<em>int</em>) – Number of cpus to use in using BorgQueen to
 assimilate. Defaults to None, which means serial.</li>
 </ul>
 </td>
@@ -811,13 +808,13 @@ assimilate. Defaults to None, which means serial.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

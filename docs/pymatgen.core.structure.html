@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.structure module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.structure module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -74,20 +71,20 @@ equivalent to going through the sites in sequence.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>species</strong> &#8211; list of atomic species. Possible kinds of input include a
+<li><strong>species</strong> – list of atomic species. Possible kinds of input include a
 list of dict of elements/species and occupancies, a List of
 elements/specie specified as actual Element/Specie, Strings
-(&#8220;Fe&#8221;, &#8220;Fe2+&#8221;) or atomic numbers (1,56).</li>
-<li><strong>coords</strong> (<em>3x1 array</em>) &#8211; list of cartesian coordinates of each species.</li>
-<li><strong>charge</strong> (<em>float</em>) &#8211; Charge for the molecule. Defaults to 0.</li>
-<li><strong>spin_multiplicity</strong> (<em>int</em>) &#8211; Spin multiplicity for molecule.
+(“Fe”, “Fe2+”) or atomic numbers (1,56).</li>
+<li><strong>coords</strong> (<em>3x1 array</em>) – list of cartesian coordinates of each species.</li>
+<li><strong>charge</strong> (<em>float</em>) – Charge for the molecule. Defaults to 0.</li>
+<li><strong>spin_multiplicity</strong> (<em>int</em>) – Spin multiplicity for molecule.
 Defaults to None, which means that the spin multiplicity is
 set to 1 if the molecule has no unpaired electrons and to 2
 if there are unpaired electrons.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if there are sites
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 1 Ang apart. Defaults to False.</li>
-<li><strong>site_properties</strong> (<em>dict</em>) &#8211; Properties associated with the sites as
-a dict of sequences, e.g., {&#8220;magmom&#8221;:[5,5,5,5]}. The
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as
+a dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The
 sequences have to be the same length as the atomic species
 and fractional_coords. Defaults to None for no properties.</li>
 </ul>
@@ -111,9 +108,9 @@ ind1 and ind2.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ind1</strong> (<em>int</em>) &#8211; Index of first site.</li>
-<li><strong>ind2</strong> (<em>int</em>) &#8211; Index of second site.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Relative tolerance to test. Basically, the code
+<li><strong>ind1</strong> (<em>int</em>) – Index of first site.</li>
+<li><strong>ind2</strong> (<em>int</em>) – Index of second site.</li>
+<li><strong>tol</strong> (<em>float</em>) – Relative tolerance to test. Basically, the code
 checks if the distance between the sites is less than (1 +
 tol) * typical bond distances. Defaults to 0.2, i.e.,
 20% longer.</li>
@@ -149,7 +146,7 @@ as_dict().</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) &#8211; dict representation of Molecule.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – dict representation of Molecule.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Molecule object</td>
 </tr>
@@ -162,14 +159,14 @@ as_dict().</p>
 <em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IMolecule.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a molecule from a file. Supported formats include xyz,
 gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
-pymatgen&#8217;s JSON serialized molecules. Using openbabel,
+pymatgen’s JSON serialized molecules. Using openbabel,
 many more extensions are supported but requires openbabel to be
 installed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; The filename to read from.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – The filename to read from.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Molecule</td>
 </tr>
@@ -186,11 +183,11 @@ installed.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>sites</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em>]</em><em></em>) &#8211; Sequence of Sites.</li>
-<li><strong>charge</strong> (<em>int</em>) &#8211; Charge of molecule. Defaults to 0.</li>
-<li><strong>spin_multiplicity</strong> (<em>int</em>) &#8211; Spin multicipity. Defaults to None,
+<li><strong>sites</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em>]</em>) – Sequence of Sites.</li>
+<li><strong>charge</strong> (<em>int</em>) – Charge of molecule. Defaults to 0.</li>
+<li><strong>spin_multiplicity</strong> (<em>int</em>) – Spin multicipity. Defaults to None,
 in which it is determined automatically.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check that atoms are too
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check that atoms are too
 close.</li>
 </ul>
 </td>
@@ -208,10 +205,10 @@ close.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>input_string</strong> (<em>str</em>) &#8211; String to parse.</li>
-<li><strong>fmt</strong> (<em>str</em>) &#8211; Format to output to. Defaults to JSON unless filename
+<li><strong>input_string</strong> (<em>str</em>) – String to parse.</li>
+<li><strong>fmt</strong> (<em>str</em>) – Format to output to. Defaults to JSON unless filename
 is provided. If fmt is specifies, it overrides whatever the
-filename is. Options include &#8220;xyz&#8221;, &#8220;gjf&#8221;, &#8220;g03&#8221;, &#8220;json&#8221;. If
+filename is. Options include “xyz”, “gjf”, “g03”, “json”. If
 you have OpenBabel installed, any of the formats supported by
 OpenBabel. Non-case sensitive.</li>
 </ul>
@@ -235,23 +232,23 @@ calculating molecules using periodic codes.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>a</strong> (<em>float</em>) &#8211; a-lattice parameter.</li>
-<li><strong>b</strong> (<em>float</em>) &#8211; b-lattice parameter.</li>
-<li><strong>c</strong> (<em>float</em>) &#8211; c-lattice parameter.</li>
-<li><strong>images</strong> &#8211; No. of boxed images in each direction. Defaults to
+<li><strong>a</strong> (<em>float</em>) – a-lattice parameter.</li>
+<li><strong>b</strong> (<em>float</em>) – b-lattice parameter.</li>
+<li><strong>c</strong> (<em>float</em>) – c-lattice parameter.</li>
+<li><strong>images</strong> – No. of boxed images in each direction. Defaults to
 (1, 1, 1), meaning single molecule with 1 lattice parameter
 in each direction.</li>
-<li><strong>random_rotation</strong> (<em>bool</em>) &#8211; Whether to apply a random rotation to
+<li><strong>random_rotation</strong> (<em>bool</em>) – Whether to apply a random rotation to
 each molecule. This jumbles all the molecules so that they
 are not exact images of each other.</li>
-<li><strong>min_dist</strong> (<em>float</em>) &#8211; The minimum distance that atoms should be from
+<li><strong>min_dist</strong> (<em>float</em>) – The minimum distance that atoms should be from
 each other. This is only used if random_rotation is True.
 The randomized rotations are searched such that no two atoms
 are less than min_dist from each other.</li>
-<li><strong>cls</strong> &#8211; The Structure class to instantiate (defaults to pymatgen
+<li><strong>cls</strong> – The Structure class to instantiate (defaults to pymatgen
 structure)</li>
-<li><strong>offset</strong> &#8211; Translation to offset molecule from center of mass coords</li>
-<li><strong>no_cross</strong> &#8211; Whether to forbid molecule coords from extending beyond
+<li><strong>offset</strong> – Translation to offset molecule from center of mass coords</li>
+<li><strong>no_cross</strong> – Whether to forbid molecule coords from extending beyond
 boundary of box.</li>
 </ul>
 </td>
@@ -285,7 +282,7 @@ boundary of box.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol</strong> (<em>float</em>) &#8211; The tol to determine bonds in a structure. See
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol</strong> (<em>float</em>) – The tol to determine bonds in a structure. See
 CovalentBond.is_bonded.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of bonds</td>
@@ -303,8 +300,8 @@ CovalentBond.is_bonded.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>int</em>) &#8211; Index of first site</li>
-<li><strong>j</strong> (<em>int</em>) &#8211; Index of second site</li>
+<li><strong>i</strong> (<em>int</em>) – Index of first site</li>
+<li><strong>j</strong> (<em>int</em>) – Index of second site</li>
 </ul>
 </td>
 </tr>
@@ -325,12 +322,12 @@ site itself.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) &#8211; Site at the center of the sphere.</li>
-<li><strong>r</strong> (<em>float</em>) &#8211; Radius of sphere.</li>
+<li><strong>site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – Site at the center of the sphere.</li>
+<li><strong>r</strong> (<em>float</em>) – Radius of sphere.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) ...] since most of the time, subsequent processing
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) …] since most of the time, subsequent processing
 requires the distance.</p>
 </td>
 </tr>
@@ -348,13 +345,13 @@ r-dr and r+dr.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>origin</strong> (<em>3x1 array</em>) &#8211; Cartesian coordinates of center of sphere.</li>
-<li><strong>r</strong> (<em>float</em>) &#8211; Inner radius of shell.</li>
-<li><strong>dr</strong> (<em>float</em>) &#8211; Width of shell.</li>
+<li><strong>origin</strong> (<em>3x1 array</em>) – Cartesian coordinates of center of sphere.</li>
+<li><strong>r</strong> (<em>float</em>) – Inner radius of shell.</li>
+<li><strong>dr</strong> (<em>float</em>) – Width of shell.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) ...] since most of the time, subsequent processing
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) …] since most of the time, subsequent processing
 requires the distance.</p>
 </td>
 </tr>
@@ -371,12 +368,12 @@ requires the distance.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pt</strong> (<em>3x1 array</em>) &#8211; Cartesian coordinates of center of sphere.</li>
-<li><strong>r</strong> (<em>float</em>) &#8211; Radius of sphere.</li>
+<li><strong>pt</strong> (<em>3x1 array</em>) – Cartesian coordinates of center of sphere.</li>
+<li><strong>r</strong> (<em>float</em>) – Radius of sphere.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) ...] since most of the time, subsequent processing
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) …] since most of the time, subsequent processing
 requires the distance.</p>
 </td>
 </tr>
@@ -411,12 +408,12 @@ requires the distance.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fmt</strong> (<em>str</em>) &#8211; Format to output to. Defaults to JSON unless filename
+<li><strong>fmt</strong> (<em>str</em>) – Format to output to. Defaults to JSON unless filename
 is provided. If fmt is specifies, it overrides whatever the
-filename is. Options include &#8220;xyz&#8221;, &#8220;gjf&#8221;, &#8220;g03&#8221;, &#8220;json&#8221;. If
+filename is. Options include “xyz”, “gjf”, “g03”, “json”. If
 you have OpenBabel installed, any of the formats supported by
 OpenBabel. Non-case sensitive.</li>
-<li><strong>filename</strong> (<em>str</em>) &#8211; If provided, output will be written to a file. If
+<li><strong>filename</strong> (<em>str</em>) – If provided, output will be written to a file. If
 fmt is not specified, the format is determined from the
 filename. Defaults is None, i.e. string output.</li>
 </ul>
@@ -448,30 +445,30 @@ structure is equivalent to going through the sites in sequence.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lattice</strong> (<em>Lattice/3x3 array</em>) &#8211; The lattice, either as a
+<li><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
 <a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
 simply as any 2D array. Each row should correspond to a lattice
 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</li>
-<li><strong>species</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em><em></em>) &#8211; <p>Sequence of species on each site. Can take in
+<li><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
 flexible input, including:</p>
 <ol class="lowerroman">
 <li>A sequence of element / specie specified either as string
-symbols, e.g. [&#8220;Li&#8221;, &#8220;Fe2+&#8221;, &#8220;P&#8221;, ...] or atomic numbers,
-e.g., (3, 56, ...) or actual Element or Specie objects.</li>
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</li>
 <li>List of dict of elements/species and occupancies, e.g.,
-[{&#8220;Fe&#8221; : 0.5, &#8220;Mn&#8221;:0.5}, ...]. This allows the setup of
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
 disordered structures.</li>
 </ol>
 </li>
-<li><strong>coords</strong> (<em>Nx3 array</em>) &#8211; list of fractional/cartesian coordinates of
+<li><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
 each species.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if there are sites
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) &#8211; Set to True if you are providing
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
-<li><strong>site_properties</strong> (<em>dict</em>) &#8211; Properties associated with the sites as a
-dict of sequences, e.g., {&#8220;magmom&#8221;:[5,5,5,5]}. The sequences
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
 have to be the same length as the atomic species and
 fractional_coords. Defaults to None for no properties.</li>
 </ul>
@@ -488,17 +485,17 @@ fractional_coords. Defaults to None for no properties.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>verbosity</strong> (<em>int</em>) &#8211; Verbosity level. Default of 1 includes both
+<li><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 1 includes both
 direct and cartesian coordinates for all sites, lattice
 parameters, etc. Useful for reading and for insertion into a
 database. Set to 0 for an extremely lightweight version
 that only includes sufficient information to reconstruct the
 object.</li>
-<li><strong>fmt</strong> (<em>str</em>) &#8211; Specifies a format for the dict. Defaults to None,
+<li><strong>fmt</strong> (<em>str</em>) – Specifies a format for the dict. Defaults to None,
 which is the default format used in pymatgen. Other options
-include &#8220;abivars&#8221;.</li>
-<li><strong>**kwargs</strong> &#8211; Allow passing of other kwargs needed for certain</li>
-<li><strong>e.g.</strong><strong>, </strong><strong>&quot;abivars&quot;.</strong> (<em>formats</em><em>,</em><em></em>) &#8211; </li>
+include “abivars”.</li>
+<li><strong>**kwargs</strong> – Allow passing of other kwargs needed for certain</li>
+<li><strong>e.g.</strong><strong>, </strong><strong>&quot;abivars&quot;.</strong> (<em>formats</em><em>,</em>) – </li>
 </ul>
 </td>
 </tr>
@@ -519,12 +516,12 @@ site properties.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>site_properties</strong> (<em>dict</em>) &#8211; Properties to add or override. The
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties to add or override. The
 properties are specified in the same way as the constructor,
 i.e., as a dict of the form {property: [values]}. The
 properties should be in the order of the <em>original</em> structure
 if you are performing sanitization.</li>
-<li><strong>sanitize</strong> (<em>bool</em>) &#8211; If True, this method will return a sanitized
+<li><strong>sanitize</strong> (<em>bool</em>) – If True, this method will return a sanitized
 structure. Sanitization performs a few things: (i) The sites are
 sorted by electronegativity, (ii) a LLL lattice reduction is
 carried out to obtain a relatively orthogonalized cell,
@@ -569,7 +566,7 @@ created using as_dict().</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) &#8211; Dict representation of structure.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – Dict representation of structure.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Structure object</td>
 </tr>
@@ -581,19 +578,19 @@ created using as_dict().</p>
 <dt id="pymatgen.core.structure.IStructure.from_file">
 <em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em>, <em>primitive=False</em>, <em>sort=False</em>, <em>merge_tol=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a structure from a file. For example, anything ending in
-a &#8220;cif&#8221; is assumed to be a Crystallographic Information Format file.
+a “cif” is assumed to be a Crystallographic Information Format file.
 Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
-vasprun.xml, CSSR, Netcdf and pymatgen&#8217;s JSON serialized structures.</p>
+vasprun.xml, CSSR, Netcdf and pymatgen’s JSON serialized structures.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>filename</strong> (<em>str</em>) &#8211; The filename to read from.</li>
-<li><strong>primitive</strong> (<em>bool</em>) &#8211; Whether to convert to a primitive cell
+<li><strong>filename</strong> (<em>str</em>) – The filename to read from.</li>
+<li><strong>primitive</strong> (<em>bool</em>) – Whether to convert to a primitive cell
 Only available for cifs. Defaults to False.</li>
-<li><strong>sort</strong> (<em>bool</em>) &#8211; Whether to sort sites. Default to False.</li>
-<li><strong>merge_tol</strong> (<em>float</em>) &#8211; If this is some positive number, sites that
+<li><strong>sort</strong> (<em>bool</em>) – Whether to sort sites. Default to False.</li>
+<li><strong>merge_tol</strong> (<em>float</em>) – If this is some positive number, sites that
 are within merge_tol from each other will be merged. Usually
 0.01 should be enough to deal with common numerical issues.</li>
 </ul>
@@ -617,12 +614,12 @@ All equivalent sites are generated from the spacegroup operations.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>msg</strong> (str/list/<a class="reference internal" href="pymatgen.symmetry.maggroups.html#pymatgen.symmetry.maggroups.MagneticSpaceGroup" title="pymatgen.symmetry.maggroups.MagneticSpaceGroup"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.symmetry.maggroups.MagneticSpaceGroup</span></code></a>) &#8211; The magnetic spacegroup.
+<li><strong>msg</strong> (str/list/<a class="reference internal" href="pymatgen.symmetry.maggroups.html#pymatgen.symmetry.maggroups.MagneticSpaceGroup" title="pymatgen.symmetry.maggroups.MagneticSpaceGroup"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.symmetry.maggroups.MagneticSpaceGroup</span></code></a>) – The magnetic spacegroup.
 If a string, it will be interpreted as one of the notations
-supported by MagneticSymmetryGroup, e.g., &#8220;R-3&#8217;c&#8221; or &#8220;Fm&#8217;-3&#8217;m&#8221;.
+supported by MagneticSymmetryGroup, e.g., “R-3’c” or “Fm’-3’m”.
 If a list of two ints, it will be interpreted as the number of
 the spacegroup in its Belov, Neronova and Smirnova (BNS) setting.</li>
-<li><strong>lattice</strong> (<em>Lattice/3x3 array</em>) &#8211; The lattice, either as a
+<li><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
 <a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
 simply as any 2D array. Each row should correspond to a lattice
 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
@@ -630,30 +627,30 @@ lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
 Note that no attempt is made to check that the lattice is
 compatible with the spacegroup specified. This may be
 introduced in a future version.</li>
-<li><strong>species</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em><em></em>) &#8211; <p>Sequence of species on each site. Can take in
+<li><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
 flexible input, including:</p>
 <ol class="lowerroman">
 <li>A sequence of element / specie specified either as string
-symbols, e.g. [&#8220;Li&#8221;, &#8220;Fe2+&#8221;, &#8220;P&#8221;, ...] or atomic numbers,
-e.g., (3, 56, ...) or actual Element or Specie objects.</li>
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</li>
 <li>List of dict of elements/species and occupancies, e.g.,
-[{&#8220;Fe&#8221; : 0.5, &#8220;Mn&#8221;:0.5}, ...]. This allows the setup of
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
 disordered structures.</li>
 </ol>
 </li>
-<li><strong>coords</strong> (<em>Nx3 array</em>) &#8211; list of fractional/cartesian coordinates of
+<li><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
 each species.</li>
-<li><strong>site_properties</strong> (<em>dict</em>) &#8211; Properties associated with the sites as a
-dict of sequences, e.g., {&#8220;magmom&#8221;:[5,5,5,5]}. The sequences
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
 have to be the same length as the atomic species and
 fractional_coords. Unlike Structure.from_spacegroup(),
 this argument is mandatory, since magnetic moment information
 has to be included. Note that the <em>direction</em> of the supplied
 magnetic moment relative to the crystal is important, even if
 the resulting structure is used for collinear calculations.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) &#8211; Set to True if you are providing
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; A fractional tolerance to deal with numerical
+<li><strong>tol</strong> (<em>float</em>) – A fractional tolerance to deal with numerical
 precision issues in determining if orbits are the same.</li>
 </ul>
 </td>
@@ -671,11 +668,11 @@ precision issues in determining if orbits are the same.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sites</strong> &#8211; Sequence of PeriodicSites. Sites must have the same
+<li><strong>sites</strong> – Sequence of PeriodicSites. Sites must have the same
 lattice.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if there are sites
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
-<li><strong>to_unit_cell</strong> (<em>bool</em>) &#8211; Whether to translate sites into the unit
+<li><strong>to_unit_cell</strong> (<em>bool</em>) – Whether to translate sites into the unit
 cell.</li>
 </ul>
 </td>
@@ -698,11 +695,11 @@ are generated from the spacegroup operations.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>sg</strong> (<em>str/int</em>) &#8211; The spacegroup. If a string, it will be interpreted
+<li><strong>sg</strong> (<em>str/int</em>) – The spacegroup. If a string, it will be interpreted
 as one of the notations supported by
-pymatgen.symmetry.groups.Spacegroup. E.g., &#8220;R-3c&#8221; or &#8220;Fm-3m&#8221;.
+pymatgen.symmetry.groups.Spacegroup. E.g., “R-3c” or “Fm-3m”.
 If an int, it will be interpreted as an international number.</li>
-<li><strong>lattice</strong> (<em>Lattice/3x3 array</em>) &#8211; The lattice, either as a
+<li><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
 <a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
 simply as any 2D array. Each row should correspond to a lattice
 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
@@ -710,26 +707,26 @@ lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
 Note that no attempt is made to check that the lattice is
 compatible with the spacegroup specified. This may be
 introduced in a future version.</li>
-<li><strong>species</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em><em></em>) &#8211; <p>Sequence of species on each site. Can take in
+<li><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
 flexible input, including:</p>
 <ol class="lowerroman">
 <li>A sequence of element / specie specified either as string
-symbols, e.g. [&#8220;Li&#8221;, &#8220;Fe2+&#8221;, &#8220;P&#8221;, ...] or atomic numbers,
-e.g., (3, 56, ...) or actual Element or Specie objects.</li>
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</li>
 <li>List of dict of elements/species and occupancies, e.g.,
-[{&#8220;Fe&#8221; : 0.5, &#8220;Mn&#8221;:0.5}, ...]. This allows the setup of
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
 disordered structures.</li>
 </ol>
 </li>
-<li><strong>coords</strong> (<em>Nx3 array</em>) &#8211; list of fractional/cartesian coordinates of
+<li><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
 each species.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) &#8211; Set to True if you are providing
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
-<li><strong>site_properties</strong> (<em>dict</em>) &#8211; Properties associated with the sites as a
-dict of sequences, e.g., {&#8220;magmom&#8221;:[5,5,5,5]}. The sequences
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
 have to be the same length as the atomic species and
 fractional_coords. Defaults to None for no properties.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; A fractional tolerance to deal with numerical
+<li><strong>tol</strong> (<em>float</em>) – A fractional tolerance to deal with numerical
 precision issues in determining if orbits are the same.</li>
 </ul>
 </td>
@@ -747,13 +744,13 @@ precision issues in determining if orbits are the same.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>input_string</strong> (<em>str</em>) &#8211; String to parse.</li>
-<li><strong>fmt</strong> (<em>str</em>) &#8211; A format specification.</li>
-<li><strong>primitive</strong> (<em>bool</em>) &#8211; Whether to find a primitive cell. Defaults to
+<li><strong>input_string</strong> (<em>str</em>) – String to parse.</li>
+<li><strong>fmt</strong> (<em>str</em>) – A format specification.</li>
+<li><strong>primitive</strong> (<em>bool</em>) – Whether to find a primitive cell. Defaults to
 False.</li>
-<li><strong>sort</strong> (<em>bool</em>) &#8211; Whether to sort the sites in accordance to the default
+<li><strong>sort</strong> (<em>bool</em>) – Whether to sort the sites in accordance to the default
 ordering criteria, i.e., electronegativity.</li>
-<li><strong>merge_tol</strong> (<em>float</em>) &#8211; If this is some positive number, sites that
+<li><strong>merge_tol</strong> (<em>float</em>) – If this is some positive number, sites that
 are within merge_tol from each other will be merged. Usually
 0.01 should be enough to deal with common numerical issues.</li>
 </ul>
@@ -777,21 +774,21 @@ method get_neighbors as it may not have to build such a large supercell
 However if you are looping over all sites in the crystal, this method
 is more efficient since it only performs one pass over a large enough
 supercell to contain all possible atoms out to a distance r.
-The return type is a [(site, dist) ...] since most of the time,
+The return type is a [(site, dist) …] since most of the time,
 subsequent processing requires the distance.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>r</strong> (<em>float</em>) &#8211; Radius of sphere.</li>
-<li><strong>include_index</strong> (<em>bool</em>) &#8211; Whether to include the non-supercell site
+<li><strong>r</strong> (<em>float</em>) – Radius of sphere.</li>
+<li><strong>include_index</strong> (<em>bool</em>) – Whether to include the non-supercell site
 in the returned data</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of a list of nearest neighbors for each site, i.e.,
-[[(site, dist, index) ...], ..]
+[[(site, dist, index) …], ..]
 Index only supplied if include_index = True.
 The index is the index of the site in the original (non-supercell)
 structure. This is needed for ewaldmatrix by keeping track of which
@@ -816,9 +813,9 @@ atom and the specified jimage atom.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>int</em>) &#8211; Index of first site</li>
-<li><strong>j</strong> (<em>int</em>) &#8211; Index of second site</li>
-<li><strong>jimage</strong> &#8211; Number of lattice translations in each lattice direction.
+<li><strong>i</strong> (<em>int</em>) – Index of first site</li>
+<li><strong>j</strong> (<em>int</em>) – Index of second site</li>
+<li><strong>jimage</strong> – Number of lattice translations in each lattice direction.
 Default is None for nearest image.</li>
 </ul>
 </td>
@@ -840,14 +837,14 @@ site itself.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>site</strong> &#8211; site, which is the center of the sphere.</li>
-<li><strong>r</strong> &#8211; radius of sphere.</li>
-<li><strong>include_index</strong> &#8211; boolean that determines whether the non-supercell site index
+<li><strong>site</strong> – site, which is the center of the sphere.</li>
+<li><strong>r</strong> – radius of sphere.</li>
+<li><strong>include_index</strong> – boolean that determines whether the non-supercell site index
 is included in the returned data</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) ...] since most of the time, subsequent processing
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) …] since most of the time, subsequent processing
 requires the distance.</p>
 </td>
 </tr>
@@ -865,15 +862,15 @@ r-dr and r+dr.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>origin</strong> (<em>3x1 array</em>) &#8211; Cartesian coordinates of center of sphere.</li>
-<li><strong>r</strong> (<em>float</em>) &#8211; Inner radius of shell.</li>
-<li><strong>dr</strong> (<em>float</em>) &#8211; Width of shell.</li>
-<li><strong>include_index</strong> (<em>bool</em>) &#8211; Whether to include the non-supercell site
+<li><strong>origin</strong> (<em>3x1 array</em>) – Cartesian coordinates of center of sphere.</li>
+<li><strong>r</strong> (<em>float</em>) – Inner radius of shell.</li>
+<li><strong>dr</strong> (<em>float</em>) – Width of shell.</li>
+<li><strong>include_index</strong> (<em>bool</em>) – Whether to include the non-supercell site
 in the returned data</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist, index) ...] since most of the time, subsequent
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist, index) …] since most of the time, subsequent
 processing
 requires the distance. Index only supplied if include_index = True.
 The index is the index of the site in the original (non-supercell)
@@ -888,7 +885,7 @@ sites contribute to the ewald sum.</p>
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_primitive_structure">
 <code class="descname">get_primitive_structure</code><span class="sig-paren">(</span><em>tolerance=0.25</em>, <em>use_site_props=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_primitive_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_primitive_structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>This finds a smaller unit cell than the input. Sometimes it doesn&#8221;t
+<dd><p>This finds a smaller unit cell than the input. Sometimes it doesn”t
 find the smallest possible one, so this method is recursively called
 until it is unable to find a smaller cell.</p>
 <p>NOTE: if the tolerance is greater than 1/2 the minimum inter-site
@@ -898,11 +895,11 @@ distance in the primitive cell, the algorithm will reject this lattice.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tolerance</strong> (<em>float</em>) &#8211; Tolerance for each coordinate of a
+<li><strong>tolerance</strong> (<em>float</em>) – Tolerance for each coordinate of a
 particular site. For example, [0.1, 0, 0.1] in cartesian
 coordinates will be considered to be on the same coordinates
 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.</li>
-<li><strong>use_site_props</strong> (<em>bool</em>) &#8211; Whether to account for site properties in
+<li><strong>use_site_props</strong> (<em>bool</em>) – Whether to account for site properties in
 differntiating sites.</li>
 </ul>
 </td>
@@ -922,8 +919,8 @@ differntiating sites.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reduction_algo</strong> (<em>str</em>) &#8211; The lattice reduction algorithm to use.
-Currently supported options are &#8220;niggli&#8221; or &#8220;LLL&#8221;.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reduction_algo</strong> (<em>str</em>) – The lattice reduction algorithm to use.
+Currently supported options are “niggli” or “LLL”.</td>
 </tr>
 </tbody>
 </table>
@@ -940,7 +937,7 @@ in other periodic images.</p>
 (parallelpiped) which would contain a sphere of radius r. for this
 we need the projection of a_1 on a unit vector perpendicular
 to a_2 &amp; a_3 (i.e. the unit vector in the direction b_1) to
-determine how many a_1&#8221;s it will take to contain the sphere.</p>
+determine how many a_1”s it will take to contain the sphere.</p>
 <p>Nxmax = r * length_of_b_1 / (2 Pi)</p>
 </li>
 <li><p class="first">keep points falling within r.</p>
@@ -951,14 +948,14 @@ determine how many a_1&#8221;s it will take to contain the sphere.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pt</strong> (<em>3x1 array</em>) &#8211; cartesian coordinates of center of sphere.</li>
-<li><strong>r</strong> (<em>float</em>) &#8211; Radius of sphere.</li>
-<li><strong>include_index</strong> (<em>bool</em>) &#8211; Whether the non-supercell site index
+<li><strong>pt</strong> (<em>3x1 array</em>) – cartesian coordinates of center of sphere.</li>
+<li><strong>r</strong> (<em>float</em>) – Radius of sphere.</li>
+<li><strong>include_index</strong> (<em>bool</em>) – Whether the non-supercell site index
 is included in the returned data</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) ...] since most of the time, subsequent processing
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) …] since most of the time, subsequent processing
 requires the distance.</p>
 </td>
 </tr>
@@ -977,10 +974,10 @@ electronegativity of the species.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> &#8211; Specifies a function of one argument that is used to extract
+<li><strong>key</strong> – Specifies a function of one argument that is used to extract
 a comparison key from each list element: key=str.lower. The
 default value is None (compare the elements directly).</li>
-<li><strong>reverse</strong> (<em>bool</em>) &#8211; If set to True, then the list elements are sorted
+<li><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
 as if each comparison were reversed.</li>
 </ul>
 </td>
@@ -998,9 +995,9 @@ as if each comparison were reversed.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>symprec</strong> (<em>float</em>) &#8211; Same definition as in SpacegroupAnalyzer.
+<li><strong>symprec</strong> (<em>float</em>) – Same definition as in SpacegroupAnalyzer.
 Defaults to 1e-2.</li>
-<li><strong>angle_tolerance</strong> (<em>float</em>) &#8211; Same definition as in SpacegroupAnalyzer.
+<li><strong>angle_tolerance</strong> (<em>float</em>) – Same definition as in SpacegroupAnalyzer.
 Defaults to 5 degrees.</li>
 </ul>
 </td>
@@ -1022,15 +1019,15 @@ construction of NEB inputs.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>end_structure</strong> (<a class="reference internal" href="#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; structure to interpolate between this
+<li><strong>end_structure</strong> (<a class="reference internal" href="#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to interpolate between this
 structure and end.</li>
-<li><strong>nimages</strong> (<em>int</em>) &#8211; No. of interpolation images. Defaults to 10 images.</li>
-<li><strong>interpolate_lattices</strong> (<em>bool</em>) &#8211; Whether to interpolate the lattices.
+<li><strong>nimages</strong> (<em>int</em>) – No. of interpolation images. Defaults to 10 images.</li>
+<li><strong>interpolate_lattices</strong> (<em>bool</em>) – Whether to interpolate the lattices.
 Interpolates the lengths and angles (rather than the matrix)
 so orientation may be affected.</li>
-<li><strong>pbc</strong> (<em>bool</em>) &#8211; Whether to use periodic boundary conditions to find
+<li><strong>pbc</strong> (<em>bool</em>) – Whether to use periodic boundary conditions to find
 the shortest path between endpoints.</li>
-<li><strong>autosort_tol</strong> (<em>float</em>) &#8211; A distance tolerance in angstrom in
+<li><strong>autosort_tol</strong> (<em>float</em>) – A distance tolerance in angstrom in
 which to automatically sort end_structure to match to the
 closest points in this particular structure. This is usually
 what you want in a NEB calculation. 0 implies no sorting.
@@ -1063,8 +1060,8 @@ Basically a convenience method to call structure matching fitting.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>other</strong> (<em>IStructure/Structure</em>) &#8211; Another structure.</li>
-<li><strong>**kwargs</strong> &#8211; Same <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs as in
+<li><strong>other</strong> (<em>IStructure/Structure</em>) – Another structure.</li>
+<li><strong>**kwargs</strong> – Same <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs as in
 <a class="reference internal" href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.StructureMatcher" title="pymatgen.analysis.structure_matcher.StructureMatcher"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.structure_matcher.StructureMatcher</span></code></a>.</li>
 </ul>
 </td>
@@ -1092,11 +1089,11 @@ transformation.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fmt</strong> (<em>str</em>) &#8211; Format to output to. Defaults to JSON unless filename
+<li><strong>fmt</strong> (<em>str</em>) – Format to output to. Defaults to JSON unless filename
 is provided. If fmt is specifies, it overrides whatever the
-filename is. Options include &#8220;cif&#8221;, &#8220;poscar&#8221;, &#8220;cssr&#8221;, &#8220;json&#8221;.
+filename is. Options include “cif”, “poscar”, “cssr”, “json”.
 Non-case sensitive.</li>
-<li><strong>filename</strong> (<em>str</em>) &#8211; If provided, output will be written to a file. If
+<li><strong>filename</strong> (<em>str</em>) – If provided, output will be written to a file. If
 fmt is not specified, the format is determined from the
 filename. Defaults is None, i.e. string output.</li>
 </ul>
@@ -1129,20 +1126,20 @@ it allows a user to perform edits on the molecule.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>species</strong> &#8211; list of atomic species. Possible kinds of input include a
+<li><strong>species</strong> – list of atomic species. Possible kinds of input include a
 list of dict of elements/species and occupancies, a List of
 elements/specie specified as actual Element/Specie, Strings
-(&#8220;Fe&#8221;, &#8220;Fe2+&#8221;) or atomic numbers (1,56).</li>
-<li><strong>coords</strong> (<em>3x1 array</em>) &#8211; list of cartesian coordinates of each species.</li>
-<li><strong>charge</strong> (<em>float</em>) &#8211; Charge for the molecule. Defaults to 0.</li>
-<li><strong>spin_multiplicity</strong> (<em>int</em>) &#8211; Spin multiplicity for molecule.
+(“Fe”, “Fe2+”) or atomic numbers (1,56).</li>
+<li><strong>coords</strong> (<em>3x1 array</em>) – list of cartesian coordinates of each species.</li>
+<li><strong>charge</strong> (<em>float</em>) – Charge for the molecule. Defaults to 0.</li>
+<li><strong>spin_multiplicity</strong> (<em>int</em>) – Spin multiplicity for molecule.
 Defaults to None, which means that the spin multiplicity is
 set to 1 if the molecule has no unpaired electrons and to 2
 if there are unpaired electrons.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if there are sites
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 1 Ang apart. Defaults to False.</li>
-<li><strong>site_properties</strong> (<em>dict</em>) &#8211; Properties associated with the sites as
-a dict of sequences, e.g., {&#8220;magmom&#8221;:[5,5,5,5]}. The
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as
+a dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The
 sequences have to be the same length as the atomic species
 and fractional_coords. Defaults to None for no properties.</li>
 </ul>
@@ -1159,8 +1156,8 @@ and fractional_coords. Defaults to None for no properties.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>property_name</strong> (<em>str</em>) &#8211; The name of the property to add.</li>
-<li><strong>values</strong> (<em>list</em>) &#8211; A sequence of values. Must be same length as
+<li><strong>property_name</strong> (<em>str</em>) – The name of the property to add.</li>
+<li><strong>values</strong> (<em>list</em>) – A sequence of values. Must be same length as
 number of sites.</li>
 </ul>
 </td>
@@ -1178,11 +1175,11 @@ number of sites.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>species</strong> &#8211; Species of inserted site</li>
-<li><strong>coords</strong> &#8211; Coordinates of inserted site</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if inserted site is
+<li><strong>species</strong> – Species of inserted site</li>
+<li><strong>coords</strong> – Coordinates of inserted site</li>
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if inserted site is
 too close to an existing site. Defaults to True.</li>
-<li><strong>properties</strong> (<em>dict</em>) &#8211; A dict of properties for the Site.</li>
+<li><strong>properties</strong> (<em>dict</em>) – A dict of properties for the Site.</li>
 </ul>
 </td>
 </tr>
@@ -1201,7 +1198,7 @@ too close to an existing site. Defaults to True.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symmop</strong> (<a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) &#8211; Symmetry operation to apply.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symmop</strong> (<a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) – Symmetry operation to apply.</td>
 </tr>
 </tbody>
 </table>
@@ -1230,12 +1227,12 @@ too close to an existing site. Defaults to True.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>int</em>) &#8211; Index to insert site</li>
-<li><strong>species</strong> &#8211; species of inserted site</li>
-<li><strong>coords</strong> (<em>3x1 array</em>) &#8211; coordinates of inserted site</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if inserted site is
+<li><strong>i</strong> (<em>int</em>) – Index to insert site</li>
+<li><strong>species</strong> – species of inserted site</li>
+<li><strong>coords</strong> (<em>3x1 array</em>) – coordinates of inserted site</li>
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if inserted site is
 too close to an existing site. Defaults to True.</li>
-<li><strong>properties</strong> (<em>dict</em>) &#8211; Dict of properties for the Site.</li>
+<li><strong>properties</strong> (<em>dict</em>) – Dict of properties for the Site.</li>
 </ul>
 </td>
 </tr>
@@ -1255,7 +1252,7 @@ symmetries.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>distance</strong> (<em>float</em>) &#8211; Distance in angstroms by which to perturb each
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>distance</strong> (<em>float</em>) – Distance in angstroms by which to perturb each
 site.</td>
 </tr>
 </tbody>
@@ -1271,8 +1268,8 @@ site.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>property_name</strong> (<em>str</em>) &#8211; The name of the property to add.</li>
-<li><strong>values</strong> (<em>list</em>) &#8211; A sequence of values. Must be same length as
+<li><strong>property_name</strong> (<em>str</em>) – The name of the property to add.</li>
+<li><strong>values</strong> (<em>list</em>) – A sequence of values. Must be same length as
 number of sites.</li>
 </ul>
 </td>
@@ -1289,7 +1286,7 @@ number of sites.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> &#8211; Sequence of indices of sites to delete.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> – Sequence of indices of sites to delete.</td>
 </tr>
 </tbody>
 </table>
@@ -1303,7 +1300,7 @@ number of sites.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species</strong> &#8211; Species to remove.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species</strong> – Species to remove.</td>
 </tr>
 </tbody>
 </table>
@@ -1317,12 +1314,12 @@ number of sites.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_mapping</strong> (<em>dict</em>) &#8211; dict of species to swap. Species can be
-elements too. E.g., {Element(&#8220;Li&#8221;): Element(&#8220;Na&#8221;)} performs
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_mapping</strong> (<em>dict</em>) – dict of species to swap. Species can be
+elements too. E.g., {Element(“Li”): Element(“Na”)} performs
 a Li for Na substitution. The second species can be a
 sp_and_occu dict. For example, a site with 0.5 Si that is
-passed the mapping {Element(&#8216;Si): {Element(&#8216;Ge&#8217;):0.75,
-Element(&#8216;C&#8217;):0.25} } will have .375 Ge and .125 C.</td>
+passed the mapping {Element(‘Si): {Element(‘Ge’):0.75,
+Element(‘C’):0.25} } will have .375 Ge and .125 C.</td>
 </tr>
 </tbody>
 </table>
@@ -1337,11 +1334,11 @@ Element(&#8216;C&#8217;):0.25} } will have .375 Ge and .125 C.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>indices</strong> (<em>list</em>) &#8211; List of site indices on which to perform the
+<li><strong>indices</strong> (<em>list</em>) – List of site indices on which to perform the
 translation.</li>
-<li><strong>angle</strong> (<em>float</em>) &#8211; Angle in radians</li>
-<li><strong>axis</strong> (<em>3x1 array</em>) &#8211; Rotation axis vector.</li>
-<li><strong>anchor</strong> (<em>3x1 array</em>) &#8211; Point of rotation.</li>
+<li><strong>angle</strong> (<em>float</em>) – Angle in radians</li>
+<li><strong>axis</strong> (<em>3x1 array</em>) – Rotation axis vector.</li>
+<li><strong>anchor</strong> (<em>3x1 array</em>) – Point of rotation.</li>
 </ul>
 </td>
 </tr>
@@ -1358,8 +1355,8 @@ translation.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>charge</strong> (<em>int</em>) &#8211; Charge for the molecule. Defaults to 0.</li>
-<li><strong>spin_multiplicity</strong> (<em>int</em>) &#8211; Spin multiplicity for molecule.
+<li><strong>charge</strong> (<em>int</em>) – Charge for the molecule. Defaults to 0.</li>
+<li><strong>spin_multiplicity</strong> (<em>int</em>) – Spin multiplicity for molecule.
 Defaults to None, which means that the spin multiplicity is
 set to 1 if the molecule has no unpaired electrons and to 2
 if there are unpaired electrons.</li>
@@ -1379,8 +1376,8 @@ if there are unpaired electrons.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>index</strong> (<em>int</em>) &#8211; Index of atom to substitute.</li>
-<li><strong>func_grp</strong> &#8211; <p>Substituent molecule. There are two options:</p>
+<li><strong>index</strong> (<em>int</em>) – Index of atom to substitute.</li>
+<li><strong>func_grp</strong> – <p>Substituent molecule. There are two options:</p>
 <ol class="arabic">
 <li>Providing an actual molecule as the input. The first atom
 must be a DummySpecie X, indicating the position of
@@ -1395,7 +1392,7 @@ directionality to connect the atoms.</li>
 relevant template in func_groups.json.</li>
 </ol>
 </li>
-<li><strong>bond_order</strong> (<em>int</em>) &#8211; A specified bond order to calculate the bond
+<li><strong>bond_order</strong> (<em>int</em>) – A specified bond order to calculate the bond
 length between the attached functional group and the nearest
 neighbor site. Defaults to 1.</li>
 </ul>
@@ -1415,9 +1412,9 @@ unit cell.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>indices</strong> (<em>list</em>) &#8211; List of site indices on which to perform the
+<li><strong>indices</strong> (<em>list</em>) – List of site indices on which to perform the
 translation.</li>
-<li><strong>vector</strong> (<em>3x1 array</em>) &#8211; Translation vector for sites.</li>
+<li><strong>vector</strong> (<em>3x1 array</em>) – Translation vector for sites.</li>
 </ul>
 </td>
 </tr>
@@ -1501,9 +1498,9 @@ distance.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>int</em>) &#8211; Index of first site.</li>
-<li><strong>j</strong> (<em>int</em>) &#8211; Index of second site.</li>
-<li><strong>k</strong> (<em>int</em>) &#8211; Index of third site.</li>
+<li><strong>i</strong> (<em>int</em>) – Index of first site.</li>
+<li><strong>j</strong> (<em>int</em>) – Index of second site.</li>
+<li><strong>k</strong> (<em>int</em>) – Index of third site.</li>
 </ul>
 </td>
 </tr>
@@ -1523,10 +1520,10 @@ distance.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>int</em>) &#8211; Index of first site</li>
-<li><strong>j</strong> (<em>int</em>) &#8211; Index of second site</li>
-<li><strong>k</strong> (<em>int</em>) &#8211; Index of third site</li>
-<li><strong>l</strong> (<em>int</em>) &#8211; Index of fourth site</li>
+<li><strong>i</strong> (<em>int</em>) – Index of first site</li>
+<li><strong>j</strong> (<em>int</em>) – Index of second site</li>
+<li><strong>k</strong> (<em>int</em>) – Index of third site</li>
+<li><strong>l</strong> (<em>int</em>) – Index of fourth site</li>
 </ul>
 </td>
 </tr>
@@ -1546,8 +1543,8 @@ distance.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>int</em>) &#8211; Index of first site</li>
-<li><strong>j</strong> (<em>int</em>) &#8211; Index of second site</li>
+<li><strong>i</strong> (<em>int</em>) – Index of first site</li>
+<li><strong>j</strong> (<em>int</em>) – Index of second site</li>
 </ul>
 </td>
 </tr>
@@ -1589,7 +1586,7 @@ Molecules, while PBC is taken into account for periodic structures.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol</strong> (<em>float</em>) &#8211; Distance tolerance. Default is 0.01A.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol</strong> (<em>float</em>) – Distance tolerance. Default is 0.01A.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) True if SiteCollection does not contain atoms that are too
 close together.</td>
@@ -1614,7 +1611,7 @@ close together.</td>
 <dt id="pymatgen.core.structure.SiteCollection.site_properties">
 <code class="descname">site_properties</code><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.site_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the site properties as a dict of sequences. E.g.,
-{&#8220;magmom&#8221;: (5,-5), &#8220;charge&#8221;: (-4,4)}.</p>
+{“magmom”: (5,-5), “charge”: (-4,4)}.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1678,28 +1675,28 @@ Disordered structures will raise an AttributeError.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lattice</strong> &#8211; The lattice, either as a pymatgen.core.lattice.Lattice or
+<li><strong>lattice</strong> – The lattice, either as a pymatgen.core.lattice.Lattice or
 simply as any 2D array. Each row should correspond to a lattice
 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</li>
-<li><strong>species</strong> &#8211; <p>List of species on each site. Can take in flexible input,
+<li><strong>species</strong> – <p>List of species on each site. Can take in flexible input,
 including:</p>
 <ol class="lowerroman">
 <li>A sequence of element / specie specified either as string
-symbols, e.g. [&#8220;Li&#8221;, &#8220;Fe2+&#8221;, &#8220;P&#8221;, ...] or atomic numbers,
-e.g., (3, 56, ...) or actual Element or Specie objects.</li>
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</li>
 <li>List of dict of elements/species and occupancies, e.g.,
-[{&#8220;Fe&#8221; : 0.5, &#8220;Mn&#8221;:0.5}, ...]. This allows the setup of
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
 disordered structures.</li>
 </ol>
 </li>
-<li><strong>fractional_coords</strong> &#8211; list of fractional coordinates of each species.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if there are sites
+<li><strong>fractional_coords</strong> – list of fractional coordinates of each species.</li>
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) &#8211; Set to True if you are providing
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
-<li><strong>site_properties</strong> (<em>dict</em>) &#8211; Properties associated with the sites as a
-dict of sequences, e.g., {&#8220;magmom&#8221;:[5,5,5,5]}. The sequences
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
 have to be the same length as the atomic species and
 fractional_coords. Defaults to None for no properties.</li>
 </ul>
@@ -1715,8 +1712,23 @@ fractional_coords. Defaults to None for no properties.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>oxidation_states</strong> (<em>dict</em>) &#8211; Dict of oxidation states.
-E.g., {&#8220;Li&#8221;:1, &#8220;Fe&#8221;:2, &#8220;P&#8221;:5, &#8220;O&#8221;:-2}</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>oxidation_states</strong> (<em>dict</em>) – Dict of oxidation states.
+E.g., {“Li”:1, “Fe”:2, “P”:5, “O”:-2}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.add_oxidation_state_by_guess">
+<code class="descname">add_oxidation_state_by_guess</code><span class="sig-paren">(</span><em>*kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.add_oxidation_state_by_guess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.add_oxidation_state_by_guess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorates the structure with oxidation state, guessing
+using Composition.oxi_state_guesses()</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*kwargs</strong> – parameters to pass into oxi_state_guesses()</td>
 </tr>
 </tbody>
 </table>
@@ -1730,7 +1742,7 @@ E.g., {&#8220;Li&#8221;:1, &#8220;Fe&#8221;:2, &#8220;P&#8221;:5, &#8220;O&#8221
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>oxidation_states</strong> (<em>list</em>) &#8211; List of oxidation states.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>oxidation_states</strong> (<em>list</em>) – List of oxidation states.
 E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]</td>
 </tr>
 </tbody>
@@ -1746,8 +1758,8 @@ E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>property_name</strong> (<em>str</em>) &#8211; The name of the property to add.</li>
-<li><strong>values</strong> &#8211; A sequence of values. Must be same length as number of
+<li><strong>property_name</strong> (<em>str</em>) – The name of the property to add.</li>
+<li><strong>values</strong> – A sequence of values. Must be same length as number of
 sites.</li>
 </ul>
 </td>
@@ -1765,8 +1777,8 @@ sites.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>spisn</strong> (<em>dict</em>) &#8211; Dict of spins associated with</li>
-<li><strong>or species</strong><strong>, </strong><strong>e.g. {&quot;Ni&quot;</strong> (<a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.elements" title="pymatgen.analysis.reaction_calculator.BalancedReaction.elements"><em>elements</em></a>) &#8211; +5} or {&#8220;Ni2+&#8221;:5}</li>
+<li><strong>spisn</strong> (<em>dict</em>) – Dict of spins associated with</li>
+<li><strong>or species</strong><strong>, </strong><strong>e.g. {&quot;Ni&quot;</strong> (<a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.elements" title="pymatgen.analysis.reaction_calculator.BalancedReaction.elements"><em>elements</em></a>) – +5} or {“Ni2+”:5}</li>
 </ul>
 </td>
 </tr>
@@ -1782,7 +1794,7 @@ sites.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spins</strong> (<em>list</em>) &#8211; List of spins
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spins</strong> (<em>list</em>) – List of spins
 E.g., [+5, -5, 0, 0]</td>
 </tr>
 </tbody>
@@ -1798,13 +1810,13 @@ E.g., [+5, -5, 0, 0]</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>species</strong> &#8211; Species of inserted site</li>
-<li><strong>coords</strong> (<em>3x1 array</em>) &#8211; Coordinates of inserted site</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) &#8211; Whether coordinates are cartesian.
+<li><strong>species</strong> – Species of inserted site</li>
+<li><strong>coords</strong> (<em>3x1 array</em>) – Coordinates of inserted site</li>
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Whether coordinates are cartesian.
 Defaults to False.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if inserted site is
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if inserted site is
 too close to an existing site. Defaults to False.</li>
-<li><strong>properties</strong> (<em>dict</em>) &#8211; Properties of the site.</li>
+<li><strong>properties</strong> (<em>dict</em>) – Properties of the site.</li>
 </ul>
 </td>
 </tr>
@@ -1826,8 +1838,8 @@ Coords are operated in full and then transformed to the new lattice.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symmop</strong> (<a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) &#8211; Symmetry operation to apply.</li>
-<li><strong>fractional</strong> (<em>bool</em>) &#8211; Whether the symmetry operation is applied in
+<li><strong>symmop</strong> (<a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) – Symmetry operation to apply.</li>
+<li><strong>fractional</strong> (<em>bool</em>) – Whether the symmetry operation is applied in
 fractional space. Defaults to False, i.e., symmetry operation
 is applied in cartesian coordinates.</li>
 </ul>
@@ -1845,7 +1857,7 @@ is applied in cartesian coordinates.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strain</strong> (<em>float</em><em> or </em><em>list</em>) &#8211; Amount of strain to apply. Can be a float,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strain</strong> (<em>float</em><em> or </em><em>list</em>) – Amount of strain to apply. Can be a float,
 or a sequence of 3 numbers. E.g., 0.01 means all lattice
 vectors are increased by 1%. This is equivalent to calling
 modify_lattice with a lattice with lattice parameters that
@@ -1864,14 +1876,14 @@ are 1% larger.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>int</em>) &#8211; Index to insert site</li>
-<li><strong>species</strong> (<em>species-like</em>) &#8211; Species of inserted site</li>
-<li><strong>coords</strong> (<em>3x1 array</em>) &#8211; Coordinates of inserted site</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) &#8211; Whether coordinates are cartesian.
+<li><strong>i</strong> (<em>int</em>) – Index to insert site</li>
+<li><strong>species</strong> (<em>species-like</em>) – Species of inserted site</li>
+<li><strong>coords</strong> (<em>3x1 array</em>) – Coordinates of inserted site</li>
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Whether coordinates are cartesian.
 Defaults to False.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if inserted site is
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if inserted site is
 too close to an existing site. Defaults to False.</li>
-<li><strong>properties</strong> (<em>dict</em>) &#8211; Properties associated with the site.</li>
+<li><strong>properties</strong> (<em>dict</em>) – Properties associated with the site.</li>
 </ul>
 </td>
 </tr>
@@ -1891,13 +1903,13 @@ too close to an existing site. Defaults to False.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>scaling_matrix</strong> &#8211; <p>A scaling matrix for transforming the lattice
+<li><strong>scaling_matrix</strong> – <p>A scaling matrix for transforming the lattice
 vectors. Has to be all integers. Several options are possible:</p>
 <ol class="loweralpha">
 <li>A full 3x3 scaling matrix defining the linear combination
 the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
-1]] generates a new structure with lattice vectors a&#8217; =
-2a + b, b&#8217; = 3b, c&#8217; = c where a, b, and c are the lattice
+1]] generates a new structure with lattice vectors a’ =
+2a + b, b’ = 3b, c’ = c where a, b, and c are the lattice
 vectors of the original structure.</li>
 <li>An sequence of three scaling factors. E.g., [2, 1, 1]
 specifies that the supercell should have dimensions 2a x b x
@@ -1906,7 +1918,7 @@ c.</li>
 same factor.</li>
 </ol>
 </li>
-<li><strong>to_unit_cell</strong> &#8211; Whether or not to fall back sites into the unit cell</li>
+<li><strong>to_unit_cell</strong> – Whether or not to fall back sites into the unit cell</li>
 </ul>
 </td>
 </tr>
@@ -1924,9 +1936,9 @@ Removes site properties.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>tol</strong> (<em>float</em>) &#8211; Tolerance for distance to merge sites.</li>
-<li><strong>mode</strong> (<em>str</em>) &#8211; Two modes supported. &#8220;delete&#8221; means duplicate sites are
-deleted. &#8220;sum&#8221; means the occupancies are summed for the sites.
+<li><strong>tol</strong> (<em>float</em>) – Tolerance for distance to merge sites.</li>
+<li><strong>mode</strong> (<em>str</em>) – Two modes supported. “delete” means duplicate sites are
+deleted. “sum” means the occupancies are summed for the sites.
 Only first letter is considered.</li>
 </ul>
 </td>
@@ -1944,7 +1956,7 @@ basis.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_lattice</strong> (<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) &#8211; New lattice</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_lattice</strong> (<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – New lattice</td>
 </tr>
 </tbody>
 </table>
@@ -1959,7 +1971,7 @@ symmetries.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>distance</strong> (<em>float</em>) &#8211; Distance in angstroms by which to perturb each
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>distance</strong> (<em>float</em>) – Distance in angstroms by which to perturb each
 site.</td>
 </tr>
 </tbody>
@@ -1981,8 +1993,8 @@ site.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>property_name</strong> (<em>str</em>) &#8211; The name of the property to add.</li>
-<li><strong>values</strong> (<em>list</em>) &#8211; A sequence of values. Must be same length as
+<li><strong>property_name</strong> (<em>str</em>) – The name of the property to add.</li>
+<li><strong>values</strong> (<em>list</em>) – A sequence of values. Must be same length as
 number of sites.</li>
 </ul>
 </td>
@@ -1999,7 +2011,7 @@ number of sites.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> &#8211; Sequence of indices of sites to delete.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> – Sequence of indices of sites to delete.</td>
 </tr>
 </tbody>
 </table>
@@ -2013,7 +2025,7 @@ number of sites.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species</strong> &#8211; Sequence of species to remove, e.g., [&#8220;Li&#8221;, &#8220;Na&#8221;].</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species</strong> – Sequence of species to remove, e.g., [“Li”, “Na”].</td>
 </tr>
 </tbody>
 </table>
@@ -2035,13 +2047,13 @@ occupations.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>i</strong> (<em>int</em>) &#8211; Index of the site in the _sites list.</li>
-<li><strong>species</strong> (<em>species-like</em>) &#8211; Species of replacement site</li>
-<li><strong>coords</strong> (<em>3x1 array</em>) &#8211; Coordinates of replacement site. If None,
+<li><strong>i</strong> (<em>int</em>) – Index of the site in the _sites list.</li>
+<li><strong>species</strong> (<em>species-like</em>) – Species of replacement site</li>
+<li><strong>coords</strong> (<em>3x1 array</em>) – Coordinates of replacement site. If None,
 the current coordinates are assumed.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) &#8211; Whether coordinates are cartesian.
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Whether coordinates are cartesian.
 Defaults to False.</li>
-<li><strong>properties</strong> (<em>dict</em>) &#8211; Properties associated with the site.</li>
+<li><strong>properties</strong> (<em>dict</em>) – Properties associated with the site.</li>
 </ul>
 </td>
 </tr>
@@ -2057,15 +2069,15 @@ Defaults to False.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_mapping</strong> (<em>dict</em>) &#8211; Dict of species to swap. Species can be
-elements too. e.g., {Element(&#8220;Li&#8221;): Element(&#8220;Na&#8221;)} performs
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_mapping</strong> (<em>dict</em>) – Dict of species to swap. Species can be
+elements too. e.g., {Element(“Li”): Element(“Na”)} performs
 a Li for Na substitution. The second species can be a
 sp_and_occu dict. For example, a site with 0.5 Si that is
-passed the mapping {Element(&#8216;Si): {Element(&#8216;Ge&#8217;):0.75,
-Element(&#8216;C&#8217;):0.25} } will have .375 Ge and .125 C. You can
+passed the mapping {Element(‘Si): {Element(‘Ge’):0.75,
+Element(‘C’):0.25} } will have .375 Ge and .125 C. You can
 also supply strings that represent elements or species and
 the code will try to figure out the meaning. E.g.,
-{&#8220;C&#8221;: &#8220;C0.5Si0.5&#8221;} will replace all C with 0.5 C and 0.5 Si,
+{“C”: “C0.5Si0.5”} will replace all C with 0.5 C and 0.5 Si,
 i.e., a disordered site.</td>
 </tr>
 </tbody>
@@ -2081,7 +2093,7 @@ and angles are preserved.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>volume</strong> (<em>float</em>) &#8211; New volume of the unit cell in A^3.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>volume</strong> (<em>float</em>) – New volume of the unit cell in A^3.</td>
 </tr>
 </tbody>
 </table>
@@ -2101,10 +2113,10 @@ in place.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> &#8211; Specifies a function of one argument that is used to extract
+<li><strong>key</strong> – Specifies a function of one argument that is used to extract
 a comparison key from each list element: key=str.lower. The
 default value is None (compare the elements directly).</li>
-<li><strong>reverse</strong> (<em>bool</em>) &#8211; If set to True, then the list elements are sorted
+<li><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
 as if each comparison were reversed.</li>
 </ul>
 </td>
@@ -2123,12 +2135,12 @@ unit cell.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>indices</strong> &#8211; Integer or List of site indices on which to perform the
+<li><strong>indices</strong> – Integer or List of site indices on which to perform the
 translation.</li>
-<li><strong>vector</strong> &#8211; Translation vector for sites.</li>
-<li><strong>frac_coords</strong> (<em>bool</em>) &#8211; Whether the vector corresponds to fractional or
+<li><strong>vector</strong> – Translation vector for sites.</li>
+<li><strong>frac_coords</strong> (<em>bool</em>) – Whether the vector corresponds to fractional or
 cartesian coordinates.</li>
-<li><strong>to_unit_cell</strong> (<em>bool</em>) &#8211; Whether new sites are transformed to unit
+<li><strong>to_unit_cell</strong> (<em>bool</em>) – Whether new sites are transformed to unit
 cell</li>
 </ul>
 </td>
@@ -2185,13 +2197,13 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

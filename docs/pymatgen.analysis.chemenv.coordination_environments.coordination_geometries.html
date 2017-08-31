@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -80,7 +77,7 @@ StructureEnvironments object</p>
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries">
 <em class="property">class </em><code class="descname">AllCoordinationGeometries</code><span class="sig-paren">(</span><em>permutations_safe_override=False</em>, <em>only_symbols=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#AllCoordinationGeometries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
-<p>Class used to store all the reference &#8220;coordination geometries&#8221; (list with instances of the CoordinationGeometry
+<p>Class used to store all the reference “coordination geometries” (list with instances of the CoordinationGeometry
 classes)</p>
 <p>Initializes the list of Coordination Geometries
 :param permutations_safe_override:
@@ -169,9 +166,9 @@ each other.
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry">
 <em class="property">class </em><code class="descname">CoordinationGeometry</code><span class="sig-paren">(</span><em>mp_symbol</em>, <em>name</em>, <em>alternative_names=None</em>, <em>IUPAC_symbol=None</em>, <em>IUCr_symbol=None</em>, <em>coordination=None</em>, <em>central_site=array([ 0.</em>, <em>0.</em>, <em>0.])</em>, <em>points=None</em>, <em>solid_angles=None</em>, <em>permutations_safe_override=False</em>, <em>plane_ordering_override=True</em>, <em>deactivate=False</em>, <em>faces=None</em>, <em>edges=None</em>, <em>plane_safe_permutations=False</em>, <em>algorithms=None</em>, <em>equivalent_indices=None</em>, <em>neighbors_sets_hints=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Class used to store the ideal representation of a chemical environment or &#8220;coordination geometry&#8221;</p>
-<p>Initializes one &#8220;coordination geometry&#8221; according to [Pure Appl. Chem., Vol. 79, No. 10, pp. 1779&#8211;1799, 2007]
-and [Acta Cryst. A, Vol. 46, No. 1, pp. 1&#8211;11, 1990].
+<p>Class used to store the ideal representation of a chemical environment or “coordination geometry”</p>
+<p>Initializes one “coordination geometry” according to [Pure Appl. Chem., Vol. 79, No. 10, pp. 1779–1799, 2007]
+and [Acta Cryst. A, Vol. 46, No. 1, pp. 1–11, 1990].
 :param mp_symbol: Symbol used internally for the coordination geometry.
 :param name: Name of the coordination geometry.
 :param alternative_names: Alternative names for this coordination geometry.
@@ -256,113 +253,113 @@ purposes
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.algorithms">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">algorithms</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.algorithms" title="Permalink to this definition">¶</a></dt>
+<code class="descname">algorithms</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.algorithms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of algorithms that are used to identify this coordination geometry.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.as_dict">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ce_symbol">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">ce_symbol</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ce_symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ce_symbol</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ce_symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the symbol of this coordination geometry.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.coordination_number">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">coordination_number</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.coordination_number" title="Permalink to this definition">¶</a></dt>
+<code class="descname">coordination_number</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.coordination_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the coordination number of this coordination geometry.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.distfactor_max">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">distfactor_max</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.distfactor_max" title="Permalink to this definition">¶</a></dt>
+<code class="descname">distfactor_max</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.distfactor_max" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.edges">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">edges</code><span class="sig-paren">(</span><em>sites</em>, <em>permutation=None</em>, <em>input='sites'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.edges" title="Permalink to this definition">¶</a></dt>
+<code class="descname">edges</code><span class="sig-paren">(</span><em>sites</em>, <em>permutation=None</em>, <em>input='sites'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of edges of this coordination geometry. Each edge is given as a
 list of its end vertices coordinates.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.faces">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">faces</code><span class="sig-paren">(</span><em>sites</em>, <em>permutation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.faces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.faces" title="Permalink to this definition">¶</a></dt>
+<code class="descname">faces</code><span class="sig-paren">(</span><em>sites</em>, <em>permutation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.faces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.faces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of faces of this coordination geometry. Each face is given as a
 list of its vertices coordinates.</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.from_dict">
-<em class="property">classmethod </em><code class="descclassname">CoordinationGeometry.</code><code class="descname">from_dict</code><span class="sig-paren">(</span><em>dd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>dd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_central_site">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">get_central_site</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_central_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_central_site" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_central_site</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_central_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_central_site" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the central site of this coordination geometry.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_coordination_number">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">get_coordination_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_coordination_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_coordination_number" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_coordination_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_coordination_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_coordination_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the coordination number of this coordination geometry.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_name">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">get_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the name of this coordination geometry.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">get_pmeshes</code><span class="sig-paren">(</span><em>sites</em>, <em>permutation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_pmeshes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_pmeshes</code><span class="sig-paren">(</span><em>sites</em>, <em>permutation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_pmeshes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the pmesh strings used for jmol to show this geometry.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes_test">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">get_pmeshes_test</code><span class="sig-paren">(</span><em>sites</em>, <em>permutation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_pmeshes_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes_test" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_pmeshes_test</code><span class="sig-paren">(</span><em>sites</em>, <em>permutation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_pmeshes_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the pmesh strings used for jmol to show this geometry.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.is_implemented">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">is_implemented</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.is_implemented"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.is_implemented" title="Permalink to this definition">¶</a></dt>
+<code class="descname">is_implemented</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.is_implemented"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.is_implemented" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if this coordination geometry is implemented.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.mp_symbol">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">mp_symbol</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.mp_symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">mp_symbol</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.mp_symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the MP symbol of this coordination geometry.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.number_of_permutations">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">number_of_permutations</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.number_of_permutations" title="Permalink to this definition">¶</a></dt>
+<code class="descname">number_of_permutations</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.number_of_permutations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of permutations of this coordination geometry.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ref_permutation">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">ref_permutation</code><span class="sig-paren">(</span><em>permutation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.ref_permutation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ref_permutation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ref_permutation</code><span class="sig-paren">(</span><em>permutation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.ref_permutation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ref_permutation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">set_permutations_safe_override</code><span class="sig-paren">(</span><em>permutations_safe_override</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.set_permutations_safe_override"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_permutations_safe_override</code><span class="sig-paren">(</span><em>permutations_safe_override</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.set_permutations_safe_override"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.solid_angles">
-<code class="descclassname">CoordinationGeometry.</code><code class="descname">solid_angles</code><span class="sig-paren">(</span><em>permutation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.solid_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.solid_angles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the list of &#8220;perfect&#8221; solid angles Each edge is given as a
+<code class="descname">solid_angles</code><span class="sig-paren">(</span><em>permutation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.solid_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.solid_angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of “perfect” solid angles Each edge is given as a
 list of its end vertices coordinates.</p>
 </dd></dl>
 
@@ -399,7 +396,7 @@ list of its end vertices coordinates.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mirror_plane</strong> &#8211; True if the separation plane is a mirror plane, in which case there is a correspondence</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mirror_plane</strong> – True if the separation plane is a mirror plane, in which case there is a correspondence</td>
 </tr>
 </tbody>
 </table>
@@ -409,15 +406,15 @@ number of permutations
 :param plane_points: Indices of the points that are in the plane in the perfect structure (and should be
 found in the defective one as well)
 :param point_groups: The two groups of points separated by the plane
-:param plane_type: can be &#8220;MIRROR&#8221;, if the plane is a mirror plane going through the central site,</p>
+:param plane_type: can be “MIRROR”, if the plane is a mirror plane going through the central site,</p>
 <blockquote>
-<div>&#8216;BASAL_THROUGH_CENTER&#8217;, if the plane is a basal plane (no point on the &#8220;left&#8221; side) going through the central
-site, &#8216;BASAL&#8217;, if the is a basal plane not going through the central site, &#8216;UNEQUILIBRATED_THROUGH_CENTER&#8217;, if
+<div>‘BASAL_THROUGH_CENTER’, if the plane is a basal plane (no point on the “left” side) going through the central
+site, ‘BASAL’, if the is a basal plane not going through the central site, ‘UNEQUILIBRATED_THROUGH_CENTER’, if
 the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going
-through the centre, &#8216;UNEQUILIBRATED&#8217;, if the plane cuts the geometry in two groups of points with different
-numbers of points on each side, and is not going through the centre, &#8216;EQUILIBRATED_THROUGH_CENTER&#8217;, if the
+through the centre, ‘UNEQUILIBRATED’, if the plane cuts the geometry in two groups of points with different
+numbers of points on each side, and is not going through the centre, ‘EQUILIBRATED_THROUGH_CENTER’, if the
 plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a
-mirror plane, &#8216;EQUILIBRATED&#8217;, if the plane cuts the geometry in two groups of points of the same size, is not
+mirror plane, ‘EQUILIBRATED’, if the plane cuts the geometry in two groups of points of the same size, is not
 going through the centre but is not a mirror plane.</div></blockquote>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.argsorted_ref_separation_perm">
@@ -504,13 +501,13 @@ going through the centre but is not a mirror plane.</div></blockquote>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

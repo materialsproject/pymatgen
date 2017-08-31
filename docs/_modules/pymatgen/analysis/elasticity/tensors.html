@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.elasticity.tensors &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.elasticity.tensors &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -315,8 +312,8 @@
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Tensor.get_voigt_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.get_voigt_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_voigt_dict</span><span class="p">(</span><span class="n">rank</span><span class="p">):</span>
+<div class="viewcode-block" id="Tensor.get_voigt_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.get_voigt_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_voigt_dict</span><span class="p">(</span><span class="n">rank</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a dictionary that maps indices in the tensor to those</span>
 <span class="sd">        in a voigt representation based on input rank</span>
@@ -333,8 +330,8 @@
             <span class="n">vdict</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_ind</span>
         <span class="k">return</span> <span class="n">vdict</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Tensor.from_voigt"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.from_voigt">[docs]</a>    <span class="k">def</span> <span class="nf">from_voigt</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">voigt_input</span><span class="p">):</span>
+<div class="viewcode-block" id="Tensor.from_voigt"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.from_voigt">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_voigt</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">voigt_input</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor based on the voigt notation vector or matrix.</span>
 
@@ -352,8 +349,8 @@
             <span class="n">t</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">voigt_input</span><span class="p">[</span><span class="n">this_voigt_map</span><span class="p">[</span><span class="n">ind</span><span class="p">]]</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Tensor.get_ieee_rotation"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.get_ieee_rotation">[docs]</a>    <span class="k">def</span> <span class="nf">get_ieee_rotation</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+<div class="viewcode-block" id="Tensor.get_ieee_rotation"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.get_ieee_rotation">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_ieee_rotation</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a structure associated with a tensor, determines</span>
 <span class="sd">        the rotation matrix for IEEE conversion according to</span>
@@ -448,8 +445,8 @@
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fit_to_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">rotation</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Tensor.from_values_indices"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.from_values_indices">[docs]</a>    <span class="k">def</span> <span class="nf">from_values_indices</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">populate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="Tensor.from_values_indices"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.from_values_indices">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_values_indices</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">populate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                             <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">voigt_rank</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                             <span class="n">vsym</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -621,8 +618,8 @@
 <div class="viewcode-block" id="TensorCollection.is_voigt_symmetric"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection.is_voigt_symmetric">[docs]</a>    <span class="k">def</span> <span class="nf">is_voigt_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">is_voigt_symmetric</span><span class="p">(</span><span class="n">tol</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="TensorCollection.from_voigt"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection.from_voigt">[docs]</a>    <span class="k">def</span> <span class="nf">from_voigt</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">voigt_input_list</span><span class="p">,</span> <span class="n">base_class</span><span class="o">=</span><span class="n">Tensor</span><span class="p">):</span>
+<div class="viewcode-block" id="TensorCollection.from_voigt"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection.from_voigt">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_voigt</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">voigt_input_list</span><span class="p">,</span> <span class="n">base_class</span><span class="o">=</span><span class="n">Tensor</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">([</span><span class="n">base_class</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">voigt_input_list</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="TensorCollection.convert_to_ieee"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection.convert_to_ieee">[docs]</a>    <span class="k">def</span> <span class="nf">convert_to_ieee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
@@ -813,7 +810,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -821,7 +818,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

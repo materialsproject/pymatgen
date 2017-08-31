@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.lammps.input &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.lammps.input &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -95,15 +92,16 @@
     <span class="k">def</span> <span class="nf">_map_param_to_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">identifier</span><span class="p">):</span>
         <span class="n">delimited_identifier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span><span class="o">+</span><span class="s2">&quot;{&quot;</span><span class="o">+</span><span class="n">identifier</span><span class="o">+</span><span class="s2">&quot;}&quot;</span>
         <span class="k">if</span> <span class="n">delimited_identifier</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">param</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">identifier</span><span class="p">]</span> <span class="o">=</span> \
-                    <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">param</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">expandtabs</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">identifier</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">contents</span> <span class="o">=</span> \
                     <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">identifier</span><span class="p">],</span>
                                           <span class="n">delimited_identifier</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="c1"># if log is missing add it to the input</span>
             <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">&quot;log&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">contents</span> <span class="o">=</span> <span class="s2">&quot;log </span><span class="si">{}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">delimited_identifier</span><span class="p">)</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">contents</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">log </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">delimited_identifier</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">identifier</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;log.lammps&quot;</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
@@ -117,12 +115,12 @@
 
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clean_template</span><span class="p">)</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="LammpsInput.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.input.html#pymatgen.io.lammps.input.LammpsInput.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;$$&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsInput.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.input.html#pymatgen.io.lammps.input.LammpsInput.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;$$&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">input_string</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="LammpsInput.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.input.html#pymatgen.io.lammps.input.LammpsInput.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;$$&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsInput.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.input.html#pymatgen.io.lammps.input.LammpsInput.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;$$&quot;</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">settings</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">)</span></div>
 
@@ -130,8 +128,8 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="LammpsInput.get_template"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.input.html#pymatgen.io.lammps.input.LammpsInput.get_template">[docs]</a>    <span class="k">def</span> <span class="nf">get_template</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsInput.get_template"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.input.html#pymatgen.io.lammps.input.LammpsInput.get_template">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_template</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">Template</span><span class="p">,),</span> <span class="p">{</span><span class="s2">&quot;delimiter&quot;</span><span class="p">:</span> <span class="n">delimiter</span><span class="p">})</span></div></div>
 </pre></div>
 
@@ -163,7 +161,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -171,7 +169,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

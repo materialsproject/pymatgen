@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.pseudos module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.pseudos module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -103,7 +100,7 @@ Useful for unit tests in which we have to change the content of the file.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tmpdir</strong> &#8211; If None, a new temporary directory is created and files are copied here
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tmpdir</strong> – If None, a new temporary directory is created and files are copied here
 else tmpdir is used.</td>
 </tr>
 </tbody>
@@ -174,7 +171,7 @@ ecut and pawecutdg are set to zero if no hint is available.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>accuracy</strong> &#8211; [&#8220;low&#8221;, &#8220;normal&#8221;, &#8220;high&#8221;]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>accuracy</strong> – [“low”, “normal”, “high”]</td>
 </tr>
 </tbody>
 </table>
@@ -215,14 +212,14 @@ ecut and pawecutdg are set to zero if no hint is available.</p>
 <code class="descname">open_pspsfile</code><span class="sig-paren">(</span><em>ecut=20</em>, <em>pawecutdg=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#Pseudo.open_pspsfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.Pseudo.open_pspsfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls Abinit to compute the internal tables for the application of the
 pseudopotential part. Returns <code class="xref py py-class docutils literal"><span class="pre">PspsFile</span></code> object providing methods
-to plot and analyze the data or None if file is not found or it&#8217;s not readable.</p>
+to plot and analyze the data or None if file is not found or it’s not readable.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ecut</strong> &#8211; Cutoff energy in Hartree.</li>
-<li><strong>pawecutdg</strong> &#8211; Cutoff energy for the PAW double grid.</li>
+<li><strong>ecut</strong> – Cutoff energy in Hartree.</li>
+<li><strong>pawecutdg</strong> – Cutoff energy for the PAW double grid.</li>
 </ul>
 </td>
 </tr>
@@ -273,17 +270,17 @@ Individidual elements are accessed by name, symbol or atomic number.</p>
 Fe
 print elements.Fe
 Fe
-print elements.symbol(&#8216;Fe&#8217;)
+print elements.symbol(‘Fe’)
 Fe
-print elements.name(&#8216;iron&#8217;)
+print elements.name(‘iron’)
 Fe
-print elements.isotope(&#8216;Fe&#8217;)
+print elements.isotope(‘Fe’)
 Fe</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pseudos</strong> &#8211; List of pseudopotentials or filepaths</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pseudos</strong> – List of pseudopotentials or filepaths</td>
 </tr>
 </tbody>
 </table>
@@ -336,10 +333,10 @@ Each item is a list of pseudopotential objects.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>top</strong> &#8211; Top of the directory tree</li>
-<li><strong>exts</strong> &#8211; List of files extensions. if exts == &#8220;all_files&#8221;
+<li><strong>top</strong> – Top of the directory tree</li>
+<li><strong>exts</strong> – List of files extensions. if exts == “all_files”
 we try to open all files in top</li>
-<li><strong>exclude_dirs</strong> &#8211; Wildcard used to exclude directories.</li>
+<li><strong>exclude_dirs</strong> – Wildcard used to exclude directories.</li>
 </ul>
 </td>
 </tr>
@@ -356,7 +353,7 @@ we try to open all files in top</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>structure</strong> &#8211; pymatgen <code class="xref py py-class docutils literal"><span class="pre">Structure</span></code>.</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>structure</strong> – pymatgen <code class="xref py py-class docutils literal"><span class="pre">Structure</span></code>.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
@@ -384,8 +381,8 @@ we try to open all files in top</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stream</strong> &#8211; file-like object</li>
-<li><strong>filter_function</strong> &#8211; A filtering function that take a Pseudo as input and returns a boolean.
+<li><strong>stream</strong> – file-like object</li>
+<li><strong>filter_function</strong> – A filtering function that take a Pseudo as input and returns a boolean.
 For example, setting filter_function = lambda p: p.Z_val &gt; 2 will print
 a periodic table containing only pseudos with Z_val &gt; 2.</li>
 </ul>
@@ -404,8 +401,8 @@ a periodic table containing only pseudos with Z_val &gt; 2.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>symbols</strong> &#8211; String with the chemical symbol of the element</li>
-<li><strong>allow_multi</strong> &#8211; By default, the method raises ValueError
+<li><strong>symbols</strong> – String with the chemical symbol of the element</li>
+<li><strong>allow_multi</strong> – By default, the method raises ValueError
 if multiple occurrences are found. Use allow_multi to prevent this.</li>
 </ul>
 </td>
@@ -440,7 +437,7 @@ Return new class:<cite>PseudoTable</cite> object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>condition</strong> &#8211; Function that accepts a <a class="reference internal" href="#pymatgen.io.abinit.pseudos.Pseudo" title="pymatgen.io.abinit.pseudos.Pseudo"><code class="xref py py-class docutils literal"><span class="pre">Pseudo</span></code></a> object and returns True or False.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>condition</strong> – Function that accepts a <a class="reference internal" href="#pymatgen.io.abinit.pseudos.Pseudo" title="pymatgen.io.abinit.pseudos.Pseudo"><code class="xref py py-class docutils literal"><span class="pre">Pseudo</span></code></a> object and returns True or False.</td>
 </tr>
 </tbody>
 </table>
@@ -467,9 +464,9 @@ rows can be either a int or a list of integers.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symbols</strong> &#8211; str or list of symbols
-Prepend the symbol string with &#8220;-&#8221;, to exclude pseudos.</li>
-<li><strong>ret_list</strong> &#8211; if True a list of pseudos is returned instead of a <a class="reference internal" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="pymatgen.io.abinit.pseudos.PseudoTable"><code class="xref py py-class docutils literal"><span class="pre">PseudoTable</span></code></a></li>
+<li><strong>symbols</strong> – str or list of symbols
+Prepend the symbol string with “-“, to exclude pseudos.</li>
+<li><strong>ret_list</strong> – if True a list of pseudos is returned instead of a <a class="reference internal" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="pymatgen.io.abinit.pseudos.PseudoTable"><code class="xref py py-class docutils literal"><span class="pre">PseudoTable</span></code></a></li>
 </ul>
 </td>
 </tr>
@@ -557,13 +554,13 @@ Prepend the symbol string with &#8220;-&#8221;, to exclude pseudos.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

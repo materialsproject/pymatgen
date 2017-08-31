@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.lammps.topology module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.lammps.topology module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -66,20 +63,20 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atoms</strong> (<em>list</em>) &#8211; map atom names to force field(ff) atom name,
-[[&#8216;c&#8217;, &#8216;c1&#8217;],...]</li>
-<li><strong>bonds</strong> (<em>list</em>) &#8211; List of bonds,
-[[i,j, bond_type], ... ] where i, j are integer(starts from 1)
+<li><strong>atoms</strong> (<em>list</em>) – map atom names to force field(ff) atom name,
+[[‘c’, ‘c1’],…]</li>
+<li><strong>bonds</strong> (<em>list</em>) – List of bonds,
+[[i,j, bond_type], … ] where i, j are integer(starts from 1)
 atom ids in the molecules and bond_type = (ff atomname_i, ff atomname_j)</li>
-<li><strong>angles</strong> (<em>list</em>) &#8211; List of angles,
-[[i,j,k, angle_type], ... ],
+<li><strong>angles</strong> (<em>list</em>) – List of angles,
+[[i,j,k, angle_type], … ],
 angle_type = (ff atomname_i, ff atomname_j, ff atomname_k)</li>
-<li><strong>charges</strong> (<em>list</em>) &#8211; List of charges, [0.4, 0.7, ... ]</li>
-<li><strong>dihedrals</strong> (<em>list</em>) &#8211; List of dihedrals,
-[[i,j,k,l, dihedral_type], ... ]
+<li><strong>charges</strong> (<em>list</em>) – List of charges, [0.4, 0.7, … ]</li>
+<li><strong>dihedrals</strong> (<em>list</em>) – List of dihedrals,
+[[i,j,k,l, dihedral_type], … ]
 dihedral_type = (ff atomname_i, ff atomname_j, ff atomname_k, ff atomname_l)</li>
-<li><strong>imdihedrals</strong> (<em>list</em>) &#8211; List of improper dihedrals,
-[[&#8216;i,j,k,l, dihedral_type], ... ]</li>
+<li><strong>imdihedrals</strong> (<em>list</em>) – List of improper dihedrals,
+[[‘i,j,k,l, dihedral_type], … ]</li>
 </ul>
 </td>
 </tr>
@@ -89,21 +86,21 @@ dihedral_type = (ff atomname_i, ff atomname_j, ff atomname_k, ff atomname_l)</li
 <dt id="pymatgen.io.lammps.topology.Topology.from_molecule">
 <em class="property">static </em><code class="descname">from_molecule</code><span class="sig-paren">(</span><em>molecule</em>, <em>tol=0.1</em>, <em>ff_map='ff_map'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/topology.html#Topology.from_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.topology.Topology.from_molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return Topology object from molecule. Charges are also set if the
-molecule has &#8216;charge&#8217; site property.</p>
+molecule has ‘charge’ site property.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) &#8211; </li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Relative tolerance to test in determining the bonds
+<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – </li>
+<li><strong>tol</strong> (<em>float</em>) – Relative tolerance to test in determining the bonds
 in the molecule. Basically, the code checks if the distance
 between the sites is less than (1 + tol) * typical bond
 distances. Defaults to 0.1, i.e., 10% longer.</li>
-<li><strong>ff_map</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; Ensure this site property is set for each site if
+<li><strong>ff_map</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – Ensure this site property is set for each site if
 atoms need to be mapped to its forcefield name.
-eg: Carbon atom, &#8216;C&#8217;, on different sites can be mapped to
-either &#8216;Ce&#8217; or &#8216;Cm&#8217; depending on how the forcefield parameters
+eg: Carbon atom, ‘C’, on different sites can be mapped to
+either ‘Ce’ or ‘Cm’ depending on how the forcefield parameters
 are set.</li>
 </ul>
 </td>
@@ -155,13 +152,13 @@ are set.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

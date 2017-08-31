@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.flows &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.flows &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -178,8 +175,8 @@
 
     <span class="n">Results</span> <span class="o">=</span> <span class="n">FlowResults</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Flow.from_inputs"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.from_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">from_inputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">workdir</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pickle_protocol</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">task_class</span><span class="o">=</span><span class="n">ScfTask</span><span class="p">,</span> <span class="n">work_class</span><span class="o">=</span><span class="n">Work</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow.from_inputs"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.from_inputs">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_inputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">workdir</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pickle_protocol</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">task_class</span><span class="o">=</span><span class="n">ScfTask</span><span class="p">,</span> <span class="n">work_class</span><span class="o">=</span><span class="n">Work</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct a simple flow from a list of inputs. The flow contains a single Work with</span>
 <span class="sd">        tasks whose class is given by task_class.</span>
@@ -209,8 +206,8 @@
 
         <span class="k">return</span> <span class="n">flow</span><span class="o">.</span><span class="n">allocate</span><span class="p">()</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Flow.as_flow"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.as_flow">[docs]</a>    <span class="k">def</span> <span class="nf">as_flow</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow.as_flow"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.as_flow">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">as_flow</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert obj into a Flow. Accepts filepath, dict, or Flow object.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span> <span class="k">return</span> <span class="n">obj</span>
         <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
@@ -288,8 +285,8 @@
         <span class="c1">#for task in self.iflat_tasks():</span>
         <span class="c1">#    slots[task] = {s: [] for s in work.S_ALL}</span>
 
-    <span class="nd">@pmg_serialize</span>
-<div class="viewcode-block" id="Flow.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        JSON serialization, note that we only need to save</span>
 <span class="sd">        a string with the working directory since the object will be</span>
@@ -300,13 +297,13 @@
     <span class="c1"># This is needed for fireworks.</span>
     <span class="n">to_dict</span> <span class="o">=</span> <span class="n">as_dict</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Flow.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reconstruct the flow from the pickle file.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pickle_load</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;workdir&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Flow.temporary_flow"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.temporary_flow">[docs]</a>    <span class="k">def</span> <span class="nf">temporary_flow</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow.temporary_flow"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.temporary_flow">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">temporary_flow</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a Flow in a temporary directory. Useful for unit tests.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">workdir</span><span class="o">=</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(),</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span></div>
 
@@ -332,8 +329,8 @@
         <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">pickle_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">)</span>
         <span class="bp">self</span> <span class="o">=</span> <span class="n">new</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Flow.pickle_load"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.pickle_load">[docs]</a>    <span class="k">def</span> <span class="nf">pickle_load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">spectator_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_lock</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow.pickle_load"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.pickle_load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">pickle_load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">spectator_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_lock</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Loads the object from a pickle file and performs initial setup.</span>
 
@@ -386,8 +383,8 @@
         <span class="n">flow</span><span class="o">.</span><span class="n">check_status</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">flow</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Flow.pickle_loads"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.pickle_loads">[docs]</a>    <span class="k">def</span> <span class="nf">pickle_loads</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow.pickle_loads"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.pickle_loads">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">pickle_loads</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reconstruct the flow from a string.&quot;&quot;&quot;</span>
         <span class="n">strio</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
         <span class="n">strio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -1636,8 +1633,8 @@
             <span class="n">errlines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%d</span><span class="s2">] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errlines</span><span class="p">))</span></div>
 
-    <span class="nd">@check_spectator</span>
-<div class="viewcode-block" id="Flow.pickle_dump"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.pickle_dump">[docs]</a>    <span class="k">def</span> <span class="nf">pickle_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow.pickle_dump"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.pickle_dump">[docs]</a>    <span class="nd">@check_spectator</span>
+    <span class="k">def</span> <span class="nf">pickle_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the status of the object in pickle format.</span>
 <span class="sd">        Returns 0 if success</span>
@@ -1893,8 +1890,8 @@
             <span class="c1"># Update the database.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pickle_dump</span><span class="p">()</span></div>
 
-    <span class="nd">@check_spectator</span>
-<div class="viewcode-block" id="Flow.finalize"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow.finalize"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.finalize">[docs]</a>    <span class="nd">@check_spectator</span>
+    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method is called when the flow is completed.</span>
 <span class="sd">        Return 0 if success</span>
@@ -2194,8 +2191,8 @@
     <span class="c1">#    if check_status: self.check_status()</span>
     <span class="c1">#    return abirobot(flow=self, ext=ext, nids=nids):</span>
 
-    <span class="nd">@add_fig_kwargs</span>
-<div class="viewcode-block" id="Flow.plot_networkx"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.plot_networkx">[docs]</a>    <span class="k">def</span> <span class="nf">plot_networkx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;network&quot;</span><span class="p">,</span> <span class="n">with_edge_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="Flow.plot_networkx"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.plot_networkx">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+    <span class="k">def</span> <span class="nf">plot_networkx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;network&quot;</span><span class="p">,</span> <span class="n">with_edge_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">node_size</span><span class="o">=</span><span class="s2">&quot;num_cores&quot;</span><span class="p">,</span> <span class="n">node_label</span><span class="o">=</span><span class="s2">&quot;name_class&quot;</span><span class="p">,</span> <span class="n">layout_type</span><span class="o">=</span><span class="s2">&quot;spring&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Use networkx to draw the flow with the connections among the nodes and</span>
@@ -2869,7 +2866,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2877,7 +2874,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -185,7 +182,7 @@ the permutation setup. Depending on the parameters of the LocalGeometryFinder an
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordination_geometry</strong> &#8211; Coordination geometry for which the symmetry measures are looked for</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordination_geometry</strong> – Coordination geometry for which the symmetry measures are looked for</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the symmetry measures of a given coordination_geometry for a set of permutations</td>
 </tr>
@@ -199,15 +196,15 @@ the permutation setup. Depending on the parameters of the LocalGeometryFinder an
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_fallback_random">
 <code class="descname">coordination_geometry_symmetry_measures_fallback_random</code><span class="sig-paren">(</span><em>coordination_geometry</em>, <em>NRANDOM=10</em>, <em>points_perfect=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.coordination_geometry_symmetry_measures_fallback_random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_fallback_random" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the symmetry measures for a random set of permutations for the coordination geometry
-&#8220;coordination_geometry&#8221;. Fallback implementation for the plane separation algorithms measures
+“coordination_geometry”. Fallback implementation for the plane separation algorithms measures
 of each permutation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coordination_geometry</strong> &#8211; The coordination geometry to be investigated</li>
-<li><strong>NRANDOM</strong> &#8211; Number of random permutations to be tested</li>
+<li><strong>coordination_geometry</strong> – The coordination geometry to be investigated</li>
+<li><strong>NRANDOM</strong> – Number of random permutations to be tested</li>
 </ul>
 </td>
 </tr>
@@ -222,13 +219,13 @@ of each permutation</p>
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_safe_override">
 <code class="descname">coordination_geometry_symmetry_measures_safe_override</code><span class="sig-paren">(</span><em>coordination_geometry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.coordination_geometry_symmetry_measures_safe_override"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_safe_override" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
-for the coordination geometry &#8220;coordination_geometry&#8221;. Standard implementatison looking for the symmetry
+for the coordination geometry “coordination_geometry”. Standard implementatison looking for the symmetry
 measures of each permutation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordination_geometry</strong> &#8211; The coordination geometry to be investigated</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordination_geometry</strong> – The coordination geometry to be investigated</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The symmetry measures for the given coordination geometry for each permutation investigated</td>
 </tr>
@@ -239,8 +236,8 @@ measures of each permutation</p>
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane">
 <code class="descname">coordination_geometry_symmetry_measures_separation_plane</code><span class="sig-paren">(</span><em>coordination_geometry</em>, <em>separation_plane_algo</em>, <em>testing=False</em>, <em>tested_permutations=False</em>, <em>points_perfect=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the symmetry measures of the given coordination geometry &#8220;coordination_geometry&#8221; using separation
-facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
+<dd><p>Returns the symmetry measures of the given coordination geometry “coordination_geometry” using separation
+facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other …
 :param coordination_geometry: The coordination geometry to be investigated
 :return: The symmetry measures for the given coordination geometry for each plane and permutation investigated</p>
 </dd></dl>
@@ -249,13 +246,13 @@ facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3P
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_standard">
 <code class="descname">coordination_geometry_symmetry_measures_standard</code><span class="sig-paren">(</span><em>coordination_geometry</em>, <em>algo</em>, <em>points_perfect=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.coordination_geometry_symmetry_measures_standard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_standard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
-for the coordination geometry &#8220;coordination_geometry&#8221;. Standard implementation looking for the symmetry
+for the coordination geometry “coordination_geometry”. Standard implementation looking for the symmetry
 measures of each permutation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordination_geometry</strong> &#8211; The coordination geometry to be investigated</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordination_geometry</strong> – The coordination geometry to be investigated</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The symmetry measures for the given coordination geometry for each permutation investigated</td>
 </tr>
@@ -327,10 +324,10 @@ method for the list of possible parameters
 <code class="descname">setup_parameters</code><span class="sig-paren">(</span><em>centering_type='standard'</em>, <em>include_central_site_in_centroid=False</em>, <em>bva_distance_scale_factor=None</em>, <em>structure_refinement='refined'</em>, <em>spg_analyzer_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.setup_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup of the parameters for the coordination geometry finder. A reference point for the geometries has to be
 chosen. This can be the centroid of the structure (including or excluding the atom for which the coordination
-geometry is looked for) or the atom itself. In the &#8216;standard&#8217; centering_type, the reference point is the central
+geometry is looked for) or the atom itself. In the ‘standard’ centering_type, the reference point is the central
 atom for coordination numbers 1, 2, 3 and 4 and the centroid for coordination numbers &gt; 4.
-:param centering_type: Type of the reference point (centering) &#8216;standard&#8217;, &#8216;centroid&#8217; or &#8216;central_site&#8217;
-:param include_central_site_in_centroid: In case centering_type is &#8216;centroid&#8217;, the central site is included if</p>
+:param centering_type: Type of the reference point (centering) ‘standard’, ‘centroid’ or ‘central_site’
+:param include_central_site_in_centroid: In case centering_type is ‘centroid’, the central site is included if</p>
 <blockquote>
 <div>this value is set to True.</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
@@ -338,13 +335,13 @@ atom for coordination numbers 1, 2, 3 and 4 and the centroid for coordination nu
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>bva_distance_scale_factor</strong> &#8211; Scaling factor for the bond valence analyzer (this might be different whether
+<li><strong>bva_distance_scale_factor</strong> – Scaling factor for the bond valence analyzer (this might be different whether
 the structure is an experimental one, an LDA or a GGA relaxed one, or any
 other relaxation scheme (where under- or over-estimation of bond lengths
 is known).</li>
-<li><strong>structure_refinement</strong> &#8211; Refinement of the structure. Can be &#8220;none&#8221;, &#8220;refined&#8221; or &#8220;symmetrized&#8221;.</li>
-<li><strong>spg_analyzer_options</strong> &#8211; Options for the SpaceGroupAnalyzer (dictionary specifying &#8220;symprec&#8221;
-and &#8220;angle_tolerance&#8221;. See pymatgen&#8217;s SpaceGroupAnalyzer for more information.</li>
+<li><strong>structure_refinement</strong> – Refinement of the structure. Can be “none”, “refined” or “symmetrized”.</li>
+<li><strong>spg_analyzer_options</strong> – Options for the SpaceGroupAnalyzer (dictionary specifying “symprec”
+and “angle_tolerance”. See pymatgen’s SpaceGroupAnalyzer for more information.</li>
 </ul>
 </td>
 </tr>
@@ -390,16 +387,16 @@ with the space group analyzer and a refined structure is used
 <dl class="function">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_rotation">
 <code class="descname">find_rotation</code><span class="sig-paren">(</span><em>points_distorted</em>, <em>points_perfect</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#find_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_rotation" title="Permalink to this definition">¶</a></dt>
-<dd><p>This finds the rotation matrix that aligns the (distorted) set of points &#8220;points_distorted&#8221; with respect to the
-(perfect) set of points &#8220;points_perfect&#8221; in a least-square sense.
+<dd><p>This finds the rotation matrix that aligns the (distorted) set of points “points_distorted” with respect to the
+(perfect) set of points “points_perfect” in a least-square sense.
 :param points_distorted: List of points describing a given (distorted) polyhedron for which the rotation that</p>
 <blockquote>
-<div>aligns these points in a least-square sense to the set of perfect points &#8220;points_perfect&#8221;</div></blockquote>
+<div>aligns these points in a least-square sense to the set of perfect points “points_perfect”</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points_perfect</strong> &#8211; List of &#8220;perfect&#8221; points describing a given model polyhedron.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The rotation matrix</td>
 </tr>
@@ -410,8 +407,8 @@ with the space group analyzer and a refined structure is used
 <dl class="function">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_scaling_factor">
 <code class="descname">find_scaling_factor</code><span class="sig-paren">(</span><em>points_distorted</em>, <em>points_perfect</em>, <em>rot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#find_scaling_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_scaling_factor" title="Permalink to this definition">¶</a></dt>
-<dd><p>This finds the scaling factor between the (distorted) set of points &#8220;points_distorted&#8221; and the
-(perfect) set of points &#8220;points_perfect&#8221; in a least-square sense.
+<dd><p>This finds the scaling factor between the (distorted) set of points “points_distorted” and the
+(perfect) set of points “points_perfect” in a least-square sense.
 :param points_distorted: List of points describing a given (distorted) polyhedron for which the scaling factor has</p>
 <blockquote>
 <div>to be obtained.</div></blockquote>
@@ -420,8 +417,8 @@ with the space group analyzer and a refined structure is used
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>points_perfect</strong> &#8211; List of &#8220;perfect&#8221; points describing a given model polyhedron.</li>
-<li><strong>rot</strong> &#8211; The rotation matrix</li>
+<li><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</li>
+<li><strong>rot</strong> – The rotation matrix</li>
 </ul>
 </td>
 </tr>
@@ -435,17 +432,17 @@ with the space group analyzer and a refined structure is used
 <dl class="function">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.symmetry_measure">
 <code class="descname">symmetry_measure</code><span class="sig-paren">(</span><em>points_distorted</em>, <em>points_perfect</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#symmetry_measure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.symmetry_measure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the continuous symmetry measure of the (distorted) set of points &#8220;points_distorted&#8221; with respect to the
-(perfect) set of points &#8220;points_perfect&#8221;.
+<dd><p>Computes the continuous symmetry measure of the (distorted) set of points “points_distorted” with respect to the
+(perfect) set of points “points_perfect”.
 :param points_distorted: List of points describing a given (distorted) polyhedron for which the symmetry measure</p>
 <blockquote>
 <div>has to be computed with respect to the model polyhedron described by the list of points
-&#8220;points_perfect&#8221;.</div></blockquote>
+“points_perfect”.</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points_perfect</strong> &#8211; List of &#8220;perfect&#8221; points describing a given model polyhedron.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The continuous symmetry measure of the distorted polyhedron with respect to the perfect polyhedron</td>
 </tr>
@@ -491,13 +488,13 @@ with the space group analyzer and a refined structure is used
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

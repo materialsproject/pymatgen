@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.feff.inputs &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.feff.inputs &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -161,8 +158,8 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Structure with partial occupancies cannot be &quot;</span>
                              <span class="s2">&quot;converted into atomic coordinates!&quot;</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Header.from_cif_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_cif_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_cif_file</span><span class="p">(</span><span class="n">cif_file</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Header.from_cif_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_cif_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_cif_file</span><span class="p">(</span><span class="n">cif_file</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Static method to create Header object from cif_file</span>
 
@@ -196,16 +193,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Header.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Header.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns Header object from file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hs</span> <span class="o">=</span> <span class="n">Header</span><span class="o">.</span><span class="n">header_string_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Header</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">hs</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Header.header_string_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.header_string_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">header_string_from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;feff.inp&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Header.header_string_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.header_string_from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">header_string_from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;feff.inp&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads Header string from either a HEADER file or feff.inp file</span>
 <span class="sd">        Will also read a header from a non-pymatgen generated feff.inp file</span>
@@ -246,8 +243,8 @@
 
         <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">feff_header_str</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Header.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">header_str</span><span class="p">):</span>
+<div class="viewcode-block" id="Header.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">header_str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads Header string and returns Header object if header was</span>
 <span class="sd">        generated by pymatgen.</span>
@@ -392,8 +389,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Atoms.atoms_string_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.atoms_string_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">atoms_string_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Atoms.atoms_string_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.atoms_string_from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">atoms_string_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads atomic shells from file such as feff.inp or ATOMS file</span>
 <span class="sd">        The lines are arranged as follows:</span>
@@ -424,8 +421,8 @@
 
         <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">atoms_str</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Atoms.cluster_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.cluster_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">cluster_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Atoms.cluster_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.cluster_from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">cluster_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse the feff input file and return the atomic cluster as a Molecule</span>
 <span class="sd">        object.</span>
@@ -534,8 +531,8 @@
         <span class="n">tags_dict</span><span class="p">[</span><span class="s1">&#39;@class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">return</span> <span class="n">tags_dict</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Tags.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Tags.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates Tags object from a dictionary.</span>
 
@@ -615,8 +612,8 @@
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Tags.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;feff.inp&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Tags.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;feff.inp&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a Feff_tag dictionary from a PARAMETER or feff.inp file.</span>
 
@@ -663,8 +660,8 @@
 
         <span class="k">return</span> <span class="n">Tags</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Tags.proc_val"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.proc_val">[docs]</a>    <span class="k">def</span> <span class="nf">proc_val</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<div class="viewcode-block" id="Tags.proc_val"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.proc_val">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">proc_val</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Static helper method to convert Feff parameters to proper types, e.g.</span>
 <span class="sd">        integers, floats, lists, etc.</span>
@@ -783,8 +780,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> \
             <span class="n">get_absorbing_atom_symbol_index</span><span class="p">(</span><span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">struct</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Potential.pot_string_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Potential.pot_string_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">pot_string_from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;feff.inp&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Potential.pot_string_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Potential.pot_string_from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">pot_string_from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;feff.inp&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads Potential parameters from a feff.inp or FEFFPOT file.</span>
 <span class="sd">        The lines are arranged as follows:</span>
@@ -821,8 +818,8 @@
                                 <span class="n">pot_data_over</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pot_str</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Potential.pot_dict_from_string"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Potential.pot_dict_from_string">[docs]</a>    <span class="k">def</span> <span class="nf">pot_dict_from_string</span><span class="p">(</span><span class="n">pot_data</span><span class="p">):</span>
+<div class="viewcode-block" id="Potential.pot_dict_from_string"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Potential.pot_dict_from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">pot_dict_from_string</span><span class="p">(</span><span class="n">pot_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates atomic symbol/potential number dictionary</span>
 <span class="sd">        forward and reverse</span>
@@ -1017,7 +1014,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1025,7 +1022,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.lammps.output &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.lammps.output &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -74,7 +71,7 @@
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">_pt_data</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion_analyzer</span> <span class="k">import</span> <span class="n">DiffusionAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.lammps.data</span> <span class="k">import</span> <span class="n">LammpsData</span><span class="p">,</span> <span class="n">LammpsForceFieldData</span>
@@ -187,8 +184,8 @@
         <span class="k">return</span> <span class="n">d</span></div>
 
     <span class="c1"># not really needed ?</span>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="LammpsLog.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsLog.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsLog.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsLog.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">log_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;log_file&quot;</span><span class="p">])</span></div></div>
 
 
@@ -204,8 +201,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">box_bounds</span> <span class="o">=</span> <span class="n">box_bounds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">atoms_data</span> <span class="o">=</span> <span class="n">atoms_data</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="LammpsDump.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsDump.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dump_file</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsDump.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsDump.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dump_file</span><span class="p">):</span>
         <span class="n">timesteps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">atoms_data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">natoms</span> <span class="o">=</span> <span class="mi">0</span>
@@ -405,6 +402,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            list of Structure objects</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                           <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span>
+                           <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]]])</span>
         <span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">mass_to_symbol</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="s2">&quot;Atomic mass&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">_pt_data</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
@@ -420,14 +420,14 @@
             <span class="n">coords</span> <span class="o">=</span> <span class="n">mol_vector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">mass_to_symbol</span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">unique_atomic_masses</span><span class="p">[</span><span class="n">atype</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)]</span>
                        <span class="k">for</span> <span class="n">atype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">begin</span><span class="p">:</span><span class="n">end</span><span class="p">][:][</span><span class="s2">&quot;atom_type&quot;</span><span class="p">]]</span>
-            <span class="n">mol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">boxed_mol</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
+                <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
+                                      <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: &#39;</span><span class="si">{}</span><span class="s2">&#39; at timestep </span><span class="si">{}</span><span class="s2"> in the trajectory&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">error</span><span class="p">,</span>
                     <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">step</span><span class="p">])))</span>
-            <span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">boxed_mol</span><span class="p">)</span>
+            <span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">structures</span></div>
 
 <div class="viewcode-block" id="LammpsRun.get_displacements"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsRun.get_displacements">[docs]</a>    <span class="k">def</span> <span class="nf">get_displacements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -458,8 +458,8 @@
                 <span class="n">species</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">mass_to_symbol</span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">unique_atomic_masses</span><span class="p">[</span><span class="n">atype</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)]</span>
                     <span class="k">for</span> <span class="n">atype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">begin</span><span class="p">:</span><span class="n">end</span><span class="p">][:][</span><span class="s2">&quot;atom_type&quot;</span><span class="p">]]</span>
-                <span class="n">mol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
-                <span class="n">structure</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
+                <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
+                                      <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">step_frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">crd</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">crd</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">]</span>
             <span class="n">frac_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">step_frac_coords</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">])</span>
@@ -568,8 +568,8 @@
         <span class="k">return</span> <span class="n">d</span></div>
 
     <span class="c1"># not really needed ?</span>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="LammpsRun.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsRun.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsRun.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsRun.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;data_file&quot;</span><span class="p">],</span> <span class="n">trajectory_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;trajectory_file&quot;</span><span class="p">],</span>
                    <span class="n">log_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;log_file&quot;</span><span class="p">],</span> <span class="n">is_forcefield</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_forcefield&quot;</span><span class="p">])</span></div></div>
 
@@ -618,7 +618,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -626,7 +626,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

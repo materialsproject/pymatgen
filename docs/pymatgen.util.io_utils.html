@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.util.io_utils module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.util.io_utils module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -61,7 +58,7 @@
 <dt id="pymatgen.util.io_utils.AtomicFile">
 <em class="property">class </em><code class="descname">AtomicFile</code><span class="sig-paren">(</span><em>name</em>, <em>mode='w+b'</em>, <em>createmode=None</em>, <em>encoding=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/io_utils.html#AtomicFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.io_utils.AtomicFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This is a straight port of Alexander Saltanov&#8217;s atomicfile package.</p>
+<p>This is a straight port of Alexander Saltanov’s atomicfile package.</p>
 <p>Writeable file object that atomically writes a file.
 All writes will go to a temporary file.
 Call <code class="docutils literal"><span class="pre">close()</span></code> when you are done writing, and AtomicFile will rename
@@ -96,8 +93,8 @@ the file in the wanted encoding.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>string_list</strong> &#8211; List of strings</li>
-<li><strong>remove_empty_lines</strong> &#8211; Set to True to skip lines which are empty after
+<li><strong>string_list</strong> – List of strings</li>
+<li><strong>remove_empty_lines</strong> – Set to True to skip lines which are empty after
 stripping.</li>
 </ul>
 </td>
@@ -113,10 +110,10 @@ stripping.</li>
 <dt id="pymatgen.util.io_utils.micro_pyawk">
 <code class="descname">micro_pyawk</code><span class="sig-paren">(</span><em>filename</em>, <em>search</em>, <em>results=None</em>, <em>debug=None</em>, <em>postdebug=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/io_utils.html#micro_pyawk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.io_utils.micro_pyawk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Small awk-mimicking search routine.</p>
-<p>&#8216;file&#8217; is file to search through.
-&#8216;search&#8217; is the &#8220;search program&#8221;, a list of lists/tuples with 3 elements;
-i.e. [[regex,test,run],[regex,test,run],...]
-&#8216;results&#8217; is a an object that your search program will have access to for
+<p>‘file’ is file to search through.
+‘search’ is the “search program”, a list of lists/tuples with 3 elements;
+i.e. [[regex,test,run],[regex,test,run],…]
+‘results’ is a an object that your search program will have access to for
 storing results.</p>
 <p>Here regex is either as a Regex object, or a string that we compile into a
 Regex. test and run are callable objects.</p>
@@ -176,13 +173,13 @@ thus clever to use results=self.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

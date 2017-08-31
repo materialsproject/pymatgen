@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.fiesta module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.fiesta module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -61,13 +58,13 @@
 <dt id="pymatgen.io.fiesta.BSEOutput">
 <em class="property">class </em><code class="descname">BSEOutput</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#BSEOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.BSEOutput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>A bse output file parser. The start...</p>
+<p>A bse output file parser. The start…</p>
 <p>All energies are in eV.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; Filename to read.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to read.</td>
 </tr>
 </tbody>
 </table>
@@ -105,18 +102,18 @@
 <dt id="pymatgen.io.fiesta.FiestaInput">
 <em class="property">class </em><code class="descname">FiestaInput</code><span class="sig-paren">(</span><em>mol</em>, <em>correlation_grid={'dE_grid': '0.500'</em>, <em>'n_grid': '14'}</em>, <em>Exc_DFT_option={'rdVxcpsi': '1'}</em>, <em>COHSEX_options={'eigMethod': 'C'</em>, <em>'mix_cohsex': '0.500'</em>, <em>'nc_cohsex': '0'</em>, <em>'nit_cohsex': '0'</em>, <em>'nv_cohsex': '0'</em>, <em>'resMethod': 'V'</em>, <em>'scf_cohsex_wf': '0'}</em>, <em>GW_options={'nc_corr': '10'</em>, <em>'nit_gw': '3'</em>, <em>'nv_corr': '10'}</em>, <em>BSE_TDDFT_options={'do_bse': '1'</em>, <em>'do_tddft': '0'</em>, <em>'nc_bse': '382'</em>, <em>'nit_bse': '50'</em>, <em>'npsi_bse': '1'</em>, <em>'nv_bse': '21'}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
-<p>Input File for Fiesta called &#8220;cell.in&#8221; by default (mandatory in Fiesta for now)</p>
+<p>Input File for Fiesta called “cell.in” by default (mandatory in Fiesta for now)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mol</strong> &#8211; pymatgen mol</li>
-<li><strong>correlation_grid</strong> &#8211; dict</li>
-<li><strong>Exc_DFT_option</strong> &#8211; dict</li>
-<li><strong>COHSEX_options</strong> &#8211; dict</li>
-<li><strong>GW_options</strong> &#8211; dict</li>
-<li><strong>BSE_TDDFT_options</strong> &#8211; dict</li>
+<li><strong>mol</strong> – pymatgen mol</li>
+<li><strong>correlation_grid</strong> – dict</li>
+<li><strong>Exc_DFT_option</strong> – dict</li>
+<li><strong>COHSEX_options</strong> – dict</li>
+<li><strong>GW_options</strong> – dict</li>
+<li><strong>BSE_TDDFT_options</strong> – dict</li>
 </ul>
 </td>
 </tr>
@@ -134,9 +131,9 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>BSE_dump</strong> &#8211; boolean</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>BSE_dump</strong> – boolean</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">set the &#8220;do_bse&#8221; variable to one in cell.in</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">set the “do_bse” variable to one in cell.in</td>
 </tr>
 </tbody>
 </table>
@@ -149,7 +146,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>TDDFT_dump</strong> &#8211; boolen</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>TDDFT_dump</strong> – boolen</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">set the do_tddft variable to one in cell.in</td>
 </tr>
@@ -171,7 +168,7 @@ files generated from this class itself.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; Filename to parse.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to parse.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">FiestaInput object</td>
 </tr>
@@ -188,7 +185,7 @@ files generated from this class itself.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string_input</strong> &#8211; string_input to parse.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string_input</strong> – string_input to parse.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">FiestaInput object</td>
 </tr>
@@ -205,7 +202,7 @@ files generated from this class itself.</p>
 <dl class="method">
 <dt id="pymatgen.io.fiesta.FiestaInput.make_FULL_BSE_Densities_folder">
 <code class="descname">make_FULL_BSE_Densities_folder</code><span class="sig-paren">(</span><em>folder</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.make_FULL_BSE_Densities_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.make_FULL_BSE_Densities_folder" title="Permalink to this definition">¶</a></dt>
-<dd><p>mkdir &#8220;FULL_BSE_Densities&#8221; folder (needed for bse run) in the desired folder</p>
+<dd><p>mkdir “FULL_BSE_Densities” folder (needed for bse run) in the desired folder</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -237,11 +234,11 @@ files generated from this class itself.</p>
 <dl class="method">
 <dt id="pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set">
 <code class="descname">set_auxiliary_basis_set</code><span class="sig-paren">(</span><em>folder</em>, <em>auxiliary_folder</em>, <em>auxiliary_basis_set_type='aug_cc_pvtz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.set_auxiliary_basis_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>copy in the desired folder the needed auxiliary basis set &#8220;X2.ion&#8221; where X is a specie.
+<dd><p>copy in the desired folder the needed auxiliary basis set “X2.ion” where X is a specie.
 :param auxiliary_folder: folder where the auxiliary basis sets are stored
 :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must be in lower case)</p>
 <blockquote>
-<div>ex: C2.ion_aug_cc_pvtz_RI_Weigend find &#8220;aug_cc_pvtz&#8221;</div></blockquote>
+<div>ex: C2.ion_aug_cc_pvtz_RI_Weigend find “aug_cc_pvtz”</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -261,7 +258,7 @@ files generated from this class itself.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; Filename to read.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to read.</td>
 </tr>
 </tbody>
 </table>
@@ -314,7 +311,7 @@ logfile: logfile of Fiesta</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>To run NWCHEM2FIESTA inside python:</p>
 <p>If nwchem.nw is the input, nwchem.out the output, and structure.movecs the
-&#8220;movecs&#8221; file, the syntax to run NWCHEM2FIESTA is: NWCHEM2FIESTA
+“movecs” file, the syntax to run NWCHEM2FIESTA is: NWCHEM2FIESTA
 nwchem.nw  nwchem.nwout  structure.movecs &gt; log_n2f</p>
 <p>folder: where are stored the nwchem
 filename: name of nwchem files read by NWCHEM2FIESTA (filename.nw, filename.nwout and filename.movecs)
@@ -376,13 +373,13 @@ logfile: logfile of NWCHEM2FIESTA</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

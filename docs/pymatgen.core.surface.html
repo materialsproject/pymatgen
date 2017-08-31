@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.surface module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.surface module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -64,7 +61,7 @@
 <p>Subclass of Structure representing a Slab. Implements additional
 attributes pertaining to slabs, but the init method does not
 actually implement any algorithm that creates a slab. This is a
-DUMMY class who&#8217;s init method only holds information about the
+DUMMY class who’s init method only holds information about the
 slab. Also has additional methods that returns other information
 about a slab such as the surface area, normal, and atom adsorption.</p>
 <p>Note that all Slabs have the surface normal oriented in the c-direction.
@@ -98,43 +95,43 @@ and methods pertaining to slabs.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lattice</strong> (<em>Lattice/3x3 array</em>) &#8211; The lattice, either as a
+<li><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
 <a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
 simply as any 2D array. Each row should correspond to a lattice
 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</li>
-<li><strong>species</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em><em></em>) &#8211; <p>Sequence of species on each site. Can take in
+<li><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
 flexible input, including:</p>
 <ol class="lowerroman">
 <li>A sequence of element / specie specified either as string
-symbols, e.g. [&#8220;Li&#8221;, &#8220;Fe2+&#8221;, &#8220;P&#8221;, ...] or atomic numbers,
-e.g., (3, 56, ...) or actual Element or Specie objects.</li>
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</li>
 <li>List of dict of elements/species and occupancies, e.g.,
-[{&#8220;Fe&#8221; : 0.5, &#8220;Mn&#8221;:0.5}, ...]. This allows the setup of
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
 disordered structures.</li>
 </ol>
 </li>
-<li><strong>coords</strong> (<em>Nx3 array</em>) &#8211; list of fractional/cartesian coordinates of
+<li><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
 each species.</li>
-<li><strong>miller_index</strong> (<em></em><em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Orbital.l" title="pymatgen.io.vasp.inputs.Orbital.l"><em>l</em></a><em>]</em><em></em>) &#8211; Miller index of plane parallel to
+<li><strong>miller_index</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Orbital.l" title="pymatgen.io.vasp.inputs.Orbital.l"><em>l</em></a><em>]</em>) – Miller index of plane parallel to
 surface. Note that this is referenced to the input structure. If
 you need this to be based on the conventional cell,
 you should supply the conventional structure.</li>
-<li><strong>oriented_unit_cell</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; The oriented_unit_cell from which
+<li><strong>oriented_unit_cell</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – The oriented_unit_cell from which
 this Slab is created (by scaling in the c-direction).</li>
-<li><strong>shift</strong> (<em>float</em>) &#8211; The shift in the c-direction applied to get the
+<li><strong>shift</strong> (<em>float</em>) – The shift in the c-direction applied to get the
 termination.</li>
-<li><strong>scale_factor</strong> (<em>array</em>) &#8211; scale_factor Final computed scale factor
+<li><strong>scale_factor</strong> (<em>array</em>) – scale_factor Final computed scale factor
 that brings the parent cell to the surface cell.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) &#8211; Whether to check if there are sites
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) &#8211; Set to True if you are providing
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
-<li><strong>site_properties</strong> (<em>dict</em>) &#8211; Properties associated with the sites as a
-dict of sequences, e.g., {&#8220;magmom&#8221;:[5,5,5,5]}. The sequences
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
 have to be the same length as the atomic species and
 fractional_coords. Defaults to None for no properties.</li>
-<li><strong>energy</strong> (<em>float</em>) &#8211; A value for the energy.</li>
+<li><strong>energy</strong> (<em>float</em>) – A value for the energy.</li>
 </ul>
 </td>
 </tr>
@@ -150,11 +147,11 @@ slab structure from the Slab class(in [0, 0, 1])</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>indices</strong> (<em></em><em>[</em><em>int</em><em>]</em><em></em>) &#8211; Indices of sites on which to put the absorbate.
+<li><strong>indices</strong> (<em>[</em><em>int</em><em>]</em>) – Indices of sites on which to put the absorbate.
 Absorbed atom will be displaced relative to the center of
 these sites.</li>
-<li><strong>specie</strong> (<em>Specie/Element/str</em>) &#8211; adsorbed atom species</li>
-<li><strong>distance</strong> (<em>float</em>) &#8211; between centers of the adsorbed atom and the
+<li><strong>specie</strong> (<em>Specie/Element/str</em>) – adsorbed atom species</li>
+<li><strong>distance</strong> (<em>float</em>) – between centers of the adsorbed atom and the
 given site in Angstroms.</li>
 </ul>
 </td>
@@ -168,6 +165,12 @@ given site in Angstroms.</li>
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.core.surface.Slab.center_of_mass">
+<code class="descname">center_of_mass</code><a class="headerlink" href="#pymatgen.core.surface.Slab.center_of_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the center of mass of the slab</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.copy">
 <code class="descname">copy</code><span class="sig-paren">(</span><em>site_properties=None</em>, <em>sanitize=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.copy" title="Permalink to this definition">¶</a></dt>
@@ -178,12 +181,12 @@ site properties.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>site_properties</strong> (<em>dict</em>) &#8211; Properties to add or override. The
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties to add or override. The
 properties are specified in the same way as the constructor,
 i.e., as a dict of the form {property: [values]}. The
 properties should be in the order of the <em>original</em> structure
 if you are performing sanitization.</li>
-<li><strong>sanitize</strong> (<em>bool</em>) &#8211; If True, this method will return a sanitized
+<li><strong>sanitize</strong> (<em>bool</em>) – If True, this method will return a sanitized
 structure. Sanitization performs a few things: (i) The sites are
 sorted by electronegativity, (ii) a LLL lattice reduction is
 carried out to obtain a relatively orthogonalized cell,
@@ -217,7 +220,7 @@ to work properly. Otherwise, the Slab will always have a dipole of 0.</p>
 <dt id="pymatgen.core.surface.Slab.get_orthogonal_c_slab">
 <code class="descname">get_orthogonal_c_slab</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_orthogonal_c_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_orthogonal_c_slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method returns a Slab where the normal (c lattice vector) is
-&#8220;forced&#8221; to be exactly orthogonal to the surface a and b lattice
+“forced” to be exactly orthogonal to the surface a and b lattice
 vectors. <strong>Note that this breaks inherent symmetries in the slab.</strong>
 It should be pointed out that orthogonality is not required to get good
 surface energies, but it can be useful in cases where the slabs are
@@ -237,16 +240,46 @@ because of the different __init__ args.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> &#8211; Specifies a function of one argument that is used to extract
+<li><strong>key</strong> – Specifies a function of one argument that is used to extract
 a comparison key from each list element: key=str.lower. The
 default value is None (compare the elements directly).</li>
-<li><strong>reverse</strong> (<em>bool</em>) &#8211; If set to True, then the list elements are sorted
+<li><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
 as if each comparison were reversed.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.surface.Slab.get_surface_sites">
+<code class="descname">get_surface_sites</code><span class="sig-paren">(</span><em>decimal=5</em>, <em>tag=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_surface_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_surface_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the surface sites and their site indices in a dictionary. The oriented unit
+cell of the slab will determine the coordination number of a typical site. We use
+VoronoiCoordFinder to determine the coordination number of bulk sites and slab
+sites. Due to the pathological error resulting from some surface sites in the
+VoronoiCoordFinder, we assume any site that has this error is a surface site as well.
+This will work for elemental systems only for now. Useful for analysis involving
+broken bonds and for finding adsorption sites.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>decimal (int): The decimal place to determine a unique</dt>
+<dd>coordination number</dd>
+<dt>tag (bool): Option to adds site attribute “is_surfsite” (bool) to</dt>
+<dd>all sites of slab. Defaults to False</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>A dictionary grouping sites on top and bottom of the slab together.</dt>
+<dd>{“top”: [sites with indices], “bottom”: [sites with indices}</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -258,9 +291,9 @@ as if each comparison were reversed.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tol</strong> (<em>float</em>) &#8211; Tolerance to determine if atoms are within same plane.
+<li><strong>tol</strong> (<em>float</em>) – Tolerance to determine if atoms are within same plane.
 This is a fractional tolerance, not an absolute one.</li>
-<li><strong>same_species_only</strong> (<em>bool</em>) &#8211; If True, only that are of the exact same
+<li><strong>same_species_only</strong> (<em>bool</em>) – If True, only that are of the exact same
 species as the atom at the outermost surface are considered for
 moving. Otherwise, all atoms regardless of species that is
 within tol are considered for moving. Default is True (usually
@@ -276,6 +309,11 @@ the desired behavior).</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.core.surface.Slab.have_equivalent_surfaces">
+<code class="descname">have_equivalent_surfaces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.have_equivalent_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.have_equivalent_surfaces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.core.surface.Slab.is_polar">
 <code class="descname">is_polar</code><span class="sig-paren">(</span><em>tol_dipole_per_unit_area=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.is_polar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.is_polar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks whether the surface is polar by computing the dipole per unit
@@ -285,7 +323,7 @@ to work properly. Otherwise, the Slab will always be non-polar.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol_dipole_per_unit_area</strong> (<em>float</em>) &#8211; A tolerance. If the dipole
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol_dipole_per_unit_area</strong> (<em>float</em>) – A tolerance. If the dipole
 magnitude per unit area is less than this value, the Slab is
 considered non-polar. Defaults to 1e-3, which is usually
 pretty good. Normalized dipole per unit area is used as it is
@@ -304,7 +342,7 @@ slabs with larger surface areas.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symprec</strong> (<em>float</em>) &#8211; Symmetry precision used for SpaceGroup analyzer.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symprec</strong> (<em>float</em>) – Symmetry precision used for SpaceGroup analyzer.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) Whether slab contains inversion symmetry.</td>
 </tr>
@@ -332,7 +370,7 @@ slabs with larger surface areas.</td>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class generates different slabs using shift values determined by where
 a unique termination can be found along with other criterias such as where a
-termination doesn&#8217;t break a polyhedral bond. The shift value then indicates
+termination doesn’t break a polyhedral bond. The shift value then indicates
 where the slab layer will begin and terminate in the slab-vacuum system.</p>
 <dl class="attribute">
 <dt id="pymatgen.core.surface.SlabGenerator.oriented_unit_cell">
@@ -393,26 +431,26 @@ Also stores the initial information needed later on to generate a slab.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Initial input structure. Note that to
+<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note that to
 ensure that the miller indices correspond to usual
 crystallographic definitions, you should supply a conventional
 unit cell structure.</li>
-<li><strong>miller_index</strong> (<em></em><em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Orbital.l" title="pymatgen.io.vasp.inputs.Orbital.l"><em>l</em></a><em>]</em><em></em>) &#8211; Miller index of plane parallel to
+<li><strong>miller_index</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Orbital.l" title="pymatgen.io.vasp.inputs.Orbital.l"><em>l</em></a><em>]</em>) – Miller index of plane parallel to
 surface. Note that this is referenced to the input structure. If
 you need this to be based on the conventional cell,
 you should supply the conventional structure.</li>
-<li><strong>min_slab_size</strong> (<em>float</em>) &#8211; In Angstroms</li>
-<li><strong>min_vacuum_size</strong> (<em>float</em>) &#8211; In Angstroms</li>
-<li><strong>lll_reduce</strong> (<em>bool</em>) &#8211; Whether to perform an LLL reduction on the
+<li><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms</li>
+<li><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms</li>
+<li><strong>lll_reduce</strong> (<em>bool</em>) – Whether to perform an LLL reduction on the
 eventual structure.</li>
-<li><strong>center_slab</strong> (<em>bool</em>) &#8211; Whether to center the slab in the cell with
+<li><strong>center_slab</strong> (<em>bool</em>) – Whether to center the slab in the cell with
 equal vacuum spacing from the top and bottom.</li>
-<li><strong>primitive</strong> (<em>bool</em>) &#8211; Whether to reduce any generated slabs to a
+<li><strong>primitive</strong> (<em>bool</em>) – Whether to reduce any generated slabs to a
 primitive cell (this does <strong>not</strong> mean the slab is generated
 from a primitive cell, it simply means that after slab
 generation, we attempt to find shorter lattice vectors,
 which lead to less surface area and smaller cells).</li>
-<li><strong>max_normal_search</strong> (<em>int</em>) &#8211; If set to a positive integer, the code will
+<li><strong>max_normal_search</strong> (<em>int</em>) – If set to a positive integer, the code will
 conduct a search for a normal lattice vector that is as
 perpendicular to the surface as possible by considering
 multiples linear combinations of lattice vectors up to
@@ -470,18 +508,18 @@ values that do so.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) &#8211; max_bond_dist}: bonds are
+<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
 specified as a dict of tuples: float of specie1, specie2
 and the max bonding distance. For example, PO4 groups may be
-defined as {(&#8220;P&#8221;, &#8220;O&#8221;): 3}.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Threshold parameter in fcluster in order to check
+defined as {(“P”, “O”): 3}.</li>
+<li><strong>tol</strong> (<em>float</em>) – Threshold parameter in fcluster in order to check
 if two atoms are lying on the same plane. Default thresh set
 to 0.1 Angstrom in the direction of the surface normal.</li>
-<li><strong>max_broken_bonds</strong> (<em>int</em>) &#8211; Maximum number of allowable broken bonds
+<li><strong>max_broken_bonds</strong> (<em>int</em>) – Maximum number of allowable broken bonds
 for the slab. Use this to limit # of slabs (some structures
 may have a lot of slabs). Defaults to zero, which means no
 defined bonds must be broken.</li>
-<li><strong>symmetrize</strong> (<em>bool</em>) &#8211; Whether or not to ensure the surfaces of the
+<li><strong>symmetrize</strong> (<em>bool</em>) – Whether or not to ensure the surfaces of the
 slabs are equivalent.</li>
 </ul>
 </td>
@@ -495,16 +533,15 @@ Slabs are sorted by the # of bonds broken.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.core.surface.SlabGenerator.symmetrize_slab">
-<code class="descname">symmetrize_slab</code><span class="sig-paren">(</span><em>slab</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.symmetrize_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.symmetrize_slab" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab">
+<code class="descname">nonstoichiometric_symmetrized_slab</code><span class="sig-paren">(</span><em>slab</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.nonstoichiometric_symmetrized_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method checks whether or not the two surfaces of the slab are
 equivalent. If the point group of the slab has an inversion symmetry (
 ie. belong to one of the Laue groups), then it is assumed that the
 surfaces should be equivalent. Otherwise, sites at the bottom of the
-slab will be removed until the slab is symmetric. Note that this method
-should only be limited to elemental structures as the removal of sites
+slab will be removed until the slab is symmetric. Note the removal of sites
 can destroy the stoichiometry of the slab. For non-elemental
-structures, use is_polar().</p>
+structures, the chemical potential will be needed to calculate surface energy.</p>
 <dl class="docutils">
 <dt>Arg:</dt>
 <dd>slab (Structure): A single slab structure
@@ -537,34 +574,34 @@ CsCl has equivalent slabs in the (0,0,1), (0,1,0), and (1,0,0) direction.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Initial input structure. Note that to
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note that to
 ensure that the miller indices correspond to usual
 crystallographic definitions, you should supply a conventional
 unit cell structure.</li>
-<li><strong>max_index</strong> (<em>int</em>) &#8211; The maximum Miller index to go up to.</li>
-<li><strong>min_slab_size</strong> (<em>float</em>) &#8211; In Angstroms</li>
-<li><strong>min_vacuum_size</strong> (<em>float</em>) &#8211; In Angstroms</li>
-<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) &#8211; max_bond_dist}: bonds are
+<li><strong>max_index</strong> (<em>int</em>) – The maximum Miller index to go up to.</li>
+<li><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms</li>
+<li><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms</li>
+<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
 specified as a dict of tuples: float of specie1, specie2
 and the max bonding distance. For example, PO4 groups may be
-defined as {(&#8220;P&#8221;, &#8220;O&#8221;): 3}.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Threshold parameter in fcluster in order to check
+defined as {(“P”, “O”): 3}.</li>
+<li><strong>tol</strong> (<em>float</em>) – Threshold parameter in fcluster in order to check
 if two atoms are lying on the same plane. Default thresh set
 to 0.1 Angstrom in the direction of the surface normal.</li>
-<li><strong>max_broken_bonds</strong> (<em>int</em>) &#8211; Maximum number of allowable broken bonds
+<li><strong>max_broken_bonds</strong> (<em>int</em>) – Maximum number of allowable broken bonds
 for the slab. Use this to limit # of slabs (some structures
 may have a lot of slabs). Defaults to zero, which means no
 defined bonds must be broken.</li>
-<li><strong>lll_reduce</strong> (<em>bool</em>) &#8211; Whether to perform an LLL reduction on the
+<li><strong>lll_reduce</strong> (<em>bool</em>) – Whether to perform an LLL reduction on the
 eventual structure.</li>
-<li><strong>center_slab</strong> (<em>bool</em>) &#8211; Whether to center the slab in the cell with
+<li><strong>center_slab</strong> (<em>bool</em>) – Whether to center the slab in the cell with
 equal vacuum spacing from the top and bottom.</li>
-<li><strong>primitive</strong> (<em>bool</em>) &#8211; Whether to reduce any generated slabs to a
+<li><strong>primitive</strong> (<em>bool</em>) – Whether to reduce any generated slabs to a
 primitive cell (this does <strong>not</strong> mean the slab is generated
 from a primitive cell, it simply means that after slab
 generation, we attempt to find shorter lattice vectors,
 which lead to less surface area and smaller cells).</li>
-<li><strong>max_normal_search</strong> (<em>int</em>) &#8211; If set to a positive integer, the code will
+<li><strong>max_normal_search</strong> (<em>int</em>) – If set to a positive integer, the code will
 conduct a search for a normal lattice vector that is as
 perpendicular to the surface as possible by considering
 multiples linear combinations of lattice vectors up to
@@ -576,7 +613,7 @@ is not guaranteed, but the oriented cell will have the c
 vector as normal as possible (within the search range) to the
 surface. A value of up to the max absolute Miller index is
 usually sufficient.</li>
-<li><strong>symmetrize</strong> (<em>bool</em>) &#8211; Whether or not to ensure the surfaces of the
+<li><strong>symmetrize</strong> (<em>bool</em>) – Whether or not to ensure the surfaces of the
 slabs are equivalent.</li>
 </ul>
 </td>
@@ -658,13 +695,13 @@ structure. All other indices are equivalent to one of these.</div></blockquote>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

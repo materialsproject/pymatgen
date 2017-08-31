@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.quasiharmonic module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.quasiharmonic module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,31 +56,34 @@
 <span id="pymatgen-analysis-quasiharmonic-module"></span><h1>pymatgen.analysis.quasiharmonic module<a class="headerlink" href="#module-pymatgen.analysis.quasiharmonic" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox">
-<em class="property">class </em><code class="descname">QuasiharmonicDebyeApprox</code><span class="sig-paren">(</span><em>energies</em>, <em>volumes</em>, <em>structure</em>, <em>t_min=300.0</em>, <em>t_step=100</em>, <em>t_max=300.0</em>, <em>eos='vinet'</em>, <em>pressure=0.0</em>, <em>poisson=0.25</em>, <em>use_mie_gruneisen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">QuasiharmonicDebyeApprox</code><span class="sig-paren">(</span><em>energies</em>, <em>volumes</em>, <em>structure</em>, <em>t_min=300.0</em>, <em>t_step=100</em>, <em>t_max=300.0</em>, <em>eos='vinet'</em>, <em>pressure=0.0</em>, <em>poisson=0.25</em>, <em>use_mie_gruneisen=False</em>, <em>anharmonic_contribution=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>energies</strong> (<em>list</em>) &#8211; list of DFT energies in eV</li>
-<li><strong>volumes</strong> (<em>list</em>) &#8211; list of volumes in Ang^3</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; </li>
-<li><strong>t_min</strong> (<em>float</em>) &#8211; min temperature</li>
-<li><strong>t_step</strong> (<em>float</em>) &#8211; temperature step</li>
-<li><strong>t_max</strong> (<em>float</em>) &#8211; max temperature</li>
-<li><strong>eos</strong> (<em>str</em>) &#8211; <p>equation of state used for fitting the energies and the
+<li><strong>energies</strong> (<em>list</em>) – list of DFT energies in eV</li>
+<li><strong>volumes</strong> (<em>list</em>) – list of volumes in Ang^3</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – </li>
+<li><strong>t_min</strong> (<em>float</em>) – min temperature</li>
+<li><strong>t_step</strong> (<em>float</em>) – temperature step</li>
+<li><strong>t_max</strong> (<em>float</em>) – max temperature</li>
+<li><strong>eos</strong> (<em>str</em>) – <p>equation of state used for fitting the energies and the
 volumes.
-options supported by pymatgen: &#8220;quadratic&#8221;, &#8220;murnaghan&#8221;, &#8220;birch&#8221;,</p>
+options supported by pymatgen: “quadratic”, “murnaghan”, “birch”,</p>
 <blockquote>
-<div>&#8220;birch_murnaghan&#8221;, &#8220;pourier_tarantola&#8221;, &#8220;vinet&#8221;,
-&#8220;deltafactor&#8221;, &#8220;numerical_eos&#8221;</div></blockquote>
+<div>”birch_murnaghan”, “pourier_tarantola”, “vinet”,
+“deltafactor”, “numerical_eos”</div></blockquote>
 </li>
-<li><strong>pressure</strong> (<em>float</em>) &#8211; in GPa, optional.</li>
-<li><strong>poisson</strong> (<em>float</em>) &#8211; poisson ratio.</li>
-<li><strong>use_mie_gruneisen</strong> (<em>bool</em>) &#8211; whether or not to use the mie-gruneisen
+<li><strong>pressure</strong> (<em>float</em>) – in GPa, optional.</li>
+<li><strong>poisson</strong> (<em>float</em>) – poisson ratio.</li>
+<li><strong>use_mie_gruneisen</strong> (<em>bool</em>) – whether or not to use the mie-gruneisen
 formulation to compute the gruneisen parameter.
 The default is the slater-gamma formulation.</li>
+<li><strong>anharmonic_contribution</strong> (<em>bool</em>) – whether or not to consider the anharmonic
+contribution to the Debye temperature. Cannot be used with
+use_mie_gruneisen. Defaults to False.</li>
 </ul>
 </td>
 </tr>
@@ -97,7 +97,7 @@ The default is the slater-gamma formulation.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>y</strong> (<em>float</em>) &#8211; debye temperature/T, upper limit</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>y</strong> (<em>float</em>) – debye temperature/T, upper limit</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">unitless</td>
 </tr>
@@ -112,11 +112,18 @@ The default is the slater-gamma formulation.</li>
 <code class="descname">debye_temperature</code><span class="sig-paren">(</span><em>volume</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox.debye_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_temperature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the debye temperature.
 Eq(6) in doi.org/10.1016/j.comphy.2003.12.001. Thanks to Joey.</p>
+<p>Eq(6) above is equivalent to Eq(3) in doi.org/10.1103/PhysRevB.37.790
+which does not consider anharmonic effects. Eq(20) in the same paper
+and Eq(18) in doi.org/10.1016/j.commatsci.2009.12.006 both consider
+anharmonic contributions to the Debye temperature through the Gruneisen
+parameter at 0K (Gruneisen constant).</p>
+<p>The anharmonic contribution is toggled by setting the anharmonic_contribution
+to True or False in the QuasiharmonicDebyeApprox constructor.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>volume</strong> (<em>float</em>) &#8211; in Ang^3</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>volume</strong> (<em>float</em>) – in Ang^3</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">debye temperature in K</td>
 </tr>
@@ -163,8 +170,8 @@ Eq(7) in Blanco et. al. Joumal of Molecular Structure (Theochem)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temperature</strong> (<em>float</em>) &#8211; temperature in K</li>
-<li><strong>volume</strong> (<em>float</em>) &#8211; in Ang^3</li>
+<li><strong>temperature</strong> (<em>float</em>) – temperature in K</li>
+<li><strong>volume</strong> (<em>float</em>) – in Ang^3</li>
 </ul>
 </td>
 </tr>
@@ -213,7 +220,7 @@ minimize it wrt V.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temperature</strong> (<em>float</em>) &#8211; temperature in K</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temperature</strong> (<em>float</em>) – temperature in K</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">G_opt(V_opt, T, P) in eV and V_opt in Ang^3.</td>
 </tr>
@@ -232,8 +239,8 @@ minimize it wrt V.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temperature</strong> (<em>float</em>) &#8211; temperature in K</li>
-<li><strong>volume</strong> (<em>float</em>) &#8211; in Ang^3</li>
+<li><strong>temperature</strong> (<em>float</em>) – temperature in K</li>
+<li><strong>volume</strong> (<em>float</em>) – in Ang^3</li>
 </ul>
 </td>
 </tr>
@@ -257,8 +264,8 @@ Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temperature</strong> (<em>float</em>) &#8211; temperature in K</li>
-<li><strong>volume</strong> (<em>float</em>) &#8211; </li>
+<li><strong>temperature</strong> (<em>float</em>) – temperature in K</li>
+<li><strong>volume</strong> (<em>float</em>) – </li>
 </ul>
 </td>
 </tr>
@@ -282,8 +289,8 @@ Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temperature</strong> (<em>float</em>) &#8211; temperature in K</li>
-<li><strong>volume</strong> (<em>float</em>) &#8211; in Ang^3</li>
+<li><strong>temperature</strong> (<em>float</em>) – temperature in K</li>
+<li><strong>volume</strong> (<em>float</em>) – in Ang^3</li>
 </ul>
 </td>
 </tr>
@@ -337,13 +344,13 @@ Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

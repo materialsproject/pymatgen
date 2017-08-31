@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.surface &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.surface &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -326,11 +323,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            (bool) Whether slab contains inversion symmetry.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">laue</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-1&quot;</span><span class="p">,</span> <span class="s2">&quot;2/m&quot;</span><span class="p">,</span> <span class="s2">&quot;mmm&quot;</span><span class="p">,</span> <span class="s2">&quot;4/m&quot;</span><span class="p">,</span> <span class="s2">&quot;4/mmm&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;-3&quot;</span><span class="p">,</span> <span class="s2">&quot;-3m&quot;</span><span class="p">,</span> <span class="s2">&quot;6/m&quot;</span><span class="p">,</span> <span class="s2">&quot;6/mmm&quot;</span><span class="p">,</span> <span class="s2">&quot;m-3&quot;</span><span class="p">,</span> <span class="s2">&quot;m-3m&quot;</span><span class="p">]</span>
+
         <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span>
-        <span class="n">pg</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_point_group_symbol</span><span class="p">()</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">pg</span><span class="p">)</span> <span class="ow">in</span> <span class="n">laue</span></div>
+        <span class="k">return</span> <span class="n">sg</span><span class="o">.</span><span class="n">is_laue</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Slab.get_sorted_structure"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.Slab.get_sorted_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_sorted_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -431,6 +426,16 @@
         <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">center_of_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the center of mass of the slab</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
+        <span class="n">center_of_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                                    <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">center_of_mass</span>
+
 <div class="viewcode-block" id="Slab.add_adsorbate_atom"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.Slab.add_adsorbate_atom">[docs]</a>    <span class="k">def</span> <span class="nf">add_adsorbate_atom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets the structure of single atom adsorption.</span>
@@ -483,8 +488,8 @@
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Slab.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.Slab.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Slab.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.Slab.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;lattice&quot;</span><span class="p">])</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">PeriodicSite</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="n">lattice</span><span class="p">)</span> <span class="k">for</span> <span class="n">sd</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]]</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
@@ -496,7 +501,114 @@
             <span class="n">oriented_unit_cell</span><span class="o">=</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;oriented_unit_cell&quot;</span><span class="p">]),</span>
             <span class="n">shift</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;shift&quot;</span><span class="p">],</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;scale_factor&quot;</span><span class="p">],</span>
             <span class="n">site_properties</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Slab.get_surface_sites"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.Slab.get_surface_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_surface_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the surface sites and their site indices in a dictionary. The oriented unit</span>
+<span class="sd">        cell of the slab will determine the coordination number of a typical site. We use</span>
+<span class="sd">        VoronoiCoordFinder to determine the coordination number of bulk sites and slab</span>
+<span class="sd">        sites. Due to the pathological error resulting from some surface sites in the</span>
+<span class="sd">        VoronoiCoordFinder, we assume any site that has this error is a surface site as well.</span>
+<span class="sd">        This will work for elemental systems only for now. Useful for analysis involving</span>
+<span class="sd">        broken bonds and for finding adsorption sites.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                decimal (int): The decimal place to determine a unique</span>
+<span class="sd">                    coordination number</span>
+<span class="sd">                tag (bool): Option to adds site attribute &quot;is_surfsite&quot; (bool) to</span>
+<span class="sd">                    all sites of slab. Defaults to False</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                A dictionary grouping sites on top and bottom of the slab together.</span>
+<span class="sd">                    {&quot;top&quot;: [sites with indices], &quot;bottom&quot;: [sites with indices}</span>
+
+<span class="sd">        TODO:</span>
+<span class="sd">            Is there a way to determine site equivalence between sites in a slab and sites</span>
+<span class="sd">            in a bulk system? This would allow us get the coordination number of a specific</span>
+<span class="sd">            site for multi-elemental systems or systems with more than one unequivalent sites</span>
+<span class="sd">            This will allow us to use this for compound systems.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_analyzer</span> <span class="k">import</span> <span class="n">VoronoiCoordFinder</span>
+
+        <span class="c1"># Get a dictionary of coordination numbers for each distinct site in the structure</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="p">)</span>
+        <span class="n">ucell</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+        <span class="n">cn_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">VoronoiCoordFinder</span><span class="p">(</span><span class="n">ucell</span><span class="p">)</span>
+        <span class="n">unique_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">equ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">equ</span> <span class="ow">in</span> <span class="n">ucell</span><span class="o">.</span><span class="n">equivalent_indices</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">unique_indices</span><span class="p">:</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="n">ucell</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span>
+            <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cn_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">cn_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># Since this will get the cn as a result of the weighted polyhedra, the</span>
+            <span class="c1"># slightest difference in cn will indicate a different environment for a</span>
+            <span class="c1"># species, eg. bond distance of each neighbor or neighbor species. We</span>
+            <span class="c1"># need a tol value, the decimal place to get some cn to be equal.</span>
+            <span class="n">cn</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">cn</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">cn</span><span class="p">,</span> <span class="n">decimal</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cn_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]:</span>
+                <span class="n">cn_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cn</span><span class="p">)</span>
+
+        <span class="n">v</span> <span class="o">=</span> <span class="n">VoronoiCoordFinder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">surf_sites_dict</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="p">[]},</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="c1"># Determine if site is closer to the top or bottom of the slab</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">else</span> <span class="kc">False</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># A site is a surface site, if its environment does</span>
+                <span class="c1"># not fit the environment of other sites</span>
+                <span class="n">cn</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">decimal</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cn_dict</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">]:</span>
+                    <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;top&quot;</span> <span class="k">if</span> <span class="n">top</span> <span class="k">else</span> <span class="s2">&quot;bottom&quot;</span>
+                    <span class="n">surf_sites_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">site</span><span class="p">,</span> <span class="n">i</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+                <span class="c1"># or if pathological error is returned, indicating a surface site</span>
+                <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;top&quot;</span> <span class="k">if</span> <span class="n">top</span> <span class="k">else</span> <span class="s2">&quot;bottom&quot;</span>
+                <span class="n">surf_sites_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">site</span><span class="p">,</span> <span class="n">i</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">tag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s2">&quot;is_surf_site&quot;</span><span class="p">,</span> <span class="n">properties</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">surf_sites_dict</span></div>
+
+<div class="viewcode-block" id="Slab.have_equivalent_surfaces"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.Slab.have_equivalent_surfaces">[docs]</a>    <span class="k">def</span> <span class="nf">have_equivalent_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Check if we have same number of equivalent sites on both surfaces.</span>
+        <span class="c1"># This is an alternative to checking Laue symmetry (is_symmetric())</span>
+        <span class="c1"># if we want to ensure both surfaces in the slab are the same</span>
+
+        <span class="c1"># tag the sites as either surface sites or not</span>
+        <span class="n">surf_sites_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_surface_sites</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">a</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">symm_structure</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+
+        <span class="c1"># ensure each site on one surface has a</span>
+        <span class="c1"># corresponding equivalent site on the other</span>
+        <span class="n">equal_surf_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">equ</span> <span class="ow">in</span> <span class="n">symm_structure</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">:</span>
+            <span class="c1"># Top and bottom are arbitrary, we will just determine</span>
+            <span class="c1"># if one site is on one side of the slab or the other</span>
+            <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">equ</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">is_surf_site</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                        <span class="n">top</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">bottom</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># Check to see if the number of equivalent sites</span>
+            <span class="c1"># on one side of the slab are equal to the other</span>
+            <span class="n">equal_surf_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top</span> <span class="o">==</span> <span class="n">bottom</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">equal_surf_sites</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="SlabGenerator"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.SlabGenerator">[docs]</a><span class="k">class</span> <span class="nc">SlabGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -867,7 +979,7 @@
             <span class="c1"># For each unique termination, symmetrize the</span>
             <span class="c1"># surfaces by removing sites from the bottom.</span>
             <span class="k">if</span> <span class="n">symmetrize</span><span class="p">:</span>
-                <span class="n">slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetrize_slab</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nonstoichiometric_symmetrized_slab</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">original_formula</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">slab</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">):</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;WARNING: Stoichiometry is no longer the &quot;</span>
                                   <span class="s2">&quot;same due to symmetrization&quot;</span><span class="p">)</span>
@@ -877,17 +989,16 @@
 
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">new_slabs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">energy</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SlabGenerator.symmetrize_slab"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.SlabGenerator.symmetrize_slab">[docs]</a>    <span class="k">def</span> <span class="nf">symmetrize_slab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+<div class="viewcode-block" id="SlabGenerator.nonstoichiometric_symmetrized_slab"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab">[docs]</a>    <span class="k">def</span> <span class="nf">nonstoichiometric_symmetrized_slab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method checks whether or not the two surfaces of the slab are</span>
 <span class="sd">        equivalent. If the point group of the slab has an inversion symmetry (</span>
 <span class="sd">        ie. belong to one of the Laue groups), then it is assumed that the</span>
 <span class="sd">        surfaces should be equivalent. Otherwise, sites at the bottom of the</span>
-<span class="sd">        slab will be removed until the slab is symmetric. Note that this method</span>
-<span class="sd">        should only be limited to elemental structures as the removal of sites</span>
+<span class="sd">        slab will be removed until the slab is symmetric. Note the removal of sites</span>
 <span class="sd">        can destroy the stoichiometry of the slab. For non-elemental</span>
-<span class="sd">        structures, use is_polar().</span>
+<span class="sd">        structures, the chemical potential will be needed to calculate surface energy.</span>
 
 <span class="sd">        Arg:</span>
 <span class="sd">            slab (Structure): A single slab structure</span>
@@ -897,13 +1008,9 @@
 <span class="sd">            Slab (structure): A symmetrized Slab object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">laue</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-1&quot;</span><span class="p">,</span> <span class="s2">&quot;2/m&quot;</span><span class="p">,</span> <span class="s2">&quot;mmm&quot;</span><span class="p">,</span> <span class="s2">&quot;4/m&quot;</span><span class="p">,</span> <span class="s2">&quot;4/mmm&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;-3&quot;</span><span class="p">,</span> <span class="s2">&quot;-3m&quot;</span><span class="p">,</span> <span class="s2">&quot;6/m&quot;</span><span class="p">,</span> <span class="s2">&quot;6/mmm&quot;</span><span class="p">,</span> <span class="s2">&quot;m-3&quot;</span><span class="p">,</span> <span class="s2">&quot;m-3m&quot;</span><span class="p">]</span>
-
         <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
-        <span class="n">pg</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_point_group_symbol</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">pg</span><span class="p">)</span> <span class="ow">in</span> <span class="n">laue</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sg</span><span class="o">.</span><span class="n">is_laue</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">slab</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">asym</span> <span class="o">=</span> <span class="kc">True</span>
@@ -921,9 +1028,8 @@
                 <span class="c1"># Check if the altered surface is symmetric</span>
 
                 <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
-                <span class="n">pg</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_point_group_symbol</span><span class="p">()</span>
 
-                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">pg</span><span class="p">)</span> <span class="ow">in</span> <span class="n">laue</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sg</span><span class="o">.</span><span class="n">is_laue</span><span class="p">():</span>
                     <span class="n">asym</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">):</span>
@@ -1097,7 +1203,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1105,7 +1211,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

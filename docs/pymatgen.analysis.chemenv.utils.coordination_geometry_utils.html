@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -200,7 +197,7 @@ on the other side of the plane</p>
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_same_plane_as">
 <code class="descname">is_same_plane_as</code><span class="sig-paren">(</span><em>plane</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.html#Plane.is_same_plane_as"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_same_plane_as" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks whether the plane is identical to another Plane &#8220;plane&#8221;
+<dd><p>Checks whether the plane is identical to another Plane “plane”
 :param plane: Plane to be compared to
 :return: True if the two facets are identical, False otherwise</p>
 </dd></dl>
@@ -288,10 +285,10 @@ largest_triangle is defined as the right triangle whose legs are the two smalles
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p1</strong> &#8211; First point</li>
-<li><strong>p2</strong> &#8211; Second point</li>
-<li><strong>p3</strong> &#8211; Third point (origin [0.0, 0.0, 0.0 if not given])</li>
-<li><strong>tolerance</strong> &#8211; Area tolerance for the collinearity test (0.25 gives about 0.125 deviation from the line)</li>
+<li><strong>p1</strong> – First point</li>
+<li><strong>p2</strong> – Second point</li>
+<li><strong>p3</strong> – Third point (origin [0.0, 0.0, 0.0 if not given])</li>
+<li><strong>tolerance</strong> – Area tolerance for the collinearity test (0.25 gives about 0.125 deviation from the line)</li>
 </ul>
 </td>
 </tr>
@@ -323,7 +320,7 @@ obtained automatically.</dd>
 <dd><blockquote class="first">
 <div><blockquote>
 <div><blockquote>
-<div>p&#8211;y                    x&#8212;-b</div></blockquote>
+<div>p–y                    x—-b</div></blockquote>
 <p>/  /|                    <a href="#id1"><span class="problematic" id="id2">|</span></a>                      /  / |                    |    q</p>
 </div></blockquote>
 <p>/  /  |                    a    |</p>
@@ -331,7 +328,7 @@ obtained automatically.</dd>
 <p class="last">a  /   |                       |
 | /    q                       |
 <a href="#id3"><span class="problematic" id="id4">|</span></a>/    /                         |
-x&#8212;-b                          p&#8211;y</p>
+x—-b                          p–y</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -342,8 +339,8 @@ x&#8212;-b                          p&#8211;y</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>xx</strong> &#8211; First point</li>
-<li><strong>yy</strong> &#8211; Second point</li>
+<li><strong>xx</strong> – First point</li>
+<li><strong>yy</strong> – Second point</li>
 </ul>
 </td>
 </tr>
@@ -363,19 +360,19 @@ x&#8212;-b                          p&#8211;y</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>f1</strong> &#8211; First function to compare</li>
-<li><strong>f2</strong> &#8211; Second function to compare</li>
-<li><strong>x1</strong> &#8211; Lower bound of the interval to compare</li>
-<li><strong>x2</strong> &#8211; Upper bound of the interval to compare</li>
-<li><strong>numpoints_check</strong> &#8211; Number of points used to compare the functions</li>
+<li><strong>f1</strong> – First function to compare</li>
+<li><strong>f2</strong> – Second function to compare</li>
+<li><strong>x1</strong> – Lower bound of the interval to compare</li>
+<li><strong>x2</strong> – Upper bound of the interval to compare</li>
+<li><strong>numpoints_check</strong> – Number of points used to compare the functions</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><dl class="docutils">
-<dt>Whether the function are equal (&#8220;=&#8221;), f1 is always lower than f2 (&#8220;&lt;&#8221;), f1 is always larger than f2 (&#8220;&gt;&#8221;),</dt>
-<dd><p class="first last">f1 is always lower than or equal to f2 (&#8220;&lt;&#8221;), f1 is always larger than or equal to f2 (&#8220;&gt;&#8221;) on the
+<dt>Whether the function are equal (“=”), f1 is always lower than f2 (“&lt;”), f1 is always larger than f2 (“&gt;”),</dt>
+<dd><p class="first last">f1 is always lower than or equal to f2 (“&lt;”), f1 is always larger than or equal to f2 (“&gt;”) on the
 interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
-functions that do not cross...)</p>
+functions that do not cross…)</p>
 </dd>
 </dl>
 </p>
@@ -417,8 +414,8 @@ functions that do not cross...)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>MM</strong> &#8211; A matrix of size 3x3</li>
-<li><strong>aa</strong> &#8211; A vector of size 3</li>
+<li><strong>MM</strong> – A matrix of size 3x3</li>
+<li><strong>aa</strong> – A vector of size 3</li>
 </ul>
 </td>
 </tr>
@@ -439,8 +436,8 @@ center.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>center</strong> &#8211; Center to measure solid angle from.</li>
-<li><strong>coords</strong> &#8211; List of coords to determine solid angle.</li>
+<li><strong>center</strong> – Center to measure solid angle from.</li>
+<li><strong>coords</strong> – List of coords to determine solid angle.</li>
 </ul>
 </td>
 </tr>
@@ -461,8 +458,8 @@ be aligned with the axes. The two ellipsis pass through the two points xx and yy
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>xx</strong> &#8211; First point</li>
-<li><strong>yy</strong> &#8211; Second point</li>
+<li><strong>xx</strong> – First point</li>
+<li><strong>yy</strong> – Second point</li>
 </ul>
 </td>
 </tr>
@@ -483,13 +480,13 @@ defined by two functions f_lower and f_upper.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rectangle</strong> &#8211; Rectangle defined as : ((x1, x2), (y1, y2)).</li>
-<li><strong>f_lower</strong> &#8211; Function defining the lower bound of the surface.</li>
-<li><strong>f_upper</strong> &#8211; Function defining the upper bound of the surface.</li>
-<li><strong>bounds_lower</strong> &#8211; Interval in which the f_lower function is defined.</li>
-<li><strong>bounds_upper</strong> &#8211; Interval in which the f_upper function is defined.</li>
-<li><strong>check</strong> &#8211; Whether to check if f_lower is always lower than f_upper.</li>
-<li><strong>numpoints_check</strong> &#8211; Number of points used to check whether f_lower is always lower than f_upper</li>
+<li><strong>rectangle</strong> – Rectangle defined as : ((x1, x2), (y1, y2)).</li>
+<li><strong>f_lower</strong> – Function defining the lower bound of the surface.</li>
+<li><strong>f_upper</strong> – Function defining the upper bound of the surface.</li>
+<li><strong>bounds_lower</strong> – Interval in which the f_lower function is defined.</li>
+<li><strong>bounds_upper</strong> – Interval in which the f_upper function is defined.</li>
+<li><strong>check</strong> – Whether to check if f_lower is always lower than f_upper.</li>
+<li><strong>numpoints_check</strong> – Number of points used to check whether f_lower is always lower than f_upper</li>
 </ul>
 </td>
 </tr>
@@ -532,9 +529,9 @@ defined by two functions f_lower and f_upper.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lower_points</strong> &#8211; Points defining the lower function.</li>
-<li><strong>upper_points</strong> &#8211; Points defining the upper function.</li>
-<li><strong>degree</strong> &#8211; Degree for the spline function</li>
+<li><strong>lower_points</strong> – Points defining the lower function.</li>
+<li><strong>upper_points</strong> – Points defining the upper function.</li>
+<li><strong>degree</strong> – Degree for the spline function</li>
 </ul>
 </td>
 </tr>
@@ -594,13 +591,13 @@ defined by two functions f_lower and f_upper.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

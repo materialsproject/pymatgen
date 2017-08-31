@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.apps.battery.conversion_battery &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.apps.battery.conversion_battery &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -116,8 +113,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_working_ion</span> <span class="o">=</span> <span class="n">ion_el</span><span class="o">.</span><span class="n">symbol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vpairs</span> <span class="o">=</span> <span class="n">voltage_pairs</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="ConversionElectrode.from_composition_and_pd"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd">[docs]</a>    <span class="k">def</span> <span class="nf">from_composition_and_pd</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">working_ion_symbol</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="ConversionElectrode.from_composition_and_pd"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_composition_and_pd</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">working_ion_symbol</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience constructor to make a ConversionElectrode from a</span>
 <span class="sd">        composition and a phase diagram.</span>
@@ -164,8 +161,8 @@
                   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">ConversionElectrode</span><span class="p">(</span><span class="n">vpairs</span><span class="p">,</span> <span class="n">working_ion_entry</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="ConversionElectrode.from_composition_and_entries"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries">[docs]</a>    <span class="k">def</span> <span class="nf">from_composition_and_entries</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">entries_in_chemsys</span><span class="p">,</span>
+<div class="viewcode-block" id="ConversionElectrode.from_composition_and_entries"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_composition_and_entries</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">entries_in_chemsys</span><span class="p">,</span>
                                      <span class="n">working_ion_symbol</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience constructor to make a ConversionElectrode from a</span>
@@ -299,8 +296,8 @@
                           <span class="bp">self</span><span class="o">.</span><span class="n">get_energy_density</span><span class="p">())]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ConversionElectrode.from_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="ConversionElectrode.from_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;voltage_pairs&quot;</span><span class="p">]),</span>
                    <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;working_ion_entry&quot;</span><span class="p">]),</span>
@@ -410,8 +407,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_entries_charge</span> <span class="o">=</span> <span class="n">entries_charge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_entries_discharge</span> <span class="o">=</span> <span class="n">entries_discharge</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="ConversionVoltagePair.from_steps"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_steps">[docs]</a>    <span class="k">def</span> <span class="nf">from_steps</span><span class="p">(</span><span class="n">step1</span><span class="p">,</span> <span class="n">step2</span><span class="p">,</span> <span class="n">normalization_els</span><span class="p">):</span>
+<div class="viewcode-block" id="ConversionVoltagePair.from_steps"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_steps">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_steps</span><span class="p">(</span><span class="n">step1</span><span class="p">,</span> <span class="n">step2</span><span class="p">,</span> <span class="n">normalization_els</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a ConversionVoltagePair from two steps in the element profile</span>
 <span class="sd">        from a PD analysis.</span>
@@ -553,8 +550,8 @@
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ConversionVoltagePair.from_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="ConversionVoltagePair.from_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="n">working_ion_entry</span> <span class="o">=</span> <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;working_ion_entry&quot;</span><span class="p">])</span>
         <span class="n">balanced_rxn</span> <span class="o">=</span> <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;balanced_rxn&quot;</span><span class="p">])</span>
@@ -612,7 +609,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -620,7 +617,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

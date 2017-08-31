@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.entries.compatibility &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.entries.compatibility &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -73,6 +70,7 @@
 
 <span class="kn">from</span> <span class="nn">monty.design_patterns</span> <span class="k">import</span> <span class="n">cached_class</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.sets</span> <span class="k">import</span> <span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">MPRelaxSet</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
@@ -117,8 +115,8 @@
 <span class="sd">    correct_entry method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-<div class="viewcode-block" id="Correction.get_correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction.get_correction">[docs]</a>    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+<div class="viewcode-block" id="Correction.get_correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction.get_correction">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns correction for a single entry.</span>
 
@@ -225,8 +223,8 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Potcar Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_set</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
-<span class="nd">@cached_class</span>
-<div class="viewcode-block" id="GasCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.GasCorrection">[docs]</a><span class="k">class</span> <span class="nc">GasCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+<div class="viewcode-block" id="GasCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.GasCorrection">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">GasCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Correct anion energies to obtain the right formation energies. Note that</span>
 <span class="sd">    this depends on calculations being run within the same input set.</span>
@@ -255,8 +253,8 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Gas Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
-<span class="nd">@cached_class</span>
-<div class="viewcode-block" id="AnionCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AnionCorrection">[docs]</a><span class="k">class</span> <span class="nc">AnionCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+<div class="viewcode-block" id="AnionCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AnionCorrection">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">AnionCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Correct gas energies to obtain the right formation energies. Note that</span>
 <span class="sd">    this depends on calculations being run within the same input set.</span>
@@ -340,8 +338,8 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Anion Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
-<span class="nd">@cached_class</span>
-<div class="viewcode-block" id="AqueousCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AqueousCorrection">[docs]</a><span class="k">class</span> <span class="nc">AqueousCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+<div class="viewcode-block" id="AqueousCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AqueousCorrection">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">AqueousCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements aqueous phase compound corrections for elements</span>
 <span class="sd">    and H2O.</span>
@@ -373,8 +371,8 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Aqueous Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
-<span class="nd">@cached_class</span>
-<div class="viewcode-block" id="UCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.UCorrection">[docs]</a><span class="k">class</span> <span class="nc">UCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+<div class="viewcode-block" id="UCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.UCorrection">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">UCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements the GGA/GGA+U mixing scheme, which allows mixing of</span>
 <span class="sd">    entries. Entry.parameters must contain a &quot;hubbards&quot; key which is a dict</span>
@@ -451,7 +449,7 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Compatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility">[docs]</a><span class="k">class</span> <span class="nc">Compatibility</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Compatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility">[docs]</a><span class="k">class</span> <span class="nc">Compatibility</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The Compatibility class combines a list of corrections to be applied to</span>
 <span class="sd">    an entry or a set of entries. Note that some of the Corrections have</span>
@@ -600,6 +598,9 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
         <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MPCompatibility.yaml&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MaterialsProjectCompatibility</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
@@ -630,6 +631,9 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
         <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MITCompatibility.yaml&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MITCompatibility</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
@@ -660,6 +664,9 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
         <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MITCompatibility.yaml&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MITAqueousCompatibility</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
@@ -691,6 +698,9 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
         <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MPCompatibility.yaml&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MaterialsProjectAqueousCompatibility</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
@@ -727,7 +737,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -735,7 +745,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

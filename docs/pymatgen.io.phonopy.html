@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.phonopy module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.phonopy module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -72,10 +69,10 @@ multiplicative and phase factors are set to 1.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>v</strong> &#8211; the vector that should be converted. A 3D complex numpy array.</li>
-<li><strong>q</strong> &#8211; the q point in fractional coordinates</li>
-<li><strong>frac_coords</strong> &#8211; the fractional coordinates of the atom</li>
-<li><strong>mass</strong> &#8211; the mass of the atom</li>
+<li><strong>v</strong> – the vector that should be converted. A 3D complex numpy array.</li>
+<li><strong>q</strong> – the q point in fractional coordinates</li>
+<li><strong>frac_coords</strong> – the fractional coordinates of the atom</li>
+<li><strong>mass</strong> – the mass of the atom</li>
 </ul>
 </td>
 </tr>
@@ -94,8 +91,8 @@ the structure.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>partial_dos_path</strong> &#8211; path to the partial_dos.dat file.</li>
-<li><strong>phonopy_yaml_path</strong> &#8211; path to the phonopy.yaml file.</li>
+<li><strong>partial_dos_path</strong> – path to the partial_dos.dat file.</li>
+<li><strong>phonopy_yaml_path</strong> – path to the phonopy.yaml file.</li>
 </ul>
 </td>
 </tr>
@@ -108,7 +105,7 @@ the structure.</p>
 <code class="descname">get_ph_bs_symm_line</code><span class="sig-paren">(</span><em>bands_path</em>, <em>has_nac=False</em>, <em>labels_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_ph_bs_symm_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_bs_symm_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen PhononBandStructure from a band.yaml file.
 The labels will be extracted from the dictionary, if present.
-If the &#8216;eigenvector&#8217;  key is found the eigendisplacements will be
+If the ‘eigenvector’  key is found the eigendisplacements will be
 calculated according to the formula:
 exp(2*pi*i*(frac_coords dot q) / sqrt(mass) * v</p>
 <blockquote>
@@ -118,10 +115,10 @@ exp(2*pi*i*(frac_coords dot q) / sqrt(mass) * v</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>bands_path</strong> &#8211; path to the band.yaml file</li>
-<li><strong>has_nac</strong> &#8211; True if the data have been obtained with the option
-&#8211;nac option. Default False.</li>
-<li><strong>labels_dict</strong> &#8211; dict that links a qpoint in frac coords to a label.</li>
+<li><strong>bands_path</strong> – path to the band.yaml file</li>
+<li><strong>has_nac</strong> – True if the data have been obtained with the option
+–nac option. Default False.</li>
+<li><strong>labels_dict</strong> – dict that links a qpoint in frac coords to a label.</li>
 </ul>
 </td>
 </tr>
@@ -134,7 +131,7 @@ exp(2*pi*i*(frac_coords dot q) / sqrt(mass) * v</p>
 <code class="descname">get_ph_bs_symm_line_from_dict</code><span class="sig-paren">(</span><em>bands_dict</em>, <em>has_nac=False</em>, <em>labels_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_ph_bs_symm_line_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_bs_symm_line_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen PhononBandStructure object from the dictionary
 extracted by the band.yaml file produced by phonopy. The labels
-will be extracted from the dictionary, if present. If the &#8216;eigenvector&#8217;
+will be extracted from the dictionary, if present. If the ‘eigenvector’
 key is found the eigendisplacements will be calculated according to the
 formula:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">frac_coords</span> \<span class="n">dot</span> <span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">mass</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span>
@@ -146,10 +143,10 @@ formula:</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>bands_dict</strong> &#8211; the dictionary extracted from the band.yaml file</li>
-<li><strong>has_nac</strong> &#8211; True if the data have been obtained with the option
-&#8211;nac option. Default False.</li>
-<li><strong>labels_dict</strong> &#8211; dict that links a qpoint in frac coords to a label.
+<li><strong>bands_dict</strong> – the dictionary extracted from the band.yaml file</li>
+<li><strong>has_nac</strong> – True if the data have been obtained with the option
+–nac option. Default False.</li>
+<li><strong>labels_dict</strong> – dict that links a qpoint in frac coords to a label.
 Its value will replace the data contained in the band.yaml.</li>
 </ul>
 </td>
@@ -166,7 +163,7 @@ Its value will replace the data contained in the band.yaml.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>total_dos_path</strong> &#8211; path to the total_dos.dat file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>total_dos_path</strong> – path to the total_dos.dat file.</td>
 </tr>
 </tbody>
 </table>
@@ -177,7 +174,7 @@ Its value will replace the data contained in the band.yaml.</li>
 <code class="descname">get_structure_from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_structure_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_structure_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts a structure from the dictionary extracted from the output
 files of phonopy like phonopy.yaml or band.yaml.
-Adds &#8220;phonopy_masses&#8221; in the site_properties of the structures.
+Adds “phonopy_masses” in the site_properties of the structures.
 Compatible with older phonopy versions.</p>
 </dd></dl>
 
@@ -219,13 +216,13 @@ Compatible with older phonopy versions.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

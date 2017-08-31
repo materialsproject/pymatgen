@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -668,7 +665,7 @@ MultipleAbundanceChemenvStrategy object created using the as_dict method.
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy">
 <em class="property">class </em><code class="descname">SimpleAbundanceChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>additional_condition=1</em>, <em>symmetry_measure_type='csm_wcs_ctwcc'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SimpleAbundanceChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy</span></code></a></p>
-<p>Simple ChemenvStrategy using the neighbors that are the most &#8220;abundant&#8221; in the grid of angle and distance
+<p>Simple ChemenvStrategy using the neighbors that are the most “abundant” in the grid of angle and distance
 parameters for the definition of neighbors in the Voronoi approach.
 The coordination environment is then given as the one with the lowest continuous symmetry measure</p>
 <p>Constructor for the SimpleAbundanceChemenvStrategy.
@@ -865,7 +862,7 @@ created using the as_dict method.
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy">
 <em class="property">class </em><code class="descname">TargettedPenaltiedAbundanceChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None, truncate_dist_ang=True, additional_condition=1, max_nabundant=5, target_environments=['O:6'], target_penalty_type='max_csm', max_csm=5.0, symmetry_measure_type='csm_wcs_ctwcc'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#TargettedPenaltiedAbundanceChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy</span></code></a></p>
-<p>Simple ChemenvStrategy using the neighbors that are the most &#8220;abundant&#8221; in the grid of angle and distance
+<p>Simple ChemenvStrategy using the neighbors that are the most “abundant” in the grid of angle and distance
 parameters for the definition of neighbors in the Voronoi approach, with a bias for a given list of target
 environments. This can be useful in the case of, e.g. connectivity search of some given environment.
 The coordination environment is then given as the one with the lowest continuous symmetry measure</p>
@@ -950,13 +947,13 @@ TargettedPenaltiedAbundanceChemenvStrategy object created using the as_dict meth
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

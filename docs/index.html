@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Introduction &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>Introduction &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,7 +34,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -50,7 +47,7 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -82,10 +79,10 @@ Database.</li>
 <p>Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
-reports. Please report any bugs and issues at pymatgen&#8217;s <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues">Github Issues
+reports. Please report any bugs and issues at pymatgen’s <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues">Github Issues
 page</a>. If you wish to
 be notified of pymatgen releases and need help with using pymatgen, please
-become a member of <a class="reference external" href="https://groups.google.com/forum/?fromgroups#!forum/pymatgen/">pymatgen&#8217;s Google Groups</a>.</p>
+become a member of <a class="reference external" href="https://groups.google.com/forum/?fromgroups#!forum/pymatgen/">pymatgen’s Google Groups</a>.</p>
 <blockquote>
 <div><em>The code is mightier than the pen.</em></div></blockquote>
 </div>
@@ -102,8 +99,8 @@ Below are a quick look at some of the graphical output possible.</p>
 <div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="_images/examples.png"><img alt="Examples" src="_images/examples.png" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
-Bottom left: Calculated bandstructure plot using pymatgen&#8217;s parsing and
-plotting utilities. Bottom right: Arrhenius plot using pymatgen&#8217;s
+Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
+plotting utilities. Bottom right: Arrhenius plot using pymatgen’s
 DiffusionAnalyzer.</span></p>
 </div>
 </div>
@@ -145,16 +142,10 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 </div>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2017-8-4">
-<h2>v2017.8.4<a class="headerlink" href="#v2017-8-4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2017-8-21">
+<h2>v2017.8.21<a class="headerlink" href="#v2017-8-21" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Major refactoring and improvements to lammps io. (Kiran)</li>
-<li>Major improvements to BaderAnalysis. (Joey and Zhi)</li>
-<li>Major improvements to Magmom support in cifs, SOC calculations, etc.
-(Matthew Horton)</li>
-<li>Add remove_site_property function. Add magmom for Eu3+ and Eu2+.</li>
-<li>BoltztrapAnalyzer/Plotter support for seebeck effective mass and complexity
-factor (fraricci)</li>
+<li>Minor bug fixes.</li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -187,8 +178,8 @@ dependencies manually.</p>
 fact, unless you are very sure you have dependencies that require Python
 2, it is highly recommended that you use latest Python 3.x.</li>
 <li>Installation has been tested to be most successful with gcc. Use gcc
-where possible and do &#8220;export CC=gcc&#8221; prior to installation.</li>
-<li>Numpy&#8217;s distutils is needed to compile the spglib and pyhull
+where possible and do “export CC=gcc” prior to installation.</li>
+<li>Numpy’s distutils is needed to compile the spglib and pyhull
 dependencies. Numpy should be the first thing you install.</li>
 <li>One of the best things you can do is to use conda to manage all this.
 The instructions for <a class="reference internal" href="#shared-cluster-installation">Shared cluster installation</a> pretty much
@@ -276,7 +267,7 @@ conda install --yes pymatgen
 typical workflow would involve a user converting data (structure, calculations,
 etc.) from various sources (first principles calculations, crystallographic and
 molecule input files, Materials Project, etc.) into Python objects using
-pymatgen&#8217;s io packages, which are then used to perform further structure
+pymatgen’s io packages, which are then used to perform further structure
 manipulation or analyses.</p>
 <div class="section" id="quick-start">
 <span id="id1"></span><h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
@@ -471,7 +462,7 @@ pmg. The typical usage of pmg is:</p>
 With effect from v4.6.0, <code class="docutils literal"><span class="pre">pmg</span></code> also supports bash completion using
 argcomplete, which is useful given the many options available in the cli tool.
 To enable argcomplete, <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">argcomplete</span></code> and either follow
-argcomplete&#8217;s instructions for enabling global completion, or add the following
+argcomplete’s instructions for enabling global completion, or add the following
 line to your <code class="docutils literal"><span class="pre">.bash_profile</span></code> (this method usually works more reliably):</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">eval</span> <span class="s2">&quot;$(register-python-argcomplete pmg)&quot;</span>
 </pre></div>
@@ -542,7 +533,7 @@ publications) in pymatgen.</p>
 <div class="section" id="reporting-bugs">
 <h2>Reporting bugs<a class="headerlink" href="#reporting-bugs" title="Permalink to this headline">¶</a></h2>
 <p>A simple way that anyone can contribute is simply to report bugs and issues
-to the developing team. You can either send an email to the <a href="#id4"><span class="problematic" id="id5">`pymatgen&#8217;s
+to the developing team. You can either send an email to the <a href="#id4"><span class="problematic" id="id5">`pymatgen's
 Google Groups page`_</span></a> or even better, submit an Issue in our <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues">Github page</a>.</p>
 </div>
 <div class="section" id="developing-new-functionality">
@@ -562,7 +553,7 @@ Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
 Persson, Gerbrand Ceder. <em>Python Materials Genomics (pymatgen) : A Robust,
 Open-Source Python Library for Materials Analysis.</em> Computational
 Materials Science, 2013, 68, 314–319. <a class="reference external" href="http://dx.doi.org/10.1016/j.commatsci.2012.10.028">doi:10.1016/j.commatsci.2012.10.028</a></div></blockquote>
-<p>In addition, some of pymatgen&#8217;s functionality is based on scientific advances
+<p>In addition, some of pymatgen’s functionality is based on scientific advances
 / principles developed by various scientists. Please refer to the
 <a class="reference internal" href="references.html"><span class="doc">references page</span></a> for citation info.</p>
 </div>
@@ -640,7 +631,7 @@ to indicate the copyright and license terms:</p>
 <li><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li><a class="reference internal" href="#change-log">Change log</a><ul>
-<li><a class="reference internal" href="#v2017-8-4">v2017.8.4</a></li>
+<li><a class="reference internal" href="#v2017-8-21">v2017.8.21</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a><ul>
@@ -705,13 +696,13 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

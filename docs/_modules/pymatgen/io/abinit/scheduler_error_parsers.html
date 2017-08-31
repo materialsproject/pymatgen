@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.scheduler_error_parsers &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.scheduler_error_parsers &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -84,8 +81,8 @@
                   <span class="s1">&#39;NodeFailureError&#39;</span><span class="p">]</span>
 
 
-<span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
-<div class="viewcode-block" id="CorrectorProtocolScheduler"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler">[docs]</a><span class="k">class</span> <span class="nc">CorrectorProtocolScheduler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectorProtocolScheduler"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CorrectorProtocolScheduler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission</span>
 <span class="sd">    script generator method / ... should implement these methods.</span>
@@ -96,8 +93,8 @@
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">()</span>
 
-    <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="CorrectorProtocolScheduler.exclude_nodes"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler.exclude_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">exclude_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectorProtocolScheduler.exclude_nodes"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler.exclude_nodes">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">exclude_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to exclude certain nodes from being used in the calculation. It is called when a calculation seemed to</span>
 <span class="sd">        have been crashed due to a hardware failure at the nodes specified.</span>
@@ -107,8 +104,8 @@
 <span class="sd">        returns True if the memory could be increased False otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-    <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="CorrectorProtocolScheduler.increase_mem"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler.increase_mem">[docs]</a>    <span class="k">def</span> <span class="nf">increase_mem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectorProtocolScheduler.increase_mem"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler.increase_mem">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">increase_mem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to increase then memory in the calculation. It is called when a calculation seemed to have been crashed</span>
 <span class="sd">        due to a insufficient memory.</span>
@@ -116,8 +113,8 @@
 <span class="sd">        returns True if the memory could be increased False otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-    <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="CorrectorProtocolScheduler.increase_time"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler.increase_time">[docs]</a>    <span class="k">def</span> <span class="nf">increase_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectorProtocolScheduler.increase_time"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler.increase_time">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">increase_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to increase te time for the calculation. It is called when a calculation seemed to</span>
 <span class="sd">        have been crashed due to a time limit.</span>
@@ -125,8 +122,8 @@
 <span class="sd">        returns True if the memory could be increased False otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-    <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="CorrectorProtocolScheduler.increase_cpus"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler.increase_cpus">[docs]</a>    <span class="k">def</span> <span class="nf">increase_cpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectorProtocolScheduler.increase_cpus"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolScheduler.increase_cpus">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">increase_cpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to increse the number of cpus being used in the calculation. It is called when a calculation seemed to</span>
 <span class="sd">        have been crashed due to time or memory limits being broken.</span>
@@ -135,8 +132,8 @@
 <span class="sd">        &quot;&quot;&quot;</span></div></div>
 
 
-<span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
-<div class="viewcode-block" id="CorrectorProtocolApplication"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolApplication">[docs]</a><span class="k">class</span> <span class="nc">CorrectorProtocolApplication</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectorProtocolApplication"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolApplication">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CorrectorProtocolApplication</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission</span>
 <span class="sd">    script generator method / ... should implement these methods.</span>
@@ -147,8 +144,8 @@
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">()</span>
 
-    <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="CorrectorProtocolApplication.decrease_mem"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolApplication.decrease_mem">[docs]</a>    <span class="k">def</span> <span class="nf">decrease_mem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectorProtocolApplication.decrease_mem"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolApplication.decrease_mem">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">decrease_mem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to increase then memory in the calculation. It is called when a calculation seemed to have been crashed</span>
 <span class="sd">        due to a insufficient memory.</span>
@@ -156,8 +153,8 @@
 <span class="sd">        returns True if the memory could be increased False otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-    <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="CorrectorProtocolApplication.speed_up"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolApplication.speed_up">[docs]</a>    <span class="k">def</span> <span class="nf">speed_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectorProtocolApplication.speed_up"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.CorrectorProtocolApplication.speed_up">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">speed_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to speed_up the calculation. It is called when a calculation seemed to time limits being broken.</span>
 
@@ -165,8 +162,8 @@
 <span class="sd">        &quot;&quot;&quot;</span></div></div>
 
 
-<span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
-<div class="viewcode-block" id="AbstractError"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.AbstractError">[docs]</a><span class="k">class</span> <span class="nc">AbstractError</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractError"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.AbstractError">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">AbstractError</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Error base class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -294,8 +291,8 @@
         <span class="k">return</span> <span class="p">[(</span><span class="n">CorrectorProtocolScheduler</span><span class="o">.</span><span class="n">exclude_nodes</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">])]</span></div>
 
 
-<span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
-<div class="viewcode-block" id="AbstractErrorParser"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.AbstractErrorParser">[docs]</a><span class="k">class</span> <span class="nc">AbstractErrorParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractErrorParser"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.AbstractErrorParser">[docs]</a><span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">AbstractErrorParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class for parsing errors originating from the scheduler system and error that are not reported by the</span>
 <span class="sd">    program itself, i.e. segmentation faults.</span>
@@ -321,8 +318,8 @@
     <span class="k">def</span> <span class="nf">error_definitions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="AbstractErrorParser.extract_metadata"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.AbstractErrorParser.extract_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">extract_metadata</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">meta_filter</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractErrorParser.extract_metadata"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.AbstractErrorParser.extract_metadata">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract_metadata</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">meta_filter</span><span class="p">):</span>
         <span class="n">meta_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">meta_filter</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
@@ -524,7 +521,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -532,7 +529,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -67,7 +64,7 @@ balanced, given an oxidation state-decorated structure.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_balance_sp</strong> &#8211; specie to add or remove. Currently only removal
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_balance_sp</strong> – specie to add or remove. Currently only removal
 is supported</td>
 </tr>
 </tbody>
@@ -99,27 +96,27 @@ is supported</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dopant</strong> (<em>Specie-like</em>) &#8211; E.g., Al3+. Must have oxidation state.</li>
-<li><strong>ionic_radius_tol</strong> (<em>float</em>) &#8211; E.g., Fractional allowable ionic radii
+<li><strong>dopant</strong> (<em>Specie-like</em>) – E.g., Al3+. Must have oxidation state.</li>
+<li><strong>ionic_radius_tol</strong> (<em>float</em>) – E.g., Fractional allowable ionic radii
 mismatch for dopant to fit into a site. Default of inf means
 that any dopant with the right oxidation state is allowed.</li>
-<li><strong>min_Length</strong> (<em>float</em>) &#8211; Min. lattice parameter between periodic
+<li><strong>min_Length</strong> (<em>float</em>) – Min. lattice parameter between periodic
 images of dopant. Defaults to 10A for now.</li>
-<li><strong>alio_tol</strong> (<em>int</em>) &#8211; If this is not 0, attempt will be made to dope
+<li><strong>alio_tol</strong> (<em>int</em>) – If this is not 0, attempt will be made to dope
 sites with oxidation_states +- alio_tol of the dopant. E.g.,
 1 means that the ions like Ca2+ and Ti4+ are considered as
 potential doping sites for Al3+.</li>
-<li><strong>codopant</strong> (<em>bool</em>) &#8211; If True, doping will be carried out with a
+<li><strong>codopant</strong> (<em>bool</em>) – If True, doping will be carried out with a
 codopant to maintain charge neutrality. Otherwise, vacancies
 will be used.</li>
-<li><strong>max_structures_per_enum</strong> (<em>float</em>) &#8211; Maximum number of structures to
+<li><strong>max_structures_per_enum</strong> (<em>float</em>) – Maximum number of structures to
 return per enumeration. Note that there can be more than one
 candidate doping site, and each site enumeration will return at
 max max_structures_per_enum structures. Defaults to 100.</li>
-<li><strong>allowed_doping_species</strong> (<em>list</em>) &#8211; Species that are allowed to be
+<li><strong>allowed_doping_species</strong> (<em>list</em>) – Species that are allowed to be
 doping sites. This is an inclusionary list. If specified,
 any sites which are not</li>
-<li><strong>**kwargs</strong> &#8211; Same keyword args as <a class="reference internal" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal"><span class="pre">EnumerateStructureTransformation</span></code></a>,
+<li><strong>**kwargs</strong> – Same keyword args as <a class="reference internal" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal"><span class="pre">EnumerateStructureTransformation</span></code></a>,
 i.e., min_cell_size, etc.</li>
 </ul>
 </td>
@@ -133,11 +130,11 @@ i.e., min_cell_size, etc.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure to dope</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure to dope</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Structure, &#8220;energy&#8221;: float}]</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Structure, “energy”: float}]</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">[{&#8220;structure&#8221;</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">[{“structure”</td>
 </tr>
 </tbody>
 </table>
@@ -167,10 +164,10 @@ transformation, and at a much faster speed.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>min_cell_size</strong> &#8211; The minimum cell size wanted. Must be an int. Defaults to 1.</li>
-<li><strong>max_cell_size</strong> &#8211; The maximum cell size wanted. Must be an int. Defaults to 1.</li>
-<li><strong>symm_prec</strong> &#8211; Tolerance to use for symmetry.</li>
-<li><strong>refine_structure</strong> &#8211; This parameter has the same meaning as in enumlib_caller.
+<li><strong>min_cell_size</strong> – The minimum cell size wanted. Must be an int. Defaults to 1.</li>
+<li><strong>max_cell_size</strong> – The maximum cell size wanted. Must be an int. Defaults to 1.</li>
+<li><strong>symm_prec</strong> – Tolerance to use for symmetry.</li>
+<li><strong>refine_structure</strong> – This parameter has the same meaning as in enumlib_caller.
 If you are starting from a structure that has been relaxed via
 some electronic structure code, it is usually much better to
 start with symmetry determination and then obtain a refined
@@ -180,10 +177,10 @@ which makes it much less sensitive precision issues in enumlib.
 If you are already starting from an experimental cif, refinment
 should have already been done and it is not necessary. Defaults
 to False.</li>
-<li><strong>enum_precision_parameter</strong> (<em>float</em>) &#8211; Finite precision parameter for
+<li><strong>enum_precision_parameter</strong> (<em>float</em>) – Finite precision parameter for
 enumlib. Default of 0.001 is usually ok, but you might need to
 tweak it for certain cells.</li>
-<li><strong>check_ordered_symmetry</strong> (<em>bool</em>) &#8211; Whether to check the symmetry of
+<li><strong>check_ordered_symmetry</strong> (<em>bool</em>) – Whether to check the symmetry of
 the ordered sites. If the symmetry of the ordered sites is
 lower, the lowest symmetry ordered sites is included in the
 enumeration. This is important if the ordered sites break
@@ -206,8 +203,8 @@ structures.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> &#8211; Structure to order.</li>
-<li><strong>return_ranked_list</strong> (<em>bool</em>) &#8211; Whether or not multiple structures are
+<li><strong>structure</strong> – Structure to order.</li>
+<li><strong>return_ranked_list</strong> (<em>bool</em>) – Whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
 structures is returned.</li>
 </ul>
@@ -215,7 +212,7 @@ structures is returned.</li>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>Depending on returned_ranked list, either a transformed structure
 or a list of dictionaries, where each dictionary is of the form
-{&#8220;structure&#8221; = .... , &#8220;other_arguments&#8221;}</p>
+{“structure” = …. , “other_arguments”}</p>
 <p>The list of ordered structures is ranked by ewald energy / atom, if
 the input structure is an oxidation state decorated structure.
 Otherwise, it is ranked by number of sites, with smallest number of
@@ -250,13 +247,13 @@ orderings. Currently only works for ordered structures.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mag_elements_spin</strong> &#8211; A mapping of elements/species to magnetically order to spin
-magnitudes. E.g., {&#8220;Fe3+&#8221;: 5, &#8220;Mn3+&#8221;: 4}</li>
-<li><strong>order_parameter</strong> &#8211; degree of magnetization. 0.5 corresponds to
+<li><strong>mag_elements_spin</strong> – A mapping of elements/species to magnetically order to spin
+magnitudes. E.g., {“Fe3+”: 5, “Mn3+”: 4}</li>
+<li><strong>order_parameter</strong> – degree of magnetization. 0.5 corresponds to
 antiferromagnetic order</li>
-<li><strong>energy_model</strong> &#8211; Energy model used to rank the structures. Some models are
+<li><strong>energy_model</strong> – Energy model used to rank the structures. Some models are
 provided in <a class="reference internal" href="pymatgen.analysis.energy_models.html#module-pymatgen.analysis.energy_models" title="pymatgen.analysis.energy_models"><code class="xref py py-mod docutils literal"><span class="pre">pymatgen.analysis.energy_models</span></code></a>.</li>
-<li><strong>**kwargs</strong> &#8211; Same keyword args as <a class="reference internal" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal"><span class="pre">EnumerateStructureTransformation</span></code></a>,
+<li><strong>**kwargs</strong> – Same keyword args as <a class="reference internal" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal"><span class="pre">EnumerateStructureTransformation</span></code></a>,
 i.e., min_cell_size, etc.</li>
 </ul>
 </td>
@@ -308,17 +305,17 @@ removal of species.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>sp_to_replace</strong> &#8211; species to be replaced</li>
-<li><strong>r_fraction</strong> &#8211; fraction of that specie to replace</li>
-<li><strong>substitution_dict</strong> &#8211; dictionary of the format
-{2: [&#8220;Mg&#8221;, &#8220;Ti&#8221;, &#8220;V&#8221;, &#8220;As&#8221;, &#8220;Cr&#8221;, &#8220;Ta&#8221;, &#8220;N&#8221;, &#8220;Nb&#8221;],
-3: [&#8220;Ru&#8221;, &#8220;Fe&#8221;, &#8220;Co&#8221;, &#8220;Ce&#8221;, &#8220;As&#8221;, &#8220;Cr&#8221;, &#8220;Ta&#8221;, &#8220;N&#8221;, &#8220;Nb&#8221;],
-4: [&#8220;Ru&#8221;, &#8220;V&#8221;, &#8220;Cr&#8221;, &#8220;Ta&#8221;, &#8220;N&#8221;, &#8220;Nb&#8221;],
-5: [&#8220;Ru&#8221;, &#8220;W&#8221;, &#8220;Mn&#8221;]
+<li><strong>sp_to_replace</strong> – species to be replaced</li>
+<li><strong>r_fraction</strong> – fraction of that specie to replace</li>
+<li><strong>substitution_dict</strong> – dictionary of the format
+{2: [“Mg”, “Ti”, “V”, “As”, “Cr”, “Ta”, “N”, “Nb”],
+3: [“Ru”, “Fe”, “Co”, “Ce”, “As”, “Cr”, “Ta”, “N”, “Nb”],
+4: [“Ru”, “V”, “Cr”, “Ta”, “N”, “Nb”],
+5: [“Ru”, “W”, “Mn”]
 }
 The number is the charge used for each of the list of elements
 (an element can be present in multiple lists)</li>
-<li><strong>charge_balance_species</strong> &#8211; If specified, will balance the charge on
+<li><strong>charge_balance_species</strong> – If specified, will balance the charge on
 the structure using that specie.</li>
 </ul>
 </td>
@@ -352,17 +349,17 @@ the structure using that specie.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>miller_index</strong> (<em>3-tuple</em><em> or </em><em>list</em>) &#8211; miller index of slab</li>
-<li><strong>min_slab_size</strong> (<em>float</em>) &#8211; minimum slab size in angstroms</li>
-<li><strong>min_vacuum_size</strong> (<em>float</em>) &#8211; minimum size of vacuum</li>
-<li><strong>lll_reduce</strong> (<em>bool</em>) &#8211; whether to apply LLL reduction</li>
-<li><strong>center_slab</strong> (<em>bool</em>) &#8211; whether to center the slab</li>
-<li><strong>primitive</strong> (<em>bool</em>) &#8211; whether to reduce slabs to most primitive cell</li>
-<li><strong>max_normal_search</strong> (<em>int</em>) &#8211; maximum index to include in linear
+<li><strong>miller_index</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – miller index of slab</li>
+<li><strong>min_slab_size</strong> (<em>float</em>) – minimum slab size in angstroms</li>
+<li><strong>min_vacuum_size</strong> (<em>float</em>) – minimum size of vacuum</li>
+<li><strong>lll_reduce</strong> (<em>bool</em>) – whether to apply LLL reduction</li>
+<li><strong>center_slab</strong> (<em>bool</em>) – whether to center the slab</li>
+<li><strong>primitive</strong> (<em>bool</em>) – whether to reduce slabs to most primitive cell</li>
+<li><strong>max_normal_search</strong> (<em>int</em>) – maximum index to include in linear
 combinations of indices to find c lattice vector orthogonal
 to slab surface</li>
-<li><strong>shift</strong> (<em>float</em>) &#8211; shift to get termination</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; tolerance for primitive cell finding</li>
+<li><strong>shift</strong> (<em>float</em>) – shift to get termination</li>
+<li><strong>tol</strong> (<em>float</em>) – tolerance for primitive cell finding</li>
 </ul>
 </td>
 </tr>
@@ -396,8 +393,8 @@ prediction module to find likely site substitutions.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>threshold</strong> &#8211; Threshold for substitution.</li>
-<li><strong>**kwargs</strong> &#8211; Args for SubstitutionProbability class lambda_table, alpha</li>
+<li><strong>threshold</strong> – Threshold for substitution.</li>
+<li><strong>**kwargs</strong> – Args for SubstitutionProbability class lambda_table, alpha</li>
 </ul>
 </td>
 </tr>
@@ -433,10 +430,10 @@ object.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>transformations</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.transformations.html#module-pymatgen.transformations" title="pymatgen.transformations"><em>transformations</em></a><em>]</em><em></em>) &#8211; List of transformations to apply
+<li><strong>transformations</strong> (<em>[</em><a class="reference internal" href="pymatgen.transformations.html#module-pymatgen.transformations" title="pymatgen.transformations"><em>transformations</em></a><em>]</em>) – List of transformations to apply
 to a structure. One transformation is applied to each output
 structure.</li>
-<li><strong>nstructures_per_trans</strong> (<em>int</em>) &#8211; If the transformations are one-to-many and,
+<li><strong>nstructures_per_trans</strong> (<em>int</em>) – If the transformations are one-to-many and,
 nstructures_per_trans structures from each transformation are
 added to the full list. Defaults to 1, i.e., only best structure.</li>
 </ul>
@@ -499,13 +496,13 @@ added to the full list. Defaults to 1, i.e., only best structure.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

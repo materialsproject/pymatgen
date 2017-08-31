@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.feff.sets module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.feff.sets module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -112,8 +109,8 @@ can be generated in an automated fashion for any structure.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>output_dir</strong> &#8211; Directory to output the FEFF input files</li>
-<li><strong>make_dir_if_not_present</strong> &#8211; Set to True if you want the directory (
+<li><strong>output_dir</strong> – Directory to output the FEFF input files</li>
+<li><strong>make_dir_if_not_present</strong> – Set to True if you want the directory (
 and the whole path) to be created if it is not present.</li>
 </ul>
 </td>
@@ -135,19 +132,19 @@ implementations.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>absorbing_atom</strong> (<em>str/int</em>) &#8211; absorbing atom symbol or site index</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; input structure</li>
-<li><strong>radius</strong> (<em>float</em>) &#8211; cluster radius</li>
-<li><strong>config_dict</strong> (<em>dict</em>) &#8211; control tag settings dict</li>
-<li><strong>edge</strong> (<em>str</em>) &#8211; absorption edge</li>
-<li><strong>spectrum</strong> (<em>str</em>) &#8211; type of spectrum to calculate, available options :
+<li><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</li>
+<li><strong>radius</strong> (<em>float</em>) – cluster radius</li>
+<li><strong>config_dict</strong> (<em>dict</em>) – control tag settings dict</li>
+<li><strong>edge</strong> (<em>str</em>) – absorption edge</li>
+<li><strong>spectrum</strong> (<em>str</em>) – type of spectrum to calculate, available options :
 EXAFS, XANES, DANES, XMCD, ELNES, EXELFS, FPRIME, NRIXS, XES.
 The default is EXAFS.</li>
-<li><strong>nkpts</strong> (<em>int</em>) &#8211; Total number of kpoints in the brillouin zone. Used
+<li><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
 only when feff is run in the reciprocal space mode.</li>
-<li><strong>user_tag_settings</strong> (<em>dict</em>) &#8211; override default tag settings. To delete
-tags, set the key &#8216;_del&#8217; in the user_tag_settings.
-eg: user_tag_settings={&#8220;_del&#8221;: [&#8220;COREHOLE&#8221;, &#8220;EXCHANGE&#8221;]}</li>
+<li><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings. To delete
+tags, set the key ‘_del’ in the user_tag_settings.
+eg: user_tag_settings={“_del”: [“COREHOLE”, “EXCHANGE”]}</li>
 </ul>
 </td>
 </tr>
@@ -176,10 +173,10 @@ eg: user_tag_settings={&#8220;_del&#8221;: [&#8220;COREHOLE&#8221;, &#8220;EXCHA
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>source</strong> &#8211; Source identifier used to create structure, can be defined
+<li><strong>source</strong> – Source identifier used to create structure, can be defined
 however user wants to organize structures, calculations, etc.
 example would be Materials Project material ID number.</li>
-<li><strong>comment</strong> &#8211; comment to include in header</li>
+<li><strong>comment</strong> – comment to include in header</li>
 </ul>
 </td>
 </tr>
@@ -230,21 +227,21 @@ example would be Materials Project material ID number.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>absorbing_atom</strong> (<em>str/int</em>) &#8211; absorbing atom symbol or site index</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; input structure</li>
-<li><strong>edge</strong> (<em>str</em>) &#8211; absorption edge</li>
-<li><strong>spectrum</strong> (<em>str</em>) &#8211; ELNES or EXELFS</li>
-<li><strong>radius</strong> (<em>float</em>) &#8211; cluster radius in Angstroms.</li>
-<li><strong>beam_energy</strong> (<em>float</em>) &#8211; Incident beam energy in keV</li>
-<li><strong>beam_direction</strong> (<em>list</em>) &#8211; Incident beam direction. If None, the
+<li><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</li>
+<li><strong>edge</strong> (<em>str</em>) – absorption edge</li>
+<li><strong>spectrum</strong> (<em>str</em>) – ELNES or EXELFS</li>
+<li><strong>radius</strong> (<em>float</em>) – cluster radius in Angstroms.</li>
+<li><strong>beam_energy</strong> (<em>float</em>) – Incident beam energy in keV</li>
+<li><strong>beam_direction</strong> (<em>list</em>) – Incident beam direction. If None, the
 cross section will be averaged.</li>
-<li><strong>collection_angle</strong> (<em>float</em>) &#8211; Detector collection angle in mrad.</li>
-<li><strong>convergence_angle</strong> (<em>float</em>) &#8211; Beam convergence angle in mrad.</li>
-<li><strong>user_eels_settings</strong> (<em>dict</em>) &#8211; override default EELS config.
+<li><strong>collection_angle</strong> (<em>float</em>) – Detector collection angle in mrad.</li>
+<li><strong>convergence_angle</strong> (<em>float</em>) – Beam convergence angle in mrad.</li>
+<li><strong>user_eels_settings</strong> (<em>dict</em>) – override default EELS config.
 See MPELNESSet.yaml for supported keys.</li>
-<li><strong>nkpts</strong> (<em>int</em>) &#8211; Total number of kpoints in the brillouin zone. Used
+<li><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
 only when feff is run in the reciprocal space mode.</li>
-<li><strong>user_tag_settings</strong> (<em>dict</em>) &#8211; override default tag settings</li>
+<li><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings</li>
 </ul>
 </td>
 </tr>
@@ -262,20 +259,20 @@ only when feff is run in the reciprocal space mode.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>absorbing_atom</strong> (<em>str/int</em>) &#8211; absorbing atom symbol or site index</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; input structure</li>
-<li><strong>edge</strong> (<em>str</em>) &#8211; absorption edge</li>
-<li><strong>radius</strong> (<em>float</em>) &#8211; cluster radius in Angstroms.</li>
-<li><strong>beam_energy</strong> (<em>float</em>) &#8211; Incident beam energy in keV</li>
-<li><strong>beam_direction</strong> (<em>list</em>) &#8211; Incident beam direction. If None, the
+<li><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</li>
+<li><strong>edge</strong> (<em>str</em>) – absorption edge</li>
+<li><strong>radius</strong> (<em>float</em>) – cluster radius in Angstroms.</li>
+<li><strong>beam_energy</strong> (<em>float</em>) – Incident beam energy in keV</li>
+<li><strong>beam_direction</strong> (<em>list</em>) – Incident beam direction. If None, the
 cross section will be averaged.</li>
-<li><strong>collection_angle</strong> (<em>float</em>) &#8211; Detector collection angle in mrad.</li>
-<li><strong>convergence_angle</strong> (<em>float</em>) &#8211; Beam convergence angle in mrad.</li>
-<li><strong>user_eels_settings</strong> (<em>dict</em>) &#8211; override default EELS config.
+<li><strong>collection_angle</strong> (<em>float</em>) – Detector collection angle in mrad.</li>
+<li><strong>convergence_angle</strong> (<em>float</em>) – Beam convergence angle in mrad.</li>
+<li><strong>user_eels_settings</strong> (<em>dict</em>) – override default EELS config.
 See MPELNESSet.yaml for supported keys.</li>
-<li><strong>nkpts</strong> (<em>int</em>) &#8211; Total number of kpoints in the brillouin zone. Used
+<li><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
 only when feff is run in the reciprocal space mode.</li>
-<li><strong>user_tag_settings</strong> (<em>dict</em>) &#8211; override default tag settings</li>
+<li><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings</li>
 </ul>
 </td>
 </tr>
@@ -298,13 +295,13 @@ only when feff is run in the reciprocal space mode.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>absorbing_atom</strong> (<em>str/int</em>) &#8211; absorbing atom symbol or site index</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; input structure</li>
-<li><strong>edge</strong> (<em>str</em>) &#8211; absorption edge</li>
-<li><strong>radius</strong> (<em>float</em>) &#8211; cluster radius in Angstroms.</li>
-<li><strong>nkpts</strong> (<em>int</em>) &#8211; Total number of kpoints in the brillouin zone. Used
+<li><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</li>
+<li><strong>edge</strong> (<em>str</em>) – absorption edge</li>
+<li><strong>radius</strong> (<em>float</em>) – cluster radius in Angstroms.</li>
+<li><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
 only when feff is run in the reciprocal space mode.</li>
-<li><strong>user_tag_settings</strong> (<em>dict</em>) &#8211; override default tag settings</li>
+<li><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings</li>
 </ul>
 </td>
 </tr>
@@ -327,20 +324,20 @@ only when feff is run in the reciprocal space mode.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>absorbing_atom</strong> (<em>str/int</em>) &#8211; absorbing atom symbol or site index</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; input structure</li>
-<li><strong>edge</strong> (<em>str</em>) &#8211; absorption edge</li>
-<li><strong>radius</strong> (<em>float</em>) &#8211; cluster radius in Angstroms.</li>
-<li><strong>beam_energy</strong> (<em>float</em>) &#8211; Incident beam energy in keV</li>
-<li><strong>beam_direction</strong> (<em>list</em>) &#8211; Incident beam direction. If None, the
+<li><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</li>
+<li><strong>edge</strong> (<em>str</em>) – absorption edge</li>
+<li><strong>radius</strong> (<em>float</em>) – cluster radius in Angstroms.</li>
+<li><strong>beam_energy</strong> (<em>float</em>) – Incident beam energy in keV</li>
+<li><strong>beam_direction</strong> (<em>list</em>) – Incident beam direction. If None, the
 cross section will be averaged.</li>
-<li><strong>collection_angle</strong> (<em>float</em>) &#8211; Detector collection angle in mrad.</li>
-<li><strong>convergence_angle</strong> (<em>float</em>) &#8211; Beam convergence angle in mrad.</li>
-<li><strong>user_eels_settings</strong> (<em>dict</em>) &#8211; override default EELS config.
+<li><strong>collection_angle</strong> (<em>float</em>) – Detector collection angle in mrad.</li>
+<li><strong>convergence_angle</strong> (<em>float</em>) – Beam convergence angle in mrad.</li>
+<li><strong>user_eels_settings</strong> (<em>dict</em>) – override default EELS config.
 See MPEXELFSSet.yaml for supported keys.</li>
-<li><strong>nkpts</strong> (<em>int</em>) &#8211; Total number of kpoints in the brillouin zone. Used
+<li><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
 only when feff is run in the reciprocal space mode.</li>
-<li><strong>user_tag_settings</strong> (<em>dict</em>) &#8211; override default tag settings</li>
+<li><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings</li>
 </ul>
 </td>
 </tr>
@@ -363,13 +360,13 @@ only when feff is run in the reciprocal space mode.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>absorbing_atom</strong> (<em>str/int</em>) &#8211; absorbing atom symbol or site index</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; input</li>
-<li><strong>edge</strong> (<em>str</em>) &#8211; absorption edge</li>
-<li><strong>radius</strong> (<em>float</em>) &#8211; cluster radius in Angstroms.</li>
-<li><strong>nkpts</strong> (<em>int</em>) &#8211; Total number of kpoints in the brillouin zone. Used
+<li><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input</li>
+<li><strong>edge</strong> (<em>str</em>) – absorption edge</li>
+<li><strong>radius</strong> (<em>float</em>) – cluster radius in Angstroms.</li>
+<li><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
 only when feff is run in the reciprocal space mode.</li>
-<li><strong>user_tag_settings</strong> (<em>dict</em>) &#8211; override default tag settings</li>
+<li><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings</li>
 </ul>
 </td>
 </tr>
@@ -420,13 +417,13 @@ only when feff is run in the reciprocal space mode.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

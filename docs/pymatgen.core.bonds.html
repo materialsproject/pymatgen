@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.bonds module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.bonds module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -68,8 +65,8 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>site1</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) &#8211; First site.</li>
-<li><strong>site2</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) &#8211; Second site.</li>
+<li><strong>site1</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – First site.</li>
+<li><strong>site2</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – Second site.</li>
 </ul>
 </td>
 </tr>
@@ -84,13 +81,13 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>site1</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) &#8211; First site</li>
-<li><strong>site2</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) &#8211; Second site</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Relative tolerance to test. Basically, the code
+<li><strong>site1</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – First site</li>
+<li><strong>site2</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – Second site</li>
+<li><strong>tol</strong> (<em>float</em>) – Relative tolerance to test. Basically, the code
 checks if the distance between the sites is less than (1 +
 tol) * typical bond distances. Defaults to 0.2, i.e.,
 20% longer.</li>
-<li><strong>bond_order</strong> &#8211; Bond order to test. If None, the code simply checks
+<li><strong>bond_order</strong> – Bond order to test. If None, the code simply checks
 against all possible bond data. Defaults to None.</li>
 </ul>
 </td>
@@ -119,9 +116,9 @@ against all possible bond data. Defaults to None.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) &#8211; First specie.</li>
-<li><strong>sp2</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) &#8211; Second specie.</li>
-<li><strong>bond_order</strong> &#8211; For species with different possible bond orders,
+<li><strong>sp1</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – First specie.</li>
+<li><strong>sp2</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – Second specie.</li>
+<li><strong>bond_order</strong> – For species with different possible bond orders,
 this allows one to obtain the bond length for a particular bond
 order. For example, to get the C=C bond length instead of the
 C-C bond length, this should be set to 2. Defaults to 1.</li>
@@ -174,13 +171,13 @@ radii is used.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

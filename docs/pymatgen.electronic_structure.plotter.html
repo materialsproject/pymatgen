@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.electronic_structure.plotter module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.electronic_structure.plotter module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -70,21 +67,21 @@ from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>bs_projection</strong> (<em>str</em>) &#8211; &#8220;elements&#8221; or None</li>
-<li><strong>dos_projection</strong> (<em>str</em>) &#8211; &#8220;elements&#8221;, &#8220;orbitals&#8221;, or None</li>
-<li><strong>vb_energy_range</strong> (<em>float</em>) &#8211; energy in eV to show of valence bands</li>
-<li><strong>cb_energy_range</strong> (<em>float</em>) &#8211; energy in eV to show of conduction bands</li>
-<li><strong>fixed_cb_energy</strong> (<em>bool</em>) &#8211; If true, the cb_energy_range will be interpreted
+<li><strong>bs_projection</strong> (<em>str</em>) – “elements” or None</li>
+<li><strong>dos_projection</strong> (<em>str</em>) – “elements”, “orbitals”, or None</li>
+<li><strong>vb_energy_range</strong> (<em>float</em>) – energy in eV to show of valence bands</li>
+<li><strong>cb_energy_range</strong> (<em>float</em>) – energy in eV to show of conduction bands</li>
+<li><strong>fixed_cb_energy</strong> (<em>bool</em>) – If true, the cb_energy_range will be interpreted
 as constant (i.e., no gap correction for cb energy)</li>
-<li><strong>egrid_interval</strong> (<em>float</em>) &#8211; interval for grid marks</li>
-<li><strong>font</strong> (<em>str</em>) &#8211; font family</li>
-<li><strong>axis_fontsize</strong> (<em>float</em>) &#8211; font size for axis</li>
-<li><strong>tick_fontsize</strong> (<em>float</em>) &#8211; font size for axis tick labels</li>
-<li><strong>legend_fontsize</strong> (<em>float</em>) &#8211; font size for legends</li>
-<li><strong>bs_legend</strong> (<em>str</em>) &#8211; matplotlib string location for legend or None</li>
-<li><strong>dos_legend</strong> (<em>str</em>) &#8211; matplotlib string location for legend or None</li>
-<li><strong>rgb_legend</strong> (<em>bool</em>) &#8211; (T/F) whether to draw RGB triangle/bar for element proj.</li>
-<li><strong>fig_size</strong> (<em>tuple</em>) &#8211; dimensions of figure size (width, height)</li>
+<li><strong>egrid_interval</strong> (<em>float</em>) – interval for grid marks</li>
+<li><strong>font</strong> (<em>str</em>) – font family</li>
+<li><strong>axis_fontsize</strong> (<em>float</em>) – font size for axis</li>
+<li><strong>tick_fontsize</strong> (<em>float</em>) – font size for axis tick labels</li>
+<li><strong>legend_fontsize</strong> (<em>float</em>) – font size for legends</li>
+<li><strong>bs_legend</strong> (<em>str</em>) – matplotlib string location for legend or None</li>
+<li><strong>dos_legend</strong> (<em>str</em>) – matplotlib string location for legend or None</li>
+<li><strong>rgb_legend</strong> (<em>bool</em>) – (T/F) whether to draw RGB triangle/bar for element proj.</li>
+<li><strong>fig_size</strong> (<em>tuple</em>) – dimensions of figure size (width, height)</li>
 </ul>
 </td>
 </tr>
@@ -101,7 +98,7 @@ as constant (i.e., no gap correction for cb energy)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dos</strong> (<a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><em>Dos</em></a>) &#8211; the Dos to plot. Projection data must exist (i.e.,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dos</strong> (<a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><em>Dos</em></a>) – the Dos to plot. Projection data must exist (i.e.,
 CompleteDos) for projected plots.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">matplotlib.pyplot object on which you can call commands like show()
@@ -122,7 +119,7 @@ and savefig()</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bs</strong> &#8211; A BandStructureSymmLine object.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bs</strong> – A BandStructureSymmLine object.</td>
 </tr>
 </tbody>
 </table>
@@ -134,10 +131,10 @@ and savefig()</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>zero_to_efermi</strong> &#8211; Automatically subtract off the Fermi energy from the
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>zero_to_efermi</strong> – Automatically subtract off the Fermi energy from the
 eigenvalues and plot.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ticks: A dict with the &#8216;distances&#8217; at which there is a kpoint (the
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ticks: A dict with the ‘distances’ at which there is a kpoint (the
 x axis) and the labels (None if no label)
 energy: A dict storing bands for spin up and spin down data
 [{Spin:[band_index][k_point_index]}] as a list (one element
@@ -152,7 +149,7 @@ option has been selected.
 lattice: The reciprocal lattice.
 zero_energy: This is the energy used as zero for the plot.
 band_gap:A string indicating the band gap and its nature (empty if
-it&#8217;s a metal).
+it’s a metal).
 is_metal: True if the band structure is metallic (i.e., there is at
 least one band crossing the fermi level).</td>
 </tr>
@@ -173,13 +170,13 @@ spin.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>zero_to_efermi</strong> &#8211; Automatically subtract off the Fermi energy from
+<li><strong>zero_to_efermi</strong> – Automatically subtract off the Fermi energy from
 the eigenvalues and plot (E-Ef).</li>
-<li><strong>ylim</strong> &#8211; Specify the y-axis (energy) limits; by default None let
+<li><strong>ylim</strong> – Specify the y-axis (energy) limits; by default None let
 the code choose. It is vbm-4 and cbm+4 if insulator
 efermi-10 and efermi+10 if metal</li>
-<li><strong>smooth</strong> &#8211; interpolates the bands by a spline cubic</li>
-<li><strong>smooth_tol</strong> (<em>float</em>) &#8211; tolerance for fitting spline to band data.
+<li><strong>smooth</strong> – interpolates the bands by a spline cubic</li>
+<li><strong>smooth_tol</strong> (<em>float</em>) – tolerance for fitting spline to band data.
 Default is None such that no tolerance will be used.</li>
 </ul>
 </td>
@@ -197,9 +194,9 @@ Default is None such that no tolerance will be used.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of distance at which ticks should
-be set and &#8216;label&#8217;: a list of label for each of those ticks.</td>
+be set and ‘label’: a list of label for each of those ticks.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dict with &#8216;distance&#8217;</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dict with ‘distance’</td>
 </tr>
 </tbody>
 </table>
@@ -222,7 +219,7 @@ the one of the band structure used to build the BSPlotter</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>band structure object defined along the same symmetry lines</strong> (<em>another</em>) &#8211; </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>band structure object defined along the same symmetry lines</strong> (<em>another</em>) – </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a matplotlib object with both band structures</td>
 </tr>
@@ -239,9 +236,9 @@ the one of the band structure used to build the BSPlotter</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> &#8211; Filename to write to.</li>
-<li><strong>img_format</strong> &#8211; Image format to use. Defaults to EPS.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>filename</strong> – Filename to write to.</li>
+<li><strong>img_format</strong> – Image format to use. Defaults to EPS.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
 </ul>
 </td>
 </tr>
@@ -258,13 +255,13 @@ the one of the band structure used to build the BSPlotter</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>zero_to_efermi</strong> &#8211; Automatically subtract off the Fermi energy from
+<li><strong>zero_to_efermi</strong> – Automatically subtract off the Fermi energy from
 the eigenvalues and plot (E-Ef).</li>
-<li><strong>ylim</strong> &#8211; Specify the y-axis (energy) limits; by default None let
+<li><strong>ylim</strong> – Specify the y-axis (energy) limits; by default None let
 the code choose. It is vbm-4 and cbm+4 if insulator
 efermi-10 and efermi+10 if metal</li>
-<li><strong>smooth</strong> &#8211; interpolates the bands by a spline cubic</li>
-<li><strong>smooth_tol</strong> (<em>float</em>) &#8211; tolerance for fitting spline to band data.
+<li><strong>smooth</strong> – interpolates the bands by a spline cubic</li>
+<li><strong>smooth_tol</strong> (<em>float</em>) – tolerance for fitting spline to band data.
 Default is None such that no tolerance will be used.</li>
 </ul>
 </td>
@@ -285,7 +282,7 @@ projected along orbitals, elements or sites.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bs</strong> &#8211; A BandStructureSymmLine object with projections.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bs</strong> – A BandStructureSymmLine object with projections.</td>
 </tr>
 </tbody>
 </table>
@@ -314,12 +311,12 @@ line color depends on the character of the band (along different
 elements). Each element is associated with red, green or blue
 and the corresponding rgb color depending on the character of the band
 is used. The method can only deal with binary and ternary compounds</p>
-<p>spin up and spin down are differientiated by a &#8216;-&#8216; and a &#8216;&#8211;&#8217; line</p>
+<p>spin up and spin down are differientiated by a ‘-‘ and a ‘–’ line</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>elt_ordered</strong> &#8211; A list of Element ordered. The first one is red,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>elt_ordered</strong> – A list of Element ordered. The first one is red,
 second green, last blue</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a pylab object</td>
@@ -337,9 +334,9 @@ and orbitals.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dictio</strong> &#8211; The element and orbitals you want a projection on. The
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dictio</strong> – The element and orbitals you want a projection on. The
 format is {Element:[Orbitals]} for instance
-{&#8216;Cu&#8217;:[&#8216;d&#8217;,&#8217;s&#8217;],&#8217;O&#8217;:[&#8216;p&#8217;]} will give projections for Cu on
+{‘Cu’:[‘d’,’s’],’O’:[‘p’]} will give projections for Cu on
 d and s orbitals and on oxygen p.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a pylab object with different subfigures for each projection
@@ -354,59 +351,88 @@ character for the corresponding element and orbital.</td>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots_patom_pmorb">
 <code class="descname">get_projected_plots_dots_patom_pmorb</code><span class="sig-paren">(</span><em>dictio</em>, <em>dictpa</em>, <em>sum_atoms=None</em>, <em>sum_morbs=None</em>, <em>zero_to_efermi=True</em>, <em>ylim=None</em>, <em>vbm_cbm_marker=False</em>, <em>selected_branches=None</em>, <em>w_h_size=(12</em>, <em>8)</em>, <em>num_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotterProjected.get_projected_plots_dots_patom_pmorb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots_patom_pmorb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method returns a plot composed of subplots for different atoms and orbitals (subshell orbitals such as
-&#8216;s&#8217;, &#8216;p&#8217;, &#8216;d&#8217; and &#8216;f&#8217; defined by azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
-individual orbitals like &#8216;px&#8217;, &#8216;py&#8217; and &#8216;pz&#8217; defined by magnetic quantum numbers m = -1, 1 and 0, respectively).
-This is an extension of &#8220;get_projected_plots_dots&#8221; method.</p>
+<dd><p>Method returns a plot composed of subplots for different atoms and
+orbitals (subshell orbitals such as ‘s’, ‘p’, ‘d’ and ‘f’ defined by
+azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
+individual orbitals like ‘px’, ‘py’ and ‘pz’ defined by magnetic
+quantum numbers m = -1, 1 and 0, respectively).
+This is an extension of “get_projected_plots_dots” method.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dictio</strong> &#8211; The elements and the orbitals you need to project on. The format is {Element:[Orbitals]},
-for instance:
-{&#8216;Cu&#8217;:[&#8216;dxy&#8217;,&#8217;s&#8217;,&#8217;px&#8217;],&#8217;O&#8217;:[&#8216;px&#8217;,&#8217;py&#8217;,&#8217;pz&#8217;]} will give projections for Cu on orbitals dxy, s, px and
-for O on orbitals px, py, pz. If you want to sum over all individual orbitals of subshell orbitals,
-for example, &#8216;px&#8217;, &#8216;py&#8217; and &#8216;pz&#8217; of O, just simply set
-{&#8216;Cu&#8217;:[&#8216;dxy&#8217;,&#8217;s&#8217;,&#8217;px&#8217;],&#8217;O&#8217;:[&#8216;p&#8217;]} and set sum_morbs (see explainations below) as {&#8216;O&#8217;:[p],...}.
+<li><strong>dictio</strong> – The elements and the orbitals you need to project on. The
+format is {Element:[Orbitals]}, for instance:
+{‘Cu’:[‘dxy’,’s’,’px’],’O’:[‘px’,’py’,’pz’]} will give
+projections for Cu on orbitals dxy, s, px and
+for O on orbitals px, py, pz. If you want to sum over all
+individual orbitals of subshell orbitals,
+for example, ‘px’, ‘py’ and ‘pz’ of O, just simply set
+{‘Cu’:[‘dxy’,’s’,’px’],’O’:[‘p’]} and set sum_morbs (see
+explanations below) as {‘O’:[p],…}.
 Otherwise, you will get an error.</li>
-<li><strong>dictpa</strong> &#8211; The elements and their sites (defined by site numbers) you need to project on. The format is
-{Element: [Site numbers]}, for instance: {&#8216;Cu&#8217;:[1,5],&#8217;O&#8217;:[3,4]} will give projections for Cu on site-1
+<li><strong>dictpa</strong> – The elements and their sites (defined by site numbers) you
+need to project on. The format is
+{Element: [Site numbers]}, for instance: {‘Cu’:[1,5],’O’:[3,4]}
+will give projections for Cu on site-1
 and on site-5, O on site-3 and on site-4 in the cell.
 Attention:
-The correct site numbers of atoms are consistent with themselves in the structure computed. Normally,
-the structure should be totally similar with POSCAR file, however, sometimes VASP can rotate or
-translate the cell. Thus, it would be safe if using Vasprun class to get the final_structure and as a
+The correct site numbers of atoms are consistent with
+themselves in the structure computed. Normally,
+the structure should be totally similar with POSCAR file,
+however, sometimes VASP can rotate or
+translate the cell. Thus, it would be safe if using Vasprun
+class to get the final_structure and as a
 result, correct index numbers of atoms.</li>
-<li><strong>sum_atoms</strong> &#8211; <p>Sum projection of the similar atoms together (e.g.: Cu on site-1 and Cu on site-5). The format is
+<li><strong>sum_atoms</strong> – <p>Sum projection of the similar atoms together (e.g.: Cu
+on site-1 and Cu on site-5). The format is
 {Element: [Site numbers]}, for instance:</p>
 <blockquote>
-<div>{&#8216;Cu&#8217;: [1,5], &#8216;O&#8217;: [3,4]} means summing projections over Cu on site-1 and Cu on site-5 and O on site-3
-and on site-4. If you do not want to use this functional, just turn it off by setting sum_atoms = None.</div></blockquote>
+<div>{‘Cu’: [1,5], ‘O’: [3,4]} means summing projections over Cu on
+site-1 and Cu on site-5 and O on site-3
+and on site-4. If you do not want to use this functional, just
+turn it off by setting sum_atoms = None.</div></blockquote>
 </li>
-<li><strong>sum_morbs</strong> &#8211; Sum projections of individual orbitals of similar atoms together (e.g.: &#8216;dxy&#8217; and &#8216;dxz&#8217;). The
+<li><strong>sum_morbs</strong> – Sum projections of individual orbitals of similar atoms
+together (e.g.: ‘dxy’ and ‘dxz’). The
 format is {Element: [individual orbitals]}, for instance:
-{&#8216;Cu&#8217;: [&#8216;dxy&#8217;, &#8216;dxz&#8217;], &#8216;O&#8217;: [&#8216;px&#8217;, &#8216;py&#8217;]} means summing projections over &#8216;dxy&#8217; and &#8216;dxz&#8217; of Cu and &#8216;px&#8217;
-and &#8216;py&#8217; of O. If you do not want to use this functional, just turn it off by setting sum_morbs = None.</li>
-<li><strong>selected_branches</strong> &#8211; The index of symmetry lines you chose for plotting. This can be useful when the number of
-symmetry lines (in KPOINTS file) are manny while you only want to show for certain ones. The format is
+{‘Cu’: [‘dxy’, ‘dxz’], ‘O’: [‘px’, ‘py’]} means summing
+projections over ‘dxy’ and ‘dxz’ of Cu and ‘px’
+and ‘py’ of O. If you do not want to use this functional, just
+turn it off by setting sum_morbs = None.</li>
+<li><strong>selected_branches</strong> – The index of symmetry lines you chose for
+plotting. This can be useful when the number of
+symmetry lines (in KPOINTS file) are manny while you only want
+to show for certain ones. The format is
 [index of line], for instance:
-[1, 3, 4] means you just need to do projection along lines number 1, 3 and 4 while neglecting lines
-number 2 and so on. By default, this is None type and all symmetry lines will be plotted.</li>
-<li><strong>w_h_size</strong> &#8211; This variable help you to control the width and height of figure. By default, width = 12 and
-height = 8 (inches). The width/height ratio is kept the same for subfigures and the size of each depends
+[1, 3, 4] means you just need to do projection along lines
+number 1, 3 and 4 while neglecting lines
+number 2 and so on. By default, this is None type and all
+symmetry lines will be plotted.</li>
+<li><strong>w_h_size</strong> – This variable help you to control the width and height
+of figure. By default, width = 12 and
+height = 8 (inches). The width/height ratio is kept the same
+for subfigures and the size of each depends
 on how many number of subfigures are plotted.</li>
-<li><strong>num_column</strong> &#8211; This variable help you to manage how the subfigures are arranged in the figure by setting
-up the number of columns of subfigures. The value should be an int number. For example, num_column = 3
-means you want to plot subfigures in 3 columns. By default, num_column = None and subfigures are
+<li><strong>num_column</strong> – This variable help you to manage how the subfigures are
+arranged in the figure by setting
+up the number of columns of subfigures. The value should be an
+int number. For example, num_column = 3
+means you want to plot subfigures in 3 columns. By default,
+num_column = None and subfigures are
 aligned in 2 columns.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A pylab object with different subfigures for different projections. The blue and red colors lines are bands
-for spin up and spin down. The green and cyan dots are projections for spin up and spin down. The bigger
-the green or cyan dots in the projected band structures, the higher character for the corresponding elements
-and orbitals. List of individual orbitals and their numbers (set up by VASP and no special meaning):
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A pylab object with different subfigures for different projections.
+The blue and red colors lines are bands
+for spin up and spin down. The green and cyan dots are projections
+for spin up and spin down. The bigger
+the green or cyan dots in the projected band structures, the higher
+character for the corresponding elements
+and orbitals. List of individual orbitals and their numbers (set up
+by VASP and no special meaning):
 s = 0; py = 1 pz = 2 px = 3; dxy = 4 dyz = 5 dz2 = 6 dxz = 7 dx2 = 8;
 f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15</p>
 </td>
@@ -426,7 +452,7 @@ f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bz</strong> &#8211; a BoltztrapAnalyzer object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bz</strong> – a BoltztrapAnalyzer object</td>
 </tr>
 </tbody>
 </table>
@@ -438,7 +464,7 @@ f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temp</strong> &#8211; the temperature</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temp</strong> – the temperature</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a matplotlib object</td>
 </tr>
@@ -459,12 +485,12 @@ npj Computational Materials 3, 8 (2017).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>output</strong> &#8211; &#8216;average&#8217; returns the complexity factor calculated using the average
+<li><strong>output</strong> – ‘average’ returns the complexity factor calculated using the average
 of the three diagonal components of the seebeck and conductivity tensors.
-&#8216;tensor&#8217; returns the complexity factor respect to the three
+‘tensor’ returns the complexity factor respect to the three
 diagonal components of seebeck and conductivity tensors.</li>
-<li><strong>temps</strong> &#8211; list of temperatures of calculated seebeck and conductivity.</li>
-<li><strong>Lambda</strong> &#8211; fitting parameter used to model the scattering (0.5 means constant
+<li><strong>temps</strong> – list of temperatures of calculated seebeck and conductivity.</li>
+<li><strong>Lambda</strong> – fitting parameter used to model the scattering (0.5 means constant
 relaxation time).</li>
 </ul>
 </td>
@@ -486,11 +512,11 @@ temperatures.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temps</strong> &#8211; the default &#8216;all&#8217; plots all the temperatures in the analyzer.
+<li><strong>temps</strong> – the default ‘all’ plots all the temperatures in the analyzer.
 Specify a list of temperatures if you want to plot only some.</li>
-<li><strong>output</strong> &#8211; with &#8216;average&#8217; you get an average of the three directions
-with &#8216;eigs&#8217; you get all the three directions.</li>
-<li><strong>relaxation_time</strong> &#8211; specify a constant relaxation time value</li>
+<li><strong>output</strong> – with ‘average’ you get an average of the three directions
+with ‘eigs’ you get all the three directions.</li>
+<li><strong>relaxation_time</strong> – specify a constant relaxation time value</li>
 </ul>
 </td>
 </tr>
@@ -510,10 +536,10 @@ with &#8216;eigs&#8217; you get all the three directions.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temp</strong> &#8211; the temperature</li>
-<li><strong>xlim</strong> &#8211; a list of min and max fermi energy by default (0, and band
+<li><strong>temp</strong> – the temperature</li>
+<li><strong>xlim</strong> – a list of min and max fermi energy by default (0, and band
 gap)</li>
-<li><strong>tau</strong> &#8211; A relaxation time in s. By default none and the plot is by
+<li><strong>tau</strong> – A relaxation time in s. By default none and the plot is by
 units of relaxation time</li>
 </ul>
 </td>
@@ -534,11 +560,11 @@ units of relaxation time</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dopings</strong> &#8211; the default &#8216;all&#8217; plots all the doping levels in the analyzer.
+<li><strong>dopings</strong> – the default ‘all’ plots all the doping levels in the analyzer.
 Specify a list of doping levels if you want to plot only some.</li>
-<li><strong>output</strong> &#8211; with &#8216;average&#8217; you get an average of the three directions
-with &#8216;eigs&#8217; you get all the three directions.</li>
-<li><strong>relaxation_time</strong> &#8211; specify a constant relaxation time value</li>
+<li><strong>output</strong> – with ‘average’ you get an average of the three directions
+with ‘eigs’ you get all the three directions.</li>
+<li><strong>relaxation_time</strong> – specify a constant relaxation time value</li>
 </ul>
 </td>
 </tr>
@@ -557,7 +583,7 @@ with &#8216;eigs&#8217; you get all the three directions.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sigma</strong> &#8211; a smearing</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sigma</strong> – a smearing</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a matplotlib object</td>
 </tr>
@@ -575,11 +601,11 @@ for different temperatures.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temps</strong> &#8211; the default &#8216;all&#8217; plots all the temperatures in the analyzer.
+<li><strong>temps</strong> – the default ‘all’ plots all the temperatures in the analyzer.
 Specify a list of temperatures if you want to plot only some.</li>
-<li><strong>output</strong> &#8211; with &#8216;average&#8217; you get an average of the three directions
-with &#8216;eigs&#8217; you get all the three directions.</li>
-<li><strong>relaxation_time</strong> &#8211; specify a constant relaxation time value</li>
+<li><strong>output</strong> – with ‘average’ you get an average of the three directions
+with ‘eigs’ you get all the three directions.</li>
+<li><strong>relaxation_time</strong> – specify a constant relaxation time value</li>
 </ul>
 </td>
 </tr>
@@ -600,10 +626,10 @@ for different doping levels.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dopings</strong> &#8211; the default &#8216;all&#8217; plots all the doping levels in the analyzer.
+<li><strong>dopings</strong> – the default ‘all’ plots all the doping levels in the analyzer.
 Specify a list of doping levels if you want to plot only some.</li>
-<li><strong>output</strong> &#8211; with &#8216;average&#8217; you get an average of the three directions
-with &#8216;eigs&#8217; you get all the three directions.</li>
+<li><strong>output</strong> – with ‘average’ you get an average of the three directions
+with ‘eigs’ you get all the three directions.</li>
 </ul>
 </td>
 </tr>
@@ -622,7 +648,7 @@ with &#8216;eigs&#8217; you get all the three directions.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temp</strong> &#8211; the temperature</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temp</strong> – the temperature</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a matplotlib object</td>
 </tr>
@@ -639,11 +665,11 @@ with &#8216;eigs&#8217; you get all the three directions.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temps</strong> &#8211; the default &#8216;all&#8217; plots all the temperatures in the analyzer.
+<li><strong>temps</strong> – the default ‘all’ plots all the temperatures in the analyzer.
 Specify a list of temperatures if you want to plot only some.</li>
-<li><strong>output</strong> &#8211; with &#8216;average&#8217; you get an average of the three directions
-with &#8216;eigs&#8217; you get all the three directions.</li>
-<li><strong>relaxation_time</strong> &#8211; specify a constant relaxation time value</li>
+<li><strong>output</strong> – with ‘average’ you get an average of the three directions
+with ‘eigs’ you get all the three directions.</li>
+<li><strong>relaxation_time</strong> – specify a constant relaxation time value</li>
 </ul>
 </td>
 </tr>
@@ -663,10 +689,10 @@ with &#8216;eigs&#8217; you get all the three directions.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temp</strong> &#8211; the temperature</li>
-<li><strong>xlim</strong> &#8211; a list of min and max fermi energy by default (0, and band
+<li><strong>temp</strong> – the temperature</li>
+<li><strong>xlim</strong> – a list of min and max fermi energy by default (0, and band
 gap)</li>
-<li><strong>tau</strong> &#8211; A relaxation time in s. By default none and the plot is by
+<li><strong>tau</strong> – A relaxation time in s. By default none and the plot is by
 units of relaxation time</li>
 </ul>
 </td>
@@ -687,11 +713,11 @@ units of relaxation time</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dopings</strong> &#8211; the default &#8216;all&#8217; plots all the doping levels in the analyzer.
+<li><strong>dopings</strong> – the default ‘all’ plots all the doping levels in the analyzer.
 Specify a list of doping levels if you want to plot only some.</li>
-<li><strong>output</strong> &#8211; with &#8216;average&#8217; you get an average of the three directions
-with &#8216;eigs&#8217; you get all the three directions.</li>
-<li><strong>relaxation_time</strong> &#8211; specify a constant relaxation time value</li>
+<li><strong>output</strong> – with ‘average’ you get an average of the three directions
+with ‘eigs’ you get all the three directions.</li>
+<li><strong>relaxation_time</strong> – specify a constant relaxation time value</li>
 </ul>
 </td>
 </tr>
@@ -711,10 +737,10 @@ with &#8216;eigs&#8217; you get all the three directions.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temps</strong> &#8211; the default &#8216;all&#8217; plots all the temperatures in the analyzer.
+<li><strong>temps</strong> – the default ‘all’ plots all the temperatures in the analyzer.
 Specify a list of temperatures if you want to plot only some.</li>
-<li><strong>output</strong> &#8211; with &#8216;average&#8217; you get an average of the three directions
-with &#8216;eigs&#8217; you get all the three directions.</li>
+<li><strong>output</strong> – with ‘average’ you get an average of the three directions
+with ‘eigs’ you get all the three directions.</li>
 </ul>
 </td>
 </tr>
@@ -738,12 +764,12 @@ npj Computational Materials 3, 8 (2017).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>output</strong> &#8211; &#8216;average&#8217; returns the seebeck effective mass calculated
+<li><strong>output</strong> – ‘average’ returns the seebeck effective mass calculated
 using the average of the three diagonal components of the
-seebeck tensor. &#8216;tensor&#8217; returns the seebeck effective mass
+seebeck tensor. ‘tensor’ returns the seebeck effective mass
 respect to the three diagonal components of the seebeck tensor.</li>
-<li><strong>temps</strong> &#8211; list of temperatures of calculated seebeck.</li>
-<li><strong>Lambda</strong> &#8211; fitting parameter used to model the scattering (0.5 means
+<li><strong>temps</strong> – list of temperatures of calculated seebeck.</li>
+<li><strong>Lambda</strong> – fitting parameter used to model the scattering (0.5 means
 constant relaxation time).</li>
 </ul>
 </td>
@@ -764,8 +790,8 @@ constant relaxation time).</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temp</strong> &#8211; the temperature</li>
-<li><strong>xlim</strong> &#8211; a list of min and max fermi energy by default (0, and band gap)</li>
+<li><strong>temp</strong> – the temperature</li>
+<li><strong>xlim</strong> – a list of min and max fermi energy by default (0, and band gap)</li>
 </ul>
 </td>
 </tr>
@@ -786,10 +812,10 @@ doping levels.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dopings</strong> &#8211; the default &#8216;all&#8217; plots all the doping levels in the analyzer.
+<li><strong>dopings</strong> – the default ‘all’ plots all the doping levels in the analyzer.
 Specify a list of doping levels if you want to plot only some.</li>
-<li><strong>output</strong> &#8211; with &#8216;average&#8217; you get an average of the three directions
-with &#8216;eigs&#8217; you get all the three directions.</li>
+<li><strong>output</strong> – with ‘average’ you get an average of the three directions
+with ‘eigs’ you get all the three directions.</li>
 </ul>
 </td>
 </tr>
@@ -810,11 +836,11 @@ temperatures.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temps</strong> &#8211; the default &#8216;all&#8217; plots all the temperatures in the analyzer.
+<li><strong>temps</strong> – the default ‘all’ plots all the temperatures in the analyzer.
 Specify a list of temperatures if you want to plot only some.</li>
-<li><strong>output</strong> &#8211; with &#8216;average&#8217; you get an average of the three directions
-with &#8216;eigs&#8217; you get all the three directions.</li>
-<li><strong>relaxation_time</strong> &#8211; specify a constant relaxation time value</li>
+<li><strong>output</strong> – with ‘average’ you get an average of the three directions
+with ‘eigs’ you get all the three directions.</li>
+<li><strong>relaxation_time</strong> – specify a constant relaxation time value</li>
 </ul>
 </td>
 </tr>
@@ -834,10 +860,10 @@ with &#8216;eigs&#8217; you get all the three directions.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temp</strong> &#8211; the temperature</li>
-<li><strong>xlim</strong> &#8211; a list of min and max fermi energy by default (0, and band
+<li><strong>temp</strong> – the temperature</li>
+<li><strong>xlim</strong> – a list of min and max fermi energy by default (0, and band
 gap)</li>
-<li><strong>tau</strong> &#8211; A relaxation time in s. By default none and the plot is by
+<li><strong>tau</strong> – A relaxation time in s. By default none and the plot is by
 units of relaxation time</li>
 </ul>
 </td>
@@ -858,11 +884,11 @@ units of relaxation time</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dopings</strong> &#8211; the default &#8216;all&#8217; plots all the doping levels in the analyzer.
+<li><strong>dopings</strong> – the default ‘all’ plots all the doping levels in the analyzer.
 Specify a list of doping levels if you want to plot only some.</li>
-<li><strong>output</strong> &#8211; with &#8216;average&#8217; you get an average of the three directions
-with &#8216;eigs&#8217; you get all the three directions.</li>
-<li><strong>relaxation_time</strong> &#8211; specify a constant relaxation time value</li>
+<li><strong>output</strong> – with ‘average’ you get an average of the three directions
+with ‘eigs’ you get all the three directions.</li>
+<li><strong>relaxation_time</strong> – specify a constant relaxation time value</li>
 </ul>
 </td>
 </tr>
@@ -900,11 +926,11 @@ DOS. The typical usage is:</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>zero_at_efermi</strong> &#8211; Whether to shift all Dos to have zero energy at the
+<li><strong>zero_at_efermi</strong> – Whether to shift all Dos to have zero energy at the
 fermi energy. Defaults to True.</li>
-<li><strong>stack</strong> &#8211; Whether to plot the DOS as a stacked area graph</li>
-<li><strong>key_sort_func</strong> &#8211; function used to sort the dos_dict keys.</li>
-<li><strong>sigma</strong> &#8211; A float specifying a standard deviation for Gaussian smearing
+<li><strong>stack</strong> – Whether to plot the DOS as a stacked area graph</li>
+<li><strong>key_sort_func</strong> – function used to sort the dos_dict keys.</li>
+<li><strong>sigma</strong> – A float specifying a standard deviation for Gaussian smearing
 the DOS for nicer looking plots. Defaults to None for no
 smearing.</li>
 </ul>
@@ -921,8 +947,8 @@ smearing.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>label</strong> &#8211; label for the DOS. Must be unique.</li>
-<li><strong>dos</strong> &#8211; Dos object</li>
+<li><strong>label</strong> – label for the DOS. Must be unique.</li>
+<li><strong>dos</strong> – Dos object</li>
 </ul>
 </td>
 </tr>
@@ -940,8 +966,8 @@ keys.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dos_dict</strong> &#8211; dict of {label: Dos}</li>
-<li><strong>key_sort_func</strong> &#8211; function used to sort the dos_dict keys.</li>
+<li><strong>dos_dict</strong> – dict of {label: Dos}</li>
+<li><strong>key_sort_func</strong> – function used to sort the dos_dict keys.</li>
 </ul>
 </td>
 </tr>
@@ -959,8 +985,8 @@ be the smeared densities, not the original densities.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{&#8216;energies&#8217;:..,
-&#8216;densities&#8217;: {&#8216;up&#8217;:...}, &#8216;efermi&#8217;:efermi}}</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{‘energies’:..,
+‘densities’: {‘up’:…}, ‘efermi’:efermi}}</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dict of dos data. Generally of the form, {label</td>
 </tr>
@@ -977,9 +1003,9 @@ be the smeared densities, not the original densities.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xlim</strong> &#8211; Specifies the x-axis limits. Set to None for automatic
+<li><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
 determination.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
 </ul>
 </td>
 </tr>
@@ -996,11 +1022,11 @@ determination.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> &#8211; Filename to write to.</li>
-<li><strong>img_format</strong> &#8211; Image format to use. Defaults to EPS.</li>
-<li><strong>xlim</strong> &#8211; Specifies the x-axis limits. Set to None for automatic
+<li><strong>filename</strong> – Filename to write to.</li>
+<li><strong>img_format</strong> – Image format to use. Defaults to EPS.</li>
+<li><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
 determination.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
 </ul>
 </td>
 </tr>
@@ -1017,9 +1043,9 @@ determination.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xlim</strong> &#8211; Specifies the x-axis limits. Set to None for automatic
+<li><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
 determination.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
 </ul>
 </td>
 </tr>
@@ -1038,9 +1064,9 @@ determination.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p</strong> &#8211; coordinates of one point</li>
-<li><strong>lattice</strong> &#8211; Lattice object used to convert from reciprocal to cartesian coordinates</li>
-<li><strong>coords_are_cartesian</strong> &#8211; Set to True if you are providing
+<li><strong>p</strong> – coordinates of one point</li>
+<li><strong>lattice</strong> – Lattice object used to convert from reciprocal to cartesian coordinates</li>
+<li><strong>coords_are_cartesian</strong> – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
 </ul>
 </td>
@@ -1062,16 +1088,16 @@ Can add to the plot paths, labels and kpoints</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bz_lattice</strong> &#8211; Lattice object of the Brillouin zone</li>
-<li><strong>lines</strong> &#8211; list of lists of coordinates. Each list represent a different path</li>
-<li><strong>labels</strong> &#8211; dict containing the label as a key and the coordinates as value.</li>
-<li><strong>kpoints</strong> &#8211; list of coordinates</li>
-<li><strong>fold</strong> &#8211; whether the points should be folded inside the first Brillouin Zone.
+<li><strong>bz_lattice</strong> – Lattice object of the Brillouin zone</li>
+<li><strong>lines</strong> – list of lists of coordinates. Each list represent a different path</li>
+<li><strong>labels</strong> – dict containing the label as a key and the coordinates as value.</li>
+<li><strong>kpoints</strong> – list of coordinates</li>
+<li><strong>fold</strong> – whether the points should be folded inside the first Brillouin Zone.
 Defaults to False. Requires lattice if True.</li>
-<li><strong>coords_are_cartesian</strong> &#8211; Set to True if you are providing
+<li><strong>coords_are_cartesian</strong> – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
-<li><strong>ax</strong> &#8211; matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
-<li><strong>kwargs</strong> &#8211; provided by add_fig_kwargs decorator</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>kwargs</strong> – provided by add_fig_kwargs decorator</li>
 </ul>
 </td>
 </tr>
@@ -1099,7 +1125,7 @@ coordinates in cartesian coordinates. Defaults to False.</li>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
@@ -1124,9 +1150,9 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>kpath</strong> (<a class="reference internal" href="pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath" title="pymatgen.symmetry.bandstructure.HighSymmKpath"><em>HighSymmKpath</em></a>) &#8211; a HighSymmKPath object</li>
-<li><strong>ax</strong> &#8211; matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
-<li><strong>**kwargs</strong> &#8211; provided by add_fig_kwargs decorator</li>
+<li><strong>kpath</strong> (<a class="reference internal" href="pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath" title="pymatgen.symmetry.bandstructure.HighSymmKpath"><em>HighSymmKpath</em></a>) – a HighSymmKPath object</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>**kwargs</strong> – provided by add_fig_kwargs decorator</li>
 </ul>
 </td>
 </tr>
@@ -1154,7 +1180,7 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
@@ -1178,14 +1204,14 @@ of a band in a single k-point.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>hessian</strong> &#8211; the Hessian matrix</li>
-<li><strong>center</strong> &#8211; the center of the ellipsoid in reciprocal coords (Default)</li>
-<li><strong>lattice</strong> &#8211; Lattice object of the Brillouin zone</li>
-<li><strong>rescale</strong> &#8211; factor for size scaling of the ellipsoid</li>
-<li><strong>ax</strong> &#8211; matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
-<li><strong>coords_are_cartesian</strong> &#8211; Set to True if you are providing a center in
+<li><strong>hessian</strong> – the Hessian matrix</li>
+<li><strong>center</strong> – the center of the ellipsoid in reciprocal coords (Default)</li>
+<li><strong>lattice</strong> – Lattice object of the Brillouin zone</li>
+<li><strong>rescale</strong> – factor for size scaling of the ellipsoid</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>coords_are_cartesian</strong> – Set to True if you are providing a center in
 cartesian coordinates. Defaults to False.</li>
-<li><strong>kwargs</strong> &#8211; kwargs passed to the matplotlib function &#8216;plot_wireframe&#8217;.
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot_wireframe’.
 Color defaults to blue, rstride and cstride
 default to 4, alpha defaults to 0.2.</li>
 </ul>
@@ -1212,29 +1238,29 @@ plot_ellipsoid(hessian,[0.0,0.0,0.0], struct.reciprocal_lattice,ax=ax)</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> &#8211; energy values in a 3D grid from a CUBE file
+<li><strong>data</strong> – energy values in a 3D grid from a CUBE file
 via read_cube_file function, or from a
 BoltztrapAnalyzer.fermi_surface_data</li>
-<li><strong>structure</strong> &#8211; structure object of the material</li>
-<li><strong>energy_levels</strong> &#8211; list of energy value of the fermi surface.
+<li><strong>structure</strong> – structure object of the material</li>
+<li><strong>energy_levels</strong> – list of energy value of the fermi surface.
 By default 0 eV correspond to the VBM, as in
 the plot of band structure along symmetry line.
 Default: max energy value + 0.01 eV</li>
-<li><strong>cbm</strong> &#8211; Boolean value to specify if the considered band is
+<li><strong>cbm</strong> – Boolean value to specify if the considered band is
 a conduction band or not</li>
-<li><strong>multiple_figure</strong> &#8211; if True a figure for each energy level will be shown.
+<li><strong>multiple_figure</strong> – if True a figure for each energy level will be shown.
 If False all the surfaces will be shown in the same figure.
 In this las case, tune the transparency factor.</li>
-<li><strong>mlab_figure</strong> &#8211; provide a previous figure to plot a new surface on it.</li>
-<li><strong>kpoints_dict</strong> &#8211; dictionary of kpoints to show in the plot.
-example: {&#8220;K&#8221;:[0.5,0.0,0.5]},
+<li><strong>mlab_figure</strong> – provide a previous figure to plot a new surface on it.</li>
+<li><strong>kpoints_dict</strong> – dictionary of kpoints to show in the plot.
+example: {“K”:[0.5,0.0,0.5]},
 where the coords are fractional.</li>
-<li><strong>color</strong> &#8211; tuple (r,g,b) of integers to define the color of the surface.</li>
-<li><strong>transparency_factor</strong> &#8211; list of values in the range [0,1] to tune
+<li><strong>color</strong> – tuple (r,g,b) of integers to define the color of the surface.</li>
+<li><strong>transparency_factor</strong> – list of values in the range [0,1] to tune
 the opacity of the surfaces.</li>
-<li><strong>labels_scale_factor</strong> &#8211; factor to tune the size of the kpoint labels</li>
-<li><strong>points_scale_factor</strong> &#8211; factor to tune the size of the kpoint points</li>
-<li><strong>interative</strong> &#8211; if True an interactive figure will be shown.
+<li><strong>labels_scale_factor</strong> – factor to tune the size of the kpoint labels</li>
+<li><strong>points_scale_factor</strong> – factor to tune the size of the kpoint points</li>
+<li><strong>interative</strong> – if True an interactive figure will be shown.
 If False a non interactive figure will be shown, but
 it is possible to plot other surfaces on the same figure.
 To make it interactive, run mlab.show().</li>
@@ -1262,13 +1288,13 @@ other software and report issues.</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>labels</strong> &#8211; dict containing the label as a key and the coordinates as value.</li>
-<li><strong>lattice</strong> &#8211; Lattice object used to convert from reciprocal to cartesian coordinates</li>
-<li><strong>coords_are_cartesian</strong> &#8211; Set to True if you are providing.
+<li><strong>labels</strong> – dict containing the label as a key and the coordinates as value.</li>
+<li><strong>lattice</strong> – Lattice object used to convert from reciprocal to cartesian coordinates</li>
+<li><strong>coords_are_cartesian</strong> – Set to True if you are providing.
 coordinates in cartesian coordinates. Defaults to False.
 Requires lattice if False.</li>
-<li><strong>ax</strong> &#8211; matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
-<li><strong>kwargs</strong> &#8211; kwargs passed to the matplotlib function &#8216;text&#8217;. Color defaults to blue
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘text’. Color defaults to blue
 and size to 25.</li>
 </ul>
 </td>
@@ -1289,9 +1315,9 @@ and size to 25.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lattice</strong> &#8211; Lattice object</li>
-<li><strong>ax</strong> &#8211; matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
-<li><strong>kwargs</strong> &#8211; kwargs passed to the matplotlib function &#8216;plot&#8217;. Color defaults to green
+<li><strong>lattice</strong> – Lattice object</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’. Color defaults to green
 and linewidth to 3.</li>
 </ul>
 </td>
@@ -1306,19 +1332,19 @@ and linewidth to 3.</li>
 <dl class="function">
 <dt id="pymatgen.electronic_structure.plotter.plot_path">
 <code class="descname">plot_path</code><span class="sig-paren">(</span><em>line</em>, <em>lattice=None</em>, <em>coords_are_cartesian=False</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#plot_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.plot_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a line passing through the coordinates listed in &#8216;line&#8217; to a matplotlib Axes</p>
+<dd><p>Adds a line passing through the coordinates listed in ‘line’ to a matplotlib Axes</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>line</strong> &#8211; list of coordinates.</li>
-<li><strong>lattice</strong> &#8211; Lattice object used to convert from reciprocal to cartesian coordinates</li>
-<li><strong>coords_are_cartesian</strong> &#8211; Set to True if you are providing
+<li><strong>line</strong> – list of coordinates.</li>
+<li><strong>lattice</strong> – Lattice object used to convert from reciprocal to cartesian coordinates</li>
+<li><strong>coords_are_cartesian</strong> – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.
 Requires lattice if False.</li>
-<li><strong>ax</strong> &#8211; matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
-<li><strong>kwargs</strong> &#8211; kwargs passed to the matplotlib function &#8216;plot&#8217;. Color defaults to red
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’. Color defaults to red
 and linewidth to 3.</li>
 </ul>
 </td>
@@ -1339,15 +1365,15 @@ and linewidth to 3.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>points</strong> &#8211; list of coordinates</li>
-<li><strong>lattice</strong> &#8211; Lattice object used to convert from reciprocal to cartesian coordinates</li>
-<li><strong>coords_are_cartesian</strong> &#8211; Set to True if you are providing
+<li><strong>points</strong> – list of coordinates</li>
+<li><strong>lattice</strong> – Lattice object used to convert from reciprocal to cartesian coordinates</li>
+<li><strong>coords_are_cartesian</strong> – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.
 Requires lattice if False.</li>
-<li><strong>fold</strong> &#8211; whether the points should be folded inside the first Brillouin Zone.
+<li><strong>fold</strong> – whether the points should be folded inside the first Brillouin Zone.
 Defaults to False. Requires lattice if True.</li>
-<li><strong>ax</strong> &#8211; matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
-<li><strong>kwargs</strong> &#8211; kwargs passed to the matplotlib function &#8216;scatter&#8217;. Color defaults to blue</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘scatter’. Color defaults to blue</li>
 </ul>
 </td>
 </tr>
@@ -1367,9 +1393,9 @@ Defaults to False. Requires lattice if True.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lattice</strong> &#8211; Lattice object</li>
-<li><strong>ax</strong> &#8211; matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
-<li><strong>kwargs</strong> &#8211; kwargs passed to the matplotlib function &#8216;plot&#8217;. Color defaults to black
+<li><strong>lattice</strong> – Lattice object</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’. Color defaults to black
 and linewidth to 1.</li>
 </ul>
 </td>
@@ -1419,13 +1445,13 @@ and linewidth to 1.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

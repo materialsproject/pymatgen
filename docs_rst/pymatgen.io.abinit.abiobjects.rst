@@ -1,5 +1,5 @@
-pymatgen.io.abinit.abiobjects module
-====================================
+pymatgen\.io\.abinit\.abiobjects module
+=======================================
 
 .. automodule:: pymatgen.io.abinit.abiobjects
     :members:

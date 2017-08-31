@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.energy_models module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.energy_models module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -88,16 +85,16 @@ kept in the Transmuter object during filtering.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>real_space_cut</strong> (<em>float</em>) &#8211; Real space cutoff radius dictating how
+<li><strong>real_space_cut</strong> (<em>float</em>) – Real space cutoff radius dictating how
 many terms are used in the real space sum. Defaults to None,
 which means determine automagically using the formula given
 in gulp 3.1 documentation.</li>
-<li><strong>recip_space_cut</strong> (<em>float</em>) &#8211; Reciprocal space cutoff radius.
+<li><strong>recip_space_cut</strong> (<em>float</em>) – Reciprocal space cutoff radius.
 Defaults to None, which means determine automagically using
 the formula given in gulp 3.1 documentation.</li>
-<li><strong>eta</strong> (<em>float</em>) &#8211; Screening parameter. Defaults to None, which means
+<li><strong>eta</strong> (<em>float</em>) – Screening parameter. Defaults to None, which means
 determine automatically.</li>
-<li><strong>acc_factor</strong> (<em>float</em>) &#8211; No. of significant figures each sum is
+<li><strong>acc_factor</strong> (<em>float</em>) – No. of significant figures each sum is
 converged to.</li>
 </ul>
 </td>
@@ -126,8 +123,8 @@ converged to.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>j</strong> (<em>float</em>) &#8211; The interaction parameter. E = J * spin1 * spin2.</li>
-<li><strong>radius</strong> (<em>float</em>) &#8211; max_radius for the interaction.</li>
+<li><strong>j</strong> (<em>float</em>) – The interaction parameter. E = J * spin1 * spin2.</li>
+<li><strong>radius</strong> (<em>float</em>) – max_radius for the interaction.</li>
 </ul>
 </td>
 </tr>
@@ -149,7 +146,7 @@ converged to.</li>
 <dt id="pymatgen.analysis.energy_models.NsitesModel">
 <em class="property">class </em><code class="descname">NsitesModel</code><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#NsitesModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.energy_models.EnergyModel</span></code></a></p>
-<p>Sets the energy to the number of sites. More sites =&gt; higher &#8220;energy&#8221;.
+<p>Sets the energy to the number of sites. More sites =&gt; higher “energy”.
 Used to rank structures from smallest number of sites to largest number
 of sites after enumeration.</p>
 <dl class="method">
@@ -169,7 +166,7 @@ of sites after enumeration.</p>
 <em class="property">class </em><code class="descname">SymmetryModel</code><span class="sig-paren">(</span><em>symprec=0.1</em>, <em>angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#SymmetryModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.energy_models.EnergyModel</span></code></a></p>
 <p>Sets the energy to the -ve of the spacegroup number. Higher symmetry =&gt;
-lower &#8220;energy&#8221;.</p>
+lower “energy”.</p>
 <p>Args have same meaning as in
 <code class="xref py py-class docutils literal"><span class="pre">pymatgen.symmetry.finder.SpacegroupAnalyzer</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -177,8 +174,8 @@ lower &#8220;energy&#8221;.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symprec</strong> (<em>float</em>) &#8211; Symmetry tolerance. Defaults to 0.1.</li>
-<li><strong>angle_tolerance</strong> (<em>float</em>) &#8211; Tolerance for angles. Defaults to 5 degrees.</li>
+<li><strong>symprec</strong> (<em>float</em>) – Symmetry tolerance. Defaults to 0.1.</li>
+<li><strong>angle_tolerance</strong> (<em>float</em>) – Tolerance for angles. Defaults to 5 degrees.</li>
 </ul>
 </td>
 </tr>
@@ -234,13 +231,13 @@ lower &#8220;energy&#8221;.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

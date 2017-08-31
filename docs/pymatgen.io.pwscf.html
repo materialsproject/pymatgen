@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.pwscf module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.pwscf module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -69,24 +66,24 @@ very basic.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Input structure. For spin-polarized calculation,
-properties (e.g. {&#8220;starting_magnetization&#8221;: -0.5,
-&#8220;pseudo&#8221;: &#8220;Mn.pbe-sp-van.UPF&#8221;}) on each site is needed instead of
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure. For spin-polarized calculation,
+properties (e.g. {“starting_magnetization”: -0.5,
+“pseudo”: “Mn.pbe-sp-van.UPF”}) on each site is needed instead of
 pseudo (dict).</li>
-<li><strong>pseudo</strong> (<em>dict</em>) &#8211; A dict of the pseudopotentials to use. Default to None.</li>
-<li><strong>control</strong> (<em>dict</em>) &#8211; Control parameters. Refer to official PWSCF doc
-on supported parameters. Default to {&#8220;calculation&#8221;: &#8220;scf&#8221;}</li>
-<li><strong>system</strong> (<em>dict</em>) &#8211; System parameters. Refer to official PWSCF doc
+<li><strong>pseudo</strong> (<em>dict</em>) – A dict of the pseudopotentials to use. Default to None.</li>
+<li><strong>control</strong> (<em>dict</em>) – Control parameters. Refer to official PWSCF doc
+on supported parameters. Default to {“calculation”: “scf”}</li>
+<li><strong>system</strong> (<em>dict</em>) – System parameters. Refer to official PWSCF doc
 on supported parameters. Default to None, which means {}.</li>
-<li><strong>electrons</strong> (<em>dict</em>) &#8211; Electron parameters. Refer to official PWSCF doc
+<li><strong>electrons</strong> (<em>dict</em>) – Electron parameters. Refer to official PWSCF doc
 on supported parameters. Default to None, which means {}.</li>
-<li><strong>ions</strong> (<em>dict</em>) &#8211; Ions parameters. Refer to official PWSCF doc
+<li><strong>ions</strong> (<em>dict</em>) – Ions parameters. Refer to official PWSCF doc
 on supported parameters. Default to None, which means {}.</li>
-<li><strong>cell</strong> (<em>dict</em>) &#8211; Cell parameters. Refer to official PWSCF doc
+<li><strong>cell</strong> (<em>dict</em>) – Cell parameters. Refer to official PWSCF doc
 on supported parameters. Default to None, which means {}.</li>
-<li><strong>kpoints_mode</strong> (<em>str</em>) &#8211; Kpoints generation mode. Default to automatic.</li>
-<li><strong>kpoints_grid</strong> (<em>sequence</em>) &#8211; The kpoint grid. Default to (1, 1, 1).</li>
-<li><strong>kpoints_shift</strong> (<em>sequence</em>) &#8211; The shift for the kpoints. Defaults to
+<li><strong>kpoints_mode</strong> (<em>str</em>) – Kpoints generation mode. Default to automatic.</li>
+<li><strong>kpoints_grid</strong> (<em>sequence</em>) – The kpoint grid. Default to (1, 1, 1).</li>
+<li><strong>kpoints_shift</strong> (<em>sequence</em>) – The shift for the kpoints. Defaults to
 (0, 0, 0).</li>
 </ul>
 </td>
@@ -101,7 +98,7 @@ on supported parameters. Default to None, which means {}.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Filename for file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename for file</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">PWInput object</td>
 </tr>
@@ -117,7 +114,7 @@ on supported parameters. Default to None, which means {}.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) &#8211; PWInput string</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) – PWInput string</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">PWInput object</td>
 </tr>
@@ -135,8 +132,8 @@ integers, floats, etc.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> &#8211; PWINPUT parameter key</li>
-<li><strong>val</strong> &#8211; Actual value of PWINPUT parameter.</li>
+<li><strong>key</strong> – PWINPUT parameter key</li>
+<li><strong>val</strong> – Actual value of PWINPUT parameter.</li>
 </ul>
 </td>
 </tr>
@@ -152,7 +149,7 @@ integers, floats, etc.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; The string filename to output to.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – The string filename to output to.</td>
 </tr>
 </tbody>
 </table>
@@ -193,21 +190,21 @@ integers, floats, etc.</p>
 <dl class="method">
 <dt id="pymatgen.io.pwscf.PWOutput.read_pattern">
 <code class="descname">read_pattern</code><span class="sig-paren">(</span><em>patterns</em>, <em>reverse=False</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWOutput.read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.read_pattern" title="Permalink to this definition">¶</a></dt>
-<dd><p>General pattern reading. Uses monty&#8217;s regrep method. Takes the same
+<dd><p>General pattern reading. Uses monty’s regrep method. Takes the same
 arguments.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>patterns</strong> (<em>dict</em>) &#8211; A dict of patterns, e.g.,
-{&#8220;energy&#8221;: r&#8221;energy(sigma-&gt;0)s+=s+([d-.]+)&#8221;}.</li>
-<li><strong>reverse</strong> (<em>bool</em>) &#8211; Read files in reverse. Defaults to false. Useful for
+<li><strong>patterns</strong> (<em>dict</em>) – A dict of patterns, e.g.,
+{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”}.</li>
+<li><strong>reverse</strong> (<em>bool</em>) – Read files in reverse. Defaults to false. Useful for
 large files, esp OUTCARs, especially when used with
 terminate_on_match.</li>
-<li><strong>terminate_on_match</strong> (<em>bool</em>) &#8211; Whether to terminate when there is at
+<li><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
 least one match in each key in pattern.</li>
-<li><strong>postprocess</strong> (<em>callable</em>) &#8211; A post processing function to convert all
+<li><strong>postprocess</strong> (<em>callable</em>) – A post processing function to convert all
 matches. Defaults to str, i.e., no change.</li>
 </ul>
 </td>
@@ -217,8 +214,8 @@ matches. Defaults to str, i.e., no change.</li>
 <dl class="docutils">
 <dt>Renders accessible:</dt>
 <dd>Any attribute in patterns. For example,
-{&#8220;energy&#8221;: r&#8221;energy(sigma-&gt;0)s+=s+([d-.]+)&#8221;} will set the
-value of self.data[&#8220;energy&#8221;] = [[-1234], [-3453], ...], to the
+{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”} will set the
+value of self.data[“energy”] = [[-1234], [-3453], …], to the
 results from regex and postprocess. Note that the returned
 values are lists of lists, because you can grep multiple
 items on one line.</dd>
@@ -265,13 +262,13 @@ items on one line.</dd>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

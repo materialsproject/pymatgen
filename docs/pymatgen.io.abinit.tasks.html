@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -64,7 +61,7 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A <cite>TaskManager</cite> is responsible for the generation of the job script and the submission
 of the task, as well as for the specification of the parameters passed to the resource manager
-(e.g. Slurm, PBS ...) and/or the run-time specification of the ABINIT variables governing the parallel execution.
+(e.g. Slurm, PBS …) and/or the run-time specification of the ABINIT variables governing the parallel execution.
 A <cite>TaskManager</cite> delegates the generation of the submission script and the submission of the task to the <code class="xref py py-class docutils literal"><span class="pre">QueueAdapter</span></code>.
 A <cite>TaskManager</cite> has a <code class="xref py py-class docutils literal"><span class="pre">TaskPolicy</span></code> that governs the specification of the parameters for the parallel executions.
 Ideally, the TaskManager should be the <strong>main entry point</strong> used by the task to deal with job submission/optimization</p>
@@ -73,9 +70,9 @@ Ideally, the TaskManager should be the <strong>main entry point</strong> used by
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>policy</strong> &#8211; None</li>
-<li><strong>qadapters</strong> &#8211; List of qadapters in YAML format</li>
-<li><strong>db_connector</strong> &#8211; Dictionary with data used to connect to the database (optional)</li>
+<li><strong>policy</strong> – None</li>
+<li><strong>qadapters</strong> – List of qadapters in YAML format</li>
+<li><strong>db_connector</strong> – Dictionary with data used to connect to the database (optional)</li>
 </ul>
 </td>
 </tr>
@@ -157,7 +154,7 @@ If obj is None, the manager is initialized from the user config file.</p>
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.from_user_config">
 <em class="property">classmethod </em><code class="descname">from_user_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.from_user_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.from_user_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize the <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> from the YAML file &#8216;manager.yaml&#8217;.
+<dd><p>Initialize the <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> from the YAML file ‘manager.yaml’.
 Search first in the working directory and then in the abipy configuration directory.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -184,7 +181,7 @@ returns None when the number of jobs cannot be determined.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>username</strong> &#8211; (str) the username of the jobs to count (default is to autodetect)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>username</strong> – (str) the username of the jobs to count (default is to autodetect)</td>
 </tr>
 </tbody>
 </table>
@@ -238,7 +235,7 @@ switch to the next qadapter. If all fail raise an ManagerIncreaseError</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>task</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">TaskObject</span></code></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>task</strong> – <code class="xref py py-class docutils literal"><span class="pre">TaskObject</span></code></td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Process object.</td>
 </tr>
@@ -306,7 +303,7 @@ according to some criterion as well as the <code class="xref py py-class docutil
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pconfs</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.ParalHints" title="pymatgen.io.abinit.tasks.ParalHints"><code class="xref py py-class docutils literal"><span class="pre">ParalHints</span></code></a> object with the list of parallel configurations</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pconfs</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.ParalHints" title="pymatgen.io.abinit.tasks.ParalHints"><code class="xref py py-class docutils literal"><span class="pre">ParalHints</span></code></a> object with the list of parallel configurations</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">ParallelConf</span></code> object with the <cite>optimal</cite> configuration.</td>
 </tr>
@@ -531,7 +528,7 @@ Mainly used for preparing benchmarks.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><p class="first">condition: dict or <code class="xref py py-class docutils literal"><span class="pre">Condition</span></code> object with operators expressed with a Mongodb-like syntax
-key: Selects the sub-dictionary on which condition is applied, e.g. key=&#8221;vars&#8221;</p>
+key: Selects the sub-dictionary on which condition is applied, e.g. key=”vars”</p>
 <blockquote class="last">
 <div>if we have to filter the configurations depending on the values in vars</div></blockquote>
 </dd>
@@ -569,10 +566,10 @@ key: Selects the sub-dictionary on which condition is applied, e.g. key=&#8221;v
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
-<li><strong>workdir</strong> &#8211; Path to the working directory.</li>
-<li><strong>manager</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
-<li><strong>deps</strong> &#8211; Dictionary specifying the dependency of this node.
+<li><strong>input</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
+<li><strong>deps</strong> – Dictionary specifying the dependency of this node.
 None means that this Task has no dependency.</li>
 </ul>
 </td>
@@ -656,9 +653,9 @@ if this is not possible, call a task specific method to attempt to decrease the 
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ainput</strong> &#8211; <cite>AbinitInput</cite> object.</li>
-<li><strong>workdir</strong> &#8211; Path to the working directory.</li>
-<li><strong>manager</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
+<li><strong>ainput</strong> – <cite>AbinitInput</cite> object.</li>
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
 </ul>
 </td>
 </tr>
@@ -720,7 +717,7 @@ to see the task as crashed even if the job did not run</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>what</strong> &#8211; <p>string with the list of characters selecting the file type
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>what</strong> – <p>string with the list of characters selecting the file type
 Possible choices:</p>
 <blockquote>
 <div>i ==&gt; input_file,
@@ -746,9 +743,9 @@ all ==&gt; all files.</div></blockquote>
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.setup">
 <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Abinit has the very <em>bad</em> habit of changing the file extension by appending the characters in [A,B ..., Z]
+<dd><p>Abinit has the very <em>bad</em> habit of changing the file extension by appending the characters in [A,B …, Z]
 to the output file, and this breaks a lot of code that relies of the use of a unique file extension.
-Here we fix this issue by renaming run.abo to run.abo_[number] if the output file &#8220;run.abo&#8221; already
+Here we fix this issue by renaming run.abo to run.abo_[number] if the output file “run.abo” already
 exists. A few lines of code in python, a lot of problems if you try to implement this trick in Fortran90.</p>
 </dd></dl>
 
@@ -761,7 +758,7 @@ Mainly used for invoking Abinit to get important parameters needed to prepare th
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mpi_procs</strong> &#8211; Number of MPI processes to use.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mpi_procs</strong> – Number of MPI processes to use.</td>
 </tr>
 </tbody>
 </table>
@@ -786,10 +783,10 @@ Provide support for in-place restart via (WFK|DEN) files</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
-<li><strong>workdir</strong> &#8211; Path to the working directory.</li>
-<li><strong>manager</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
-<li><strong>deps</strong> &#8211; Dictionary specifying the dependency of this node.
+<li><strong>input</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
+<li><strong>deps</strong> – Dictionary specifying the dependency of this node.
 None means that this Task has no dependency.</li>
 </ul>
 </td>
@@ -839,10 +836,10 @@ None means that this Task has no dependency.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
-<li><strong>workdir</strong> &#8211; Path to the working directory.</li>
-<li><strong>manager</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
-<li><strong>deps</strong> &#8211; Dictionary specifying the dependency of this node.
+<li><strong>input</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
+<li><strong>deps</strong> – Dictionary specifying the dependency of this node.
 None means that this Task has no dependency.</li>
 </ul>
 </td>
@@ -882,10 +879,10 @@ None means that this Task has no dependency.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
-<li><strong>workdir</strong> &#8211; Path to the working directory.</li>
-<li><strong>manager</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
-<li><strong>deps</strong> &#8211; Dictionary specifying the dependency of this node.
+<li><strong>input</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
+<li><strong>deps</strong> – Dictionary specifying the dependency of this node.
 None means that this Task has no dependency.</li>
 </ul>
 </td>
@@ -907,7 +904,7 @@ None means that this Task has no dependency.</li>
 <code class="descname">fix_ofiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.fix_ofiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.fix_ofiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Note that ABINIT produces lots of out_TIM1_DEN files for each step.
 Here we list all TIM*_DEN files, we select the last one and we rename it in out_DEN</p>
-<p>This change is needed so that we can specify dependencies with the syntax {node: &#8220;DEN&#8221;}
+<p>This change is needed so that we can specify dependencies with the syntax {node: “DEN”}
 without having to know the number of iterations needed to converge the run in node!</p>
 </dd></dl>
 
@@ -930,7 +927,7 @@ without having to know the number of iterations needed to converge the run in no
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>what</strong> &#8211; Either &#8220;hist&#8221; or &#8220;scf&#8221;. The first option (default) extracts data
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>what</strong> – Either “hist” or “scf”. The first option (default) extracts data
 from the HIST file and plot the evolution of the structural
 parameters, forces, pressures and energies.
 The second option, extracts data from the main output file and
@@ -974,10 +971,10 @@ the modification of the structure done during the structure relaxation.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
-<li><strong>workdir</strong> &#8211; Path to the working directory.</li>
-<li><strong>manager</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
-<li><strong>deps</strong> &#8211; Dictionary specifying the dependency of this node.
+<li><strong>input</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
+<li><strong>deps</strong> – Dictionary specifying the dependency of this node.
 None means that this Task has no dependency.</li>
 </ul>
 </td>
@@ -1007,10 +1004,10 @@ Provide support for in-place restart via (1WF|1DEN) files</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
-<li><strong>workdir</strong> &#8211; Path to the working directory.</li>
-<li><strong>manager</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
-<li><strong>deps</strong> &#8211; Dictionary specifying the dependency of this node.
+<li><strong>input</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
+<li><strong>deps</strong> – Dictionary specifying the dependency of this node.
 None means that this Task has no dependency.</li>
 </ul>
 </td>
@@ -1071,10 +1068,10 @@ Prefer 1WF over 1DEN since we can reuse the wavefunctions.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
-<li><strong>workdir</strong> &#8211; Path to the working directory.</li>
-<li><strong>manager</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
-<li><strong>deps</strong> &#8211; Dictionary specifying the dependency of this node.
+<li><strong>input</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
+<li><strong>deps</strong> – Dictionary specifying the dependency of this node.
 None means that this Task has no dependency.</li>
 </ul>
 </td>
@@ -1138,11 +1135,11 @@ RPA without local-field effects and velocity operator computed from DDK files.</
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>optic_input</strong> &#8211; string with the optic variables (filepaths will be added at run time).</li>
-<li><strong>nscf_node</strong> &#8211; The NSCF task that will produce thw WFK file or string with the path of the WFK file.</li>
-<li><strong>ddk_nodes</strong> &#8211; List of <a class="reference internal" href="#pymatgen.io.abinit.tasks.DdkTask" title="pymatgen.io.abinit.tasks.DdkTask"><code class="xref py py-class docutils literal"><span class="pre">DdkTask</span></code></a> nodes that will produce the DDK files or list of DDF paths.</li>
-<li><strong>workdir</strong> &#8211; Path to the working directory.</li>
-<li><strong>manager</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
+<li><strong>optic_input</strong> – string with the optic variables (filepaths will be added at run time).</li>
+<li><strong>nscf_node</strong> – The NSCF task that will produce thw WFK file or string with the path of the WFK file.</li>
+<li><strong>ddk_nodes</strong> – List of <a class="reference internal" href="#pymatgen.io.abinit.tasks.DdkTask" title="pymatgen.io.abinit.tasks.DdkTask"><code class="xref py py-class docutils literal"><span class="pre">DdkTask</span></code></a> nodes that will produce the DDK files or list of DDF paths.</li>
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
 </ul>
 </td>
 </tr>
@@ -1216,7 +1213,7 @@ if this is not possible, call a task specific method to attempt to decrease the 
 <dt id="pymatgen.io.abinit.tasks.OpticTask.make_links">
 <code class="descname">make_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.make_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.make_links" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optic allows the user to specify the paths of the input file.
-hence we don&#8217;t need to create symbolic links.</p>
+hence we don’t need to create symbolic links.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1263,13 +1260,13 @@ to change the input when we connect this task</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>anaddb_input</strong> &#8211; string with the anaddb variables.</li>
-<li><strong>ddb_node</strong> &#8211; The node that will produce the DDB file. Accept <code class="xref py py-class docutils literal"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal"><span class="pre">Work</span></code> or filepath.</li>
-<li><strong>gkk_node</strong> &#8211; The node that will produce the GKK file (optional). Accept <code class="xref py py-class docutils literal"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal"><span class="pre">Work</span></code> or filepath.</li>
-<li><strong>md_node</strong> &#8211; The node that will produce the MD file (optional). Accept <cite>Task</cite>, <cite>Work</cite> or filepath.</li>
-<li><strong>gkk_node</strong> &#8211; The node that will produce the GKK file (optional). Accept <cite>Task</cite>, <cite>Work</cite> or filepath.</li>
-<li><strong>workdir</strong> &#8211; Path to the working directory (optional).</li>
-<li><strong>manager</strong> &#8211; <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object (optional).</li>
+<li><strong>anaddb_input</strong> – string with the anaddb variables.</li>
+<li><strong>ddb_node</strong> – The node that will produce the DDB file. Accept <code class="xref py py-class docutils literal"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal"><span class="pre">Work</span></code> or filepath.</li>
+<li><strong>gkk_node</strong> – The node that will produce the GKK file (optional). Accept <code class="xref py py-class docutils literal"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal"><span class="pre">Work</span></code> or filepath.</li>
+<li><strong>md_node</strong> – The node that will produce the MD file (optional). Accept <cite>Task</cite>, <cite>Work</cite> or filepath.</li>
+<li><strong>gkk_node</strong> – The node that will produce the GKK file (optional). Accept <cite>Task</cite>, <cite>Work</cite> or filepath.</li>
+<li><strong>workdir</strong> – Path to the working directory (optional).</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object (optional).</li>
 </ul>
 </td>
 </tr>
@@ -1319,7 +1316,7 @@ to change the input when we connect this task</p>
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.make_links">
 <code class="descname">make_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.make_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.make_links" title="Permalink to this definition">¶</a></dt>
 <dd><p>Anaddb allows the user to specify the paths of the input file.
-hence we don&#8217;t need to create symbolic links.</p>
+hence we don’t need to create symbolic links.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1356,9 +1353,9 @@ the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mpi_procs</strong> &#8211; Number of MPI processes to use.</li>
-<li><strong>anaddb_input</strong> &#8211; string with the anaddb variables.</li>
-<li><strong>ddb_node</strong> &#8211; The node that will produce the DDB file. Accept <code class="xref py py-class docutils literal"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal"><span class="pre">Work</span></code> or filepath.</li>
+<li><strong>mpi_procs</strong> – Number of MPI processes to use.</li>
+<li><strong>anaddb_input</strong> – string with the anaddb variables.</li>
+<li><strong>ddb_node</strong> – The node that will produce the DDB file. Accept <code class="xref py py-class docutils literal"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal"><span class="pre">Work</span></code> or filepath.</li>
 </ul>
 </td>
 </tr>
@@ -1407,13 +1404,13 @@ the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

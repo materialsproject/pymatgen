@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.reaction_calculator module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.reaction_calculator module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -68,9 +65,9 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong></strong><strong>(</strong><strong>{Composition</strong> (<em>products_coeffs</em>) &#8211; float}): Reactants as dict of
+<li><strong>(</strong><strong>{Composition</strong> (<em>products_coeffs</em>) – float}): Reactants as dict of
 {Composition: amt}.</li>
-<li><strong></strong><strong>(</strong><strong>{Composition</strong> &#8211; float}): Products as dict of
+<li><strong>(</strong><strong>{Composition</strong> – float}): Products as dict of
 {Composition: amt}.</li>
 </ul>
 </td>
@@ -108,7 +105,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong></strong><strong>(</strong><strong>{Composition</strong> (<a class="reference internal" href="pymatgen.io.adf.html#pymatgen.io.adf.AdfOutput.energies" title="pymatgen.io.adf.AdfOutput.energies"><em>energies</em></a>) &#8211; float}): Energy for each composition.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>{Composition</strong> (<a class="reference internal" href="pymatgen.io.adf.html#pymatgen.io.adf.AdfOutput.energies" title="pymatgen.io.adf.AdfOutput.energies"><em>energies</em></a>) – float}): Energy for each composition.
 E.g ., {comp1: energy1, comp2: energy2}.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">reaction energy as a float.</td>
@@ -143,7 +140,7 @@ already be balanced.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rxn_string</strong> &#8211; The reaction string. For example, &#8220;4 Li + O2-&gt; 2Li2O&#8221;</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rxn_string</strong> – The reaction string. For example, “4 Li + O2-&gt; 2Li2O”</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">BalancedReaction</td>
 </tr>
@@ -165,7 +162,7 @@ already be balanced.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>element</strong> (<em>Element/Specie</em>) &#8211; Element in the reaction</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>element</strong> (<em>Element/Specie</em>) – Element in the reaction</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Amount of that element in the reaction.</td>
 </tr>
@@ -184,8 +181,8 @@ coefficient of 1. Another factor can be specified.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) &#8211; Composition to normalize to</li>
-<li><strong>factor</strong> (<em>float</em>) &#8211; Factor to normalize to. Defaults to 1.</li>
+<li><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition to normalize to</li>
+<li><strong>factor</strong> (<em>float</em>) – Factor to normalize to. Defaults to 1.</li>
 </ul>
 </td>
 </tr>
@@ -204,8 +201,8 @@ Another factor can be specified.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>element</strong> (<em>Element/Specie</em>) &#8211; Element to normalize to.</li>
-<li><strong>factor</strong> (<em>float</em>) &#8211; Factor to normalize to. Defaults to 1.</li>
+<li><strong>element</strong> (<em>Element/Specie</em>) – Element to normalize to.</li>
+<li><strong>factor</strong> (<em>float</em>) – Factor to normalize to. Defaults to 1.</li>
 </ul>
 </td>
 </tr>
@@ -253,8 +250,8 @@ energies.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>reactant_entries</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em><em></em>) &#8211; List of reactant_entries.</li>
-<li><strong>product_entries</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em><em></em>) &#8211; List of product_entries.</li>
+<li><strong>reactant_entries</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em>) – List of reactant_entries.</li>
+<li><strong>product_entries</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em>) – List of product_entries.</li>
 </ul>
 </td>
 </tr>
@@ -299,8 +296,8 @@ pymatgen.core.structure.Composition.  e.g., [comp1, comp2]</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>reactants</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a><em>]</em><em></em>) &#8211; List of reactants.</li>
-<li><strong>products</strong> (<em></em><em>[</em><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a><em>]</em><em></em>) &#8211; List of products.</li>
+<li><strong>reactants</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a><em>]</em>) – List of reactants.</li>
+<li><strong>products</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a><em>]</em>) – List of products.</li>
 </ul>
 </td>
 </tr>
@@ -370,13 +367,13 @@ messages to cover situations not covered by standard exception classes.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

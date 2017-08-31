@@ -6,6 +6,7 @@ from __future__ import division, unicode_literals, print_function
 import itertools
 import logging
 from collections import defaultdict
+import copy
 
 import math
 from math import cos
@@ -18,7 +19,7 @@ from six.moves import filter, map, zip
 from monty.dev import deprecated
 import spglib
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
@@ -799,6 +800,18 @@ class SpacegroupAnalyzer(object):
                              "kpoints and irreducible grid!")
         return [w/sum(weights) for w in weights]
 
+    def is_laue(self):
+
+        """
+        Check if the point group of the structure
+            has Laue symmetry (centrosymmetry)
+        """
+
+        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
+                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
+
+        return str(self.get_point_group_symbol()) in laue
+
 
 class PointGroupAnalyzer(object):
     """
@@ -1171,7 +1184,8 @@ class PointGroupAnalyzer(object):
         """
         Returns a PointGroup object for the molecule.
         """
-        return PointGroupOperations(self.sch_symbol, self.symmops, self.mat_tol)
+        return PointGroupOperations(self.sch_symbol, self.symmops,
+                                    self.mat_tol)
 
     def is_valid_op(self, symmop):
         """
@@ -1189,12 +1203,255 @@ class PointGroupAnalyzer(object):
         for site in self.centered_mol:
             coord = symmop.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
-            if not (len(ind) == 1 and self.centered_mol[ind[0]].species_and_occu == site.species_and_occu):
+            if not (len(ind) == 1
+                    and self.centered_mol[ind[0]].species_and_occu
+                    == site.species_and_occu):
                 return False
         return True
 
+    def _get_eq_sets(self):
+        """
+        Calculates the dictionary for mapping equivalent atoms onto each other.
 
-def cluster_sites(mol, tol):
+        Args:
+            None
+
+        Returns:
+            dict: The returned dictionary has two possible keys:
+
+            ``eq_sets``:
+            A dictionary of indices mapping to sets of indices,
+            each key maps to indices of all equivalent atoms.
+            The keys are guaranteed to be not equivalent.
+
+            ``sym_ops``:
+            Twofold nested dictionary.
+            ``operations[i][j]`` gives the symmetry operation
+            that maps atom ``i`` unto ``j``.
+        """
+        UNIT = np.eye(3)
+        eq_sets, operations = defaultdict(set), defaultdict(dict)
+        symm_ops = [op.rotation_matrix
+                    for op in generate_full_symmops(self.symmops, self.tol)]
+
+        def get_clustered_indices():
+            indices = cluster_sites(self.centered_mol, self.tol,
+                                    give_only_index=True)
+            out = list(indices[1].values())
+            if indices[0] is not None:
+                out.append([indices[0]])
+            return out
+
+        for index in get_clustered_indices():
+            sites = self.centered_mol.cart_coords[index]
+            for i, reference in zip(index, sites):
+                for op in symm_ops:
+                    rotated = np.dot(op, sites.T).T
+                    matched_indices = find_in_coord_list(rotated, reference,
+                                                         self.tol)
+                    matched_indices = {
+                        dict(enumerate(index))[i] for i in matched_indices}
+                    eq_sets[i] |= matched_indices
+
+                    if i not in operations:
+                        operations[i] = {j: op.T if j != i else UNIT
+                                         for j in matched_indices}
+                    else:
+                        for j in matched_indices:
+                            if j not in operations[i]:
+                                operations[i][j] = op.T if j != i else UNIT
+                    for j in matched_indices:
+                        if j not in operations:
+                            operations[j] = {i: op if j != i else UNIT}
+                        elif i not in operations[j]:
+                            operations[j][i] = op if j != i else UNIT
+
+        return {'eq_sets': eq_sets,
+                'sym_ops': operations}
+
+    @staticmethod
+    def _combine_eq_sets(eq_sets, operations):
+        """Combines the dicts of _get_equivalent_atom_dicts into one
+
+        Args:
+            eq_sets (dict)
+            operations (dict)
+
+        Returns:
+            dict: The returned dictionary has two possible keys:
+
+            ``eq_sets``:
+            A dictionary of indices mapping to sets of indices,
+            each key maps to indices of all equivalent atoms.
+            The keys are guaranteed to be not equivalent.
+
+            ``sym_ops``:
+            Twofold nested dictionary.
+            ``operations[i][j]`` gives the symmetry operation
+            that maps atom ``i`` unto ``j``.
+        """
+        UNIT = np.eye(3)
+
+        def all_equivalent_atoms_of_i(i, eq_sets, ops):
+            """WORKS INPLACE on operations
+            """
+            visited = set([i])
+            tmp_eq_sets = {j: (eq_sets[j] - visited) for j in eq_sets[i]}
+
+            while tmp_eq_sets:
+                new_tmp_eq_sets = {}
+                for j in tmp_eq_sets:
+                    if j in visited:
+                        continue
+                    visited.add(j)
+                    for k in tmp_eq_sets[j]:
+                        new_tmp_eq_sets[k] = eq_sets[k] - visited
+                        if i not in ops[k]:
+                            ops[k][i] = (np.dot(ops[j][i], ops[k][j])
+                                         if k != i else UNIT)
+                        ops[i][k] = ops[k][i].T
+                tmp_eq_sets = new_tmp_eq_sets
+            return visited, ops
+
+        eq_sets = copy.deepcopy(eq_sets)
+        new_eq_sets = {}
+        ops = copy.deepcopy(operations)
+        to_be_deleted = set()
+        for i in eq_sets:
+            if i in to_be_deleted:
+                continue
+            visited, ops = all_equivalent_atoms_of_i(i, eq_sets, ops)
+            to_be_deleted |= visited - {i}
+
+        for k in to_be_deleted:
+            eq_sets.pop(k, None)
+        return {'eq_sets': eq_sets,
+                'sym_ops': ops}
+
+    def get_equivalent_atoms(self):
+        """Returns sets of equivalent atoms with symmetry operations
+
+        Args:
+            None
+
+        Returns:
+            dict: The returned dictionary has two possible keys:
+
+            ``eq_sets``:
+            A dictionary of indices mapping to sets of indices,
+            each key maps to indices of all equivalent atoms.
+            The keys are guaranteed to be not equivalent.
+
+            ``sym_ops``:
+            Twofold nested dictionary.
+            ``operations[i][j]`` gives the symmetry operation
+            that maps atom ``i`` unto ``j``.
+        """
+        eq = self._get_eq_sets()
+        return self._combine_eq_sets(eq['eq_sets'],
+                                     eq['sym_ops'])
+
+    def symmetrize_molecule(self):
+        """Returns a symmetrized molecule
+
+        The equivalent atoms obtained via
+        :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
+        are rotated, mirrored... unto one position.
+        Then the average position is calculated.
+        The average position is rotated, mirrored... back with the inverse
+        of the previous symmetry operations, which gives the
+        symmetrized molecule
+
+        Args:
+            None
+
+        Returns:
+            dict: The returned dictionary has three possible keys:
+
+            ``sym_mol``:
+            A symmetrized molecule instance.
+
+            ``eq_sets``:
+            A dictionary of indices mapping to sets of indices,
+            each key maps to indices of all equivalent atoms.
+            The keys are guaranteed to be not equivalent.
+
+            ``sym_ops``:
+            Twofold nested dictionary.
+            ``operations[i][j]`` gives the symmetry operation
+            that maps atom ``i`` unto ``j``.
+        """
+        eq = self.get_equivalent_atoms()
+        eq_sets, ops = eq['eq_sets'], eq['sym_ops']
+        coords = self.centered_mol.cart_coords.copy()
+        for i, eq_indices in eq_sets.items():
+            for j in eq_indices:
+                coords[j] = np.dot(ops[j][i], coords[j])
+            coords[i] = np.mean(coords[list(eq_indices)], axis=0)
+            for j in eq_indices:
+                if j == i:
+                    continue
+                coords[j] = np.dot(ops[i][j], coords[i])
+                coords[j] = np.dot(ops[i][j], coords[i])
+        molecule = Molecule(species=self.centered_mol.species, coords=coords)
+        return {'sym_mol': molecule,
+                'eq_sets': eq_sets,
+                'sym_ops': ops}
+
+
+def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
+    """Returns a symmetrized molecule
+
+    The equivalent atoms obtained via
+    :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
+    are rotated, mirrored... unto one position.
+    Then the average position is calculated.
+    The average position is rotated, mirrored... back with the inverse
+    of the previous symmetry operations, which gives the
+    symmetrized molecule
+
+    Args:
+        mol (Molecule): A pymatgen Molecule instance.
+        max_n (int): Maximum number of iterations.
+        tolerance (float): Tolerance for detecting symmetry.
+            Gets passed as Argument into
+            :class:`~pymatgen.analyzer.symmetry.PointGroupAnalyzer`.
+        epsilon (float): If the elementwise absolute difference of two
+            subsequently symmetrized structures is smaller epsilon,
+            the iteration stops before ``max_n`` is reached.
+
+
+    Returns:
+        dict: The returned dictionary has three possible keys:
+
+        ``sym_mol``:
+        A symmetrized molecule instance.
+
+        ``eq_sets``:
+        A dictionary of indices mapping to sets of indices,
+        each key maps to indices of all equivalent atoms.
+        The keys are guaranteed to be not equivalent.
+
+        ``sym_ops``:
+        Twofold nested dictionary.
+        ``operations[i][j]`` gives the symmetry operation
+        that maps atom ``i`` unto ``j``.
+    """
+    new = mol
+    n = 0
+    finished = False
+    while not finished and n <= max_n:
+        previous = new
+        PA = PointGroupAnalyzer(previous, tolerance=tolerance)
+        eq = PA.symmetrize_molecule()
+        new = eq['sym_mol']
+        finished = np.allclose(new.cart_coords, previous.cart_coords,
+                               atol=epsilon)
+        n += 1
+    return eq
+
+
+def cluster_sites(mol, tol, give_only_index=False):
     """
     Cluster sites based on distance and species type.
 
@@ -1220,14 +1477,21 @@ def cluster_sites(mol, tol):
     origin_site = None
     for i, site in enumerate(mol):
         if avg_dist[f[i]] < tol:
-            origin_site = site
+            if give_only_index:
+                origin_site = i
+            else:
+                origin_site = site
         else:
-            clustered_sites[(avg_dist[f[i]],
-                             site.species_and_occu)].append(site)
+            if give_only_index:
+                clustered_sites[
+                    (avg_dist[f[i]], site.species_and_occu)].append(i)
+            else:
+                clustered_sites[
+                    (avg_dist[f[i]], site.species_and_occu)].append(site)
     return origin_site, clustered_sites
 
 
-def generate_full_symmops(symmops, tol, max_recursion_depth=300):
+def generate_full_symmops(symmops, tol):
     """
     Recursive algorithm to permute through all possible combinations of the
     initially supplied symmetry operations to arrive at a complete set of
@@ -1241,22 +1505,29 @@ def generate_full_symmops(symmops, tol, max_recursion_depth=300):
     Returns:
         Full set of symmetry operations.
     """
-
-    a = [o.affine_matrix for o in symmops]
-
-    if len(symmops) > max_recursion_depth:
-        logger.debug("Generation of symmetry operations in infinite loop.  " +
-                     "Possible error in initial operations or tolerance too "
-                     "low.")
+    # Uses an algorithm described in:
+    # Gregory Butler. Fundamental Algorithms for Permutation Groups.
+    # Lecture Notes in Computer Science (Book 559). Springer, 1991. page 15
+    UNIT = np.eye(4)
+    generators = [op.affine_matrix for op in symmops
+                  if not np.allclose(op.affine_matrix, UNIT)]
+    if not generators:
+        # C1 symmetry breaks assumptions in the algorithm afterwards
+        return symmops
     else:
-        for op1, op2 in itertools.product(symmops, symmops):
-            m = np.dot(op1.affine_matrix, op2.affine_matrix)
-            d = np.abs(a - m) < tol
-            if not np.any(np.all(np.all(d, axis=2), axis=1)):
-                return generate_full_symmops(symmops + [SymmOp(m)], tol, 
-                                             max_recursion_depth)
+        full = list(generators)
 
-    return symmops
+        for g in full:
+            for s in generators:
+                op = np.dot(g, s)
+                d = np.abs(full - op) < tol
+                if not np.any(np.all(np.all(d, axis=2), axis=1)):
+                    full.append(op)
+
+        d = np.abs(full - UNIT) < tol
+        if not np.any(np.all(np.all(d, axis=2), axis=1)):
+            full.append(UNIT)
+        return [SymmOp(op) for op in full]
 
 
 class SpacegroupOperations(list):
@@ -1343,4 +1614,3 @@ class PointGroupOperations(list):
 
     def __repr__(self):
         return self.__str__()
-

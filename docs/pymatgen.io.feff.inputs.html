@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.feff.inputs module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.feff.inputs module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -67,9 +64,9 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; input structure</li>
-<li><strong>absorbing_atom</strong> (<em>str/int</em>) &#8211; Symbol for absorbing atom or site index</li>
-<li><strong>radius</strong> (<em>float</em>) &#8211; radius of the atom cluster in Angstroms.</li>
+<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</li>
+<li><strong>absorbing_atom</strong> (<em>str/int</em>) – Symbol for absorbing atom or site index</li>
+<li><strong>radius</strong> (<em>float</em>) – radius of the atom cluster in Angstroms.</li>
 </ul>
 </td>
 </tr>
@@ -87,7 +84,7 @@ the potential used.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; File name containing atomic coord data.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – File name containing atomic coord data.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Atoms string.</td>
 </tr>
@@ -110,7 +107,7 @@ object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; path the feff input file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – path the feff input file</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
 <dt>the atomic cluster as Molecule object. The absorbing atom</dt>
@@ -153,7 +150,7 @@ information(x, y, z, ipot, atom_symbol, distance, id).</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; path for file to be written</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – path for file to be written</td>
 </tr>
 </tbody>
 </table>
@@ -195,10 +192,10 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>struct</strong> &#8211; Structure object, See pymatgen.core.structure.Structure.</li>
-<li><strong>source</strong> &#8211; User supplied identifier, i.e. for Materials Project this
+<li><strong>struct</strong> – Structure object, See pymatgen.core.structure.Structure.</li>
+<li><strong>source</strong> – User supplied identifier, i.e. for Materials Project this
 would be the material ID number</li>
-<li><strong>comment</strong> &#8211; Comment for first header line</li>
+<li><strong>comment</strong> – Comment for first header line</li>
 </ul>
 </td>
 </tr>
@@ -219,10 +216,10 @@ would be the material ID number</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cif_file</strong> &#8211; cif_file path and name</li>
-<li><strong>source</strong> &#8211; User supplied identifier, i.e. for Materials Project this
+<li><strong>cif_file</strong> – cif_file path and name</li>
+<li><strong>source</strong> – User supplied identifier, i.e. for Materials Project this
 would be the material ID number</li>
-<li><strong>comment</strong> &#8211; User comment that goes in header</li>
+<li><strong>comment</strong> – User comment that goes in header</li>
 </ul>
 </td>
 </tr>
@@ -252,7 +249,7 @@ header object and routine ends</div></blockquote>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>header_str</strong> &#8211; pymatgen generated feff.inp header</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>header_str</strong> – pymatgen generated feff.inp header</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Structure object.</td>
 </tr>
@@ -269,7 +266,7 @@ Will also read a header from a non-pymatgen generated feff.inp file</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; File name containing the Header data.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – File name containing the Header data.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Reads header string.</td>
 </tr>
@@ -299,7 +296,7 @@ Will also read a header from a non-pymatgen generated feff.inp file</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; Filename and path for file to be written to disk</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename and path for file to be written to disk</td>
 </tr>
 </tbody>
 </table>
@@ -311,17 +308,17 @@ Will also read a header from a non-pymatgen generated feff.inp file</p>
 <dt id="pymatgen.io.feff.inputs.Paths">
 <em class="property">class </em><code class="descname">Paths</code><span class="sig-paren">(</span><em>atoms</em>, <em>paths</em>, <em>degeneracies=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/feff/inputs.html#Paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
-<p>Set FEFF scattering paths(&#8216;paths.dat&#8217; file used by the &#8216;genfmt&#8217; module).</p>
+<p>Set FEFF scattering paths(‘paths.dat’ file used by the ‘genfmt’ module).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atoms</strong> (<a class="reference internal" href="#pymatgen.io.feff.inputs.Atoms" title="pymatgen.io.feff.inputs.Atoms"><em>Atoms</em></a>) &#8211; Atoms object</li>
-<li><strong>paths</strong> (<em>list</em><em>(</em><em>list</em><em>)</em><em></em>) &#8211; list of paths. Each path is a list of atom indices in the atomic
+<li><strong>atoms</strong> (<a class="reference internal" href="#pymatgen.io.feff.inputs.Atoms" title="pymatgen.io.feff.inputs.Atoms"><em>Atoms</em></a>) – Atoms object</li>
+<li><strong>paths</strong> (<em>list</em><em>(</em><em>list</em><em>)</em>) – list of paths. Each path is a list of atom indices in the atomic
 cluster(the molecular cluster created by Atoms class).
 e.g. [[0, 1, 2], [5, 9, 4, 1]] -&gt; 2 paths: one with 3 legs and the other with 4 legs.</li>
-<li><strong>degeneracies</strong> (<em>list</em>) &#8211; list of degeneracies, one for each path. Set to 1 if not specified.</li>
+<li><strong>degeneracies</strong> (<em>list</em>) – list of degeneracies, one for each path. Set to 1 if not specified.</li>
 </ul>
 </td>
 </tr>
@@ -345,8 +342,8 @@ e.g. [[0, 1, 2], [5, 9, 4, 1]] -&gt; 2 paths: one with 3 legs and the other with
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; Structure object.</li>
-<li><strong>absorbing_atom</strong> (<em>str/int</em>) &#8211; Absorbing atom symbol or site index</li>
+<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object.</li>
+<li><strong>absorbing_atom</strong> (<em>str/int</em>) – Absorbing atom symbol or site index</li>
 </ul>
 </td>
 </tr>
@@ -382,7 +379,7 @@ The lines are arranged as follows:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; file name containing potential data.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – file name containing potential data.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">FEFFPOT string.</td>
 </tr>
@@ -398,7 +395,7 @@ The lines are arranged as follows:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; filename and path to write potential file to.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – filename and path to write potential file to.</td>
 </tr>
 </tbody>
 </table>
@@ -415,7 +412,7 @@ The lines are arranged as follows:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> &#8211; A set of input parameters as a dictionary.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> – A set of input parameters as a dictionary.</td>
 </tr>
 </tbody>
 </table>
@@ -443,13 +440,13 @@ two runs were done using the same parameters.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> &#8211; The other PARAMETER dictionary to compare to.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> – The other PARAMETER dictionary to compare to.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">parameters_that_are_the_same,
-&#8220;Different&#8221;: parameters_that_are_different} Note that the
+“Different”: parameters_that_are_different} Note that the
 parameters are return as full dictionaries of values.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Dict of the format {&#8220;Same&#8221;</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Dict of the format {“Same”</td>
 </tr>
 </tbody>
 </table>
@@ -463,7 +460,7 @@ parameters are return as full dictionaries of values.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> &#8211; Dict of feff parameters and values.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> – Dict of feff parameters and values.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Tags object</td>
 </tr>
@@ -479,7 +476,7 @@ parameters are return as full dictionaries of values.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; Filename for either PARAMETER or feff.inp file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename for either PARAMETER or feff.inp file</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Feff_tag object</td>
 </tr>
@@ -498,9 +495,9 @@ for pretty printing.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sort_keys</strong> &#8211; Set to True to sort the Feff parameters alphabetically.
+<li><strong>sort_keys</strong> – Set to True to sort the Feff parameters alphabetically.
 Defaults to False.</li>
-<li><strong>pretty</strong> &#8211; Set to True for pretty aligned output. Defaults to False.</li>
+<li><strong>pretty</strong> – Set to True for pretty aligned output. Defaults to False.</li>
 </ul>
 </td>
 </tr>
@@ -521,8 +518,8 @@ integers, floats, lists, etc.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> &#8211; Feff parameter key</li>
-<li><strong>val</strong> &#8211; Actual value of Feff parameter.</li>
+<li><strong>key</strong> – Feff parameter key</li>
+<li><strong>val</strong> – Actual value of Feff parameter.</li>
 </ul>
 </td>
 </tr>
@@ -538,7 +535,7 @@ integers, floats, lists, etc.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; filename and path to write to.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – filename and path to write to.</td>
 </tr>
 </tbody>
 </table>
@@ -555,8 +552,8 @@ integers, floats, lists, etc.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>absorbing_atom</strong> (<em>str/int</em>) &#8211; symbol or site index</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; </li>
+<li><strong>absorbing_atom</strong> (<em>str/int</em>) – symbol or site index</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – </li>
 </ul>
 </td>
 </tr>
@@ -579,7 +576,7 @@ from 1.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dict</td>
 </tr>
@@ -625,13 +622,13 @@ from 1.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -70,9 +67,9 @@ manually.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; Structure associated with this particular DOS.</li>
-<li><strong>total_dos</strong> &#8211; total Dos for structure</li>
-<li><strong>pdoss</strong> &#8211; The pdoss are supplied as an {Site:{Orbital:{
+<li><strong>structure</strong> – Structure associated with this particular DOS.</li>
+<li><strong>total_dos</strong> – total Dos for structure</li>
+<li><strong>pdoss</strong> – The pdoss are supplied as an {Site:{Orbital:{
 Spin:Densities}}}</li>
 </ul>
 </td>
@@ -127,9 +124,9 @@ Spin:Densities}}}</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> &#8211; Element in Structure.composition associated with CompleteDos</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> – Element in Structure.composition associated with CompleteDos</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{&#8220;S&#8221;: densities, &#8220;P&#8221;: densities, &#8220;D&#8221;: densities}}</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{“S”: densities, “P”: densities, “D”: densities}}</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of {Element</td>
 </tr>
@@ -145,7 +142,7 @@ Spin:Densities}}}</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> – Site in Structure associated with CompleteDos.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos containing summed orbital densities for site.</td>
 </tr>
@@ -162,8 +159,8 @@ Spin:Densities}}}</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</li>
-<li><strong>orbital</strong> &#8211; Orbital in the site.</li>
+<li><strong>site</strong> – Site in Structure associated with CompleteDos.</li>
+<li><strong>orbital</strong> – Orbital in the site.</li>
 </ul>
 </td>
 </tr>
@@ -182,9 +179,9 @@ Spin:Densities}}}</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> – Site in Structure associated with CompleteDos.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {&#8220;s&#8221;: Dos object, ...}</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {“s”: Dos object, …}</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of {orbital</td>
 </tr>
@@ -200,12 +197,12 @@ Spin:Densities}}}</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> – Site in Structure associated with CompleteDos.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos, &#8220;t2g&#8221;: Dos} containing summed e_g and t2g DOS
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos, “t2g”: Dos} containing summed e_g and t2g DOS
 for the site.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">A dict {&#8220;e_g&#8221;</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">A dict {“e_g”</td>
 </tr>
 </tbody>
 </table>
@@ -219,7 +216,7 @@ for the site.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {&#8220;s&#8221;: Dos object, ...}</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {“s”: Dos object, …}</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of {orbital</td>
 </tr>
@@ -240,9 +237,9 @@ object.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>efermi</strong> &#8211; Fermi level energy</li>
-<li><strong>energies</strong> &#8211; A sequences of energies</li>
-<li><strong></strong><strong>(</strong><strong>{Spin</strong> (<em>densities</em>) &#8211; np.array}): representing the density of states
+<li><strong>efermi</strong> – Fermi level energy</li>
+<li><strong>energies</strong> – A sequences of energies</li>
+<li><strong>(</strong><strong>{Spin</strong> (<em>densities</em>) – np.array}): representing the density of states
 for each Spin.</li>
 </ul>
 </td>
@@ -270,9 +267,9 @@ for each Spin.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tol</strong> &#8211; tolerance in occupations for determining the gap</li>
-<li><strong>abs_tol</strong> &#8211; An absolute tolerance (True) and a relative one (False)</li>
-<li><strong>spin</strong> &#8211; Possible values are None - finds the gap in the summed
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – An absolute tolerance (True) and a relative one (False)</li>
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
 densities, Up - finds the gap in the up spin channel,
 Down - finds the gap in the down spin channel.</li>
 </ul>
@@ -296,7 +293,7 @@ Down - finds the gap in the down spin channel.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spin</strong> &#8211; Spin</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spin</strong> – Spin</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Returns the density of states for a particular spin. If Spin is
 None, the sum of all spins is returned.</td>
@@ -314,9 +311,9 @@ None, the sum of all spins is returned.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tol</strong> &#8211; tolerance in occupations for determining the gap</li>
-<li><strong>abs_tol</strong> &#8211; An absolute tolerance (True) and a relative one (False)</li>
-<li><strong>spin</strong> &#8211; Possible values are None - finds the gap in the summed
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – An absolute tolerance (True) and a relative one (False)</li>
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
 densities, Up - finds the gap in the up spin channel,
 Down - finds the gap in the down spin channel.</li>
 </ul>
@@ -338,10 +335,10 @@ Down - finds the gap in the down spin channel.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tol</strong> &#8211; tolerance in occupations for determining the gap</li>
-<li><strong>abs_tol</strong> &#8211; Set to True for an absolute tolerance and False for a
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – Set to True for an absolute tolerance and False for a
 relative one.</li>
-<li><strong>spin</strong> &#8211; Possible values are None - finds the gap in the summed
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
 densities, Up - finds the gap in the up spin channel,
 Down - finds the gap in the down spin channel.</li>
 </ul>
@@ -365,7 +362,7 @@ Down - finds the gap in the down spin channel.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>energy</strong> &#8211; Energy to return the density for.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>energy</strong> – Energy to return the density for.</td>
 </tr>
 </tbody>
 </table>
@@ -381,7 +378,7 @@ level.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sigma</strong> &#8211; Std dev of Gaussian smearing function.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sigma</strong> – Std dev of Gaussian smearing function.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dict of Gaussian-smeared densities.</td>
 </tr>
@@ -400,8 +397,8 @@ level.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>density1</strong> &#8211; First density.</li>
-<li><strong>density2</strong> &#8211; Second density.</li>
+<li><strong>density1</strong> – First density.</li>
+<li><strong>density2</strong> – Second density.</li>
 </ul>
 </td>
 </tr>
@@ -453,13 +450,13 @@ level.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

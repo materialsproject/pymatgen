@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.elasticity.elastic &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.elasticity.elastic &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -69,6 +66,7 @@
     <span class="n">TensorCollection</span><span class="p">,</span> <span class="n">get_uvec</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.stress</span> <span class="k">import</span> <span class="n">Stress</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.strain</span> <span class="k">import</span> <span class="n">Strain</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Unit</span>
 <span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">factorial</span>
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="k">import</span> <span class="n">quad</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">root</span>
@@ -104,6 +102,8 @@
 <span class="sd">    An object representing an nth-order tensor expansion </span>
 <span class="sd">    of the stress-strain constitutive equations</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">GPa_to_eV_A3</span> <span class="o">=</span> <span class="n">Unit</span><span class="p">(</span><span class="s2">&quot;GPa&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_conversion_factor</span><span class="p">(</span><span class="n">Unit</span><span class="p">(</span><span class="s2">&quot;eV ang^-3&quot;</span><span class="p">))</span>
+
     <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_array</span><span class="p">,</span> <span class="n">check_rank</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">NthOrderElasticTensor</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span> <span class="n">input_array</span><span class="p">,</span> <span class="n">check_rank</span><span class="o">=</span><span class="n">check_rank</span><span class="p">)</span>
@@ -143,11 +143,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">e_density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate_stress</span><span class="p">(</span><span class="n">strain</span><span class="p">)</span><span class="o">*</span><span class="n">strain</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span>
         <span class="k">if</span> <span class="n">convert_GPa_to_eV</span><span class="p">:</span>
-            <span class="n">e_density</span> <span class="o">*=</span> <span class="mf">0.000624151</span>  <span class="c1"># Conversion factor for GPa to eV/A^3</span>
+            <span class="n">e_density</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPa_to_eV_A3</span>  <span class="c1"># Conversion factor for GPa to eV/A^3</span>
         <span class="k">return</span> <span class="n">e_density</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NthOrderElasticTensor.from_diff_fit"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.from_diff_fit">[docs]</a>    <span class="k">def</span> <span class="nf">from_diff_fit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="NthOrderElasticTensor.from_diff_fit"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.from_diff_fit">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_diff_fit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">diff_fit</span><span class="p">(</span><span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">tol</span><span class="p">)[</span><span class="n">order</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span></div></div>
 
@@ -485,8 +485,8 @@
             <span class="n">sp_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">property_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sp_dict</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ElasticTensor.from_pseudoinverse"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_pseudoinverse">[docs]</a>    <span class="k">def</span> <span class="nf">from_pseudoinverse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">):</span>
+<div class="viewcode-block" id="ElasticTensor.from_pseudoinverse"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_pseudoinverse">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_pseudoinverse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Class method to fit an elastic tensor from stress/strain </span>
 <span class="sd">        data.  Method uses Moore-Penrose pseudoinverse to invert </span>
@@ -507,8 +507,8 @@
         <span class="n">voigt_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">strains</span><span class="p">),</span> <span class="n">stresses</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">voigt_fit</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ElasticTensor.from_independent_strains"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains">[docs]</a>    <span class="k">def</span> <span class="nf">from_independent_strains</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="ElasticTensor.from_independent_strains"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_independent_strains</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                  <span class="n">vasp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs the elastic tensor least-squares fit of independent strains</span>
@@ -579,8 +579,8 @@
                   <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">c_list</span><span class="p">)]</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ElasticTensorExpansion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">c_list</span><span class="p">)</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ElasticTensorExpansion.from_diff_fit"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.from_diff_fit">[docs]</a>    <span class="k">def</span> <span class="nf">from_diff_fit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="ElasticTensorExpansion.from_diff_fit"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.from_diff_fit">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_diff_fit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates an elastic tensor expansion via the fitting function</span>
@@ -684,7 +684,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tgt</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">quad</span><span class="p">))</span> <span class="o">/</span> <span class="mf">3.</span></div>
 
-<div class="viewcode-block" id="ElasticTensorExpansion.get_heat_capacity"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_heat_capacity">[docs]</a>    <span class="k">def</span> <span class="nf">get_heat_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+<div class="viewcode-block" id="ElasticTensorExpansion.get_heat_capacity"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_heat_capacity">[docs]</a>    <span class="k">def</span> <span class="nf">get_heat_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">1e2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets the directional heat capacity for a higher order tensor</span>
 <span class="sd">        expansion as a function of direction and polarization.</span>
@@ -696,10 +696,13 @@
 <span class="sd">            n (3x1 array-like): direction for Cv determination</span>
 <span class="sd">            u (3x1 array-like): polarization direction, note that</span>
 <span class="sd">                no attempt for verification of eigenvectors is made</span>
+<span class="sd">            overflow_cutoff (float)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">k</span> <span class="o">=</span> <span class="mf">1.38065e-23</span>
         <span class="n">kt</span> <span class="o">=</span> <span class="n">k</span><span class="o">*</span><span class="n">temperature</span>
         <span class="n">hbar_w</span> <span class="o">=</span> <span class="mf">1.05457e-34</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hbar_w</span> <span class="o">&gt;</span> <span class="n">kt</span> <span class="o">*</span> <span class="n">cutoff</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="p">(</span><span class="n">hbar_w</span> <span class="o">/</span> <span class="n">kt</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="n">c</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">hbar_w</span> <span class="o">/</span> <span class="n">kt</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">hbar_w</span> <span class="o">/</span> <span class="n">kt</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
         <span class="k">return</span> <span class="n">c</span> <span class="o">*</span> <span class="mf">6.022e23</span></div>
@@ -1150,7 +1153,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1158,7 +1161,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

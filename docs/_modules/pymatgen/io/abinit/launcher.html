@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -337,8 +334,8 @@
 
     <span class="n">Error</span> <span class="o">=</span> <span class="n">PyFlowSchedulerError</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PyFlowScheduler.autodoc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.autodoc">[docs]</a>    <span class="k">def</span> <span class="nf">autodoc</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<div class="viewcode-block" id="PyFlowScheduler.autodoc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.autodoc">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">autodoc</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="n">i</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;Args:&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">5</span><span class="p">:]</span></div>
 
@@ -431,21 +428,21 @@
         <span class="c1"># Used to push additional info during the execution.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PyFlowScheduler.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+<div class="viewcode-block" id="PyFlowScheduler.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read the configuration parameters from a Yaml file.&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">fh</span><span class="p">))</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PyFlowScheduler.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="PyFlowScheduler.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create an istance from string s containing a YAML dictionary.&quot;&quot;&quot;</span>
         <span class="n">stream</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
         <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PyFlowScheduler.from_user_config"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.from_user_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_user_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<div class="viewcode-block" id="PyFlowScheduler.from_user_config"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.from_user_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_user_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the :class:`PyFlowScheduler` from the YAML file &#39;scheduler.yml&#39;.</span>
 <span class="sd">        Search first in the working directory and then in the configuration directory of abipy.</span>
@@ -1393,7 +1390,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1401,7 +1398,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.adf module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.adf module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -67,7 +64,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>task</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfTask" title="pymatgen.io.adf.AdfTask"><em>AdfTask</em></a>) &#8211; An ADF task.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>task</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfTask" title="pymatgen.io.adf.AdfTask"><em>AdfTask</em></a>) – An ADF task.</td>
 </tr>
 </tbody>
 </table>
@@ -80,8 +77,8 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) &#8211; The molecule for this task.</li>
-<li><strong>inpfile</strong> (<em>str</em>) &#8211; The name where the input file will be saved.</li>
+<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The molecule for this task.</li>
+<li><strong>inpfile</strong> (<em>str</em>) – The name where the input file will be saved.</li>
 </ul>
 </td>
 </tr>
@@ -111,15 +108,15 @@ subkeys and a set of options.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; The name of this key.</li>
-<li><strong>options</strong> (<em>Sized</em>) &#8211; The options for this key. Each element can be a primitive object or
+<li><strong>name</strong> (<em>str</em>) – The name of this key.</li>
+<li><strong>options</strong> (<em>Sized</em>) – The options for this key. Each element can be a primitive object or
 a tuple/list with two elements: the first is the name and the second
 is a primitive object.</li>
-<li><strong>subkeys</strong> (<em>Sized</em>) &#8211; The subkeys for this key.</li>
+<li><strong>subkeys</strong> (<em>Sized</em>) – The subkeys for this key.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211; If elements in <code class="docutils literal"><span class="pre">subkeys</span></code> are not <code class="docutils literal"><span class="pre">AdfKey</span></code> objects.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – If elements in <code class="docutils literal"><span class="pre">subkeys</span></code> are not <code class="docutils literal"><span class="pre">AdfKey</span></code> objects.</p>
 </td>
 </tr>
 </tbody>
@@ -132,10 +129,10 @@ is a primitive object.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>option</strong> (<em>Sized</em><em> or </em><em>str</em><em> or </em><em>int</em><em> or </em><em>float</em>) &#8211; A new option to add. This must have the same format with exsiting
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>option</strong> (<em>Sized</em><em> or </em><em>str</em><em> or </em><em>int</em><em> or </em><em>float</em>) – A new option to add. This must have the same format with exsiting
 options.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">TypeError</span></code> &#8211; If the format of the given <code class="docutils literal"><span class="pre">option</span></code> is different.</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">TypeError</span></code> – If the format of the given <code class="docutils literal"><span class="pre">option</span></code> is different.</td>
 </tr>
 </tbody>
 </table>
@@ -149,12 +146,12 @@ options.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subkey</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) &#8211; A new subkey.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subkey</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – A new subkey.</td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>Duplicate check will not be performed if this is an &#8216;Atoms&#8217; block.</p>
+<p>Duplicate check will not be performed if this is an ‘Atoms’ block.</p>
 </dd></dl>
 
 <dl class="method">
@@ -165,7 +162,7 @@ options.</td>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfKey.block_keys">
-<code class="descname">block_keys</code><em class="property"> = {'GEOMETRY', 'OCCUPATIONS', 'SYMMETRY', 'UNRESTRICTED', 'TITLE', 'TOTALENERGY', 'SCF', 'ZLMFIT', 'ANALYTICALFREQ', 'RELATIVISTIC', 'XC', 'EXACTDENSITY', 'INTEGRATION', 'ATOMS', 'SAVE', 'CHARGE', 'UNITS', 'BASIS', 'A1FIT'}</em><a class="headerlink" href="#pymatgen.io.adf.AdfKey.block_keys" title="Permalink to this definition">¶</a></dt>
+<code class="descname">block_keys</code><em class="property"> = {'INTEGRATION', 'RELATIVISTIC', 'BASIS', 'ANALYTICALFREQ', 'UNRESTRICTED', 'TOTALENERGY', 'UNITS', 'SAVE', 'SYMMETRY', 'ATOMS', 'OCCUPATIONS', 'XC', 'EXACTDENSITY', 'SCF', 'TITLE', 'CHARGE', 'ZLMFIT', 'A1FIT', 'GEOMETRY'}</em><a class="headerlink" href="#pymatgen.io.adf.AdfKey.block_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -176,9 +173,9 @@ options.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) &#8211; A dict of saved attributes.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – A dict of saved attributes.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>adfkey</strong> &#8211; An AdfKey object recovered from the JSON dict <code class="docutils literal"><span class="pre">d</span></code>.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>adfkey</strong> – An AdfKey object recovered from the JSON dict <code class="docutils literal"><span class="pre">d</span></code>.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey">AdfKey</a></td>
 </tr>
@@ -194,13 +191,13 @@ options.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) &#8211; A string.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) – A string.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>adfkey</strong> &#8211; An AdfKey object recovered from the string.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>adfkey</strong> – An AdfKey object recovered from the string.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey">AdfKey</a></td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211; Currently nested subkeys are not supported. If <code class="docutils literal"><span class="pre">subend</span></code> was found
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> – Currently nested subkeys are not supported. If <code class="docutils literal"><span class="pre">subend</span></code> was found
 a ValueError would be raised.</td>
 </tr>
 </tbody>
@@ -217,9 +214,9 @@ a ValueError would be raised.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>option</strong> (<em>str</em>) &#8211; The option.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>option</strong> (<em>str</em>) – The option.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>has</strong> &#8211; True if the option can be found. Otherwise False will be returned.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>has</strong> – True if the option can be found. Otherwise False will be returned.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
@@ -235,9 +232,9 @@ a ValueError would be raised.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subkey</strong> (<em>str</em><em> or </em><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) &#8211; A key name or an AdfKey object.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subkey</strong> (<em>str</em><em> or </em><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – A key name or an AdfKey object.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>has</strong> &#8211; True if this key contains the given key. Otherwise False.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>has</strong> – True if this key contains the given key. Otherwise False.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
@@ -266,9 +263,9 @@ converted to upper cases.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>option</strong> (<em>str</em><em> or </em><em>int</em>) &#8211; The name (str) or index (int) of the option to remove.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>option</strong> (<em>str</em><em> or </em><em>int</em>) – The name (str) or index (int) of the option to remove.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">TypeError</span></code> &#8211; If the option has a wrong type.</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">TypeError</span></code> – If the option has a wrong type.</td>
 </tr>
 </tbody>
 </table>
@@ -282,7 +279,7 @@ converted to upper cases.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subkey</strong> (<em>str</em><em> or </em><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) &#8211; The subkey to remove.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subkey</strong> (<em>str</em><em> or </em><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The subkey to remove.</td>
 </tr>
 </tbody>
 </table>
@@ -309,69 +306,69 @@ converted to upper cases.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.is_failed">
 <code class="descname">is_failed</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_failed" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>bool</em> &#8211; True is the ADF job is terminated without success. Otherwise False.</p>
+<dd><p><em>bool</em> – True is the ADF job is terminated without success. Otherwise False.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.is_internal_crash">
 <code class="descname">is_internal_crash</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_internal_crash" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>bool</em> &#8211; True if the job is terminated with internal crash. Please read &#8216;TAPE13&#8217;
+<dd><p><em>bool</em> – True if the job is terminated with internal crash. Please read ‘TAPE13’
 of the ADF manual for more detail.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.error">
 <code class="descname">error</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.error" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em> &#8211; The error description.</p>
+<dd><p><em>str</em> – The error description.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.run_type">
 <code class="descname">run_type</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.run_type" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em> &#8211; The RunType of this ADF job. Possible options are: &#8216;SinglePoint&#8217;,
-&#8216;GeometryOptimization&#8217;, &#8216;AnalyticalFreq&#8217; and &#8216;NUmericalFreq&#8217;.</p>
+<dd><p><em>str</em> – The RunType of this ADF job. Possible options are: ‘SinglePoint’,
+‘GeometryOptimization’, ‘AnalyticalFreq’ and ‘NUmericalFreq’.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.final_energy">
 <code class="descname">final_energy</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>float</em> &#8211; The final molecule energy (a.u).</p>
+<dd><p><em>float</em> – The final molecule energy (a.u).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.final_structure">
 <code class="descname">final_structure</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_structure" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>GMolecule</em> &#8211; The final structure of the molecule.</p>
+<dd><p><em>GMolecule</em> – The final structure of the molecule.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.energies">
 <code class="descname">energies</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.energies" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Sized</em> &#8211; The energy of each cycle.</p>
+<dd><p><em>Sized</em> – The energy of each cycle.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.structures">
 <code class="descname">structures</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.structures" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Sized</em> &#8211; The structure of each cycle If geometry optimization is performed.</p>
+<dd><p><em>Sized</em> – The structure of each cycle If geometry optimization is performed.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.frequencies">
 <code class="descname">frequencies</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.frequencies" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>array_like</em> &#8211; The frequencies of the molecule.</p>
+<dd><p><em>array_like</em> – The frequencies of the molecule.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.normal_modes">
 <code class="descname">normal_modes</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.normal_modes" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>array_like</em> &#8211; The normal modes of the molecule.</p>
+<dd><p><em>array_like</em> – The normal modes of the molecule.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.freq_type">
 <code class="descname">freq_type</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.freq_type" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em> &#8211; Either &#8216;Analytical&#8217; or &#8216;Numerical&#8217;.</p>
+<dd><p><em>str</em> – Either ‘Analytical’ or ‘Numerical’.</p>
 </dd></dl>
 
 <p>Initialization method.</p>
@@ -379,7 +376,7 @@ of the ADF manual for more detail.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; The ADF output file to parse.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – The ADF output file to parse.</td>
 </tr>
 </tbody>
 </table>
@@ -398,7 +395,7 @@ of the ADF manual for more detail.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Basic task for ADF. All settings in this class are independent of molecules.</p>
 <p class="rubric">Notes</p>
-<p>Unlike other quantum chemistry packages (NWChem, Gaussian, ...), ADF does
+<p>Unlike other quantum chemistry packages (NWChem, Gaussian, …), ADF does
 not support calculating force/gradient.</p>
 <p>Initialization method.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -406,14 +403,14 @@ not support calculating force/gradient.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>operation</strong> (<em>str</em>) &#8211; The target operation.</li>
-<li><strong>basis_set</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) &#8211; The basis set definitions for this task. Defaults to &#8216;DZ/Large&#8217;.</li>
-<li><strong>xc</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) &#8211; The exchange-correlation functionals. Defaults to PBE.</li>
-<li><strong>title</strong> (<em>str</em>) &#8211; The title of this ADF task.</li>
-<li><strong>units</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) &#8211; The units. Defaults to Angstroms/Degree.</li>
-<li><strong>geo_subkeys</strong> (<em>Sized</em>) &#8211; The subkeys for the block key &#8216;GEOMETRY&#8217;.</li>
-<li><strong>scf</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) &#8211; The scf options.</li>
-<li><strong>other_directives</strong> (<em>Sized</em>) &#8211; User-defined directives.</li>
+<li><strong>operation</strong> (<em>str</em>) – The target operation.</li>
+<li><strong>basis_set</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The basis set definitions for this task. Defaults to ‘DZ/Large’.</li>
+<li><strong>xc</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The exchange-correlation functionals. Defaults to PBE.</li>
+<li><strong>title</strong> (<em>str</em>) – The title of this ADF task.</li>
+<li><strong>units</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The units. Defaults to Angstroms/Degree.</li>
+<li><strong>geo_subkeys</strong> (<em>Sized</em>) – The subkeys for the block key ‘GEOMETRY’.</li>
+<li><strong>scf</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The scf options.</li>
+<li><strong>other_directives</strong> (<em>Sized</em>) – User-defined directives.</li>
 </ul>
 </td>
 </tr>
@@ -433,9 +430,9 @@ not support calculating force/gradient.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) &#8211; A dict of saved attributes.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – A dict of saved attributes.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>task</strong> &#8211; An AdfTask object recovered from the JSON dict <code class="docutils literal"><span class="pre">d</span></code>.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>task</strong> – An AdfTask object recovered from the JSON dict <code class="docutils literal"><span class="pre">d</span></code>.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pymatgen.io.adf.AdfTask" title="pymatgen.io.adf.AdfTask">AdfTask</a></td>
 </tr>
@@ -489,9 +486,9 @@ not support calculating force/gradient.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> (<em>str</em>) &#8211; A string.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> (<em>str</em>) – A string.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>res</strong> &#8211; If True, <code class="docutils literal"><span class="pre">s</span></code> is a numeric string and can be converted to an int or a
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>res</strong> – If True, <code class="docutils literal"><span class="pre">s</span></code> is a numeric string and can be converted to an int or a
 float. Otherwise False will be returned.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
@@ -504,8 +501,8 @@ float. Otherwise False will be returned.</td>
 <dt id="pymatgen.io.adf.iterlines">
 <code class="descname">iterlines</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#iterlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.iterlines" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
-<div>A generator form of s.split(&#8216;</div></blockquote>
-<p>&#8216;) for reducing memory overhead.</p>
+<div>A generator form of s.split(‘</div></blockquote>
+<p>‘) for reducing memory overhead.</p>
 <blockquote>
 <div><dl class="docutils">
 <dt>s <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
@@ -556,13 +553,13 @@ float. Otherwise False will be returned.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

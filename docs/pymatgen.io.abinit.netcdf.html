@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.netcdf module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.netcdf module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -106,9 +103,9 @@ if we have to close the file before leaving the procedure.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dimname</strong> &#8211; Name of the variable</li>
-<li><strong>path</strong> &#8211; path to the group.</li>
-<li><strong>default</strong> &#8211; return <cite>default</cite> if <cite>dimname</cite> is not present and
+<li><strong>dimname</strong> – Name of the variable</li>
+<li><strong>path</strong> – path to the group.</li>
+<li><strong>default</strong> – return <cite>default</cite> if <cite>dimname</cite> is not present and
 <cite>default</cite> is not <cite>NO_DEFAULT</cite> else raise self.Error.</li>
 </ul>
 </td>
@@ -133,11 +130,11 @@ entry in the output dictionary is set to None.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>varname</strong> &#8211; Name of the variable</li>
-<li><strong>path</strong> &#8211; path to the group.</li>
-<li><strong>cmode</strong> &#8211; if cmode==&#8221;c&#8221;, a complex ndarrays is constructed and returned
+<li><strong>varname</strong> – Name of the variable</li>
+<li><strong>path</strong> – path to the group.</li>
+<li><strong>cmode</strong> – if cmode==”c”, a complex ndarrays is constructed and returned
 (netcdf does not provide native support from complex datatype).</li>
-<li><strong>default</strong> &#8211; returns default if varname is not present.
+<li><strong>default</strong> – returns default if varname is not present.
 self.Error is raised if default is default is NO_DEFAULT</li>
 </ul>
 </td>
@@ -227,9 +224,9 @@ containing crystallographic data in the ETSF-IO format.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ncdata</strong> &#8211; filename or NetcdfReader instance.</li>
-<li><strong>site_properties</strong> &#8211; Dictionary with site properties.</li>
-<li><strong>cls</strong> &#8211; The Structure class to instanciate.</li>
+<li><strong>ncdata</strong> – filename or NetcdfReader instance.</li>
+<li><strong>site_properties</strong> – Dictionary with site properties.</li>
+<li><strong>cls</strong> – The Structure class to instanciate.</li>
 </ul>
 </td>
 </tr>
@@ -275,13 +272,13 @@ containing crystallographic data in the ETSF-IO format.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

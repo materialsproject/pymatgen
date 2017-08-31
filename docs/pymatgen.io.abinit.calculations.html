@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.calculations module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.calculations module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -69,25 +66,25 @@ Entry points for client code (high-level interface)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; Pymatgen structure.</li>
-<li><strong>pseudos</strong> &#8211; List of <cite>Pseudo</cite> objects.</li>
-<li><strong>Defines the sampling used for the SCF run.</strong> (<em>scf</em>) &#8211; </li>
-<li><strong>nscf_nband</strong> &#8211; Number of bands included in the NSCF run.</li>
-<li><strong>ecuteps</strong> &#8211; Cutoff energy [Ha] for the screening matrix.</li>
-<li><strong>ecutsigx</strong> &#8211; Cutoff energy [Ha] for the exchange part of the self-energy.</li>
-<li><strong>accuracy</strong> &#8211; Accuracy of the calculation.</li>
-<li><strong>spin_mode</strong> &#8211; Spin polarization.</li>
-<li><strong>smearing</strong> &#8211; Smearing technique.</li>
-<li><strong>ppmodel</strong> &#8211; Plasmonpole technique.</li>
-<li><strong>charge</strong> &#8211; Electronic charge added to the unit cell.</li>
-<li><strong>scf_algorithm</strong> &#8211; Algorithm used for solving of the SCF cycle.</li>
-<li><strong>inclvkb</strong> &#8211; Treatment of the dipole matrix elements (see abinit variable).</li>
-<li><strong>scr_nband</strong> &#8211; Number of bands used to compute the screening (default is nscf_nband)</li>
-<li><strong>sigma_nband</strong> &#8211; Number of bands used to compute the self-energy (default is nscf_nband)</li>
-<li><strong>workdir</strong> &#8211; Working directory.</li>
-<li><strong>manager</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code> instance.</li>
-<li><strong>nksamll</strong> &#8211; if not None, a DFT bandstucture calculation will be added after the sc run</li>
-<li><strong>extra_abivars</strong> &#8211; Dictionary with extra variables passed to ABINIT.</li>
+<li><strong>structure</strong> – Pymatgen structure.</li>
+<li><strong>pseudos</strong> – List of <cite>Pseudo</cite> objects.</li>
+<li><strong>Defines the sampling used for the SCF run.</strong> (<em>scf</em>) – </li>
+<li><strong>nscf_nband</strong> – Number of bands included in the NSCF run.</li>
+<li><strong>ecuteps</strong> – Cutoff energy [Ha] for the screening matrix.</li>
+<li><strong>ecutsigx</strong> – Cutoff energy [Ha] for the exchange part of the self-energy.</li>
+<li><strong>accuracy</strong> – Accuracy of the calculation.</li>
+<li><strong>spin_mode</strong> – Spin polarization.</li>
+<li><strong>smearing</strong> – Smearing technique.</li>
+<li><strong>ppmodel</strong> – Plasmonpole technique.</li>
+<li><strong>charge</strong> – Electronic charge added to the unit cell.</li>
+<li><strong>scf_algorithm</strong> – Algorithm used for solving of the SCF cycle.</li>
+<li><strong>inclvkb</strong> – Treatment of the dipole matrix elements (see abinit variable).</li>
+<li><strong>scr_nband</strong> – Number of bands used to compute the screening (default is nscf_nband)</li>
+<li><strong>sigma_nband</strong> – Number of bands used to compute the self-energy (default is nscf_nband)</li>
+<li><strong>workdir</strong> – Working directory.</li>
+<li><strong>manager</strong> – <code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code> instance.</li>
+<li><strong>nksamll</strong> – if not None, a DFT bandstucture calculation will be added after the sc run</li>
+<li><strong>extra_abivars</strong> – Dictionary with extra variables passed to ABINIT.</li>
 </ul>
 </td>
 </tr>
@@ -133,13 +130,13 @@ Entry points for client code (high-level interface)</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

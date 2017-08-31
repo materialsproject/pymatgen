@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.bond_valence module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.bond_valence module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -64,7 +61,7 @@
 <p>This class implements a maximum a posteriori (MAP) estimation method to
 determine oxidation states in a structure. The algorithm is as follows:
 1) The bond valence sum of all symmetrically distinct sites in a structure
-is calculated using the element-based parameters in M. O&#8217;Keefe, &amp; N. Brese,
+is calculated using the element-based parameters in M. O’Keefe, &amp; N. Brese,
 JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
 2) The posterior probabilities of all oxidation states is then calculated
 using: P(oxi_state/BV) = K * P(BV/oxi_state) * P(oxi_state), where K is
@@ -81,18 +78,18 @@ is selected.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symm_tol</strong> &#8211; Symmetry tolerance used to determine which sites are
+<li><strong>symm_tol</strong> – Symmetry tolerance used to determine which sites are
 symmetrically equivalent. Set to 0 to turn off symmetry.</li>
-<li><strong>max_radius</strong> &#8211; Maximum radius in Angstrom used to find nearest neighbors.</li>
-<li><strong>max_permutations</strong> &#8211; The maximum number of permutations of oxidation states to test.</li>
-<li><strong>distance_scale_factor</strong> &#8211; A scale factor to be applied. This is useful for scaling
+<li><strong>max_radius</strong> – Maximum radius in Angstrom used to find nearest neighbors.</li>
+<li><strong>max_permutations</strong> – The maximum number of permutations of oxidation states to test.</li>
+<li><strong>distance_scale_factor</strong> – A scale factor to be applied. This is useful for scaling
 distances, esp in the case of calculation-relaxed structures
 which may tend to under (GGA) or over bind (LDA). The default
 of 1.015 works for GGA. For experimental structure, set this to
 1.</li>
-<li><strong>charge_neutrality_tolerance</strong> &#8211; Tolerance on the charge neutrality when unordered structures
+<li><strong>charge_neutrality_tolerance</strong> – Tolerance on the charge neutrality when unordered structures
 are at stake.</li>
-<li><strong>forbidden_species</strong> &#8211; List of species that are forbidden (example : [&#8220;O-&#8220;] cannot be
+<li><strong>forbidden_species</strong> – List of species that are forbidden (example : [“O-“] cannot be
 used) It is used when e.g. someone knows that some oxidation
 state cannot occur for some atom in a structure or list of
 structures.</li>
@@ -115,7 +112,7 @@ for ordered structures only.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; Structure to analyze</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – Structure to analyze</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A modified structure that is oxidation state decorated.</td>
 </tr>
@@ -134,7 +131,7 @@ for ordered structures only.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> &#8211; Structure to analyze</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – Structure to analyze</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of valences for each site in the structure (for an ordered
 structure), e.g., [1, 1, -2] or a list of lists with the
@@ -158,7 +155,7 @@ e.g., [[2, 4], [3], [-2], [-2], [-2]]</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>oxidation_states</strong> (<em>list</em>) &#8211; List of list of oxidation states for each
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>oxidation_states</strong> (<em>list</em>) – List of list of oxidation states for each
 site fraction for each site.
 E.g., [[2, 4], [3], [-2], [-2], [-2]]</td>
 </tr>
@@ -175,10 +172,9 @@ E.g., [[2, 4], [3], [-2], [-2], [-2]]</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>site</strong> &#8211; The site</li>
-<li><strong>nn_list</strong> &#8211; List of nearest neighbors in the format [(nn_site, dist), ...].</li>
-<li><strong>anion_el</strong> &#8211; The most electronegative element in the structure.</li>
-<li><strong>scale_factor</strong> &#8211; A scale factor to be applied. This is useful for scaling distance,
+<li><strong>site</strong> – The site</li>
+<li><strong>nn_list</strong> – List of nearest neighbors in the format [(nn_site, dist), …].</li>
+<li><strong>scale_factor</strong> – A scale factor to be applied. This is useful for scaling distance,
 esp in the case of calculation-relaxed structures which may tend
 to under (GGA) or over bind (LDA).</li>
 </ul>
@@ -197,10 +193,9 @@ to under (GGA) or over bind (LDA).</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>site</strong> &#8211; The site</li>
-<li><strong>nn_list</strong> &#8211; List of nearest neighbors in the format [(nn_site, dist), ...].</li>
-<li><strong>anion_el</strong> &#8211; The most electronegative element in the structure.</li>
-<li><strong>scale_factor</strong> &#8211; A scale factor to be applied. This is useful for scaling distance,
+<li><strong>site</strong> – The site</li>
+<li><strong>nn_list</strong> – List of nearest neighbors in the format [(nn_site, dist), …].</li>
+<li><strong>scale_factor</strong> – A scale factor to be applied. This is useful for scaling distance,
 esp in the case of calculation-relaxed structures which may tend
 to under (GGA) or over bind (LDA).</li>
 </ul>
@@ -218,9 +213,9 @@ given site in an unordered structure. Returns a list of tuples (
 element_or_specie: occupation) in the arbitrary order.</p>
 <p>The arbitrary order is based on the Z of the element and the smallest
 fractional occupations first.
-Example : {&#8220;Ni3+&#8221;: 0.2, &#8220;Ni4+&#8221;: 0.2, &#8220;Cr3+&#8221;: 0.15, &#8220;Zn2+&#8221;: 0.34,
-&#8220;Cr4+&#8221;: 0.11} will yield the species in the following order :
-Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ ... or
+Example : {“Ni3+”: 0.2, “Ni4+”: 0.2, “Cr3+”: 0.15, “Zn2+”: 0.34,
+“Cr4+”: 0.11} will yield the species in the following order :
+Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ … or
 Cr4+, Cr3+, Ni4+, Ni3+, Zn2+</p>
 </dd></dl>
 
@@ -262,13 +257,13 @@ Cr4+, Cr3+, Ni4+, Ni3+, Zn2+</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

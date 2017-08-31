@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.composition &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.composition &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -69,16 +66,19 @@
 <span class="kn">import</span> <span class="nn">string</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">combinations_with_replacement</span><span class="p">,</span> <span class="n">product</span>
 
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">filter</span><span class="p">,</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span>
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">total_ordering</span>
 
 <span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="k">import</span> <span class="n">gcd</span><span class="p">,</span> <span class="n">gcd_float</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="k">import</span> <span class="n">formula_double_format</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">unitized</span>
@@ -98,8 +98,8 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Nov 10, 2012&quot;</span>
 
 
-<span class="nd">@total_ordering</span>
-<div class="viewcode-block" id="Composition"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition">[docs]</a><span class="k">class</span> <span class="nc">Composition</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Hashable</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+<div class="viewcode-block" id="Composition"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition">[docs]</a><span class="nd">@total_ordering</span>
+<span class="k">class</span> <span class="nc">Composition</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Hashable</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents a Composition, which is essentially a {element:amount} mapping</span>
 <span class="sd">    type. Composition is written to be immutable and hashable,</span>
@@ -153,6 +153,8 @@
                         <span class="s2">&quot;HO&quot;</span><span class="p">:</span> <span class="s2">&quot;H2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;CsO&quot;</span><span class="p">:</span> <span class="s2">&quot;Cs2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;RbO&quot;</span><span class="p">:</span> <span class="s2">&quot;Rb2O2&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;O&quot;</span><span class="p">:</span> <span class="s2">&quot;O2&quot;</span><span class="p">,</span>  <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="s2">&quot;N2&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="s2">&quot;F2&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">:</span> <span class="s2">&quot;Cl2&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="s2">&quot;H2&quot;</span><span class="p">}</span>
+
+    <span class="n">oxi_prob</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># prior probability of oxidation used by oxi_state_guesses</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># allow_negative=False</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -575,8 +577,8 @@
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Comp: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">formula</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Composition.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="Composition.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a composition from a dict generated by as_dict(). Strictly not</span>
 <span class="sd">        necessary given that the standard constructor already takes in such an</span>
@@ -643,7 +645,8 @@
 <span class="sd">        integer values. Note that more num_atoms in the composition gives</span>
 <span class="sd">        more degrees of freedom. e.g., if possible oxidation states of</span>
 <span class="sd">        element X are [2,4] and Y are [-3], then XY is not charge balanced</span>
-<span class="sd">        but X2Y2 is.</span>
+<span class="sd">        but X2Y2 is. Results are returned from most to least probable based</span>
+<span class="sd">        on ICSD statistics.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            oxi_states_override (dict): dict of str-&gt;list to override an</span>
@@ -651,7 +654,7 @@
 <span class="sd">            target_charge (int): the desired total charge on the structure.</span>
 <span class="sd">                Default is 0 signifying charge balance.</span>
 <span class="sd">            all_oxi_states (bool): if True, an element defaults to</span>
-<span class="sd">                all oxidation states in pymatgen Element.oxidation_states.</span>
+<span class="sd">                all oxidation states in pymatgen Element.icsd_oxidation_states.</span>
 <span class="sd">                Otherwise, default is Element.common_oxidation_states. Note</span>
 <span class="sd">                that the full oxidation state list is *very* inclusive and</span>
 <span class="sd">                can produce nonsensical results.</span>
@@ -661,6 +664,16 @@
 <span class="sd">                oxidation state across all sites in that composition. If the</span>
 <span class="sd">                composition is not charge balanced, an empty list is returned.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load prior probabilities of oxidation states, used to rank solutions</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Composition</span><span class="o">.</span><span class="n">oxi_prob</span><span class="p">:</span>
+            <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span>
+                                      <span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+            <span class="n">all_data</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span>
+                                           <span class="s2">&quot;analysis&quot;</span><span class="p">,</span> <span class="s2">&quot;icsd_bv.yaml&quot;</span><span class="p">))</span>
+            <span class="n">Composition</span><span class="o">.</span><span class="n">oxi_prob</span> <span class="o">=</span> <span class="p">{</span><span class="n">Specie</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">sp</span><span class="p">):</span> <span class="n">data</span>
+                                    <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span>
+                                    <span class="n">all_data</span><span class="p">[</span><span class="s2">&quot;occurrence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
         <span class="n">oxi_states_override</span> <span class="o">=</span> <span class="n">oxi_states_override</span> <span class="ow">or</span> <span class="p">{}</span>
 
@@ -672,25 +685,35 @@
         <span class="c1"># for each element, determine all possible sum of oxidations</span>
         <span class="c1"># (taking into account nsites for that particular element)</span>
         <span class="n">el_amt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span>
-        <span class="n">el_sums</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>  <span class="c1"># dict of element to possible oxid sums</span>
-        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">el_amt</span><span class="p">:</span>
+        <span class="n">els</span> <span class="o">=</span> <span class="n">el_amt</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">el_sums</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># matrix: dim1= el_idx, dim2=possible sums</span>
+        <span class="n">el_sum_scores</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>  <span class="c1"># dict of el_idx, sum -&gt; score</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">els</span><span class="p">):</span>
+            <span class="n">el_sum_scores</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">el_sums</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
             <span class="k">if</span> <span class="n">oxi_states_override</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">el</span><span class="p">):</span>
                 <span class="n">oxids</span> <span class="o">=</span> <span class="n">oxi_states_override</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
             <span class="k">elif</span> <span class="n">all_oxi_states</span><span class="p">:</span>
                 <span class="n">oxids</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">oxidation_states</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">oxids</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">common_oxidation_states</span>
+                <span class="n">oxids</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">icsd_oxidation_states</span> <span class="ow">or</span> \
+                        <span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">oxidation_states</span>
 
             <span class="c1"># get all possible combinations of oxidation states</span>
             <span class="c1"># and sum each combination</span>
             <span class="k">for</span> <span class="n">oxid_combo</span> <span class="ow">in</span> <span class="n">combinations_with_replacement</span><span class="p">(</span><span class="n">oxids</span><span class="p">,</span>
                                                             <span class="nb">int</span><span class="p">(</span><span class="n">el_amt</span><span class="p">[</span><span class="n">el</span><span class="p">])):</span>
-                <span class="n">el_sums</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">oxid_combo</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">oxid_combo</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">el_sums</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+                    <span class="n">el_sums</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">oxid_combo</span><span class="p">))</span>
+                    <span class="n">score</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">Composition</span><span class="o">.</span><span class="n">oxi_prob</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Specie</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">o</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span>
+                                 <span class="n">o</span> <span class="ow">in</span> <span class="n">oxid_combo</span><span class="p">])</span>  <span class="c1"># how probable is this combo?</span>
+                    <span class="n">el_sum_scores</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="nb">sum</span><span class="p">(</span><span class="n">oxid_combo</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                        <span class="n">el_sum_scores</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">oxid_combo</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span> <span class="n">score</span><span class="p">)</span>
 
-        <span class="n">els</span> <span class="o">=</span> <span class="n">el_sums</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="n">sums</span> <span class="o">=</span> <span class="n">el_sums</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
         <span class="n">all_sols</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># will contain all solutions</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">sums</span><span class="p">):</span>
+        <span class="n">all_scores</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># will contain a score for each solution</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">el_sums</span><span class="p">):</span>
             <span class="c1"># each x is a trial of one possible oxidation sum for each element</span>
             <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">target_charge</span><span class="p">:</span>  <span class="c1"># charge balance condition</span>
                 <span class="n">el_sum_sol</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">els</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>  <span class="c1"># element-&gt;oxid_sum</span>
@@ -698,14 +721,21 @@
                 <span class="n">sol</span> <span class="o">=</span> <span class="p">{</span><span class="n">el</span><span class="p">:</span> <span class="n">v</span> <span class="o">/</span> <span class="n">el_amt</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">el_sum_sol</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
                 <span class="n">all_sols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>  <span class="c1"># add the solution to the list of solutions</span>
 
-        <span class="c1"># present results with smaller sum-square charge magnitudes first</span>
-        <span class="c1"># note: one could use tabulated oxidation state potentials for a</span>
-        <span class="c1"># more accurate ranking (exercise for the reader)</span>
-        <span class="n">all_sols</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">sum</span><span class="p">([</span><span class="n">v</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">()]))</span>
+                <span class="c1"># determine the score for this solution</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                    <span class="n">score</span> <span class="o">+=</span> <span class="n">el_sum_scores</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">v</span><span class="p">]</span>
+                <span class="n">all_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+        <span class="c1"># sort the solutions by highest to lowest score</span>
+        <span class="n">all_sols</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_scores</span><span class="p">,</span> <span class="n">all_sols</span><span class="p">),</span>
+                                           <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">pair</span><span class="p">:</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                           <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">all_sols</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Composition.ranked_compositions_from_indeterminate_formula"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.ranked_compositions_from_indeterminate_formula">[docs]</a>    <span class="k">def</span> <span class="nf">ranked_compositions_from_indeterminate_formula</span><span class="p">(</span><span class="n">fuzzy_formula</span><span class="p">,</span>
+
+<div class="viewcode-block" id="Composition.ranked_compositions_from_indeterminate_formula"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.ranked_compositions_from_indeterminate_formula">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ranked_compositions_from_indeterminate_formula</span><span class="p">(</span><span class="n">fuzzy_formula</span><span class="p">,</span>
                                                        <span class="n">lock_if_strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Takes in a formula where capitilization might not be correctly entered,</span>
@@ -1055,7 +1085,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1063,7 +1093,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

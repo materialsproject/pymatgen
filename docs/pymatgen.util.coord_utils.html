@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.util.coord_utils module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.util.coord_utils module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -67,7 +64,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coords</strong> (<em></em><em>[</em><em></em><em>[</em><em>float</em><em>]</em><em></em><em>]</em><em></em>) &#8211; Coords of the vertices of the simplex. E.g.,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coords</strong> (<em>[</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Coords of the vertices of the simplex. E.g.,
 [[1, 2, 3], [2, 4, 5], [6, 7, 8], [8, 9, 10].</td>
 </tr>
 </tbody>
@@ -99,8 +96,8 @@ is in the facet.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>point</strong> (<em></em><em>[</em><em>float</em><em>]</em><em></em>) &#8211; Point to test</li>
-<li><strong>tolerance</strong> (<em>float</em>) &#8211; Tolerance to test if point is in simplex.</li>
+<li><strong>point</strong> (<em>[</em><em>float</em><em>]</em>) – Point to test</li>
+<li><strong>tolerance</strong> (<em>float</em>) – Tolerance to test if point is in simplex.</li>
 </ul>
 </td>
 </tr>
@@ -146,8 +143,8 @@ is in the facet.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coords1</strong> &#8211; First set of cartesian coordinates.</li>
-<li><strong>coords2</strong> &#8211; Second set of cartesian coordinates.</li>
+<li><strong>coords1</strong> – First set of cartesian coordinates.</li>
+<li><strong>coords2</strong> – Second set of cartesian coordinates.</li>
 </ul>
 </td>
 </tr>
@@ -169,8 +166,8 @@ simplex with d+1 points. Only works for d &gt;= 2.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coords</strong> &#8211; list of n coords to transform, shape should be (n,d)</li>
-<li><strong>simplex</strong> &#8211; list of coordinates that form the simplex, shape should be
+<li><strong>coords</strong> – list of n coords to transform, shape should be (n,d)</li>
+<li><strong>simplex</strong> – list of coordinates that form the simplex, shape should be
 (d+1, d)</li>
 </ul>
 </td>
@@ -191,7 +188,7 @@ Subset and superset cannot contain duplicate rows</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em><em></em>) &#8211; List of coords</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em>) – List of coords</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of indices such that superset[indices] = subset</td>
 </tr>
@@ -208,7 +205,7 @@ Superset cannot contain duplicate matching rows</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em><em></em>) &#8211; List of frac_coords</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em>) – List of frac_coords</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of indices such that superset[indices] = subset</td>
 </tr>
@@ -225,9 +222,9 @@ Superset cannot contain duplicate matching rows</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coord_list</strong> &#8211; List of coords to test</li>
-<li><strong>coord</strong> &#8211; Specific coordinates</li>
-<li><strong>atol</strong> &#8211; Absolute tolerance. Defaults to 1e-8. Accepts both scalar and
+<li><strong>coord_list</strong> – List of coords to test</li>
+<li><strong>coord</strong> – Specific coordinates</li>
+<li><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8. Accepts both scalar and
 array.</li>
 </ul>
 </td>
@@ -250,9 +247,9 @@ periodic boundary conditions.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fcoord_list</strong> &#8211; List of fractional coords</li>
-<li><strong>fcoord</strong> &#8211; A specific fractional coord to test.</li>
-<li><strong>atol</strong> &#8211; Absolute tolerance. Defaults to 1e-8.</li>
+<li><strong>fcoord_list</strong> – List of fractional coords</li>
+<li><strong>fcoord</strong> – A specific fractional coord to test.</li>
+<li><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8.</li>
 </ul>
 </td>
 </tr>
@@ -272,9 +269,9 @@ periodic boundary conditions.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>v1</strong> &#8211; Vector 1</li>
-<li><strong>v2</strong> &#8211; Vector 2</li>
-<li><strong>units</strong> &#8211; &#8220;degrees&#8221; or &#8220;radians&#8221;. Defaults to &#8220;degrees&#8221;.</li>
+<li><strong>v1</strong> – Vector 1</li>
+<li><strong>v2</strong> – Vector 2</li>
+<li><strong>units</strong> – “degrees” or “radians”. Defaults to “degrees”.</li>
 </ul>
 </td>
 </tr>
@@ -296,9 +293,9 @@ threading servers.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x_values</strong> &#8211; Sequence of x values.</li>
-<li><strong>y_values</strong> &#8211; Corresponding sequence of y values</li>
-<li><strong>x</strong> &#8211; Get value at particular x</li>
+<li><strong>x_values</strong> – Sequence of x values.</li>
+<li><strong>y_values</strong> – Corresponding sequence of y values</li>
+<li><strong>x</strong> – Get value at particular x</li>
 </ul>
 </td>
 </tr>
@@ -318,9 +315,9 @@ threading servers.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coord_list</strong> &#8211; List of coords to test</li>
-<li><strong>coord</strong> &#8211; Specific coordinates</li>
-<li><strong>atol</strong> &#8211; Absolute tolerance. Defaults to 1e-8. Accepts both scalar and
+<li><strong>coord_list</strong> – List of coords to test</li>
+<li><strong>coord</strong> – Specific coordinates</li>
+<li><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8. Accepts both scalar and
 array.</li>
 </ul>
 </td>
@@ -341,9 +338,9 @@ array.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fcoord_list</strong> &#8211; List of fractional coords to test</li>
-<li><strong>fcoord</strong> &#8211; A specific fractional coord to test.</li>
-<li><strong>atol</strong> &#8211; Absolute tolerance. Defaults to 1e-8.</li>
+<li><strong>fcoord_list</strong> – List of fractional coords to test</li>
+<li><strong>fcoord</strong> – A specific fractional coord to test.</li>
+<li><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8.</li>
 </ul>
 </td>
 </tr>
@@ -358,12 +355,12 @@ array.</li>
 <dt id="pymatgen.util.coord_utils.is_coord_subset">
 <code class="descname">is_coord_subset</code><span class="sig-paren">(</span><em>subset</em>, <em>superset</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord_utils.html#is_coord_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord_utils.is_coord_subset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if all coords in subset are contained in superset.
-Doesn&#8217;t use periodic boundary conditions</p>
+Doesn’t use periodic boundary conditions</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em><em></em>) &#8211; List of coords</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em>) – List of coords</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if all of subset is in superset.</td>
 </tr>
@@ -380,9 +377,9 @@ Doesn&#8217;t use periodic boundary conditions</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>superset</strong> (<em>subset</em><em>,</em><em></em>) &#8211; List of fractional coords</li>
-<li><strong>atol</strong> (<em>float</em><em> or </em><em>size 3 array</em>) &#8211; Tolerance for matching</li>
-<li><strong>mask</strong> (<em>boolean array</em>) &#8211; Mask of matches that are not allowed.
+<li><strong>superset</strong> (<em>subset</em><em>,</em>) – List of fractional coords</li>
+<li><strong>atol</strong> (<em>float</em><em> or </em><em>size 3 array</em>) – Tolerance for matching</li>
+<li><strong>mask</strong> (<em>boolean array</em>) – Mask of matches that are not allowed.
 i.e. if mask[1,2] == True, then subset[1] cannot be matched
 to superset[2]</li>
 </ul>
@@ -405,7 +402,7 @@ e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]]</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>supercell_matrix</strong> &#8211; 3x3 matrix describing the supercell</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>supercell_matrix</strong> – 3x3 matrix describing the supercell</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">numpy array of the fractional coordinates</td>
 </tr>
@@ -416,17 +413,17 @@ e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]]</p>
 <dl class="function">
 <dt id="pymatgen.util.coord_utils.pbc_diff">
 <code class="descname">pbc_diff</code><span class="sig-paren">(</span><em>fcoords1</em>, <em>fcoords2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord_utils.html#pbc_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord_utils.pbc_diff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the &#8216;fractional distance&#8217; between two coordinates taking into
+<dd><p>Returns the ‘fractional distance’ between two coordinates taking into
 account periodic boundary conditions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fcoords1</strong> &#8211; First set of fractional coordinates. e.g., [0.5, 0.6,
+<li><strong>fcoords1</strong> – First set of fractional coordinates. e.g., [0.5, 0.6,
 0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
 coord or any array of coords.</li>
-<li><strong>fcoords2</strong> &#8211; Second set of fractional coordinates.</li>
+<li><strong>fcoords2</strong> – Second set of fractional coordinates.</li>
 </ul>
 </td>
 </tr>
@@ -450,15 +447,15 @@ account periodic boundary conditions and the lattice.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lattice</strong> &#8211; lattice to use</li>
-<li><strong>fcoords1</strong> &#8211; First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
+<li><strong>lattice</strong> – lattice to use</li>
+<li><strong>fcoords1</strong> – First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
 or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
 coord or any array of coords.</li>
-<li><strong>fcoords2</strong> &#8211; Second set of fractional coordinates.</li>
-<li><strong>mask</strong> (<em>boolean array</em>) &#8211; Mask of matches that are not allowed.
+<li><strong>fcoords2</strong> – Second set of fractional coordinates.</li>
+<li><strong>mask</strong> (<em>boolean array</em>) – Mask of matches that are not allowed.
 i.e. if mask[1,2] == True, then subset[1] cannot be matched
 to superset[2]</li>
-<li><strong>return_d2</strong> (<em>boolean</em>) &#8211; whether to also return the squared distances</li>
+<li><strong>return_d2</strong> (<em>boolean</em>) – whether to also return the squared distances</li>
 </ul>
 </td>
 </tr>
@@ -508,13 +505,13 @@ first index is fcoords1 index, second is fcoords2 index</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

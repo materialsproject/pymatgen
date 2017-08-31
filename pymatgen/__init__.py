@@ -8,7 +8,7 @@ __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__version__ = "2017.8.4"
+__version__ = "2017.8.21"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
@@ -69,7 +69,7 @@ def get_structure_from_mp(formula):
             formula.
     """
     m = MPRester()
-    entries = m.get_entries(formula, inc_structure=True)
+    entries = m.get_entries(formula, inc_structure="final")
     if len(entries) == 0:
         raise ValueError("No structure with formula %s in Materials Project!" %
                          formula)

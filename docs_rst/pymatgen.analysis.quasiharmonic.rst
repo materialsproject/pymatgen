@@ -1,5 +1,5 @@
-pymatgen.analysis.quasiharmonic module
-======================================
+pymatgen\.analysis\.quasiharmonic module
+========================================
 
 .. automodule:: pymatgen.analysis.quasiharmonic
     :members:

@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.lammps.output module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.lammps.output module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -78,7 +75,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_file</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) &#8211; path to the log file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_file</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – path to the log file</td>
 </tr>
 </tbody>
 </table>
@@ -110,9 +107,9 @@ that and they all will be treated as floats.</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data_file</strong> (<em>str</em>) &#8211; path to the data file</li>
-<li><strong>trajectory_file</strong> (<em>str</em>) &#8211; path to the trajectory file or dump file</li>
-<li><strong>log_file</strong> (<em>str</em>) &#8211; path to the log file</li>
+<li><strong>data_file</strong> (<em>str</em>) – path to the data file</li>
+<li><strong>trajectory_file</strong> (<em>str</em>) – path to the trajectory file or dump file</li>
+<li><strong>log_file</strong> (<em>str</em>) – path to the log file</li>
 </ul>
 </td>
 </tr>
@@ -141,15 +138,15 @@ that and they all will be treated as floats.</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>specie</strong> (<em>Element/Specie</em>) &#8211; Specie to calculate diffusivity for as a
-String. E.g., &#8220;Li&#8221;.</li>
-<li><strong>temperature</strong> (<em>float</em>) &#8211; Temperature of the diffusion run in Kelvin.</li>
-<li><strong>time_step</strong> (<em>int</em>) &#8211; Time step between measurements.</li>
-<li><strong>step_skip</strong> (<em>int</em>) &#8211; Sampling frequency of the displacements (
+<li><strong>specie</strong> (<em>Element/Specie</em>) – Specie to calculate diffusivity for as a
+String. E.g., “Li”.</li>
+<li><strong>temperature</strong> (<em>float</em>) – Temperature of the diffusion run in Kelvin.</li>
+<li><strong>time_step</strong> (<em>int</em>) – Time step between measurements.</li>
+<li><strong>step_skip</strong> (<em>int</em>) – Sampling frequency of the displacements (
 time_step is multiplied by this number to get the real time
 between measurements)</li>
-<li><strong>the other parameters please see the</strong> (<em>For</em>) &#8211; </li>
-<li><strong>documentation.</strong> (<a class="reference internal" href="pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer" title="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer"><em>pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer</em></a>) &#8211; </li>
+<li><strong>the other parameters please see the</strong> (<em>For</em>) – </li>
+<li><strong>documentation.</strong> (<a class="reference internal" href="pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer" title="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer"><em>pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer</em></a>) – </li>
 </ul>
 </td>
 </tr>
@@ -243,8 +240,8 @@ e.g. for units = real, time units = fmsec</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>array</strong> (<em>numpy.ndarray</em>) &#8211; molecule coordinates, [[x1,y1,z1],[x2,y2,z2],..]</li>
-<li><strong>box_lengths</strong> (<em>list</em>) &#8211; [x_length, y_length, z_length]</li>
+<li><strong>array</strong> (<em>numpy.ndarray</em>) – molecule coordinates, [[x1,y1,z1],[x2,y2,z2],..]</li>
+<li><strong>box_lengths</strong> (<em>list</em>) – [x_length, y_length, z_length]</li>
 </ul>
 </td>
 </tr>
@@ -290,13 +287,13 @@ e.g. for units = real, time units = fmsec</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

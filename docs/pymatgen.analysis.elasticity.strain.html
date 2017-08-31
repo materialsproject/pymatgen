@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.elasticity.strain module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.elasticity.strain module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -69,7 +66,7 @@ numpy ndarrays.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>deformation_gradient</strong> (<em>3x3 array-like</em>) &#8211; the 3x3 array-like
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>deformation_gradient</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
 representing the deformation gradient</td>
 </tr>
 </tbody>
@@ -82,7 +79,7 @@ representing the deformation gradient</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<em>Structure object</em>) &#8211; the structure object to
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<em>Structure object</em>) – the structure object to
 be modified by the deformation</td>
 </tr>
 </tbody>
@@ -99,9 +96,9 @@ from a matrix position and amount</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>matrixpos</strong> (<em>tuple</em>) &#8211; tuple corresponding the matrix position to
+<li><strong>matrixpos</strong> (<em>tuple</em>) – tuple corresponding the matrix position to
 have a perturbation added</li>
-<li><strong>amt</strong> (<em>float</em>) &#8211; amount to add to the identity matrix at position
+<li><strong>amt</strong> (<em>float</em>) – amount to add to the identity matrix at position
 matrixpos</li>
 </ul>
 </td>
@@ -145,12 +142,12 @@ m + n deformed structures according to the supplied parameters.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; structure to undergo deformation</li>
-<li><strong>norm_strains</strong> (<em>list of floats</em>) &#8211; strain values to apply
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to undergo deformation</li>
+<li><strong>norm_strains</strong> (<em>list of floats</em>) – strain values to apply
 to each normal mode.</li>
-<li><strong>shear_strains</strong> (<em>list of floats</em>) &#8211; strain values to apply
+<li><strong>shear_strains</strong> (<em>list of floats</em>) – strain values to apply
 to each shear mode.</li>
-<li><strong>symmetry</strong> (<em>bool</em>) &#8211; whether or not to use symmetry reduction.</li>
+<li><strong>symmetry</strong> (<em>bool</em>) – whether or not to use symmetry reduction.</li>
 </ul>
 </td>
 </tr>
@@ -171,7 +168,7 @@ does not include the deformation gradient</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strain_matrix</strong> (<em>3x3 array-like</em>) &#8211; the 3x3 array-like
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strain_matrix</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
 representing the Green-Lagrange strain</td>
 </tr>
 </tbody>
@@ -191,7 +188,7 @@ gradient</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>deformation</strong> (<em>3x3 array-like</em>) &#8211; </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>deformation</strong> (<em>3x3 array-like</em>) – </td>
 </tr>
 </tbody>
 </table>
@@ -209,9 +206,9 @@ symmetric strain.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>idx</strong> (<em>tuple</em><em> or </em><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) &#8211; index to be perturbed, can be voigt or
+<li><strong>idx</strong> (<em>tuple</em><em> or </em><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index to be perturbed, can be voigt or
 full-tensor notation</li>
-<li><strong>amount</strong> (<em>float</em>) &#8211; amount to perturb selected index</li>
+<li><strong>amount</strong> (<em>float</em>) – amount to perturb selected index</li>
 </ul>
 </td>
 </tr>
@@ -237,11 +234,11 @@ produce that strain.  Supports three methods:</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>strain</strong> (<em>3x3 array-like</em>) &#8211; strain matrix</li>
-<li><strong>shape</strong> &#8211; (string): method for determining deformation, supports
-&#8220;upper&#8221; produces an upper triangular defo
-&#8220;lower&#8221; produces a lower triangular defo
-&#8220;symmetric&#8221; produces a symmetric defo</li>
+<li><strong>strain</strong> (<em>3x3 array-like</em>) – strain matrix</li>
+<li><strong>shape</strong> – (string): method for determining deformation, supports
+“upper” produces an upper triangular defo
+“lower” produces a lower triangular defo
+“symmetric” produces a symmetric defo</li>
 </ul>
 </td>
 </tr>
@@ -287,13 +284,13 @@ produce that strain.  Supports three methods:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

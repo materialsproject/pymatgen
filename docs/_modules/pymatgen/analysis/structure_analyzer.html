@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.structure_analyzer &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.analysis.structure_analyzer &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -64,6 +61,7 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -112,6 +110,9 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
                  <span class="n">allow_pathological</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;VoronoiCoordFinder will be moved to local_env.py&quot;</span>
+                      <span class="s2">&quot; with pymatgen &gt;= 2018&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_pathological</span> <span class="o">=</span> <span class="n">allow_pathological</span>
@@ -218,6 +219,9 @@
 <span class="sd">            el_radius_updates: (dict) symbol-&gt;float to override default atomic </span>
 <span class="sd">                radii table values </span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;JMolCoordFinder will be moved to local_env.py&quot;</span>
+                <span class="s2">&quot; with pymatgen &gt;= 2018&quot;</span><span class="p">)</span>
 
         <span class="c1"># load elemental radii table</span>
         <span class="n">bonds_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
@@ -410,8 +414,8 @@
                       <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
                       <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="n">most_frequent_polyhedra</span><span class="p">]</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="VoronoiAnalyzer.plot_vor_analysis"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_analyzer.html#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">plot_vor_analysis</span><span class="p">(</span><span class="n">voronoi_ensemble</span><span class="p">):</span>
+<div class="viewcode-block" id="VoronoiAnalyzer.plot_vor_analysis"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_analyzer.html#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">plot_vor_analysis</span><span class="p">(</span><span class="n">voronoi_ensemble</span><span class="p">):</span>
         <span class="n">t</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">voronoi_ensemble</span><span class="p">)</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">val</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -921,44 +925,51 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__supported_types</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;cn&quot;</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;bent&quot;</span><span class="p">,</span> <span class="s2">&quot;tet&quot;</span><span class="p">,</span> <span class="s2">&quot;tetalt&quot;</span><span class="p">,</span> <span class="s2">&quot;oct&quot;</span><span class="p">,</span> <span class="s2">&quot;octalt&quot;</span><span class="p">,</span> <span class="s2">&quot;bcc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;q2&quot;</span><span class="p">,</span> <span class="s2">&quot;q4&quot;</span><span class="p">,</span> <span class="s2">&quot;q6&quot;</span><span class="p">,</span> <span class="s2">&quot;reg_tri&quot;</span><span class="p">,</span> <span class="s2">&quot;sq&quot;</span><span class="p">,</span> <span class="s2">&quot;sq_pyr&quot;</span><span class="p">,</span> <span class="s2">&quot;tri_bipyr&quot;</span><span class="p">)</span>
+            <span class="s2">&quot;cn&quot;</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;bent&quot;</span><span class="p">,</span> <span class="s2">&quot;tet&quot;</span><span class="p">,</span> <span class="s2">&quot;tet_legacy&quot;</span><span class="p">,</span> <span class="s2">&quot;oct&quot;</span><span class="p">,</span> <span class="s2">&quot;oct_legacy&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bcc&quot;</span><span class="p">,</span> <span class="s2">&quot;q2&quot;</span><span class="p">,</span> <span class="s2">&quot;q4&quot;</span><span class="p">,</span> <span class="s2">&quot;q6&quot;</span><span class="p">,</span> <span class="s2">&quot;reg_tri&quot;</span><span class="p">,</span> <span class="s2">&quot;sq&quot;</span><span class="p">,</span> <span class="s2">&quot;sq_pyr&quot;</span><span class="p">,</span> <span class="s2">&quot;tri_bipyr&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=-</span><span class="mf">10.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create an OrderParameter analyzer instance.</span>
-
 <span class="sd">        Args:</span>
-<span class="sd">            types ([string]):</span>
-<span class="sd">                List of strings representing the types of order parameters</span>
-<span class="sd">                to be calculated. Note that multiple mentions of the</span>
-<span class="sd">                same type may occur. Currently available types are</span>
-<span class="sd">                &quot;cn&quot;  (simple coordination number---normalized,</span>
-<span class="sd">                      if desired),</span>
-<span class="sd">                &quot;lin&quot; [Peters-style OP recognizing linear coordination</span>
-<span class="sd">                      (Zimmermann &amp; Jain, in progress, 2017)],</span>
-<span class="sd">                &quot;bent&quot; [Peters-style OP recognizing bent coordination</span>
-<span class="sd">                      (Zimmermann &amp; Jain, in progress, 2017)],</span>
-<span class="sd">                &quot;tet&quot; [Peters-style OP recognizing tetrahedral</span>
-<span class="sd">                      coordination (Zimmermann et al.,</span>
-<span class="sd">                      J. Am. Chem. Soc., 137, 13352-13361, 2015)],</span>
-<span class="sd">                &quot;oct&quot; [Peters-style OP recognizing octahedral</span>
-<span class="sd">                      coordination (Zimmermann et al.,</span>
-<span class="sd">                      J. Am. Chem. Soc., 137, 13352-13361, 2015)],</span>
-<span class="sd">                &quot;bcc&quot; [Peters-style OP recognizing local</span>
-<span class="sd">                      body-centered cubic environment (Peters,</span>
-<span class="sd">                      J. Chem. Phys., 131, 244103, 2009)],</span>
-<span class="sd">                &quot;reg_tri&quot; (OP recognizing coordination with a regular triangle),</span>
-<span class="sd">                &quot;sq&quot; (OP recognizing square coordination),</span>
-<span class="sd">                &quot;sq_pyr&quot; (OP recognizing square pyramidal coordination),</span>
-<span class="sd">                &quot;tri_bipyr&quot; (OP recognizing trigonal bipyramidal coord.),</span>
-<span class="sd">                &quot;q2&quot;  [Bond orientational order parameter (BOOP)</span>
-<span class="sd">                      of weight l=2 (Steinhardt et al., Phys. Rev. B,</span>
-<span class="sd">                      28, 784-805, 1983)],</span>
-<span class="sd">                &quot;q4&quot;  (BOOP of weight l=4),</span>
-<span class="sd">                &quot;q6&quot;  (BOOP of weight l=6).</span>
-<span class="sd">            parameters ([[float]]):</span>
-<span class="sd">                2D list of floating point numbers that store</span>
+<span class="sd">            types ([string]): list of strings representing the types of</span>
+<span class="sd">                order parameters to be calculated. Note that multiple</span>
+<span class="sd">                mentions of the same type may occur. Currently available</span>
+<span class="sd">                types are:</span>
+<span class="sd">                  &quot;cn&quot;: simple coordination number---normalized</span>
+<span class="sd">                        if desired;</span>
+<span class="sd">                  &quot;lin&quot;: Peters-style OP recognizing linear coordination</span>
+<span class="sd">                         (Zimmermann &amp; Jain, in progress, 2017);</span>
+<span class="sd">                  &quot;bent&quot;: Peters-style OP recognizing bent coordination</span>
+<span class="sd">                          (Zimmermann &amp; Jain, in progress, 2017);</span>
+<span class="sd">                  &quot;tet&quot;: Peters-style OP recognizing tetrahedral</span>
+<span class="sd">                         environments (Zimmermann et al., submitted,</span>
+<span class="sd">                         2017);</span>
+<span class="sd">                  &quot;oct&quot;: Peters-style OP recognizing octahedral</span>
+<span class="sd">                         environments (Zimmermann et al., submitted,</span>
+<span class="sd">                         2017);</span>
+<span class="sd">                  &quot;bcc&quot;: Peters-style OP recognizing local</span>
+<span class="sd">                         body-centered cubic environment (Peters,</span>
+<span class="sd">                         J. Chem. Phys., 131, 244103, 2009);</span>
+<span class="sd">                  &quot;reg_tri&quot;: OP recognizing coordination with a regular triangle;</span>
+<span class="sd">                  &quot;sq&quot;: OP recognizing square coordination;</span>
+<span class="sd">                  &quot;sq_pyr&quot;: OP recognizing square pyramidal coordination;</span>
+<span class="sd">                  &quot;tri_bipyr&quot;: OP recognizing trigonal bipyramidal coord.;</span>
+<span class="sd">                  &quot;q2&quot;: bond orientational order parameter (BOOP)</span>
+<span class="sd">                        of weight l=2 (Steinhardt et al., Phys. Rev. B,</span>
+<span class="sd">                        28, 784-805, 1983);</span>
+<span class="sd">                  &quot;q4&quot;: BOOP of weight l=4;</span>
+<span class="sd">                  &quot;q6&quot;: BOOP of weight l=6.</span>
+<span class="sd">                  &quot;tet_legacy&quot;: original Peters-style OP recognizing</span>
+<span class="sd">                                tetrahedral coordination environments</span>
+<span class="sd">                                (Zimmermann et al., J. Am. Chem. Soc.,</span>
+<span class="sd">                                137, 13352-13361, 2015) that can, however,</span>
+<span class="sd">                                produce small negative values sometimes;</span>
+<span class="sd">                  &quot;oct_legacy&quot;: original Peters-style OP recognizing</span>
+<span class="sd">                                octahedral coordination environments</span>
+<span class="sd">                                (Zimmermann et al., J. Am. Chem. Soc.,</span>
+<span class="sd">                                137, 13352-13361, 2015) that can, however,</span>
+<span class="sd">                                produce small negative values sometimes.</span>
+<span class="sd">            parameters ([[float]]): 2D list of floating point numbers that store</span>
 <span class="sd">                parameters associated with the different order parameters</span>
 <span class="sd">                that are to be calculated (1st dimension = length of</span>
 <span class="sd">                types tuple; any 2nd dimension may be zero, in which case</span>
@@ -975,20 +986,15 @@
 <span class="sd">                          Gaussian width for penalizing deviations away</span>
 <span class="sd">                          from perfect target angle in fractions of pi</span>
 <span class="sd">                          (0.0667);</span>
-<span class="sd">                  &quot;tet&quot;: Gaussian width for penalizing deviations away</span>
-<span class="sd">                         perfecttetrahedral angle (0.0667);</span>
-<span class="sd">                  &quot;oct&quot;: threshold angle in degrees distinguishing a second</span>
-<span class="sd">                         neighbor to be either close to the south pole or</span>
-<span class="sd">                         close to the equator (160.0);</span>
-<span class="sd">                         Gaussian width for penalizing deviations away</span>
-<span class="sd">                         from south pole (0.0667);</span>
-<span class="sd">                         Gaussian width for penalizing deviations away</span>
-<span class="sd">                         from equator (0.0556);</span>
-<span class="sd">                         constant for shifting q_oct toward smaller</span>
-<span class="sd">                         values, which can be helpful when trying to fine-</span>
-<span class="sd">                         tune the capabilities of distinguishing between</span>
-<span class="sd">                         different environments (e.g., tet vs oct)</span>
-<span class="sd">                         given a single mutual threshold q_thresh;</span>
+<span class="sd">                  &quot;tet&quot;: Gaussian width for penalizing deviations</span>
+<span class="sd">                         away perfect tetrahedral angle (0.0667);</span>
+<span class="sd">                  &quot;oct&quot;: threshold angle in degrees distinguishing</span>
+<span class="sd">                         a second neighbor to be either close to the</span>
+<span class="sd">                         south pole or close to the equator (160.0);</span>
+<span class="sd">                         Gaussian width for penalizing deviations</span>
+<span class="sd">                         away from south pole (0.0667); Gaussian</span>
+<span class="sd">                         width for penalizing deviations away from</span>
+<span class="sd">                         equator (0.0556);</span>
 <span class="sd">                  &quot;bcc&quot;: south-pole threshold angle as for &quot;oct&quot; (160.0);</span>
 <span class="sd">                         south-pole Gaussian width as for &quot;oct&quot; (0.0667);</span>
 <span class="sd">                  &quot;reg_tri&quot;: Gaussian width for penalizing angles away from</span>
@@ -1012,8 +1018,21 @@
 <span class="sd">                            from south pole (0.0667);</span>
 <span class="sd">                            Gaussian width for penalizing deviations away</span>
 <span class="sd">                            from equator (0.0556).</span>
-<span class="sd">            cutoff (float):</span>
-<span class="sd">                Cutoff radius to determine which nearest neighbors are</span>
+<span class="sd">                  &quot;tet_legacy&quot;: Gaussian width for penalizing deviations</span>
+<span class="sd">                                away perfect tetrahedral angle (0.0667);</span>
+<span class="sd">                  &quot;oct_legacy&quot;: threshold angle in degrees distinguishing</span>
+<span class="sd">                                a second neighbor to be either close to the</span>
+<span class="sd">                                south pole or close to the equator (160.0);</span>
+<span class="sd">                                Gaussian width for penalizing deviations</span>
+<span class="sd">                                away from south pole (0.0667); Gaussian</span>
+<span class="sd">                                width for penalizing deviations away from</span>
+<span class="sd">                                equator (0.0556); constant for shifting</span>
+<span class="sd">                                q_oct_legacy toward smaller values, which</span>
+<span class="sd">                                can be helpful when trying to fine-tune</span>
+<span class="sd">                                the capabilities of distinguishing between</span>
+<span class="sd">                                different environments (e.g., tet vs oct)</span>
+<span class="sd">                                given a single mutual threshold q_thresh;</span>
+<span class="sd">            cutoff (float): Cutoff radius to determine which nearest neighbors are</span>
 <span class="sd">                supposed to contribute to the order parameters.</span>
 <span class="sd">                If the value is negative the neighboring sites found by</span>
 <span class="sd">                distance and cutoff radius are further</span>
@@ -1083,6 +1102,16 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">180.0</span><span class="p">,</span> \
                                 <span class="mf">1.0</span> <span class="o">/</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet_legacy&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">0.0667</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gaussian width for&quot;</span>
+                                         <span class="s2">&quot; original tetrahedral order&quot;</span>
+                                         <span class="s2">&quot; parameter is zero!&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">0.0667</span><span class="p">)</span>
@@ -1093,17 +1122,7 @@
                                          <span class="s2">&quot; parameter is zero!&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tetalt&quot;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">0.0667</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gaussian width for&quot;</span>
-                                         <span class="s2">&quot; tetrahedral order&quot;</span>
-                                         <span class="s2">&quot; parameter is zero!&quot;</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct_legacy&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
                     <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">8.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="mf">9.0</span><span class="p">)</span>
                     <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">0.0667</span><span class="p">)</span>
@@ -1114,19 +1133,21 @@
                     <span class="k">if</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span>
                             <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">180.0</span><span class="p">:</span>
                         <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Threshold value for south pole&quot;</span>
-                             <span class="s2">&quot; configurations in octahedral order&quot;</span>
+                             <span class="s2">&quot; configurations in original octahedral order&quot;</span>
                              <span class="s2">&quot; parameter outside ]0,180[&quot;</span><span class="p">)</span>
                     <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gaussian width for south pole&quot;</span>
-                                         <span class="s2">&quot; configurations in octahedral&quot;</span>
-                                         <span class="s2">&quot; order parameter is zero!&quot;</span><span class="p">)</span>
+                                         <span class="s2">&quot; configurations in original&quot;</span>
+                                         <span class="s2">&quot; octahedral order parameter is&quot;</span>
+                                         <span class="s2">&quot; zero!&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gaussian width for equatorial&quot;</span>
-                                         <span class="s2">&quot; configurations in octahedral&quot;</span>
-                                         <span class="s2">&quot; order parameter is zero!&quot;</span><span class="p">)</span>
+                                         <span class="s2">&quot; configurations in original&quot;</span>
+                                         <span class="s2">&quot; octahedral order parameter is&quot;</span>
+                                         <span class="s2">&quot; zero!&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
@@ -1136,7 +1157,7 @@
                         <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Shift constant outside [0,1[.&quot;</span><span class="p">)</span>
                     <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">])</span>
                     <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]))</span>
-            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;octalt&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
                     <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">8.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="mf">9.0</span><span class="p">)</span>
                     <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">0.0667</span><span class="p">)</span>
@@ -1216,8 +1237,8 @@
                     <span class="k">if</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span>
                             <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">180.0</span><span class="p">:</span>
                         <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Threshold value for south pole&quot;</span>
-                             <span class="s2">&quot; configurations in octahedral order&quot;</span>
-                             <span class="s2">&quot; parameter outside ]0,180[&quot;</span><span class="p">)</span>
+                             <span class="s2">&quot; configurations in trigonal bipyramidal&quot;</span>
+                             <span class="s2">&quot; order parameter outside ]0,180[&quot;</span><span class="p">)</span>
                     <span class="n">tmpparas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">loc_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gaussian width for south pole&quot;</span>
@@ -1244,7 +1265,7 @@
             <span class="c1"># self._computerjks: compute vectors from non-centeral atom j</span>
             <span class="c1">#                    to any non-central atom k.</span>
             <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;bcc&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;sq_pyr&quot;</span> <span class="ow">or</span> \
-                    <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tri_bipyr&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tetalt&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;octalt&quot;</span><span class="p">:</span>
+                    <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tri_bipyr&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet_legacy&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct_legacy&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_computerijs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geomops</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;reg_tri&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span><span class="s2">&quot;sq&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_computerijs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_computerjks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geomops2</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1942,11 +1963,11 @@
                                 <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span>
                                     <span class="n">thetak</span> <span class="o">*</span> <span class="n">ipi</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
                                 <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">tmp</span> <span class="o">*</span> <span class="n">tmp</span><span class="p">)</span>
-                            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tetalt&quot;</span><span class="p">:</span>
+                            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet_legacy&quot;</span><span class="p">:</span>
                                 <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span>
                                     <span class="n">thetak</span> <span class="o">*</span> <span class="n">ipi</span> <span class="o">-</span> <span class="n">tetangoverpi</span><span class="p">)</span>
                                 <span class="n">gaussthetak</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">tmp</span> <span class="o">*</span> <span class="n">tmp</span><span class="p">)</span>
-                            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;octalt&quot;</span><span class="p">:</span>
+                            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct_legacy&quot;</span><span class="p">:</span>
                                 <span class="k">if</span> <span class="n">thetak</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
                                     <span class="c1"># k is south pole to j</span>
                                     <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span>
@@ -1987,19 +2008,19 @@
                                 <span class="c1"># angles between plane j-i-k and i-m vector.</span>
                                 <span class="k">if</span> <span class="ow">not</span> <span class="n">flag_xaxis</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">flag_xtwoaxis</span><span class="p">:</span>
                                     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">):</span>
-                                        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span><span class="p">:</span>
+                                        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet_legacy&quot;</span><span class="p">:</span>
                                             <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span>
                                                 <span class="n">thetam</span> <span class="o">*</span> <span class="n">ipi</span> <span class="o">-</span> <span class="n">tetangoverpi</span><span class="p">)</span>
                                             <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">gaussthetak</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
                                                 <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">tmp</span> <span class="o">*</span> <span class="n">tmp</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
                                                 <span class="mf">3.0</span> <span class="o">*</span> <span class="n">phi</span><span class="p">)</span>
-                                        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tetalt&quot;</span><span class="p">:</span>
+                                        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span><span class="p">:</span>
                                             <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span>
                                                 <span class="n">thetam</span> <span class="o">*</span> <span class="n">ipi</span> <span class="o">-</span> <span class="n">tetangoverpi</span><span class="p">)</span>
                                             <span class="n">tmp2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">phi</span><span class="p">)</span>
                                             <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">gaussthetak</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
                                                 <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">tmp</span> <span class="o">*</span> <span class="n">tmp</span><span class="p">)</span> <span class="o">*</span> <span class="n">tmp2</span> <span class="o">*</span> <span class="n">tmp2</span>
-                                        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span><span class="p">:</span>
+                                        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct_legacy&quot;</span><span class="p">:</span>
                                             <span class="k">if</span> <span class="n">thetak</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> \
                                                             <span class="n">thetam</span> <span class="o">&lt;</span> \
                                                             <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
@@ -2011,7 +2032,7 @@
                                                               <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
                                                                   <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">tmp2</span> <span class="o">*</span> <span class="n">tmp2</span><span class="p">)</span> <span class="o">-</span> \
                                                               <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">])</span>
-                                        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;octalt&quot;</span><span class="p">:</span>
+                                        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span><span class="p">:</span>
                                             <span class="k">if</span> <span class="n">thetak</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> \
                                                     <span class="n">thetam</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paras</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
                                                 <span class="n">tmp</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">phi</span><span class="p">)</span>
@@ -2052,10 +2073,10 @@
                 <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;bent&quot;</span><span class="p">:</span>
                     <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">nneigh</span> <span class="o">*</span> <span class="p">(</span>
                             <span class="n">nneigh</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="n">nneigh</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
-                <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tetalt&quot;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;tet_legacy&quot;</span><span class="p">:</span>
                     <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">nneigh</span> <span class="o">*</span> <span class="p">(</span><span class="n">nneigh</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
                             <span class="n">nneigh</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span> <span class="k">if</span> <span class="n">nneigh</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">None</span>
-                <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;octalt&quot;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;oct_legacy&quot;</span><span class="p">:</span>
                     <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">nneigh</span> <span class="o">*</span> <span class="p">(</span><span class="mi">3</span> <span class="o">+</span> <span class="p">(</span><span class="n">nneigh</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
                             <span class="n">nneigh</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)))</span> <span class="k">if</span> <span class="n">nneigh</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">None</span>
                 <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;bcc&quot;</span><span class="p">:</span>
@@ -2148,7 +2169,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2156,7 +2177,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

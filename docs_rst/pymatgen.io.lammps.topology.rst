@@ -1,5 +1,5 @@
-pymatgen.io.lammps.topology module
-==================================
+pymatgen\.io\.lammps\.topology module
+=====================================
 
 .. automodule:: pymatgen.io.lammps.topology
     :members:

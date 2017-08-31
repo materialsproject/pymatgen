@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.operations module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.core.operations module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -64,7 +61,7 @@
 <p>Thin wrapper around SymmOp to extend it to support magnetic symmetry
 by including a  time reversal operator. Magnetic symmetry is similar
 to conventional crystal symmetry, except symmetry is reduced by the
-addition of a time reversal operator which acts on an atom&#8217;s magnetic
+addition of a time reversal operator which acts on an atom’s magnetic
 moment.</p>
 <p>Initializes the MagSymmOp from a 4x4 affine transformation matrix
 and time reversal operator.
@@ -76,10 +73,10 @@ generate a SymmOp from proper rotations and translation.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>affine_transformation_matrix</strong> (<em>4x4 array</em>) &#8211; Representing an
+<li><strong>affine_transformation_matrix</strong> (<em>4x4 array</em>) – Representing an
 affine transformation.</li>
-<li><strong>time_reversal</strong> (<em>int</em>) &#8211; 1 or -1</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Tolerance for determining if matrices are equal.</li>
+<li><strong>time_reversal</strong> (<em>int</em>) – 1 or -1</li>
+<li><strong>tol</strong> (<em>float</em>) – Tolerance for determining if matrices are equal.</li>
 </ul>
 </td>
 </tr>
@@ -93,8 +90,8 @@ affine transformation.</li>
 <dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.as_xyzt_string">
 <code class="descname">as_xyzt_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.as_xyzt_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.as_xyzt_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a string of the form &#8216;x, y, z, +1&#8217;, &#8216;-x, -y, z, -1&#8217;,
-&#8216;-y+1/2, x+1/2, z+1/2, +1&#8217;, etc. Only works for integer rotation matrices</p>
+<dd><p>Returns a string of the form ‘x, y, z, +1’, ‘-x, -y, z, -1’,
+‘-y+1/2, x+1/2, z+1/2, +1’, etc. Only works for integer rotation matrices</p>
 </dd></dl>
 
 <dl class="classmethod">
@@ -112,10 +109,10 @@ vector and time reversal operator.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rotation_matrix</strong> (<em>3x3 array</em>) &#8211; Rotation matrix.</li>
-<li><strong>translation_vec</strong> (<em>3x1 array</em>) &#8211; Translation vector.</li>
-<li><strong>time_reversal</strong> (<em>int</em>) &#8211; Time reversal operator, +1 or -1.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Tolerance to determine if rotation matrix is valid.</li>
+<li><strong>rotation_matrix</strong> (<em>3x3 array</em>) – Rotation matrix.</li>
+<li><strong>translation_vec</strong> (<em>3x1 array</em>) – Translation vector.</li>
+<li><strong>time_reversal</strong> (<em>int</em>) – Time reversal operator, +1 or -1.</li>
+<li><strong>tol</strong> (<em>float</em>) – Tolerance to determine if rotation matrix is valid.</li>
 </ul>
 </td>
 </tr>
@@ -135,8 +132,8 @@ vector and time reversal operator.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>symmop</strong> (<a class="reference internal" href="#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) &#8211; SymmOp</li>
-<li><strong>time_reversal</strong> (<em>int</em>) &#8211; Time reversal operator, +1 or -1.</li>
+<li><strong>symmop</strong> (<a class="reference internal" href="#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) – SymmOp</li>
+<li><strong>time_reversal</strong> (<em>int</em>) – Time reversal operator, +1 or -1.</li>
 </ul>
 </td>
 </tr>
@@ -154,8 +151,8 @@ vector and time reversal operator.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xyz_string</strong> &#8211; string of the form &#8216;x, y, z, +1&#8217;, &#8216;-x, -y, z, -1&#8217;,
-&#8216;-2y+1/2, 3x+1/2, z-y+1/2, +1&#8217;, etc.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xyz_string</strong> – string of the form ‘x, y, z, +1’, ‘-x, -y, z, -1’,
+‘-2y+1/2, 3x+1/2, z-y+1/2, +1’, etc.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">MagSymmOp object</td>
 </tr>
@@ -168,15 +165,15 @@ vector and time reversal operator.</p>
 <code class="descname">operate_magmom</code><span class="sig-paren">(</span><em>magmom</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.operate_magmom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.operate_magmom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply time reversal operator on the magnetic moment. Note that
 magnetic moments transform as axial vectors, not polar vectors.</p>
-<p>See &#8216;Symmetry and magnetic structures&#8217;, Rodríguez-Carvajal and
+<p>See ‘Symmetry and magnetic structures’, Rodríguez-Carvajal and
 Bourée for a good discussion. DOI: 10.1051/epjconf/20122200010</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>magmom</strong> &#8211; Magnetic moment as electronic_structure.core.Magmom</li>
-<li><strong>or as list</strong><strong> or </strong><strong>np array-like</strong> (<em>class</em>) &#8211; </li>
+<li><strong>magmom</strong> – Magnetic moment as electronic_structure.core.Magmom</li>
+<li><strong>or as list</strong><strong> or </strong><strong>np array-like</strong> (<em>class</em>) – </li>
 </ul>
 </td>
 </tr>
@@ -211,9 +208,9 @@ generate a SymmOp from proper rotations and translation.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>affine_transformation_matrix</strong> (<em>4x4 array</em>) &#8211; Representing an
+<li><strong>affine_transformation_matrix</strong> (<em>4x4 array</em>) – Representing an
 affine transformation.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Tolerance for determining if matrices are equal.</li>
+<li><strong>tol</strong> (<em>float</em>) – Tolerance for determining if matrices are equal.</li>
 </ul>
 </td>
 </tr>
@@ -228,7 +225,7 @@ translation vector.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vector</strong> (<em>3x1 array</em>) &#8211; A vector.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vector</strong> (<em>3x1 array</em>) – A vector.</td>
 </tr>
 </tbody>
 </table>
@@ -243,9 +240,9 @@ translation vector.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>point_a</strong> (<em>3x1 array</em>) &#8211; First point.</li>
-<li><strong>point_b</strong> (<em>3x1 array</em>) &#8211; Second point.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Absolute tolerance for checking distance.</li>
+<li><strong>point_a</strong> (<em>3x1 array</em>) – First point.</li>
+<li><strong>point_b</strong> (<em>3x1 array</em>) – Second point.</li>
+<li><strong>tol</strong> (<em>float</em>) – Absolute tolerance for checking distance.</li>
 </ul>
 </td>
 </tr>
@@ -264,8 +261,8 @@ translation vector.</p>
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.as_xyz_string">
 <code class="descname">as_xyz_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.as_xyz_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.as_xyz_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a string of the form &#8216;x, y, z&#8217;, &#8216;-x, -y, z&#8217;,
-&#8216;-y+1/2, x+1/2, z+1/2&#8217;, etc. Only works for integer rotation matrices</p>
+<dd><p>Returns a string of the form ‘x, y, z’, ‘-x, -y, z’,
+‘-y+1/2, x+1/2, z+1/2’, etc. Only works for integer rotation matrices</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -277,12 +274,12 @@ translation vector.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>axis</strong> &#8211; The axis of rotation in cartesian space. For example,
+<li><strong>axis</strong> – The axis of rotation in cartesian space. For example,
 [1, 0, 0]indicates rotation about x-axis.</li>
-<li><strong>angle</strong> (<em>float</em>) &#8211; Angle of rotation.</li>
-<li><strong>angle_in_radians</strong> (<em>bool</em>) &#8211; Set to True if angles are given in
+<li><strong>angle</strong> (<em>float</em>) – Angle of rotation.</li>
+<li><strong>angle_in_radians</strong> (<em>bool</em>) – Set to True if angles are given in
 radians. Or else, units of degrees are assumed.</li>
-<li><strong>translation_vec</strong> &#8211; A translation vector. Defaults to zero.</li>
+<li><strong>translation_vec</strong> – A translation vector. Defaults to zero.</li>
 </ul>
 </td>
 </tr>
@@ -308,11 +305,11 @@ origin.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>origin</strong> (<em>3x1 array</em>) &#8211; The origin which the axis passes through.</li>
-<li><strong>axis</strong> (<em>3x1 array</em>) &#8211; The axis of rotation in cartesian space. For
+<li><strong>origin</strong> (<em>3x1 array</em>) – The origin which the axis passes through.</li>
+<li><strong>axis</strong> (<em>3x1 array</em>) – The axis of rotation in cartesian space. For
 example, [1, 0, 0]indicates rotation about x-axis.</li>
-<li><strong>angle</strong> (<em>float</em>) &#8211; Angle of rotation.</li>
-<li><strong>angle_in_radians</strong> (<em>bool</em>) &#8211; Set to True if angles are given in
+<li><strong>angle</strong> (<em>float</em>) – Angle of rotation.</li>
+<li><strong>angle_in_radians</strong> (<em>bool</em>) – Set to True if angles are given in
 radians. Or else, units of degrees are assumed.</li>
 </ul>
 </td>
@@ -334,9 +331,9 @@ vector.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rotation_matrix</strong> (<em>3x3 array</em>) &#8211; Rotation matrix.</li>
-<li><strong>translation_vec</strong> (<em>3x1 array</em>) &#8211; Translation vector.</li>
-<li><strong>tol</strong> (<em>float</em>) &#8211; Tolerance to determine if rotation matrix is valid.</li>
+<li><strong>rotation_matrix</strong> (<em>3x3 array</em>) – Rotation matrix.</li>
+<li><strong>translation_vec</strong> (<em>3x1 array</em>) – Translation vector.</li>
+<li><strong>tol</strong> (<em>float</em>) – Tolerance to determine if rotation matrix is valid.</li>
 </ul>
 </td>
 </tr>
@@ -354,8 +351,8 @@ vector.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xyz_string</strong> &#8211; string of the form &#8216;x, y, z&#8217;, &#8216;-x, -y, z&#8217;,
-&#8216;-2y+1/2, 3x+1/2, z-y+1/2&#8217;, etc.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xyz_string</strong> – string of the form ‘x, y, z’, ‘-x, -y, z’,
+‘-2y+1/2, 3x+1/2, z-y+1/2’, etc.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">SymmOp</td>
 </tr>
@@ -377,7 +374,7 @@ vector.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>origin</strong> (<em>3x1 array</em>) &#8211; Origin of the inversion operation. Defaults
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>origin</strong> (<em>3x1 array</em>) – Origin of the inversion operation. Defaults
 to [0, 0, 0].</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">SymmOp representing an inversion operation about the origin.</td>
@@ -394,7 +391,7 @@ to [0, 0, 0].</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> &#8211; Cartesian coordinate.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> – Cartesian coordinate.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Coordinates of point after operation.</td>
 </tr>
@@ -410,7 +407,7 @@ to [0, 0, 0].</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points</strong> &#8211; List of Cartesian coordinates</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points</strong> – List of Cartesian coordinates</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Numpy array of coordinates after operation</td>
 </tr>
@@ -427,9 +424,9 @@ to [0, 0, 0].</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>normal</strong> (<em>3x1 array</em>) &#8211; Vector of the normal to the plane of
+<li><strong>normal</strong> (<em>3x1 array</em>) – Vector of the normal to the plane of
 reflection.</li>
-<li><strong>origin</strong> (<em>3x1 array</em>) &#8211; A point in which the mirror plane passes
+<li><strong>origin</strong> (<em>3x1 array</em>) – A point in which the mirror plane passes
 through.</li>
 </ul>
 </td>
@@ -456,9 +453,9 @@ through.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>axis</strong> (<em>3x1 array</em>) &#8211; Axis of rotation / mirror normal</li>
-<li><strong>angle</strong> (<em>float</em>) &#8211; Angle in degrees</li>
-<li><strong>origin</strong> (<em>3x1 array</em>) &#8211; Point left invariant by roto-reflection.
+<li><strong>axis</strong> (<em>3x1 array</em>) – Axis of rotation / mirror normal</li>
+<li><strong>angle</strong> (<em>float</em>) – Angle in degrees</li>
+<li><strong>origin</strong> (<em>3x1 array</em>) – Point left invariant by roto-reflection.
 Defaults to (0, 0, 0).</li>
 </ul>
 </td>
@@ -479,7 +476,7 @@ full form, not the Voigt form.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tensor</strong> (<em>numpy array</em>) &#8211; a rank n tensor</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tensor</strong> (<em>numpy array</em>) – a rank n tensor</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Transformed tensor.</td>
 </tr>
@@ -533,13 +530,13 @@ full form, not the Voigt form.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

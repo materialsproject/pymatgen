@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.abitimer module &#8212; pymatgen 2017.8.4 documentation</title>
-    
+    <title>pymatgen.io.abinit.abitimer module &#8212; pymatgen 2017.8.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.4',
+        VERSION:     '2017.8.21',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +33,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -86,7 +83,7 @@ It also provides tools to analye and to visualize the parallel efficiency.</p>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
@@ -143,7 +140,7 @@ Return the names of the sections and the corresponding values.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>key: Keyword used to extract data from the timer.
-minfract: Don&#8217;t show sections whose relative weight is less that minfract.
+minfract: Don’t show sections whose relative weight is less that minfract.
 ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</dd>
 <dt>Returns:</dt>
 <dd><cite>matplotlib</cite> figure</dd>
@@ -168,7 +165,7 @@ ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre"
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
@@ -203,7 +200,7 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
@@ -253,7 +250,7 @@ Assume the Abinit output files have been produced with <cite>timopt -1</cite>.</
 parser.parse(list_of_files)</p>
 <p>To analyze all <a href="#id1"><span class="problematic" id="id2">*</span></a>.abo files withing top, use:</p>
 <blockquote>
-<div>parser, paths, okfiles = AbinitTimerParser.walk(top=&#8221;.&#8221;, ext=&#8221;.abo&#8221;)</div></blockquote>
+<div>parser, paths, okfiles = AbinitTimerParser.walk(top=”.”, ext=”.abo”)</div></blockquote>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser.BEGIN_TAG">
 <code class="descname">BEGIN_TAG</code><em class="property"> = '-&lt;BEGIN_TIMER'</em><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.BEGIN_TAG" title="Permalink to this definition">¶</a></dt>
@@ -369,7 +366,7 @@ ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre"
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
@@ -390,7 +387,7 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>key: Keyword used to extract data from timers.
-minfract: Don&#8217;t show sections whose relative weight is less that minfract.</dd>
+minfract: Don’t show sections whose relative weight is less that minfract.</dd>
 <dt>Returns:</dt>
 <dd><cite>matplotlib</cite> figure</dd>
 </dl>
@@ -414,7 +411,7 @@ minfract: Don&#8217;t show sections whose relative weight is less that minfract.
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
@@ -465,7 +462,7 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>&#8216;abc.png&#8217; or &#8216;abc.eps&#8217; to save the figure to a file.</td>
+<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
@@ -586,7 +583,7 @@ is the list of files that have been parsed successfully.
 <dl class="function">
 <dt id="pymatgen.io.abinit.abitimer.alternate">
 <code class="descname">alternate</code><span class="sig-paren">(</span><em>*iterables</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#alternate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.alternate" title="Permalink to this definition">¶</a></dt>
-<dd><p>[a[0], b[0], ... , a[1], b[1], ..., a[n], b[n] ...]
+<dd><p>[a[0], b[0], … , a[1], b[1], …, a[n], b[n] …]
 &gt;&gt;&gt; alternate([1,4], [2,5], [3,6])
 [1, 2, 3, 4, 5, 6]</p>
 </dd></dl>
@@ -629,13 +626,13 @@ is the list of files that have been parsed successfully.
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
