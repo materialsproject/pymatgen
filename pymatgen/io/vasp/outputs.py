@@ -858,6 +858,8 @@ class Vasprun(MSONable):
         if d["is_hubbard"]:
             us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
             js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
+            if len(js) != len(us):
+                js = [0] * len(us)
             if len(us) == len(symbols):
                 d["hubbards"] = {symbols[i]: us[i] - js[i]
                                  for i in range(len(symbols))}
