@@ -157,7 +157,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
             self.assertEqual(a, 90)
         self.assertEqual(refined.lattice.a, refined.lattice.b)
         s = self.get_structure('Li2O')
-        sg = SpacegroupAnalyzer(s, 0.001)
+        sg = SpacegroupAnalyzer(s, 0.01)
         self.assertEqual(sg.get_refined_structure().num_sites, 4 * s.num_sites)
 
     def test_get_symmetrized_structure(self):
@@ -494,12 +494,12 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(m)
         self.assertEqual(a.sch_symbol, "Ih")
 
-    def test_symmetrize_molecule(self):
+    def test_symmetrize_molecule1(self):
         np.random.seed(77)
         distortion = np.random.randn(len(C2H4), 3) / 10
         dist_mol = Molecule(C2H4.species, C2H4.cart_coords + distortion)
 
-        eq = iterative_symmetrize(dist_mol, max_n=100, tol=1e-7)
+        eq = iterative_symmetrize(dist_mol, max_n=100, epsilon=1e-7)
         sym_mol, eq_sets, ops = eq['sym_mol'], eq['eq_sets'], eq['sym_ops']
 
         self.assertTrue({0, 1} in eq_sets.values())
@@ -511,6 +511,19 @@ class PointGroupAnalyzerTest(PymatgenTest):
                 rotated = np.dot(ops[i][j], coords[i])
                 self.assertTrue(
                     np.allclose(np.dot(ops[i][j], coords[i]), coords[j]))
+
+    def test_symmetrize_molecule2(self):
+        np.random.seed(77)
+        distortion = np.random.randn(len(C2H2F2Br2), 3) / 20
+        dist_mol = Molecule(C2H2F2Br2.species,
+                            C2H2F2Br2.cart_coords + distortion)
+        PA1 = PointGroupAnalyzer(C2H2F2Br2, tolerance=0.1)
+        self.assertTrue(PA1.get_pointgroup().sch_symbol == 'Ci')
+        PA2 = PointGroupAnalyzer(dist_mol, tolerance=0.1)
+        self.assertTrue(PA2.get_pointgroup().sch_symbol == 'C1')
+        eq = iterative_symmetrize(dist_mol, tolerance=0.3)
+        PA3 = PointGroupAnalyzer(eq['sym_mol'], tolerance=0.1)
+        self.assertTrue(PA3.get_pointgroup().sch_symbol == 'Ci')
 
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9

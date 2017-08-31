@@ -416,6 +416,18 @@ class CompositionTest(PymatgenTest):
             oxi_states_override={"V": [2, 3, 4, 5]}, target_charge=-2),
             [{"V": 5, "O": -2}])
 
+        # max_sites for very large composition - should timeout if incorrect
+        self.assertEqual(Composition("Li10000Fe10000P10000O40000").
+                         oxi_state_guesses(max_sites=7)[0],
+                         {"Li": 1, "Fe": 2, "P": 5, "O": -2})
+
+        # max_sites for very large composition - should timeout if incorrect
+        self.assertEqual(Composition("Li10000Fe10000P10000O40000").
+                         oxi_state_guesses(max_sites=-1)[0],
+                         {"Li": 1, "Fe": 2, "P": 5, "O": -2})
+
+        self.assertRaises(ValueError, Composition("V2O3").
+                          oxi_state_guesses, max_sites=1)
 
 class ChemicalPotentialTest(unittest.TestCase):
 

@@ -386,7 +386,7 @@ class Vasprun(MSONable):
             if parse_potcar_file:
                 self.update_potcar_spec(parse_potcar_file)
 
-        if not self.converged:
+        if self.incar.get("ALGO", "") != "BSE" and (not self.converged):
             msg = "%s is an unconverged VASP run.\n" % filename
             msg += "Electronic convergence reached: %s.\n" % \
                    self.converged_electronic
