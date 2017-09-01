@@ -823,7 +823,7 @@ class Incar(dict, MSONable):
             return False
 
         return val.strip().capitalize()
-     
+
     def diff(self, other):
         """
         Diff function for Incar.  Compares two Incars and indicates which
