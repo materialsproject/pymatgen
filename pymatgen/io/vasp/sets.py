@@ -295,7 +295,7 @@ class DictSet(VaspInputSet):
                           key=lambda e: e.X)
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
-        hubbard_u = settings.get("LDAU", False)                          
+        hubbard_u = settings.get("LDAU", False)
 
         for k, v in settings.items():
             if k == "MAGMOM":
