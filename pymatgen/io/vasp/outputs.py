@@ -595,16 +595,24 @@ class Vasprun(MSONable):
     @property
     def run_type(self):
         """
-        Returns the run type. Currently supports only GGA and HF calcs.
+        Returns the run type. Currently supports LDA, GGA, vdW-DF and HF calcs.
 
-        TODO: Fix for other functional types like LDA, PW91, etc.
+        TODO: Fix for other functional types like PW91, other vdW types, etc.
         """
-        if self.is_hubbard:
-            return "GGA+U"
-        elif self.parameters.get("LHFCALC", False):
-            return "HF"
+        if self.parameters.get("LHFCALC", False):
+            rt = "HF"
+        elif self.parameters.get("LUSE_VDW", False):
+            vdw_gga = {"RE": "DF", "OR": "optPBE", "BO": "optB88",
+                       "MK": "optB86b", "ML": "DF2"}
+            gga = self.parameters.get("GGA")
+            rt = "vdW-" + vdw_gga[gga]
+        elif self.potcar_symbols[0].split()[0] == 'PAW':
+            rt = "LDA"
         else:
-            return "GGA"
+            rt = "GGA"
+        if self.is_hubbard:
+            rt += "+U"
+        return rt
 
     @property
     def is_hubbard(self):
