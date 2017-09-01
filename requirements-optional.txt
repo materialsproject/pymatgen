@@ -7,3 +7,4 @@ coveralls==1.2.0
 chemview==0.6
 netCDF4==1.2.9
 fdint==2.0.2
+networkx=1.11
