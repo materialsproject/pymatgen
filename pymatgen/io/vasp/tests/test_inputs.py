@@ -531,15 +531,7 @@ SIGMA = 0.1"""
     def test_proc_types(self):
         self.assertEqual(Incar.proc_val("HELLO", "-0.85 0.85"), "-0.85 0.85")
 
-    def test_vdw(self):
-        vdw_file_name = os.path.join(test_dir, 'INCAR.vdW')
-        incar_vdw = Incar.from_file(vdw_file_name)
-        diff_vdw = self.incar.diff(incar_vdw)
-        self.incar.use_vdw('optB86b')
-        self.assertEqual(self.incar, incar_vdw)
-        self.incar.del_vdw()
-        self.assertEqual(diff_vdw, self.incar.diff(incar_vdw))
-
+        
 class KpointsTest(PymatgenTest):
     def test_init(self):
         filepath = os.path.join(test_dir, 'KPOINTS.auto')
