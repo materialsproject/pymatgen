@@ -7,7 +7,7 @@ import numpy as np
 
 from pymatgen import SETTINGS
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.analysis.surface_analysis import SurfaceEnergyAnalyzer
+from pymatgen.analysis.surface_analysis import SurfaceEnergyAnalyzer, Composition
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Richard Tran"
@@ -29,21 +29,20 @@ class SurfaceEnergyAnalyzerTest(PymatgenTest):
 
     def setUp(self):
 
-
-
         vasprun_dict = {}
         for v in glob.glob(os.path.join(get_path(""), "*")):
             if ".xml.Cu" in v:
                 vasprun_dict[tuple([int(i) for i in v[-6:].strip(".gz")])] = [Vasprun(v)]
         self.vasprun_dict = vasprun_dict
-        self.Cu_analyzer = SurfaceEnergyAnalyzer("mp-30", self.vasprun_dict, "Cu")
+        c = Composition("Cu")
+        self.Cu_analyzer = SurfaceEnergyAnalyzer("mp-30", self.vasprun_dict, c, c)
 
     def test_gamma_calculator(self):
 
         # make sure we've loaded all our files correctly
         self.assertEqual(len(self.vasprun_dict.keys()), 13)
         for hkl, vaspruns in self.vasprun_dict.items():
-            se_range = self.Cu_analyzer.calculate_gamma(vaspruns[0])
+            se_range = self.Cu_analyzer.calculate_gamma_range(vaspruns[0])
             # For a stoichiometric system, we expect surface
             # energy to be independent of chemical potential
             self.assertEqual(se_range[0], se_range[1])
