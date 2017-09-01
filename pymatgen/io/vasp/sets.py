@@ -1235,6 +1235,7 @@ class MVLSlabSet(MPRelaxSet):
                  auto_dipole=False, **kwargs):
         super(MVLSlabSet, self).__init__(slab, **kwargs)
         self.structure = slab
+        self.slab = slab
         self.k_product = k_product
         self.bulk = bulk
         self.auto_dipole = auto_dipole

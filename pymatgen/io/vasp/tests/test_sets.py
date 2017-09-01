@@ -40,7 +40,6 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.mpset = MPRelaxSet(self.structure)
 
     def test_poscar(self):
-
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)
         mitparamset = MITRelaxSet(structure, sort_structure=False)
         s_unsorted = mitparamset.poscar.structure
@@ -494,6 +493,7 @@ class MVLSlabSetTest(PymatgenTest):
         self.d_bulk = vis_bulk.all_input
         self.d_slab = vis.all_input
         self.d_dipole = vis_dipole.all_input
+        self.vis = vis
 
     def test_user_incar_settings(self):
         # Make sure user incar settings properly override AMIX.
@@ -546,6 +546,10 @@ class MVLSlabSetTest(PymatgenTest):
         self.assertEqual(kpoints_bulk[2], 15)
         # The last kpoint in a slab should always be 1
         self.assertEqual(kpoints_slab[2], 1)
+    
+    def test_as_dict(self):
+        vis_dict = self.vis.as_dict()
+        new = MVLSlabSet.from_dict(vis_dict)
 
 
 class MVLElasticSetTest(PymatgenTest):
