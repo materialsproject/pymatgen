@@ -824,7 +824,7 @@ class Incar(dict, MSONable):
 
         return val.strip().capitalize()
 
-   def use_vdw(self, vdw):
+    def use_vdw(self, vdw):
         """
         Adds parameters for van-der-Waals functionals supported by
         VASP to the Incar object.
