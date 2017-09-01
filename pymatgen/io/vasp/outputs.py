@@ -856,16 +856,7 @@ class Vasprun(MSONable):
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = {}
         if d["is_hubbard"]:
-            us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
-            js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
-            if len(js) != len(us):
-                js = [0] * len(us)
-            if len(us) == len(symbols):
-                d["hubbards"] = {symbols[i]: us[i] - js[i]
-                                 for i in range(len(symbols))}
-            else:
-                raise VaspParserError("Length of U value parameters and atomic"
-                                      " symbols are mismatched.")
+            d["hubbards"] = self.hubbards
 
         unique_symbols = sorted(list(set(self.atomic_symbols)))
         d["elements"] = unique_symbols
@@ -1228,14 +1219,7 @@ class BSVasprun(Vasprun):
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = {}
         if d["is_hubbard"]:
-            us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
-            js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
-            if len(us) == len(symbols):
-                d["hubbards"] = {symbols[i]: us[i] - js[i]
-                                 for i in range(len(symbols))}
-            else:
-                raise VaspParserError("Length of U value parameters and atomic"
-                                      " symbols are mismatched.")
+            d["hubbards"] = self.hubbards
 
         unique_symbols = sorted(list(set(self.atomic_symbols)))
         d["elements"] = unique_symbols
