@@ -47,6 +47,7 @@ class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
         del self._mgo_uc
         del self._mgo_valrad_evaluator
 
+
 class VoronoiNNTest(PymatgenTest):
     def setUp(self):
         self.s = self.get_structure('LiFePO4')
@@ -147,6 +148,13 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
             self.cscl, 0), 8)
 
+    def test_nn_info(self):
+
+        nn_info = MinimumDistanceNN().get_nn_info(self.diamond, 0)
+        self.assertEqual(nn_info[0]['site_index'], 1)
+        self.assertEqual(nn_info[0]['image'][0], 1)
+        self.assertAlmostEqual(nn_info[0]['weight'], 0.99987201354891919)
+
     def tearDown(self):
         del self.diamond
         del self.nacl
@@ -242,7 +250,6 @@ class MotifIdentificationTest(PymatgenTest):
                 self.diamond, 0, approach="min_OKeeffe")), 4)
         self.assertEqual(len(get_neighbors_of_site_with_index(
                 self.diamond, 0, approach="min_VIRE")), 4)
-
 
     def tearDown(self):
         del self.silicon
