@@ -80,6 +80,10 @@ class ComputedEntry(MSONable):
         """
         return self.uncorrected_energy + self.correction
 
+    @property
+    def energy_per_atom(self):
+        return self.energy / self.composition.num_atoms
+
     def __repr__(self):
         output = ["ComputedEntry {}".format(self.composition.formula),
                   "Energy = {:.4f}".format(self.uncorrected_energy),
