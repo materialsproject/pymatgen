@@ -604,7 +604,7 @@ class Vasprun(MSONable):
         elif self.parameters.get("LUSE_VDW", False):
             vdw_gga = {"RE": "DF", "OR": "optPBE", "BO": "optB88",
                        "MK": "optB86b", "ML": "DF2"}
-            gga = self.parameters.get("GGA")
+            gga = self.parameters.get("GGA").upper()
             rt = "vdW-" + vdw_gga[gga]
         elif self.potcar_symbols[0].split()[0] == 'PAW':
             rt = "LDA"
