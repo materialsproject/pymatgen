@@ -9,7 +9,7 @@ import os
 
 from pymatgen.analysis.pourbaix.entry import PourbaixEntry, IonEntry, MultiEntry
 from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO
-from pymatgen.phasediagram.entries import PDEntry
+from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.core.ion import Ion
 
 from pymatgen.core.structure import Composition

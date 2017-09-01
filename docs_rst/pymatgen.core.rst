@@ -20,6 +20,7 @@ Submodules
    pymatgen.core.operations
    pymatgen.core.periodic_table
    pymatgen.core.sites
+   pymatgen.core.spectrum
    pymatgen.core.structure
    pymatgen.core.surface
    pymatgen.core.units

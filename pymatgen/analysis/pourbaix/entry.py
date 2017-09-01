@@ -15,7 +15,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition
 from monty.json import MSONable
 from pymatgen.core.ion import Ion
-from pymatgen.phasediagram.entries import PDEntry
+from pymatgen.analysis.phase_diagram import PDEntry
 
 """
 Module which defines basic entries for each ion and oxide to compute a
