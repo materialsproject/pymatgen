@@ -832,6 +832,9 @@ class Incar(dict, MSONable):
         with Becke-Jonson damping, Tkatchenko-Scheffler, Tkatchenko-
         Scheffler with iterative Hirshfeld partitioning, MBD@rSC, dDsC,
         Dion's vdW-DF, optPBE, optB88, optB86b, and vdW-DF2.
+        
+        Args:
+            vdw: String for the desired van-der-Waals functional.
         """
         vdw_functionals = {"dftd2": {"IVDW": 1},
                            "dftd3": {"IVDW": 11},
