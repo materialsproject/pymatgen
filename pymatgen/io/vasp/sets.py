@@ -267,7 +267,7 @@ class DictSet(VaspInputSet):
         if self.vdw:
             vdw_par = loadfn(os.path.join(MODULE_DIR, "vdW_parameters.yaml"))
             if self.vdw.lower() in vdw_par.keys():
-                self.user_incar_settings.update(vdw_par[self.vdw.lower()])
+                self._config_dict["INCAR"].update(vdw_par[self.vdw.lower()])
             else:
                 raise KeyError("Invalid or unsupported van-der-Waals "
                                "functional. Supported functionals are "
