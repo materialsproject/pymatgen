@@ -758,7 +758,7 @@ class Incar(dict, MSONable):
                      "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
                       "POTIM", "EDIFFG")
-        int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
+        int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN", "IVDW",
                     "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
                     "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND", "LDAUTYPE")
 
