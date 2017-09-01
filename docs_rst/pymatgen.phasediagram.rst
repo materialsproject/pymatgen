@@ -1,12 +1,6 @@
 pymatgen\.phasediagram package
 ==============================
 
-Subpackages
------------
-
-.. toctree::
-
-
 Submodules
 ----------
 
