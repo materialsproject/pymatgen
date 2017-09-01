@@ -31,12 +31,10 @@ __date__ = "Aug 15 2017"
 import numpy as np
 import matplotlib.pylab as plt
 
-from pymatgen.phasediagram.maker import GrandPotentialPhaseDiagram
-from pymatgen.phasediagram.analyzer import PDAnalyzer
+from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen import Composition
 
-PDAnalyzer.numerical_tol = 1e-12
 
 class InterfacialReactivity:
     """
@@ -86,7 +84,6 @@ class InterfacialReactivity:
 
         self.norm = norm
         self.pd = pd
-        self.pda = PDAnalyzer(pd)
         if pd_non_grand:
             self.pd_non_grand = pd_non_grand
 
@@ -126,9 +123,8 @@ class InterfacialReactivity:
                 self.e1 = self._get_grand_potential(self.c1)
                 self.e2 = self._get_grand_potential(self.c2)
             else:
-                self.e1 = self.pda.get_hull_energy(self.comp1)
-                self.e2 = self.pda.get_hull_energy(self.comp2)
-
+                self.e1 = self.pd.get_hull_energy(self.comp1)
+                self.e2 = self.pd.get_hull_energy(self.comp2)
 
     def _get_entry_energy(self,pd,composition):
         """

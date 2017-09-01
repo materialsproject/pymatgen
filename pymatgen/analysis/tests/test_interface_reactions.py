@@ -8,7 +8,7 @@ import numpy as np
 
 from pymatgen import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.phasediagram.maker import PhaseDiagram,GrandPotentialPhaseDiagram
+from pymatgen.analysis.phase_diagram import PhaseDiagram,GrandPotentialPhaseDiagram
 from pymatgen.analysis.interface_reactions import InterfacialReactivity
 
 class InterfaceReactionTest(unittest.TestCase):

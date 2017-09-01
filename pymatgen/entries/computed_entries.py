@@ -8,7 +8,7 @@ import json
 
 from monty.json import MontyEncoder, MontyDecoder
 
-from pymatgen.phasediagram.entries import PDEntry
+from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.core.composition import Composition
 from monty.json import MSONable
 
