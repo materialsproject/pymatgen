@@ -854,10 +854,8 @@ class Vasprun(MSONable):
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = {}
-        if d["is_hubbard"]:
-            d["hubbards"] = self.hubbards
-
+        d["hubbards"] = self.hubbards
+        
         unique_symbols = sorted(list(set(self.atomic_symbols)))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
@@ -1217,10 +1215,8 @@ class BSVasprun(Vasprun):
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = {}
-        if d["is_hubbard"]:
-            d["hubbards"] = self.hubbards
-
+        d["hubbards"] = self.hubbards
+        
         unique_symbols = sorted(list(set(self.atomic_symbols)))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
