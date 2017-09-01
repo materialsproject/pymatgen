@@ -131,20 +131,24 @@ class SurfaceEnergyAnalyzer(object):
         self.comp1 = comp1
         self.ref_el_comp = ref_el_comp
         self.mprester = MPRester(mapi_key) if mapi_key else MPRester()
-        self.ucell_entry = self.mprester.get_entry_by_material_id(ucell_entry,
-                                                                  inc_structure=True) \
+        self.ucell_entry = self.mprester.get_entry_by_material_id(\
+            ucell_entry, inc_structure=True) \
             if type(ucell_entry).__name__ == "str" else ucell_entry
+        ucell_comp = self.ucell_entry.composition
 
         entries = [entry for entry in
-                   self.mprester.get_entries_in_chemsys(list(self.ucell_entry.composition.reduced_composition.as_dict().keys()),
-                                                        property_data=["e_above_hull",
-                                                                       "material_id"])
+                   self.mprester.get_entries_in_chemsys(list(\
+                       ucell_comp.reduced_composition.as_dict().keys()),
+                       property_data=["e_above_hull",
+                                      "material_id"])
                    if entry.data["e_above_hull"] == 0 and
                    entry.data["material_id"] not in exclude_ids] \
             if not custom_entries else custom_entries
 
         # Get x and y, the number of compositions in a formula unit of the bulk
-        self.reactants = [entry for entry in entries if entry.composition.reduced_composition in [comp1, self.ref_el_comp]]
+        self.reactants = [entry for entry in entries if
+                          entry.composition.reduced_composition in [comp1,
+                                                                    self.ref_el_comp]]
         rxn = ComputedReaction(self.reactants, [self.ucell_entry])
         if len(rxn.reactants) == len(rxn.products):
             x = y = 1
@@ -153,7 +157,8 @@ class SurfaceEnergyAnalyzer(object):
             x = abs(rxn.coeffs[rxn.all_comp.index(comp1)])
 
         # Calculate Gibbs free energy of the bulk per unit formula
-        gbulk = self.ucell_entry.energy /self.ucell_entry.composition.get_integer_formula_and_factor()[1]
+        gbulk = self.ucell_entry.energy /\
+                ucell_comp.get_integer_formula_and_factor()[1]
 
         pd = PhaseDiagram(entries)
         pda = PDAnalyzer(pd)
@@ -171,7 +176,7 @@ class SurfaceEnergyAnalyzer(object):
         else:
             chempot_range = [chempot_ranges[entry] for entry in chempot_ranges.keys()
                              if entry.composition ==
-                             self.ucell_entry.composition][0][0]._coords if \
+                             ucell_comp][0][0]._coords if \
                 chempot_ranges else [[0,0], [0,0]]
 
         self.x = x
@@ -247,7 +252,7 @@ class SurfaceEnergyAnalyzer(object):
             vasprun_clean (Vasprun): The Vasprun of the clean slab
             adsorbate (str): The adsorbate as a string
             u (float): The chemical potential of the
-                adsorbate to calculate the surface enregy at
+                adsorbate to calculate the surface energy at
         """
 
         struct = vasprun_ads.final_structure
@@ -262,13 +267,15 @@ class SurfaceEnergyAnalyzer(object):
                 struct if site.frac_coords[2] < center_of_mass]):
             nsurfs += 1
 
-        gamma_clean = self.calculate_gamma_range(vasprun_clean)
+        gamma_clean = self.calculate_gamma_at_u(vasprun_clean, u)
         Eads = self.calculate_Eads(vasprun_ads, vasprun_clean, adsorbate)
         Nads = vasprun_ads.get_computed_entry().composition.as_dict()[adsorbate]
         m = vasprun_ads.final_structure.lattice.matrix
         A = np.linalg.norm(np.cross(m[0], m[1]))
 
         return gamma_clean - (Nads*u - Eads)/(nsurfs*A)
+
+
 
     def calculate_gamma_at_u(self, vasprun, u):
         """
@@ -540,7 +547,8 @@ class SurfaceEnergyAnalyzer(object):
         # ax2 = ax1.twiny()
         # ax2.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" %(str(self.comp1.elements[0])))
         plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
-        axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" %(str(self.ref_el_comp.elements[0])))
+        axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)"
+                        %(str(self.ref_el_comp.elements[0])))
 
         ylim = axes.get_ylim()
         plt.xticks(rotation=60)
@@ -631,7 +639,8 @@ class SurfaceEnergyAnalyzer(object):
 
         # Make the figure look nice
         plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
-        plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
+        plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
+            else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
         # ax2 = axes.twiny()
         # ax2.tick_params(labelsize=20)
         # ax2.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" %(str(self.comp1.elements[0])), fontsize=24)
