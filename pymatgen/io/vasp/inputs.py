@@ -754,10 +754,10 @@ class Incar(dict, MSONable):
         """
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL", "LANGEVIN_GAMMA",
                      "QUAD_EFG", "EINT")
-        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
+        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LUSE_VDW",
                      "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
-                      "POTIM", "EDIFFG")
+                      "POTIM", "EDIFFG", "AGGAC", "PARAM1", "PARAM2")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN", "IVDW",
                     "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
                     "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND", "LDAUTYPE")
@@ -823,6 +823,56 @@ class Incar(dict, MSONable):
 
         return val.strip().capitalize()
 
+   def use_vdw(self, vdw):
+        """
+        Adds parameters for van-der-Waals functionals supported by
+        VASP to the Incar object.
+
+        Supported functionals are: DFT-D2, undamped DFT-D3, DFT-D3
+        with Becke-Jonson damping, Tkatchenko-Scheffler, Tkatchenko-
+        Scheffler with iterative Hirshfeld partitioning, MBD@rSC, dDsC,
+        Dion's vdW-DF, optPBE, optB88, optB86b, and vdW-DF2.
+        """
+        vdw_functionals = {"dftd2": {"IVDW": 1},
+                           "dftd3": {"IVDW": 11},
+                           "dftd3-bj": {"IVDW": 12},
+                           "ts": {"IVDW": 2},
+                           "ts-hirshfeld": {"IVDW": 21},
+                           "mbd@rsc": {"IVDW": 202},
+                           "ddsc": {"IVDW": 4},
+                           "df": {"LUSE_VDW": True, "AGGAC": 0.0,
+                                  "GGA": "RE"},
+                           "optpbe": {"LUSE_VDW": True, "AGGAC": 0.0,
+                                      "GGA": "OR"},
+                           "optb88": {"LUSE_VDW": True, "AGGAC": 0.0,
+                                      "GGA": "BO", "PARAM1": 0.18333333,
+                                      "PARAM2": 0.22},
+                           "optb86b": {"LUSE_VDW": True, "AGGAC": 0.0,
+                                       "GGA": "MK", "PARAM1": 0.1234,
+                                       "PARAM2": 1.0},
+                           "df2": {"LUSE_VDW": True, "AGGAC": 0.0,
+                                   "GGA": "ML", "ZAB_VDW": -1.8867}}
+
+        vdw = vdw.lower()
+        if vdw in vdw_functionals.keys():
+            self.del_vdw()
+            for param in vdw_functionals[vdw]:
+                self[param] = vdw_functionals[vdw][param]
+        else:
+            raise KeyError("Invalid or unsupported van-der-Waals functional. "
+                           "Supported functionals are %s." %
+                           vdw_functionals.keys())
+
+    def del_vdw(self):
+        """
+        Removes the van-der-Waals functional in the Incar object if present.
+        """
+        vdw_params = ['AGGAC', 'GGA', 'IVDW', 'LUSE_VDW',
+                      'PARAM1', 'PARAM2', 'ZAB_VDW']
+        for param in vdw_params:
+            if param in self.keys():
+                del self[param]
+      
     def diff(self, other):
         """
         Diff function for Incar.  Compares two Incars and indicates which
