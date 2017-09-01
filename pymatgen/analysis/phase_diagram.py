@@ -26,6 +26,8 @@ from pymatgen.core.periodic_table import Element, DummySpecie, get_el_sp
 from pymatgen.util.coord_utils import Simplex, in_coord_list
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
+from pymatgen.analysis.reaction_calculator import Reaction, \
+            ReactionError
 
 """
 This module defines tools to generate and analyze phase diagrams.
@@ -772,8 +774,7 @@ class PhaseDiagram(MSONable):
             [ {'chempot': -10.487582010000001, 'evolution': -2.0,
             'reaction': Reaction Object], ...]
         """
-        from pymatgen.analysis.reaction_calculator import Reaction, \
-            ReactionError
+
         if element not in self.elements:
             raise ValueError("get_transition_chempots can only be called with"
                              " elements in the phase diagram.")
@@ -1083,8 +1084,6 @@ class CompoundPhaseDiagram(PhaseDiagram):
         Returns:
             Sequence of TransformedPDEntries falling within the phase space.
         """
-        from pymatgen.analysis.reaction_calculator import Reaction, \
-            ReactionError
         new_entries = []
         if self.normalize_terminals:
             fractional_comp = [c.fractional_composition

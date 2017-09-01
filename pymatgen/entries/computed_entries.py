@@ -8,7 +8,6 @@ import json
 
 from monty.json import MontyEncoder, MontyDecoder
 
-from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.core.composition import Composition
 from monty.json import MSONable
 
@@ -29,7 +28,7 @@ __status__ = "Production"
 __date__ = "Apr 30, 2012"
 
 
-class ComputedEntry(PDEntry, MSONable):
+class ComputedEntry(MSONable):
     """
     An lightweight ComputedEntry object containing key computed data
     for many purposes. Extends a PDEntry so that it can be used for phase
