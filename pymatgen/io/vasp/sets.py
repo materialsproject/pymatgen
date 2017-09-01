@@ -235,6 +235,12 @@ class DictSet(VaspInputSet):
         reduce_structure (None/str): Before generating the input files,
             generate the reduced structure. Default (None), does not
             alter the structure. Valid values: None, "niggli", "LLL".
+        vdw: Adds default parameters for van-der-Waals functionals supported
+            by VASP to the Incar object. Supported functionals are: DFT-D2,
+            undamped DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-
+            Scheffler, Tkatchenko-Scheffler with iterative Hirshfeld
+            partitioning, MBD@rSC, dDsC, Dion's vdW-DF, optPBE, optB88,
+            optB86b, and vdW-DF2.
     """
 
     def __init__(self, structure, config_dict,
@@ -242,7 +248,7 @@ class DictSet(VaspInputSet):
                  user_kpoints_settings=None, user_potcar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
-                 reduce_structure=None):
+                 reduce_structure=None, vdw=None):
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
@@ -258,6 +264,15 @@ class DictSet(VaspInputSet):
         self.user_incar_settings = user_incar_settings or {}
         self.user_kpoints_settings = user_kpoints_settings
         self.user_potcar_settings = user_potcar_settings
+        self.vdw = vdw.lower()
+        if self.vdw:
+            vdw_par = loadfn(os.path.join(MODULE_DIR, "vdW_parameters.yaml"))
+            if self.vdw in vdw_par.keys():
+                self.user_incar_settings.update(vdw_par[self.vdw])
+            else:
+                raise KeyError("Invalid or unsupported van-der-Waals "
+                               "functional. Supported functionals are "
+                               "%s." % vdw_par.keys()) 
         if self.user_potcar_settings:
             warnings.warn(
                 "Overriding POTCARs is generally not recommended as it "
@@ -280,7 +295,7 @@ class DictSet(VaspInputSet):
                           key=lambda e: e.X)
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
-        hubbard_u = settings.get("LDAU", False)
+        hubbard_u = settings.get("LDAU", False)                          
 
         for k, v in settings.items():
             if k == "MAGMOM":
@@ -359,7 +374,7 @@ class DictSet(VaspInputSet):
     def kpoints(self):
         """
         Writes out a KPOINTS file using the fully automated grid method. Uses
-        Gamma centered meshes  for hexagonal cells and Monk grids otherwise.
+        Gamma centered meshes for hexagonal cells and Monk grids otherwise.
 
         Algorithm:
             Uses a simple approach scaling the number of divisions along each
