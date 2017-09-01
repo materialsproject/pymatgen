@@ -254,18 +254,30 @@ class PourbaixAnalyzer(object):
 
         # for all entries in the Pourbaix convex hull
         for entry in self._pd.all_entries:
-            
             # Consider entries which have only one solid phase
+            # TODO: why only one solid phase
+            # blargh
+            if hasattr(entry, "entrylist"):
+                phases = [e.phase_type for e in entry.entrylist]
+            else:
+                # TODO: Check to see whehter this can be fixed
+                raise ValueError("get_all_decomp unsupported")
+                # phases = [entry.phase_type]
+            if phases.count("Solid") > 1:
+                continue
+            """
             phases = []
             for i in range(len(entry.entrylist)):
                 phase = entry.entrylist[i].phase_type
                 phases.append(phase)
             if phases.count('Solid') > 1:
                continue
-            
+            """
             # Find the decomposition details if the material 
             # is in the Pourbaix Multi Entry or Pourbaix Entry
+            # error
             if str(material) in str(entry):
+                # error
                 facets = self._get_all_facets(entry)
                 for facet in facets:
                     entrylist = [self._pd.qhull_entries[i] for i in facet]

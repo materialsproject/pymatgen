@@ -8,7 +8,8 @@ import unittest
 import os
 
 from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
-from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO
+from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO, PourbaixEntry
+from monty.serialization import loadfn
 
 try:
     from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
@@ -28,6 +29,9 @@ class TestPourbaixAnalyzer(unittest.TestCase):
         self.decomp_test = {"ZnHO[+]": {"ZnO(s)": 0.5, "Zn[2+]": 0.5}, "ZnO(aq)": {"ZnO(s)": 1.0}}
         self.pd = PourbaixDiagram(entries)
         self.analyzer = PourbaixAnalyzer(self.pd)
+        self.pd_multi = PourbaixDiagram(loadfn("multicomp_pbx.json"),
+                                        comp_dict = {"Ag": 0.5, "Te": 0.5})
+        self.analyzer_multi = PourbaixAnalyzer(self.pd_multi)
 
     def test_get_facet_chempots(self):
         range_map = self.analyzer.get_chempot_range_map()
@@ -44,6 +48,9 @@ class TestPourbaixAnalyzer(unittest.TestCase):
                 self.assertEqual(decomp_entries[entr], self.decomp_test[entry.name][entr.name])
             e_above_hull = self.analyzer.get_e_above_hull(entry)
             self.assertAlmostEqual(e_above_hull, self.e_above_hull_test[entry.name], 3)
+        # Test get_all_decomp_and_e_above_hull
+        de, hulle, ds, entries = self.analyzer_multi.get_all_decomp_and_e_above_hull("mp-19")
+        #blargh
 
 if __name__ == '__main__':
     unittest.main()

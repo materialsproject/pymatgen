@@ -123,7 +123,11 @@ class PourbaixDiagram(object):
 
     def _process_multielement_entries(self):
         """
-        Create entries for multi-element Pourbaix construction
+        Create entries for multi-element Pourbaix construction.
+
+        This works by finding all possible linear combinations
+        of entries that can result in the specified composition
+        from the initialized comp_dict.
         """
         N = len(self._elt_comp)  # No. of elements
         entries = self._unprocessed_entries
@@ -131,6 +135,7 @@ class PourbaixDiagram(object):
         comp_list = [self._elt_comp[el] for el in el_list]
         list_of_entries = list()
 
+        # TODO: refactor entry list generation, try not to recast
         # generate all possible combinations of compounds
         for j in range(1, N + 1):
             list_of_entries += list(itertools.combinations(list(range(len(entries))), j))
@@ -141,7 +146,8 @@ class PourbaixDiagram(object):
         # for all combinations
         for index, entry_list in enumerate(list_of_entries):
             # Check if all elements in composition list are present in entry_list
-            # TODO: Try to fix this -JHM
+            # TODO: I think this can be refactored with reaction calculator -JHM
+            # TODO: try to shorten the longer lines -JHM
             if not (set([Element(el) for el in el_list]).issubset(set(list(chain.from_iterable([entries[i].composition.keys() for i in entry_list]))))):
                 continue
             if len(entry_list) == 1:
