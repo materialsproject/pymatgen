@@ -182,6 +182,12 @@ class MITMPRelaxSetTest(unittest.TestCase):
             user_incar_settings={'LDAUU': {'Fe': 5.0, 'S': 0}}
         )
         self.assertEqual(userset_ldauu_fallback.incar['LDAUU'], [5.0, 0, 0])
+        
+        #test that van-der-Waals parameters are parsed correctly
+        incar = MITRelaxSet(struct, vdw='optB86b').incar
+        self.assertEqual(incar['GGA'], 'Mk')
+        self.assertEqual(incar['LUSE_VDW'], True)
+        self.assertEqual(incar['PARAM1'], 0.1234)
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
