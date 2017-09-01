@@ -163,7 +163,7 @@ class InterfacialReactivity:
         :param x: Mixing ratio x.
         :return: Reaction energy.
         '''
-        return self.pda.get_hull_energy(self.comp1 * x + self.comp2 * (1-x)) - \
+        return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1-x)) - \
                self.e1 * x - self.e2 * (1-x)
 
     def _get_reaction(self, x, normalize=0):
@@ -175,7 +175,7 @@ class InterfacialReactivity:
         :return: Reaction object.
         '''
         mix_comp = self.comp1 * x + self.comp2 * (1-x)
-        decomp = self.pda.get_decomposition(mix_comp)
+        decomp = self.pd.get_decomposition(mix_comp)
 
         if normalize:
             reactant = list(set([self.c1, self.c2]))
@@ -239,7 +239,7 @@ class InterfacialReactivity:
         c2_coord = self.pd.pd_coords(self.comp2)
         n1 = self.comp1.num_atoms
         n2 = self.comp2.num_atoms
-        critical_comp = self.pda.get_critical_compositions(self.comp1,self.comp2)
+        critical_comp = self.pd.get_critical_compositions(self.comp1,self.comp2)
         x_kink, energy_kink, react_kink = [], [], []
         if all(c1_coord == c2_coord):
             x_kink = [0,1]
@@ -323,8 +323,8 @@ class InterfacialReactivity:
         '''
         assert self.grand == 1, 'Please provide grand potential phase diagram for computing no_mixing_energy!'
 
-        energy1 = self.pda.get_hull_energy(self.comp1) - self._get_grand_potential(self.c1)
-        energy2 = self.pda.get_hull_energy(self.comp2) - self._get_grand_potential(self.c2)
+        energy1 = self.pd.get_hull_energy(self.comp1) - self._get_grand_potential(self.c1)
+        energy2 = self.pd.get_hull_energy(self.comp2) - self._get_grand_potential(self.c2)
         unit = 'eV/f.u.'
         if self.norm:
             unit = 'eV/atom'
