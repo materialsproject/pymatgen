@@ -236,11 +236,10 @@ class DictSet(VaspInputSet):
             generate the reduced structure. Default (None), does not
             alter the structure. Valid values: None, "niggli", "LLL".
         vdw: Adds default parameters for van-der-Waals functionals supported
-            by VASP to the Incar object. Supported functionals are: DFT-D2,
-            undamped DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-
-            Scheffler, Tkatchenko-Scheffler with iterative Hirshfeld
-            partitioning, MBD@rSC, dDsC, Dion's vdW-DF, optPBE, optB88,
-            optB86b, and vdW-DF2.
+            by VASP to INCAR. Supported functionals are: DFT-D2, undamped
+            DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-Scheffler,
+            Tkatchenko-Scheffler with iterative Hirshfeld partitioning,
+            MBD@rSC, dDsC, Dion's vdW-DF and DF2, optPBE, optB88, and optB86b.
     """
 
     def __init__(self, structure, config_dict,
