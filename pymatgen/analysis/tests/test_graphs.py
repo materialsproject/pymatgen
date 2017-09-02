@@ -115,7 +115,7 @@ Sites (3)
   1  S     0.666667  0.333333  0.303027
   2  S     0.666667  0.333333  0.123562
 Graph: bonds
-from  from_image      to  to_image      bond_length (Å)
+from  from_image      to  to_image      bond_length (A)
 ----  ------------  ----  ------------  ---------------
    1  (0, 0, 0)        0  (1, 0, 0)     2.4169E+00
    1  (0, 0, 0)        0  (0, 0, 0)     2.4169E+00
@@ -125,6 +125,7 @@ from  from_image      to  to_image      bond_length (Å)
    2  (0, 0, 0)        0  (0, 0, 0)     2.4169E+00
 """
 
+        self.mos2_sg.graph.graph['edge_weight_units'] = "A"
         self.assertEqual(str(self.square_sg), square_sg_str_ref)
         self.assertEqual(str(self.mos2_sg), mos2_sg_str_ref)
 
