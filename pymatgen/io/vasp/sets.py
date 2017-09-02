@@ -173,6 +173,13 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         return d
 
 
+def _load_yaml_config(fname):
+    config = loadfn(os.path.join(MODULE_DIR, "%s.yaml" % fname))
+    config["INCAR"].update(loadfn(os.path.join(MODULE_DIR,
+                                               "VASPIncarBase.yaml")))
+    return config
+
+
 class DictSet(VaspInputSet):
     """
     Concrete implementation of VaspInputSet that is initialized from a dict
@@ -441,7 +448,7 @@ class MITRelaxSet(DictSet):
         functional theory calculations. Computational Materials Science,
         2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
     """
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MITRelaxSet.yaml"))
+    CONFIG = _load_yaml_config("MITRelaxSet")
 
     def __init__(self, structure, **kwargs):
         super(MITRelaxSet, self).__init__(
@@ -457,7 +464,7 @@ class MPRelaxSet(DictSet):
     The LDAUU parameters are also different due to the different psps used,
     which result in different fitted values.
     """
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPRelaxSet.yaml"))
+    CONFIG = CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(self, structure, **kwargs):
         super(MPRelaxSet, self).__init__(
@@ -469,7 +476,7 @@ class MPHSERelaxSet(DictSet):
     """
     Same as the MPRelaxSet, but with HSE parameters.
     """
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"))
+    CONFIG = _load_yaml_config("MPHSERelaxSet")
 
     def __init__(self, structure, **kwargs):
         super(MPHSERelaxSet, self).__init__(
@@ -1091,7 +1098,7 @@ class MVLGWSet(DictSet):
     functional is set as the default. These have much improved performance for
     GW calculations.
     """
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MVLGWSet.yaml"))
+    CONFIG = _load_yaml_config("MVLGWSet")
 
     SUPPORTED_MODES = ("DIAG", "GW", "STATIC", "BSE")
 
