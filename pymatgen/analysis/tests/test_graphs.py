@@ -175,8 +175,8 @@ from    to  to_image
         # only testing bonds portion,
         # the c frac_coord of the second H can vary from
         # 0 to -0 depending on machine precision
-        square_sg_mul_ref_str = "\n".join(square_sg_mul_ref_str.splitlines()[10:])
-        square_sg_mul_actual_str = "\n".join(square_sg_mul_actual_str.splitlines()[10:])
+        square_sg_mul_ref_str = "\n".join(square_sg_mul_ref_str.splitlines()[11:])
+        square_sg_mul_actual_str = "\n".join(square_sg_mul_actual_str.splitlines()[11:])
 
         self.assertEqual(square_sg_mul_actual_str, square_sg_mul_ref_str)
 
