@@ -208,18 +208,24 @@ class StructureGraph(MSONable):
                           "trying to automatically detect.")
             dist, to_jimage = self.structure[from_index].distance_and_image(self.structure[to_index])
             if dist == 0:
-                raise ValueError("Could not determine sensible to_jimage value, "
-                                 "please specify manually.")
-            # TODO: add edges for all equivalent sites if to_jimage not specified
-            #else:
-            #    equiv_sites = self.structure.get_neighbors_in_shell(self.structure[from_index].coords,
-            #                                                        dist,
-            #                                                        dist*0.01,
-            #                                                        include_index=True)
-            #    for site in equiv_sites:
-            #        self.add_edge(from_index=from_index, from_jimage=(0, 0, 0),
-            #                      to_jimage=(), to_index=())
-            #    return
+                # this will happen when from_index == to_index,
+                # typically in primitive single-atom lattices
+                images = [1, 0, 0], [0, 1, 0], [0, 0, 1]
+                dists = []
+                for image in images:
+                    dists.append(self.structure[from_index].distance_and_image(self.structure[from_index],
+                                                                               jimage=image)[0])
+                dist = min(dists)
+            equiv_sites = self.structure.get_neighbors_in_shell(self.structure[from_index].coords,
+                                                                dist,
+                                                                dist*0.01,
+                                                                include_index=True)
+            for site, dist, to_index in equiv_sites:
+                to_jimage = np.subtract(site.frac_coords, self.structure[from_index].frac_coords)
+                to_jimage = to_jimage.astype(int)
+                self.add_edge(from_index=from_index, from_jimage=(0, 0, 0),
+                              to_jimage=to_jimage, to_index=to_index)
+            return
 
         from_jimage, to_jimage = tuple(from_jimage), tuple(to_jimage)
 

@@ -176,7 +176,7 @@ class NearNeighborTest(PymatgenTest):
     def set_nn_info(self):
 
         # check conformance
-        # implicitly assumes at all NearNeighbors subclasses
+        # implicitly assumes that all NearNeighbors subclasses
         # will correctly identify bonds in diamond, if it
         # can't there are probably bigger problems
         subclasses = NearNeighbors.__subclasses__()

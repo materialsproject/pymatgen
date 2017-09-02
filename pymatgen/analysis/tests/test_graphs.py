@@ -81,6 +81,19 @@ class StructureGraphTest(unittest.TestCase):
             self.assertEqual(self.bc_square_sg.get_coordination_of_site(n),
                              self.bc_square_sg_r.get_coordination_of_site(n))
 
+    def test_auto_image_detection(self):
+
+        sg = StructureGraph.with_empty_graph(self.structure)
+        sg.add_edge(0, 0)
+
+        ref_edges = [(0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (-1, -1, 0)}),
+                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (-1, 0, 0)}),
+                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (0, -1, 0)}),
+                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (0, 0, 0)}),
+                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (1, 0, 0)})]
+
+        self.assertEqual(sg.graph.edges(data=True), ref_edges)
+
     def test_str(self):
 
         square_sg_str_ref = """Structure Graph
