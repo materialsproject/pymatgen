@@ -262,9 +262,11 @@ class StructureGraph(MSONable):
         to that site
         """
         sites = []
-        neighbors = nx.all_neighbors(self.graph, n)
-        for n in neighbors:
-            sites.append(self.structure[n])
+        edges = self.graph.out_edges(n, data=True) + self.graph.in_edges(n, data=True)
+        for u, v, d in edges:
+            site_d = self.structure[u].as_dict()
+            site_d['abc'] = np.add(site_d['abc'], d['to_jimage']).tolist()
+            sites.append(PeriodicSite.from_dict(site_d))
         return sites
 
     def get_coordination_of_site(self, n):
@@ -275,10 +277,6 @@ class StructureGraph(MSONable):
         :param n: index of site
         :return (int):
         """
-        warnings.warn("Co-ordination of sites at periodic "
-                      "boundaries of supercells will be "
-                      "wrong, implementation may be changed "
-                      "in future to fix this.")
         return self.graph.degree(n)
 
     def draw_graph_to_file(self, filename="graph",
@@ -292,15 +290,16 @@ class StructureGraph(MSONable):
                            keep_dot=False,
                            algo="fdp"):
         """
-        Draws graph using GraphViz to pdf.
-
-        Will color nodes with standard elemental color scheme,
-        and edge line widths from edge weights if defined.
+        Draws graph using GraphViz.
 
         The networkx graph object itself can also be drawn
         with networkx's in-built graph drawing methods, but
         note that this might give misleading results for
         multigraphs (edges are super-imposed on each other).
+
+        If visualization is difficult to interpret,
+        `hide_image_edges` can help, especially in larger
+        graphs.
 
         :param filename: filename to output, will detect filetype
         from extension (any graphviz filetype supported, such as
@@ -465,7 +464,7 @@ class StructureGraph(MSONable):
         """
 
         # code adapted from Structure.__mul__
-        
+
         warnings.warn("StructureGraph.__mul__ in active development.")
 
         # TODO: faster implementation, initial implementation for correctness not speed
@@ -507,8 +506,7 @@ class StructureGraph(MSONable):
         # for duplicate checking
         edges_inside_supercell = []  # sets of {u, v}
         for u, v, k, d in new_g.edges(keys=True, data=True):
-            if d["from_jimage"] == (0, 0, 0) and \
-               d["to_jimage"] == (0, 0, 0):
+            if d["to_jimage"] == (0, 0, 0):
                 edges_inside_supercell.append({u, v})
 
         orig_lattice = Lattice(self.graph.graph['lattice'])
@@ -519,7 +517,7 @@ class StructureGraph(MSONable):
             to_jimage = d["to_jimage"]  # for node v
 
             # reduce unnecessary checking
-            if from_jimage != (0, 0, 0) or to_jimage != (0, 0, 0):
+            if to_jimage != (0, 0, 0):
 
                 # get fractional co-ordinates of where atoms defined
                 # by edge are expected to be, relative to original
@@ -549,29 +547,28 @@ class StructureGraph(MSONable):
 
                 # now search in new structure for these atoms
                 # (these lines could/should be optimized)
-                u_present = np.where([np.allclose(c, u_expec, atol=0.01) for c in new_coords])[0]
                 v_present = np.where([np.allclose(c, v_expec, atol=0.01) for c in new_coords])[0]
 
                 # sanity check
-                if len(u_present) > 1 or len(v_present) > 1:
+                if len(v_present) > 1:
                     # could re-write to work in this instance,
                     # but this really shouldn't happen in practice
                     raise Exception("This shouldn't happen, do you have two atoms super-imposed?")
 
-                u_is_present = len(u_present) == 1
                 v_is_present = len(v_present) == 1
 
                 # check if image sites now present in supercell
                 # and if so, delete old edge that went through
                 # periodic boundary
-                if u_is_present and v_is_present:
+                if v_is_present:
 
-                    new_u = u_present[0]
+                    new_u = u
                     new_v = v_present[0]
                     new_d = d.copy()
 
-                    new_d['from_jimage'] = (0, 0, 0)
+                    # node now inside supercell
                     new_d['to_jimage'] = (0, 0, 0)
+
                     edges_to_remove.append((u, v, k))
 
                     # make sure we don't try to add duplicate edges
