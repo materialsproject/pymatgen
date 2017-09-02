@@ -1,3 +1,4 @@
+# Modified version of MPRelaxSet for HSE calculations.
 INCAR:
   ALGO: All
   EDIFF_PER_ATOM: 5.0e-05
@@ -14,6 +15,8 @@ INCAR:
   LWAVE: false
   MAGMOM:
     Co: 5
+    Co3+: 0.6
+    Co4+: 1
     Cr: 5
     Fe: 5
     Mn: 5
@@ -25,6 +28,8 @@ INCAR:
     W: 5
     Ce: 5
     Eu: 10
+    Eu2+: 7
+    Eu3+: 6
   NELM: 100
   NSW: 99
   PREC: Accurate

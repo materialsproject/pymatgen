@@ -1,3 +1,4 @@
+# Default VASP settings for GW calculations used by the Materials Virtual Lab.
 INCAR:
   ALGO: Normal
   EDIFF: 1.0e-8
@@ -10,6 +11,8 @@ INCAR:
   LWAVE: true
   MAGMOM:
     Co: 5
+    Co3+: 0.6
+    Co4+: 1
     Cr: 5
     Fe: 5
     Mn: 5
@@ -19,8 +22,10 @@ INCAR:
     Ni: 5
     V: 5
     W: 5
+    Ce: 5
     Eu: 10
-    Ce: 3
+    Eu2+: 7
+    Eu3+: 6
   NELM: 100
   PREC: Accurate
   SIGMA: 0.01
