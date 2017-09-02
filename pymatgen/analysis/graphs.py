@@ -14,6 +14,7 @@ from pymatgen.util.coord_utils import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
 from monty.json import MSONable
 from monty.os.path import which
+from operator import itemgetter
 
 try:
     import networkx as nx
@@ -106,15 +107,12 @@ class StructureGraph(MSONable):
         # they're just for book-keeping
         graph = nx.MultiDiGraph(edge_weight_name=edge_weight_name,
                                 edge_weight_units=edge_weight_units,
-                                lattice=tuple(structure.lattice.matrix),
                                 name=name)
         graph.add_nodes_from(range(len(structure)))
 
         for n in graph:
             # add species name to graph, useful for visualization
             graph.node[n]['name'] = str(structure[n].specie)
-            # add original node fractional coords, useful for creating supercells
-            graph.node[n]['frac_coords'] = tuple(structure[n].frac_coords)
 
         graph_data = json_graph.adjacency_data(graph)
 
@@ -476,12 +474,14 @@ class StructureGraph(MSONable):
 
         new_sites = []
         new_graphs = []
+        orig_frac_coords = {}
         for v in c_lat:
 
             # create a map of nodes from original graph to its image
             mapping = {n: n + len(new_sites) for n in range(len(self.structure))}
 
             for site in self.structure:
+                orig_frac_coords[len(new_sites)] = site.frac_coords
                 s = PeriodicSite(site.species_and_occu, site.coords + v,
                                  new_lattice, properties=site.properties,
                                  coords_are_cartesian=True, to_unit_cell=False)
@@ -503,15 +503,14 @@ class StructureGraph(MSONable):
         # for duplicate checking
         edges_inside_supercell = []  # sets of {u, v}
         for u, v, k, d in new_g.edges(keys=True, data=True):
-            if d["to_jimage"] == (0, 0, 0):
+            if d['to_jimage'] == (0, 0, 0):
                 edges_inside_supercell.append({u, v})
 
-        orig_lattice = Lattice(self.graph.graph['lattice'])
+        orig_lattice = self.structure.lattice
         new_coords = new_structure.cart_coords
         for u, v, k, d in new_g.edges(keys=True, data=True):
 
-            from_jimage = d["from_jimage"]  # for node u
-            to_jimage = d["to_jimage"]  # for node v
+            to_jimage = d['to_jimage']  # for node v
 
             # reduce unnecessary checking
             if to_jimage != (0, 0, 0):
@@ -520,8 +519,8 @@ class StructureGraph(MSONable):
                 # by edge are expected to be, relative to original
                 # lattice (keeping original lattice has
                 # significant benefits)
-                v_image_frac = np.add(new_g.node[v]['frac_coords'], to_jimage)
-                v_frac = new_g.node[v]['frac_coords']
+                v_image_frac = np.add(orig_frac_coords[v], to_jimage)
+                v_frac = orig_frac_coords[v]
 
                 # using the position of node u as a reference,
                 # get relative Cartesian co-ordinates of where
@@ -593,19 +592,16 @@ class StructureGraph(MSONable):
         for (u, v, d) in edges_to_add:
             new_g.add_edge(u, v, **d)
 
-        # update lattice, frac_coords
-        # TODO: do we really need to store these? remove lattice, frac_coords from graph ...
-        new_g.graph['lattice'] = tuple(new_structure.lattice.matrix)
-        for n in new_g.nodes():
-            new_g.node[n]['frac_coords'] = new_structure[n].frac_coords
-
         # return new instance of StructureGraph with supercell
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
              "structure": new_structure.as_dict(),
              "graphs": json_graph.adjacency_data(new_g)}
 
-        return StructureGraph.from_dict(d)
+        sg = StructureGraph.from_dict(d)
+        sg.sort()
+
+        return sg
 
     def _edges_to_string(self, g):
 
@@ -625,12 +621,17 @@ class StructureGraph(MSONable):
 
         s = header + "\n" + header_line + "\n"
 
+        edges = g.edges(data=True)
+
+        # sort edges for consistent ordering
+        edges.sort(key=itemgetter(0,1))
+
         if print_weights:
-            for u, v, data in g.edges(data=True):
+            for u, v, data in edges:
                 s += "{:4}  {:4}  {:12}  {:.4E}\n".format(u, v, str(data.get("to_jimage", (0, 0, 0))),
                                                           data.get("weight", 0))
         else:
-            for u, v, data in g.edges(data=True):
+            for u, v, data in edges:
                 s += "{:4}  {:4}  {:12}\n".format(u, v,
                                                   str(data.get("to_jimage", (0, 0, 0))))
 
@@ -651,4 +652,21 @@ class StructureGraph(MSONable):
         return s
 
     def __len__(self):
+        """
+        :return: length of Structure / number of nodes in graph
+        """
         return len(self.structure)
+
+    def sort(self, key=None, reverse=False):
+        """
+        Same as Structure.sort(), also remaps nodes in graph.
+        :param key:
+        :param reverse:
+        :return:
+        """
+
+        mapping = [s[0] for s in sorted(enumerate(self.structure), key=lambda i: i[1])]
+        mapping = {old_idx:new_idx for new_idx, old_idx in enumerate(mapping)}
+
+        self.structure._sites = sorted(self.structure._sites, key=key, reverse=reverse)
+        self.graph = nx.relabel_nodes(self.graph, mapping, copy=True)
