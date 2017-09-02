@@ -59,9 +59,9 @@ class StructureGraph(MSONable):
         edges of what lattice image the edge belongs to: this is
         always relative to the original lattice, even when graph
         is multiplied to become a supercell. This is not the only
-        possible approach, but has many benefits, especially in
+        possible approach, but has benefits, especially in
         terms of graph visualization (edges at boundaries
-        become 'dangling bonds').
+        become 'dangling bonds'). This approach may change in future.
 
         :param *args: same as in :class: `pymatgen.core.Structure`
         :param graph_data: dict containing graph information, not
@@ -176,8 +176,12 @@ class StructureGraph(MSONable):
                  from_jimage=(0, 0, 0), to_jimage=None,
                  weight=None):
         """
-        Add edge to graph. Note graphs are undirected, so from_site_index
-        and to_site_index can be interchanged.
+        Add edge to graph.
+
+        Since physically a 'bond' (or other connection
+        between sites) doesn't have a direction, from_index, from_jimage
+        can be swapped with to_index, to_jimage. However, images will
+        always always be shifted so from_jimage becomes (0, 0, 0).
 
         :param name: e.g. "bonds"
         :param from_index: index of site connecting from
@@ -191,6 +195,13 @@ class StructureGraph(MSONable):
         :return:
         """
 
+        # constrain all from_jimages to be (0, 0, 0),
+        # simplifies logic later
+        if from_jimage != (0, 0, 0):
+            shift = from_jimage
+            from_jimage = np.subtract(from_jimage, shift)
+            to_jimage = np.subtract(to_jimage, shift)
+
         if to_jimage is None:
             # assume we want the closest site
             warnings.warn("Please specify to_jimage to be unambiguous, "
@@ -199,6 +210,16 @@ class StructureGraph(MSONable):
             if dist == 0:
                 raise ValueError("Could not determine sensible to_jimage value, "
                                  "please specify manually.")
+            # TODO: add edges for all equivalent sites if to_jimage not specified
+            #else:
+            #    equiv_sites = self.structure.get_neighbors_in_shell(self.structure[from_index].coords,
+            #                                                        dist,
+            #                                                        dist*0.01,
+            #                                                        include_index=True)
+            #    for site in equiv_sites:
+            #        self.add_edge(from_index=from_index, from_jimage=(0, 0, 0),
+            #                      to_jimage=(), to_index=())
+            #    return
 
         from_jimage, to_jimage = tuple(from_jimage), tuple(to_jimage)
 
@@ -209,8 +230,8 @@ class StructureGraph(MSONable):
         existing_edge_data = self.graph.get_edge_data(from_index, to_index)
         if existing_edge_data:
             for key, d in existing_edge_data.items():
-                existing_from = d.get("from_jimage", (0, 0, 0))
-                existing_to = d.get("to_jimage", (0, 0, 0))
+                existing_from = d["from_jimage"]
+                existing_to = d["to_jimage"]
                 if existing_from == from_jimage and existing_to == to_jimage:
                     warnings.warn("Trying to add an edge that already exists from "
                                   "site {} {} to site {} {}.".format(from_index,
