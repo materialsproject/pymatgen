@@ -162,13 +162,13 @@ Sites (2)
 Graph: bonds
 from    to  to_image    
 ----  ----  ------------
-   0     0  (-1, 0, 0)  
    0     0  (0, 1, 0)   
    0     0  (0, -1, 0)  
    0     1  (0, 0, 0)   
-   1     1  (1, 0, 0)   
+   0     1  (-1, 0, 0)  
    1     1  (0, 1, 0)   
    1     1  (0, -1, 0)  
+   1     0  (1, 0, 0)   
 """
 
         self.assertEqual(str(square_sg_mul), square_sg_mul_ref_str)
@@ -179,34 +179,32 @@ from    to  to_image
         sq_sg_2 = self.square_sg*(4, 4, 1)
         self.assertEqual(sq_sg_1.graph.number_of_edges(), sq_sg_2.graph.number_of_edges())
 
-        # maybe should re-think how co-ordination works
-        # will be wrong for edges on periodic boundaries
-        # mos2_sg_mul = self.mos2_sg * (3, 3, 1)
-        # for idx in mos2_sg_mul.structure.indices_from_symbol("Mo"):
-        #     self.assertEqual(mos2_sg_mul.get_coordination_of_site(idx), 6)
+        mos2_sg_mul = self.mos2_sg * (3, 3, 1)
+        for idx in mos2_sg_mul.structure.indices_from_symbol("Mo"):
+            self.assertEqual(mos2_sg_mul.get_coordination_of_site(idx), 6)
 
         # TODO: robustly test full 3x3x3 scaling_matrix for multiplication
 
     @unittest.skipIf(not (which('neato') and which('fdp')), "graphviz executables not present")
     def test_draw(self):
 
-        self.mos2_sg.draw_graph_to_file('MoS2_single.pdf', image_labels=True)
+        self.mos2_sg.draw_graph_to_file('MoS2_single.pdf', image_labels=True, hide_image_edges=False)
         mos2_sg = self.mos2_sg * (9, 9, 1)
         mos2_sg.draw_graph_to_file('MoS2.pdf', algo='neato')
 
         mos2_sg_2 = self.mos2_sg * (3, 3, 1)
         mos2_sg_2 = mos2_sg_2 * (3, 3, 1)
-        mos2_sg_2.draw_graph_to_file('MoS2_twice_mul.pdf', algo='neato')
+        mos2_sg_2.draw_graph_to_file('MoS2_twice_mul.pdf', algo='neato', hide_image_edges=False)
 
-        self.square_sg.draw_graph_to_file('square_single.pdf')
+        self.square_sg.draw_graph_to_file('square_single.pdf', hide_image_edges=False)
         square_sg = self.square_sg * (5, 5, 1)
         square_sg.draw_graph_to_file('square.pdf', algo='neato', image_labels=True, node_labels=False)
 
-        self.bc_square_sg.draw_graph_to_file('bc_square_single.pdf')
+        self.bc_square_sg.draw_graph_to_file('bc_square_single.pdf', hide_image_edges=False)
         bc_square_sg = self.bc_square_sg * (9, 9, 1)
         bc_square_sg.draw_graph_to_file('bc_square.pdf', algo='neato', image_labels=False)
 
-        self.bc_square_sg_r.draw_graph_to_file('bc_square_r_single.pdf')
+        self.bc_square_sg_r.draw_graph_to_file('bc_square_r_single.pdf', hide_image_edges=False)
         bc_square_sg_r = self.bc_square_sg_r * (9, 9, 1)
         bc_square_sg_r.draw_graph_to_file('bc_square_r.pdf', algo='neato', image_labels=False)
 

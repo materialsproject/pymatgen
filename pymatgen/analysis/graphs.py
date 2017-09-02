@@ -56,12 +56,7 @@ class StructureGraph(MSONable):
         NMR J-couplings, Heisenberg exchange parameters, etc.
 
         For periodic graphs, class stores information on the graph
-        edges of what lattice image the edge belongs to: this is
-        always relative to the original lattice, even when graph
-        is multiplied to become a supercell. This is not the only
-        possible approach, but has benefits, especially in
-        terms of graph visualization (edges at boundaries
-        become 'dangling bonds'). This approach may change in future.
+        edges of what lattice image the edge belongs to.
 
         :param *args: same as in :class: `pymatgen.core.Structure`
         :param graph_data: dict containing graph information, not
@@ -254,10 +249,13 @@ class StructureGraph(MSONable):
             self.graph.add_edge(from_index, to_index,
                                 from_jimage=from_jimage, to_jimage=to_jimage)
 
-    def get_connected_sites(self, n):
+    def get_connected_sites(self, n, include_index=False):
         """
         Returns a list of neighbors of site n.
         :param n: index of Site in Structure
+        :param include_index: if True, return index of
+        connected site in original structure (similar
+        to behavior in PeriodicSite)
         :return: list of Sites that are connected
         to that site
         """
@@ -266,7 +264,10 @@ class StructureGraph(MSONable):
         for u, v, d in edges:
             site_d = self.structure[u].as_dict()
             site_d['abc'] = np.add(site_d['abc'], d['to_jimage']).tolist()
-            sites.append(PeriodicSite.from_dict(site_d))
+            if include_index:
+                sites.append((PeriodicSite.from_dict(site_d), u))
+            else:
+                sites.append(PeriodicSite.from_dict(site_d))
         return sites
 
     def get_coordination_of_site(self, n):
@@ -281,7 +282,7 @@ class StructureGraph(MSONable):
 
     def draw_graph_to_file(self, filename="graph",
                            hide_unconnected_nodes=False,
-                           hide_image_edges=False,
+                           hide_image_edges=True,
                            edge_colors=False,
                            node_labels=False,
                            weight_labels=False,
@@ -370,24 +371,22 @@ class StructureGraph(MSONable):
         for u, v, k, d in g.edges(keys=True, data=True):
 
             # retrieve from/to images, set as origin if not defined
-            from_image = d['from_jimage']
             to_image = d['to_jimage']
 
             # set edge style
             d['style'] = "solid"
-            if from_image != (0, 0, 0) or to_image != (0, 0, 0):
+            if to_image != (0, 0, 0):
                 d['style'] = "dashed"
                 if hide_image_edges:
-                    edges_to_delete.append([u, v, k])
+                    edges_to_delete.append((u, v, k))
 
             # don't show edge directions
             d['arrowhead'] = "none"
 
             # only add labels for images that are not the origin
             if image_labels:
-                d['taillabel'] = "" if from_image == (0, 0, 0) else "from {}".format((from_image))
                 d['headlabel'] = "" if to_image == (0, 0, 0) else "to {}".format((to_image))
-                d['arrowhead'] = "normal" if (d['taillabel'] or d['headlabel']) else "none"
+                d['arrowhead'] = "normal" if d['headlabel'] else "none"
 
             # optionally color edges using node colors
             color_u = g.node[u]['fillcolor']
@@ -465,8 +464,6 @@ class StructureGraph(MSONable):
 
         # code adapted from Structure.__mul__
 
-        warnings.warn("StructureGraph.__mul__ in active development.")
-
         # TODO: faster implementation, initial implementation for correctness not speed
 
         scale_matrix = np.array(scaling_matrix, np.int16)
@@ -523,44 +520,38 @@ class StructureGraph(MSONable):
                 # by edge are expected to be, relative to original
                 # lattice (keeping original lattice has
                 # significant benefits)
-                u_image_frac = np.add(new_g.node[u]['frac_coords'], from_jimage)
                 v_image_frac = np.add(new_g.node[v]['frac_coords'], to_jimage)
-                u_frac = new_g.node[u]['frac_coords']
                 v_frac = new_g.node[v]['frac_coords']
 
                 # using the position of node u as a reference,
                 # get relative Cartesian co-ordinates of where
                 # atoms defined by edge are expected to be
-                u_image_cart = orig_lattice.get_cartesian_coords(u_image_frac)
                 v_image_cart = orig_lattice.get_cartesian_coords(v_image_frac)
-                u_cart = orig_lattice.get_cartesian_coords(u_frac)
                 v_cart = orig_lattice.get_cartesian_coords(v_frac)
-                u_rel = np.subtract(u_image_cart, u_cart)
                 v_rel = np.subtract(v_image_cart, v_cart)
 
                 # now retrieve position of node u (or v) in
                 # new supercell, and get absolute Cartesian
                 # co-ordinates of where atoms defined by edge
                 # are expected to be
-                u_expec = new_structure[u].coords + u_rel
                 v_expec = new_structure[v].coords + v_rel
 
                 # now search in new structure for these atoms
                 # (these lines could/should be optimized)
-                v_present = np.where([np.allclose(c, v_expec, atol=0.01) for c in new_coords])[0]
+                v_present = np.where([np.allclose(c, v_expec, atol=0.01)
+                                      for c in new_coords])[0]
 
                 # sanity check
                 if len(v_present) > 1:
                     # could re-write to work in this instance,
                     # but this really shouldn't happen in practice
-                    raise Exception("This shouldn't happen, do you have two atoms super-imposed?")
-
-                v_is_present = len(v_present) == 1
+                    raise Exception("This shouldn't happen, do you "
+                                    "have two atoms super-imposed?")
 
                 # check if image sites now present in supercell
                 # and if so, delete old edge that went through
                 # periodic boundary
-                if v_is_present:
+                if len(v_present) == 1:
 
                     new_u = u
                     new_v = v_present[0]
@@ -577,6 +568,22 @@ class StructureGraph(MSONable):
                         edges_inside_supercell.append({new_u, new_v})
                         edges_to_add.append((new_u, new_v, new_d))
 
+                else:
+
+                        # want to find new_v such that we have
+                        # full periodic boundary conditions
+                        # so that nodes on one side of supercell
+                        # are connected to nodes on opposite side
+
+                        shift = new_structure.lattice.get_cartesian_coords(to_jimage)
+                        v_expec = v_expec - shift
+                        v_present = np.where([np.allclose(c, v_expec, atol=0.01)
+                                              for c in new_coords])[0]
+
+                        if len(v_present) > 0 and v != v_present[0]:
+                            edges_to_remove.append((u, v, k))
+                            edges_to_add.append((u, v_present[0], d.copy()))
+
         logger.debug("Removing {} edges, adding {} new edges.".format(len(edges_to_remove),
                                                                       len(edges_to_add)))
 
@@ -585,8 +592,12 @@ class StructureGraph(MSONable):
             new_g.remove_edge(*edges_to_remove)
         for (u, v, d) in edges_to_add:
             new_g.add_edge(u, v, **d)
-            
-        # TODO: re-connect periodic edges?
+
+        # update lattice, frac_coords
+        # TODO: do we really need to store these? remove lattice, frac_coords from graph ...
+        new_g.graph['lattice'] = tuple(new_structure.lattice.matrix)
+        for n in new_g.nodes():
+            new_g.node[n]['frac_coords'] = new_structure[n].frac_coords
 
         # return new instance of StructureGraph with supercell
         d = {"@module": self.__class__.__module__,
