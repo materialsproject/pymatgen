@@ -601,8 +601,8 @@ class StructureGraph(MSONable):
 
     def _edges_to_string(self, g):
 
-        header = "from  from_image      to  to_image    "
-        header_line = "----  ------------  ----  ------------"
+        header = "from    to  to_image    "
+        header_line = "----  ----  ------------"
         edge_weight_name = g.graph["edge_weight_name"]
         if edge_weight_name:
             print_weights = ["weight"]
@@ -619,13 +619,12 @@ class StructureGraph(MSONable):
 
         if print_weights:
             for u, v, data in g.edges(data=True):
-                s += "{:4}  {:12}  {:4}  {:12}  {:.4E}\n".format(u, str(data.get("from_jimage", (0, 0, 0))),
-                                                                 v, str(data.get("to_jimage", (0, 0, 0))),
-                                                                 data.get("weight", 0))
+                s += "{:4}  {:4}  {:12}  {:.4E}\n".format(u, v, str(data.get("to_jimage", (0, 0, 0))),
+                                                          data.get("weight", 0))
         else:
             for u, v, data in g.edges(data=True):
-                s += "{:4}  {:12}  {:4}  {:12}\n".format(u, str(data.get("from_jimage", (0, 0, 0))),
-                                                         v, str(data.get("to_jimage", (0, 0, 0))))
+                s += "{:4}  {:4}  {:12}\n".format(u, v,
+                                                  str(data.get("to_jimage", (0, 0, 0))))
 
         return s
 
