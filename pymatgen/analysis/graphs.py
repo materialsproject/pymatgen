@@ -438,6 +438,8 @@ class StructureGraph(MSONable):
         """
 
         # code adapted from Structure.__mul__
+        
+        warnings.warn("StructureGraph.__mul__ in active development.")
 
         # TODO: faster implementation, initial implementation for correctness not speed
 
@@ -559,6 +561,8 @@ class StructureGraph(MSONable):
             new_g.remove_edge(*edges_to_remove)
         for (u, v, d) in edges_to_add:
             new_g.add_edge(u, v, **d)
+            
+        # TODO: re-connect periodic edges?
 
         # return new instance of StructureGraph with supercell
         d = {"@module": self.__class__.__module__,
