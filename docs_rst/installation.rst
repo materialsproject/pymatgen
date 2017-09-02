@@ -42,7 +42,7 @@ Optional libraries that are required if you need certain features.
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
 6. networkx: For graph analysis associated with critic2 topological analysis
-   of electron charge densities.
+   of electron charge densities, pygraphviz is also required for visualization.
 7. nose - For unittesting. Not optional for developers.
 
 Optional non-Python programs
