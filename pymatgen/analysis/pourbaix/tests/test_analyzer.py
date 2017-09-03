@@ -49,8 +49,11 @@ class TestPourbaixAnalyzer(unittest.TestCase):
             e_above_hull = self.analyzer.get_e_above_hull(entry)
             self.assertAlmostEqual(e_above_hull, self.e_above_hull_test[entry.name], 3)
         # Test get_all_decomp_and_e_above_hull
-        de, hulle, ds, entries = self.analyzer_multi.get_all_decomp_and_e_above_hull("mp-19")
-        #blargh
+        te_entry = self.pd_multi._unprocessed_entries[3]
+        de, hull_e, entries = self.analyzer_multi.get_all_decomp_and_e_above_hull(te_entry)
+        self.assertEqual(len(de), 7)
+        self.assertEqual(len(hull_e), 7)
+        self.assertAlmostEqual(hull_e[0], 2.8721308052126204)
 
 if __name__ == '__main__':
     unittest.main()

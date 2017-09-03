@@ -265,13 +265,13 @@ class MultiEntry(PourbaixEntry):
         return fact
 
     def __repr__(self):
-        str = "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, "\
-            "nPhi = {}, nH2O = {}, entry_id = {}".format(
-            self.g0, self.npH, self.nPhi, self.nH2O, self.entry_id)
-        str += ", species: "
-        for entry in self.entrylist:
-            str += entry.name + " + "
-        return str[:-3]
+        return "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, "\
+               "nPhi = {}, nH2O = {}, entry_id = {}, species: {}".format(
+            self.g0, self.npH, self.nPhi, self.nH2O, self.entry_id, self.name)
+
+    @property
+    def phases(self):
+        return [e.phase_type for e in self.entrylist]
 
     def __str__(self):
         return self.__repr__()
