@@ -439,7 +439,7 @@ class SpacegroupAnalyzer(object):
         elif "F" in self.get_space_group_symbol():
             transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]],
                               dtype=np.float) / 2
-        elif "C" in self.get_space_group_symbol():
+        elif "C" in self.get_space_group_symbol() "A" in self.get_space_group_symbol():
             if self.get_crystal_system() == "monoclinic":
                 transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]],
                                   dtype=np.float) / 2
@@ -509,7 +509,7 @@ class SpacegroupAnalyzer(object):
             # you want to keep the c axis where it is
             # to keep the C- settings
             transf = np.zeros(shape=(3, 3))
-            if self.get_space_group_symbol().startswith("C"):
+            if self.get_space_group_symbol().startswith("C") or self.get_space_group_symbol().startswith("A"):
                 transf[2] = [0, 0, 1]
                 a, b = sorted(latt.abc[:2])
                 sorted_dic = sorted([{'vec': latt.matrix[i],
@@ -1253,18 +1253,10 @@ class PointGroupAnalyzer(object):
                         dict(enumerate(index))[i] for i in matched_indices}
                     eq_sets[i] |= matched_indices
 
-                    if i not in operations:
-                        operations[i] = {j: op.T if j != i else UNIT
-                                         for j in matched_indices}
-                    else:
-                        for j in matched_indices:
-                            if j not in operations[i]:
-                                operations[i][j] = op.T if j != i else UNIT
+                    operations[i].update(
+                        {j: op.T if j != i else UNIT for j in matched_indices})
                     for j in matched_indices:
-                        if j not in operations:
-                            operations[j] = {i: op if j != i else UNIT}
-                        elif i not in operations[j]:
-                            operations[j][i] = op if j != i else UNIT
+                        operations[j].update({i: op if j != i else UNIT})
 
         return {'eq_sets': eq_sets,
                 'sym_ops': operations}
@@ -1306,9 +1298,8 @@ class PointGroupAnalyzer(object):
                     visited.add(j)
                     for k in tmp_eq_sets[j]:
                         new_tmp_eq_sets[k] = eq_sets[k] - visited
-                        if i not in ops[k]:
-                            ops[k][i] = (np.dot(ops[j][i], ops[k][j])
-                                         if k != i else UNIT)
+                        ops[k][i] = (np.dot(ops[j][i], ops[k][j])
+                                     if k != i else UNIT)
                         ops[i][k] = ops[k][i].T
                 tmp_eq_sets = new_tmp_eq_sets
             return visited, ops
@@ -1393,13 +1384,17 @@ class PointGroupAnalyzer(object):
                     continue
                 coords[j] = np.dot(ops[i][j], coords[i])
                 coords[j] = np.dot(ops[i][j], coords[i])
+                try:
+                    assert np.allclose(np.dot(ops[i][j], coords[i]), coords[j])
+                except AssertionError:
+                    return coords, ops, i, j
         molecule = Molecule(species=self.centered_mol.species, coords=coords)
         return {'sym_mol': molecule,
                 'eq_sets': eq_sets,
                 'sym_ops': ops}
 
 
-def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
+def iterative_symmetrize(mol, max_n=10, tol=1e-3):
     """Returns a symmetrized molecule
 
     The equivalent atoms obtained via
@@ -1411,15 +1406,7 @@ def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
     symmetrized molecule
 
     Args:
-        mol (Molecule): A pymatgen Molecule instance.
-        max_n (int): Maximum number of iterations.
-        tolerance (float): Tolerance for detecting symmetry.
-            Gets passed as Argument into
-            :class:`~pymatgen.analyzer.symmetry.PointGroupAnalyzer`.
-        epsilon (float): If the elementwise absolute difference of two
-            subsequently symmetrized structures is smaller epsilon,
-            the iteration stops before ``max_n`` is reached.
-
+        None
 
     Returns:
         dict: The returned dictionary has three possible keys:
@@ -1442,11 +1429,10 @@ def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
     finished = False
     while not finished and n <= max_n:
         previous = new
-        PA = PointGroupAnalyzer(previous, tolerance=tolerance)
+        PA = PointGroupAnalyzer(previous)
         eq = PA.symmetrize_molecule()
         new = eq['sym_mol']
-        finished = np.allclose(new.cart_coords, previous.cart_coords,
-                               atol=epsilon)
+        finished = np.allclose(new.cart_coords, previous.cart_coords, atol=tol)
         n += 1
     return eq
 
@@ -1514,20 +1500,20 @@ def generate_full_symmops(symmops, tol):
     if not generators:
         # C1 symmetry breaks assumptions in the algorithm afterwards
         return symmops
-    else:
-        full = list(generators)
 
-        for g in full:
-            for s in generators:
-                op = np.dot(g, s)
-                d = np.abs(full - op) < tol
-                if not np.any(np.all(np.all(d, axis=2), axis=1)):
-                    full.append(op)
+    full = list(generators)
 
-        d = np.abs(full - UNIT) < tol
-        if not np.any(np.all(np.all(d, axis=2), axis=1)):
-            full.append(UNIT)
-        return [SymmOp(op) for op in full]
+    for g in full:
+        for s in generators:
+            op = np.dot(g, s)
+            d = np.abs(full - op) < tol
+            if not np.any(np.all(np.all(d, axis=2), axis=1)):
+                full.append(op)
+
+    d = np.abs(full - UNIT) < tol
+    if not np.any(np.all(np.all(d, axis=2), axis=1)):
+        full.append(UNIT)
+    return [SymmOp(op) for op in full]
 
 
 class SpacegroupOperations(list):
