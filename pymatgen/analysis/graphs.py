@@ -247,25 +247,27 @@ class StructureGraph(MSONable):
             self.graph.add_edge(from_index, to_index,
                                 from_jimage=from_jimage, to_jimage=to_jimage)
 
-    def get_connected_sites(self, n, include_index=False):
+    def get_connected_sites(self, n, jimage=(0, 0, 0), include_index=False):
         """
         Returns a list of neighbors of site n.
         :param n: index of Site in Structure
+        :param jimage: lattice vector of site
         :param include_index: if True, return index of
         connected site in original structure (similar
         to behavior in PeriodicSite)
-        :return: list of Sites that are connected
-        to that site
+        :return: tuple of Sites that are connected
+        to that site and its associated jimage
         """
         sites = []
         edges = self.graph.out_edges(n, data=True) + self.graph.in_edges(n, data=True)
         for u, v, d in edges:
             site_d = self.structure[u].as_dict()
             site_d['abc'] = np.add(site_d['abc'], d['to_jimage']).tolist()
+            to_jimage = tuple(np.add(d['to_jimage'], jimage).astype(int))
             if include_index:
-                sites.append((PeriodicSite.from_dict(site_d), u))
+                sites.append((PeriodicSite.from_dict(site_d), to_jimage, u))
             else:
-                sites.append(PeriodicSite.from_dict(site_d))
+                sites.append((PeriodicSite.from_dict(site_d), to_jimage))
         return sites
 
     def get_coordination_of_site(self, n):
