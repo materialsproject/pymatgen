@@ -24,7 +24,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 test_dir_structs = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                            'test_files', 'spacegroup_structs')
+                            'test_files', 'space_group_structs')
 
 class HighSymmKpathTest(PymatgenTest):
 
