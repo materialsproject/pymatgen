@@ -30,7 +30,7 @@ class HighSymmKpathTest(PymatgenTest):
 
     def test_kpath_generation(self):
         for sg_num in range(230):
-            struct = Structure.from_file(os.path.join(test_dir_structs, str(sg_num+1) + '.cif'))
+            struct = Structure.from_file(os.path.join(test_dir_structs, str(sg_num+1) + '.json'))
             kpath = HighSymmKpath(struct) #Throws error if something doesn't work, causing test to fail.
 
     def test_kpath_acentered(self):
