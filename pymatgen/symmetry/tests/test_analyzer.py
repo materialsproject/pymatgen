@@ -252,7 +252,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         prim = s.get_primitive_standard_structure()
         self.assertAlmostEqual(prim.lattice.alpha, 90)
         self.assertAlmostEqual(prim.lattice.beta, 90)
-        self.assertAlmostEqual(prim.lattice.gamma, 90)
+        self.assertAlmostEqual(prim.lattice.gamma, 144.40557588533386)
         self.assertAlmostEqual(prim.lattice.a, 3.1790663399999999)
         self.assertAlmostEqual(prim.lattice.b, 3.5372412099999999)
         self.assertAlmostEqual(prim.lattice.c, 9.9032878699999998)
