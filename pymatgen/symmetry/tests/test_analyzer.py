@@ -254,8 +254,8 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(conv.lattice.beta, 90)
         self.assertAlmostEqual(conv.lattice.gamma, 90)
         self.assertAlmostEqual(conv.lattice.a, 3.1790663399999999)
-        self.assertAlmostEqual(conv.lattice.b, 3.5372412099999999)
-        self.assertAlmostEqual(conv.lattice.c, 9.9032878699999998)
+        self.assertAlmostEqual(conv.lattice.b, 9.9032878699999998)
+        self.assertAlmostEqual(conv.lattice.c, 3.5372412099999999)
 
         parser = CifParser(os.path.join(test_dir, 'monoc_1028.cif'))
         structure = parser.get_structures(False)[0]
