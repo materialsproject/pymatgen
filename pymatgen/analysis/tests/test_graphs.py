@@ -10,7 +10,7 @@ import os
 from pymatgen import Structure, Lattice
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.analysis.graphs import *
-from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
 
 __author__ = "Matthew Horton"
 __version__ = "0.1"
@@ -74,7 +74,7 @@ class StructureGraphTest(unittest.TestCase):
         self.assertEqual(self.mos2_sg.edge_weight_unit, "Å")
         self.assertEqual(self.mos2_sg.get_coordination_of_site(0), 6)
         self.assertEqual(len(self.mos2_sg.get_connected_sites(0)), 6)
-        self.assertTrue(isinstance(self.mos2_sg.get_connected_sites(0)[0][0], PeriodicSite))
+        self.assertTrue(isinstance(self.mos2_sg.get_connected_sites(0)[0].periodic_site, PeriodicSite))
 
         # these two graphs should be equivalent
         for n in range(len(self.bc_square_sg)):
@@ -130,12 +130,12 @@ Sites (3)
 Graph: bonds
 from    to  to_image      bond_length (A)
 ----  ----  ------------  ---------------
-   1     0  (1, 0, 0)     2.4169E+00
-   1     0  (0, 0, 0)     2.4169E+00
-   1     0  (0, -1, 0)    2.4169E+00
-   2     0  (0, -1, 0)    2.4169E+00
-   2     0  (1, 0, 0)     2.4169E+00
-   2     0  (0, 0, 0)     2.4169E+00
+   0     1  (-1, 0, 0)    2.4169E+00
+   0     1  (0, 0, 0)     2.4169E+00
+   0     1  (0, 1, 0)     2.4169E+00
+   0     2  (0, 1, 0)     2.4169E+00
+   0     2  (-1, 0, 0)    2.4169E+00
+   0     2  (0, 0, 0)     2.4169E+00
 """
 
         # don't care about testing Py 2.7 unicode support,
@@ -221,10 +221,16 @@ from    to  to_image
         d2 = sg.as_dict()
         self.assertDictEqual(d, d2)
 
-    def test_from_local_env(self):
+    def test_from_local_env_and_equality(self):
         nn = MinimumDistanceNN()
         sg = StructureGraph.with_local_env_strategy(self.structure, nn)
-        self.assertEqual(sg.graph.number_of_edges(), 12)
+        self.assertEqual(sg.graph.number_of_edges(), 6)
+
+        nn2 = MinimumOKeeffeNN()
+        sg2 = StructureGraph.with_local_env_strategy(self.structure, nn2)
+
+        self.assertTrue(sg == sg2)
+        self.assertTrue(sg == self.mos2_sg)
 
 if __name__ == "__main__":
     unittest.main()

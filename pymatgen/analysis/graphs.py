@@ -15,6 +15,7 @@ from pymatgen.vis.structure_vtk import EL_COLORS
 from monty.json import MSONable
 from monty.os.path import which
 from operator import itemgetter
+from collections import namedtuple
 
 try:
     import networkx as nx
@@ -136,11 +137,16 @@ class StructureGraph(MSONable):
         for n in range(len(structure)):
             neighbors = strategy.get_nn_info(structure, n)
             for neighbor in neighbors:
+                # local_env will always try to add two edges
+                # for any one bond, one from site u to site v
+                # and another form site v to site u: this is
+                # harmless, so warn_duplicates=False
                 sg.add_edge(from_index=n,
                             from_jimage=(0, 0, 0),
                             to_index=neighbor['site_index'],
                             to_jimage=neighbor['image'],
-                            weight=neighbor['weight'])
+                            weight=neighbor['weight'],
+                            warn_duplicates=False)
 
         return sg
 
@@ -167,30 +173,40 @@ class StructureGraph(MSONable):
 
     def add_edge(self, from_index, to_index,
                  from_jimage=(0, 0, 0), to_jimage=None,
-                 weight=None):
+                 weight=None, warn_duplicates=True):
         """
         Add edge to graph.
 
         Since physically a 'bond' (or other connection
-        between sites) doesn't have a direction, from_index, from_jimage
-        can be swapped with to_index, to_jimage. However, images will
-        always always be shifted so from_jimage becomes (0, 0, 0).
+        between sites) doesn't have a direction, from_index,
+        from_jimage can be swapped with to_index, to_jimage.
 
-        :param name: e.g. "bonds"
+        However, images will always always be shifted so that
+        from_index < to_index and from_jimage becomes (0, 0, 0).
+
         :param from_index: index of site connecting from
         :param to_index: index of site connecting to
         :param from_jimage (tuple of ints): lattice vector of periodic
         image, e.g. (1, 0, 0) for periodic image in +x direction
         :param to_jimage (tuple of ints): lattice vector of image
         :param weight (float): e.g. bond length
-        :param name: if you have multiple graphs defined, the name of
-        the graph you want to use must be supplied
+        :param warn_duplicates (bool): if True, will warn if
+        trying to add duplicate edges (duplicate edges will not
+        be added in either case)
         :return:
         """
 
+        # this is not necessary for the class to work, but
+        # just makes it neater
+        if to_index < from_index:
+            to_index, from_index = from_index, to_index
+            to_jimage, from_jimage = from_jimage, to_jimage
+
         # constrain all from_jimages to be (0, 0, 0),
-        # simplifies logic later
-        if from_jimage != (0, 0, 0):
+        # initial version of this class worked even if
+        # from_jimage != (0, 0, 0), but making this
+        # assumption simplifies logic later
+        if not np.array_equal(from_jimage, (0, 0, 0)):
             shift = from_jimage
             from_jimage = np.subtract(from_jimage, shift)
             to_jimage = np.subtract(to_jimage, shift)
@@ -229,14 +245,12 @@ class StructureGraph(MSONable):
         existing_edge_data = self.graph.get_edge_data(from_index, to_index)
         if existing_edge_data:
             for key, d in existing_edge_data.items():
-                existing_from = d["from_jimage"]
-                existing_to = d["to_jimage"]
-                if existing_from == from_jimage and existing_to == to_jimage:
-                    warnings.warn("Trying to add an edge that already exists from "
-                                  "site {} {} to site {} {}.".format(from_index,
-                                                                     from_jimage,
-                                                                     to_index,
-                                                                     to_jimage))
+                if d["to_jimage"] == to_jimage:
+                    if warn_duplicates:
+                        warnings.warn("Trying to add an edge that already exists from "
+                                      "site {} to site {} in {}.".format(from_index,
+                                                                         to_index,
+                                                                         to_jimage))
                     return
 
         if weight:
@@ -247,28 +261,37 @@ class StructureGraph(MSONable):
             self.graph.add_edge(from_index, to_index,
                                 from_jimage=from_jimage, to_jimage=to_jimage)
 
-    def get_connected_sites(self, n, jimage=(0, 0, 0), include_index=False):
+    def get_connected_sites(self, n, jimage=(0, 0, 0)):
         """
-        Returns a list of neighbors of site n.
+        Returns a named tuple of neighbors of site n:
+        periodic_site, jimage, index, weight.
+        Index is the index of the corresponding site
+        in the original structure, weight can be
+        None if not defined.
         :param n: index of Site in Structure
         :param jimage: lattice vector of site
-        :param include_index: if True, return index of
-        connected site in original structure (similar
-        to behavior in PeriodicSite)
         :return: tuple of Sites that are connected
         to that site and its associated jimage
         """
-        sites = []
+        ConnectedSite = namedtuple('ConnectedSite', 'periodic_site, jimage, index, weight')
+        connected_sites = []
         edges = self.graph.out_edges(n, data=True) + self.graph.in_edges(n, data=True)
         for u, v, d in edges:
+
             site_d = self.structure[u].as_dict()
             site_d['abc'] = np.add(site_d['abc'], d['to_jimage']).tolist()
-            to_jimage = tuple(np.add(d['to_jimage'], jimage).astype(int))
-            if include_index:
-                sites.append((PeriodicSite.from_dict(site_d), to_jimage, u))
-            else:
-                sites.append((PeriodicSite.from_dict(site_d), to_jimage))
-        return sites
+            to_jimage = tuple(map(int, np.add(d['to_jimage'], jimage)))
+            periodic_site = PeriodicSite.from_dict(site_d)
+
+            weight = d.get('weight', None)
+
+            connected_site = ConnectedSite(periodic_site=periodic_site,
+                                           jimage=to_jimage,
+                                           index=u,
+                                           weight=weight)
+
+            connected_sites.append(connected_site)
+        return connected_sites
 
     def get_coordination_of_site(self, n):
         """
@@ -672,3 +695,25 @@ class StructureGraph(MSONable):
 
         self.structure._sites = sorted(self.structure._sites, key=key, reverse=reverse)
         self.graph = nx.relabel_nodes(self.graph, mapping, copy=True)
+
+    def __eq__(self, other):
+        """
+        Two StructureGraphs are equal if they have equal Structures,
+        and have the same edges between Sites. Edge weights can be
+        different and StructureGraphs can still be considered equal.
+
+        :param other: StructureGraph
+        :return (bool):
+        """
+
+        # edges can be defined in multiple equivalent ways
+        # so only comparing coordination / indexes of connected sites
+
+        connections = [sorted([site.index for site in self.get_connected_sites(n)])
+                       for n in range(len(self))]
+
+        connections_other = [sorted([site.index for site in other.get_connected_sites(n)])
+                             for n in range(len(other))]
+
+        return (self.structure == other.structure) and \
+               (connections == connections_other)
