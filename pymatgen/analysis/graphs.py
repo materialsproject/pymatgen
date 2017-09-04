@@ -706,14 +706,11 @@ class StructureGraph(MSONable):
         :return (bool):
         """
 
-        # edges can be defined in multiple equivalent ways
-        # so only comparing coordination / indexes of connected sites
+        edges = {(u, v, d['to_jimage'])
+                 for u, v, d in self.graph.edges(keys=False, data=True)}
 
-        connections = [sorted([site.index for site in self.get_connected_sites(n)])
-                       for n in range(len(self))]
-
-        connections_other = [sorted([site.index for site in other.get_connected_sites(n)])
-                             for n in range(len(other))]
+        edges_other = {(u, v, d['to_jimage'])
+                       for u, v, d in other.graph.edges(keys=False, data=True)}
 
         return (self.structure == other.structure) and \
-               (connections == connections_other)
+               (edges == edges_other)
