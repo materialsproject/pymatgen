@@ -17,8 +17,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.surface import Slab
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen import MPRester
-from pymatgen.phasediagram.maker import PhaseDiagram
-from pymatgen.phasediagram.analyzer import PDAnalyzer
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen import Element
 from pymatgen.util.plotting import pretty_plot
 
@@ -157,8 +156,7 @@ class SurfaceEnergyAnalyzer(object):
             if not custom_entries else custom_entries
 
         pd = PhaseDiagram(entries)
-        pda = PDAnalyzer(pd)
-        chempot_ranges = pda.get_chempot_range_map([Element(self.ref_element)])
+        chempot_ranges = pd.get_chempot_range_map([Element(self.ref_element)])
         # If no chemical potential is found, we return u=0, eg.
         # for a elemental system, the relative u of Cu for Cu is 0
         chempot_range = [chempot_ranges[entry] for entry in chempot_ranges.keys()

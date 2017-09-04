@@ -28,7 +28,7 @@ from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.structure_prediction.substitution_probability import \
+from pymatgen.analysis.structure_prediction.substitution_probability import \
     SubstitutionPredictor
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpinComparator

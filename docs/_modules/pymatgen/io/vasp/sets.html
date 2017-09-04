@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -230,6 +230,13 @@
         <span class="k">return</span> <span class="n">d</span></div></div>
 
 
+<span class="k">def</span> <span class="nf">_load_yaml_config</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.yaml&quot;</span> <span class="o">%</span> <span class="n">fname</span><span class="p">))</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span>
+                                               <span class="s2">&quot;VASPIncarBase.yaml&quot;</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">config</span>
+
+
 <div class="viewcode-block" id="DictSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.DictSet">[docs]</a><span class="k">class</span> <span class="nc">DictSet</span><span class="p">(</span><span class="n">VaspInputSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Concrete implementation of VaspInputSet that is initialized from a dict</span>
@@ -292,6 +299,11 @@
 <span class="sd">        reduce_structure (None/str): Before generating the input files,</span>
 <span class="sd">            generate the reduced structure. Default (None), does not</span>
 <span class="sd">            alter the structure. Valid values: None, &quot;niggli&quot;, &quot;LLL&quot;.</span>
+<span class="sd">        vdw: Adds default parameters for van-der-Waals functionals supported</span>
+<span class="sd">            by VASP to INCAR. Supported functionals are: DFT-D2, undamped</span>
+<span class="sd">            DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-Scheffler,</span>
+<span class="sd">            Tkatchenko-Scheffler with iterative Hirshfeld partitioning,</span>
+<span class="sd">            MBD@rSC, dDsC, Dion&#39;s vdW-DF and DF2, optPBE, optB88, and optB86b.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span>
@@ -299,7 +311,7 @@
                  <span class="n">user_kpoints_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_potcar_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">potcar_functional</span><span class="o">=</span><span class="s2">&quot;PBE&quot;</span><span class="p">,</span> <span class="n">force_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">reduce_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">reduce_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vdw</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">reduce_structure</span><span class="p">:</span>
             <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_reduced_structure</span><span class="p">(</span><span class="n">reduce_structure</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sort_structure</span><span class="p">:</span>
@@ -315,6 +327,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_kpoints_settings</span> <span class="o">=</span> <span class="n">user_kpoints_settings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_potcar_settings</span> <span class="o">=</span> <span class="n">user_potcar_settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vdw</span> <span class="o">=</span> <span class="n">vdw</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">vdw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vdw</span><span class="p">:</span>
+            <span class="n">vdw_par</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;vdW_parameters.yaml&quot;</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">vdw_par</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vdw</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Invalid or unsupported van-der-Waals &quot;</span>
+                               <span class="s2">&quot;functional. Supported functionals are &quot;</span>
+                               <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">vdw_par</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_potcar_settings</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;Overriding POTCARs is generally not recommended as it &quot;</span>
@@ -416,7 +437,7 @@
     <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Writes out a KPOINTS file using the fully automated grid method. Uses</span>
-<span class="sd">        Gamma centered meshes  for hexagonal cells and Monk grids otherwise.</span>
+<span class="sd">        Gamma centered meshes for hexagonal cells and Monk grids otherwise.</span>
 
 <span class="sd">        Algorithm:</span>
 <span class="sd">            Uses a simple approach scaling the number of divisions along each</span>
@@ -484,7 +505,7 @@
 <span class="sd">        functional theory calculations. Computational Materials Science,</span>
 <span class="sd">        2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MITRelaxSet.yaml&quot;</span><span class="p">))</span>
+    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MITRelaxSet&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -500,7 +521,7 @@
 <span class="sd">    The LDAUU parameters are also different due to the different psps used,</span>
 <span class="sd">    which result in different fitted values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MPRelaxSet.yaml&quot;</span><span class="p">))</span>
+    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MPRelaxSet&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -512,7 +533,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Same as the MPRelaxSet, but with HSE parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MPHSERelaxSet.yaml&quot;</span><span class="p">))</span>
+    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MPHSERelaxSet&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MPHSERelaxSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -1134,7 +1155,7 @@
 <span class="sd">    functional is set as the default. These have much improved performance for</span>
 <span class="sd">    GW calculations.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MVLGWSet.yaml&quot;</span><span class="p">))</span>
+    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MVLGWSet&quot;</span><span class="p">)</span>
 
     <span class="n">SUPPORTED_MODES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;DIAG&quot;</span><span class="p">,</span> <span class="s2">&quot;GW&quot;</span><span class="p">,</span> <span class="s2">&quot;STATIC&quot;</span><span class="p">,</span> <span class="s2">&quot;BSE&quot;</span><span class="p">)</span>
 
@@ -1292,6 +1313,7 @@
                  <span class="n">auto_dipole</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MVLSlabSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">slab</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slab</span> <span class="o">=</span> <span class="n">slab</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">k_product</span> <span class="o">=</span> <span class="n">k_product</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bulk</span> <span class="o">=</span> <span class="n">bulk</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">auto_dipole</span> <span class="o">=</span> <span class="n">auto_dipole</span>
@@ -1742,7 +1764,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

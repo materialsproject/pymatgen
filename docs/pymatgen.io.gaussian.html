@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.gaussian module &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.io.gaussian module &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -458,9 +458,9 @@ calculation parameters.</p>
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianOutput.get_spectre_plot">
 <code class="descname">get_spectre_plot</code><span class="sig-paren">(</span><em>sigma=0.05</em>, <em>step=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.get_spectre_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.get_spectre_plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a matplotlib plot of the UV-visible spectra. Transition are plotted
+<dd><p>Get a matplotlib plot of the UV-visible xas. Transition are plotted
 as vertical lines and as a sum of normal functions with sigma with. The
-broadening is applied in energy and the spectra is plotted as a function
+broadening is applied in energy and the xas is plotted as a function
 of the wavelength.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -473,9 +473,9 @@ of the wavelength.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>{“energies”: values, “lambda”: values, “spectra”: values}</dt>
+<dt>{“energies”: values, “lambda”: values, “xas”: values}</dt>
 <dd><p class="first last">where values are lists of abscissa (energies, lamba) and
-the sum of gaussian functions (spectra).</p>
+the sum of gaussian functions (xas).</p>
 </dd>
 </dl>
 <p>A matplotlib plot.</p>
@@ -645,7 +645,7 @@ route (dict) : dictionary of parameters</dd>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>
 

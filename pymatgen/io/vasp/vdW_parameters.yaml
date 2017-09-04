@@ -1,3 +1,4 @@
+# VASP settings for the various vdW functionals.
 dftd2:
     IVDW: 1
 dftd3:

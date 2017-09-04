@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.symmetry.analyzer &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.symmetry.analyzer &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1310,10 +1310,18 @@
                         <span class="nb">dict</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">index</span><span class="p">))[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">matched_indices</span><span class="p">}</span>
                     <span class="n">eq_sets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">|=</span> <span class="n">matched_indices</span>
 
-                    <span class="n">operations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                        <span class="p">{</span><span class="n">j</span><span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">T</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span> <span class="k">else</span> <span class="n">UNIT</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">matched_indices</span><span class="p">})</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">operations</span><span class="p">:</span>
+                        <span class="n">operations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">j</span><span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">T</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span> <span class="k">else</span> <span class="n">UNIT</span>
+                                         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">matched_indices</span><span class="p">}</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">matched_indices</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">j</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">operations</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                                <span class="n">operations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">T</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span> <span class="k">else</span> <span class="n">UNIT</span>
                     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">matched_indices</span><span class="p">:</span>
-                        <span class="n">operations</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">i</span><span class="p">:</span> <span class="n">op</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span> <span class="k">else</span> <span class="n">UNIT</span><span class="p">})</span>
+                        <span class="k">if</span> <span class="n">j</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">operations</span><span class="p">:</span>
+                            <span class="n">operations</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">op</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span> <span class="k">else</span> <span class="n">UNIT</span><span class="p">}</span>
+                        <span class="k">elif</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">operations</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                            <span class="n">operations</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">op</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span> <span class="k">else</span> <span class="n">UNIT</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;eq_sets&#39;</span><span class="p">:</span> <span class="n">eq_sets</span><span class="p">,</span>
                 <span class="s1">&#39;sym_ops&#39;</span><span class="p">:</span> <span class="n">operations</span><span class="p">}</span>
@@ -1355,8 +1363,9 @@
                     <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">tmp_eq_sets</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
                         <span class="n">new_tmp_eq_sets</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">eq_sets</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">visited</span>
-                        <span class="n">ops</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ops</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">ops</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
-                                     <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">i</span> <span class="k">else</span> <span class="n">UNIT</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                            <span class="n">ops</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ops</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">ops</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                                         <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">i</span> <span class="k">else</span> <span class="n">UNIT</span><span class="p">)</span>
                         <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">ops</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
                 <span class="n">tmp_eq_sets</span> <span class="o">=</span> <span class="n">new_tmp_eq_sets</span>
             <span class="k">return</span> <span class="n">visited</span><span class="p">,</span> <span class="n">ops</span>
@@ -1441,17 +1450,13 @@
                     <span class="k">continue</span>
                 <span class="n">coords</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="n">coords</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">coords</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-                <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span>
         <span class="n">molecule</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centered_mol</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;sym_mol&#39;</span><span class="p">:</span> <span class="n">molecule</span><span class="p">,</span>
                 <span class="s1">&#39;eq_sets&#39;</span><span class="p">:</span> <span class="n">eq_sets</span><span class="p">,</span>
                 <span class="s1">&#39;sym_ops&#39;</span><span class="p">:</span> <span class="n">ops</span><span class="p">}</span></div></div>
 
 
-<div class="viewcode-block" id="iterative_symmetrize"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.iterative_symmetrize">[docs]</a><span class="k">def</span> <span class="nf">iterative_symmetrize</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">max_n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+<div class="viewcode-block" id="iterative_symmetrize"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.iterative_symmetrize">[docs]</a><span class="k">def</span> <span class="nf">iterative_symmetrize</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">max_n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a symmetrized molecule</span>
 
 <span class="sd">    The equivalent atoms obtained via</span>
@@ -1463,7 +1468,15 @@
 <span class="sd">    symmetrized molecule</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        None</span>
+<span class="sd">        mol (Molecule): A pymatgen Molecule instance.</span>
+<span class="sd">        max_n (int): Maximum number of iterations.</span>
+<span class="sd">        tolerance (float): Tolerance for detecting symmetry.</span>
+<span class="sd">            Gets passed as Argument into</span>
+<span class="sd">            :class:`~pymatgen.analyzer.symmetry.PointGroupAnalyzer`.</span>
+<span class="sd">        epsilon (float): If the elementwise absolute difference of two</span>
+<span class="sd">            subsequently symmetrized structures is smaller epsilon,</span>
+<span class="sd">            the iteration stops before ``max_n`` is reached.</span>
+
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: The returned dictionary has three possible keys:</span>
@@ -1486,10 +1499,11 @@
     <span class="n">finished</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">while</span> <span class="ow">not</span> <span class="n">finished</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="n">max_n</span><span class="p">:</span>
         <span class="n">previous</span> <span class="o">=</span> <span class="n">new</span>
-        <span class="n">PA</span> <span class="o">=</span> <span class="n">PointGroupAnalyzer</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span>
+        <span class="n">PA</span> <span class="o">=</span> <span class="n">PointGroupAnalyzer</span><span class="p">(</span><span class="n">previous</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">)</span>
         <span class="n">eq</span> <span class="o">=</span> <span class="n">PA</span><span class="o">.</span><span class="n">symmetrize_molecule</span><span class="p">()</span>
         <span class="n">new</span> <span class="o">=</span> <span class="n">eq</span><span class="p">[</span><span class="s1">&#39;sym_mol&#39;</span><span class="p">]</span>
-        <span class="n">finished</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span> <span class="n">previous</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
+        <span class="n">finished</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span> <span class="n">previous</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span>
+                               <span class="n">atol</span><span class="o">=</span><span class="n">epsilon</span><span class="p">)</span>
         <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="k">return</span> <span class="n">eq</span></div>
 
@@ -1557,20 +1571,20 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">generators</span><span class="p">:</span>
         <span class="c1"># C1 symmetry breaks assumptions in the algorithm afterwards</span>
         <span class="k">return</span> <span class="n">symmops</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">full</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">generators</span><span class="p">)</span>
 
-    <span class="n">full</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">generators</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">full</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">generators</span><span class="p">:</span>
+                <span class="n">op</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">full</span> <span class="o">-</span> <span class="n">op</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)):</span>
+                    <span class="n">full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">full</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">generators</span><span class="p">:</span>
-            <span class="n">op</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">full</span> <span class="o">-</span> <span class="n">op</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)):</span>
-                <span class="n">full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
-
-    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">full</span> <span class="o">-</span> <span class="n">UNIT</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)):</span>
-        <span class="n">full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UNIT</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">SymmOp</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">full</span><span class="p">]</span></div>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">full</span> <span class="o">-</span> <span class="n">UNIT</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="n">full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UNIT</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">SymmOp</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">full</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="SpacegroupOperations"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupOperations">[docs]</a><span class="k">class</span> <span class="nc">SpacegroupOperations</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
@@ -1687,7 +1701,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
