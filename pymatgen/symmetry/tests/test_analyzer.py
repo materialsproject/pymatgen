@@ -249,13 +249,13 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         parser = CifParser(os.path.join(test_dir, 'orac_632475.cif'))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
-        prim = s.get_primitive_standard_structure()
-        self.assertAlmostEqual(prim.lattice.alpha, 90)
-        self.assertAlmostEqual(prim.lattice.beta, 90)
-        self.assertAlmostEqual(prim.lattice.gamma, 144.40557588533386)
-        self.assertAlmostEqual(prim.lattice.a, 3.1790663399999999)
-        self.assertAlmostEqual(prim.lattice.b, 3.5372412099999999)
-        self.assertAlmostEqual(prim.lattice.c, 9.9032878699999998)
+        conv = s.get_conventional_standard_structure()
+        self.assertAlmostEqual(conv.lattice.alpha, 90)
+        self.assertAlmostEqual(conv.lattice.beta, 90)
+        self.assertAlmostEqual(conv.lattice.gamma, 90)
+        self.assertAlmostEqual(conv.lattice.a, 3.1790663399999999)
+        self.assertAlmostEqual(conv.lattice.b, 3.5372412099999999)
+        self.assertAlmostEqual(conv.lattice.c, 9.9032878699999998)
 
         parser = CifParser(os.path.join(test_dir, 'monoc_1028.cif'))
         structure = parser.get_structures(False)[0]
