@@ -29,8 +29,8 @@ class TestPourbaixAnalyzer(unittest.TestCase):
         self.decomp_test = {"ZnHO[+]": {"ZnO(s)": 0.5, "Zn[2+]": 0.5}, "ZnO(aq)": {"ZnO(s)": 1.0}}
         self.pd = PourbaixDiagram(entries)
         self.analyzer = PourbaixAnalyzer(self.pd)
-        self.pd_multi = PourbaixDiagram(loadfn("multicomp_pbx.json"),
-                                        comp_dict = {"Ag": 0.5, "Te": 0.5})
+        multi_data = loadfn('multicomp_pbx.json')
+        self.pd_multi = PourbaixDiagram(multi_data, comp_dict = {"Ag": 0.5, "Te": 0.5})
         self.analyzer_multi = PourbaixAnalyzer(self.pd_multi)
 
     def test_get_facet_chempots(self):
@@ -49,7 +49,7 @@ class TestPourbaixAnalyzer(unittest.TestCase):
             e_above_hull = self.analyzer.get_e_above_hull(entry)
             self.assertAlmostEqual(e_above_hull, self.e_above_hull_test[entry.name], 3)
         # Test get_all_decomp_and_e_above_hull
-        te_entry = self.pd_multi._unprocessed_entries[3]
+        te_entry = self.pd_multi._unprocessed_entries[4]
         de, hull_e, entries = self.analyzer_multi.get_all_decomp_and_e_above_hull(te_entry)
         self.assertEqual(len(de), 7)
         self.assertEqual(len(hull_e), 7)
