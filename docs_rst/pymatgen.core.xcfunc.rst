@@ -1,5 +1,5 @@
-pymatgen.core.xcfunc module
-===========================
+pymatgen\.core\.xcfunc module
+=============================
 
 .. automodule:: pymatgen.core.xcfunc
     :members:

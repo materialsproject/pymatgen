@@ -1,11 +1,5 @@
-pymatgen.structure_prediction package
-=====================================
-
-Subpackages
------------
-
-.. toctree::
-
+pymatgen\.structure\_prediction package
+=======================================
 
 Submodules
 ----------

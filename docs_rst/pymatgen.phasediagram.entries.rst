@@ -1,5 +1,5 @@
-pymatgen.phasediagram.entries module
-====================================
+pymatgen\.phasediagram\.entries module
+======================================
 
 .. automodule:: pymatgen.phasediagram.entries
     :members:

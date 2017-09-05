@@ -1,5 +1,5 @@
-pymatgen.io.abinit.wrappers module
-==================================
+pymatgen\.io\.abinit\.wrappers module
+=====================================
 
 .. automodule:: pymatgen.io.abinit.wrappers
     :members:

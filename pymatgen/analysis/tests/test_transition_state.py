@@ -37,6 +37,8 @@ class NEBAnalysisTest(PymatgenTest):
         neb_dict = json.loads(json_data)
         neb_analysis1_from_json_data = NEBAnalysis.from_dict(neb_dict)
 
+        self.assertArrayAlmostEqual(neb_analysis1.energies[0], -255.97992669000001)
+        self.assertArrayAlmostEqual(neb_analysis1.energies[3], -255.84261996000001)
         self.assertArrayAlmostEqual(neb_analysis1.r, neb_analysis1_from_dict.r)
         self.assertArrayAlmostEqual(neb_analysis1.energies, neb_analysis1_from_dict.energies)
         self.assertArrayAlmostEqual(neb_analysis1.forces, neb_analysis1_from_dict.forces)

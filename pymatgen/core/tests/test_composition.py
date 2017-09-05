@@ -387,17 +387,12 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition("Fe4O5").oxi_state_guesses(),
                          [{"Fe": 2.5, "O": -2}])
 
-        # because pymatgen common oxidation states doesn't include V:3+,
-        # this doesn't work
         self.assertEqual(Composition("V2O3").oxi_state_guesses(),
-                         [])
+                         [{"V": 3, "O": -2}])
 
         # all_oxidation_states produces *many* possible responses
         self.assertEqual(len(Composition("MnO").oxi_state_guesses(
             all_oxi_states=True)), 4)
-
-        self.assertEqual(Composition("V2O3").oxi_state_guesses(
-            oxi_states_override={"V": [2, 3, 4, 5]}), [{"V": 3, "O": -2}])
 
         # can't balance b/c missing V4+
         self.assertEqual(Composition("VO2").oxi_state_guesses(
@@ -421,6 +416,18 @@ class CompositionTest(PymatgenTest):
             oxi_states_override={"V": [2, 3, 4, 5]}, target_charge=-2),
             [{"V": 5, "O": -2}])
 
+        # max_sites for very large composition - should timeout if incorrect
+        self.assertEqual(Composition("Li10000Fe10000P10000O40000").
+                         oxi_state_guesses(max_sites=7)[0],
+                         {"Li": 1, "Fe": 2, "P": 5, "O": -2})
+
+        # max_sites for very large composition - should timeout if incorrect
+        self.assertEqual(Composition("Li10000Fe10000P10000O40000").
+                         oxi_state_guesses(max_sites=-1)[0],
+                         {"Li": 1, "Fe": 2, "P": 5, "O": -2})
+
+        self.assertRaises(ValueError, Composition("V2O3").
+                          oxi_state_guesses, max_sites=1)
 
 class ChemicalPotentialTest(unittest.TestCase):
 

@@ -513,6 +513,12 @@ class Element(Enum):
         return tuple(self._data.get("Common oxidation states", list()))
 
     @property
+    def icsd_oxidation_states(self):
+        """Tuple of all oxidation states with at least 10 instances in
+        ICSD database AND at least 1% of entries for that element"""
+        return tuple(self._data.get("ICSD oxidation states", list()))
+
+    @property
     def full_electronic_structure(self):
         """
         Full electronic structure as tuple.

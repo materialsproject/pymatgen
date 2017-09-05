@@ -1,0 +1,589 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.analysis.surface_analysis &#8212; pymatgen 2017.9.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2017.9.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.surface_analysis</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">linregress</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">cm</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">Slab</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.wulff</span> <span class="k">import</span> <span class="n">WulffShape</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">MPRester</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">PhaseDiagram</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Richard Tran&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2014, The Materials Virtual Lab&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Richard Tran&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;rit001@eng.ucsd.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;8/24/17&quot;</span>
+
+
+<div class="viewcode-block" id="SurfaceEnergyAnalyzer"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">SurfaceEnergyAnalyzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class used for analyzing the surface energies of a material of a given</span>
+<span class="sd">        material_id. By default, this will use entries calculated from the</span>
+<span class="sd">        Materials Project to obtain chemical potential and bulk energy. As a</span>
+<span class="sd">        result, the difference in VASP parameters between the user&#39;s entry</span>
+<span class="sd">        (vasprun_dict) and the parameters used by Materials Project, may lead</span>
+<span class="sd">        to a rough estimate of the surface energy. For best results, it is</span>
+<span class="sd">        recommend that the user calculates all decomposition components first,</span>
+<span class="sd">        and insert the results into their own database as a pymatgen-db entry</span>
+<span class="sd">        and use those entries instead (custom_entries). In addition, this code</span>
+<span class="sd">        will only use one bulk entry to calculate surface energy. Ideally, to</span>
+<span class="sd">        get the most accurate surface energy, the user should compare their</span>
+<span class="sd">        slab energy to the energy of the oriented unit cell with both calculations</span>
+<span class="sd">        containing consistent k-points to avoid converegence problems as the</span>
+<span class="sd">        slab size is varied. See:</span>
+<span class="sd">            Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,</span>
+<span class="sd">                Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.</span>
+<span class="sd">        and</span>
+<span class="sd">            Rogal, J., &amp; Reuter, K. (2007). Ab Initio Atomistic Thermodynamics for</span>
+<span class="sd">                Surfaces : A Primer. Experiment, Modeling and Simulation of Gas-Surface</span>
+<span class="sd">                Interactions for Reactive Flows in Hypersonic Flights, 2–1 – 2–18.</span>
+
+<span class="sd">    .. attribute:: ref_element</span>
+
+<span class="sd">        All chemical potentials cna be written in terms of the range of chemical</span>
+<span class="sd">            potential of this element which will be used to calculate surface energy.</span>
+
+<span class="sd">    .. attribute:: mprester</span>
+
+<span class="sd">        Materials project rester for querying entries from the materials project.</span>
+<span class="sd">            Requires user MAPIKEY.</span>
+
+<span class="sd">    .. attribute:: ucell_entry</span>
+
+<span class="sd">        Materials Project entry of the material of the slab.</span>
+
+<span class="sd">    .. attribute:: x</span>
+
+<span class="sd">        Reduced amount composition of decomposed compound A in the bulk.</span>
+
+<span class="sd">    .. attribute:: y</span>
+
+<span class="sd">        Reduced amount composition of ref_element in the bulk.</span>
+
+<span class="sd">    .. attribute:: gbulk</span>
+
+<span class="sd">        Gibbs free energy of the bulk per formula unit</span>
+
+<span class="sd">    .. attribute:: chempot_range</span>
+
+<span class="sd">        List of the min and max chemical potential of ref_element.</span>
+
+<span class="sd">    .. attribute:: e_of_element</span>
+
+<span class="sd">        Energy per atom of ground state ref_element, eg. if ref_element=O,</span>
+<span class="sd">            than e_of_element=1/2*E_O2.</span>
+
+<span class="sd">    .. attribute:: vasprun_dict</span>
+
+<span class="sd">        Dictionary containing a list of Vaspruns for slab calculations as</span>
+<span class="sd">            items and the corresponding Miller index of the slab as the key</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">,</span> <span class="n">vasprun_dict</span><span class="p">,</span> <span class="n">ref_element</span><span class="p">,</span>
+                 <span class="n">exclude_ids</span><span class="o">=</span><span class="p">[],</span> <span class="n">custom_entries</span><span class="o">=</span><span class="p">[],</span> <span class="n">mapi_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Analyzes surface energies and Wulff shape of a particular</span>
+<span class="sd">            material using the chemical potential.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            material_id (str): Materials Project material_id (a string,</span>
+<span class="sd">                e.g., mp-1234).</span>
+<span class="sd">            vasprun_dict (dict): Dictionary containing a list of Vaspruns</span>
+<span class="sd">                for slab calculations as items and the corresponding Miller</span>
+<span class="sd">                index of the slab as the key.</span>
+<span class="sd">                eg. vasprun_dict = {(1,1,1): [vasprun_111_1, vasprun_111_2,</span>
+<span class="sd">                vasprun_111_3], (1,1,0): [vasprun_111_1, vasprun_111_2], ...}</span>
+<span class="sd">            element: element to be considered as independent</span>
+<span class="sd">                variables. E.g., if you want to show the stability</span>
+<span class="sd">                ranges of all Li-Co-O phases wrt to uLi</span>
+<span class="sd">            exclude_ids (list of material_ids): List of material_ids</span>
+<span class="sd">                to exclude when obtaining the decomposition components</span>
+<span class="sd">                to calculate the chemical potential</span>
+<span class="sd">            custom_entries (list of pymatgen-db type entries): List of</span>
+<span class="sd">                user specified pymatgen-db type entries to use in finding</span>
+<span class="sd">                decomposition components for the chemical potential</span>
+<span class="sd">            mapi_key (str): Materials Project API key for accessing the</span>
+<span class="sd">                MP database via MPRester</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ref_element</span> <span class="o">=</span> <span class="n">ref_element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mprester</span> <span class="o">=</span> <span class="n">MPRester</span><span class="p">(</span><span class="n">mapi_key</span><span class="p">)</span> <span class="k">if</span> <span class="n">mapi_key</span> <span class="k">else</span> <span class="n">MPRester</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">mprester</span><span class="o">.</span><span class="n">get_entry_by_material_id</span><span class="p">(</span><span class="n">material_id</span><span class="p">,</span>
+                                                   <span class="n">inc_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                   <span class="n">property_data</span><span class="o">=</span>
+                                                   <span class="p">[</span><span class="s2">&quot;formation_energy_per_atom&quot;</span><span class="p">])</span>
+        <span class="n">ucell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="o">.</span><span class="n">structure</span>
+
+        <span class="c1"># Get x and y, the number of species in a formula unit of the bulk</span>
+        <span class="n">reduced_comp</span> <span class="o">=</span> <span class="n">ucell</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reduced_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">y</span> <span class="o">=</span> <span class="n">reduced_comp</span><span class="p">[</span><span class="n">ucell</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">reduced_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_element</span> <span class="o">==</span> <span class="n">el</span><span class="p">:</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">reduced_comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">reduced_comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+
+        <span class="c1"># Calculate Gibbs free energy of the bulk per unit formula</span>
+        <span class="n">gbulk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="o">.</span><span class="n">energy</span> <span class="o">/</span>\
+                <span class="p">(</span><span class="nb">len</span><span class="p">([</span><span class="n">site</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">ucell</span>
+                      <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_element</span><span class="p">])</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span>
+
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">mprester</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">reduced_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                                                        <span class="n">property_data</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;e_above_hull&quot;</span><span class="p">,</span>
+                                                                       <span class="s2">&quot;material_id&quot;</span><span class="p">])</span>
+                   <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;e_above_hull&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span>
+                   <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;material_id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude_ids</span><span class="p">]</span> \
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">custom_entries</span> <span class="k">else</span> <span class="n">custom_entries</span>
+
+        <span class="n">pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+        <span class="n">chempot_ranges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_chempot_range_map</span><span class="p">([</span><span class="n">Element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_element</span><span class="p">)])</span>
+        <span class="c1"># If no chemical potential is found, we return u=0, eg.</span>
+        <span class="c1"># for a elemental system, the relative u of Cu for Cu is 0</span>
+        <span class="n">chempot_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">chempot_ranges</span><span class="p">[</span><span class="n">entry</span><span class="p">]</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">chempot_ranges</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                         <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span> <span class="o">==</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="o">.</span><span class="n">composition</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_coords</span> <span class="k">if</span> \
+            <span class="n">chempot_ranges</span> <span class="k">else</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="n">e_of_element</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">energy_per_atom</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span>
+                        <span class="n">entries</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="p">)</span>
+                        <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_element</span> <span class="o">+</span> <span class="s2">&quot;1&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gbulk</span> <span class="o">=</span> <span class="n">gbulk</span>
+        <span class="n">chempot_range</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chempot_range</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">chempot_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">chempot_range</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e_of_element</span> <span class="o">=</span> <span class="n">e_of_element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span> <span class="o">=</span> <span class="n">vasprun_dict</span>
+
+<div class="viewcode-block" id="SurfaceEnergyAnalyzer.calculate_gamma"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyAnalyzer.calculate_gamma">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vasprun</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the surface energy for a single slab.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            vasprun (Vasprun): A Vasprun object</span>
+
+<span class="sd">        Returns (list): The surface energy for the minimum/maximun</span>
+<span class="sd">            chemical potential and the second list gives the range</span>
+<span class="sd">            of the chemical potential</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">reduced_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="c1"># Get the composition in the slab</span>
+        <span class="n">slab</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">final_structure</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reduced_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">Ny</span> <span class="o">=</span> <span class="n">comp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span>
+            <span class="n">Nx</span> <span class="o">=</span> <span class="n">Ny</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">reduced_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_element</span> <span class="o">==</span> <span class="n">el</span><span class="p">:</span>
+                    <span class="n">Ny</span> <span class="o">=</span> <span class="n">comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">Nx</span> <span class="o">=</span> <span class="n">comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+
+        <span class="c1"># Calculate surface area</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="c1"># calculate the surface energy for the max and min chemical potential</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">A</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">vasprun</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">-</span> <span class="p">(</span><span class="n">Nx</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+                                 <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gbulk</span> <span class="o">-</span> <span class="p">(</span><span class="n">Ny</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">Nx</span><span class="p">)</span>
+                                 <span class="o">*</span> <span class="p">(</span><span class="n">delu</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_of_element</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">delu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SurfaceEnergyAnalyzer.wulff_shape_from_chempot"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyAnalyzer.wulff_shape_from_chempot">[docs]</a>    <span class="k">def</span> <span class="nf">wulff_shape_from_chempot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chempot</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to get the Wulff shape at a specific chemical potential.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            chempot (float): The chemical potential the Wulff Shape exist in.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check if the user provided chemical potential is within the</span>
+        <span class="c1"># predetermine range of chemical potential. If not, raise a warning</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">chempot</span> <span class="o">&gt;=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The provided chemical potential is outside the range &quot;</span>
+                          <span class="s2">&quot;of chemical potential (</span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">). The resulting Wulff &quot;</span>
+                          <span class="s2">&quot;shape might not be reasonable.&quot;</span> <span class="o">%</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">),</span>
+                                                             <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">)))</span>
+
+        <span class="n">latt</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span>\
+            <span class="n">get_conventional_standard_structure</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span>
+
+        <span class="n">miller_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">e_surf_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">miller_list</span><span class="p">:</span>
+            <span class="c1"># At each possible configuration, we calculate surface energy as a</span>
+            <span class="c1"># function of u and take the lowest surface energy (corresponds to</span>
+            <span class="c1"># the most stable slab termination at that particular u)</span>
+            <span class="n">surf_e_range_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate_gamma</span><span class="p">(</span><span class="n">vasprun</span><span class="p">)</span>
+                                 <span class="k">for</span> <span class="n">vasprun</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]]</span>
+            <span class="n">e_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">e_range</span> <span class="ow">in</span> <span class="n">surf_e_range_list</span><span class="p">:</span>
+                <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slope_and_intercept</span><span class="p">(</span><span class="n">e_range</span><span class="p">)</span>
+                <span class="n">e_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slope</span> <span class="o">*</span> <span class="n">chempot</span> <span class="o">+</span> <span class="n">intercept</span><span class="p">)</span>
+            <span class="n">e_surf_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">e_list</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">WulffShape</span><span class="p">(</span><span class="n">latt</span><span class="p">,</span> <span class="n">miller_list</span><span class="p">,</span> <span class="n">e_surf_list</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SurfaceEnergyAnalyzer.wulff_shape_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyAnalyzer.wulff_shape_dict">[docs]</a>    <span class="k">def</span> <span class="nf">wulff_shape_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">at_intersections</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        As the surface energy is a function of chemical potential, so too is the</span>
+<span class="sd">            Wulff shape. This methods generates a dictionary of Wulff shapes at</span>
+<span class="sd">            certain chemical potentials where a facet goes through a transition.</span>
+<span class="sd">            Returns a dict, eg. {chempot1: WulffShape1, chempot2: WulffShape2}</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            symprec (float): for recp_operation, default is 1e-5.</span>
+<span class="sd">            at_intersections (bool): Whether to generate a Wulff shape for each</span>
+<span class="sd">                intersection of surface energy for a specific facet (eg. at the</span>
+<span class="sd">                point where a (111) stoichiometric surface energy plot intersects</span>
+<span class="sd">                with the (111) nonstoichiometric plot) or to just generate two</span>
+<span class="sd">                Wulff shapes, one at the min and max chemical potential.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># First lets get the Wulff shape at the</span>
+        <span class="c1"># minimum and maximum chemical potential</span>
+        <span class="n">wulff_dict</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> \
+                          <span class="bp">self</span><span class="o">.</span><span class="n">wulff_shape_from_chempot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                        <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">),</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> \
+                          <span class="bp">self</span><span class="o">.</span><span class="n">wulff_shape_from_chempot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                        <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)}</span>
+
+        <span class="c1"># Now we get the Wulff shape each time a facet changes its configuration</span>
+        <span class="c1"># (ie, adsorption coverage, stoichiometric to nonstoichiometric, etc)</span>
+        <span class="k">if</span> <span class="n">at_intersections</span><span class="p">:</span>
+            <span class="c1"># Get all values of chemical potential where an intersection occurs</span>
+            <span class="n">u_at_intersection</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_intersections</span><span class="p">(</span><span class="n">hkl</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_intersections</span><span class="p">(</span><span class="n">hkl</span><span class="p">)]</span>
+            <span class="c1"># Get a Wulff shape for each intersection. The change in the Wulff shape</span>
+            <span class="c1"># will vary if the rate of change in surface energy for any facet changes</span>
+            <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">u_at_intersection</span><span class="p">:</span>
+                <span class="n">wulff_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wulff_shape_from_chempot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wulff_dict</span></div>
+
+<div class="viewcode-block" id="SurfaceEnergyAnalyzer.get_slope_and_intercept"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyAnalyzer.get_slope_and_intercept">[docs]</a>    <span class="k">def</span> <span class="nf">get_slope_and_intercept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surf_e_pair</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the slope and intercept of the surface</span>
+<span class="sd">            energy vs chemical potential line</span>
+<span class="sd">        Args:</span>
+<span class="sd">            surf_e_pair ([e_at_min_u, e_at_max_u]): The surface energy at the</span>
+<span class="sd">                minimum chemical potential and maximum chemical potential</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="n">r_value</span><span class="p">,</span> <span class="n">p_value</span><span class="p">,</span> <span class="n">std_err</span> <span class="o">=</span> \
+            <span class="n">linregress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">,</span> <span class="n">surf_e_pair</span><span class="p">)</span>
+        <span class="n">slope</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">slope</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;nan&#39;</span> <span class="k">else</span> <span class="n">slope</span>
+        <span class="n">intercept</span> <span class="o">=</span> <span class="n">surf_e_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">intercept</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;nan&#39;</span> <span class="k">else</span> <span class="n">intercept</span>
+        <span class="k">return</span> <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span></div>
+
+<div class="viewcode-block" id="SurfaceEnergyAnalyzer.get_intersections"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyAnalyzer.get_intersections">[docs]</a>    <span class="k">def</span> <span class="nf">get_intersections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">miller_index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a all intersections for a specific facet. Useful for</span>
+<span class="sd">            finding when the configuration of a particular facet changes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            miller_index ((h, k, l)): Miller index of the facet we</span>
+<span class="sd">                are interested in</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># First lets calculate the range of surface</span>
+        <span class="c1"># energies for all terminations of a specific facet</span>
+        <span class="n">all_se_ranges</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate_gamma</span><span class="p">(</span><span class="n">vasprun</span><span class="p">)</span> <span class="k">for</span> <span class="n">vasprun</span>
+                         <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="p">[</span><span class="n">miller_index</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_se_ranges</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="c1"># Now get all possible intersection coordinates for each pair of lines</span>
+        <span class="n">intersections</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">pair_ranges</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">all_se_ranges</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">slope1</span><span class="p">,</span> <span class="n">intercept1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slope_and_intercept</span><span class="p">(</span><span class="n">pair_ranges</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">slope2</span><span class="p">,</span> <span class="n">intercept2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slope_and_intercept</span><span class="p">(</span><span class="n">pair_ranges</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="c1"># Calculate the intersection coordinates</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept1</span><span class="o">-</span><span class="n">intercept2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">slope2</span><span class="o">-</span><span class="n">slope1</span><span class="p">)</span>
+            <span class="c1"># if the intersection is beyond the chemical potential</span>
+            <span class="c1"># range or if the lines are parallel, we ignore it</span>
+            <span class="k">if</span> <span class="n">slope1</span><span class="o">-</span><span class="n">slope2</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">)</span> \
+                    <span class="ow">or</span> <span class="n">u</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">intersections</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">slope1</span> <span class="o">*</span> <span class="n">u</span> <span class="o">+</span> <span class="n">intercept1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">intersections</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">ints</span><span class="p">:</span> <span class="n">ints</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="SurfaceEnergyAnalyzer.area_frac_vs_chempot_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyAnalyzer.area_frac_vs_chempot_plot">[docs]</a>    <span class="k">def</span> <span class="nf">area_frac_vs_chempot_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">,</span> <span class="n">at_intersections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">increments</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the change in the area contribution of</span>
+<span class="sd">        each facet as a function of chemical potential.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            cmap (cm): A matplotlib colormap object, defaults to jet.</span>
+<span class="sd">            at_intersections (bool): Whether to generate a Wulff shape for each</span>
+<span class="sd">                intersection of surface energy for a specific facet (eg. at the</span>
+<span class="sd">                point where a (111) stoichiometric surface energy plot intersects</span>
+<span class="sd">                with the (111) nonstoichiometric plot) or to just generate two</span>
+<span class="sd">                Wulff shapes, one at the min and max chemical potential.</span>
+<span class="sd">            increments (bool): Number of data points between min/max or point</span>
+<span class="sd">                of intersection. Defaults to 5 points.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Choose unique colors for each facet</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()))]</span>
+
+        <span class="c1"># Get all points of min/max chempot and intersections</span>
+        <span class="n">chempot_intersections</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">chempot_intersections</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">chempot_intersections</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">ints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ints</span> <span class="ow">in</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">get_intersections</span><span class="p">(</span><span class="n">hkl</span><span class="p">)])</span>
+        <span class="n">chempot_intersections</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">chempot_intersections</span><span class="p">)</span>
+
+        <span class="c1"># Get all chempots</span>
+        <span class="k">if</span> <span class="n">at_intersections</span><span class="p">:</span>
+            <span class="n">all_chempots</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">intersection</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chempot_intersections</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">chempot_intersections</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">all_chempots</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">intersection</span><span class="p">,</span>
+                                                    <span class="n">chempot_intersections</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span>
+                                                    <span class="n">increments</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">all_chempots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">),</span>
+                                       <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">),</span> <span class="n">increments</span><span class="p">)</span>
+
+        <span class="c1"># initialize a dictionary of lists of fractional areas for each hkl</span>
+        <span class="n">hkl_area_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">hkl_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Get plot points for each Miller index</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">all_chempots</span><span class="p">:</span>
+            <span class="n">wulffshape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wulff_shape_from_chempot</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">wulffshape</span><span class="o">.</span><span class="n">area_fraction_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">hkl_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wulffshape</span><span class="o">.</span><span class="n">area_fraction_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">])</span>
+
+        <span class="c1"># Plot the area fraction vs chemical potential for each facet</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="c1"># Ignore any facets that never show up on the</span>
+            <span class="c1"># Wulff shape regardless of chemical potential</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">a</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">hkl_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]]):</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">all_chempots</span><span class="p">,</span> <span class="n">hkl_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">],</span>
+                         <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">hkl</span><span class="p">))</span>
+
+        <span class="c1"># Make the figure look nice</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Fractional area $A^</span><span class="si">{Wulff}</span><span class="s2">_</span><span class="si">{hkl}</span><span class="s2">/A^</span><span class="si">{Wulff}</span><span class="s2">$&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Chemical potential $\Delta\mu_{</span><span class="si">%s</span><span class="s2">}$ (eV)&quot;</span> <span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_element</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.01</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">plt</span></div>
+
+<div class="viewcode-block" id="SurfaceEnergyAnalyzer.chempot_vs_gamma_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyAnalyzer.chempot_vs_gamma_plot">[docs]</a>    <span class="k">def</span> <span class="nf">chempot_vs_gamma_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">,</span> <span class="n">show_unstable_points</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the surface energy of all facets as a function of chemical potential.</span>
+<span class="sd">            Each facet will be associated with its own distinct colors. Dashed lines</span>
+<span class="sd">            will represent stoichiometries different from that of the mpid&#39;s compound.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cmap (cm): A matplotlib colormap object, defaults to jet.</span>
+<span class="sd">            show_unstable_points (bool): For each facet, there may be various</span>
+<span class="sd">                terminations or stoichiometries and the relative stability of</span>
+<span class="sd">                these different slabs may change with chemical potential. This</span>
+<span class="sd">                option will only plot the most stable surface energy for a</span>
+<span class="sd">                given chemical potential.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">()</span>
+        <span class="c1"># Choose unique colors for each facet</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">vaspruns</span><span class="p">)</span> <span class="k">for</span> <span class="n">vaspruns</span> <span class="ow">in</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]))]</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">already_labelled</span><span class="p">,</span> <span class="n">colors</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">vasprun</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasprun_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]:</span>
+                <span class="n">slab</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">final_structure</span>
+                <span class="c1"># Generate a label for the type of slab</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">hkl</span><span class="p">)</span>
+                <span class="c1"># use dashed lines for slabs that are not stoichiometric</span>
+                <span class="c1"># wrt bulk. Label with formula if nonstoichiometric</span>
+                <span class="k">if</span> <span class="n">slab</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span> <span class="o">!=</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="p">:</span>
+                    <span class="n">mark</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span>
+                    <span class="n">label</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">slab</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mark</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
+
+                <span class="c1"># label the chemical environment at the surface if different from the bulk.</span>
+                <span class="c1"># First get the surface sites, then get the reduced composition at the surface</span>
+                <span class="c1"># s = vasprun.final_structure</span>
+                <span class="c1"># ucell = SpacegroupAnalyzer(self.ucell_entry.structure).\</span>
+                <span class="c1">#     get_conventional_standard_structure()</span>
+                <span class="c1"># slab = Slab(s.lattice, s.species, s.frac_coords, hkl, ucell, 0, None)</span>
+                <span class="c1"># surf_comp = slab.surface_composition()</span>
+                <span class="c1">#</span>
+                <span class="c1"># if surf_comp.reduced_composition != ucell.composition.reduced_composition:</span>
+                <span class="c1">#     label += &quot; %s&quot; %(surf_comp.reduced_composition)</span>
+
+                <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">already_labelled</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">already_labelled</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">label</span><span class="p">)]</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">already_labelled</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">cmap</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+                <span class="n">se_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_gamma</span><span class="p">(</span><span class="n">vasprun</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">,</span> <span class="n">se_range</span><span class="p">,</span> <span class="n">mark</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Make the figure look nice</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+        <span class="n">ylim</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chempot_range</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Surface energy (eV/$\AA$)&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Chemical potential $\Delta\mu_{</span><span class="si">%s</span><span class="s2">}$ (eV)&quot;</span> <span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_element</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.01</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">plt</span></div>
+
+<div class="viewcode-block" id="SurfaceEnergyAnalyzer.broken_bond_vs_gamma"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyAnalyzer.broken_bond_vs_gamma">[docs]</a>    <span class="k">def</span> <span class="nf">broken_bond_vs_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

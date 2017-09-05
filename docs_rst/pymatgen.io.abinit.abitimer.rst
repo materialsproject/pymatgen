@@ -1,5 +1,5 @@
-pymatgen.io.abinit.abitimer module
-==================================
+pymatgen\.io\.abinit\.abitimer module
+=====================================
 
 .. automodule:: pymatgen.io.abinit.abitimer
     :members:

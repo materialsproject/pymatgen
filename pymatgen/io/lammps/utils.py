@@ -8,10 +8,10 @@ from __future__ import division, print_function, unicode_literals, absolute_impo
 This module defines utility classes and functions.
 """
 
-import six
-from io import open
 import os
+import six
 import tempfile
+from io import open
 from subprocess import Popen, PIPE
 
 import numpy as np
@@ -20,13 +20,13 @@ try:
     import pybel as pb
 except ImportError:
     pb = None
+
 from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import get_angle
 from pymatgen.io.babel import BabelMolAdaptor
 
 from monty.os.path import which
-from monty.dev import requires
 from monty.tempfile import ScratchDir
 
 __author__ = 'Kiran Mathew, Brandon Wood, Michael Humbert'
@@ -90,6 +90,7 @@ class Polymer(object):
         end_mon_vector = end_monomer.cart_coords[e_tail] - \
                          end_monomer.cart_coords[e_head]
         self._create(end_monomer, end_mon_vector)
+        self.molecule = Molecule.from_sites(self.molecule.sites)
 
     def _create(self, monomer, mon_vector):
         """
@@ -173,16 +174,11 @@ class PackmolRunner(object):
     molecules into a one single unit.
     """
 
-    @requires(which('packmol'),
-              "PackmolRunner requires the executable 'packmol' to be in "
-              "the path. Please download packmol from "
-              "https://github.com/leandromartinez98/packmol "
-              "and follow the instructions in the README to compile. "
-              "Don't forget to add the packmol binary to your path")
     def __init__(self, mols, param_list, input_file="pack.inp",
                  tolerance=2.0, filetype="xyz",
                  control_params={"maxit": 20, "nloop": 600},
-                 auto_box=True, output_file="packed.xyz"):
+                 auto_box=True, output_file="packed.xyz",
+                 bin="packmol"):
         """
         Args:
               mols:
@@ -204,6 +200,14 @@ class PackmolRunner(object):
                     output file name. The extension will be adjusted
                     according to the filetype
         """
+        self.packmol_bin = bin.split()
+        if not which(self.packmol_bin[-1]):
+            raise RuntimeError(
+                "PackmolRunner requires the executable 'packmol' to be in "
+                "the path. Please download packmol from "
+                "https://github.com/leandromartinez98/packmol "
+                "and follow the instructions in the README to compile. "
+                "Don't forget to add the packmol binary to your path")
         self.mols = mols
         self.param_list = param_list
         self.input_file = input_file
@@ -285,7 +289,7 @@ class PackmolRunner(object):
                     inp.write('  {} {}\n'.format(k, self._format_param_val(v)))
                 inp.write('end structure\n')
 
-    def run(self, copy_to_current_on_exit=False):
+    def run(self, copy_to_current_on_exit=False, site_property=None):
         """
         Write the input file to the scratch directory, run packmol and return
         the packed molecule.
@@ -294,6 +298,8 @@ class PackmolRunner(object):
             copy_to_current_on_exit (bool): Whether or not to copy the packmol
                 input/output files from the scratch directory to the current
                 directory.
+            site_property (str): if set then the specified site property
+                for the the final packed molecule will be restored.
 
         Returns:
                 Molecule object
@@ -301,18 +307,19 @@ class PackmolRunner(object):
         scratch = tempfile.gettempdir()
         with ScratchDir(scratch, copy_to_current_on_exit=copy_to_current_on_exit) as scratch_dir:
             self._write_input(input_dir=scratch_dir)
-            packmol_bin = ['packmol']
             packmol_input = open(os.path.join(scratch_dir, self.input_file), 'r')
-            p = Popen(packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE)
-            p.wait()
+            p = Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE)
             (stdout, stderr) = p.communicate()
             output_file = os.path.join(scratch_dir, self.control_params["output"])
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file,
                                                        self.control_params["filetype"])
+                packed_mol = packed_mol.pymatgen_mol
                 print("packed molecule written to {}".format(
                     self.control_params["output"]))
-                return packed_mol.pymatgen_mol
+                if site_property:
+                    packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
+                return packed_mol
             else:
                 print("Packmol execution failed")
                 print(stdout, stderr)
@@ -461,7 +468,6 @@ class LammpsRunner(object):
         lammps_cmd = self.lammps_bin + ['-in', self.input_filename]
         print("Running: {}".format(" ".join(lammps_cmd)))
         p = Popen(lammps_cmd, stdout=PIPE, stderr=PIPE)
-        p.wait()
         (stdout, stderr) = p.communicate()
         return stdout, stderr
 

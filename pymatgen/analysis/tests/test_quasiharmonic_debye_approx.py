@@ -81,3 +81,51 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
     def test_vibrational_free_energy(self):
         A = self.qhda.vibrational_free_energy(self.T, self.opt_vol)
         np.testing.assert_almost_equal(A, 0.494687, 3)
+
+class TestAnharmonicQuasiharmociDebyeApprox(unittest.TestCase):
+
+    def setUp(self):
+        struct = Structure.from_str("""FCC Al
+1.0
+2.473329 0.000000 1.427977
+0.824443 2.331877 1.427977
+0.000000 0.000000 2.855955
+Al
+1
+direct
+0.000000 0.000000 0.000000 Al""", fmt='POSCAR')
+
+        self.energies = [-3.69150886, -3.70788383, -3.71997361, -3.72522301,
+                         -3.73569569, -3.73649743, -3.74054982]
+        self.volumes = [14.824542034870653, 18.118887714656875, 15.373596786943025,
+                        17.569833126580278, 15.92265868064787, 17.02077912220064,
+                        16.471717630914863]
+        self.eos = "vinet"
+        self.T = 500
+        self.qhda = QuasiharmonicDebyeApprox(self.energies, self.volumes, struct, t_min=self.T,
+                                             t_max=self.T, eos=self.eos, anharmonic_contribution=True)
+        self.opt_vol = 17.216094889116807
+
+    def test_optimum_volume(self):
+        opt_vol = self.qhda.optimum_volumes[0]
+        np.testing.assert_almost_equal(opt_vol, self.opt_vol, 3)
+
+    def test_debye_temperature(self):
+        theta = self.qhda.debye_temperature(self.opt_vol)
+        np.testing.assert_approx_equal(theta, 601.239096, 4 )
+
+    def test_gruneisen_paramter(self):
+        gamma = self.qhda.gruneisen_parameter(0, self.qhda.ev_eos_fit.v0)
+        np.testing.assert_almost_equal(gamma, 2.188302, 3)
+
+    def test_thermal_conductivity(self):
+        kappa = self.qhda.thermal_conductivity(self.T, self.opt_vol)
+        np.testing.assert_almost_equal(kappa, 21.810997, 1)
+
+    def test_vibrational_internal_energy(self):
+        u = self.qhda.vibrational_internal_energy(self.T, self.opt_vol)
+        np.testing.assert_almost_equal(u, 0.13845, 3)
+
+    def test_vibrational_free_energy(self):
+        A = self.qhda.vibrational_free_energy(self.T, self.opt_vol)
+        np.testing.assert_almost_equal(A, -0.014620, 3)

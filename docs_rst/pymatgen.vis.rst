@@ -1,5 +1,5 @@
-pymatgen.vis package
-====================
+pymatgen\.vis package
+=====================
 
 Subpackages
 -----------
@@ -12,6 +12,7 @@ Submodules
 
 .. toctree::
 
+   pymatgen.vis.plotters
    pymatgen.vis.structure_chemview
    pymatgen.vis.structure_vtk
 
