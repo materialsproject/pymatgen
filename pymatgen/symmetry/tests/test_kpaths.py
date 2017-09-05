@@ -70,7 +70,7 @@ class HighSymmKpathTest(PymatgenTest):
         self.assertAlmostEqual(kpoints['X'][1], 0.26217672)
         self.assertAlmostEqual(kpoints['X'][2], 0.00000000)
 
-        self.assertAlmostEqual(kpoints['X_1'][0], -0.25824996)
+        self.assertAlmostEqual(kpoints['X_1'][0], -0.26217672)
         self.assertAlmostEqual(kpoints['X_1'][1], 0.73782328)
         self.assertAlmostEqual(kpoints['X_1'][2], 0.00000000)
 
