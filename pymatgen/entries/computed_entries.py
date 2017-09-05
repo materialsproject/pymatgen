@@ -74,6 +74,10 @@ class ComputedEntry(MSONable):
         self.attribute = attribute
 
     @property
+    def is_element(self):
+        return self.composition.num_atoms == 1
+
+    @property
     def energy(self):
         """
         Returns the *corrected* energy of the entry.
