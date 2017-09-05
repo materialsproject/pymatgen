@@ -51,7 +51,7 @@ class PourbaixEntry(MSONable):
             self.entry = entry
             self.conc = 1.0e-6
             self.phase_type = "Ion"
-            self.charge = entry.composition.charge
+            self.charge = entry.ion.charge
         else:
             self.entry = entry
             self.conc = 1.0
@@ -233,6 +233,7 @@ class MultiEntry(PourbaixEntry):
         self.nM = 0.0
         self.name = ""
         self.entry_id = list()
+        self.total_composition = Composition()
         for w, e in zip(self.weights, entry_list):
             self.uncorrected_energy += w * \
                 e.uncorrected_energy
@@ -243,6 +244,7 @@ class MultiEntry(PourbaixEntry):
             self.nM += w * e.nM
             self.name += e.name + " + "
             self.entry_id.append(e.entry_id)
+            self.total_composition += w * e.composition
         self.name = self.name[:-3]
 
     @property
@@ -272,6 +274,10 @@ class MultiEntry(PourbaixEntry):
     @property
     def phases(self):
         return [e.phase_type for e in self.entrylist]
+
+    @property
+    def composition(self):
+        return self.total_composition
 
     def __str__(self):
         return self.__repr__()
@@ -303,21 +309,23 @@ class IonEntry(PDEntry):
     """
     def __init__(self, ion, energy, name=None):
         self.energy = energy
-        self.composition = ion
-        self.name = name if name else self.composition.reduced_formula
+        self.ion = ion
+        self.composition = ion.composition
+        self.name = name if name else self.ion.reduced_formula
 
     @classmethod
     def from_dict(cls, d):
         """
         Returns an IonEntry object from a dict.
         """
-        return IonEntry(Ion.from_dict(d["composition"]), d["energy"])
+        return IonEntry(Ion.from_dict(d["ion"]), d["energy"], d.get("name", None))
 
     def as_dict(self):
         """
         Creates a dict of composition, energy, and ion name
         """
-        d = {"composition": self.composition.as_dict(), "energy": self.energy}
+        d = {"ion": self.ion.as_dict(), "energy": self.energy, 
+             "name": self.name}
         return d
 
     @property
