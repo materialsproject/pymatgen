@@ -240,12 +240,13 @@ class PourbaixAnalyzer(object):
         for all the multi-entries which have the "material" as the only solid.  
         
         Args:
-            material: Materials Project material-id 
+            single_entry: single entry for which to find all of the
+                decompositions
 
         Returns:
             (decomp_entries, hull_energies, decomp_species, entries)
-            for all multi-entries have the "material" as the only solid
-            species
+            for all multi_entries containing the single_entry as the
+            only solid
         """
         decomp_entries, hull_energies, decomp_species, entries = [], [], [], []
         
