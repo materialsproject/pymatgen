@@ -61,11 +61,8 @@ class StructureGraph(MSONable):
         edges of what lattice image the edge belongs to.
 
         :param *args: same as in :class: `pymatgen.core.Structure`
-        :param graph_data: dict containing graph information, not
-        intended to be constructed manually, contains keys
-        "graph_data", "edge_data" (NetworkX 'dict_of_dicts' format),
-         and "node_data"
-        :param **kwargs: same as in :Class: `pymatgen.core.Structure`
+        :param graph_data: dict containing graph information in
+        dict format, not intended to be constructed manually
         """
 
         self.structure = structure
@@ -110,10 +107,6 @@ class StructureGraph(MSONable):
                                 edge_weight_units=edge_weight_units,
                                 name=name)
         graph.add_nodes_from(range(len(structure)))
-
-        for n in graph:
-            # add species name to graph, useful for visualization
-            graph.node[n]['name'] = str(structure[n].specie)
 
         graph_data = json_graph.adjacency_data(graph)
 
@@ -211,6 +204,9 @@ class StructureGraph(MSONable):
             from_jimage = np.subtract(from_jimage, shift)
             to_jimage = np.subtract(to_jimage, shift)
 
+        # automatic detection of to_jimage if user doesn't specify
+        # will try and detect all equivalent images and add multiple
+        # edges if appropriate
         if to_jimage is None:
             # assume we want the closest site
             warnings.warn("Please specify to_jimage to be unambiguous, "
@@ -353,12 +349,11 @@ class StructureGraph(MSONable):
             raise RuntimeError("StructureGraph graph drawing requires "
                                "GraphViz binaries to be in the path.")
 
-        # Developer note: cannot use matplotlib-based
-        # plotting since it does not handle MultiGraphs well
-        # and can give misleading results. Also, drawing
-        # graphs with matplotlib is a bit of a hack, using
-        # a dedicated tool like GraphViz allows for much
-        # easier control over graph appearance.
+        # Developer note: NetworkX also has methods for drawing
+        # graphs using matplotlib, these also work here. However,
+        # a dedicated tool like GraphViz allows for much easier
+        # control over graph appearance and also correctly displays
+        # mutli-graphs (matplotlib can superimpose multiple edges).
 
         g = self.graph.copy()
 
@@ -371,7 +366,7 @@ class StructureGraph(MSONable):
         for n in g.nodes():
 
             # get label by species name
-            label = "{}({})".format(g.node[n]['name'], n) if node_labels else ""
+            label = "{}({})".format(str(self.structure[n].specie), n) if node_labels else ""
 
             # use standard color scheme for nodes
             c = EL_COLORS[color_scheme].get(str(self.structure[n].specie.symbol), [0, 0, 0])
@@ -485,13 +480,22 @@ class StructureGraph(MSONable):
         :return:
         """
 
-        # code adapted from Structure.__mul__
-
         # TODO: faster implementation, initial implementation for correctness not speed
+        
+        # Developer note: a different approach was also trialed, using
+        # a simple Graph (instead of MultiDiGraph), with node indices
+        # representing both site index and periodic image. Here, the
+        # number of nodes != number of sites in the Structure. This
+        # approach has many benefits, but made it more difficult to
+        # keep the graph in sync with its corresponding Structure.
 
+        # code adapted from Structure.__mul__
         scale_matrix = np.array(scaling_matrix, np.int16)
         if scale_matrix.shape != (3, 3):
             scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
+        else:
+            # TODO: test __mul__ with full 3x3 scaling matrices 
+            warnings.warn("Not robustly tested with full 3x3 scaling matrices yet.")
         new_lattice = Lattice(np.dot(scale_matrix, self.structure.lattice.matrix))
 
         f_lat = lattice_points_in_supercell(scale_matrix)
@@ -547,14 +551,14 @@ class StructureGraph(MSONable):
                 v_image_frac = np.add(orig_frac_coords[v], to_jimage)
                 v_frac = orig_frac_coords[v]
 
-                # using the position of node u as a reference,
+                # using the position of node v as a reference,
                 # get relative Cartesian co-ordinates of where
                 # atoms defined by edge are expected to be
                 v_image_cart = orig_lattice.get_cartesian_coords(v_image_frac)
                 v_cart = orig_lattice.get_cartesian_coords(v_frac)
                 v_rel = np.subtract(v_image_cart, v_cart)
 
-                # now retrieve position of node u (or v) in
+                # now retrieve position of node v in
                 # new supercell, and get absolute Cartesian
                 # co-ordinates of where atoms defined by edge
                 # are expected to be
