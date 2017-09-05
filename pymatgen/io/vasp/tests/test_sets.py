@@ -21,23 +21,22 @@ dec = MontyDecoder()
 
 
 class MITMPRelaxSetTest(unittest.TestCase):
-
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         if "PMG_VASP_PSP_DIR" not in os.environ:
             os.environ["PMG_VASP_PSP_DIR"] = test_dir
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        self.structure = poscar.structure
-        self.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        self.lattice = Lattice(
+        cls.structure = poscar.structure
+        cls.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+        cls.lattice = Lattice(
             [[3.8401979337, 0.00, 0.00],
              [1.9200989668, 3.3257101909, 0.00],
              [0.00, -2.2171384943, 3.1355090603]])
 
-        self.mitset = MITRelaxSet(self.structure)
-        self.mitset_unsorted = MITRelaxSet(self.structure, sort_structure=False)
-        self.mpset = MPRelaxSet(self.structure)
+        cls.mitset = MITRelaxSet(cls.structure)
+        cls.mitset_unsorted = MITRelaxSet(cls.structure, sort_structure=False)
+        cls.mpset = MPRelaxSet(cls.structure)
 
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)
@@ -70,7 +69,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(p.functional, 'LDA')
 
     def test_nelect(self):
-        coords = [[0]*3, [0.5]*3, [0.75]*3]
+        coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
         s = Structure(lattice, ['Si', 'Si', 'Fe'], coords)
         self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
@@ -97,10 +96,10 @@ class MITMPRelaxSetTest(unittest.TestCase):
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
 
-        #Silicon structure for testing.
+        # Silicon structure for testing.
         latt = Lattice(np.array([[3.8401979337, 0.00, 0.00],
-                              [1.9200989668, 3.3257101909, 0.00],
-                              [0.00, -2.2171384943, 3.1355090603]]))
+                                 [1.9200989668, 3.3257101909, 0.00],
+                                 [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(latt, [si, si], coords)
         incar = MPRelaxSet(struct).incar
         self.assertNotIn("LDAU", incar)
@@ -116,7 +115,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         incar = MPRelaxSet(struct).incar
         self.assertNotIn('LDAU', incar)
 
-        #check fluorides
+        # check fluorides
         struct = Structure(lattice, ["Fe", "F"], coords)
         incar = MPRelaxSet(struct).incar
         self.assertEqual(incar['LDAUU'], [5.3, 0])
@@ -126,7 +125,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         incar = MITRelaxSet(struct).incar
         self.assertEqual(incar['LDAUU'], [4.0, 0])
 
-        #Make sure this works with species.
+        # Make sure this works with species.
         struct = Structure(lattice, ["Fe2+", "O2-"], coords)
         incar = MPRelaxSet(struct).incar
         self.assertEqual(incar['LDAUU'], [5.3, 0])
@@ -144,17 +143,17 @@ class MITMPRelaxSetTest(unittest.TestCase):
         incar = MPRelaxSet(struct).incar
         self.assertEqual(incar['MAGMOM'], [5, 4.1])
 
-
         struct = Structure(lattice, ["Mn3+", "Mn4+"], coords)
         incar = MITRelaxSet(struct).incar
         self.assertEqual(incar['MAGMOM'], [4, 3])
 
         userset = MPRelaxSet(struct,
-            user_incar_settings={'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
-        )
+                             user_incar_settings={
+                                 'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
+                             )
         self.assertEqual(userset.incar['MAGMOM'], [100, 0.6])
 
-        #sulfide vs sulfate test
+        # sulfide vs sulfate test
 
         coords = list()
         coords.append([0, 0, 0])
@@ -174,15 +173,16 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
         # Make sure Matproject sulfates are ok.
         self.assertEqual(MPRelaxSet(struct).incar['LDAUU'], [5.3, 0, 0])
-        
-        #test for default LDAUU value
-        
+
+        # test for default LDAUU value
+
         userset_ldauu_fallback = MPRelaxSet(struct,
-            user_incar_settings={'LDAUU': {'Fe': 5.0, 'S': 0}}
-        )
+                                            user_incar_settings={
+                                                'LDAUU': {'Fe': 5.0, 'S': 0}}
+                                            )
         self.assertEqual(userset_ldauu_fallback.incar['LDAUU'], [5.0, 0, 0])
-        
-        #test that van-der-Waals parameters are parsed correctly
+
+        # test that van-der-Waals parameters are parsed correctly
         incar = MITRelaxSet(struct, vdw='optB86b').incar
         self.assertEqual(incar['GGA'], 'Mk')
         self.assertEqual(incar['LUSE_VDW'], True)
@@ -199,7 +199,8 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         kpoints_obj = Kpoints(kpts=[[3, 3, 3]])
-        kpoints_return = MPRelaxSet(self.structure, user_kpoints_settings=kpoints_obj).kpoints
+        kpoints_return = MPRelaxSet(self.structure,
+                                    user_kpoints_settings=kpoints_obj).kpoints
         self.assertEqual(kpoints_return.kpts, [[3, 3, 3]])
 
         kpoints = self.mitset.kpoints
@@ -225,8 +226,9 @@ class MITMPRelaxSetTest(unittest.TestCase):
         mitset = MITRelaxSet(self.structure)
         mpset = MPRelaxSet(self.structure)
         mpuserset = MPRelaxSet(self.structure,
-            user_incar_settings={'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
-        )
+                               user_incar_settings={
+                                   'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
+                               )
 
         d = mitset.as_dict()
         v = dec.process_decoded(d)
@@ -238,7 +240,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
         d = mpuserset.as_dict()
         v = dec.process_decoded(d)
-        #self.assertEqual(type(v), MPVaspInputSet)
+        # self.assertEqual(type(v), MPVaspInputSet)
         self.assertEqual(v.user_incar_settings["MAGMOM"],
                          {"Fe": 10, "S": -5, "Mn3+": 100})
 
@@ -266,7 +268,6 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
 
 class MPStaticSetTest(PymatgenTest):
-
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
 
@@ -287,7 +288,8 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
 
         non_prev_vis = MPStaticSet(vis.structure,
-                                   user_incar_settings={"LORBIT": 12, "LWAVE": True})
+                                   user_incar_settings={"LORBIT": 12,
+                                                        "LWAVE": True})
         self.assertEqual(non_prev_vis.incar["NSW"], 0)
         # Check that the ENCUT and Kpoints style has NOT been inherited.
         self.assertEqual(non_prev_vis.incar["ENCUT"], 520)
@@ -320,7 +322,6 @@ class MPStaticSetTest(PymatgenTest):
 
 
 class MPNonSCFSetTest(PymatgenTest):
-
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
 
@@ -368,7 +369,6 @@ class MPNonSCFSetTest(PymatgenTest):
 
 
 class MagmomLdauTest(PymatgenTest):
-
     def test_structure_from_prev_run(self):
         vrun = Vasprun(os.path.join(test_dir, "vasprun.xml.magmom_ldau"))
         structure = vrun.final_structure
@@ -389,7 +389,6 @@ class MagmomLdauTest(PymatgenTest):
 
 
 class MITMDSetTest(unittest.TestCase):
-
     def setUp(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
@@ -415,7 +414,6 @@ class MITMDSetTest(unittest.TestCase):
 
 
 class MITNEBSetTest(unittest.TestCase):
-
     def setUp(self):
         c1 = [[0.5] * 3, [0.9] * 3]
         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
@@ -467,7 +465,6 @@ class MITNEBSetTest(unittest.TestCase):
 
 
 class MPSOCSetTest(PymatgenTest):
-
     def test_from_prev_calc(self):
         prev_run = os.path.join(test_dir, "fe_monomer")
         vis = MPSOCSet.from_prev_calc(prev_calc_dir=prev_run, magmom=[3],
@@ -482,9 +479,7 @@ class MPSOCSetTest(PymatgenTest):
 
 
 class MVLSlabSetTest(PymatgenTest):
-
     def setUp(self):
-
         if "PMG_VASP_PSP_DIR" not in os.environ:
             os.environ["PMG_VASP_PSP_DIR"] = test_dir
         s = PymatgenTest.get_structure("Li2O")
@@ -508,7 +503,6 @@ class MVLSlabSetTest(PymatgenTest):
         self.assertEqual(vis.incar["AMIX"], 0.1)
 
     def test_bulk(self):
-
         incar_bulk = self.d_bulk["INCAR"]
         poscar_bulk = self.d_bulk["POSCAR"]
 
@@ -517,7 +511,6 @@ class MVLSlabSetTest(PymatgenTest):
                          self.bulk.formula)
 
     def test_slab(self):
-
         incar_slab = self.d_slab["INCAR"]
         poscar_slab = self.d_slab["POSCAR"]
         potcar_slab = self.d_slab["POTCAR"]
@@ -536,12 +529,11 @@ class MVLSlabSetTest(PymatgenTest):
         # Test auto-dipole
         dipole_incar = self.d_dipole["INCAR"]
         self.assertTrue(dipole_incar["LDIPOL"])
-        self.assertArrayAlmostEqual(dipole_incar["DIPOL"], 
+        self.assertArrayAlmostEqual(dipole_incar["DIPOL"],
                                     [0.2323, 0.2323, 0.2165], decimal=4)
         self.assertEqual(dipole_incar["IDIPOL"], 3)
 
     def test_kpoints(self):
-
         kpoints_slab = self.d_slab["KPOINTS"].kpts[0]
         kpoints_bulk = self.d_bulk["KPOINTS"].kpts[0]
 
@@ -552,14 +544,13 @@ class MVLSlabSetTest(PymatgenTest):
         self.assertEqual(kpoints_bulk[2], 15)
         # The last kpoint in a slab should always be 1
         self.assertEqual(kpoints_slab[2], 1)
-    
+
     def test_as_dict(self):
         vis_dict = self.vis.as_dict()
         new = MVLSlabSet.from_dict(vis_dict)
 
 
 class MVLElasticSetTest(PymatgenTest):
-
     def test_incar(self):
         mvlparam = MVLElasticSet(self.get_structure("Graphite"))
         incar = mvlparam.incar
@@ -570,7 +561,6 @@ class MVLElasticSetTest(PymatgenTest):
 
 
 class MVLGWSetTest(PymatgenTest):
-
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         if "PMG_VASP_PSP_DIR" not in os.environ:
@@ -621,7 +611,6 @@ class MVLGWSetTest(PymatgenTest):
 
 
 class MPHSEBSTest(PymatgenTest):
-
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
 
@@ -644,7 +633,6 @@ class MPHSEBSTest(PymatgenTest):
 
 
 class FuncTest(PymatgenTest):
-
     def test_batch_write_input(self):
         structures = [PymatgenTest.get_structure("Li2O"),
                       PymatgenTest.get_structure("LiFePO4")]
@@ -657,7 +645,6 @@ class FuncTest(PymatgenTest):
 
 
 class MVLGBSetTest(unittest.TestCase):
-
     def setUp(self):
         filepath = os.path.join(test_dir, 'Li.cif')
         self.s = Structure.from_file(filepath)
@@ -685,4 +672,3 @@ class MVLGBSetTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
