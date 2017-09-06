@@ -130,14 +130,21 @@ class StructureGraph(MSONable):
         for n in range(len(structure)):
             neighbors = strategy.get_nn_info(structure, n)
             for neighbor in neighbors:
+
+                # to_jimage here always defined relative to
+                # PeriodicSite in origin cell (0, 0, 0)
+                to_index = neighbor['site_index']
+                to_jimage = np.subtract(neighbor['site'].frac_coords,
+                                        structure[to_index].frac_coords).astype(int)
+
                 # local_env will always try to add two edges
                 # for any one bond, one from site u to site v
                 # and another form site v to site u: this is
                 # harmless, so warn_duplicates=False
                 sg.add_edge(from_index=n,
                             from_jimage=(0, 0, 0),
-                            to_index=neighbor['site_index'],
-                            to_jimage=neighbor['image'],
+                            to_index=to_index,
+                            to_jimage=to_jimage,
                             weight=neighbor['weight'],
                             warn_duplicates=False)
 
@@ -357,9 +364,6 @@ class StructureGraph(MSONable):
 
         g = self.graph.copy()
 
-        if hide_unconnected_nodes:
-            g = g.subgraph([n for n in g.degree() if g.degree()[n] != 0])
-
         g.graph = {'nodesep': 10.0, 'dpi': 300, 'overlap': "false"}
 
         # add display options for nodes
@@ -420,8 +424,16 @@ class StructureGraph(MSONable):
             # update edge with our new style attributes
             g.edge[u][v][k].update(d)
 
-        for edge_to_delete in edges_to_delete:
-            g.remove_edge(*edge_to_delete)
+        # optionally remove periodic image edges,
+        # these can be confusing due to periodic boundaries
+        if hide_image_edges:
+            for edge_to_delete in edges_to_delete:
+                g.remove_edge(*edge_to_delete)
+
+        # optionally hide unconnected nodes,
+        # these can appear due to when removing periodic edges
+        if hide_unconnected_nodes:
+            g = g.subgraph([n for n in g.degree() if g.degree()[n] != 0])
 
         basename, extension = os.path.splitext(filename)
         extension = extension[1:]
@@ -481,6 +493,7 @@ class StructureGraph(MSONable):
         """
 
         # TODO: faster implementation, initial implementation for correctness not speed
+        # TODO: tests for 3D structures (seems to work for cubic, but want to make sure)
         
         # Developer note: a different approach was also trialed, using
         # a simple Graph (instead of MultiDiGraph), with node indices
@@ -718,3 +731,21 @@ class StructureGraph(MSONable):
 
         return (self.structure == other.structure) and \
                (edges == edges_other)
+
+    def diff(self, other):
+        """
+        Compares two StructureGraphs. Returns dict with
+        keys 'self', 'other', 'both' with edges that are
+        present in only one StructureGraph ('self' and
+        'other'), and edges that are present in both.
+
+        The Jaccard distance is a simple measure of the
+        dissimilarity between two StructureGraphs (ignoring
+        edge weights), and is defined by 1 - (size of the
+        intersection / size of the union) of the sets of
+        edges.
+
+        :param other: StructureGraph
+        :return:
+        """
+        return NotImplementedError

@@ -224,15 +224,14 @@ from    to  to_image
     def test_from_local_env_and_equality(self):
         nn = MinimumDistanceNN()
         sg = StructureGraph.with_local_env_strategy(self.structure, nn)
+        
         self.assertEqual(sg.graph.number_of_edges(), 6)
 
         nn2 = MinimumOKeeffeNN()
         sg2 = StructureGraph.with_local_env_strategy(self.structure, nn2)
 
         self.assertTrue(sg == sg2)
-
-        # TODO: investigate this, bug in StructureGraph or from local_env?
-        #self.assertTrue(sg == self.mos2_sg)
+        self.assertTrue(sg == self.mos2_sg)
 
 if __name__ == "__main__":
     unittest.main()
