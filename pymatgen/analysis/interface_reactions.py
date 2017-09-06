@@ -178,7 +178,7 @@ class InterfacialReactivity:
         return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1-x)) - \
             self.e1 * x - self.e2 * (1-x)
 
-    def _get_reaction(self, x, normalize=True):
+    def _get_reaction(self, x, normalize=False):
         """
         Generates balanced reaction at mixing ratio x : (1-x) for
         self.comp1 : self.comp2.
