@@ -8,7 +8,8 @@ import unittest
 import os
 
 from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
-from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO
+from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO, PourbaixEntry
+from monty.serialization import loadfn
 
 try:
     from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
@@ -28,7 +29,8 @@ class TestPourbaixAnalyzer(unittest.TestCase):
         self.decomp_test = {"ZnHO[+]": {"ZnO(s)": 0.5, "Zn[2+]": 0.5}, "ZnO(aq)": {"ZnO(s)": 1.0}}
         self.pd = PourbaixDiagram(entries)
         self.analyzer = PourbaixAnalyzer(self.pd)
-
+        self.multi_data = loadfn('multicomp_pbx.json')
+        
     def test_get_facet_chempots(self):
         range_map = self.analyzer.get_chempot_range_map()
         range_map_dict = {}
@@ -44,6 +46,29 @@ class TestPourbaixAnalyzer(unittest.TestCase):
                 self.assertEqual(decomp_entries[entr], self.decomp_test[entry.name][entr.name])
             e_above_hull = self.analyzer.get_e_above_hull(entry)
             self.assertAlmostEqual(e_above_hull, self.e_above_hull_test[entry.name], 3)
+    
+    def test_binary(self):
+        # Test get_all_decomp_and_e_above_hull
+        pd_binary = PourbaixDiagram(self.multi_data['binary'], 
+                                    comp_dict = {"Ag": 0.5, "Te": 0.5})
+        analyzer_binary = PourbaixAnalyzer(pd_binary)
+
+        te_entry = pd_binary._unprocessed_entries[4]
+        de, hull_e, entries = analyzer_binary.get_all_decomp_and_e_above_hull(te_entry)
+        self.assertEqual(len(de), 7)
+        self.assertEqual(len(hull_e), 7)
+        self.assertAlmostEqual(hull_e[0], 2.8721308052126204)
+
+    def test_ternary(self):
+        # Ternary
+        te_entry = self.multi_data['ternary'][20]
+        pd_ternary = PourbaixDiagram(self.multi_data['ternary'],
+                                     comp_dict = {"Ag": 0.33333, 
+                                                  "Te": 0.33333,
+                                                  "N": 0.33333})
+        analyzer_ternary = PourbaixAnalyzer(pd_ternary)
+        de, hull_e, entries = analyzer_ternary.get_all_decomp_and_e_above_hull(te_entry)
+        # TODO: add metrics for unittest
 
 if __name__ == '__main__':
     unittest.main()

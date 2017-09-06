@@ -10,6 +10,7 @@ from pymatgen.util.coord_utils import Simplex
 from functools import cmp_to_key
 from pyhull.halfspace import Halfspace, HalfspaceIntersection
 from pyhull.convex_hull import ConvexHull
+from pymatgen.analysis.pourbaix.entry import MultiEntry
 from six.moves import zip
 
 """
@@ -20,6 +21,7 @@ __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.0"
 __maintainer__ = "Sai Jayaraman"
+__credits__ = "Arunima Singh, Joseph Montoya"
 __email__ = "sjayaram@mit.edu"
 __status__ = "Development"
 __date__ = "Nov 7, 2012"
@@ -233,60 +235,53 @@ class PourbaixAnalyzer(object):
         nPhi = -entry.nPhi
         return g0 - npH * pH - nPhi * V
 
-    def get_all_decomp_and_e_above_hull(self, material):
+    def get_all_decomp_and_e_above_hull(self, single_entry):
         """
         Computes the decomposition entries, species and hull energies 
         for all the multi-entries which have the "material" as the only solid.  
         
         Args:
-            material: Materials Project material-id 
+            single_entry: single entry for which to find all of the
+                decompositions
 
         Returns:
-            (decomp_entries, hullenergies, decomp_species, entries)
-            for all multi-entries have the "material" as the only solid
-            species
+            (decomp_entries, hull_energies, decomp_species, entries)
+            for all multi_entries containing the single_entry as the
+            only solid
         """
-
-        decomp_entries = []
-        hullenergies = []
-        decomp_species = []
-        entries = []
-
-        # for all entries in the Pourbaix convex hull
-        for entry in self._pd.all_entries:
-            
-            # Consider entries which have only one solid phase
-            phases = []
-            for i in range(len(entry.entrylist)):
-                phase = entry.entrylist[i].phase_type
-                phases.append(phase)
-            if phases.count('Solid') > 1:
-               continue
-            
-            # Find the decomposition details if the material 
-            # is in the Pourbaix Multi Entry or Pourbaix Entry
-            if str(material) in str(entry):
-                facets = self._get_all_facets(entry)
-                for facet in facets:
-                    entrylist = [self._pd.qhull_entries[i] for i in facet]
-                    m = self._make_comp_matrix(entrylist)
-                    compm = self._make_comp_matrix([entry])
-                    decompamts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
-                    decomp = dict()
-                    decomp_names = dict()
-                    for i in range(len(decompamts)):
-                        if abs(decompamts[i][0]) > PourbaixAnalyzer.numerical_tol:
-                           decomp[self._pd.qhull_entries[facet[i]]] = decompamts[i][0]
-                           decomp_names[self._pd.qhull_entries[facet[i]].name] = decompamts[i][0]
-                           decomp_species.append(decomp_names)
-                           decomp_entries.append(decomp)
-                    g0 = entry.g0
-                    hullenergy = sum([entry.g0 * amt for entry, amt in decomp.items()])
-                    hullenergies.append(g0-hullenergy)
-                    entries.append(entry)
+        decomp_entries, hull_energies, decomp_species, entries = [], [], [], []
         
-        return decomp_entries, hullenergies, decomp_species, entries
+        # I don't think this constraint is necessary, but don't
+        # yet understand the code well enough to remove it
+        if not isinstance(self._pd.all_entries[0], MultiEntry):
+            raise ValueError("Only multi-entry Pourbaix Diagrams are supported")
 
+        # Consider entries which have only one solid phase
+        # TODO: Why this constraint?
+        multi_entries = [e for e in self._pd.all_entries
+                         if e.phases.count("Solid") == 1
+                         and single_entry in e.entrylist]
+        
+        # for all entries in the Pourbaix convex hull
+        for multi_entry in multi_entries:
+            # Find the decomposition details if the material
+            # is in the Pourbaix Multi Entry or Pourbaix Entry
+            facets = self._get_all_facets(multi_entry)
+            for facet in facets:
+                entrylist = [self._pd.qhull_entries[i] for i in facet]
+                m = self._make_comp_matrix(entrylist)
+                compm = self._make_comp_matrix([multi_entry])
+                decomp_amts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
+                decomp, decomp_names = {}, {}
+                for i, decomp_amt in enumerate(decomp_amts):
+                    if abs(decomp_amt[0]) > PourbaixAnalyzer.numerical_tol:
+                        decomp[self._pd.qhull_entries[facet[i]]] = decomp_amt[0]
+                decomp_entries.append(decomp)
+                hull_energy = sum([entry.g0 * amt for entry, amt in decomp.items()])
+                hull_energies.append(multi_entry.g0 - hull_energy)
+                entries.append(multi_entry)
+        
+        return decomp_entries, hull_energies, entries
 
     def get_decomposition(self, entry):
         """
@@ -302,14 +297,14 @@ class PourbaixAnalyzer(object):
         entrylist = [self._pd.qhull_entries[i] for i in facet]
         m = self._make_comp_matrix(entrylist)
         compm = self._make_comp_matrix([entry])
-        decompamts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
+        decomp_amts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
         decomp = dict()
         self.decomp_names = dict()
         #Scrub away zero amounts
-        for i in range(len(decompamts)):
-            if abs(decompamts[i][0]) > PourbaixAnalyzer.numerical_tol:
-                decomp[self._pd.qhull_entries[facet[i]]] = decompamts[i][0]
-                self.decomp_names[self._pd.qhull_entries[facet[i]].name] = decompamts[i][0]
+        for i in range(len(decomp_amts)):
+            if abs(decomp_amts[i][0]) > PourbaixAnalyzer.numerical_tol:
+                decomp[self._pd.qhull_entries[facet[i]]] = decomp_amts[i][0]
+                self.decomp_names[self._pd.qhull_entries[facet[i]].name] = decomp_amts[i][0]
         return decomp
 
     def get_decomp_and_e_above_hull(self, entry):
@@ -325,9 +320,9 @@ class PourbaixAnalyzer(object):
         """
         g0 = entry.g0
         decomp = self.get_decomposition(entry)
-        hullenergy = sum([entry.g0 * amt
+        hull_energy = sum([entry.g0 * amt
                           for entry, amt in decomp.items()])
-        return decomp, g0 - hullenergy, self.decomp_names
+        return decomp, g0 - hull_energy, self.decomp_names
 
     def get_e_above_hull(self, entry):
         """
