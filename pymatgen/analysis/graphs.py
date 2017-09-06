@@ -16,6 +16,7 @@ from monty.json import MSONable
 from monty.os.path import which
 from operator import itemgetter
 from collections import namedtuple
+from scipy.spatial import KDTree
 
 try:
     import networkx as nx
@@ -431,7 +432,7 @@ class StructureGraph(MSONable):
                 g.remove_edge(*edge_to_delete)
 
         # optionally hide unconnected nodes,
-        # these can appear due to when removing periodic edges
+        # these can appear when removing periodic edges
         if hide_unconnected_nodes:
             g = g.subgraph([n for n in g.degree() if g.degree()[n] != 0])
 
@@ -492,7 +493,6 @@ class StructureGraph(MSONable):
         :return:
         """
 
-        # TODO: faster implementation, initial implementation for correctness not speed
         # TODO: tests for 3D structures (seems to work for cubic, but want to make sure)
         
         # Developer note: a different approach was also trialed, using
@@ -508,7 +508,7 @@ class StructureGraph(MSONable):
             scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
         else:
             # TODO: test __mul__ with full 3x3 scaling matrices 
-            warnings.warn("Not robustly tested with full 3x3 scaling matrices yet.")
+            raise NotImplementedError('Not tested with 3x3 scaling matrices yet.')
         new_lattice = Lattice(np.dot(scale_matrix, self.structure.lattice.matrix))
 
         f_lat = lattice_points_in_supercell(scale_matrix)
@@ -549,7 +549,14 @@ class StructureGraph(MSONable):
                 edges_inside_supercell.append({u, v})
 
         orig_lattice = self.structure.lattice
-        new_coords = new_structure.cart_coords
+
+        # use k-d tree to match given position to an
+        # existing Site in Structure
+        kd_tree = KDTree(new_structure.cart_coords)
+        # tolerance for sites to be considered equal
+        # this could probably be a lot smaller
+        tol = 0.05
+
         for u, v, k, d in new_g.edges(keys=True, data=True):
 
             to_jimage = d['to_jimage']  # for node v
@@ -579,23 +586,16 @@ class StructureGraph(MSONable):
 
                 # now search in new structure for these atoms
                 # (these lines could/should be optimized)
-                v_present = np.where([np.allclose(c, v_expec, atol=0.01)
-                                      for c in new_coords])[0]
-
-                # sanity check
-                if len(v_present) > 1:
-                    # could re-write to work in this instance,
-                    # but this really shouldn't happen in practice
-                    raise Exception("This shouldn't happen, do you "
-                                    "have two atoms super-imposed?")
+                v_present = kd_tree.query(v_expec)
+                v_present = v_present[1] if v_present[0] <= tol else None
 
                 # check if image sites now present in supercell
                 # and if so, delete old edge that went through
                 # periodic boundary
-                if len(v_present) == 1:
+                if v_present is not None:
 
                     new_u = u
-                    new_v = v_present[0]
+                    new_v = v_present
                     new_d = d.copy()
 
                     # node now inside supercell
@@ -618,12 +618,12 @@ class StructureGraph(MSONable):
 
                         shift = new_structure.lattice.get_cartesian_coords(to_jimage)
                         v_expec = v_expec - shift
-                        v_present = np.where([np.allclose(c, v_expec, atol=0.01)
-                                              for c in new_coords])[0]
+                        v_present = kd_tree.query(v_expec)
+                        v_present = v_present[1] if v_present[0] <= tol else None
 
-                        if len(v_present) > 0 and v != v_present[0]:
+                        if v_present is not None and v != v_present:
                             edges_to_remove.append((u, v, k))
-                            edges_to_add.append((u, v_present[0], d.copy()))
+                            edges_to_add.append((u, v_present, d.copy()))
 
         logger.debug("Removing {} edges, adding {} new edges.".format(len(edges_to_remove),
                                                                       len(edges_to_add)))
@@ -641,9 +641,11 @@ class StructureGraph(MSONable):
              "graphs": json_graph.adjacency_data(new_g)}
 
         sg = StructureGraph.from_dict(d)
-        sg.sort()
 
         return sg
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
 
     def _edges_to_string(self, g):
 
