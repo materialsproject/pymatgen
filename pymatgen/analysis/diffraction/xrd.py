@@ -11,8 +11,9 @@ import collections
 import numpy as np
 import json
 
+from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.plotting import pretty_plot, add_fig_kwargs
+from pymatgen.util.plotting import add_fig_kwargs
 
 """
 This module implements an XRD pattern calculator.
@@ -57,6 +58,29 @@ WAVELENGTHS = {
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
+
+
+class XRDPattern(Spectrum):
+    """
+    A representation of an XRDPattern
+    """
+
+    XLABEL = "$2\\Theta$"
+    YLABEL = "Intensity"
+
+    def __init__(self, x, y, hkls, d_hkls):
+        """
+        Args:
+            x: Two theta angles.
+            y: Intensities
+            hkls: [{(h, k, l): mult}] {(h, k, l): mult} is a dict of Miller
+                indices for all diffracted lattice facets contributing to each
+                intensity.
+            d_hkls: List of interplanar spacings.
+        """
+        super(XRDPattern, self).__init__(x, y, hkls,d_hkls)
+        self.hkls = hkls
+        self.d_hkls = d_hkls
 
 
 class XRDCalculator(object):
@@ -153,9 +177,9 @@ class XRDCalculator(object):
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 
-    def get_xrd_data(self, structure, scaled=True, two_theta_range=(0, 90)):
+    def get_xrd_pattern(self, structure, scaled=True, two_theta_range=(0, 90)):
         """
-        Calculates the XRD data for a structure.
+        Calculates the XRD pattern for a structure.
 
         Args:
             structure (Structure): Input structure
@@ -168,13 +192,7 @@ class XRDCalculator(object):
                 sphere of radius 2 / wavelength.
 
         Returns:
-            (XRD pattern) in the form of
-            [[two_theta, intensity, {(h, k, l): mult}, d_hkl], ...]
-            Two_theta is in degrees. Intensity is in arbitrary units and if
-            scaled (the default), has a maximum value of 100 for the highest
-            peak. {(h, k, l): mult} is a dict of Miller indices for all
-            diffracted lattice facets contributing to that intensity and
-            their multiplicities. d_hkl is the interplanar spacing.
+            (XRDPattern)
         """
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
@@ -295,17 +313,26 @@ class XRDCalculator(object):
 
         # Scale intensities so that the max intensity is 100.
         max_intensity = max([v[0] for v in peaks.values()])
-        data = []
+        x = []
+        y = []
+        hkls = []
+        d_hkls = []
         for k in sorted(peaks.keys()):
             v = peaks[k]
-            scaled_intensity = v[0] / max_intensity * 100 if scaled else v[0]
             fam = get_unique_families(v[1])
-            if scaled_intensity > XRDCalculator.SCALED_INTENSITY_TOL:
-                data.append([k, scaled_intensity, fam, v[2]])
-        return data
+            if v[0] / max_intensity * 100 > XRDCalculator.SCALED_INTENSITY_TOL:
+                x.append(k)
+                y.append(v[0])
+                hkls.append(fam)
+                d_hkls.append(v[2])
+        xrd = XRDPattern(x, y, hkls, d_hkls)
+        if scaled:
+            xrd.normalize(mode="max", value=100)
+        return xrd
 
     def get_xrd_plot(self, structure, two_theta_range=(0, 90),
-                     annotate_peaks=True, ax=None, with_labels=True, fontsize=16):
+                     annotate_peaks=True, ax=None, with_labels=True,
+                     fontsize=16):
         """
         Returns the XRD plot as a matplotlib.pyplot.
 
@@ -332,15 +359,16 @@ class XRDCalculator(object):
             # This to maintain the type of the return value.
             import matplotlib.pyplot as plt
 
-        for two_theta, i, hkls, d_hkl in self.get_xrd_data(
-                structure, two_theta_range=two_theta_range):
+        xrd = self.get_xrd_pattern(structure, two_theta_range=two_theta_range)
+
+        for two_theta, i, hkls, d_hkl in zip(xrd.x, xrd.y, xrd.hkls, xrd.d_hkls):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 label = ", ".join([str(hkl) for hkl in hkls.keys()])
                 ax.plot([two_theta, two_theta], [0, i], color='k',
                          linewidth=3, label=label)
                 if annotate_peaks:
                     ax.annotate(label, xy=[two_theta, i],
-                                 xytext=[two_theta, i], fontsize=fontsize)
+                                xytext=[two_theta, i], fontsize=fontsize)
 
         if with_labels:
             ax.set_xlabel(r"$2\theta$ ($^\circ$)")
@@ -389,13 +417,13 @@ class XRDCalculator(object):
         fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True, squeeze=False)
 
         for i, (ax, structure) in enumerate(zip(axes.ravel(), structures)):
-            self.get_xrd_plot(structure, two_theta_range=two_theta_range, annotate_peaks=annotate_peaks,
+            self.get_xrd_plot(structure, two_theta_range=two_theta_range,
+                              annotate_peaks=annotate_peaks,
                               fontsize=fontsize, ax=ax, with_labels=i == nrows - 1)
             spg_symbol, spg_number = structure.get_space_group_info()
             ax.set_title("{} {} ({}) ".format(structure.formula, spg_symbol, spg_number))
 
         return fig
-
 
 
 def get_unique_families(hkls):

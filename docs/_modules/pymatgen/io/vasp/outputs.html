@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -443,7 +443,7 @@
             <span class="k">if</span> <span class="n">parse_potcar_file</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update_potcar_spec</span><span class="p">(</span><span class="n">parse_potcar_file</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ALGO&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;BSE&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">):</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is an unconverged VASP run.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filename</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;Electronic convergence reached: </span><span class="si">%s</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> \
                    <span class="bp">self</span><span class="o">.</span><span class="n">converged_electronic</span>
@@ -652,16 +652,24 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">run_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the run type. Currently supports only GGA and HF calcs.</span>
+<span class="sd">        Returns the run type. Currently supports LDA, GGA, vdW-DF and HF calcs.</span>
 
-<span class="sd">        TODO: Fix for other functional types like LDA, PW91, etc.</span>
+<span class="sd">        TODO: Fix for other functional types like PW91, other vdW types, etc.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hubbard</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;GGA+U&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LHFCALC&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;HF&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LHFCALC&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;HF&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LUSE_VDW&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">vdw_gga</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RE&quot;</span><span class="p">:</span> <span class="s2">&quot;DF&quot;</span><span class="p">,</span> <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="s2">&quot;optPBE&quot;</span><span class="p">,</span> <span class="s2">&quot;BO&quot;</span><span class="p">:</span> <span class="s2">&quot;optB88&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;MK&quot;</span><span class="p">:</span> <span class="s2">&quot;optB86b&quot;</span><span class="p">,</span> <span class="s2">&quot;ML&quot;</span><span class="p">:</span> <span class="s2">&quot;DF2&quot;</span><span class="p">}</span>
+            <span class="n">gga</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;vdW-&quot;</span> <span class="o">+</span> <span class="n">vdw_gga</span><span class="p">[</span><span class="n">gga</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;PAW&#39;</span><span class="p">:</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;LDA&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;GGA&quot;</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;GGA&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hubbard</span><span class="p">:</span>
+            <span class="n">rt</span> <span class="o">+=</span> <span class="s2">&quot;+U&quot;</span>
+        <span class="k">return</span> <span class="n">rt</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_hubbard</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -911,17 +919,8 @@
         <span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">]</span>
         <span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">]</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_hubbard&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hubbard</span>
-        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;hubbards&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_hubbard&quot;</span><span class="p">]:</span>
-            <span class="n">us</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAUU&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAUU&quot;</span><span class="p">))</span>
-            <span class="n">js</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAUJ&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAUJ&quot;</span><span class="p">))</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">us</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">):</span>
-                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;hubbards&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">symbols</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">js</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">))}</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">VaspParserError</span><span class="p">(</span><span class="s2">&quot;Length of U value parameters and atomic&quot;</span>
-                                      <span class="s2">&quot; symbols are mismatched.&quot;</span><span class="p">)</span>
-
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;hubbards&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hubbards</span>
+        
         <span class="n">unique_symbols</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_symbols</span><span class="p">)))</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;elements&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_symbols</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;nelements&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_symbols</span><span class="p">)</span>
@@ -1281,17 +1280,8 @@
         <span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">]</span>
         <span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">]</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_hubbard&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hubbard</span>
-        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;hubbards&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_hubbard&quot;</span><span class="p">]:</span>
-            <span class="n">us</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAUU&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAUU&quot;</span><span class="p">))</span>
-            <span class="n">js</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAUJ&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAUJ&quot;</span><span class="p">))</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">us</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">):</span>
-                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;hubbards&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">symbols</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">js</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">))}</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">VaspParserError</span><span class="p">(</span><span class="s2">&quot;Length of U value parameters and atomic&quot;</span>
-                                      <span class="s2">&quot; symbols are mismatched.&quot;</span><span class="p">)</span>
-
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;hubbards&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hubbards</span>
+        
         <span class="n">unique_symbols</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_symbols</span><span class="p">)))</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;elements&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_symbols</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;nelements&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_symbols</span><span class="p">)</span>
@@ -2452,7 +2442,60 @@
                           <span class="s1">&#39;p_sp2&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_sp2</span><span class="p">})</span>
             <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;zval_dict&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zval_dict</span><span class="p">})</span>
 
-        <span class="k">return</span> <span class="n">d</span></div></div>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="Outcar.read_fermi_contact_shift"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_fermi_contact_shift">[docs]</a>    <span class="k">def</span> <span class="nf">read_fermi_contact_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        output example:</span>
+<span class="sd">        Fermi contact (isotropic) hyperfine coupling parameter (MHz)</span>
+<span class="sd">        -------------------------------------------------------------</span>
+<span class="sd">        ion      A_pw      A_1PS     A_1AE     A_1c      A_tot</span>
+<span class="sd">        -------------------------------------------------------------</span>
+<span class="sd">         1      -0.002    -0.002    -0.051     0.000    -0.052</span>
+<span class="sd">         2      -0.002    -0.002    -0.051     0.000    -0.052</span>
+<span class="sd">         3       0.056     0.056     0.321    -0.048     0.321</span>
+<span class="sd">        -------------------------------------------------------------</span>
+<span class="sd">        , which corresponds to</span>
+<span class="sd">        [[-0.002, -0.002, -0.051, 0.0, -0.052],</span>
+<span class="sd">         [-0.002, -0.002, -0.051, 0.0, -0.052],</span>
+<span class="sd">         [0.056, 0.056, 0.321, -0.048, 0.321]] from &#39;fch&#39; data</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Fermi contact (isotropic) hyperfine coupling parameter (MHz)</span>
+        <span class="n">header_pattern1</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*Fermi contact \(isotropic\) hyperfine coupling parameter \(MHz\)\s+&quot;</span> \
+                          <span class="sa">r</span><span class="s2">&quot;\s*\-+&quot;</span> \
+                          <span class="sa">r</span><span class="s2">&quot;\s*ion\s+A_pw\s+A_1PS\s+A_1AE\s+A_1c\s+A_tot\s+&quot;</span> \
+                          <span class="sa">r</span><span class="s2">&quot;\s*\-+&quot;</span>
+        <span class="n">row_pattern1</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(?:\d+)\s+&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;\s+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;([-]?\d+\.\d+)&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">footer_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\-+&quot;</span>
+        <span class="n">fch_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_pattern</span><span class="p">(</span><span class="n">header_pattern1</span><span class="p">,</span> <span class="n">row_pattern1</span><span class="p">,</span>
+                                            <span class="n">footer_pattern</span><span class="p">,</span> <span class="n">postprocess</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                                            <span class="n">last_one_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Dipolar hyperfine coupling parameters (MHz)</span>
+        <span class="n">header_pattern2</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*Dipolar hyperfine coupling parameters \(MHz\)\s+&quot;</span> \
+                          <span class="sa">r</span><span class="s2">&quot;\s*\-+&quot;</span> \
+                          <span class="sa">r</span><span class="s2">&quot;\s*ion\s+A_xx\s+A_yy\s+A_zz\s+A_xy\s+A_xz\s+A_yz\s+&quot;</span> \
+                          <span class="sa">r</span><span class="s2">&quot;\s*\-+&quot;</span>
+        <span class="n">row_pattern2</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(?:\d+)\s+&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;\s+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;([-]?\d+\.\d+)&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="n">dh_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_pattern</span><span class="p">(</span><span class="n">header_pattern2</span><span class="p">,</span> <span class="n">row_pattern2</span><span class="p">,</span>
+                                           <span class="n">footer_pattern</span><span class="p">,</span> <span class="n">postprocess</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                                           <span class="n">last_one_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Total hyperfine coupling parameters after diagonalization (MHz)</span>
+        <span class="n">header_pattern3</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*Total hyperfine coupling parameters after diagonalization \(MHz\)\s+&quot;</span> \
+                          <span class="sa">r</span><span class="s2">&quot;\s*\(convention: \|A_zz\| &gt; \|A_xx\| &gt; \|A_yy\|\)\s+&quot;</span> \
+                          <span class="sa">r</span><span class="s2">&quot;\s*\-+&quot;</span> \
+                          <span class="sa">r</span><span class="s2">&quot;\s*ion\s+A_xx\s+A_yy\s+A_zz\s+asymmetry \(A_yy - A_xx\)/ A_zz\s+&quot;</span> \
+                          <span class="sa">r</span><span class="s2">&quot;\s*\-+&quot;</span>
+        <span class="n">row_pattern3</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(?:\d+)\s+&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;\s+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;([-]?\d+\.\d+)&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">th_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_pattern</span><span class="p">(</span><span class="n">header_pattern3</span><span class="p">,</span> <span class="n">row_pattern3</span><span class="p">,</span>
+                                           <span class="n">footer_pattern</span><span class="p">,</span> <span class="n">postprocess</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                                           <span class="n">last_one_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">fc_shift_table</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fch&#39;</span><span class="p">:</span> <span class="n">fch_table</span><span class="p">,</span> <span class="s1">&#39;dh&#39;</span><span class="p">:</span> <span class="n">dh_table</span><span class="p">,</span> <span class="s1">&#39;th&#39;</span><span class="p">:</span> <span class="n">th_table</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;fermi_contact_shift&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fc_shift_table</span></div></div>
 
 
 <div class="viewcode-block" id="VolumetricData"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData">[docs]</a><span class="k">class</span> <span class="nc">VolumetricData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -3664,7 +3707,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

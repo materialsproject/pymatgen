@@ -24,9 +24,7 @@ import scipy.constants as const
 
 from pymatgen import Composition, Element
 from pymatgen.matproj.snl import is_valid_bibtex
-from pymatgen.phasediagram.entries import PDEntry
-from pymatgen.phasediagram.analyzer import PDAnalyzer
-from pymatgen.phasediagram.maker import PhaseDiagram
+from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from io import open
 
 
@@ -154,7 +152,7 @@ class CostAnalyzer(object):
                 entries_list.extend(x)
         try:
             pd = PhaseDiagram(entries_list)
-            return PDAnalyzer(pd).get_decomposition(composition)
+            return pd.get_decomposition(composition)
         except IndexError:
             raise ValueError("Error during PD building; most likely, "
                              "cost data does not exist!")

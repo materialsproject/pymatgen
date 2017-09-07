@@ -15,8 +15,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.phasediagram.maker import PhaseDiagram
-from pymatgen.phasediagram.analyzer import PDAnalyzer
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.io.cif import CifParser
 
 """
@@ -217,14 +216,13 @@ class MPResterTest(unittest.TestCase):
         compat = MaterialsProjectCompatibility()
         all_entries = compat.process_entries(all_entries)
         pd = PhaseDiagram(all_entries)
-        a = PDAnalyzer(pd)
         for e in all_entries:
             if str(e.entry_id).startswith("mod"):
                 for d in rest_ehulls:
                     if d["entry_id"] == e.entry_id:
                         data = d
                         break
-                self.assertAlmostEqual(a.get_e_above_hull(e),
+                self.assertAlmostEqual(pd.get_e_above_hull(e),
                                        data["e_above_hull"])
 
     def test_get_reaction(self):
