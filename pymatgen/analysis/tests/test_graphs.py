@@ -72,10 +72,7 @@ class StructureGraphTest(unittest.TestCase):
         species = ["Ni", "O"]
         coords = [[0, 0, 0],
                   [0.5, 0.5, 0.5]]
-        self.NiO = Structure.from_spacegroup(225, latt, species, coords)
-
-        from pymatgen import MPRester
-        self.NiO = MPRester().get_structures('NiO')[0]
+        self.NiO = Structure.from_spacegroup(225, latt, species, coords).get_primitive_structure()
 
     def test_properties(self):
 
