@@ -283,7 +283,9 @@ class NearNeighbors(object):
                 access to the corresponding Site object, 'image' gives
                 the image location (lattice translation vector), and
                 'weight' provides the weight that a given near-neighbor
-                site contributes to the coordination number (1 or smaller).
+                site contributes to the coordination number (1 or smaller),
+                'site_index' gives index of the corresponding site in
+                the original structure.
         """
 
         raise NotImplementedError("get_nn_info(structure, n)"
@@ -396,7 +398,8 @@ class VoronoiNN(NearNeighbors):
                 structure, n).items():
             if weight > self.tol and site.specie in targets:
                 dist, image = structure.sites[n].distance_and_image(site)
-                siw.append({'site': site, 'image': image, 'weight': weight})
+                siw.append({'site': site, 'image': image,
+                            'weight': weight, 'site_index': n})
         return siw
 
 
@@ -472,12 +475,13 @@ class JMolNN(NearNeighbors):
         min_rad = min(bonds.values())
 
         siw = []
-        for neighb, dist in structure.get_neighbors(site, max_rad):
+        for neighb, dist, n in structure.get_neighbors(site, max_rad, include_index=True):
             # Confirm neighbor based on bond length specific to atom pair
             if dist <= bonds[(site.specie, neighb.specie)] + self.tol:
                 weight = min_rad / dist
                 d, image = site.distance_and_image(neighb)
-                siw.append({'site': neighb, 'image': image, 'weight': weight})
+                siw.append({'site': neighb, 'image': image,
+                            'weight': weight, 'site_index': n})
         return siw
 
 
@@ -518,15 +522,17 @@ class MinimumDistanceNN(NearNeighbors):
         """
 
         site = structure[n]
-        neighs_dists = structure.get_neighbors(site, self.cutoff)
-        min_dist = min([dist for neigh, dist in neighs_dists])
+        neighs_dists = structure.get_neighbors(site, self.cutoff,
+                                               include_index=True)
+        min_dist = min([dist for neigh, dist, n in neighs_dists])
 
         siw = []
-        for s, dist in neighs_dists:
+        for s, dist, n in neighs_dists:
             if dist < (1.0 + self.tol) * min_dist:
                 w = min_dist / dist
                 d, i = site.distance_and_image(s)
-                siw.append({'site': s, 'image': i, 'weight': w})
+                siw.append({'site': s, 'image': i,
+                            'weight': w, 'site_index': n})
         return siw
 
 
@@ -568,28 +574,29 @@ class MinimumOKeeffeNN(NearNeighbors):
         """
 
         site = structure[n]
-        neighs_dists = structure.get_neighbors(site, self.cutoff)
+        neighs_dists = structure.get_neighbors(site, self.cutoff, include_index=True)
         try:
             eln = site.specie.element
         except:
             eln = site.species_string
 
         reldists_neighs = []
-        for neigh, dist in neighs_dists:
+        for neigh, dist, n in neighs_dists:
             try:
                 el2 = neigh.specie.element
             except:
                 el2 = neigh.species_string
             reldists_neighs.append([dist / get_okeeffe_distance_prediction(
-                    eln, el2), neigh])
+                    eln, el2), neigh, n])
 
         siw = []
-        min_reldist = min([reldist for reldist, neigh in reldists_neighs])
-        for reldist, s in reldists_neighs:
+        min_reldist = min([reldist for reldist, neigh, n in reldists_neighs])
+        for reldist, s, n in reldists_neighs:
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
                 d, i = site.distance_and_image(s)
-                siw.append({'site': s, 'image': i, 'weight': w})
+                siw.append({'site': s, 'image': i,
+                            'weight': w, 'site_index': n})
 
         return siw
 
@@ -633,21 +640,23 @@ class MinimumVIRENN(NearNeighbors):
 
         vire = ValenceIonicRadiusEvaluator(structure)
         site = vire.structure[n]
-        neighs_dists = vire.structure.get_neighbors(site, self.cutoff)
+        neighs_dists = vire.structure.get_neighbors(site, self.cutoff,
+                                                    include_index=True)
         rn = vire.radii[vire.structure[n].species_string]
 
         reldists_neighs = []
-        for neigh, dist in neighs_dists:
+        for neigh, dist, n in neighs_dists:
             reldists_neighs.append([dist / (
-                    vire.radii[neigh.species_string] + rn), neigh])
+                    vire.radii[neigh.species_string] + rn), neigh, n])
 
         siw = []
-        min_reldist = min([reldist for reldist, neigh in reldists_neighs])
-        for reldist, s in reldists_neighs:
+        min_reldist = min([reldist for reldist, neigh, n in reldists_neighs])
+        for reldist, s, n in reldists_neighs:
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
                 d, i = site.distance_and_image(s)
-                siw.append({'site': s, 'image': i, 'weight': w})
+                siw.append({'site': s, 'image': i,
+                            'weight': w, 'site_index': n})
 
         return siw
 
