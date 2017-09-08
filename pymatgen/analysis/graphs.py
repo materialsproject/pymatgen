@@ -37,6 +37,7 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
 
+ConnectedSite = namedtuple('ConnectedSite', 'periodic_site, jimage, index, weight, dist')
 
 class StructureGraph(MSONable):
 
@@ -280,7 +281,6 @@ class StructureGraph(MSONable):
         sorted by closest first
         """
 
-        ConnectedSite = namedtuple('ConnectedSite', 'periodic_site, jimage, index, weight, dist')
         connected_sites = set()
 
         out_edges = [(u, v, d, 'out') for u, v, d in self.graph.out_edges(n, data=True)]
