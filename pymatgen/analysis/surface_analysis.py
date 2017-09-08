@@ -103,7 +103,7 @@ class SurfaceEnergyAnalyzer(object):
 
     def __init__(self, ucell_entry, vasprun_dict, comp1, ref_el_comp,
                  exclude_ids=[], custom_entries=[], mapi_key=None,
-                 full_chempot=False):
+                 full_chempot=False, ads_vasprun_dict={}):
         """
         Analyzes surface energies and Wulff shape of a particular
             material using the chemical potential.
@@ -186,9 +186,9 @@ class SurfaceEnergyAnalyzer(object):
         self.chempot_range = sorted([chempot_range[0][0], chempot_range[1][0]])
         self.vasprun_dict = vasprun_dict
 
-    def calculate_gamma_range(self, vasprun):
+    def calculate_slope_and_intercept(self, vasprun):
         """
-        Calculates the surface energy for a single slab.
+        Calculates the slope and intercept of the surface energy for a single slab.
         Args:
             vasprun (Vasprun): A Vasprun object
 
@@ -201,7 +201,6 @@ class SurfaceEnergyAnalyzer(object):
         # Get the composition in the slab
         slab = vasprun.final_structure
         comp = slab.composition.as_dict()
-        # r = ComputedReaction(self.reactants, [vasprun.get_computed_entry()])
 
         if len(reduced_comp.keys()) == 1:
             Nx = Ny = comp[self.ucell_entry.structure[0].species_string]
@@ -215,14 +214,14 @@ class SurfaceEnergyAnalyzer(object):
         m = slab.lattice.matrix
         A = np.linalg.norm(np.cross(m[0], m[1]))
 
-        # calculate the surface energy for the max and min chemical potential
-        return [(1 / (2 * A)) * (vasprun.final_energy - (Nx / self.x)
-                                 * self.gbulk - (Ny - (self.y / self.x) * Nx)
-                                 * (delu + [entry.energy_per_atom for entry in
-                                            self.reactants if
-                                            entry.composition.reduced_composition
-                                            == self.ref_el_comp][0]))
-                for delu in self.chempot_range]
+        # return the slope and intercept
+        slope = (-1 / (2 * A)) * (Ny - (self.y / self.x) * Nx)
+        intercept = (1/(2*A))*(vasprun.final_energy-(Nx/self.x)*self.gbulk-\
+                               (Ny-(self.y/self.x)*Nx)*[entry.energy_per_atom for entry in
+                                                        self.reactants if
+                                                        entry.composition.reduced_composition
+                                                        == self.ref_el_comp][0])
+        return slope, intercept
 
     def calculate_Eads(self, vasprun_ads, vasprun_clean, adsorbate):
         """
@@ -275,8 +274,6 @@ class SurfaceEnergyAnalyzer(object):
 
         return gamma_clean - (Nads*u - Eads)/(nsurfs*A)
 
-
-
     def calculate_gamma_at_u(self, vasprun, u):
         """
         Quickly calculates the surface energy for
@@ -290,8 +287,7 @@ class SurfaceEnergyAnalyzer(object):
         Returns (float): surface energy
         """
 
-        gamma_range = self.calculate_gamma_range(vasprun)
-        slope, intercept = self.get_slope_and_intercept(gamma_range)
+        slope, intercept = self.calculate_slope_and_intercept(vasprun)
 
         return slope*u+intercept
 
@@ -319,11 +315,9 @@ class SurfaceEnergyAnalyzer(object):
             # At each possible configuration, we calculate surface energy as a
             # function of u and take the lowest surface energy (corresponds to
             # the most stable slab termination at that particular u)
-            surf_e_range_list = [self.calculate_gamma_range(vasprun)
-                                 for vasprun in self.vasprun_dict[hkl]]
             e_list = []
-            for e_range in surf_e_range_list:
-                slope, intercept = self.get_slope_and_intercept(e_range)
+            for vasprun in self.vasprun_dict[hkl]:
+                slope, intercept = self.calculate_slope_and_intercept(vasprun)
                 e_list.append(slope * chempot + intercept)
             e_surf_list.append(min(e_list))
 
@@ -367,21 +361,6 @@ class SurfaceEnergyAnalyzer(object):
                     wulff_dict[int[0]] = wulff
 
         return wulff_dict
-
-    def get_slope_and_intercept(self, surf_e_pair):
-        """
-        Returns the slope and intercept of the surface
-            energy vs chemical potential line
-        Args:
-            surf_e_pair ([e_at_min_u, e_at_max_u]): The surface energy at the
-                minimum chemical potential and maximum chemical potential
-        """
-
-        slope, intercept, r_value, p_value, std_err = \
-            linregress(self.chempot_range, surf_e_pair)
-        slope = 0 if str(slope) == 'nan' else slope
-        intercept = surf_e_pair[0] if str(intercept) == 'nan' else intercept
-        return slope, intercept
 
     def get_stable_surf_regions(self, miller_index):
         """
@@ -444,39 +423,47 @@ class SurfaceEnergyAnalyzer(object):
         # First lets calculate the range of surface energies for
         # all terminations of a specific facet or all facets.
         if miller_index:
-            all_se_ranges = [[self.calculate_gamma_range(vasprun), miller_index] for vasprun
-                             in self.vasprun_dict[miller_index]]
+            all_slope_intercepts = [[self.calculate_slope_and_intercept(vasprun), miller_index]
+                                    for vasprun in self.vasprun_dict[miller_index]]
         else:
-            all_se_ranges = []
+            all_slope_intercepts = []
             for hkl in self.vasprun_dict.keys():
-                se_ranges = [[self.calculate_gamma_range(vasprun), hkl] for vasprun
-                             in self.vasprun_dict[hkl]]
-                all_se_ranges.extend(se_ranges)
+                slope_intercept = [[self.calculate_slope_and_intercept(vasprun), hkl]
+                                   for vasprun in self.vasprun_dict[hkl]]
+                all_slope_intercepts.extend(slope_intercept)
 
-        if len(all_se_ranges) == 1:
+        if len(all_slope_intercepts) == 1:
             return []
 
         # Now get all possible intersection coordinates for each pair of lines
         intersections = []
-        for pair_ranges in itertools.combinations(all_se_ranges, 2):
-            slope1, intercept1 = self.get_slope_and_intercept(pair_ranges[0][0])
-            slope2, intercept2 = self.get_slope_and_intercept(pair_ranges[1][0])
-            # Calculate the intersection coordinates
-            u = (intercept1-intercept2)/(slope2-slope1)
+        for pair_lines in itertools.combinations(all_slope_intercepts, 2):
+            slope1, intercept1 = pair_lines[0][0]
+            slope2, intercept2 = pair_lines[1][0]
+
+            if slope1 - slope2 == 0:
+                # i.e. lines are parallel
+                continue
+
+            # Calculate the intersection
+            u, gamma = np.linalg.solve([[slope1, -1],[slope2, -1]],
+                                       [-1*intercept1, -1*intercept2])
 
             # if the intersection is beyond the chemical potential
             # range or if the lines are parallel, we ignore it
-            if slope1-slope2 == 0 or u < min(self.chempot_range) \
+            if u < min(self.chempot_range) \
                     or u > max(self.chempot_range):
                 continue
-            # If the surface energies at this u for both lines facet is unstable, ignore it
-            v1, gamma1 = self.return_stable_slab_at_u(pair_ranges[0][1], u)
-            v2, gamma2 = self.return_stable_slab_at_u(pair_ranges[1][1], u)
-            if all([slope1*u+intercept1 > gamma1, slope2*u+intercept2 > gamma2]):
-                continue
 
-            intersections.append([u, slope1 * u + intercept1,
-                                 [pair_ranges[0][1], pair_ranges[1][1]]])
+            # If the surface energies at this u for both lines facet is unstable, ignore it
+            v1, gamma1 = self.return_stable_slab_at_u(pair_lines[0][1], u)
+            v2, gamma2 = self.return_stable_slab_at_u(pair_lines[1][1], u)
+            # +10e-9 to handle floating point comparison for equal values
+            if all([gamma > gamma1+10e-9, gamma > gamma2+10e-9]):
+                continue
+            # Each list is [u, gamma, hkl1, hkl2]
+            intersections.append([u, gamma,
+                                 [pair_lines[0][1], pair_lines[1][1]]])
 
         return sorted(intersections, key=lambda ints: ints[0])
 
@@ -625,8 +612,10 @@ class SurfaceEnergyAnalyzer(object):
                     c = cmap(f[i])
                     colors.append(c)
 
-                se_range = np.array(self.calculate_gamma_range(vasprun))*EV_PER_ANG2_TO_JOULES_PER_M2 \
-                    if JPERM2 else self.calculate_gamma_range(vasprun)
+                gamma_range = [self.calculate_gamma_at_u(vasprun, self.chempot_range[0]),
+                               self.calculate_gamma_at_u(vasprun, self.chempot_range[1])]
+                se_range = np.array(gamma_range)*EV_PER_ANG2_TO_JOULES_PER_M2 \
+                    if JPERM2 else gamma_range
                 plt.plot(self.chempot_range, se_range, mark, color=c, label=label)
                 i += 1
 
@@ -662,6 +651,35 @@ class SurfaceEnergyAnalyzer(object):
                      xytext=xy, rotation=90, fontsize=17)
 
         return plt
+
+    def surface_phase_diagram(self, y_param, x_param, miller_index):
+
+        """
+        Builds a 2D surface phase diagram of two parameters for a specific
+            facet. Parameters can be chemical potentials (e.g. u_a, u_b,
+            u_c), pressure, temperature, electric potential, pH, etc.
+
+        Args:
+        """
+
+        return
+
+    def wulff_shape_extrapolated_model(self):
+        # the area fraction of all facets for a single configuration can be modelled as
+        # a arctan function with a pseudo asymptote approaching 0. This model gives us a
+        return
+
+    def surface_pourbaix_diagram(self):
+
+        return
+
+    def surface_u_vs_u_phase_diagram(self):
+
+        return
+
+    def surface_p_vs_t_phase_diagram(self):
+
+        return
 
     def broken_bond_vs_gamma(self):
 
