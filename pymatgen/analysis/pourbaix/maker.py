@@ -170,12 +170,16 @@ class PourbaixDiagram(object):
         dummy_oh = [Composition("H"), Composition("O")]
         try:
             # Get balanced reaction coeffs, ensuring all < 0 or conc thresh
-            entry_comps = [e.composition.reduced_composition for e in entry_list]
+            # Note that we get reduced compositions for solids and non-reduced 
+            # compositions for ions because ions aren't normalized due to
+            # their charge state.
+            entry_comps = [e.composition if e.phase_type=='Ion'
+                           else e.composition.reduced_composition 
+                           for e in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
             thresh = np.array([pe.conc if pe.phase_type == "Ion"
                                else 1e-3 for pe in entry_list])
-            coeffs = -np.array([rxn.get_coeff(e.composition.reduced_composition)
-                                for e in entry_list])
+            coeffs = -np.array([rxn.get_coeff(comp) for comp in entry_comps])
             if (coeffs > thresh).all():
                 weights = coeffs / coeffs[0]
                 return MultiEntry(entry_list, weights=weights.tolist())
