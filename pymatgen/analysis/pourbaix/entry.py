@@ -67,9 +67,11 @@ class PourbaixEntry(MSONable):
         self.npH = (nH - 2 * nO)
         self.nH2O = nO
         self.nPhi = (nH - 2 * nO - self.charge)
-        self.name = self.entry.composition.reduced_formula
         if self.phase_type == "Solid":
+            self.name = self.entry.composition.reduced_formula
             self.name += "(s)"
+        elif self.phase_type == "Ion":
+            self.name = self.entry.name 
         try:
             self.entry_id = entry.entry_id
         except AttributeError:
