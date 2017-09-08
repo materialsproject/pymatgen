@@ -276,10 +276,11 @@ class StructureGraph(MSONable):
         None if not defined.
         :param n: index of Site in Structure
         :param jimage: lattice vector of site
-        :return: set of ConnectedSite named tuples
+        :return: list of ConnectedSite tuples,
+        sorted by closest first
         """
 
-        ConnectedSite = namedtuple('ConnectedSite', 'periodic_site, jimage, index, weight')
+        ConnectedSite = namedtuple('ConnectedSite', 'periodic_site, jimage, index, weight, dist')
         connected_sites = set()
 
         out_edges = [(u, v, d, 'out') for u, v, d in self.graph.out_edges(n, data=True)]
@@ -300,12 +301,21 @@ class StructureGraph(MSONable):
 
             weight = d.get('weight', None)
 
+            # from_site if jimage arg != (0, 0, 0)
+            relative_jimage = np.subtract(to_jimage, jimage)
+            dist = self.structure[u].distance(self.structure[v], jimage=relative_jimage)
+
             connected_site = ConnectedSite(periodic_site=periodic_site,
                                            jimage=to_jimage,
                                            index=v,
-                                           weight=weight)
+                                           weight=weight,
+                                           dist=dist)
 
             connected_sites.add(connected_site)
+
+        # return list sorted by closest sites first
+        connected_sites = list(connected_sites)
+        connected_sites.sort(key=lambda x: x.dist)
 
         return connected_sites
 
