@@ -56,9 +56,9 @@ class TestPourbaixAnalyzer(unittest.TestCase):
 
         te_entry = pd_binary._unprocessed_entries[4]
         de, hull_e, entries = analyzer_binary.get_all_decomp_and_e_above_hull(te_entry)
-        self.assertEqual(len(de), 7)
-        self.assertEqual(len(hull_e), 7)
-        self.assertAlmostEqual(hull_e[0], 2.8721308052126204)
+        self.assertEqual(len(de), 10)
+        self.assertEqual(len(hull_e), 10)
+        self.assertAlmostEqual(hull_e[0], 5.4419792326439893)
 
     def test_ternary(self):
         # Ternary
