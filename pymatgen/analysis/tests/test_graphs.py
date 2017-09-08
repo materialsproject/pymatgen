@@ -81,8 +81,8 @@ class StructureGraphTest(unittest.TestCase):
         self.assertEqual(self.mos2_sg.edge_weight_unit, "Å")
         self.assertEqual(self.mos2_sg.get_coordination_of_site(0), 6)
         self.assertEqual(len(self.mos2_sg.get_connected_sites(0)), 6)
-        self.assertTrue(isinstance(self.mos2_sg.get_connected_sites(0)[0].periodic_site, PeriodicSite))
-        self.assertEqual(str(self.mos2_sg.get_connected_sites(0)[0].periodic_site.specie), 'S')
+        self.assertTrue(isinstance(list(self.mos2_sg.get_connected_sites(0))[0].periodic_site, PeriodicSite))
+        self.assertEqual(str(list(self.mos2_sg.get_connected_sites(0))[0].periodic_site.specie), 'S')
 
         # these two graphs should be equivalent
         for n in range(len(self.bc_square_sg)):

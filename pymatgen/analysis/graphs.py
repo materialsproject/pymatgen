@@ -276,18 +276,26 @@ class StructureGraph(MSONable):
         None if not defined.
         :param n: index of Site in Structure
         :param jimage: lattice vector of site
-        :return: tuple of Sites that are connected
-        to that site and its associated jimage
+        :return: set of ConnectedSite named tuples
         """
+
         ConnectedSite = namedtuple('ConnectedSite', 'periodic_site, jimage, index, weight')
-        connected_sites = []
-        out_edges = self.graph.out_edges(n, data=True)
-        in_edges = [(v, u, d) for u, v, d in self.graph.in_edges(n, data=True)]
-        for u, v, d in out_edges + in_edges:
+        connected_sites = set()
+
+        out_edges = [(u, v, d, 'out') for u, v, d in self.graph.out_edges(n, data=True)]
+        in_edges = [(u, v, d, 'in') for u, v, d in self.graph.in_edges(n, data=True)]
+
+        for u, v, d, dir in out_edges + in_edges:
+
+            to_jimage = d['to_jimage']
+
+            if dir == 'in':
+                u, v = v, u
+                to_jimage = np.multiply(-1, to_jimage)
 
             site_d = self.structure[v].as_dict()
-            site_d['abc'] = np.add(site_d['abc'], d['to_jimage']).tolist()
-            to_jimage = tuple(map(int, np.add(d['to_jimage'], jimage)))
+            site_d['abc'] = np.add(site_d['abc'], to_jimage).tolist()
+            to_jimage = tuple(map(int, np.add(to_jimage, jimage)))
             periodic_site = PeriodicSite.from_dict(site_d)
 
             weight = d.get('weight', None)
@@ -297,7 +305,8 @@ class StructureGraph(MSONable):
                                            index=v,
                                            weight=weight)
 
-            connected_sites.append(connected_site)
+            connected_sites.add(connected_site)
+
         return connected_sites
 
     def get_coordination_of_site(self, n):
