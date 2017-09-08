@@ -96,14 +96,33 @@ class SurfaceEnergyAnalyzer(object):
 
     .. attribute:: vasprun_dict
 
-        Dictionary containing a list of Vaspruns for slab calculations as
-            items and the corresponding Miller index of the slab as the key
+        Nested dictionary containing a list of Vaspruns for slab calculations as
+            items and the corresponding Miller index of the slab as the key.
+            To account for adsorption, each value is a sub-dictionary with the
+            vasprun of a clean slab calculation as the sub-key and a list of
+            vaspruns for adsorption calculations as the sub-value. The sub-value
+            can contain different adsorption configurations such as a different
+            site or a different coverage, however, ordinarily only the most stable
+            configuration for a particular coverage will be considered as the
+            function of the adsorbed surface energy has an intercept dependent on
+            the adsorption energy (ie an adsorption site with a higher adsorption
+            energy will always provide a higher surface energy than a site with a
+            lower adsorption energy). An example parameter is provided:
+            {(h1,k1,l1): {clean_vrun1: [ads_vrun1, ads_vrun2, ...],
+                          clean_vrun2: [...], ...}, (h2,k2,l2): {...}}
+            where clean_vrun1 can be a pristine surface and clean_vrun2 can be a
+            reconstructed surface while ads_vrun1 can be adsorption at site 1 with
+            a 2x2 coverage while ads_vrun2 can have a 3x3 coverage.
+
+    .. attribute:: adsorbate
+
+        Composition of the adsorbate (if there is one).
 
     """
 
     def __init__(self, ucell_entry, vasprun_dict, comp1, ref_el_comp,
                  exclude_ids=[], custom_entries=[], mapi_key=None,
-                 full_chempot=False, ads_vasprun_dict={}):
+                 full_chempot=False, adsorbate=None):
         """
         Analyzes surface energies and Wulff shape of a particular
             material using the chemical potential.
@@ -111,12 +130,11 @@ class SurfaceEnergyAnalyzer(object):
             ucell_entry (material_id or computed_entry): Materials Project or entry
                 of the bulk system the slab is based on (a string, e.g., mp-1234).
             vasprun_dict (dict): Dictionary containing a list of Vaspruns
-                for slab calculations as items and the corresponding Miller
-                index of the slab as the key.
-                eg. vasprun_dict = {(1,1,1): [vasprun_111_1, vasprun_111_2,
-                vasprun_111_3], (1,1,0): [vasprun_111_1, vasprun_111_2], ...}
-            element: element to be considered as independent
-                variables. E.g., if you want to show the stability
+                for slab calculations. See attributes.
+            comp1 (Composition): Composition to be considered as dependent
+                variable.
+            ref_el_comp (Composition): Composition to be considered as independent
+                variable. E.g., if you want to show the stability
                 ranges of all Li-Co-O phases wrt to uLi
             exclude_ids (list of material_ids): List of material_ids
                 to exclude when obtaining the decomposition components
@@ -126,6 +144,7 @@ class SurfaceEnergyAnalyzer(object):
                 decomposition components for the chemical potential
             mapi_key (str): Materials Project API key for accessing the
                 MP database via MPRester
+            adsorbate (Composition): Composition of adsorbate, defaults to None
         """
 
         self.comp1 = comp1
@@ -185,6 +204,7 @@ class SurfaceEnergyAnalyzer(object):
         chempot_range = list(chempot_range)
         self.chempot_range = sorted([chempot_range[0][0], chempot_range[1][0]])
         self.vasprun_dict = vasprun_dict
+        self.adsorbate = adsorbate
 
     def calculate_slope_and_intercept(self, vasprun):
         """
