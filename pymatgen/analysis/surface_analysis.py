@@ -122,7 +122,7 @@ class SurfaceEnergyAnalyzer(object):
 
     def __init__(self, ucell_entry, vasprun_dict, comp1, ref_el_comp,
                  exclude_ids=[], custom_entries=[], mapi_key=None,
-                 full_chempot=False, adsorbate=None):
+                 full_chempot=False, adsorbate_entry=None):
         """
         Analyzes surface energies and Wulff shape of a particular
             material using the chemical potential.
@@ -144,7 +144,7 @@ class SurfaceEnergyAnalyzer(object):
                 decomposition components for the chemical potential
             mapi_key (str): Materials Project API key for accessing the
                 MP database via MPRester
-            adsorbate (Composition): Composition of adsorbate, defaults to None
+            adsorbate_entry (Composition): Computed entry of adsorbate, defaults to None
         """
 
         self.comp1 = comp1
@@ -204,7 +204,7 @@ class SurfaceEnergyAnalyzer(object):
         chempot_range = list(chempot_range)
         self.chempot_range = sorted([chempot_range[0][0], chempot_range[1][0]])
         self.vasprun_dict = vasprun_dict
-        self.adsorbate = adsorbate
+        self.adsorbate_entry = adsorbate_entry
 
     def calculate_slope_and_intercept(self, vasprun):
         """
@@ -225,8 +225,6 @@ class SurfaceEnergyAnalyzer(object):
         if len(reduced_comp.keys()) == 1:
             Nx = Ny = comp[self.ucell_entry.structure[0].species_string]
         else:
-            # Ny = abs(r.coeffs[r.all_comp.index(self.ref_el_comp)])
-            # Nx = abs(r.coeffs[r.all_comp.index(self.comp1)])
             Nx = slab.composition.as_dict()[str(self.comp1.elements[0])]
             Ny = slab.composition.as_dict()[str(self.ref_el_comp.elements[0])]
 
@@ -243,14 +241,13 @@ class SurfaceEnergyAnalyzer(object):
                                                         == self.ref_el_comp][0])
         return slope, intercept
 
-    def calculate_Eads(self, vasprun_ads, vasprun_clean, adsorbate):
+    def gibbs_binding_energy(self, vasprun_ads, vasprun_clean):
         """
         Calculates the adsorption energy or Gibb's
         binding energy of an adsorbate on a surface
         Args:
             vasprun_ads (Vasprun): The Vasprun of the adsorbed slab
             vasprun_clean (Vasprun): The Vasprun of the clean slab
-            adsorbate (str): The adsorbate as a string
         """
 
         m = vasprun_ads.final_structure.lattice.matrix
@@ -258,9 +255,12 @@ class SurfaceEnergyAnalyzer(object):
         m = vasprun_clean.final_structure.lattice.matrix
         A_clean = np.linalg.norm(np.cross(m[0], m[1]))
         n = (A_ads/A_clean)
-        Nads = vasprun_ads.get_computed_entry().composition.as_dict()[adsorbate]
-        return vasprun_ads.final_energy - n*vasprun_clean.final_energy \
-               - Nads*self.ucell_entry.energy_per_atom
+
+        Nads = vasprun_ads.get_computed_entry().\
+            composition.as_dict()[str(self.adsorbate_entry.composition.reduced_composition.elements[0])]
+
+        return (vasprun_ads.final_energy - n*vasprun_clean.final_energy)/Nads \
+               - self.adsorbate_entry.energy_per_atom
 
     def calculate_gamma_ads_range(self, vasprun_ads, vasprun_clean, adsorbate, u):
         """
