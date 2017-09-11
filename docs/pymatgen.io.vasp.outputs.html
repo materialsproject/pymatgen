@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -454,6 +454,25 @@ nsymmetrized tensors list in the order of atoms.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Outcar.read_fermi_contact_shift">
+<code class="descname">read_fermi_contact_shift</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_fermi_contact_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_fermi_contact_shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>output example:
+Fermi contact (isotropic) hyperfine coupling parameter (MHz)
+————————————————————-
+ion      A_pw      A_1PS     A_1AE     A_1c      A_tot
+————————————————————-</p>
+<blockquote>
+<div>1      -0.002    -0.002    -0.051     0.000    -0.052
+2      -0.002    -0.002    -0.051     0.000    -0.052
+3       0.056     0.056     0.321    -0.048     0.321</div></blockquote>
+<p>, which corresponds to
+[[-0.002, -0.002, -0.051, 0.0, -0.052],</p>
+<blockquote>
+<div>[-0.002, -0.002, -0.051, 0.0, -0.052],
+[0.056, 0.056, 0.321, -0.048, 0.321]] from ‘fch’ data</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -1160,8 +1179,8 @@ supported by the Vasprun object.</li>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.run_type">
 <code class="descname">run_type</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.run_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the run type. Currently supports only GGA and HF calcs.</p>
-<p>TODO: Fix for other functional types like LDA, PW91, etc.</p>
+<dd><p>Returns the run type. Currently supports LDA, GGA, vdW-DF and HF calcs.</p>
+<p>TODO: Fix for other functional types like PW91, other vdW types, etc.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1630,7 +1649,7 @@ any. Note that this is sometimes very large</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>
 

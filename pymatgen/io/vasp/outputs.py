@@ -386,7 +386,7 @@ class Vasprun(MSONable):
             if parse_potcar_file:
                 self.update_potcar_spec(parse_potcar_file)
 
-        if not self.converged:
+        if self.incar.get("ALGO", "") != "BSE" and (not self.converged):
             msg = "%s is an unconverged VASP run.\n" % filename
             msg += "Electronic convergence reached: %s.\n" % \
                    self.converged_electronic
@@ -595,16 +595,24 @@ class Vasprun(MSONable):
     @property
     def run_type(self):
         """
-        Returns the run type. Currently supports only GGA and HF calcs.
+        Returns the run type. Currently supports LDA, GGA, vdW-DF and HF calcs.
 
-        TODO: Fix for other functional types like LDA, PW91, etc.
+        TODO: Fix for other functional types like PW91, other vdW types, etc.
         """
-        if self.is_hubbard:
-            return "GGA+U"
-        elif self.parameters.get("LHFCALC", False):
-            return "HF"
+        if self.parameters.get("LHFCALC", False):
+            rt = "HF"
+        elif self.parameters.get("LUSE_VDW", False):
+            vdw_gga = {"RE": "DF", "OR": "optPBE", "BO": "optB88",
+                       "MK": "optB86b", "ML": "DF2"}
+            gga = self.parameters.get("GGA").upper()
+            rt = "vdW-" + vdw_gga[gga]
+        elif self.potcar_symbols[0].split()[0] == 'PAW':
+            rt = "LDA"
         else:
-            return "GGA"
+            rt = "GGA"
+        if self.is_hubbard:
+            rt += "+U"
+        return rt
 
     @property
     def is_hubbard(self):
@@ -854,17 +862,8 @@ class Vasprun(MSONable):
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = {}
-        if d["is_hubbard"]:
-            us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
-            js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
-            if len(us) == len(symbols):
-                d["hubbards"] = {symbols[i]: us[i] - js[i]
-                                 for i in range(len(symbols))}
-            else:
-                raise VaspParserError("Length of U value parameters and atomic"
-                                      " symbols are mismatched.")
-
+        d["hubbards"] = self.hubbards
+        
         unique_symbols = sorted(list(set(self.atomic_symbols)))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
@@ -1224,17 +1223,8 @@ class BSVasprun(Vasprun):
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = {}
-        if d["is_hubbard"]:
-            us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
-            js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
-            if len(us) == len(symbols):
-                d["hubbards"] = {symbols[i]: us[i] - js[i]
-                                 for i in range(len(symbols))}
-            else:
-                raise VaspParserError("Length of U value parameters and atomic"
-                                      " symbols are mismatched.")
-
+        d["hubbards"] = self.hubbards
+        
         unique_symbols = sorted(list(set(self.atomic_symbols)))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.apps.battery.conversion_battery &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.apps.battery.conversion_battery &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -60,7 +60,17 @@
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">scipy.constants</span> <span class="k">import</span> <span class="n">N_A</span>
 
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Charge</span><span class="p">,</span> <span class="n">Time</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="k">import</span> <span class="n">BalancedReaction</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.apps.battery.battery_abc</span> <span class="k">import</span> <span class="n">AbstractElectrode</span><span class="p">,</span> \
+    <span class="n">AbstractVoltagePair</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">PhaseDiagram</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module contains the classes to build a ConversionElectrode.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -73,19 +83,6 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 1, 2012&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Beta&quot;</span>
-
-<span class="kn">from</span> <span class="nn">scipy.constants</span> <span class="k">import</span> <span class="n">N_A</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Charge</span><span class="p">,</span> <span class="n">Time</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="k">import</span> <span class="n">BalancedReaction</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.apps.battery.battery_abc</span> <span class="k">import</span> <span class="n">AbstractElectrode</span><span class="p">,</span> \
-    <span class="n">AbstractVoltagePair</span>
-<span class="kn">from</span> <span class="nn">pymatgen.phasediagram.maker</span> <span class="k">import</span> <span class="n">PhaseDiagram</span>
-<span class="kn">from</span> <span class="nn">pymatgen.phasediagram.analyzer</span> <span class="k">import</span> <span class="n">PDAnalyzer</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span>
 
 
 <div class="viewcode-block" id="ConversionElectrode"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode">[docs]</a><span class="k">class</span> <span class="nc">ConversionElectrode</span><span class="p">(</span><span class="n">AbstractElectrode</span><span class="p">):</span>
@@ -142,9 +139,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not stable compound found at composition </span><span class="si">{}</span><span class="s2">.&quot;</span>
                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
 
-        <span class="n">analyzer</span> <span class="o">=</span> <span class="n">PDAnalyzer</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
-
-        <span class="n">profile</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">get_element_profile</span><span class="p">(</span><span class="n">working_ion</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_element_profile</span><span class="p">(</span><span class="n">working_ion</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
         <span class="c1"># Need to reverse because voltage goes form most charged to most</span>
         <span class="c1"># discharged.</span>
         <span class="n">profile</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
@@ -609,7 +604,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

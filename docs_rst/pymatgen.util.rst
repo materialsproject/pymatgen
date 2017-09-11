@@ -20,6 +20,8 @@ Submodules
    pymatgen.util.num_utils
    pymatgen.util.plotting
    pymatgen.util.plotting_utils
+   pymatgen.util.provenance
+   pymatgen.util.serialization
    pymatgen.util.string
    pymatgen.util.string_utils
    pymatgen.util.testing

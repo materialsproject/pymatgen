@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Change log &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>Change log &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,6 +54,26 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2017-9-3">
+<h2>v2017.9.3<a class="headerlink" href="#v2017-9-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>VDW support (Marco Esters)</li>
+<li>Bug fix release.</li>
+</ul>
+</div>
+<div class="section" id="v2017-9-1">
+<h2>v2017.9.1<a class="headerlink" href="#v2017-9-1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Massive refactoring of PhaseDiagram. Now, PDAnalyzer is completely defunct
+and all analysis is carried out within PhaseDiagram itself, e.g.,
+pd.get_e_above_hull as opposed to PDAnalyzer(pd).get_e_above_hull.</li>
+<li>Refactoring of structure prediction. Now in
+pymatgen.analysis.structure_prediction.</li>
+<li>New core Spectrum object and associated pymatgen.vis.plotters.SpectrumPlotter.</li>
+<li>Parsing energies from gen_scfman module in Qchem 5 (Brandon Wood)</li>
+<li>Improvements to LAMMPSData, vasp IO.</li>
+</ul>
+</div>
 <div class="section" id="v2017-8-21">
 <h2>v2017.8.21<a class="headerlink" href="#v2017-8-21" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -1707,6 +1727,8 @@ environment variable.</li>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
+<li><a class="reference internal" href="#v2017-9-3">v2017.9.3</a></li>
+<li><a class="reference internal" href="#v2017-9-1">v2017.9.1</a></li>
 <li><a class="reference internal" href="#v2017-8-21">v2017.8.21</a></li>
 <li><a class="reference internal" href="#v2017-8-20">v2017.8.20</a></li>
 <li><a class="reference internal" href="#v2017-8-16">v2017.8.16</a></li>
@@ -1915,7 +1937,7 @@ environment variable.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>
 
