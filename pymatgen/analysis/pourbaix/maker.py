@@ -58,13 +58,6 @@ class PourbaixDiagram(object):
         if len(self._ion_entries) == 0:
             raise Exception("No ion phase. Equilibrium between ion/solid "
                             "is required to make a Pourbaix Diagram")
-            # TODO: why is this true?  I could just want to look at the
-            #   equilibria of solid phases? Does this mean I need H+? -montoyjh
-            # Singh: The statement by Sai is correct, however, his implementation
-            # naturally contains H+ and H2O so there is no reason that we cannot get a 
-            # Pourbaix diagram. But the plotting of the pbx diagram is done using intersection 
-            # of planes which fails when there are no ions. This is most likely because npH becomes
-            # equal to nPHi since self.charge = 0 for each entry
         self._unprocessed_entries = self._solid_entries + self._ion_entries
         self._elt_comp = comp_dict
         if comp_dict:
@@ -175,12 +168,16 @@ class PourbaixDiagram(object):
         dummy_oh = [Composition("H"), Composition("O")]
         try:
             # Get balanced reaction coeffs, ensuring all < 0 or conc thresh
-            entry_comps = [e.composition.reduced_composition for e in entry_list]
+            # Note that we get reduced compositions for solids and non-reduced 
+            # compositions for ions because ions aren't normalized due to
+            # their charge state.
+            entry_comps = [e.composition if e.phase_type=='Ion'
+                           else e.composition.reduced_composition 
+                           for e in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
             thresh = np.array([pe.conc if pe.phase_type == "Ion"
                                else 1e-3 for pe in entry_list])
-            coeffs = -np.array([rxn.get_coeff(e.composition.reduced_composition)
-                                for e in entry_list])
+            coeffs = -np.array([rxn.get_coeff(comp) for comp in entry_comps])
             if (coeffs > thresh).all():
                 weights = coeffs / coeffs[0]
                 return MultiEntry(entry_list, weights=weights.tolist())

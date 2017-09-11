@@ -16,6 +16,7 @@ try:
 except ImportError:
     PourbaixAnalyzer = None
 
+test_dir = os.path.join('..', '..', '..', '..', 'test_files')
 
 @unittest.skipIf(PourbaixAnalyzer is None, "ImportError while importing PourbaixAnalyzer")
 class TestPourbaixAnalyzer(unittest.TestCase):
@@ -29,7 +30,7 @@ class TestPourbaixAnalyzer(unittest.TestCase):
         self.decomp_test = {"ZnHO[+]": {"ZnO(s)": 0.5, "Zn[2+]": 0.5}, "ZnO(aq)": {"ZnO(s)": 1.0}}
         self.pd = PourbaixDiagram(entries)
         self.analyzer = PourbaixAnalyzer(self.pd)
-        self.multi_data = loadfn('multicomp_pbx.json')
+        self.multi_data = loadfn(os.path.join(test_dir, 'multicomp_pbx.json'))
         
     def test_get_facet_chempots(self):
         range_map = self.analyzer.get_chempot_range_map()
@@ -55,9 +56,9 @@ class TestPourbaixAnalyzer(unittest.TestCase):
 
         te_entry = pd_binary._unprocessed_entries[4]
         de, hull_e, entries = analyzer_binary.get_all_decomp_and_e_above_hull(te_entry)
-        self.assertEqual(len(de), 7)
-        self.assertEqual(len(hull_e), 7)
-        self.assertAlmostEqual(hull_e[0], 2.8721308052126204)
+        self.assertEqual(len(de), 10)
+        self.assertEqual(len(hull_e), 10)
+        self.assertAlmostEqual(hull_e[0], 5.4419792326439893)
 
     def test_ternary(self):
         # Ternary
@@ -68,7 +69,16 @@ class TestPourbaixAnalyzer(unittest.TestCase):
                                                   "N": 0.33333})
         analyzer_ternary = PourbaixAnalyzer(pd_ternary)
         de, hull_e, entries = analyzer_ternary.get_all_decomp_and_e_above_hull(te_entry)
-        # TODO: add metrics for unittest
+
+    def test_v_fe(self):
+        v_fe_entries = self.multi_data['v_fe']
+        pd = PourbaixDiagram(v_fe_entries, comp_dict = {"Fe": 0.5, "V": 0.5})
+        analyzer_vfe = PourbaixAnalyzer(pd)
+        entries = sorted(pd._all_entries, key=lambda x: x.energy)
+        self.assertAlmostEqual(entries[1].weights[1], 0.6666666666)
+        self.assertAlmostEqual(entries[1].energy, -110.77582628499995)
+        self.assertAlmostEqual(entries[100].energy, -20.685496454465955)
+
 
 if __name__ == '__main__':
     unittest.main()
