@@ -896,19 +896,27 @@ class StructureGraph(MSONable):
         molecules = []
         for subgraph in subgraphs:
 
-            coords = [supercell_sg.structure[n].coords for n
-                      in subgraph.nodes()]
-            species = [supercell_sg.structure[n].specie for n
-                      in subgraph.nodes()]
+            # discount subgraphs that lie across *supercell* boundaries
+            intersects_boundary = False
+            for u, v, d in subgraph.edges(data=True):
+                if d['to_jimage'] != (0, 0, 0):
+                    intersects_boundary = True
 
-            molecule = Molecule(species, coords)
+            if not intersects_boundary:
 
-            # shift so origin is at center of mass
-            molecule = molecule.get_centered_molecule()
+                coords = [supercell_sg.structure[n].coords for n
+                          in subgraph.nodes()]
+                species = [supercell_sg.structure[n].specie for n
+                          in subgraph.nodes()]
 
-            # TODO: rotate molecules in systematic way to remove duplicates
+                molecule = Molecule(species, coords)
 
-            if molecule not in molecules:
-                molecules.append(molecule)
+                # shift so origin is at center of mass
+                molecule = molecule.get_centered_molecule()
+
+                # TODO: rotate molecules in systematic way to remove duplicates
+
+                if molecule not in molecules:
+                    molecules.append(molecule)
 
         return list(molecules)
