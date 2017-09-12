@@ -699,8 +699,6 @@ class StructureGraph(MSONable):
 
         sg = StructureGraph.from_dict(d)
 
-        sg.sort()
-
         return sg
 
     def __rmul__(self, other):
@@ -874,3 +872,43 @@ class StructureGraph(MSONable):
             'both': edges.intersection(edges_other),
             'dist': jaccard_dist
         }
+
+    def get_subgraphs_as_molecules(self):
+        """
+        Retrieve subgraphs as molecules, useful for extracting
+        molecules from periodic crystals.
+
+        :return:
+        """
+
+        # creating a supercell is an easy way to extract
+        # molecules (and not, e.g., layers of a 2D crystal)
+        # without adding extra logic
+        supercell_sg = self*(3,3,3)
+
+        # make undirected to find connected subgraphs
+        supercell_sg.graph = nx.Graph(supercell_sg.graph)
+
+        # find subgraphs
+        subgraphs = nx.connected_component_subgraphs(supercell_sg.graph)
+
+        # get Molecule objects for each subgraph
+        molecules = []
+        for subgraph in subgraphs:
+
+            coords = [supercell_sg.structure[n].coords for n
+                      in subgraph.nodes()]
+            species = [supercell_sg.structure[n].specie for n
+                      in subgraph.nodes()]
+
+            molecule = Molecule(species, coords)
+
+            # shift so origin is at center of mass
+            molecule = molecule.get_centered_molecule()
+
+            # TODO: rotate molecules in systematic way to remove duplicates
+
+            if molecule not in molecules:
+                molecules.append(molecule)
+
+        return list(molecules)

@@ -262,5 +262,19 @@ from    to  to_image
         diff = sg.diff(sg2)
         self.assertEqual(diff['dist'], 0)
 
+    def test_extract_molecules(self):
+
+        structure_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                      'test_files/C26H16BeN2O2S2.cif')
+
+        s = Structure.from_file(structure_file)
+
+        nn = MinimumOKeeffeNN()
+        sg = StructureGraph.with_local_env_strategy(s, nn)
+
+        molecules = sg.get_subgraphs_as_molecules()
+
+        self.assertEqual(molecules[0].composition.formula, "Be1 H16 C26 S2 N2 O2")
+
 if __name__ == "__main__":
     unittest.main()
