@@ -9,7 +9,7 @@ import subprocess
 import numpy as np
 import os.path
 
-from pymatgen.core import Structure, Lattice, PeriodicSite
+from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.util.coord_utils import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
 from monty.json import MSONable
@@ -135,20 +135,14 @@ class StructureGraph(MSONable):
             neighbors = strategy.get_nn_info(structure, n)
             for neighbor in neighbors:
 
-                # to_jimage here always defined relative to
-                # PeriodicSite in origin cell (0, 0, 0)
-                to_index = neighbor['site_index']
-                to_jimage = np.subtract(neighbor['site'].frac_coords,
-                                        structure[to_index].frac_coords).astype(int)
-
                 # local_env will always try to add two edges
                 # for any one bond, one from site u to site v
                 # and another form site v to site u: this is
                 # harmless, so warn_duplicates=False
                 sg.add_edge(from_index=n,
                             from_jimage=(0, 0, 0),
-                            to_index=to_index,
-                            to_jimage=to_jimage,
+                            to_index=neighbor['site_index'],
+                            to_jimage=neighbor['image'],
                             weight=neighbor['weight'],
                             warn_duplicates=False)
 

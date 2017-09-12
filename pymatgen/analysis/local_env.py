@@ -498,7 +498,7 @@ class JMolNN(NearNeighbors):
                 siw.append({'site': neighb,
                             'image': self._get_image(neighb.frac_coords),
                             'weight': weight,
-                            'site_index': self._get_original_site(structure, site)})
+                            'site_index': self._get_original_site(structure, neighb)})
         return siw
 
 
@@ -549,7 +549,7 @@ class MinimumDistanceNN(NearNeighbors):
                 siw.append({'site': s,
                             'image': self._get_image(s.frac_coords),
                             'weight': w,
-                            'site_index': self._get_original_site(structure, site)})
+                            'site_index': self._get_original_site(structure, s)})
         return siw
 
 
@@ -614,7 +614,7 @@ class MinimumOKeeffeNN(NearNeighbors):
                 siw.append({'site': s,
                             'image': self._get_image(s.frac_coords),
                             'weight': w,
-                            'site_index': self._get_original_site(structure, site)})
+                            'site_index': self._get_original_site(structure, s)})
 
         return siw
 
@@ -674,7 +674,7 @@ class MinimumVIRENN(NearNeighbors):
                 siw.append({'site': s,
                             'image': self._get_image(s.frac_coords),
                             'weight': w,
-                            'site_index': self._get_original_site(structure, site)})
+                            'site_index': self._get_original_site(structure, s)})
 
         return siw
 
