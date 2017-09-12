@@ -13,6 +13,11 @@ from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.analysis.graphs import *
 from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
 
+try:
+    import openbabel as ob
+except ImportError:
+    ob = None
+
 __author__ = "Matthew Horton"
 __version__ = "0.1"
 __maintainer__ = "Matthew Horton"
@@ -262,6 +267,7 @@ from    to  to_image
         diff = sg.diff(sg2)
         self.assertEqual(diff['dist'], 0)
 
+    @unittest.skipIf(not ob, "Skipping extracting molecules test, openbabel not installed.")
     def test_extract_molecules(self):
 
         structure_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",
