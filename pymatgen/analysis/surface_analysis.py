@@ -553,7 +553,7 @@ class SurfaceEnergyPlotter(object):
         # Get all points of min/max chempot and intersections
         chempot_intersections = []
         chempot_intersections.extend(self.chempot_range)
-        for hkl in self.vasprun_dict.keys():
+        for hkl in self.entry_dict.keys():
             chempot_intersections.extend([ints[0] for ints in
                                           self.get_intersections(hkl)])
         chempot_intersections = sorted(chempot_intersections)
