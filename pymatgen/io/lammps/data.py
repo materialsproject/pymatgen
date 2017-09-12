@@ -98,17 +98,29 @@ Atoms
         self.box_tilt = box_tilt
         self.atom_style = atom_style
 
-    def __str__(self):
+    def __str__(self, significant_figures=6):
         """
         string representation of LammpsData
 
+        Args:
+            significant_figures (int): No. of significant figures to
+                output. Default to 6.
         Returns:
             String representation of the data file
         """
+        float_fmt = '%.{}f'.format(significant_figures)
 
-        def list_str(l):
-            return "\n".join([" ".join([str(x) for x in ad])
-                              for ad in l])
+        def list_str(l, accu_sw=False):
+            """
+            Need to use accu_sw to control if to use float_format or not.
+            Since for atomic mass, Lammps cannot read in formatted value.
+            """
+            if accu_sw:
+                return "\n".join([" ".join([str(float_fmt %x) for x in ad])
+                                    for ad in l])
+            else:
+                return "\n".join([" ".join([str(x) for x in ad])
+                                  for ad in l])
 
         d = {k: v for k, v in self.__dict__.items()}
         return LammpsData.TEMPLATE.format(
@@ -121,7 +133,7 @@ Atoms
             tilt="{:.6f} {:.6f} {:.6f} xy xz yz".format(
                 self.box_tilt[0], self.box_tilt[1], self.box_tilt[2]) if self.box_tilt else "",
             masses=list_str(self.atomic_masses),
-            atoms=list_str(self.atoms_data),
+            atoms=list_str(self.atoms_data, accu_sw=True),
             **d
         )
 
@@ -147,7 +159,7 @@ Atoms
 
         gamma = math.degrees(math.acos(xy / b))
         beta = math.degrees(math.acos(xz / c))
-        alpha = math.degrees(math.acos((yhi * yz + xy * xz) / a / c))
+        alpha = math.degrees(math.acos((yhi * yz + xy * xz) / b / c))
         lattice = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
         species = []
         coords = []
@@ -223,16 +235,18 @@ Atoms
             box_tilt = [xy, xz, yz]
         return box_size, box_tilt
 
-    def write_file(self, filename):
+    def write_file(self, filename, significant_figures=6):
         """
         write lammps data input file from the string representation
         of the data.
 
         Args:
             filename (string): data file name
+            significant_figures (int): No. of significant figures to
+                output. Default to 6.
         """
         with open(filename, 'w') as f:
-            f.write(self.__str__())
+            f.write(self.__str__(significant_figures=significant_figures))
 
     @staticmethod
     def get_basic_system_info(structure):
@@ -258,8 +272,8 @@ Atoms
              for i, el in enumerate(elements)])
         return natoms, natom_types, atomic_masses_dict
 
-    @staticmethod
-    def get_atoms_data(structure, atomic_masses_dict, set_charge=True):
+    @classmethod
+    def get_atoms_data(cls, structure, atomic_masses_dict, set_charge=True):
         """
         return the atoms data:
             Molecule:
@@ -286,6 +300,19 @@ Atoms
             For Structure:
                 [[atom_id, atom_type, charge(if present), x, y, z], ... ]
         """
+        # for structure,create new lattice. Lammps data requires lattice vector a is in x-direction.
+        # The plane formed by lattice vector a,b should be perpendicular to z-direction.
+        if not isinstance(structure, Molecule):
+            box_size = None
+            box_size, box_tilt = cls.check_box_size(structure, box_size)
+#            xy, xz, yz = box_tilt if box_tilt is not None else [0.0, 0.0, 0.0]
+            matrix = np.array([[box_size[0][1], 0, 0], [box_tilt[0], box_size[1][1], 0],
+                               [box_tilt[1], box_tilt[2], box_size[2][1]]])
+            new_lattice = Lattice(matrix)
+
+            # rotate the original structure according to the new lattice.
+            structure.modify_lattice(new_lattice)
+
         atoms_data = []
         # to comply with atom_style='molecular' and 'full'
         mol_id = 1 if isinstance(structure, Molecule) else None
@@ -504,14 +531,26 @@ Impropers
         self.dihedrals_data = dihedrals_data
         self.imdihedrals_data = imdihedrals_data
 
-    def __str__(self):
+    def __str__(self, significant_figures=6):
         """
+        Args:
+            significant_figures (int): No. of significant figures to
+                output. Default to 6.
         returns a string of lammps data input file
         """
+        float_fmt = '%.{}f'.format(significant_figures)
 
-        def list_str(l):
-            return "\n".join([" ".join([str(x) for x in ad])
-                              for ad in l])
+        def list_str(l, accu_sw=False):
+            """
+            Need to use accu_sw to control if to use float_format or not.
+            Since for atomic mass, Lammps cannot read in formatted value.
+            """
+            if accu_sw:
+                return "\n".join([" ".join([str(float_fmt %x) for x in ad])
+                                    for ad in l])
+            else:
+                return "\n".join([" ".join([str(x) for x in ad])
+                                  for ad in l])
 
         d = {k: v for k, v in self.__dict__.items()}
         for k in ["pair", "bond", "angle", "dihedral", "improper"]:
@@ -527,11 +566,11 @@ Impropers
             tilt="{:.6f} {:.6f} {:.6f} xy xz yz".format(
                 self.box_tilt[0], self.box_tilt[1], self.box_tilt[2]) if self.box_tilt else "",
             masses=list_str(self.atomic_masses),
-            atoms=list_str(self.atoms_data),
-            bonds=list_str(self.bonds_data),
-            angles=list_str(self.angles_data),
-            dihedrals=list_str(self.dihedrals_data),
-            impropers=list_str(self.imdihedrals_data),
+            atoms=list_str(self.atoms_data, accu_sw=True),
+            bonds=list_str(self.bonds_data, accu_sw=True),
+            angles=list_str(self.angles_data, accu_sw=True),
+            dihedrals=list_str(self.dihedrals_data,accu_sw=True),
+            impropers=list_str(self.imdihedrals_data,accu_sw=True),
             **d
         )
 
