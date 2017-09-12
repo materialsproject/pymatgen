@@ -12,6 +12,8 @@ import os.path
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.util.coord_utils import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
+from pymatgen.analysis.molecule_matcher import InchiMolAtomMapper
+
 from monty.json import MSONable
 from monty.os.path import which
 from operator import itemgetter
@@ -873,11 +875,14 @@ class StructureGraph(MSONable):
             'dist': jaccard_dist
         }
 
-    def get_subgraphs_as_molecules(self):
+    def get_subgraphs_as_molecules(self, molecule_matcher=None):
         """
         Retrieve subgraphs as molecules, useful for extracting
         molecules from periodic crystals.
 
+        :param molecule_matcher: optional, an instance of a
+        MolAtomMapper class for duplicate checking, if None
+        will use InchiMolAtomMapper
         :return:
         """
 
@@ -892,8 +897,12 @@ class StructureGraph(MSONable):
         # find subgraphs
         subgraphs = nx.connected_component_subgraphs(supercell_sg.graph)
 
+        # used to remove duplicates
+        if molecule_matcher is None:
+            molecule_matcher = InchiMolAtomMapper()
+
         # get Molecule objects for each subgraph
-        molecules = []
+        molecules = {}
         for subgraph in subgraphs:
 
             # discount subgraphs that lie across *supercell* boundaries
@@ -914,9 +923,9 @@ class StructureGraph(MSONable):
                 # shift so origin is at center of mass
                 molecule = molecule.get_centered_molecule()
 
-                # TODO: rotate molecules in systematic way to remove duplicates
+                hash = molecule_matcher.get_molecule_hash(molecule)
 
-                if molecule not in molecules:
-                    molecules.append(molecule)
+                if hash not in molecules:
+                    molecules[hash] = molecule
 
-        return list(molecules)
+        return list(molecules.values())

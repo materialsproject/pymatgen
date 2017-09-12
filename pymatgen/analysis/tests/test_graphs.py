@@ -275,6 +275,7 @@ from    to  to_image
         molecules = sg.get_subgraphs_as_molecules()
 
         self.assertEqual(molecules[0].composition.formula, "Be1 H16 C26 S2 N2 O2")
+        self.assertEqual(len(molecules), 1)
 
 if __name__ == "__main__":
     unittest.main()
