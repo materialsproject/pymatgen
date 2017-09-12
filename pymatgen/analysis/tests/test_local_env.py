@@ -11,8 +11,7 @@ import os
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
         VoronoiNN, JMolNN, \
         MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
-        get_neighbors_of_site_with_index, site_is_of_motif_type, \
-        NearNeighbors
+        get_neighbors_of_site_with_index, site_is_of_motif_type
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
@@ -47,7 +46,6 @@ class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
     def tearDown(self):
         del self._mgo_uc
         del self._mgo_valrad_evaluator
-
 
 class VoronoiNNTest(PymatgenTest):
     def setUp(self):
@@ -126,6 +124,10 @@ class MiniDistNNTest(PymatgenTest):
             ["Cl1-", "Cs1+"], [[2.105, 2.105, 2.105], [0, 0, 0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.mos2 = Structure(
+            Lattice([[3.19, 0, 0], [-1.595, 2.763, 0], [0, 0, 17.44]]),
+            ['Mo', 'S', 'S'], [[-1e-06, 1.842, 3.72], [1.595, 0.92, 5.29], \
+            [1.595, 0.92, 2.155]], coords_are_cartesian=True)
 
     def test_all_nn_classes(self):
         self.assertAlmostEqual(MinimumDistanceNN().get_cn(
@@ -134,6 +136,11 @@ class MiniDistNNTest(PymatgenTest):
             self.nacl, 0), 6)
         self.assertAlmostEqual(MinimumDistanceNN(tol=0.01).get_cn(
             self.cscl, 0), 8)
+        self.assertAlmostEqual(MinimumDistanceNN(tol=0.1).get_cn(
+            self.mos2, 0), 6)
+        for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
+            self.assertTrue(image in [[0, 0, 0], [0, 1, 0], [-1, 0, 0], \
+                    [0, 0, 0], [0, 1, 0], [-1, 0, 0]])
 
         self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
             self.diamond, 0), 4)
@@ -148,45 +155,12 @@ class MiniDistNNTest(PymatgenTest):
             self.nacl, 0), 6)
         self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
             self.cscl, 0), 8)
-
-    def test_nn_info(self):
-
-        nn_info = MinimumDistanceNN().get_nn_info(self.diamond, 0)
-        self.assertEqual(nn_info[0]['site_index'], 1)
-        self.assertEqual(nn_info[0]['image'][0], 1)
-        self.assertAlmostEqual(nn_info[0]['weight'], 0.99987201354891919)
 
     def tearDown(self):
         del self.diamond
         del self.nacl
         del self.cscl
-
-
-class NearNeighborTest(PymatgenTest):
-
-    def setUp(self):
-        self.diamond = Structure(
-            Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264],
-                     [0, 0, 2.528]]), ["C0+", "C0+"], [[2.554, 1.806, 4.423],
-                                                       [0.365, 0.258, 0.632]],
-            validate_proximity=False,
-            to_unit_cell=False, coords_are_cartesian=True,
-            site_properties=None)
-
-    def set_nn_info(self):
-
-        # check conformance
-        # implicitly assumes that all NearNeighbors subclasses
-        # will correctly identify bonds in diamond, if it
-        # can't there are probably bigger problems
-        subclasses = NearNeighbors.__subclasses__()
-        for subclass in subclasses:
-            nn_info = subclass().get_nn_info(self.diamond, 0)
-            self.assertEqual(nn_info[0]['site_index'], 1)
-            self.assertEqual(nn_info[0]['image'][0], 1)
-
-    def tearDown(self):
-        del self.diamond
+        del self.mos2
 
 
 class MotifIdentificationTest(PymatgenTest):
@@ -278,6 +252,7 @@ class MotifIdentificationTest(PymatgenTest):
                 self.diamond, 0, approach="min_OKeeffe")), 4)
         self.assertEqual(len(get_neighbors_of_site_with_index(
                 self.diamond, 0, approach="min_VIRE")), 4)
+
 
     def tearDown(self):
         del self.silicon
