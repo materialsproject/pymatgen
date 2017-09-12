@@ -34,19 +34,18 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
 
     def setUp(self):
 
-        entry_dict = get_entry_dict(os.path.join(get_path(""),
-                                                 "Cu_entries.txt"))
+        self.entry_dict = get_entry_dict(os.path.join(get_path(""),
+                                                      "Cu_entries.txt"))
         c = Composition("Cu")
-        self.Cu_analyzer = SurfaceEnergyCalculator("mp-30", entry_dict, c, c)
+        self.Cu_analyzer = SurfaceEnergyCalculator("mp-30", c, c)
 
     def test_gamma_calculator(self):
 
         # make sure we've loaded all our files correctly
-        self.assertEqual(len(self.Cu_analyzer.entry_dict.keys()), 13)
-        entry_dict = self.Cu_analyzer.entry_dict
+        self.assertEqual(len(self.entry_dict.keys()), 13)
         all_se = []
-        for hkl, entries in entry_dict.items():
-            u1, u2 = self.Cu_analyzer.chempot_range
+        for hkl, entries in self.entry_dict.items():
+            u1, u2 = self.Cu_analyzer.chempot_range()
             se1 = self.Cu_analyzer.calculate_gamma_at_u(entries[0], u1)
             se2 = self.Cu_analyzer.calculate_gamma_at_u(entries[0], u2)
             # For a stoichiometric system, we expect surface
@@ -57,7 +56,13 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
         # The (111) facet should be the most stable
         self.assertEqual(min(all_se),
                          self.Cu_analyzer.calculate_gamma_at_u(\
-                             entry_dict[(1,1,1)][0], 0))
+                             self.entry_dict[(1,1,1)][0], 0))
+
+    def test_chempot_range(self):
+
+        # just check we always get two values in a list
+        chempot = self.Cu_analyzer.chempot_range()
+        self.assertEqual(len(chempot), 2)
 
 class SurfaceEnergyPlotterTest(PymatgenTest):
 
@@ -66,15 +71,8 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         entry_dict = get_entry_dict(os.path.join(get_path(""),
                                                  "Cu_entries.txt"))
         c = Composition("Cu")
-        calculator = SurfaceEnergyCalculator("mp-30", entry_dict, c, c)
-        self.Cu_analyzer = SurfaceEnergyPlotter(calculator)
-
-    def test_get_intersections(self):
-
-        # Just test if its working, for Cu, there are no different
-        #  terminations so everything should be a nonetype
-        for hkl in self.Cu_analyzer.entry_dict.keys():
-            self.assertFalse(self.Cu_analyzer.get_intersections(hkl))
+        calculator = SurfaceEnergyCalculator("mp-30", c, c)
+        self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, calculator)
 
     def test_get_wulff_shape_dict(self):
 
@@ -96,6 +94,14 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         for hkl in self.Cu_analyzer.entry_dict.keys():
             self.assertEqual(wulff1.area_fraction_dict[hkl],
                              wulff2.area_fraction_dict[hkl])
+
+    def test_get_intersections(self):
+
+        # Just test if its working, for Cu, there are no different
+        #  terminations so everything should be a nonetype
+        for hkl in self.Cu_analyzer.entry_dict.keys():
+            self.assertFalse(self.Cu_analyzer.get_intersections(hkl))
+
 
 if __name__ == "__main__":
     unittest.main()
