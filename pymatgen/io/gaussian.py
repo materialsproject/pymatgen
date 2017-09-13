@@ -1298,10 +1298,10 @@ class GaussianOutput(object):
         if not mol:
             mol = self.final_structure
 
-        if not charge:
+        if charge is None:
             charge = self.charge
 
-        if not spin_multiplicity:
+        if spin_multiplicity is None:
             spin_multiplicity = self.spin_mult
 
         if not title:
