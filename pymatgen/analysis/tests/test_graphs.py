@@ -267,7 +267,6 @@ from    to  to_image
         diff = sg.diff(sg2)
         self.assertEqual(diff['dist'], 0)
 
-    @unittest.skipIf(not ob, "Skipping extracting molecules test, openbabel not installed.")
     def test_extract_molecules(self):
 
         structure_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",

@@ -12,7 +12,6 @@ import os.path
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.util.coord_utils import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
-from pymatgen.analysis.molecule_matcher import InchiMolAtomMapper
 
 from monty.json import MSONable
 from monty.os.path import which
@@ -875,15 +874,22 @@ class StructureGraph(MSONable):
             'dist': jaccard_dist
         }
 
-    def get_subgraphs_as_molecules(self, molecule_matcher=None):
+    def get_subgraphs_as_molecules(self, use_weights=False):
         """
         Retrieve subgraphs as molecules, useful for extracting
         molecules from periodic crystals.
 
-        :param molecule_matcher: optional, an instance of a
-        MolAtomMapper class for duplicate checking, if None
-        will use InchiMolAtomMapper
-        :return:
+        Will only return unique molecules, not any duplicates
+        present in the crystal (a duplicate defined as an
+        isomorphic subgraph).
+
+        :param use_weights (bool): If True, only treat subgraphs
+        as isomorphic if edges have the same weights. Typically,
+        this means molecules will need to have the same bond
+        lengths to be defined as duplicates, otherwise bond
+        lengths can differ.
+
+        :return: list of unique Molecules in Structure
         """
 
         # creating a supercell is an easy way to extract
@@ -895,37 +901,57 @@ class StructureGraph(MSONable):
         supercell_sg.graph = nx.Graph(supercell_sg.graph)
 
         # find subgraphs
-        subgraphs = nx.connected_component_subgraphs(supercell_sg.graph)
+        all_subgraphs = list(nx.connected_component_subgraphs(supercell_sg.graph))
 
-        # used to remove duplicates
-        if molecule_matcher is None:
-            molecule_matcher = InchiMolAtomMapper()
+        # discount subgraphs that lie across *supercell* boundaries
+        # these will subgraphs representing crystals
+        molecule_subgraphs = []
+        for subgraph in all_subgraphs:
+            intersects_boundary = any([d['to_jimage'] != (0, 0, 0)
+                                      for u, v, d in subgraph.edges(data=True)])
+            if not intersects_boundary:
+                molecule_subgraphs.append(subgraph)
+
+        # add specie names to graph to be able to test for isomorphism
+        for subgraph in molecule_subgraphs:
+            for n in subgraph:
+                subgraph.add_node(n, specie=str(supercell_sg.structure[n].specie))
+
+        # now define how we test for isomorphism
+        def node_match(n1, n2):
+            return n1['specie'] == n2['specie']
+        def edge_match(e1, e2):
+            if use_weights:
+                return e1['weight'] == e2['weight']
+            else:
+                return True
+
+        # prune duplicate subgraphs
+        unique_subgraphs = []
+        for subgraph in molecule_subgraphs:
+
+            already_present = [nx.is_isomorphic(subgraph, g,
+                                                node_match=node_match,
+                                                edge_match=edge_match)
+                               for g in unique_subgraphs]
+
+            if not any(already_present):
+                unique_subgraphs.append(subgraph)
 
         # get Molecule objects for each subgraph
-        molecules = {}
-        for subgraph in subgraphs:
+        molecules = []
+        for subgraph in unique_subgraphs:
 
-            # discount subgraphs that lie across *supercell* boundaries
-            intersects_boundary = False
-            for u, v, d in subgraph.edges(data=True):
-                if d['to_jimage'] != (0, 0, 0):
-                    intersects_boundary = True
+            coords = [supercell_sg.structure[n].coords for n
+                      in subgraph.nodes()]
+            species = [supercell_sg.structure[n].specie for n
+                      in subgraph.nodes()]
 
-            if not intersects_boundary:
+            molecule = Molecule(species, coords)
 
-                coords = [supercell_sg.structure[n].coords for n
-                          in subgraph.nodes()]
-                species = [supercell_sg.structure[n].specie for n
-                          in subgraph.nodes()]
+            # shift so origin is at center of mass
+            molecule = molecule.get_centered_molecule()
 
-                molecule = Molecule(species, coords)
+            molecules.append(molecule)
 
-                # shift so origin is at center of mass
-                molecule = molecule.get_centered_molecule()
-
-                hash = molecule_matcher.get_molecule_hash(molecule)
-
-                if hash not in molecules:
-                    molecules[hash] = molecule
-
-        return list(molecules.values())
+        return molecules
