@@ -679,6 +679,14 @@ class OutcarTest(unittest.TestCase):
             for k in e1.keys():
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
 
+    def test_read_fermi_contact_shift(self):
+        filepath = os.path.join(test_dir, "OUTCAR_fc")
+        outcar = Outcar(filepath)
+        outcar.read_fermi_contact_shift()
+        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'fch'][0][0], -0.002)
+        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'th'][0][0], -0.052)
+        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'dh'][0][0], 0.0)
+
 
 class BSVasprunTest(unittest.TestCase):
 
@@ -701,6 +709,8 @@ class BSVasprunTest(unittest.TestCase):
                          "wrong vbm bands")
         self.assertEqual(vbm['kpoint'].label, "\\Gamma", "wrong vbm label")
         self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
+        d = vasprun.as_dict()
+        self.assertIn("eigenvalues", d["output"])
 
 
 class OszicarTest(unittest.TestCase):
@@ -846,6 +856,10 @@ class XdatcarTest(unittest.TestCase):
         self.assertEqual(len(structures), 4)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
+
+        x.concatenate(os.path.join(test_dir, 'XDATCAR_4'))
+        self.assertEqual(len(x.structures), 8)
+        self.assertIsNotNone(x.get_string())
 
 
 class DynmatTest(unittest.TestCase):

@@ -386,7 +386,7 @@ class Vasprun(MSONable):
             if parse_potcar_file:
                 self.update_potcar_spec(parse_potcar_file)
 
-        if not self.converged:
+        if self.incar.get("ALGO", "") != "BSE" and (not self.converged):
             msg = "%s is an unconverged VASP run.\n" % filename
             msg += "Electronic convergence reached: %s.\n" % \
                    self.converged_electronic
@@ -595,16 +595,24 @@ class Vasprun(MSONable):
     @property
     def run_type(self):
         """
-        Returns the run type. Currently supports only GGA and HF calcs.
+        Returns the run type. Currently supports LDA, GGA, vdW-DF and HF calcs.
 
-        TODO: Fix for other functional types like LDA, PW91, etc.
+        TODO: Fix for other functional types like PW91, other vdW types, etc.
         """
-        if self.is_hubbard:
-            return "GGA+U"
-        elif self.parameters.get("LHFCALC", False):
-            return "HF"
+        if self.parameters.get("LHFCALC", False):
+            rt = "HF"
+        elif self.parameters.get("LUSE_VDW", False):
+            vdw_gga = {"RE": "DF", "OR": "optPBE", "BO": "optB88",
+                       "MK": "optB86b", "ML": "DF2"}
+            gga = self.parameters.get("GGA").upper()
+            rt = "vdW-" + vdw_gga[gga]
+        elif self.potcar_symbols[0].split()[0] == 'PAW':
+            rt = "LDA"
         else:
-            return "GGA"
+            rt = "GGA"
+        if self.is_hubbard:
+            rt += "+U"
+        return rt
 
     @property
     def is_hubbard(self):
@@ -854,17 +862,8 @@ class Vasprun(MSONable):
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = {}
-        if d["is_hubbard"]:
-            us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
-            js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
-            if len(us) == len(symbols):
-                d["hubbards"] = {symbols[i]: us[i] - js[i]
-                                 for i in range(len(symbols))}
-            else:
-                raise VaspParserError("Length of U value parameters and atomic"
-                                      " symbols are mismatched.")
-
+        d["hubbards"] = self.hubbards
+        
         unique_symbols = sorted(list(set(self.atomic_symbols)))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
@@ -1224,17 +1223,8 @@ class BSVasprun(Vasprun):
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = {}
-        if d["is_hubbard"]:
-            us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
-            js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
-            if len(us) == len(symbols):
-                d["hubbards"] = {symbols[i]: us[i] - js[i]
-                                 for i in range(len(symbols))}
-            else:
-                raise VaspParserError("Length of U value parameters and atomic"
-                                      " symbols are mismatched.")
-
+        d["hubbards"] = self.hubbards
+        
         unique_symbols = sorted(list(set(self.atomic_symbols)))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
@@ -2397,6 +2387,59 @@ class Outcar(MSONable):
 
         return d
 
+    def read_fermi_contact_shift(self):
+        '''
+        output example:
+        Fermi contact (isotropic) hyperfine coupling parameter (MHz)
+        -------------------------------------------------------------
+        ion      A_pw      A_1PS     A_1AE     A_1c      A_tot
+        -------------------------------------------------------------
+         1      -0.002    -0.002    -0.051     0.000    -0.052
+         2      -0.002    -0.002    -0.051     0.000    -0.052
+         3       0.056     0.056     0.321    -0.048     0.321
+        -------------------------------------------------------------
+        , which corresponds to
+        [[-0.002, -0.002, -0.051, 0.0, -0.052],
+         [-0.002, -0.002, -0.051, 0.0, -0.052],
+         [0.056, 0.056, 0.321, -0.048, 0.321]] from 'fch' data
+        '''
+
+        # Fermi contact (isotropic) hyperfine coupling parameter (MHz)
+        header_pattern1 = r"\s*Fermi contact \(isotropic\) hyperfine coupling parameter \(MHz\)\s+" \
+                          r"\s*\-+" \
+                          r"\s*ion\s+A_pw\s+A_1PS\s+A_1AE\s+A_1c\s+A_tot\s+" \
+                          r"\s*\-+"
+        row_pattern1 = r'(?:\d+)\s+' + r'\s+'.join([r'([-]?\d+\.\d+)'] * 5)
+        footer_pattern = r"\-+"
+        fch_table = self.read_table_pattern(header_pattern1, row_pattern1,
+                                            footer_pattern, postprocess=float,
+                                            last_one_only=True)
+
+        # Dipolar hyperfine coupling parameters (MHz)
+        header_pattern2 = r"\s*Dipolar hyperfine coupling parameters \(MHz\)\s+" \
+                          r"\s*\-+" \
+                          r"\s*ion\s+A_xx\s+A_yy\s+A_zz\s+A_xy\s+A_xz\s+A_yz\s+" \
+                          r"\s*\-+"
+        row_pattern2 = r'(?:\d+)\s+' + r'\s+'.join([r'([-]?\d+\.\d+)'] * 6)
+        dh_table = self.read_table_pattern(header_pattern2, row_pattern2,
+                                           footer_pattern, postprocess=float,
+                                           last_one_only=True)
+
+        # Total hyperfine coupling parameters after diagonalization (MHz)
+        header_pattern3 = r"\s*Total hyperfine coupling parameters after diagonalization \(MHz\)\s+" \
+                          r"\s*\(convention: \|A_zz\| > \|A_xx\| > \|A_yy\|\)\s+" \
+                          r"\s*\-+" \
+                          r"\s*ion\s+A_xx\s+A_yy\s+A_zz\s+asymmetry \(A_yy - A_xx\)/ A_zz\s+" \
+                          r"\s*\-+"
+        row_pattern3 = r'(?:\d+)\s+' + r'\s+'.join([r'([-]?\d+\.\d+)'] * 4)
+        th_table = self.read_table_pattern(header_pattern3, row_pattern3,
+                                           footer_pattern, postprocess=float,
+                                           last_one_only=True)
+
+        fc_shift_table = {'fch': fch_table, 'dh': dh_table, 'th': th_table}
+
+        self.data["fermi_contact_shift"] = fc_shift_table
+
 
 class VolumetricData(object):
     """
@@ -3210,8 +3253,7 @@ class Xdatcar(object):
                         if (ionicstep_cnt >= ionicstep_start):
                             structures.append(p.structure)
                     else:
-                        if (ionicstep_cnt >= ionicstep_start and
-                            ionicstep_cnt < ionicstep_end):
+                        if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                             structures.append(p.structure)
                     ionicstep_cnt += 1
                     coords_str = []
@@ -3220,14 +3262,13 @@ class Xdatcar(object):
             p = Poscar.from_string("\n".join(preamble +
                                              ["Direct"] + coords_str))
             if ionicstep_end is None:
-                if (ionicstep_cnt >= ionicstep_start):
+                if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
             else:
-                if (ionicstep_cnt >= ionicstep_start and
-                    ionicstep_cnt < ionicstep_end):
+                if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                     structures.append(p.structure)
         self.structures = structures
-        self.comment = self.structures[0].formula if comment is None else comment
+        self.comment = comment or self.structures[0].formula
 
     @property
     def site_symbols(self):
@@ -3257,13 +3298,14 @@ class Xdatcar(object):
             ionicstep_start (int): Starting number of ionic step.
             ionicstep_end (int): Ending number of ionic step.
         TODO(rambalachandran):
-           Requires a check to ensure if the new concatenating file has the same lattice structure and atoms as the Xdatcar class.
+           Requires a check to ensure if the new concatenating file has the
+           same lattice structure and atoms as the Xdatcar class.
         """
         preamble = None
         coords_str = []
         structures = self.structures
         preamble_done = False
-        if (ionicstep_start < 1):
+        if ionicstep_start < 1:
             raise Exception('Start ionic step cannot be less than 1')
         if (ionicstep_end is not None and
             ionicstep_start < 1):
@@ -3293,8 +3335,7 @@ class Xdatcar(object):
                         if (ionicstep_cnt >= ionicstep_start):
                             structures.append(p.structure)
                     else:
-                        if (ionicstep_cnt >= ionicstep_start and
-                            ionicstep_cnt < ionicstep_end):
+                        if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                             structures.append(p.structure)
                     ionicstep_cnt += 1
                     coords_str = []
@@ -3303,11 +3344,10 @@ class Xdatcar(object):
             p = Poscar.from_string("\n".join(preamble +
                                              ["Direct"] + coords_str))
             if ionicstep_end is None:
-                if (ionicstep_cnt >= ionicstep_start):
+                if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
             else:
-                if (ionicstep_cnt >= ionicstep_start and
-                    ionicstep_cnt < ionicstep_end):
+                if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                     structures.append(p.structure)
         self.structures = structures
 
@@ -3348,8 +3388,7 @@ class Xdatcar(object):
                         lines.append(line)
                     output_cnt += 1
             else:
-                if (ionicstep_cnt >= ionicstep_start and
-                    ionicstep_cnt < ionicstep_end):
+                if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                     lines.append("Direct configuration="+
                                  ' '*(7-len(str(output_cnt)))+str(output_cnt))
                     for (i, site) in enumerate(structure):
@@ -3364,10 +3403,15 @@ class Xdatcar(object):
         Write  Xdatcar class into a file.
         Args:
             filename (str): Filename of output XDATCAR file.
-            The supported kwargs are the same as those for the Xdatcar.get_string method and are passed through directly.
+            The supported kwargs are the same as those for the
+            Xdatcar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
             f.write(self.get_string(**kwargs))
+
+    def __str__(self):
+        return self.get_string()
+
 
 
 class Dynmat(object):

@@ -81,25 +81,26 @@ class NEBAnalysis(MSONable):
                 be zero.
         """
         self.spline_options = spline_options
+        relative_energies = self.energies - self.energies[0]
         if scipy_old_piecewisepolynomial:
             if self.spline_options:
                 raise RuntimeError('Option for saddle point not available with'
                                    'old scipy implementation')
             self.spline = PiecewisePolynomial(
-                self.r, np.array([self.energies, -self.forces]).T,
+                self.r, np.array([relative_energies, -self.forces]).T,
                 orders=3)
         else:
             # New scipy implementation for scipy > 0.18.0
             if self.spline_options.get('saddle_point', '') == 'zero_slope':
-                imax = np.argmax(self.energies)
+                imax = np.argmax(relative_energies)
                 self.spline = CubicSpline(x=self.r[:imax + 1],
-                                          y=self.energies[:imax + 1],
+                                          y=relative_energies[:imax + 1],
                                           bc_type=((1, 0.0), (1, 0.0)))
-                cspline2 = CubicSpline(x=self.r[imax:], y=self.energies[imax:],
+                cspline2 = CubicSpline(x=self.r[imax:], y=relative_energies[imax:],
                                        bc_type=((1, 0.0), (1, 0.0)))
                 self.spline.extend(c=cspline2.c, x=cspline2.x[1:])
             else:
-                self.spline = CubicSpline(x=self.r, y=self.energies,
+                self.spline = CubicSpline(x=self.r, y=relative_energies,
                                           bc_type=((1, 0.0), (1, 0.0)))
 
     @classmethod
@@ -142,9 +143,7 @@ class NEBAnalysis(MSONable):
             if i in [0, len(outcars) - 1]:
                 forces.append(0)
             else:
-                forces.append(o.data["tangent_force"])
-        energies = np.array(energies)
-        energies -= energies[0]
+                forces.append(o.data["tangent_force"]) 
         forces = np.array(forces)
         r = np.array(r)
         return cls(r=r, energies=energies, forces=forces,
@@ -193,7 +192,8 @@ class NEBAnalysis(MSONable):
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
         x = np.arange(0, np.max(self.r), 0.01)
         y = self.spline(x) * 1000
-        plt.plot(self.r * scale, self.energies * 1000, 'ro',
+        relative_energies = self.energies - self.energies[0]
+        plt.plot(self.r * scale, relative_energies * 1000, 'ro',
                  x * scale, y, 'k-', linewidth=2, markersize=10)
         plt.xlabel("Reaction coordinate")
         plt.ylabel("Energy (meV)")

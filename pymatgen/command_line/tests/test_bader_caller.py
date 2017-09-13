@@ -4,10 +4,10 @@
 
 from __future__ import division, unicode_literals
 import unittest
-import os
 
 from pymatgen.command_line.bader_caller import *
 from monty.os.path import which
+import numpy as np
 
 """
 TODO: Change the module doc.
@@ -47,6 +47,20 @@ class BaderAnalysisTest(unittest.TestCase):
         analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.Fe3O4"))
         self.assertEqual(len(analysis.data), 14)
 
+    def test_from_path(self):
+        test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                "test_files", "bader")
+        analysis = BaderAnalysis.from_path(test_dir)
+        chgcar = os.path.join(test_dir, "CHGCAR.gz")
+        chgref = os.path.join(test_dir, "_CHGCAR_sum.gz")
+        analysis0 = BaderAnalysis(chgcar_filename=chgcar,
+                                  chgref_filename=chgref)
+        charge = np.array(analysis.summary["charge"])
+        charge0 = np.array(analysis0.summary["charge"])
+        self.assertTrue(np.allclose(charge, charge0))
+        if os.path.exists("CHGREF"):
+            os.remove("CHGREF")
+
     def test_automatic_runner(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 'test_files/bader')
@@ -75,6 +89,23 @@ class BaderAnalysisTest(unittest.TestCase):
                                                'atomic_volume', 'charge', 'bader_version', 'reference_used'})
         self.assertTrue(summary['reference_used'])
         self.assertAlmostEqual(sum(summary['magmom']), 28, places=1)
+
+    def test_atom_parsing(self):
+        test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                'test_files')
+
+        # test with reference file
+        analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.Fe3O4"),
+                                 os.path.join(test_dir, "POTCAR.Fe3O4"),
+                                 os.path.join(test_dir, "CHGCAR.Fe3O4_ref"),
+                                 parse_atomic_densities=True)
+
+        self.assertEqual(len(analysis.atomic_densities),len(analysis.chgcar.structure))
+
+        self.assertAlmostEqual(np.sum(analysis.chgcar.data['total']),
+                               np.sum([np.sum(d['data']) for d in analysis.atomic_densities]))
+
+
 
 if __name__ == '__main__':
     unittest.main()

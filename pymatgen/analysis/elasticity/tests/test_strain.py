@@ -50,20 +50,30 @@ class DeformationTest(PymatgenTest):
                                      [1.958500946136, 3.32571019, 0],
                                      [0, -2.21713849, 3.13550906]])
         self.assertArrayAlmostEqual(strained_ind.lattice.matrix,
-                                    [[3.84019793, 0.07680396, 0],
-                                     [1.92009897, 3.36411217, 0],
-                                     [0, -2.21713849, 3.13550906]])
+                                    [[3.84019793, 0, 0],
+                                     [1.9866132, 3.32571019, 0],
+                                     [-0.04434277, -2.21713849, 3.13550906]])
         self.assertArrayAlmostEqual(strained_non.lattice.matrix,
-                                    [[3.84019793, 0.07680396, 0.07680396],
-                                     [1.92009897, 3.36411217, 0.0384019794],
-                                     [0, -2.21713849, 3.13550906]])
+                                    [[3.84019793, 0, 0],
+                                     [1.9866132, 3.3257102, 0],
+                                     [0.0183674, -2.21713849, 3.13550906]])
         # Check coordinates
         self.assertArrayAlmostEqual(strained_norm.sites[1].coords,
                                     [3.91700189, 1.224e-06, 2.3516318])
         self.assertArrayAlmostEqual(strained_ind.sites[1].coords,
-                                    [3.84019793, 0.07680518, 2.3516318])
+                                    [3.84019793, 1.224e-6, 2.3516318])
         self.assertArrayAlmostEqual(strained_non.sites[1].coords,
-                                    [3.84019793, 0.07680518, 2.42843575])
+                                    [3.8872306, 1.224e-6, 2.3516318])
+
+        # Check convention for applying transformation
+        for vec, defo_vec in zip(self.structure.lattice.matrix, 
+                strained_non.lattice.matrix):
+            new_vec = np.dot(self.non_ind_defo, np.transpose(vec))
+            self.assertArrayAlmostEqual(new_vec, defo_vec)
+        for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords):
+            new_coord = np.dot(self.non_ind_defo, np.transpose(coord))
+            self.assertArrayAlmostEqual(new_coord, defo_coord)
+
 
 
 class StrainTest(PymatgenTest):

@@ -1,5 +1,5 @@
-pymatgen.analysis.ferroelectricity package
-==========================================
+pymatgen\.analysis\.ferroelectricity package
+============================================
 
 Submodules
 ----------

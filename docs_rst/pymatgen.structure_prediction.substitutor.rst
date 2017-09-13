@@ -1,5 +1,5 @@
-pymatgen.structure_prediction.substitutor module
-================================================
+pymatgen\.structure\_prediction\.substitutor module
+===================================================
 
 .. automodule:: pymatgen.structure_prediction.substitutor
     :members:

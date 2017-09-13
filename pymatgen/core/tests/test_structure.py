@@ -452,7 +452,7 @@ class StructureTest(PymatgenTest):
 
         # Test slice replacement.
         s = PymatgenTest.get_structure("Li2O")
-        s[1:3] = "S"
+        s[0:2] = "S"
         self.assertEqual(s.formula, "Li1 S2")
 
     def test_non_hash(self):
@@ -573,6 +573,13 @@ class StructureTest(PymatgenTest):
         s_specie.remove_oxidation_states()
         self.assertEqual(s_elem, s_specie, "Oxidation state remover "
                                            "failed")
+
+    def test_add_oxidation_states_by_guess(self):
+        s = PymatgenTest.get_structure("Li2O")
+        s.add_oxidation_state_by_guess()
+        for i in s:
+            self.assertTrue(i.specie in [Specie("Li", 1),
+                                         Specie("O", -2)])
 
     def test_add_remove_spin_states(self):
 

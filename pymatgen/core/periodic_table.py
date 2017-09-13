@@ -426,6 +426,8 @@ class Element(Enum):
                             if "10<sup>" in toks[1]:
                                 base_power = re.findall(r'([+-]?\d+)', toks[1])
                                 factor = "e" + base_power[1]
+                                if toks[0] in ["&gt;", "high"]:
+                                    toks[0] = "1" # return the border value
                                 toks[0] += factor
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
@@ -511,6 +513,12 @@ class Element(Enum):
     def common_oxidation_states(self):
         """Tuple of all known oxidation states"""
         return tuple(self._data.get("Common oxidation states", list()))
+
+    @property
+    def icsd_oxidation_states(self):
+        """Tuple of all oxidation states with at least 10 instances in
+        ICSD database AND at least 1% of entries for that element"""
+        return tuple(self._data.get("ICSD oxidation states", list()))
 
     @property
     def full_electronic_structure(self):

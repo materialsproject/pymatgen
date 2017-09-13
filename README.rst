@@ -82,7 +82,7 @@ any system is to use pip::
 
     pip install pymatgen
 
-Wheels for Mac (Python 2.7 and 3.5) and Windows (Python 3.5) have been built
+Wheels for Mac (Python 2.7 and 3.6) and Windows (Python 3.6) have been built
 for convenience.
 
 Some extra functionality (e.g., generation of POTCARs) do require additional
