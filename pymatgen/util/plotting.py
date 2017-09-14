@@ -214,6 +214,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     # Convert elemental data in the form of numpy array for plotting.
     max_val = max(elemental_data.values())
     min_val = min(elemental_data.values())
+    max_row = min(max_row, 9)
     value_table = np.empty((max_row, 18)) * np.nan
     blank_value = min_val - 0.01
 
