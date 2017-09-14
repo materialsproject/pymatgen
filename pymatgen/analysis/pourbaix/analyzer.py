@@ -287,7 +287,7 @@ class PourbaixAnalyzer(object):
         for possible_entry in possible_entries:
             # Find the decomposition details if the material
             # is in the Pourbaix Multi Entry or Pourbaix Entry
-            facets = self._get_all_facets(multi_entry)
+            facets = self._get_all_facets(possible_entry)
             for facet in facets:
                 entrylist = [self._pd.qhull_entries[i] for i in facet]
                 m = self._make_comp_matrix(entrylist)
