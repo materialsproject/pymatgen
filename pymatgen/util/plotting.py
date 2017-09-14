@@ -190,7 +190,7 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
 
 def periodic_table_heatmap(elemental_data, cbar_label="",
                            show_plot=False, cmap="YlOrRd", blank_color="grey",
-                           show_value=True):
+                           show_value=True, max_row=9):
     """
     A static method that generates a heat map overlapped on a periodic table.
 
@@ -206,15 +206,24 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
          cmap (string): Color scheme of the heatmap. Default is 'coolwarm'.
          blank_color (string): Color assigned for the missing elements in
             elemental_data. Default is "grey".
+         max_row (integer): Maximum number of rows of the periodic table to be
+            shown. Default is 9, which means the periodic table heat map covers
+            the first 9 rows of elements.
     """
 
     # Convert elemental data in the form of numpy array for plotting.
     max_val = max(elemental_data.values())
     min_val = min(elemental_data.values())
-    value_table = np.empty((9, 18)) * np.nan
+    max_row = min(max_row, 9)
+
+    if max_row <= 0:
+        raise ValueError("The input argument 'max_row' must be positive!")
+    
+    value_table = np.empty((max_row, 18)) * np.nan
     blank_value = min_val - 0.01
 
     for el in Element:
+        if el.row > max_row: continue
         value = elemental_data.get(el.symbol, blank_value)
         value_table[el.row - 1, el.group - 1] = value
 
