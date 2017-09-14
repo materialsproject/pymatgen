@@ -36,6 +36,10 @@ logger = logging.getLogger(__name__)
 PREFAC = 0.0591
 MU_H2O = -2.4583
 
+# TODO: There's a lot of functionality here that diverges
+#   based on whether or not the pbx diagram is multielement
+#   or not.  Could be a more elegant way to
+#   treat the two distinct modes. -montoyjh
 
 class PourbaixDiagram(object):
     """
@@ -88,8 +92,10 @@ class PourbaixDiagram(object):
             self.pourbaix_elements = [el.symbol
                                       for el in entries[0].composition.elements
                                       if el.symbol not in ["H", "O"]]
+            # TODO: Figure out and document the physical meaning
+            # of ternary oxide of pbx diagrams in both modes
             self._elt_comp = {self.pourbaix_elements[0]: 1.0}
-        self._make_pourbaixdiagram()
+        self._make_pourbaix_diagram()
 
     def _create_conv_hull_data(self):
         """
@@ -186,7 +192,7 @@ class PourbaixDiagram(object):
         except ReactionError:
             return None
 
-    def _make_pourbaixdiagram(self):
+    def _make_pourbaix_diagram(self):
         """
         Calculates entries on the convex hull in the dual space.
         """
@@ -194,8 +200,11 @@ class PourbaixDiagram(object):
         self._qhull_data = self._create_conv_hull_data()
         dim = len(self._qhull_data[0])
         if len(self._qhull_data) < dim:
-            raise Exception("Can only do elements with at-least 3 entries"
-                                " for now")
+            # TODO: we might want to lift this restriction and
+            # supply a warning instead, really no reason it
+            # can't do more, even if it's slow.
+            raise NotImplementedError("Can only do elements with at-least "
+                                      "3 entries for now")
         if len(self._qhull_data) == dim:
             self._facets = [list(range(dim))]
         else:

@@ -34,7 +34,7 @@ __date__ = "December 10, 2012"
 
 PREFAC = 0.0591
 
-
+# TODO: revise pbxentry to include multientries
 class PourbaixEntry(MSONable):
     """
     An object encompassing all data relevant to an ion in a pourbaix diagram.
