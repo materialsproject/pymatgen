@@ -105,7 +105,7 @@ class HighSymmKpath(object):
             elif "I" in spg_symbol:
                 self._kpath = self.orci(a, b, c)
 
-            elif "C" in spg_symbol:
+            elif "C" in spg_symbol or "A" in spg_symbol:
                 self._kpath = self.orcc(a, b, c)
             else:
                 warn("Unexpected value for spg_symbol: %s" % spg_symbol)
