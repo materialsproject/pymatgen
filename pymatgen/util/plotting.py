@@ -190,7 +190,7 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
 
 def periodic_table_heatmap(elemental_data, cbar_label="",
                            show_plot=False, cmap="YlOrRd", blank_color="grey",
-                           show_value=True, max_row=9):
+                           value_format=None, max_row=9):
     """
     A static method that generates a heat map overlapped on a periodic table.
 
@@ -203,6 +203,8 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
          figure_name (string): Name of the plot (absolute path) being saved
             if not None.
          show_plot (bool): Whether to show the heatmap. Default is False.
+         value_format (str): Formatting string to show values. If None, no value
+            is shown. Example: "%.4f" shows float to four decimals.
          cmap (string): Color scheme of the heatmap. Default is 'coolwarm'.
          blank_color (string): Color assigned for the missing elements in
             elemental_data. Default is "grey".
@@ -255,8 +257,8 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
                 plt.text(j + 0.5, i + 0.25, symbol,
                          horizontalalignment='center',
                          verticalalignment='center', fontsize=14)
-                if el != blank_value and show_value:
-                    plt.text(j + 0.5, i + 0.5, "%.2f" % (el),
+                if el != blank_value and value_format is not None:
+                    plt.text(j + 0.5, i + 0.5, value_format % el,
                              horizontalalignment='center',
                              verticalalignment='center', fontsize=10)
 
