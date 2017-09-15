@@ -250,30 +250,6 @@ class PourbaixAnalyzer(object):
             only solid
         """
         decomp_entries, hull_energies, decomp_species, entries = [], [], [], []
-        
-        # I don't think this constraint is necessary, but don't
-        # yet understand the code well enough to remove it
-        # Singh : This constraint is not needed. Infact this constraint 
-        # will lead to failure in the generation of delta G pbx map for 
-        # single element materials.
-        # if not isinstance(self._pd.all_entries[0], MultiEntry):
-        #    raise ValueError("Only multi-entry Pourbaix Diagrams are supported")
-
-        # Consider entries which have only one solid phase
-        # TODO: Why this constraint?
-        # Singh: if the comp_dict has ratio of elements 
-        # as in the material considered, this contraint is not needed
-        # since the entry with minimum decompositione energy would be 
-        # the one with only the material in consideration
-        # Although if the comp_dict is different from the
-        # material's composition, we want to consider only those entries
-        # where we have only this material as the solid along with 
-        # ions which are formed due to the off stiochiometry of the
-        # comp_dict. This mimics a scenario where when one drops 
-        # a material in water and then later adjusts the concentration 
-        # of some elements to bias the system. For the electrochemical 
-        # stability app this is not needed, however, it is useful for 
-        # specific cases.
 
         # for all entries where the material is the only solid
         if not isinstance(self._pd.all_entries[0], MultiEntry):
