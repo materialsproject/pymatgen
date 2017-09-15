@@ -309,6 +309,13 @@ class MiscFunctionTest(PymatgenTest):
 
 class OrderParametersTest(PymatgenTest):
     def setUp(self):
+        self.single_bond = Structure(
+            Lattice.from_lengths_and_angles(
+            [10, 10, 10], [90, 90, 90]),
+            ["H", "H", "H"], [[1, 0, 0], [0, 0, 0], [6, 0, 0]],
+            validate_proximity=False,
+            to_unit_cell=False, coords_are_cartesian=True,
+            site_properties=None)
         self.linear = Structure(
             Lattice.from_lengths_and_angles(
             [10, 10, 10], [90, 90, 90]),
@@ -395,15 +402,24 @@ class OrderParametersTest(PymatgenTest):
     def test_get_order_parameters(self):
         # Set up everything.
         op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
-                "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr"]
-        op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], []]
-        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], []]
+                "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr", "sgl_bd"]
+        #op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], [], None]
+        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], [], []]
         ops_044 = OrderParameters(op_types, op_paras, 0.44)
         ops_071 = OrderParameters(op_types, op_paras, 0.71)
         ops_087 = OrderParameters(op_types, op_paras, 0.87)
         ops_099 = OrderParameters(op_types, op_paras, 0.99)
         ops_101 = OrderParameters(op_types, op_paras, 1.01)
+        ops_501 = OrderParameters(op_types, op_paras, 5.01)
         ops_voro = OrderParameters(op_types, op_paras)
+
+        # Single bond.
+        op_vals = ops_101.get_order_parameters(self.single_bond, 0)
+        self.assertAlmostEqual(int(op_vals[13] * 1000), 1000)
+        op_vals = ops_501.get_order_parameters(self.single_bond, 0)
+        self.assertAlmostEqual(int(op_vals[13] * 1000), 799)
+        op_vals = ops_101.get_order_parameters(self.linear, 0)
+        self.assertAlmostEqual(int(op_vals[13] * 1000), 0)
 
         # Linear motif.
         op_vals = ops_101.get_order_parameters(self.linear, 0)
@@ -503,6 +519,7 @@ class OrderParametersTest(PymatgenTest):
 
 
     def tearDown(self):
+        del self.single_bond
         del self.linear
         del self.bent45
         del self.cubic

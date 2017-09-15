@@ -868,7 +868,7 @@ class OrderParameters(object):
     """
 
     __supported_types = (
-            "cn", "lin", "bent", "tet", "tet_legacy", "oct", "oct_legacy",
+            "cn", "sgl_bd", "lin", "bent", "tet", "tet_legacy", "oct", "oct_legacy",
             "bcc", "q2", "q4", "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
@@ -880,6 +880,7 @@ class OrderParameters(object):
                 types are:
                   "cn": simple coordination number---normalized
                         if desired;
+                  "sgl_bd": single-bond OP;
                   "lin": Peters-style OP recognizing linear coordination
                          (Zimmermann & Jain, in progress, 2017);
                   "bent": Peters-style OP recognizing bent coordination
@@ -921,6 +922,7 @@ class OrderParameters(object):
                 for their computation (values in brackets denote default
                 values):
                   "cn":  normalizing constant (1);
+                  "sgl_bd": no parameter required;
                   "lin": Gaussian width in fractions of pi (180 degrees)
                          reflecting the "speed of penalizing" deviations
                          away from 180 degrees of any individual
@@ -1020,6 +1022,8 @@ class OrderParameters(object):
                                          " parameter is zero!")
                     else:
                         tmpparas[i].append(loc_parameters[i][0])
+            elif t == "sgl_bd":
+                tmpparas[i].append(None)
             elif t == "lin":
                 if len(loc_parameters[i]) == 0:
                     tmpparas[i] = [1.0 / 0.0667]
@@ -1207,8 +1211,11 @@ class OrderParameters(object):
             #                    to any neighbor j.
             # self._computerjks: compute vectors from non-centeral atom j
             #                    to any non-central atom k.
-            if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
-                    t == "tri_bipyr" or t == "tet_legacy" or t == "oct_legacy":
+            if t == "sgl_bd":
+                self._computerijs = True
+            if t == "tet" or t == "oct" or t == "bcc" or \
+                    t == "sq_pyr" or t == "tri_bipyr" or t == "tet_legacy" or \
+                    t == "oct_legacy":
                 self._computerijs = self._geomops = True
             if t == "reg_tri" or t =="sq":
                 self._computerijs = self._computerjks = self._geomops2 = True
@@ -1824,10 +1831,16 @@ class OrderParameters(object):
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
 
-        # First, coordination number-based OPs.
+        # First, coordination number and distance-based OPs.
         for i, t in enumerate(self._types):
             if t == "cn":
                 ops[i] = nneigh / self._paras[i][0]
+            elif t == "sgl_bd":
+                dist_sorted = sorted(dist)
+                if len(dist_sorted) == 1:
+                    ops[i] = 1.0
+                elif len(dist_sorted) > 1:
+                    ops[i] = 1.0 - dist_sorted[0]/dist_sorted[1]
 
         # Then, bond orientational OPs based on spherical harmonics
         # according to Steinhardt et al., Phys. Rev. B, 28, 784-805, 1983.
