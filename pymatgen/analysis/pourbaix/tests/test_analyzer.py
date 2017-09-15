@@ -69,6 +69,9 @@ class TestPourbaixAnalyzer(unittest.TestCase):
                                                   "N": 0.33333})
         analyzer_ternary = PourbaixAnalyzer(pd_ternary)
         de, hull_e, entries = analyzer_ternary.get_all_decomp_and_e_above_hull(te_entry)
+        self.assertEqual(len(de), 116)
+        self.assertEqual(len(hull_e), 116)
+        self.assertAlmostEqual(hull_e[0], 29.2520325229)
 
     def test_v_fe(self):
         v_fe_entries = self.multi_data['v_fe']
