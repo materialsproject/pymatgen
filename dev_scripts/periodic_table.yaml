@@ -1149,7 +1149,7 @@ Ge:
   Common oxidation states: [-4, 2, 4]
   Critical temperature: no data K
   Density of solid: 5323 kg m<sup>-3</sup>
-  Electrical resistivity: about 5000010<sup>-8</sup> &Omega; m
+  Electrical resistivity: about 50000 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>'
   Ionic radii: {2: 0.87, 4: 0.67}
   Liquid range: 1881.6 K
@@ -2649,7 +2649,7 @@ Si:
   Common oxidation states: [-4, 4]
   Critical temperature: no data K
   Density of solid: 2330 kg m<sup>-3</sup>
-  Electrical resistivity: about 10000010<sup>-8</sup> &Omega; m
+  Electrical resistivity: about 100000 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ne].3s<sup>2</sup>.3p<sup>2</sup>'
   Ionic radii: {4: 0.54}
   Liquid range: 1486 K
