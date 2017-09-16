@@ -1193,7 +1193,7 @@ class PDPlotter(object):
             ehull < show_unstable will be shown.
     """
 
-    def __init__(self, phasediagram, show_unstable=0):
+    def __init__(self, phasediagram, show_unstable=0, **plotkwargs):
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
         if self._dim > 4:
@@ -1201,6 +1201,7 @@ class PDPlotter(object):
         self.lines = uniquelines(self._pd.facets) if self._dim > 1 else \
             [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
+        self.plotkwargs = plotkwargs
 
     @property
     def pd_plot_data(self):
@@ -1314,15 +1315,13 @@ class PDPlotter(object):
                 for x, y in labels.keys():
                     if labels[(x, y)].attribute is None or \
                                     labels[(x, y)].attribute == "existing":
-                        plt.plot(x, y, "ko", linewidth=3, markeredgecolor="k",
-                                 markerfacecolor="b", markersize=12)
+                        plt.plot(x, y, "ko", linewidth=3,
+                                 **self.plotkwargs)
                     else:
-                        plt.plot(x, y, "k*", linewidth=3, markeredgecolor="k",
-                                 markerfacecolor="g", markersize=18)
+                        plt.plot(x, y, "k*", linewidth=3, **self.plotkwargs)
             else:
                 for x, y in lines:
-                    plt.plot(x, y, "ko-", linewidth=3, markeredgecolor="k",
-                             markerfacecolor="b", markersize=15)
+                    plt.plot(x, y, "ko-", linewidth=3, **self.plotkwargs)
         else:
             from matplotlib.colors import Normalize, LinearSegmentedColormap
             from matplotlib.cm import ScalarMappable

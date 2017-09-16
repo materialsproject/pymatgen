@@ -21,6 +21,7 @@ import os
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 test_dir_structs = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -29,6 +30,14 @@ test_dir_structs = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 class HighSymmKpathTest(PymatgenTest):
 
     def test_kpath_generation(self):
+        triclinic = [1, 2]
+        monoclinic = range(3, 16)
+        orthorhombic = range(16, 75)
+        tetragonal = range(75, 143)
+        rhombohedral = range(143, 168)
+        hexagonal = range(168, 195)
+        cubic = range(195, 231)
+        
         species = ['K', 'La', 'Ti']
         coords = [[.345, 5, .77298], [.1345, 5.1, .77298], [.7, .8, .9]]
         for i in range(230):
