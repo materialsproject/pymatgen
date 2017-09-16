@@ -71,7 +71,7 @@ class HighSymmKpathTest(PymatgenTest):
         kpoints = kpath._kpath['kpoints']
         labels = list(kpoints.keys())
 
-        self.assertEqual(labels, ['\\Gamma', 'A', 'A_1', 'R', 'S', 'T', 'X', 'X_1', 'Y', 'Z'])
+        self.assertEqual(sorted(labels), sorted(['\\Gamma', 'A', 'A_1', 'R', 'S', 'T', 'X', 'X_1', 'Y', 'Z']))
 
         self.assertEqual(kpoints['\\Gamma'][0], 0.00000000)
         self.assertAlmostEqual(kpoints['\\Gamma'][1], 0.00000000)
