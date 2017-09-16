@@ -20,6 +20,7 @@ import unittest
 import os
 
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
