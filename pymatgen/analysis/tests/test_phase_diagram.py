@@ -454,10 +454,10 @@ class PDPlotterTest(unittest.TestCase):
                    if len(e.composition) < 3 and ("Fe" not in e.composition)]
 
         self.pd_formation = PhaseDiagram(entrieslio)
-        self.plotter_formation = PDPlotter(self.pd_formation, show_unstable=True)
+        self.plotter_formation = PDPlotter(self.pd_formation, show_unstable=0.1)
         entries.append(PDEntry("C", 0))
         self.pd3d = PhaseDiagram(entries)
-        self.plotter3d = PDPlotter(self.pd3d, show_unstable=True)
+        self.plotter3d = PDPlotter(self.pd3d, show_unstable=0.1)
 
     def test_pd_plot_data(self):
         (lines, labels, unstable_entries) = self.plotter.pd_plot_data
