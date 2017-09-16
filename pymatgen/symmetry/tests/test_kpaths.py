@@ -65,7 +65,7 @@ class HighSymmKpathTest(PymatgenTest):
         species = ['K', 'La', 'Ti']
         coords = [[.345, 5, .77298], [.1345, 5.1, .77298], [.7, .8, .9]]
         lattice = Lattice.orthorhombic(2, 9, 1)
-        struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
+        struct = Structure.from_spacegroup(38, lattice, species, coords)
         kpath = HighSymmKpath(struct)
         
         kpoints = kpath._kpath['kpoints']
