@@ -2,6 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+TODO:
+    -Only works for monatomic adsorbates
+    -Only works for slabs of three species or less, e.g.
+        clean ternary, binary+adsorbate, clean binary,
+        elemental+adsorbate or clean elemental slab
+    -Will address these issues and make the analyzer more
+        generalized in the future
+"""
+
 from __future__ import division, unicode_literals
 
 import copy
@@ -117,7 +127,9 @@ class SurfaceEnergyCalculator(object):
             mapi_key (str): Materials Project API key for accessing the
                 MP database via MPRester
             adsorbate_entry (Composition): Computed entry of adsorbate,
-                defaults to None
+                defaults to None. Could be an isolated H2 or O2 molecule for gaseous
+                    adsorption or just the bulk ground state structure for metals.
+                    Either way, the extract term is going to be in energy per atom.
         """
 
         self.comp1 = comp1
@@ -156,6 +168,8 @@ class SurfaceEnergyCalculator(object):
         self.y = y
         self.gbulk = gbulk
         self.adsorbate_entry = adsorbate_entry
+        self.adsorbate_as_str = self.adsorbate_entry.composition.elements[0].name \
+            if self.adsorbate_entry else None
         self.decomp_entries = entries
 
     def chempot_range(self, full_chempot=True):
@@ -193,42 +207,7 @@ class SurfaceEnergyCalculator(object):
         chempot_range = list(chempot_range)
         return sorted([chempot_range[0][0], chempot_range[1][0]])
 
-    def slope_and_intercept(self, slab_entry):
-        """
-        Calculates the slope and intercept of the surface energy for a single slab.
-        Args:
-            slab_entry (entry): An entry object
-
-        Returns (list): The surface energy for the minimum/maximun
-            chemical potential and the second list gives the range
-            of the chemical potential
-        """
-
-        reduced_comp = self.ucell_entry.composition.reduced_composition.as_dict()
-        # Get the composition in the slab
-        slab = slab_entry.structure
-        comp = slab.composition.as_dict()
-
-        if len(reduced_comp.keys()) == 1:
-            Nx = Ny = comp[self.ucell_entry.structure[0].species_string]
-        else:
-            Nx = slab.composition.as_dict()[str(self.comp1.elements[0])]
-            Ny = slab.composition.as_dict()[str(self.ref_el_comp.elements[0])]
-
-        # Calculate surface area
-        m = slab.lattice.matrix
-        A = np.linalg.norm(np.cross(m[0], m[1]))
-
-        # return the slope and intercept
-        slope = (-1 / (2 * A)) * (Ny - (self.y / self.x) * Nx)
-        intercept = (1 / (2 * A)) * (slab_entry.energy - (Nx / self.x) * self.gbulk - \
-                                     (Ny - (self.y / self.x) * Nx) * \
-                                     [entry.energy_per_atom for entry in self.reactants
-                                      if entry.composition.reduced_composition
-                                      == self.ref_el_comp][0])
-        return slope, intercept
-
-    def ads_coefficients(self, clean_slab_entry, ads_slab_entry=None):
+    def surface_energy_coefficients(self, clean_slab_entry, ads_slab_entry=None):
         """
         Calculates the coefficients of the surface energy for a single slab
             in the form of gamma=b1x1+b2x2+b3 where x1 is the chemical
@@ -245,6 +224,18 @@ class SurfaceEnergyCalculator(object):
         reduced_comp = self.ucell_entry.composition.reduced_composition.as_dict()
         # Get the composition in the slab
         slab = clean_slab_entry.structure
+        # Calculate surface area
+        m = slab.lattice.matrix
+        Aclean = np.linalg.norm(np.cross(m[0], m[1]))
+        # For the adsorbed surface area, just set to 1 if no entry given
+        if ads_slab_entry:
+            adslab = ads_slab_entry.structure
+            m = adslab.lattice.matrix
+            Aads = np.linalg.norm(np.cross(m[0], m[1]))
+        else:
+            Aads = 1
+
+
         comp = slab.composition.as_dict()
 
         if len(reduced_comp.keys()) == 1:
@@ -253,27 +244,30 @@ class SurfaceEnergyCalculator(object):
             Nx = slab.composition.as_dict()[str(self.comp1.elements[0])]
             Ny = slab.composition.as_dict()[str(self.ref_el_comp.elements[0])]
 
-        # Calculate surface area
-        m = slab.lattice.matrix
-        A = np.linalg.norm(np.cross(m[0], m[1]))
 
         # get number of adsorbates in slab
-        Nads = self.Nads_in_slab(slab_entry_ads)
+        Nads = self.Nads_in_slab(ads_slab_entry) if ads_slab_entry else 0
         # get number of adsorbed surfaces, set to 1 for clean to avoid division by 0
-        Nsurfs = 1 if not ads_slab_entry else self.Nsurfs_ads_in_slab(slab_entry_ads)
+        Nsurfs = 1 if not ads_slab_entry else self.Nsurfs_ads_in_slab(ads_slab_entry)
 
         # return the coefficients of the surface energy
-        b1 = (-1 / (2 * A))*(Ny - (self.y / self.x) * Nx)
-        b2 = (-1*Nads) / (Nsurfs * A)
-        b3 = (1 / (2 * A)) * (E - (Nx/self.x)*self.gbulk - (Ny - (self.y / self.x) * Nx) \
-                              * [entry.energy_per_atom for entry in self.reactants
-                                 if entry.composition.reduced_composition
-                                 == self.ref_el_comp][0]) - \
-             self.gibbs_binding_energy(ads_slab_entry, clean_slab_entry)
+        # b1 is the coefficient for chempot of reference atom
+        b1 = (-1 / (2 * Aclean))*(Ny - (self.y / self.x) * Nx)
+        #b2 is the coefficient for chempot of adsorbate
+        b2 = (-1*Nads) / (Nsurfs * Aads)
+        gibbs_binding = self.gibbs_binding_energy(ads_slab_entry,
+                                                  clean_slab_entry) if ads_slab_entry else 0
+        # b3 is the intercept
+        b3 = (1 / (2 * Aclean)) * (clean_slab_entry.energy - (Nx/self.x)*self.gbulk - \
+                              (Ny - (self.y / self.x) * Nx) * [entry.energy_per_atom \
+                                                               for entry in self.reactants
+                                                               if entry.composition.reduced_composition
+                                                               == self.ref_el_comp][0]) + \
+             gibbs_binding*(Nads/(Nsurfs*Aads))
 
         return [b1, b2, b3]
 
-    def calculate_ads_gamma_at_u(self, clean_slab_entry, ads_slab_entry=None, u_ref=0, u_ads=0):
+    def calculate_gamma_at_u(self, clean_slab_entry, ads_slab_entry=None, u_ref=0, u_ads=0):
         """
         Quickly calculates the surface energy for the slab of the vasprun file
             at a specific chemical potential for the reference and adsorbate.
@@ -290,10 +284,9 @@ class SurfaceEnergyCalculator(object):
         Returns (float): surface energy
         """
 
-        b1, b2, b3 = self.ads_coefficients(clean_slab_entry,
-                                           ads_slab_entry=ads_slab_entry)
-
-        return b1*u_ref * b2*u_ads + b3
+        b1, b2, b3 = self.surface_energy_coefficients(clean_slab_entry,
+                                                      ads_slab_entry=ads_slab_entry)
+        return b1*u_ref + b2*u_ads + b3
 
     def gibbs_binding_energy(self, ads_slab_entry, clean_slab_entry):
         """
@@ -312,90 +305,41 @@ class SurfaceEnergyCalculator(object):
 
         Nads = self.Nads_in_slab(ads_slab_entry)
 
-        return (ads_slab_entry.final_energy - n * clean_slab_entry.final_energy) / Nads \
+        return (ads_slab_entry.energy - n * clean_slab_entry.energy) / Nads \
                - self.adsorbate_entry.energy_per_atom
 
-    def Nads_in_slab(self, slab_entry_ads):
+    def Nads_in_slab(self, ads_slab_entry):
         """
         Counts the TOTAL number of adsorbates in the slab on BOTH sides
         Args:
-            slab_entry_ads (entry): The entry of the adsorbed slab
+            ads_slab_entry (entry): The entry of the adsorbed slab
         """
 
-        return slab_entry_ads.get_computed_entry(). \
-            composition.as_dict()[str(self.adsorbate_entry.composition.\
-                                      reduced_composition.elements[0])]
+        return ads_slab_entry.composition.as_dict()\
+            [str(self.adsorbate_entry.composition.\
+                 reduced_composition.elements[0])]
 
-    def Nsurfs_ads_in_slab(self, slab_entry_ads):
+    def Nsurfs_ads_in_slab(self, ads_slab_entry):
         """
         Counts the TOTAL number of adsorbed surfaces in the slab
         Args:
-            slab_entry_ads (entry): The entry of the adsorbed slab
-        """
-
-        struct = slab_entry_ads.structure
-        weights = [s.species_and_occu.weight for s in struct]
-        center_of_mass = np.average(struct.frac_coords,
-                                    weights=weights, axis=0)
-
-        Nsurfs = 0
-        if any([site.species_string == adsorbate for site in
-                struct if site.frac_coords[2] > center_of_mass]):
-            Nsurfs += 1
-        if any([site.species_string == adsorbate for site in
-                struct if site.frac_coords[2] < center_of_mass]):
-            Nsurfs += 1
-
-        return Nsurfs
-
-    def calculate_gamma_ads_range(self, ads_slab_entry, clean_slab_entry, adsorbate, u):
-        """
-        Calculates the surface energy for an adsorbed slab using the
-        adsorption energy and chemical potential of the adsorbate
-        Args:
             ads_slab_entry (entry): The entry of the adsorbed slab
-            clean_slab_entry (entry): The entry of the clean slab
-            adsorbate (str): The adsorbate as a string
-            u (float): The chemical potential of the
-                adsorbate to calculate the surface energy at
         """
 
         struct = ads_slab_entry.structure
         weights = [s.species_and_occu.weight for s in struct]
         center_of_mass = np.average(struct.frac_coords,
                                     weights=weights, axis=0)
-        nsurfs = 0
-        if any([site.species_string == adsorbate for site in
-                struct if site.frac_coords[2] > center_of_mass]):
-            nsurfs += 1
-        if any([site.species_string == adsorbate for site in
-                struct if site.frac_coords[2] < center_of_mass]):
-            nsurfs += 1
 
-        gamma_clean = self.calculate_gamma_at_u(vasprun_clean, u)
-        Eads = self.calculate_Eads(ads_slab_entry, clean_slab_entry, adsorbate)
-        Nads = ads_slab_entry.get_computed_entry().composition.as_dict()[adsorbate]
-        m = ads_slab_entry.final_structure.lattice.matrix
-        A = np.linalg.norm(np.cross(m[0], m[1]))
+        Nsurfs = 0
+        if any([site.species_string == self.adsorbate_as_str for site in
+                struct if site.frac_coords[2] > center_of_mass[2]]):
+            Nsurfs += 1
+        if any([site.species_string == self.adsorbate_as_str for site in
+                struct if site.frac_coords[2] < center_of_mass[2]]):
+            Nsurfs += 1
 
-        return gamma_clean - (Nads * u - Eads) / (nsurfs * A)
-
-    def calculate_gamma_at_u(self, slab_entry, u):
-        """
-        Quickly calculates the surface energy for
-        the slab of the vasprun file at a specific u
-        args:
-            slab_entry (entry): Entry containing the final energy and structure
-                of the slab whose surface energy we want to calculate
-            u (float): The chemical potential at which
-                we want to calculate the surface energy
-
-        Returns (float): surface energy
-        """
-
-        slope, intercept = self.slope_and_intercept(slab_entry)
-
-        return slope * u + intercept
+        return Nsurfs
 
 
 class SurfaceEnergyPlotter(object):
@@ -460,7 +404,7 @@ class SurfaceEnergyPlotter(object):
         self.entry_dict = entry_dict
         self.ref_el_comp = str(self.se_calculator.ref_el_comp.elements[0])
 
-    def get_stable_surf_regions(self, miller_index):
+    def get_stable_surf_regions(self, miller_index, clean_only=True):
         """
         For a specific facet, returns an energy stability range of u for each
             facet as a slope and intercept. e.g. if config 1 stable between
@@ -470,19 +414,19 @@ class SurfaceEnergyPlotter(object):
 
         # First get the intercepts at the stable configs
 
-        stable_slab_entry, gamma = self.return_stable_slab_at_u(miller_index,
-                                                                min(self.chempot_range))
+        stable_slab_entry, gamma = self.return_stable_slab_entry_at_u(miller_index,
+                                                                      min(self.chempot_range))
         ulist, gamma_list = [min(self.chempot_range)], [gamma]
         intersections = self.get_intersections(miller_index=miller_index)
         for int in intersections:
-            stable_slab_entry, gamma = self.return_stable_slab_at_u(miller_index,
+            stable_slab_entry, gamma = self.return_stable_slab_entry_at_u(miller_index,
                                                                     int[0])
             ulist.append(int[0])
             gamma_list.append(gamma)
 
         # Next, build a stability map with the range in u, slope and intercept
         stability_map = []
-        ent, final_gamma = self.return_stable_slab_at_u(miller_index,
+        ent, final_gamma = self.return_stable_slab_entry_at_u(miller_index,
                                                         max(self.chempot_range))
         for i, u in enumerate(ulist):
             high_u = max(self.chempot_range) if i == len(ulist) - 1 else ulist[i + 1]
@@ -518,8 +462,8 @@ class SurfaceEnergyPlotter(object):
             # the most stable slab termination at that particular u)
             e_list = []
             for entry in self.entry_dict[hkl]:
-                slope, intercept = self.se_calculator.slope_and_intercept(entry)
-                e_list.append(slope * chempot + intercept)
+                b1, b2, b3 = self.se_calculator.surface_energy_coefficients(entry)
+                e_list.append(b1 * chempot + b3)
             e_surf_list.append(min(e_list))
 
         return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
@@ -650,7 +594,9 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def chempot_vs_gamma_plot(self, cmap=cm.jet, JPERM2=False, highlight_stability={}):
+    def chempot_vs_gamma_plot(self, cmap=cm.jet, JPERM2=False,
+                              highlight_stability={}, clean_only=True,
+                              label_monolayers=True):
         """
         Plots the surface energy of all facets as a function of chemical potential.
             Each facet will be associated with its own distinct colors. Dashed lines
@@ -708,9 +654,9 @@ class SurfaceEnergyPlotter(object):
                     colors.append(c)
 
                 gamma_range = [self.se_calculator.calculate_gamma_at_u(entry,
-                                                                       self.chempot_range[0]),
+                                                                       u_ref=self.chempot_range[0]),
                                self.se_calculator.calculate_gamma_at_u(entry,
-                                                                       self.chempot_range[1])]
+                                                                       u_ref=self.chempot_range[1])]
                 se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
                     if JPERM2 else gamma_range
                 plt.plot(self.chempot_range, se_range, mark, color=c, label=label)
@@ -749,19 +695,30 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def return_stable_slab_at_u(self, miller_index, u):
+    def return_stable_slab_entry_at_u(self, miller_index, u_ref=0, u_ads=0, clean_only=True):
         """
         Returns the vasprun corresponding to the most
         stable slab for a particular facet at a specific u
         Args:
             miller_index ((h,k,l)): The facet to find the most stable slab in
             u (float): The chemical potential to look for the most stable slab
+            clean_only (bool): Whether or not to consider adsorbed slabs
         """
 
-        all_gamma = [self.se_calculator.calculate_gamma_at_u(e, u)
-                     for e in self.entry_dict[miller_index]]
-        return self.entry_dict[miller_index][all_gamma.index(min(all_gamma))], \
-               min(all_gamma)
+        all_entries = self.entry_dict[miller_index].keys()
+        all_gamma = [self.se_calculator.calculate_gamma_at_u(entry, u_ref=u)
+                     for entry in all_entries]
+
+        if not clean_only:
+            # consider adsorbed slabs too
+            for entry in all_entries:
+                for ads_entry in self.entry_dict[miller_index][entry]:
+                    all_entries.append(ads_entry)
+                    all_gamma.append(self.se_calculator.calculate_gamma_at_u(entry, u_ref=u_ref,
+                                                                             u_ads=u_ads,
+                                                                             ads_slab_entry=ads_entry))
+
+        return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
 
     def get_intersections(self, miller_index=()):
         """
@@ -780,22 +737,23 @@ class SurfaceEnergyPlotter(object):
         # First lets calculate the range of surface energies for
         # all terminations of a specific facet or all facets.
         if miller_index:
-            all_slope_intercepts = [[self.se_calculator.slope_and_intercept(entry),
+            all_coefficients = [[self.se_calculator.\
+                                         surface_energy_coefficients(entry),
                                      miller_index]
                                     for entry in self.entry_dict[miller_index]]
         else:
-            all_slope_intercepts = []
+            all_coefficients = []
             for hkl in self.entry_dict.keys():
-                slope_intercept = [[self.se_calculator.slope_and_intercept(entry), hkl]
+                coefficients = [[self.se_calculator.surface_energy_coefficients(entry), hkl]
                                    for entry in self.entry_dict[hkl]]
-                all_slope_intercepts.extend(slope_intercept)
+                all_coefficients.extend(coefficients)
 
-        if len(all_slope_intercepts) == 1:
+        if len(all_coefficients) == 1:
             return []
 
         # Now get all possible intersection coordinates for each pair of lines
         intersections = []
-        for pair_lines in itertools.combinations(all_slope_intercepts, 2):
+        for pair_lines in itertools.combinations(all_coefficients, 2):
             slope1, intercept1 = pair_lines[0][0]
             slope2, intercept2 = pair_lines[1][0]
 
@@ -814,8 +772,8 @@ class SurfaceEnergyPlotter(object):
                 continue
 
             # If the surface energies at this u for both lines facet is unstable, ignore it
-            e1, gamma1 = self.return_stable_slab_at_u(pair_lines[0][1], u)
-            e2, gamma2 = self.return_stable_slab_at_u(pair_lines[1][1], u)
+            e1, gamma1 = self.return_stable_slab_entry_at_u(pair_lines[0][1], u)
+            e2, gamma2 = self.return_stable_slab_entry_at_u(pair_lines[1][1], u)
             # +10e-9 to handle floating point comparison for equal values
             if all([gamma > gamma1 + 10e-9, gamma > gamma2 + 10e-9]):
                 continue
