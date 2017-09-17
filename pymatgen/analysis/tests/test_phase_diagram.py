@@ -451,7 +451,7 @@ class PDPlotterTest(unittest.TestCase):
         self.pd = PhaseDiagram(entries)
         self.plotter = PDPlotter(self.pd, show_unstable=True)
         entrieslio = [e for e in entries
-                   if len(e.composition) < 3 and ("Fe" not in e.composition)]
+                      if "Fe" not in e.composition]
 
         self.pd_formation = PhaseDiagram(entrieslio)
         self.plotter_formation = PDPlotter(self.pd_formation, show_unstable=0.1)
@@ -481,10 +481,11 @@ class PDPlotterTest(unittest.TestCase):
         self.plotter.get_plot()
         self.plotter3d.get_plot()
         # self.plotter.get_plot(energy_colormap="Reds", process_attributes=True)
-        # plt = self.plotter3d.get_plot(energy_colormap="Reds", process_attributes=True)
+        plt = self.plotter3d.get_plot(energy_colormap="Reds",
+                                      process_attributes=True)
         # self.plotter.get_plot(energy_colormap="Reds", process_attributes=False)
-        # plt = self.plotter3d.get_plot(energy_colormap="Reds",
-        #                               process_attributes=False)
+        plt = self.plotter3d.get_plot(energy_colormap="Reds",
+                                      process_attributes=False)
         self.plotter.get_chempot_range_map_plot([Element("Li"), Element("O")])
 
 

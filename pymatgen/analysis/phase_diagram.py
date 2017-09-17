@@ -28,6 +28,8 @@ from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, \
             ReactionError
+from palettable.colorbrewer.qualitative import Set1_3
+
 
 """
 This module defines tools to generate and analyze phase diagrams.
@@ -1191,6 +1193,14 @@ class PDPlotter(object):
         show_unstable (float): Whether unstable phases will be plotted as
             well as red crosses. If a number > 0 is entered, all phases with
             ehull < show_unstable will be shown.
+        \\*\\*plotkwargs: Keyword args passed to matplotlib.pyplot.plot. Can
+            be used to customize markers etc. If not set, the default is
+            {
+                "markerfacecolor": (0.2157, 0.4941, 0.7216),
+                "markersize": 10,
+                "linewidth": 3
+            }
+
     """
 
     def __init__(self, phasediagram, show_unstable=0, **plotkwargs):
@@ -1201,7 +1211,12 @@ class PDPlotter(object):
         self.lines = uniquelines(self._pd.facets) if self._dim > 1 else \
             [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
-        self.plotkwargs = plotkwargs
+        colors = Set1_3.mpl_colors
+        self.plotkwargs = plotkwargs or {
+            "markerfacecolor": colors[2],
+            "markersize": 10,
+            "linewidth": 3
+        }
 
     @property
     def pd_plot_data(self):
@@ -1309,24 +1324,23 @@ class PDPlotter(object):
                     plt.plot(x, y, "k-", linewidth=3, markeredgecolor="k")
                 # One should think about a clever way to have "complex"
                 # attributes with complex processing options but with a clear
-                #  logic. At this moment, I just use the attributes to know
+                # logic. At this moment, I just use the attributes to know
                 # whether an entry is a new compound or an existing (from the
                 #  ICSD or from the MP) one.
                 for x, y in labels.keys():
                     if labels[(x, y)].attribute is None or \
                                     labels[(x, y)].attribute == "existing":
-                        plt.plot(x, y, "ko", linewidth=3,
-                                 **self.plotkwargs)
+                        plt.plot(x, y, "ko", **self.plotkwargs)
                     else:
-                        plt.plot(x, y, "k*", linewidth=3, **self.plotkwargs)
+                        plt.plot(x, y, "k*", **self.plotkwargs)
             else:
                 for x, y in lines:
-                    plt.plot(x, y, "ko-", linewidth=3, **self.plotkwargs)
+                    plt.plot(x, y, "ko-", **self.plotkwargs)
         else:
             from matplotlib.colors import Normalize, LinearSegmentedColormap
             from matplotlib.cm import ScalarMappable
             for x, y in lines:
-                plt.plot(x, y, "k-", linewidth=3, markeredgecolor="k")
+                plt.plot(x, y, "k-", markeredgecolor="k")
             vmin = vmin_mev / 1000.0
             vmax = vmax_mev / 1000.0
             if energy_colormap == 'default':
@@ -1496,9 +1510,7 @@ class PDPlotter(object):
         ax.axis("off")
         return plt
 
-    def write_image(self, stream, image_format="svg", label_stable=True,
-                    label_unstable=True, ordering=None,
-                    energy_colormap=None, process_attributes=False):
+    def write_image(self, stream, image_format="svg", **kwargs):
         """
         Writes the phase diagram to an image in a stream.
 
@@ -1508,11 +1520,9 @@ class PDPlotter(object):
             image_format
                 format for image. Can be any of matplotlib supported formats.
                 Defaults to svg for best results for vector graphics.
+            \\*\\*kwargs: Pass through to get_plot functino.
         """
-        plt = self.get_plot(
-            label_stable=label_stable, label_unstable=label_unstable,
-            ordering=ordering, energy_colormap=energy_colormap,
-            process_attributes=process_attributes)
+        plt = self.get_plot(**kwargs)
 
         f = plt.gcf()
         f.set_size_inches((12, 10))
