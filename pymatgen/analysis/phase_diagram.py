@@ -28,7 +28,6 @@ from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, \
             ReactionError
-from palettable.colorbrewer.qualitative import Set1_3
 
 
 """
@@ -1204,6 +1203,9 @@ class PDPlotter(object):
     """
 
     def __init__(self, phasediagram, show_unstable=0, **plotkwargs):
+        # note: palettable imports matplotlib
+        from palettable.colorbrewer.qualitative import Set1_3
+
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
         if self._dim > 4:
