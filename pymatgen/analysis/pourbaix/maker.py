@@ -64,9 +64,6 @@ class PourbaixDiagram(object):
                             "is required to make a Pourbaix Diagram")
         self._unprocessed_entries = self._solid_entries + self._ion_entries
         self._elt_comp = comp_dict
-        print(comp_dict)
-        # fails when computing pourbaix diagram for Nd
-        # one possible solution would be to as below
 
         if comp_dict and len(comp_dict) > 1:
             self._multielement = True
