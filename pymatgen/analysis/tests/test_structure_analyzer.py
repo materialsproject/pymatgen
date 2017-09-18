@@ -388,8 +388,6 @@ class OrderParametersTest(PymatgenTest):
             [15.25, 14.75, 15], [15.25, 15.25, 15]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
-        #from pymatgen.io.xyz import XYZ
-        #XYZ(self.square_planar).write_file('test.xyz')
         self.square = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]), ["H", "H", "H", "H", "H"],
@@ -411,6 +409,8 @@ class OrderParametersTest(PymatgenTest):
             [1.90877, -2.24389, 0], [-1.90877, -2.24389, 0], [0, -3.6307, 0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        #from pymatgen.io.xyz import XYZ
+        #XYZ(self.pentagonal_planar).write_file('test.xyz')
         self.trigonal_bipyramidal = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]), ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
@@ -426,9 +426,9 @@ class OrderParametersTest(PymatgenTest):
         # Set up everything.
         op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
                 "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr", "sgl_bd", \
-                "tri_plan", "sq_plan"]
+                "tri_plan", "sq_plan", "pent_plan"]
         #op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], [], None]
-        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], [], [], [], []]
+        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
         ops_044 = OrderParameters(op_types, op_paras, 0.44)
         ops_071 = OrderParameters(op_types, op_paras, 0.71)
         ops_087 = OrderParameters(op_types, op_paras, 0.87)
@@ -537,6 +537,7 @@ class OrderParametersTest(PymatgenTest):
         op_vals = ops_101.get_order_parameters(
                 self.pentagonal_planar.sites, 0, indeces_neighs=[1,2,3,4,5])
         self.assertAlmostEqual(int(op_vals[12] * 1000), 100)
+        self.assertAlmostEqual(int(op_vals[16] * 1000 + 0.5), 1000)
 
         # Square pyramid motif.
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
