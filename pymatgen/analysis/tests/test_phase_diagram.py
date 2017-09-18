@@ -7,12 +7,13 @@ from __future__ import unicode_literals
 import unittest
 import os
 from numbers import Number
+import matplotlib
+matplotlib.use("pdf")
+
 from pymatgen.analysis.phase_diagram import *
 from pymatgen.core.periodic_table import Element, DummySpecie
 from pymatgen.core.composition import Composition
 
-import matplotlib
-matplotlib.use("pdf")
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
