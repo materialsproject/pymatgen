@@ -361,12 +361,35 @@ class OrderParametersTest(PymatgenTest):
             [0.5, 0, 0], [0.25, 0.75, 0.25], [0.5, 0.5, 0.5],
             [0.25, 0.25, 0.75]], validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=False, site_properties=None)
+        self.trigonal_pyramidal = Structure(
+            Lattice.from_lengths_and_angles(
+            [100, 100, 100], [90, 90, 90]),
+            ["H", "H", "H", "H"],
+            [[0.50, 0.50, 0.50], [0.25, 0.75, 0.25], \
+            [0.25, 0.25, 0.75], [0.75, 0.25, 0.25]], \
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
         self.regular_triangle = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]), ["H", "H", "H", "H"],
             [[15, 15.28867, 15.65], [14.5, 15, 15], [15.5, 15, 15], \
             [15, 15.866, 15]], validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.trigonal_planar = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]), ["H", "H", "H", "H"],
+            [[15, 15.28867, 15], [14.5, 15, 15], [15.5, 15, 15], \
+            [15, 15.866, 15]], validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        self.square_planar = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]), ["H", "H", "H", "H", "H"],
+            [[15, 15, 15], [14.75, 14.75, 15], [14.75, 15.25, 15], \
+            [15.25, 14.75, 15], [15.25, 15.25, 15]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        #from pymatgen.io.xyz import XYZ
+        #XYZ(self.square_planar).write_file('test.xyz')
         self.square = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]), ["H", "H", "H", "H", "H"],
@@ -402,9 +425,10 @@ class OrderParametersTest(PymatgenTest):
     def test_get_order_parameters(self):
         # Set up everything.
         op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
-                "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr", "sgl_bd"]
+                "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr", "sgl_bd", \
+                "tri_plan", "sq_plan"]
         #op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], [], None]
-        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], [], []]
+        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], [], [], [], []]
         ops_044 = OrderParameters(op_types, op_paras, 0.44)
         ops_071 = OrderParameters(op_types, op_paras, 0.71)
         ops_087 = OrderParameters(op_types, op_paras, 0.87)
@@ -487,9 +511,23 @@ class OrderParametersTest(PymatgenTest):
         self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
         self.assertAlmostEqual(int(op_vals[8] * 1000), 628)
 
+        # Trigonal pyramidal molecule.
+        op_vals = ops_044.get_order_parameters(self.trigonal_pyramidal, 0)
+        self.assertAlmostEqual(op_vals[0], 3.0)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
+
+        # Trigonal-planar motif.
+        op_vals = ops_101.get_order_parameters(self.trigonal_planar, 0)
+        self.assertEqual(int(op_vals[0] + 0.5), 3)
+        self.assertAlmostEqual(int(op_vals[14] * 1000 + 0.5), 1000)
+
         # Regular triangle motif.
         op_vals = ops_101.get_order_parameters(self.regular_triangle, 0)
         self.assertAlmostEqual(int(op_vals[9] * 1000), 999)
+
+        # Square-planar motif.
+        op_vals = ops_101.get_order_parameters(self.square_planar, 0)
+        self.assertAlmostEqual(int(op_vals[15] * 1000 + 0.5), 1000)
 
         # Square motif.
         op_vals = ops_101.get_order_parameters(self.square, 0)
@@ -530,6 +568,9 @@ class OrderParametersTest(PymatgenTest):
         del self.regular_triangle
         del self.square
         del self.square_pyramid
+        del self.trigonal_pyramidal
+        del self.trigonal_planar
+        del self.square_planar
 
 if __name__ == '__main__':
     unittest.main()

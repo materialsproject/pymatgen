@@ -868,8 +868,10 @@ class OrderParameters(object):
     """
 
     __supported_types = (
-            "cn", "sgl_bd", "lin", "bent", "tet", "tet_legacy", "oct", "oct_legacy",
-            "bcc", "q2", "q4", "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr")
+            "cn", "sgl_bd", "lin", "bent", "tri_plan", "reg_tri", "sq_plan", \
+            "sq", "tet", \
+            "tet_legacy", "reg_pent", "sq_pyr", "tri_bipyr", "oct", \
+            "oct_legacy", "bcc", "q2", "q4", "q6")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -894,8 +896,11 @@ class OrderParameters(object):
                   "bcc": Peters-style OP recognizing local
                          body-centered cubic environment (Peters,
                          J. Chem. Phys., 131, 244103, 2009);
+                  "tri_plan": OP recognizing trigonal planar environments;
                   "reg_tri": OP recognizing coordination with a regular triangle;
+                  "sq_plan": OP recognizing square planar environments;
                   "sq": OP recognizing square coordination;
+                  "reg_pent": OP recognizing coordination with a regular pentagon;
                   "sq_pyr": OP recognizing square pyramidal coordination;
                   "tri_bipyr": OP recognizing trigonal bipyramidal coord.;
                   "q2": bond orientational order parameter (BOOP)
@@ -942,16 +947,30 @@ class OrderParameters(object):
                          equator (0.0556);
                   "bcc": south-pole threshold angle as for "oct" (160.0);
                          south-pole Gaussian width as for "oct" (0.0667);
+                  "tri_plan": Gaussian width for penalizing deviations
+                              away from 120 degrees (0.08);
                   "reg_tri": Gaussian width for penalizing angles away from
                              the expected angles, given the estimated
                              height-to-side ratio of the trigonal pyramid
                              in which the central atom is located at the
                              tip (0.0222);
+                  "sq_plan": threshold angle in degrees distinguishing
+                             a second neighbor to be either close to the
+                             south pole or close to the equator (160.0);
+                             Gaussian width for penalizing deviations
+                             away from south pole (0.0667); Gaussian
+                             width for penalizing deviations away from
+                             equator (0.0556);
                   "sq": Gaussian width for penalizing angles away from
                         the expected angles, given the estimated
                         height-to-diagonal ratio of the pyramid in which
                         the central atom is located at the tip
                         (0.0333);
+                  "reg_pent": Gaussian width for penalizing angles away from
+                              the expected angles, given the estimated
+                              height-to-side ratio of the pentagonal pyramid
+                              in which the central atom is located at the
+                              tip (0.04);
                   "sq_pyr": Gaussian width in fractions of pi
                             for penalizing angles away from 90 degrees
                             (0.0333);
@@ -1145,6 +1164,16 @@ class OrderParameters(object):
                                          " order parameter is zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][1])
+            elif t == "tri_plan":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i].append(1.0 / 0.08)
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for"
+                                         " trigonal planar order"
+                                         " parameter!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][0])
             elif t == "reg_tri":
                 if len(loc_parameters[i]) == 0:
                     tmpparas[i] = [1.0 / 0.0222]
@@ -1154,6 +1183,30 @@ class OrderParameters(object):
                                 " trigonal pyramid tip of regular triangle"
                                 " order parameter is zero!")
                     tmpparas[i] = [1.0 / loc_parameters[i][0]]
+            elif t == "sq_plan":
+                if len(loc_parameters[i]) < 3:
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(1.0 / 0.0667)
+                    tmpparas[i].append(1.0 / 0.0556)
+                else:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] >= 180.0:
+                        warn("Threshold value for south pole"
+                             " configurations in square-planar order"
+                             " parameter outside ]0,180[")
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
+                    if loc_parameters[i][1] == 0.0:
+                        raise ValueError("Gaussian width for south pole"
+                                         " configurations in square-planar"
+                                         " order parameter is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][1])
+                    if loc_parameters[i][2] == 0.0:
+                        raise ValueError("Gaussian width for equatorial"
+                                         " configurations in square-planar"
+                                         " order parameter is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][2])
             elif t == "sq":
                 if len(loc_parameters[i]) == 0:
                     tmpparas[i] = [1.0 / 0.0333]
@@ -1162,6 +1215,15 @@ class OrderParameters(object):
                         raise ValueError("Gaussian width for angles in"
                                 " pyramid tip of square order parameter"
                                 " is zero!")
+                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+            elif t == "reg_pent":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0 / 0.0222]
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for angles in"
+                                " pentagonal pyramid tip of regular pentagon"
+                                " order parameter is zero!")
                     tmpparas[i] = [1.0 / loc_parameters[i][0]]
             elif t == "sq_pyr":
                 if len(loc_parameters[i]) == 0:
@@ -1215,9 +1277,9 @@ class OrderParameters(object):
                 self._computerijs = True
             if t == "tet" or t == "oct" or t == "bcc" or \
                     t == "sq_pyr" or t == "tri_bipyr" or t == "tet_legacy" or \
-                    t == "oct_legacy":
+                    t == "oct_legacy" or t == "tri_plan" or t == "sq_plan":
                 self._computerijs = self._geomops = True
-            if t == "reg_tri" or t =="sq":
+            if t == "reg_tri" or t =="sq" or t == "reg_pent":
                 self._computerijs = self._computerjks = self._geomops2 = True
             if t == "q2" or t == "q4" or t == "q6":
                 self._computerijs = self._boops = True
@@ -1892,7 +1954,7 @@ class OrderParameters(object):
             piover2 = pi / 2.0
             tetangoverpi = math.acos(-1.0 / 3.0) * ipi
             itetangminuspihalfoverpi = 1.0 / (tetangoverpi - 0.5)
-
+            twothird = 2.0 / 3.0
             for j in range(nneigh):  # Neighbor j is put to the North pole.
                 zaxis = rijnorm[j]
                 for i, t in enumerate(self._types):
@@ -1919,10 +1981,20 @@ class OrderParameters(object):
                                 tmp = self._paras[i][1] * (
                                     thetak * ipi - self._paras[i][0])
                                 ops[i] += exp(-0.5 * tmp * tmp)
+                            elif t == "tri_plan":
+                                tmp = self._paras[i][0] * (
+                                    thetak * ipi - twothird)
+                                gaussthetak[i] = math.exp(-0.5 * tmp * tmp)
                             elif t == "tet" or t == "tet_legacy":
                                 tmp = self._paras[i][0] * (
                                     thetak * ipi - tetangoverpi)
                                 gaussthetak[i] = math.exp(-0.5 * tmp * tmp)
+                            elif t == "sq_plan":
+                                if thetak >= self._paras[i][0]:
+                                    # k is south pole to j
+                                    tmp = self._paras[i][1] * (
+                                        thetak * ipi - 1.0)
+                                    ops[i] += 1.0 * math.exp(-0.5 * tmp * tmp)
                             elif t == "oct" or t == "oct_legacy":
                                 if thetak >= self._paras[i][0]:
                                     # k is south pole to j
@@ -1964,7 +2036,13 @@ class OrderParameters(object):
                                 # angles between plane j-i-k and i-m vector.
                                 if not flag_xaxis and not flag_xtwoaxis:
                                     for i, t in enumerate(self._types):
-                                        if t == "tet_legacy":
+                                        if t == "tri_plan":
+                                            tmp = self._paras[i][0] * (
+                                                thetam * ipi - twothird)
+                                            tmp2 = math.cos(phi)
+                                            ops[i] += gaussthetak[i] * math.exp(
+                                                -0.5 * tmp * tmp) * tmp2 * tmp2
+                                        elif t == "tet_legacy":
                                             tmp = self._paras[i][0] * (
                                                 thetam * ipi - tetangoverpi)
                                             ops[i] += gaussthetak[i] * math.exp(
@@ -1976,6 +2054,15 @@ class OrderParameters(object):
                                             tmp2 = math.cos(1.5 * phi)
                                             ops[i] += gaussthetak[i] * math.exp(
                                                 -0.5 * tmp * tmp) * tmp2 * tmp2
+                                        elif t == "sq_plan":
+                                            if thetak < self._paras[i][0] and \
+                                                    thetam < self._paras[i][0]:
+                                                tmp = math.cos(phi)
+                                                tmp2 = self._paras[i][2] * (
+                                                        thetam * ipi - 0.5)
+                                                ops[i] += tmp * tmp * \
+                                                        math.exp(
+                                                        -0.5 * tmp2 * tmp2)
                                         elif t == "oct_legacy":
                                             if thetak < self._paras[i][0] and \
                                                             thetam < \
@@ -2029,9 +2116,12 @@ class OrderParameters(object):
                 elif t == "bent":
                     ops[i] = ops[i] / float(nneigh * (
                             nneigh - 1)) if nneigh > 1 else None
-                elif t == "tet" or t == "tet_legacy":
+                elif t == "tri_plan" or t == "tet" or t == "tet_legacy":
                     ops[i] = ops[i] / float(nneigh * (nneigh - 1) * (
                             nneigh - 2)) if nneigh > 2 else None
+                elif t == "sq_plan":
+                    ops[i] = ops[i] / float(nneigh * (1 + (nneigh - 2) * (
+                            nneigh - 3))) if nneigh > 3 else None
                 elif t == "oct" or t == "oct_legacy":
                     ops[i] = ops[i] / float(nneigh * (3 + (nneigh - 2) * (
                             nneigh - 3))) if nneigh > 3 else None
@@ -2078,7 +2168,7 @@ class OrderParameters(object):
             dhalf = max(distjk_unique) / 2.0 if len(distjk_unique) > 0 else 0
 
             for i, t in enumerate(self._types):
-                if t == "reg_tri" or t == "sq":
+                if t == "reg_tri" or t == "sq" or t == "reg_pent":
                     if nneigh < 3:
                         ops[i] = None
                     else:
@@ -2087,9 +2177,12 @@ class OrderParameters(object):
                             a = 2.0 * asin(b / (2.0 * sqrt(h*h + (b / (
                                     2.0 * cos(3.0 * pi / 18.0)))**2.0)))
                             nmax = 3
-                        else:
+                        elif t == "sq":
                             a = 2.0 * asin(b / (2.0 * sqrt(h*h + dhalf*dhalf)))
                             nmax = 4
+                        elif t == "reg_pent":
+                            pass # xxx
+                            nmax = 5
                         for j in range(min([nneigh,nmax])):
                             ops[i] = ops[i] * exp(-0.5 * ((
                                     aijs[j] - a) * self._paras[i][0])**2)
