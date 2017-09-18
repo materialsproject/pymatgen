@@ -482,11 +482,11 @@ class PDPlotterTest(unittest.TestCase):
         self.plotter.get_plot()
         self.plotter3d.get_plot()
         # self.plotter.get_plot(energy_colormap="Reds", process_attributes=True)
-        plt = self.plotter3d.get_plot(energy_colormap="Reds",
-                                      process_attributes=True)
+        # plt = self.plotter3d.get_plot(energy_colormap="Reds",
+        #                               process_attributes=True)
         # self.plotter.get_plot(energy_colormap="Reds", process_attributes=False)
-        plt = self.plotter3d.get_plot(energy_colormap="Reds",
-                                      process_attributes=False)
+        # plt = self.plotter3d.get_plot(energy_colormap="Reds",
+        #                               process_attributes=False)
         self.plotter.get_chempot_range_map_plot([Element("Li"), Element("O")])
 
 
