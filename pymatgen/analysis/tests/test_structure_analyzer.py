@@ -425,10 +425,10 @@ class OrderParametersTest(PymatgenTest):
     def test_get_order_parameters(self):
         # Set up everything.
         op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
-                "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr", "sgl_bd", \
-                "tri_plan", "sq_plan", "pent_plan"]
+                "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd", \
+                "tri_plan", "sq_plan", "pent_plan", "sq_pyr"]
         #op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], [], None]
-        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
+        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
         ops_044 = OrderParameters(op_types, op_paras, 0.44)
         ops_071 = OrderParameters(op_types, op_paras, 0.71)
         ops_087 = OrderParameters(op_types, op_paras, 0.87)
@@ -543,6 +543,7 @@ class OrderParametersTest(PymatgenTest):
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
         self.assertAlmostEqual(int(op_vals[11] * 1000 + 0.5), 1000)
         self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 500)
+        self.assertAlmostEqual(int(op_vals[17] * 1000 + 0.5), 1000)
 
         # Trigonal bipyramidal.
         op_vals = ops_101.get_order_parameters(

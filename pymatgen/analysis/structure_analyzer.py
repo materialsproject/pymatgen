@@ -870,7 +870,7 @@ class OrderParameters(object):
     __supported_types = (
             "cn", "sgl_bd", "lin", "bent", "tri_plan", "reg_tri", "sq_plan", \
             "pent_plan", "sq", "tet", \
-            "tet_legacy", "reg_pent", "sq_pyr", "tri_bipyr", "oct", \
+            "tet_legacy", "reg_pent", "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "oct", \
             "oct_legacy", "bcc", "q2", "q4", "q6")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
@@ -903,6 +903,7 @@ class OrderParameters(object):
                   "reg_pent": OP recognizing coordination with a regular pentagon;
                   "pent_plan": OP recognizing pentagonal planar environments;
                   "sq_pyr": OP recognizing square pyramidal coordination;
+                  "sq_pyr_legacy": OP recognizing pyramidal coordination;
                   "tri_bipyr": OP recognizing trigonal bipyramidal coord.;
                   "q2": bond orientational order parameter (BOOP)
                         of weight l=2 (Steinhardt et al., Phys. Rev. B,
@@ -979,6 +980,9 @@ class OrderParameters(object):
                               in which the central atom is located at the
                               tip (0.04);
                   "sq_pyr": Gaussian width in fractions of pi
+                            for penalizing angles away from 90 degrees
+                            (0.0333);
+                  "sq_pyr_legacy": Gaussian width in fractions of pi
                             for penalizing angles away from 90 degrees
                             (0.0333);
                             Gaussian width in Angstrom for penalizing
@@ -1246,11 +1250,19 @@ class OrderParameters(object):
                     tmpparas[i] = [1.0 / loc_parameters[i][0]]
             elif t == "sq_pyr":
                 if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0333, 1.0 / 0.1]
+                    tmpparas[i] = [1.0 / 0.0556]
                 else:
                     if loc_parameters[i][0] == 0.0:
                         raise ValueError("Gaussian width for angles in"
                                 " square pyramid order parameter is zero!")
+                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+            elif t == "sq_pyr_legacy":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0 / 0.0333, 1.0 / 0.1]
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for angles in"
+                                " pyramid order parameter is zero!")
                     if loc_parameters[i][0] == 0.0:
                         raise ValueError("Gaussian width for lengths in"
                                 " square pyramid order parameter is zero!")
@@ -1294,8 +1306,8 @@ class OrderParameters(object):
             #                    to any non-central atom k.
             if t == "sgl_bd":
                 self._computerijs = True
-            if t == "tet" or t == "oct" or t == "bcc" or \
-                    t == "sq_pyr" or t == "tri_bipyr" or t == "tet_legacy" or \
+            if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
+                    t == "sq_pyr_legacy" or t == "tri_bipyr" or t == "tet_legacy" or \
                     t == "oct_legacy" or t == "tri_plan" or t == "sq_plan" or \
                     t == "pent_plan":
                 self._computerijs = self._geomops = True
@@ -2033,7 +2045,7 @@ class OrderParameters(object):
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     ops[i] += 6.0 * math.exp(-0.5 * tmp * tmp)
-                            elif t == "sq_pyr":
+                            elif t == "sq_pyr_legacy":
                                 tmp = self._paras[i][0] * (thetak * ipi - 0.5)
                                 qsptheta[i][j] = qsptheta[i][j] + exp(-0.5 * tmp * tmp)
                             elif t == "tri_bipyr":
@@ -2110,6 +2122,17 @@ class OrderParameters(object):
                                                               math.exp(
                                                                   -0.5 * tmp2 * tmp2) - \
                                                               self._paras[i][3])
+                                        elif t == "sq_pyr":
+                                            tmp = math.cos(2.0 * phi)
+                                            tmp2 = self._paras[i][0] * ( 
+                                                    thetak * ipi - 0.5)
+                                            tmp3 = self._paras[i][0] * (
+                                                    thetam * ipi - 0.5)
+                                            qsptheta[i][j] += tmp * tmp * \
+                                                    math.exp(
+                                                    -0.5 * tmp2 * tmp2) * \
+                                                    math.exp(
+                                                    -0.5 * tmp3 * tmp3)
                                         elif t == "oct":
                                             if thetak < self._paras[i][0] and \
                                                     thetam < self._paras[i][0]:
@@ -2168,6 +2191,9 @@ class OrderParameters(object):
                             nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) \
                             if nneigh > 3 else None
                 elif t == "sq_pyr":
+                    ops[i] = max(qsptheta[i]) / float(
+                        (nneigh - 1) * (nneigh - 2)) if nneigh > 2 else None
+                elif t == "sq_pyr_legacy":
                     if nneigh > 1:
                         dmean = np.mean(dist)
                         acc = 0.0
