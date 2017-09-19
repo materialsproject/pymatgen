@@ -870,7 +870,7 @@ class OrderParameters(object):
     __supported_types = (
             "cn", "sgl_bd", "lin", "bent", "tri_plan", "reg_tri", "sq_plan", \
             "pent_plan", "sq", "tet", \
-            "tet_legacy", "reg_pent", "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "oct", \
+            "tet_legacy", "tri_pyr", "reg_pent", "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "oct", \
             "oct_legacy", "bcc", "q2", "q4", "q6")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
@@ -899,6 +899,7 @@ class OrderParameters(object):
                   "tri_plan": OP recognizing trigonal planar environments;
                   "reg_tri": OP recognizing coordination with a regular triangle;
                   "sq_plan": OP recognizing square planar environments;
+                  "tri_pyr": OP recognizing trigonal pyramidal coordination;
                   "sq": OP recognizing square coordination;
                   "reg_pent": OP recognizing coordination with a regular pentagon;
                   "pent_plan": OP recognizing pentagonal planar environments;
@@ -950,7 +951,7 @@ class OrderParameters(object):
                   "bcc": south-pole threshold angle as for "oct" (160.0);
                          south-pole Gaussian width as for "oct" (0.0667);
                   "tri_plan": Gaussian width for penalizing deviations
-                              away from 120 degrees (0.08);
+                              away from 120 degrees (0.074);
                   "reg_tri": Gaussian width for penalizing angles away from
                              the expected angles, given the estimated
                              height-to-side ratio of the trigonal pyramid
@@ -968,6 +969,9 @@ class OrderParameters(object):
                         height-to-diagonal ratio of the pyramid in which
                         the central atom is located at the tip
                         (0.0333);
+                  "tri_pyr": Gaussian width in fractions of pi
+                             for penalizing angles away from 90 degrees
+                             (0.0556);
                   "pent_plan": threshold angle in degrees distinguishing
                                a second neighbor to be either close to the
                                upper (polar angle 72 degrees) or lower
@@ -981,7 +985,7 @@ class OrderParameters(object):
                               tip (0.04);
                   "sq_pyr": Gaussian width in fractions of pi
                             for penalizing angles away from 90 degrees
-                            (0.0333);
+                            (0.0556);
                   "sq_pyr_legacy": Gaussian width in fractions of pi
                             for penalizing angles away from 90 degrees
                             (0.0333);
@@ -1177,7 +1181,7 @@ class OrderParameters(object):
                         tmpparas[i].append(1.0 / loc_parameters[i][1])
             elif t == "tri_plan":
                 if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0 / 0.08)
+                    tmpparas[i].append(1.0 / 0.074)
                 else:
                     if loc_parameters[i][0] == 0.0:
                         raise ValueError("Gaussian width for"
@@ -1218,6 +1222,16 @@ class OrderParameters(object):
                                          " order parameter is zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][2])
+            elif t == "tri_pyr":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i].append(1.0 / 0.0556)
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for"
+                                         " trigonal-pyramidal order"
+                                         " parameter!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][0])
             elif t == "sq":
                 if len(loc_parameters[i]) == 0:
                     tmpparas[i] = [1.0 / 0.0333]
@@ -1309,7 +1323,7 @@ class OrderParameters(object):
             if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
                     t == "sq_pyr_legacy" or t == "tri_bipyr" or t == "tet_legacy" or \
                     t == "oct_legacy" or t == "tri_plan" or t == "sq_plan" or \
-                    t == "pent_plan":
+                    t == "pent_plan" or t == "tri_pyr":
                 self._computerijs = self._geomops = True
             if t == "reg_tri" or t =="sq" or t == "reg_pent":
                 self._computerijs = self._computerjks = self._geomops2 = True
@@ -2101,6 +2115,17 @@ class OrderParameters(object):
                                                 ops[i] += tmp * tmp * \
                                                         math.exp(
                                                         -0.5 * tmp2 * tmp2)
+                                        elif t == "tri_pyr":
+                                            tmp = math.cos(1.5 * phi)
+                                            tmp2 = self._paras[i][0] * (
+                                                    thetak * ipi - 0.5)
+                                            tmp3 = self._paras[i][0] * (
+                                                    thetam * ipi - 0.5)
+                                            qsptheta[i][j] += tmp * tmp * \
+                                                    math.exp(
+                                                    -0.5 * tmp2 * tmp2) * \
+                                                    math.exp(
+                                                    -0.5 * tmp3 * tmp3)
                                         elif t == "pent_plan":
                                             if thetak <= self._paras[i][0] and \
                                                     thetam >= self._paras[i][0]:
@@ -2190,7 +2215,7 @@ class OrderParameters(object):
                     ops[i] = ops[i] / float(0.5 * float(
                             nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) \
                             if nneigh > 3 else None
-                elif t == "sq_pyr":
+                elif t == "tri_pyr" or t == "sq_pyr":
                     ops[i] = max(qsptheta[i]) / float(
                         (nneigh - 1) * (nneigh - 2)) if nneigh > 2 else None
                 elif t == "sq_pyr_legacy":

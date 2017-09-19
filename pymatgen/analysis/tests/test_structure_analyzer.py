@@ -361,7 +361,7 @@ class OrderParametersTest(PymatgenTest):
             [0.5, 0, 0], [0.25, 0.75, 0.25], [0.5, 0.5, 0.5],
             [0.25, 0.25, 0.75]], validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=False, site_properties=None)
-        self.trigonal_pyramidal = Structure(
+        self.trigonal_off_plane = Structure(
             Lattice.from_lengths_and_angles(
             [100, 100, 100], [90, 90, 90]),
             ["H", "H", "H", "H"],
@@ -409,8 +409,25 @@ class OrderParametersTest(PymatgenTest):
             [1.90877, -2.24389, 0], [-1.90877, -2.24389, 0], [0, -3.6307, 0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.pentagonal_pyramid = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]), ["Xe", "F", "F", "F", "F", "F", "F"],
+            [[0, -1.6237, 0], [0, -1.6237, 1.17969], [1.17969, 0, 0], \
+            [-1.17969, 0, 0], [1.90877, -2.24389, 0], \
+            [-1.90877, -2.24389, 0], [0, -3.6307, 0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
         #from pymatgen.io.xyz import XYZ
-        #XYZ(self.pentagonal_planar).write_file('test.xyz')
+        #XYZ(self.pentagonal_pyramid).write_file('test.xyz')
+        self.trigonal_pyramid = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]), ["P", "Cl", "Cl", "Cl", "Cl"],
+            [[0, 0, 0], [0, 0, 2.14], [0, 2.02, 0],
+            [1.74937, -1.01, 0], [-1.74937, -1.01, 0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        from pymatgen.io.xyz import XYZ
+        XYZ(self.trigonal_pyramid).write_file('test.xyz')
         self.trigonal_bipyramidal = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]), ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
@@ -425,10 +442,11 @@ class OrderParametersTest(PymatgenTest):
     def test_get_order_parameters(self):
         # Set up everything.
         op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
-                "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd", \
-                "tri_plan", "sq_plan", "pent_plan", "sq_pyr"]
+            "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd", \
+            "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr"]
         #op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], [], None]
-        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
+        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], \
+            [], [], [], [], [], [], [], []]
         ops_044 = OrderParameters(op_types, op_paras, 0.44)
         ops_071 = OrderParameters(op_types, op_paras, 0.71)
         ops_087 = OrderParameters(op_types, op_paras, 0.87)
@@ -511,8 +529,8 @@ class OrderParametersTest(PymatgenTest):
         self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
         self.assertAlmostEqual(int(op_vals[8] * 1000), 628)
 
-        # Trigonal pyramidal molecule.
-        op_vals = ops_044.get_order_parameters(self.trigonal_pyramidal, 0)
+        # Trigonal off-plane molecule.
+        op_vals = ops_044.get_order_parameters(self.trigonal_off_plane, 0)
         self.assertAlmostEqual(op_vals[0], 3.0)
         self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
 
@@ -539,6 +557,11 @@ class OrderParametersTest(PymatgenTest):
         self.assertAlmostEqual(int(op_vals[12] * 1000), 100)
         self.assertAlmostEqual(int(op_vals[16] * 1000 + 0.5), 1000)
 
+        # Trigonal pyramid motif.
+        op_vals = ops_101.get_order_parameters(
+            self.trigonal_pyramid, 0, indeces_neighs=[1,2,3,4])
+        self.assertAlmostEqual(int(op_vals[18] * 1000 + 0.5), 1000)
+
         # Square pyramid motif.
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
         self.assertAlmostEqual(int(op_vals[11] * 1000 + 0.5), 1000)
@@ -547,7 +570,7 @@ class OrderParametersTest(PymatgenTest):
 
         # Trigonal bipyramidal.
         op_vals = ops_101.get_order_parameters(
-                self.trigonal_bipyramidal.sites, 0, indeces_neighs=[1,2,3,4,5])
+            self.trigonal_bipyramidal.sites, 0, indeces_neighs=[1,2,3,4,5])
         self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 1000)
 
         # Test providing explicit neighbor lists.
@@ -570,9 +593,11 @@ class OrderParametersTest(PymatgenTest):
         del self.regular_triangle
         del self.square
         del self.square_pyramid
-        del self.trigonal_pyramidal
+        del self.trigonal_off_plane
+        del self.trigonal_pyramid
         del self.trigonal_planar
         del self.square_planar
+        del self.pentagonal_pyramid
 
 if __name__ == '__main__':
     unittest.main()
