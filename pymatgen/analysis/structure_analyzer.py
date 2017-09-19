@@ -871,7 +871,7 @@ class OrderParameters(object):
             "cn", "sgl_bd", "lin", "bent", "tri_plan", "reg_tri", "sq_plan", \
             "pent_plan", "sq", "tet", \
             "tet_legacy", "tri_pyr", "reg_pent", "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "oct", \
-            "oct_legacy", "bcc", "q2", "q4", "q6")
+            "oct_legacy", "pent_pyr", "hex_pyr", "bcc", "q2", "q4", "q6")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -906,6 +906,10 @@ class OrderParameters(object):
                   "sq_pyr": OP recognizing square pyramidal coordination;
                   "sq_pyr_legacy": OP recognizing pyramidal coordination;
                   "tri_bipyr": OP recognizing trigonal bipyramidal coord.;
+                  "pent_pyr": OP recognizing pentagonal pyramidal
+                              coordination;
+                  "hex_pyr": OP recognizing hexagonal pyramidal
+                              coordination;
                   "q2": bond orientational order parameter (BOOP)
                         of weight l=2 (Steinhardt et al., Phys. Rev. B,
                         28, 784-805, 1983);
@@ -991,6 +995,12 @@ class OrderParameters(object):
                             (0.0333);
                             Gaussian width in Angstrom for penalizing
                             variations in neighbor distances (0.1);
+                  "pent_pyr": Gaussian width in fractions of pi
+                              for penalizing angles away from 90 degrees
+                              (0.0556);
+                  "hex_pyr": Gaussian width in fractions of pi
+                             for penalizing angles away from 90 degrees
+                             (0.0556);
                   "tri_bipyr": threshold angle to identify close to
                             South pole positions (160.0, cf., oct).
                             Gaussian width for penalizing deviations away
@@ -1282,6 +1292,26 @@ class OrderParameters(object):
                                 " square pyramid order parameter is zero!")
                     tmpparas[i] = [1.0 / loc_parameters[i][0], \
                             1.0 / loc_parameters[i][1]]
+            elif t == "pent_pyr":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i].append(1.0 / 0.0556)
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for"
+                                         " pentagonal-pyramidal order"
+                                         " parameter!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][0])
+            elif t == "hex_pyr":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i].append(1.0 / 0.0556)
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for"
+                                         " hexagonal-pyramidal order"
+                                         " parameter!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][0])
             elif t == "tri_bipyr":
                 if len(loc_parameters[i]) < 3:
                     tmpparas[i].append(8.0 * pi / 9.0)
@@ -1323,7 +1353,8 @@ class OrderParameters(object):
             if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
                     t == "sq_pyr_legacy" or t == "tri_bipyr" or t == "tet_legacy" or \
                     t == "oct_legacy" or t == "tri_plan" or t == "sq_plan" or \
-                    t == "pent_plan" or t == "tri_pyr":
+                    t == "pent_plan" or t == "tri_pyr" or t == "pent_pyr" or \
+                    t == "hex_pyr":
                 self._computerijs = self._geomops = True
             if t == "reg_tri" or t =="sq" or t == "reg_pent":
                 self._computerijs = self._computerjks = self._geomops2 = True
@@ -2135,6 +2166,28 @@ class OrderParameters(object):
                                                 ops[i] += gaussthetak[i] * \
                                                     math.exp(-0.5 * tmp * \
                                                     tmp) * tmp2 * tmp2
+                                        elif t == "pent_pyr":
+                                            tmp = math.cos(2.5 * phi)
+                                            tmp2 = self._paras[i][0] * (
+                                                    thetak * ipi - 0.5)
+                                            tmp3 = self._paras[i][0] * (
+                                                    thetam * ipi - 0.5)
+                                            qsptheta[i][j] += tmp * tmp * \
+                                                    math.exp(
+                                                    -0.5 * tmp2 * tmp2) * \
+                                                    math.exp(
+                                                    -0.5 * tmp3 * tmp3)
+                                        elif t == "hex_pyr":
+                                            tmp = math.cos(3.0 * phi)
+                                            tmp2 = self._paras[i][0] * (
+                                                    thetak * ipi - 0.5)
+                                            tmp3 = self._paras[i][0] * (
+                                                    thetam * ipi - 0.5)
+                                            qsptheta[i][j] += tmp * tmp * \
+                                                    math.exp(
+                                                    -0.5 * tmp2 * tmp2) * \
+                                                    math.exp(
+                                                    -0.5 * tmp3 * tmp3)
                                         elif t == "oct_legacy":
                                             if thetak < self._paras[i][0] and \
                                                             thetam < \
@@ -2215,7 +2268,8 @@ class OrderParameters(object):
                     ops[i] = ops[i] / float(0.5 * float(
                             nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) \
                             if nneigh > 3 else None
-                elif t == "tri_pyr" or t == "sq_pyr":
+                elif t == "tri_pyr" or t == "sq_pyr" or t == "pent_pyr" or \
+                        t == "hex_pyr":
                     ops[i] = max(qsptheta[i]) / float(
                         (nneigh - 1) * (nneigh - 2)) if nneigh > 2 else None
                 elif t == "sq_pyr_legacy":

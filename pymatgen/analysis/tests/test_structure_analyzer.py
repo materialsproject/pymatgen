@@ -417,6 +417,15 @@ class OrderParametersTest(PymatgenTest):
             [-1.90877, -2.24389, 0], [0, -3.6307, 0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.hexagonal_pyramid = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]), \
+            ["H", "Li", "C", "C", "C", "C", "C", "C"],
+            [[0, 0, 0], [0, 0, 1.675], [0.71, 1.2298, 0], \
+            [-0.71, 1.2298, 0], [0.71, -1.2298, 0], [-0.71, -1.2298, 0], \
+            [1.4199, 0, 0], [-1.4199, 0, 0]], \
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
         #from pymatgen.io.xyz import XYZ
         #XYZ(self.pentagonal_pyramid).write_file('test.xyz')
         self.trigonal_pyramid = Structure(
@@ -443,10 +452,11 @@ class OrderParametersTest(PymatgenTest):
         # Set up everything.
         op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
             "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd", \
-            "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr"]
+            "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
+            "pent_pyr", "hex_pyr"]
         #op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], [], None]
         op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], \
-            [], [], [], [], [], [], [], []]
+            [], [], [], [], [], [], [], [], [], []]
         ops_044 = OrderParameters(op_types, op_paras, 0.44)
         ops_071 = OrderParameters(op_types, op_paras, 0.71)
         ops_087 = OrderParameters(op_types, op_paras, 0.87)
@@ -568,6 +578,16 @@ class OrderParametersTest(PymatgenTest):
         self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 500)
         self.assertAlmostEqual(int(op_vals[17] * 1000 + 0.5), 1000)
 
+        # Pentagonal pyramid motif.
+        op_vals = ops_101.get_order_parameters(
+            self.pentagonal_pyramid, 0, indeces_neighs=[1,2,3,4,5,6])
+        self.assertAlmostEqual(int(op_vals[19] * 1000 + 0.5), 1000)
+
+        # Hexagonal pyramid motif.
+        op_vals = ops_101.get_order_parameters(
+            self.hexagonal_pyramid, 0, indeces_neighs=[1,2,3,4,5,6,7])
+        self.assertAlmostEqual(int(op_vals[20] * 1000 + 0.5), 1000)
+
         # Trigonal bipyramidal.
         op_vals = ops_101.get_order_parameters(
             self.trigonal_bipyramidal.sites, 0, indeces_neighs=[1,2,3,4,5])
@@ -598,6 +618,7 @@ class OrderParametersTest(PymatgenTest):
         del self.trigonal_planar
         del self.square_planar
         del self.pentagonal_pyramid
+        del self.hexagonal_pyramid
 
 if __name__ == '__main__':
     unittest.main()
