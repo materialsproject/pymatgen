@@ -871,7 +871,7 @@ class OrderParameters(object):
             "cn", "sgl_bd", "lin", "bent", "tri_plan", "reg_tri", "sq_plan", \
             "pent_plan", "sq", "tet", \
             "tet_legacy", "tri_pyr", "reg_pent", "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "oct", \
-            "oct_legacy", "pent_pyr", "hex_pyr", "bcc", "q2", "q4", "q6")
+            "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "bcc", "q2", "q4", "q6")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -903,9 +903,12 @@ class OrderParameters(object):
                   "sq": OP recognizing square coordination;
                   "reg_pent": OP recognizing coordination with a regular pentagon;
                   "pent_plan": OP recognizing pentagonal planar environments;
+                  "T": OP recognizing T-shape coordination;
                   "sq_pyr": OP recognizing square pyramidal coordination;
                   "sq_pyr_legacy": OP recognizing pyramidal coordination;
-                  "tri_bipyr": OP recognizing trigonal bipyramidal coord.;
+                  "tri_bipyr": OP recognizing trigonal bipyramidal coordination;
+                  "pent_bipyr": OP recognizing pentagonal bipyramidal coordination;
+                  "hex_bipyr": OP recognizing hexagonal bipyramidal coordination;
                   "pent_pyr": OP recognizing pentagonal pyramidal
                               coordination;
                   "hex_pyr": OP recognizing hexagonal pyramidal
@@ -987,6 +990,9 @@ class OrderParameters(object):
                               height-to-side ratio of the pentagonal pyramid
                               in which the central atom is located at the
                               tip (0.04);
+                  "T": Gaussian width in fractions of pi
+                       for penalizing angles away from 90 degrees
+                       (0.0556);
                   "sq_pyr": Gaussian width in fractions of pi
                             for penalizing angles away from 90 degrees
                             (0.0556);
@@ -1007,6 +1013,18 @@ class OrderParameters(object):
                             from south pole (0.0667);
                             Gaussian width for penalizing deviations away
                             from equator (0.0556).
+                  "pent_bipyr": threshold angle to identify close to
+                                South pole positions (160.0, cf., oct).
+                                Gaussian width for penalizing deviations away
+                                from south pole (0.0667);
+                                Gaussian width for penalizing deviations away
+                                from equator (0.0556).
+                  "hex_bipyr": threshold angle to identify close to
+                               South pole positions (160.0, cf., oct);
+                               Gaussian width for penalizing deviations away
+                               from south pole (0.0667);
+                               Gaussian width for penalizing deviations away
+                               from equator (0.0556).
                   "tet_legacy": Gaussian width for penalizing deviations
                                 away perfect tetrahedral angle (0.0667);
                   "oct_legacy": threshold angle in degrees distinguishing
@@ -1272,6 +1290,14 @@ class OrderParameters(object):
                                 " pentagonal pyramid tip of regular pentagon"
                                 " order parameter is zero!")
                     tmpparas[i] = [1.0 / loc_parameters[i][0]]
+            elif t == "T":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0 / 0.0556]
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for angles in"
+                                " T-shape order parameter is zero!")
+                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
             elif t == "sq_pyr":
                 if len(loc_parameters[i]) == 0:
                     tmpparas[i] = [1.0 / 0.0556]
@@ -1316,7 +1342,7 @@ class OrderParameters(object):
                 if len(loc_parameters[i]) < 3:
                     tmpparas[i].append(8.0 * pi / 9.0)
                     tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0741)
+                    tmpparas[i].append(1.0 / 0.0556)
                 else:
                     if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
                             0] >= 180.0:
@@ -1338,6 +1364,58 @@ class OrderParameters(object):
                                          " is zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][2])
+            elif t == "pent_bipyr":
+                if len(loc_parameters[i]) < 3:
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(1.0 / 0.0667)
+                    tmpparas[i].append(1.0 / 0.0556)
+                else:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] >= 180.0:
+                        warn("Threshold value for south pole"
+                             " configurations in pentagonal bipyramidal"
+                             " order parameter outside ]0,180[")
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
+                    if loc_parameters[i][1] == 0.0:
+                        raise ValueError("Gaussian width for south pole"
+                                         " configurations in pentagonal"
+                                         " bipyramidal order parameter is"
+                                         " zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][1])
+                    if loc_parameters[i][2] == 0.0:
+                        raise ValueError("Gaussian width for equatorial"
+                                         " configurations in pentagonal"
+                                         " bipyramidal order parameter"
+                                         " is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][2])
+            elif t == "hex_bipyr":
+                if len(loc_parameters[i]) < 3:
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(1.0 / 0.0667)
+                    tmpparas[i].append(1.0 / 0.0556)
+                else:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] >= 180.0:
+                        warn("Threshold value for south pole"
+                             " configurations in hexagonal bipyramidal"
+                             " order parameter outside ]0,180[")
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
+                    if loc_parameters[i][1] == 0.0:
+                        raise ValueError("Gaussian width for south pole"
+                                         " configurations in hexagonal"
+                                         " bipyramidal order parameter is"
+                                         " zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][1])
+                    if loc_parameters[i][2] == 0.0:
+                        raise ValueError("Gaussian width for equatorial"
+                                         " configurations in hexagonal"
+                                         " bipyramidal order parameter"
+                                         " is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][2])
             # All following types should be well-defined/-implemented,
             # and they should not require parameters.
             elif t != "q2" and t != "q4" and t != "q6":
@@ -1354,7 +1432,8 @@ class OrderParameters(object):
                     t == "sq_pyr_legacy" or t == "tri_bipyr" or t == "tet_legacy" or \
                     t == "oct_legacy" or t == "tri_plan" or t == "sq_plan" or \
                     t == "pent_plan" or t == "tri_pyr" or t == "pent_pyr" or \
-                    t == "hex_pyr":
+                    t == "hex_pyr" or t == "pent_bipyr" or \
+                    t == "hex_bipyr" or t == "T":
                 self._computerijs = self._geomops = True
             if t == "reg_tri" or t =="sq" or t == "reg_pent":
                 self._computerijs = self._computerjks = self._geomops2 = True
@@ -2098,6 +2177,16 @@ class OrderParameters(object):
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     qsptheta[i][j] = 2.0 * math.exp(-0.5 * tmp * tmp)
+                            elif t == "pent_bipyr":
+                                if thetak >= self._paras[i][0]:
+                                    tmp = self._paras[i][1] * (
+                                        thetak * ipi - 1.0)
+                                    qsptheta[i][j] = 4.0 * math.exp(-0.5 * tmp * tmp)
+                            elif t == "hex_bipyr":
+                                if thetak >= self._paras[i][0]:
+                                    tmp = self._paras[i][1] * (
+                                        thetak * ipi - 1.0)
+                                    qsptheta[i][j] = 5.0 * math.exp(-0.5 * tmp * tmp)
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -2200,6 +2289,17 @@ class OrderParameters(object):
                                                               math.exp(
                                                                   -0.5 * tmp2 * tmp2) - \
                                                               self._paras[i][3])
+                                        elif t == "T":
+                                            tmp = math.cos(1.0 * phi)
+                                            tmp2 = self._paras[i][0] * (
+                                                    thetak * ipi - 0.5)
+                                            tmp3 = self._paras[i][0] * (
+                                                    thetam * ipi - 0.5)
+                                            qsptheta[i][j] += tmp * tmp * \
+                                                    math.exp(
+                                                    -0.5 * tmp2 * tmp2) * \
+                                                    math.exp(
+                                                    -0.5 * tmp3 * tmp3)
                                         elif t == "sq_pyr":
                                             tmp = math.cos(2.0 * phi)
                                             tmp2 = self._paras[i][0] * ( 
@@ -2242,6 +2342,24 @@ class OrderParameters(object):
                                                 qsptheta[i][j] += \
                                                     tmp * tmp * math.exp( \
                                                     -0.5 * tmp2 * tmp2)
+                                        elif t == "pent_bipyr":
+                                            if thetak < self._paras[i][0] and \
+                                                    thetam < self._paras[i][0]:
+                                                tmp = math.cos(2.5 * phi)
+                                                tmp2 = self._paras[i][2] * (
+                                                    thetam * ipi - 0.5)
+                                                qsptheta[i][j] += \
+                                                    tmp * tmp * math.exp( \
+                                                    -0.5 * tmp2 * tmp2)
+                                        elif t == "hex_bipyr":
+                                            if thetak < self._paras[i][0] and \
+                                                    thetam < self._paras[i][0]:
+                                                tmp = math.cos(3.0 * phi)
+                                                tmp2 = self._paras[i][2] * (
+                                                    thetam * ipi - 0.5)
+                                                qsptheta[i][j] += \
+                                                    tmp * tmp * math.exp( \
+                                                    -0.5 * tmp2 * tmp2)
 
 
             # Normalize Peters-style OPs.
@@ -2268,8 +2386,8 @@ class OrderParameters(object):
                     ops[i] = ops[i] / float(0.5 * float(
                             nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) \
                             if nneigh > 3 else None
-                elif t == "tri_pyr" or t == "sq_pyr" or t == "pent_pyr" or \
-                        t == "hex_pyr":
+                elif t == "T" or t == "tri_pyr" or t == "sq_pyr" or \
+                        t == "pent_pyr" or t == "hex_pyr":
                     ops[i] = max(qsptheta[i]) / float(
                         (nneigh - 1) * (nneigh - 2)) if nneigh > 2 else None
                 elif t == "sq_pyr_legacy":
@@ -2286,6 +2404,14 @@ class OrderParameters(object):
                 elif t == "tri_bipyr":
                     ops[i] = max(qsptheta[i]) / float(
                             2 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
+                            else None
+                elif t == "pent_bipyr":
+                    ops[i] = max(qsptheta[i]) / float(
+                            4 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
+                            else None
+                elif t == "hex_bipyr":
+                    ops[i] = max(qsptheta[i]) / float(
+                            5 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
                             else None
 
 
