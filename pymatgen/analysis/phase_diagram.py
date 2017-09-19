@@ -100,6 +100,15 @@ class PDEntry(MSONable):
                 "name": self.name,
                 "attribute": self.attribute}
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.as_dict() == other.as_dict()
+        else:
+            return False
+
+    def __hash__(self):
+        return id(self)
+
     @classmethod
     def from_dict(cls, d):
         return cls(Composition(d["composition"]), d["energy"],
