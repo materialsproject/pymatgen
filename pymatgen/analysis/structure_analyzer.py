@@ -869,9 +869,10 @@ class OrderParameters(object):
 
     __supported_types = (
             "cn", "sgl_bd", "lin", "bent", "tri_plan", "reg_tri", "sq_plan", \
-            "pent_plan", "sq", "tet", \
-            "tet_legacy", "tri_pyr", "reg_pent", "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "oct", \
-            "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "bcc", "q2", "q4", "q6")
+            "pent_plan", "sq", "tet", "tet_legacy", "tri_pyr", "reg_pent", \
+            "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "oct", "oct_legacy", \
+            "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", \
+            "cuboct", "bcc", "q2", "q4", "q6")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -913,6 +914,7 @@ class OrderParameters(object):
                               coordination;
                   "hex_pyr": OP recognizing hexagonal pyramidal
                               coordination;
+                  "cuboct": OP recognizing cuboctahedral coordination;
                   "q2": bond orientational order parameter (BOOP)
                         of weight l=2 (Steinhardt et al., Phys. Rev. B,
                         28, 784-805, 1983);
@@ -1025,6 +1027,18 @@ class OrderParameters(object):
                                from south pole (0.0667);
                                Gaussian width for penalizing deviations away
                                from equator (0.0556).
+                  "cuboct": threshold angle to identify close to
+                            South pole positions (160.0, cf., oct);
+                            threshold angle to identify above Equator
+                            positions (75 degrees);
+                            threshold angle to identify above Equator
+                            positions (105 degrees);
+                            Gaussian width for penalizing deviations away
+                            from south pole (0.0667);
+                            Gaussian width for penalizing deviations away
+                            from equator (0.0556);
+                            Gaussian width for penalizing deviations away
+                            from above and below equator, resp., (0.0556);
                   "tet_legacy": Gaussian width for penalizing deviations
                                 away perfect tetrahedral angle (0.0667);
                   "oct_legacy": threshold angle in degrees distinguishing
@@ -1416,6 +1430,21 @@ class OrderParameters(object):
                                          " is zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][2])
+            elif t == "cuboct":
+                if len(loc_parameters[i]) < 3:
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(75.0 * pi / 180.0)
+                    tmpparas[i].append(105.0 * pi / 180.0)
+                    tmpparas[i].append(1.0 / 0.0667)
+                    tmpparas[i].append(1.0 / 0.0556)
+                    tmpparas[i].append(1.0 / 0.0556)
+                else:
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
+                    tmpparas[i].append(loc_parameters[i][1] * pi / 180.0)
+                    tmpparas[i].append(loc_parameters[i][2] * pi / 180.0)
+                    tmpparas[i].append(1.0 / loc_parameters[i][3])
+                    tmpparas[i].append(1.0 / loc_parameters[i][4])
+                    tmpparas[i].append(1.0 / loc_parameters[i][5])
             # All following types should be well-defined/-implemented,
             # and they should not require parameters.
             elif t != "q2" and t != "q4" and t != "q6":
@@ -1433,7 +1462,7 @@ class OrderParameters(object):
                     t == "oct_legacy" or t == "tri_plan" or t == "sq_plan" or \
                     t == "pent_plan" or t == "tri_pyr" or t == "pent_pyr" or \
                     t == "hex_pyr" or t == "pent_bipyr" or \
-                    t == "hex_bipyr" or t == "T":
+                    t == "hex_bipyr" or t == "T" or t =="cuboct":
                 self._computerijs = self._geomops = True
             if t == "reg_tri" or t =="sq" or t == "reg_pent":
                 self._computerijs = self._computerjks = self._geomops2 = True
@@ -2048,6 +2077,7 @@ class OrderParameters(object):
                         kk = kk + 1
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
+        norms = [[0.0 for i in range(nneigh)] for t in self._types]
 
         # First, coordination number and distance-based OPs.
         for i, t in enumerate(self._types):
@@ -2110,6 +2140,7 @@ class OrderParameters(object):
             piover2 = pi / 2.0
             tetangoverpi = math.acos(-1.0 / 3.0) * ipi
             itetangminuspihalfoverpi = 1.0 / (tetangoverpi - 0.5)
+            onethird = 1.0 / 3.0
             twothird = 2.0 / 3.0
             for j in range(nneigh):  # Neighbor j is put to the North pole.
                 zaxis = rijnorm[j]
@@ -2187,6 +2218,13 @@ class OrderParameters(object):
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     qsptheta[i][j] = 5.0 * math.exp(-0.5 * tmp * tmp)
+                            elif t == "cuboct":
+                                if thetak >= self._paras[i][0]:
+                                    # k is south pole to j
+                                    tmp = self._paras[i][3] * (
+                                        thetak * ipi - 1.0)
+                                    ops[i] += 1.8 * math.exp(-0.5 * tmp * tmp)
+                                    norms[i][j] += 1.8
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -2360,6 +2398,37 @@ class OrderParameters(object):
                                                 qsptheta[i][j] += \
                                                     tmp * tmp * math.exp( \
                                                     -0.5 * tmp2 * tmp2)
+                                        elif t == "cuboct":
+                                            if thetam < self._paras[i][0] and \
+                                                    thetak > self._paras[i][1] and \
+                                                    thetak < self._paras[i][2]:
+                                                if thetam > self._paras[i][1] and \
+                                                        thetam < self._paras[i][2]:
+                                                    tmp = math.cos(phi)
+                                                    tmp2 = self._paras[i][4] * (
+                                                        thetam * ipi - 0.5)
+                                                    ops[i] += tmp * tmp * \
+                                                        math.exp(
+                                                        -0.5 * tmp2 * tmp2)
+                                                    norms[i][j] += 1.0
+                                                elif thetam < self._paras[i][1]:
+                                                    tmp = 0.0556 * (
+                                                        math.cos(phi-0.5*pi) - 0.81649658)
+                                                    tmp2 = self._paras[i][5] * (
+                                                        thetam * ipi - onethird)
+                                                    ops[i] += math.exp(-0.5 * tmp * tmp) * \
+                                                        math.exp(
+                                                        -0.5 * tmp2 * tmp2)
+                                                    norms[i][j] += 1.0
+                                                elif thetam > self._paras[i][2]:
+                                                    tmp = 0.0556 * (
+                                                        math.cos(phi-0.5*pi) - 0.81649658)
+                                                    tmp2 = self._paras[i][5] * (
+                                                        thetam * ipi - twothird)
+                                                    ops[i] += math.exp(-0.5 * tmp * tmp) * \
+                                                        math.exp(
+                                                        -0.5 * tmp2 * tmp2)
+                                                    norms[i][j] += 1.0
 
 
             # Normalize Peters-style OPs.
@@ -2413,6 +2482,9 @@ class OrderParameters(object):
                     ops[i] = max(qsptheta[i]) / float(
                             5 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
                             else None
+                elif t == "cuboct":
+                    ops[i] = ops[i] / sum(norms[i]) \
+                        if sum(norms[i]) > 0.0 else None
 
 
         # Then, deal with the new-style OPs that require vectors between
