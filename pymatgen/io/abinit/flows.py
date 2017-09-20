@@ -32,8 +32,7 @@ from monty.termcolor import cprint, colored, cprint_map, get_terminal_size
 from monty.inspect import find_top_pyfile
 from monty.dev import deprecated
 from monty.json import MSONable
-from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
-from pymatgen.serializers.json_coders import pmg_serialize
+from pymatgen.util.serialization import pmg_pickle_load, pmg_pickle_dump, pmg_serialize
 from pymatgen.core.units import Memory
 from pymatgen.util.io_utils import AtomicFile
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
