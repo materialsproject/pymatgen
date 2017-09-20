@@ -191,7 +191,7 @@ class SurfaceEnergyCalculator(object):
         # for a elemental system, the relative u of Cu for Cu is 0
         if full_chempot:
             if not chempot_ranges:
-                chempot_range = [[0, 0], [0, 0]]
+                chempot_range = [[-1, -1], [0, 0]]
             else:
                 all_u = []
                 for entry in chempot_ranges.keys():
@@ -202,7 +202,7 @@ class SurfaceEnergyCalculator(object):
             chempot_range = [chempot_ranges[entry] for entry in chempot_ranges.keys()
                              if entry.composition ==
                              ucell_comp][0][0]._coords if \
-                chempot_ranges else [[0, 0], [0, 0]]
+                chempot_ranges else [[-1, -1], [0, 0]]
 
         chempot_range = list(chempot_range)
         return sorted([chempot_range[0][0], chempot_range[1][0]])
@@ -284,9 +284,19 @@ class SurfaceEnergyCalculator(object):
         Returns (float): surface energy
         """
 
-        b1, b2, b3 = self.surface_energy_coefficients(clean_slab_entry,
-                                                      ads_slab_entry=ads_slab_entry)
-        return b1*u_ref + b2*u_ads + b3
+        coeffs = self.surface_energy_coefficients(clean_slab_entry,
+                                                  ads_slab_entry=ads_slab_entry)
+        return np.dot([u_ref, u_ads, 1], coeffs)
+
+    def get_monolayer(self, ads_slab_entry, clean_slab_entry):
+
+        m = ads_slab_entry.structure.lattice.matrix
+        A_ads = np.linalg.norm(np.cross(m[0], m[1]))
+        m = clean_slab_entry.structure.lattice.matrix
+        A_clean = np.linalg.norm(np.cross(m[0], m[1]))
+        n = (A_ads / A_clean)
+
+        return n
 
     def gibbs_binding_energy(self, ads_slab_entry, clean_slab_entry):
         """
@@ -297,12 +307,7 @@ class SurfaceEnergyCalculator(object):
             clean_slab_entry (entry): The entry of the clean slab
         """
 
-        m = ads_slab_entry.structure.lattice.matrix
-        A_ads = np.linalg.norm(np.cross(m[0], m[1]))
-        m = clean_slab_entry.structure.lattice.matrix
-        A_clean = np.linalg.norm(np.cross(m[0], m[1]))
-        n = (A_ads / A_clean)
-
+        n = self.get_monolayer(ads_slab_entry, clean_slab_entry)
         Nads = self.Nads_in_slab(ads_slab_entry)
 
         return (ads_slab_entry.energy - n * clean_slab_entry.energy) / Nads \
@@ -377,13 +382,14 @@ class SurfaceEnergyPlotter(object):
                           clean_entry2: [...], ...}, (h2,k2,l2): {...}}
             where clean_entry1 can be a pristine surface and clean_entry2 can be a
             reconstructed surface while ads_entry1 can be adsorption at site 1 with
-            a 2x2 coverage while ads_entry2 can have a 3x3 coverage.
+            a 2x2 coverage while ads_entry2 can have a 3x3 coverage. If adsorption
+            entries are present (i.e. if entry_dict[(h,k,l)][clean_entry1]), we
+            consider adsorption in all plots and analysis for this particular facet.
 
     .. attribute:: ref_element
 
         All chemical potentials can be written in terms of the range of chemical
             potential of this element which will be used to calculate surface energy.
-
 
     """
 
@@ -394,7 +400,6 @@ class SurfaceEnergyPlotter(object):
         Args:
             entry_dict (dict): Dictionary containing a list of entries
                 for slab calculations. See attributes.
-
             surface_energy_calculator (SurfaceEnergyCalculator):
                 Object for calculating thermodynamic quantities related to surfaces
         """
@@ -404,39 +409,7 @@ class SurfaceEnergyPlotter(object):
         self.entry_dict = entry_dict
         self.ref_el_comp = str(self.se_calculator.ref_el_comp.elements[0])
 
-    def get_stable_surf_regions(self, miller_index, clean_only=True):
-        """
-        For a specific facet, returns an energy stability range of u for each
-            facet as a slope and intercept. e.g. if config 1 stable between
-            -1<u<-0.5 and config 2 is stable between -0.5<u<0 we return:
-            [[-1, -0.5, slope1, intercept1], [-0.5, 0, slope2, intercept2]].
-        """
-
-        # First get the intercepts at the stable configs
-
-        stable_slab_entry, gamma = self.return_stable_slab_entry_at_u(miller_index,
-                                                                      min(self.chempot_range))
-        ulist, gamma_list = [min(self.chempot_range)], [gamma]
-        intersections = self.get_intersections(miller_index=miller_index)
-        for int in intersections:
-            stable_slab_entry, gamma = self.return_stable_slab_entry_at_u(miller_index,
-                                                                    int[0])
-            ulist.append(int[0])
-            gamma_list.append(gamma)
-
-        # Next, build a stability map with the range in u, slope and intercept
-        stability_map = []
-        ent, final_gamma = self.return_stable_slab_entry_at_u(miller_index,
-                                                        max(self.chempot_range))
-        for i, u in enumerate(ulist):
-            high_u = max(self.chempot_range) if i == len(ulist) - 1 else ulist[i + 1]
-            high_gamma = final_gamma if i == len(ulist) - 1 else gamma_list[i + 1]
-            stability_map.append([[u, high_u],
-                                  [gamma_list[i], high_gamma]])
-
-        return stability_map
-
-    def wulff_shape_from_chempot(self, chempot, symprec=1e-5):
+    def wulff_shape_from_chempot(self, u_ref=0, u_ads=0, symprec=1e-5):
         """
         Method to get the Wulff shape at a specific chemical potential.
         Args:
@@ -445,7 +418,7 @@ class SurfaceEnergyPlotter(object):
 
         # Check if the user provided chemical potential is within the
         # predetermine range of chemical potential. If not, raise a warning
-        if not max(self.chempot_range) >= chempot >= min(self.chempot_range):
+        if not max(self.chempot_range) >= u_ref >= min(self.chempot_range):
             warnings.warn("The provided chemical potential is outside the range "
                           "of chemical potential (%s to %s). The resulting Wulff "
                           "shape might not be reasonable." % (min(self.chempot_range),
@@ -462,53 +435,277 @@ class SurfaceEnergyPlotter(object):
             # the most stable slab termination at that particular u)
             e_list = []
             for entry in self.entry_dict[hkl]:
-                b1, b2, b3 = self.se_calculator.surface_energy_coefficients(entry)
-                e_list.append(b1 * chempot + b3)
+                e_list.append(self.se_calculator.\
+                              calculate_gamma_at_u(entry, u_ref=u_ref))
+                for ads_entry in self.entry_dict[hkl][entry]:
+                    e_list.append(self.se_calculator. \
+                                  calculate_gamma_at_u(entry, ads_slab_entry=ads_entry,
+                                                       u_ref=u_ref, u_ads=u_ads))
+
             e_surf_list.append(min(e_list))
 
         return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
 
-    def wulff_shape_dict(self, symprec=1e-5, at_intersections=False):
+    def return_stable_slab_entry_at_u(self, miller_index, u_ref=0, u_ads=0):
         """
-        As the surface energy is a function of chemical potential, so too is the
-            Wulff shape. This methods generates a dictionary of Wulff shapes at
-            certain chemical potentials where a facet goes through a transition.
-            Returns a dict, eg. {chempot1: WulffShape1, chempot2: WulffShape2}
-
+        Returns the vasprun corresponding to the most
+        stable slab for a particular facet at a specific u
         Args:
-            symprec (float): for recp_operation, default is 1e-5.
-            at_intersections (bool): Whether to generate a Wulff shape for each
-                intersection of surface energy for a specific facet (eg. at the
-                point where a (111) stoichiometric surface energy plot intersects
-                with the (111) nonstoichiometric plot) or to just generate two
-                Wulff shapes, one at the min and max chemical potential.
+            miller_index ((h,k,l)): The facet to find the most stable slab in
+            u (float): The chemical potential to look for the most stable slab
         """
 
-        # First lets get the Wulff shape at the
-        # minimum and maximum chemical potential
-        wulff_dict = {self.chempot_range[0]: \
-                          self.wulff_shape_from_chempot(self.chempot_range[0],
-                                                        symprec=symprec),
-                      self.chempot_range[1]: \
-                          self.wulff_shape_from_chempot(self.chempot_range[1],
-                                                        symprec=symprec)}
+        all_entries, all_gamma = [], []
+        for entry in self.entry_dict[miller_index].keys():
+            gamma = self.se_calculator.calculate_gamma_at_u(entry, u_ref=u_ref)
+            all_entries.append(entry)
+            all_gamma.append(gamma)
+            for ads_entry in self.entry_dict[miller_index][entry]:
+                gamma = self.se_calculator.calculate_gamma_at_u(entry, u_ref=u_ref,
+                                                                u_ads=u_ads)
+                all_entries.append(ads_entry)
+                all_gamma.append(gamma)
 
-        # Now we get the Wulff shape each time a facet changes its configuration
-        # (ie, adsorption coverage, stoichiometric to nonstoichiometric, etc)
-        if at_intersections:
-            # Get all values of chemical potential where an intersection occurs
-            all_intersections = self.get_intersections()
-            # Get a Wulff shape for each intersection. The change in the Wulff shape
-            # will vary if the rate of change in surface energy for any facet changes
-            for int in all_intersections:
-                wulff = self.wulff_shape_from_chempot(int[0], symprec=symprec)
-                if any([wulff.area_fraction_dict[hkl] != 0 for hkl in int[2]]):
-                    wulff_dict[int[0]] = wulff
+        return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
 
-        return wulff_dict
+    def get_intersects_hkl(self, miller_index, x_is_u_ads=False,
+                           const_u=0, return_entries=False):
+        """
+            Returns intersections for a specific facet. A list of lists, each
+                entry in the list represents an intersect with u and gamma(u).
+                Useful for finding when the configuration of a particular facet
+                changes. Finds intersections by solving a matrix of equations,
+                2 eqns for clean surfaces (b2=0 for no adsorption) and 3 eqns
+                for adsorbed surfaces
 
-    def area_frac_vs_chempot_plot(self, cmap=cm.jet, at_intersections=False,
-                                  increments=10):
+            Args:
+                miller_index ((h, k, l)): Miller index of the facet we
+                    are interested in. Optional parameter that looks for
+                    intersections for a specfic facet only when given.
+        """
+
+        # First lets calculate the range of surface energies for
+        # all terminations of a specific facet.
+        all_coefficients = []
+        for clean_entry in self.entry_dict[miller_index]:
+            all_coefficients.append(self.se_calculator. \
+                                    surface_energy_coefficients(clean_entry))
+            gbind_list, ads_entries = [], []
+            for ads_entry in self.entry_dict[miller_index][clean_entry]:
+                ads_entries.append(ads_entry)
+                all_coefficients.append(self.se_calculator.\
+                                        surface_energy_coefficients(clean_entry,
+                                                                    ads_slab_entry=ads_entry))
+
+        if len(all_coefficients) == 1:
+            print("only one coeffs")
+            return []
+
+        # Now get all possible intersection coordinates for each pair of lines
+        intersections = []
+        # Find the intersections of two lines if no
+        # adsorption, solve for three lines if adsorption
+        for pair_lines in itertools.combinations(all_coefficients, 2):
+            # matA is a 2x2 coefficient matrix, matB is a 2x1 intercept
+            # matrix. For matA, we use the coeff of the ref chempot if
+            # x is the ref chempot, else use the adsorbate chempot
+            u = (pair_lines[1][2]-pair_lines[0][2])/(pair_lines[0][0]-pair_lines[1][0]) if not \
+                x_is_u_ads else (pair_lines[1][2]-pair_lines[0][2])/(pair_lines[0][1]-pair_lines[1][1])
+
+            if x_is_u_ads:
+                u_ref = const_u
+                u_ads = u
+            else:
+                u_ref = u
+                u_ads = const_u
+
+            # if the intersection is beyond the chemical potential
+            # range or if the lines are parallel, we ignore it
+            if not x_is_u_ads and any([u_ref < min(self.chempot_range),
+                                       u_ref > max(self.chempot_range)]):
+                print('skip')
+                continue
+
+            # If the surface energies at this u for both lines facet is unstable, ignore it
+            gamma = np.dot(pair_lines[0], [u_ref, u_ads, 1])
+            e1, gamma1 = self.return_stable_slab_entry_at_u(miller_index,
+                                                            u_ref, u_ads=u_ads)
+            e2, gamma2 = self.return_stable_slab_entry_at_u(miller_index,
+                                                            u_ref, u_ads=u_ads)
+
+            # +10e-9 to handle floating point comparison for equal values
+            if all([gamma > gamma1 + 10e-9, gamma > gamma2 + 10e-9]):
+                continue
+            # Each list is [u_ref, u_ads, gamma, hkl1, hkl2]
+            intersect = [u, gamma]
+            if return_entries:
+                intersect.append([e1, e2])
+            intersections.append(intersect)
+
+        return sorted(intersections, key=lambda ints: ints[0]) if not x_is_u_ads \
+            else sorted(intersections, key=lambda ints: ints[1])
+
+    # def get_intersections(self, miller_index=(), clean_only=True):
+    #     """
+    #     Returns all intersections for a specific facet or for all facets.
+    #         A list of lists, each entry in the list represents an intersect
+    #         with u, gamma(u) and [hkl1, hkl2]. Useful for finding when the
+    #         configuration of a particular facet changes or when one facet
+    #         is more stable than the other. Finds intersections by solving a
+    #         matrix of equations, 2 eqns for clean surfaces (b2=0 for no
+    #         adsorption) and 3 eqns for adsorbed surfaces
+    #
+    #     Args:
+    #         miller_index ((h, k, l)): Miller index of the facet we
+    #             are interested in. Optional parameter that looks for
+    #             intersections for a specfic facet only when given.
+    #     """
+    #
+    #     # First lets calculate the range of surface energies for
+    #     # all terminations of a specific facet or all facets.
+    #     all_coefficients = []
+    #     for hkl in self.entry_dict.keys():
+    #         if miller_index and hkl != tuple(miller_index):
+    #             continue
+    #         for entry in self.entry_dict[hkl]:
+    #             all_coefficients.append([self.se_calculator.\
+    #                                     surface_energy_coefficients(entry),
+    #                                      hkl])
+    #             if not clean_only:
+    #                 for ads_entry in self.entry_dict[hkl][entry]:
+    #                     all_coefficients.append([\
+    #                         self.se_calculator.\
+    #                             surface_energy_coefficients(entry,
+    #                                                         ads_slab_entry=ads_entry),
+    #                         hkl])
+    #
+    #     if len(all_coefficients) == 1:
+    #         return []
+    #
+    #     # Now get all possible intersection coordinates for each pair of lines
+    #     intersections = []
+    #     # Find the intersections of two lines if no
+    #     # adsorption, solve for three lines if adsorption
+    #     comb_type = 2 if clean_only else 3
+    #     for pair_lines in itertools.combinations(all_coefficients, comb_type):
+    #         # matA is the coefficient matrix, matB is the intercept matrix
+    #         matA, matB = [], []
+    #         for coeffs in pair_lines:
+    #             coeffs = coeffs[0]
+    #             matB.append(coeffs[2])
+    #             if clean_only:
+    #                 matA.append([coeffs[0], -1])
+    #             else:
+    #                 matA.append([coeffs[0], coeffs[1] -1])
+    #
+    #         # If the coefficient vectors in matrix A are equal, continue
+    #         if all([tuple(coeff_vect[0])==tuple(coeff_vect[1])
+    #                 for coeff_vect in itertools.combinations(matA, 2)]):
+    #             continue
+    #
+    #         # Calculate the intersection
+    #         if clean_only:
+    #             u_ref, gamma = np.linalg.solve(matA, matB)
+    #         else:
+    #             u_ref, u_ads, gamma = np.linalg.solve(matA, matB)
+    #
+    #         # if the intersection is beyond the chemical potential
+    #         # range or if the lines are parallel, we ignore it
+    #         if u_ref < min(self.chempot_range) \
+    #                 or u_ref > max(self.chempot_range):
+    #             continue
+    #
+    #         # If the surface energies at this u for both lines facet is unstable, ignore it
+    #         u_ads = 0 if clean_only else u_ads
+    #         e1, gamma1 = self.return_stable_slab_entry_at_u(pair_lines[0][1], u_ref,
+    #                                                         u_ads=u_ads, clean_only=clean_only)
+    #         e2, gamma2 = self.return_stable_slab_entry_at_u(pair_lines[1][1], u_ref,
+    #                                                         u_ads=u_ads, clean_only=clean_only)
+    #
+    #         # +10e-9 to handle floating point comparison for equal values
+    #         if all([gamma > gamma1 + 10e-9, gamma > gamma2 + 10e-9]):
+    #             continue
+    #         # Each list is [u_ref, u_ads, gamma, hkl1, hkl2]
+    #         intersections.append([u_ref, u_ads, gamma,
+    #                               [pair_lines[0][1], pair_lines[1][1]]])
+    #
+    #     return sorted(intersections, key=lambda ints: ints[0]) if clean_only \
+    #         else sorted(intersections, key=lambda ints: ints[1])
+
+    # def get_stable_surf_regions(self, miller_index, clean_only=True):
+    #     """
+    #     For a specific facet, returns an energy stability range of u for each
+    #         facet as a slope and intercept. e.g. if config 1 stable between
+    #         -1<u<-0.5 and config 2 is stable between -0.5<u<0 we return:
+    #         [[-1, -0.5, slope1, intercept1], [-0.5, 0, slope2, intercept2]].
+    #     """
+    #
+    #     # First get the intercepts at the stable configs
+    #     stable_slab_entry, gamma = self.return_stable_slab_entry_at_u(miller_index,
+    #                                                                   min(self.chempot_range),
+    #                                                                   clean_only=clean_only)
+    #     ulist, gamma_list = [min(self.chempot_range)], [gamma]
+    #     intersections = self.get_intersections(miller_index=miller_index, clean_only=clean_only)
+    #     for int in intersections:
+    #         stable_slab_entry, gamma = self.return_stable_slab_entry_at_u(miller_index, int[0],
+    #                                                                       clean_only=clean_only)
+    #         ulist.append(int[0])
+    #         gamma_list.append(gamma)
+    #
+    #     # Next, build a stability map with the range in u, slope and intercept
+    #     stability_map = []
+    #     ent, final_gamma = self.return_stable_slab_entry_at_u(miller_index,
+    #                                                           max(self.chempot_range),
+    #                                                           clean_only=clean_only)
+    #     for i, u in enumerate(ulist):
+    #         high_u = max(self.chempot_range) if i == len(ulist) - 1 else ulist[i + 1]
+    #         high_gamma = final_gamma if i == len(ulist) - 1 else gamma_list[i + 1]
+    #         stability_map.append([[u, high_u],
+    #                               [gamma_list[i], high_gamma]])
+    #
+    #     return stability_map
+
+    # def wulff_shape_dict(self, symprec=1e-5, at_intersections=False):
+    #     """
+    #     As the surface energy is a function of chemical potential, so too is the
+    #         Wulff shape. This methods generates a dictionary of Wulff shapes at
+    #         certain chemical potentials where a facet goes through a transition.
+    #         Returns a dict, eg. {chempot1: WulffShape1, chempot2: WulffShape2}
+    #
+    #     Args:
+    #         symprec (float): for recp_operation, default is 1e-5.
+    #         at_intersections (bool): Whether to generate a Wulff shape for each
+    #             intersection of surface energy for a specific facet (eg. at the
+    #             point where a (111) stoichiometric surface energy plot intersects
+    #             with the (111) nonstoichiometric plot) or to just generate two
+    #             Wulff shapes, one at the min and max chemical potential.
+    #     """
+    #
+    #     # First lets get the Wulff shape at the
+    #     # minimum and maximum chemical potential
+    #     wulff_dict = {self.chempot_range[0]: \
+    #                       self.wulff_shape_from_chempot(self.chempot_range[0],
+    #                                                     symprec=symprec),
+    #                   self.chempot_range[1]: \
+    #                       self.wulff_shape_from_chempot(self.chempot_range[1],
+    #                                                     symprec=symprec)}
+    #
+    #     # Now we get the Wulff shape each time a facet changes its configuration
+    #     # (ie, adsorption coverage, stoichiometric to nonstoichiometric, etc)
+    #     if at_intersections:
+    #         # Get all values of chemical potential where an intersection occurs
+    #         all_intersections = self.get_intersections()
+    #         # Get a Wulff shape for each intersection. The change in the Wulff shape
+    #         # will vary if the rate of change in surface energy for any facet changes
+    #         for int in all_intersections:
+    #             wulff = self.wulff_shape_from_chempot(int[0], symprec=symprec)
+    #             if any([wulff.area_fraction_dict[hkl] != 0 for hkl in int[2]]):
+    #                 wulff_dict[int[0]] = wulff
+    #
+    #     return wulff_dict
+
+    def area_frac_vs_chempot_plot(self, cmap=cm.jet, at_intersections=False, xrange=None,
+                                  increments=10, x_is_u_ads=False):
         """
         Plots the change in the area contribution of
         each facet as a function of chemical potential.
@@ -527,24 +724,25 @@ class SurfaceEnergyPlotter(object):
         f = [int(i) for i in np.linspace(0, 255, len(self.entry_dict.keys()))]
 
         # Get all points of min/max chempot and intersections
-        chempot_intersections = []
-        chempot_intersections.extend(self.chempot_range)
-        for hkl in self.entry_dict.keys():
-            chempot_intersections.extend([ints[0] for ints in
-                                          self.get_intersections(hkl)])
-        chempot_intersections = sorted(chempot_intersections)
+        # chempot_intersections = []
+        # chempot_intersections.extend(self.chempot_range)
+        # for hkl in self.entry_dict.keys():
+        #     chempot_intersections.extend([ints[0] for ints in
+        #                                   self.get_intersections(hkl)])
+        # chempot_intersections = sorted(chempot_intersections)
 
-        # Get all chempots
-        if at_intersections:
-            all_chempots = []
-            for i, intersection in enumerate(chempot_intersections):
-                if i < len(chempot_intersections) - 1:
-                    all_chempots.extend(np.linspace(intersection,
-                                                    chempot_intersections[i + 1],
-                                                    increments))
-        else:
-            all_chempots = np.linspace(min(self.chempot_range),
-                                       max(self.chempot_range), increments)
+        # # Get all chempots
+        # if at_intersections:
+        #     all_chempots = []
+        #     for i, intersection in enumerate(chempot_intersections):
+        #         if i < len(chempot_intersections) - 1:
+        #             all_chempots.extend(np.linspace(intersection,
+        #                                             chempot_intersections[i + 1],
+        #                                             increments))
+        # else:
+        xrange = self.chempot_range if not xrange else xrange
+        all_chempots = np.linspace(min(xrange),
+                                   max(xrange), increments)
 
         # initialize a dictionary of lists of fractional areas for each hkl
         hkl_area_dict = {}
@@ -553,7 +751,9 @@ class SurfaceEnergyPlotter(object):
 
         # Get plot points for each Miller index
         for u in all_chempots:
-            wulffshape = self.wulff_shape_from_chempot(u)
+            wulffshape = self.wulff_shape_from_chempot(u_ads=u) if \
+                x_is_u_ads else self.wulff_shape_from_chempot(u_ref=u)
+
             for hkl in wulffshape.area_fraction_dict.keys():
                 hkl_area_dict[hkl].append(wulffshape.area_fraction_dict[hkl])
 
@@ -571,32 +771,41 @@ class SurfaceEnergyPlotter(object):
                          '--', color=cmap(f[i]), label=str(hkl))
 
         # Make the figure look nice
-        # ax2 = ax1.twiny()
-        # ax2.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" %(str(self.comp1.elements[0])))
-        plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
-        axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" % (self.ref_el_comp))
-
-        ylim = axes.get_ylim()
-        plt.xticks(rotation=60)
-        plt.ylim(ylim)
-        xlim = axes.get_xlim()
-        plt.xlim(xlim)
-        plt.tight_layout(pad=5, rect=[-0.0, 0, 0.95, 1])
-        plt.plot([self.chempot_range[0], self.chempot_range[0]], ylim, '--k')
-        plt.plot([self.chempot_range[1], self.chempot_range[1]], ylim, '--k')
-        xy = [np.mean([self.chempot_range[1]]), np.mean(ylim)]
-        plt.annotate("%s-rich" % (self.ref_el_comp), xy=xy,
-                     xytext=xy, rotation=90, fontsize=17)
-        xy = [np.mean([xlim[0]]), np.mean(ylim)]
-        plt.annotate("%s-poor" % (self.ref_el_comp), xy=xy,
-                     xytext=xy, rotation=90, fontsize=17)
         plt.ylabel(r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
+        self.chempot_plot_addons(plt, xrange, axes, pad=5,
+                                 rect=[-0.0, 0, 0.95, 1],
+                                 x_is_u_ads=x_is_u_ads)
 
         return plt
 
-    def chempot_vs_gamma_plot(self, cmap=cm.jet, JPERM2=False,
-                              highlight_stability={}, clean_only=True,
-                              label_monolayers=True):
+    def chempot_vs_gamma_plot_one(self, plt, clean_entry, u_ref_range, label='',
+                                  ads_entry=None, color='r', JPERM2=False,
+                                  x_is_u_ads=False, u_ads_range=[-5,0]):
+
+        # use dashed lines for slabs that are not stoichiometric
+        # wrt bulk. Label with formula if nonstoichiometric
+        mark = '--' if clean_entry.composition.reduced_composition != \
+                       self.se_calculator.ucell_entry. \
+                           composition.reduced_composition else '-'
+
+        # Get the rise and run of the plot
+        gamma_range = [self.se_calculator.calculate_gamma_at_u(clean_entry,
+                                                               ads_slab_entry=ads_entry,
+                                                               u_ref=u_ref_range[0],
+                                                               u_ads=u_ads_range[0]),
+                       self.se_calculator.calculate_gamma_at_u(clean_entry,
+                                                               ads_slab_entry=ads_entry,
+                                                               u_ref=u_ref_range[1],
+                                                               u_ads=u_ads_range[1])]
+        print(gamma_range)
+        se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
+            if JPERM2 else gamma_range
+        xrange = u_ref_range if not x_is_u_ads else u_ads_range
+        plt.plot(xrange, se_range, mark, color=color, label=label)
+
+        return plt
+
+    def chempot_vs_gamma_clean(self, miller_index=(), cmap=cm.jet, JPERM2=False):
         """
         Plots the surface energy of all facets as a function of chemical potential.
             Each facet will be associated with its own distinct colors. Dashed lines
@@ -614,175 +823,173 @@ class SurfaceEnergyPlotter(object):
 
         plt = pretty_plot(width=8, height=7)
         axes = plt.gca()
-        # box = axes.get_position()
-        # axes.set_position([box.x0, box.y0, box.width * 0.7, box.height])
-        # Choose unique colors for each facet
-        f = [int(i) for i in np.linspace(0, 255, sum([len(entries) for entries in
-                                                      self.entry_dict.values()]))]
-        i, already_labelled, colors = 0, [], []
-        for hkl in self.entry_dict.keys():
-            for entry in self.entry_dict[hkl]:
-                slab = entry.structure
-                # Generate a label for the type of slab
-                label = str(hkl)
-                # use dashed lines for slabs that are not stoichiometric
-                # wrt bulk. Label with formula if nonstoichiometric
-                if slab.composition.reduced_composition != \
-                        self.se_calculator.ucell_entry.composition.reduced_composition:
-                    mark = '--'
-                    label += " %s" % (slab.composition.reduced_composition)
-                else:
-                    mark = '-'
 
-                # label the chemical environment at the surface if different from the bulk.
-                # First get the surface sites, then get the reduced composition at the surface
-                # s = vasprun.final_structure
-                # ucell = SpacegroupAnalyzer(self.ucell_entry.structure).\
-                #     get_conventional_standard_structure()
-                # slab = Slab(s.lattice, s.species, s.frac_coords, hkl, ucell, 0, None)
-                # surf_comp = slab.surface_composition()
-                #
-                # if surf_comp.reduced_composition != ucell.composition.reduced_composition:
-                #     label += " %s" %(surf_comp.reduced_composition)
+        # Choose unique colors for each facet
+        colors = self.color_palette(miller_index=miller_index, cmap=cmap)
+
+        # Now we plot each individual slab surface energy
+        already_labelled = []
+        for hkl in self.entry_dict.keys():
+            if miller_index and hkl != tuple(miller_index):
+                continue
+
+            # Plot the clean slabs
+            for entry in self.entry_dict[hkl]:
+                # Generate a label for the type of slab
+                label = self.create_slab_label(entry, miller_index=\
+                    () if miller_index else hkl)
 
                 if label in already_labelled:
                     c = colors[already_labelled.index(label)]
                     label = None
                 else:
+                    c = colors[len(already_labelled)]
                     already_labelled.append(label)
-                    c = cmap(f[i])
-                    colors.append(c)
 
-                gamma_range = [self.se_calculator.calculate_gamma_at_u(entry,
-                                                                       u_ref=self.chempot_range[0]),
-                               self.se_calculator.calculate_gamma_at_u(entry,
-                                                                       u_ref=self.chempot_range[1])]
-                se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
-                    if JPERM2 else gamma_range
-                plt.plot(self.chempot_range, se_range, mark, color=c, label=label)
-                i += 1
-
-        for hkl in highlight_stability.keys():
-            stab_map = self.get_stable_surf_regions(hkl)
-            for i, s in enumerate(stab_map):
-                label = "%s stability" % (str(hkl)) if i == 1 else None
-                plt.plot(s[0], s[1], c=highlight_stability[hkl], linewidth=5, alpha=0.2,
-                         label=label)
+                self.chempot_vs_gamma_plot_one(plt, entry, self.chempot_range, color=c,
+                                               label=label, JPERM2=JPERM2, x_is_u_ads=False)
 
         # Make the figure look nice
-        plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
         plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
             else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
-        # ax2 = axes.twiny()
-        # ax2.tick_params(labelsize=20)
-        # ax2.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" %(str(self.comp1.elements[0])), fontsize=24)
-        axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" % (self.ref_el_comp))
+        plt = self.chempot_plot_addons(plt, self.ref_el_comp,
+                                       self.chempot_range, axes)
+
+        return plt
+
+    def chempot_vs_gamma_facet(self, miller_index, cmap=cm.jet, x_is_u_ads=False,
+                               JPERM2=False, show_stable=False, const_u=0):
+
+        plt = pretty_plot(width=8, height=7)
+        axes = plt.gca()
+
+        # Choose unique colors for each facet
+        colors = self.color_palette(cmap=cmap,
+                                    miller_index=miller_index)
+        intersections = self.get_intersects_hkl(miller_index, x_is_u_ads=x_is_u_ads,
+                                                const_u=const_u, return_entries=True)
+        u_ref_range = [const_u, const_u] if x_is_u_ads else self.chempot_range
+        u_ads_range = [const_u, const_u] if not x_is_u_ads else [-5,0]
+
+        already_labelled = []
+        for clean_entry in self.entry_dict[miller_index]:
+
+            label = self.create_slab_label(clean_entry)
+            if label in already_labelled:
+                c = colors[already_labelled.index(label)]
+                label = None
+            else:
+                c = colors[len(already_labelled)]
+                already_labelled.append(label)
+
+            xrange = []
+            if show_stable:
+                for intersect in intersections:
+                    if clean_entry in intersect[2]:
+                        xrange.append(intersect[0])
+                if x_is_u_ads:
+                    u_ads_range = xrange
+                else:
+                    u_ref_range = xrange
+                if len(xrange) < 2:
+                    continue
+                print("xrange", xrange)
+
+            self.chempot_vs_gamma_plot_one(plt, clean_entry, u_ref_range,
+                                           color=c, label=label, JPERM2=JPERM2,
+                                           x_is_u_ads=x_is_u_ads, u_ads_range=u_ads_range)
+
+            for ads_entry in self.entry_dict[miller_index][clean_entry]:
+                # Plot the adsorbed slabs
+                # Generate a label for the type of slab
+                label = self.create_slab_label(clean_entry, ads_entry=ads_entry)
+                if label in already_labelled:
+                    c = colors[already_labelled.index(label)]
+                    label = None
+                else:
+                    c = colors[len(already_labelled)]
+                    already_labelled.append(label)
+
+                xrange = []
+                if show_stable:
+                    for intersect in intersections:
+                        if ads_entry in intersect[2]:
+                            xrange.append(intersect[0])
+                    if x_is_u_ads:
+                        u_ads_range = xrange
+                    else:
+                        u_ref_range = xrange
+
+                self.chempot_vs_gamma_plot_one(plt, clean_entry, u_ref_range,
+                                               ads_entry=ads_entry, color=c,
+                                               label=label, JPERM2=JPERM2,
+                                               x_is_u_ads=x_is_u_ads)
+
+        # Make the figure look nice
+        xrange = self.chempot_range if not x_is_u_ads else [-5, 0]
+        plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
+            else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
+        plt = self.chempot_plot_addons(plt, xrange, axes,
+                                       x_is_u_ads=x_is_u_ads)
+        xlim = axes.get_xlim()
+        ylim = axes.get_ylim()
+        clean_se = self.se_calculator.calculate_gamma_at_u(clean_entry)
+        plt.annotate(miller_index, xy=[np.mean(xlim), clean_se+max(ylim)*0.1],
+                     xytext=[np.mean(xlim), clean_se+max(ylim)*0.1],
+                     fontsize=20)
+
+        return plt
+
+    def color_palette(self, miller_index=(), cmap=cm.jet):
+
+        total_surfaces = 0
+        for hkl in self.entry_dict.keys():
+            if miller_index and hkl != tuple(miller_index):
+                continue
+            total_surfaces += len(self.entry_dict[hkl].keys())
+            for entry in self.entry_dict[hkl].keys():
+                total_surfaces += len(self.entry_dict[hkl][entry])
+        return [cmap(int(i)) for i in np.linspace(0, 255, total_surfaces)]
+
+    def chempot_plot_addons(self, plt, xrange, axes,
+                            pad=2.4, rect=[-0.047, 0, 0.84, 1], x_is_u_ads=False):
+
+        # Make the figure look nice
+        x_species = self.ref_el_comp if not \
+            x_is_u_ads else self.se_calculator.adsorbate_as_str
+        plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
+        axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" % (x_species))
 
         ylim = axes.get_ylim()
         plt.xticks(rotation=60)
         plt.ylim(ylim)
         xlim = axes.get_xlim()
         plt.xlim(xlim)
-        plt.tight_layout(pad=2.4, rect=[-0.047, 0, 0.84, 1])
-        plt.plot([self.chempot_range[0], self.chempot_range[0]], ylim, '--k')
-        plt.plot([self.chempot_range[1], self.chempot_range[1]], ylim, '--k')
-        xy = [np.mean([self.chempot_range[1]]), np.mean(ylim)]
-        plt.annotate("%s-rich" % (self.ref_el_comp), xy=xy,
+        plt.tight_layout(pad=pad, rect=rect)
+        plt.plot([xrange[0], xrange[0]], ylim, '--k')
+        plt.plot([xrange[1], xrange[1]], ylim, '--k')
+        xy = [np.mean([xrange[1]]), np.mean(ylim)]
+        plt.annotate("%s-rich" % (x_species), xy=xy,
                      xytext=xy, rotation=90, fontsize=17)
         xy = [np.mean([xlim[0]]), np.mean(ylim)]
-        plt.annotate("%s-poor" % (self.ref_el_comp), xy=xy,
+        plt.annotate("%s-poor" % (x_species), xy=xy,
                      xytext=xy, rotation=90, fontsize=17)
 
         return plt
 
-    def return_stable_slab_entry_at_u(self, miller_index, u_ref=0, u_ads=0, clean_only=True):
-        """
-        Returns the vasprun corresponding to the most
-        stable slab for a particular facet at a specific u
-        Args:
-            miller_index ((h,k,l)): The facet to find the most stable slab in
-            u (float): The chemical potential to look for the most stable slab
-            clean_only (bool): Whether or not to consider adsorbed slabs
-        """
+    def create_slab_label(self, entry, miller_index=(), ads_entry=None):
 
-        all_entries = self.entry_dict[miller_index].keys()
-        all_gamma = [self.se_calculator.calculate_gamma_at_u(entry, u_ref=u)
-                     for entry in all_entries]
+        label = str(miller_index) if miller_index else ""
+        if entry.composition.reduced_composition != \
+                self.se_calculator.ucell_entry.composition.reduced_composition:
+            label += " %s" % (entry.composition.reduced_composition)
+        if ads_entry:
+            label += " +%s, ML=%.2f" %(self.se_calculator.adsorbate_as_str,
+                                       self.se_calculator.get_monolayer(ads_entry,
+                                                                        entry))
+            print(label, ads_entry.composition, entry.composition)
 
-        if not clean_only:
-            # consider adsorbed slabs too
-            for entry in all_entries:
-                for ads_entry in self.entry_dict[miller_index][entry]:
-                    all_entries.append(ads_entry)
-                    all_gamma.append(self.se_calculator.calculate_gamma_at_u(entry, u_ref=u_ref,
-                                                                             u_ads=u_ads,
-                                                                             ads_slab_entry=ads_entry))
-
-        return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
-
-    def get_intersections(self, miller_index=()):
-        """
-        Returns a all intersections for a specific facet or for all facets.
-            A list of lists, each entry in the list represents an intersect
-            with u, gamma(u) and [hkl1, hkl2]. Useful for finding when the
-            configuration of a particular facet changes or when one facet
-            is more stable than the other.
-
-        Args:
-            miller_index ((h, k, l)): Miller index of the facet we
-                are interested in. Optional parameter that looks for
-                intersections for a specfic facet only when given.
-        """
-
-        # First lets calculate the range of surface energies for
-        # all terminations of a specific facet or all facets.
-        if miller_index:
-            all_coefficients = [[self.se_calculator.\
-                                         surface_energy_coefficients(entry),
-                                     miller_index]
-                                    for entry in self.entry_dict[miller_index]]
-        else:
-            all_coefficients = []
-            for hkl in self.entry_dict.keys():
-                coefficients = [[self.se_calculator.surface_energy_coefficients(entry), hkl]
-                                   for entry in self.entry_dict[hkl]]
-                all_coefficients.extend(coefficients)
-
-        if len(all_coefficients) == 1:
-            return []
-
-        # Now get all possible intersection coordinates for each pair of lines
-        intersections = []
-        for pair_lines in itertools.combinations(all_coefficients, 2):
-            slope1, intercept1 = pair_lines[0][0]
-            slope2, intercept2 = pair_lines[1][0]
-
-            if slope1 - slope2 == 0:
-                # i.e. lines are parallel
-                continue
-
-            # Calculate the intersection
-            u, gamma = np.linalg.solve([[slope1, -1], [slope2, -1]],
-                                       [-1 * intercept1, -1 * intercept2])
-
-            # if the intersection is beyond the chemical potential
-            # range or if the lines are parallel, we ignore it
-            if u < min(self.chempot_range) \
-                    or u > max(self.chempot_range):
-                continue
-
-            # If the surface energies at this u for both lines facet is unstable, ignore it
-            e1, gamma1 = self.return_stable_slab_entry_at_u(pair_lines[0][1], u)
-            e2, gamma2 = self.return_stable_slab_entry_at_u(pair_lines[1][1], u)
-            # +10e-9 to handle floating point comparison for equal values
-            if all([gamma > gamma1 + 10e-9, gamma > gamma2 + 10e-9]):
-                continue
-            # Each list is [u, gamma, hkl1, hkl2]
-            intersections.append([u, gamma,
-                                  [pair_lines[0][1], pair_lines[1][1]]])
-
-        return sorted(intersections, key=lambda ints: ints[0])
-
+        return label
 
     def surface_phase_diagram(self, y_param, x_param, miller_index):
 
