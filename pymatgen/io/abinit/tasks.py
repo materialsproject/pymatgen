@@ -26,7 +26,7 @@ from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MSONable
 from monty.fnmatch import WildCard
 from pymatgen.core.units import Memory
-from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
+from pymatgen.util.serialization import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
 from . import qutils as qu
@@ -3941,7 +3941,7 @@ class BseTask(ManyBodyTask):
 
 class OpticTask(Task):
     """
-    Task for the computation of optical xas with optic i.e.
+    Task for the computation of optical spectra with optic i.e.
     RPA without local-field effects and velocity operator computed from DDK files.
     """
     color_rgb = np.array((255, 204, 102)) / 255
