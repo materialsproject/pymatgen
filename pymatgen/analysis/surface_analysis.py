@@ -433,16 +433,9 @@ class SurfaceEnergyPlotter(object):
             # At each possible configuration, we calculate surface energy as a
             # function of u and take the lowest surface energy (corresponds to
             # the most stable slab termination at that particular u)
-            e_list = []
-            for entry in self.entry_dict[hkl]:
-                e_list.append(self.se_calculator.\
-                              calculate_gamma_at_u(entry, u_ref=u_ref))
-                for ads_entry in self.entry_dict[hkl][entry]:
-                    e_list.append(self.se_calculator. \
-                                  calculate_gamma_at_u(entry, ads_slab_entry=ads_entry,
-                                                       u_ref=u_ref, u_ads=u_ads))
-
-            e_surf_list.append(min(e_list))
+            entry, gamma = self.return_stable_slab_entry_at_u(hkl, u_ref=u_ref,
+                                                              u_ads=u_ads)
+            e_surf_list.append(gamma)
 
         return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
 
@@ -461,8 +454,8 @@ class SurfaceEnergyPlotter(object):
             all_entries.append(entry)
             all_gamma.append(gamma)
             for ads_entry in self.entry_dict[miller_index][entry]:
-                gamma = self.se_calculator.calculate_gamma_at_u(entry, u_ref=u_ref,
-                                                                u_ads=u_ads)
+                gamma = self.se_calculator.calculate_gamma_at_u(entry, u_ref=u_ref, u_ads=u_ads,
+                                                                ads_slab_entry=ads_entry)
                 all_entries.append(ads_entry)
                 all_gamma.append(gamma)
 
@@ -488,8 +481,8 @@ class SurfaceEnergyPlotter(object):
         f = [int(i) for i in np.linspace(0, 255, len(self.entry_dict.keys()))]
 
         xrange = self.chempot_range if not xrange else xrange
-        all_chempots = np.linspace(min(xrange),
-                                   max(xrange), increments)
+        all_chempots = np.linspace(min(xrange), max(xrange),
+                                   increments)
 
         # initialize a dictionary of lists of fractional areas for each hkl
         hkl_area_dict = {}
@@ -525,9 +518,13 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def chempot_vs_gamma_plot_one(self, plt, clean_entry, u_ref_range, label='',
+    def chempot_vs_gamma_plot_one(self, plt, clean_entry, label='',
                                   ads_entry=None, color='r', JPERM2=False,
-                                  x_is_u_ads=False, u_ads_range=[-5,0]):
+                                  x_is_u_ads=False, const_u=0):
+
+        u_ref_range = [const_u, const_u] if x_is_u_ads else self.chempot_range
+        u_ads_range = [const_u, const_u] if not x_is_u_ads else [-5,0]
+
 
         # use dashed lines for slabs that are not stoichiometric
         # wrt bulk. Label with formula if nonstoichiometric
@@ -544,11 +541,11 @@ class SurfaceEnergyPlotter(object):
                                                                ads_slab_entry=ads_entry,
                                                                u_ref=u_ref_range[1],
                                                                u_ads=u_ads_range[1])]
-        print(gamma_range)
+
         se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
             if JPERM2 else gamma_range
-        xrange = u_ref_range if not x_is_u_ads else u_ads_range
-        plt.plot(xrange, se_range, mark, color=color, label=label)
+        u_range = u_ref_range if not x_is_u_ads else u_ads_range
+        plt.plot(u_range, se_range, mark, color=color, label=label)
 
         return plt
 
@@ -593,19 +590,18 @@ class SurfaceEnergyPlotter(object):
                     c = colors[len(already_labelled)]
                     already_labelled.append(label)
 
-                self.chempot_vs_gamma_plot_one(plt, entry, self.chempot_range, color=c,
-                                               label=label, JPERM2=JPERM2, x_is_u_ads=False)
+                self.chempot_vs_gamma_plot_one(plt, entry, color=c, label=label,
+                                               JPERM2=JPERM2, x_is_u_ads=False)
 
         # Make the figure look nice
         plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
             else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
-        plt = self.chempot_plot_addons(plt, self.ref_el_comp,
-                                       self.chempot_range, axes)
+        plt = self.chempot_plot_addons(plt, self.chempot_range, axes)
 
         return plt
 
     def chempot_vs_gamma_facet(self, miller_index, cmap=cm.jet, x_is_u_ads=False,
-                               JPERM2=False, show_stable=False, const_u=0):
+                               JPERM2=False, const_u=0):
 
         plt = pretty_plot(width=8, height=7)
         axes = plt.gca()
@@ -613,10 +609,6 @@ class SurfaceEnergyPlotter(object):
         # Choose unique colors for each facet
         colors = self.color_palette(cmap=cmap,
                                     miller_index=miller_index)
-        intersections = self.get_intersects_hkl(miller_index, x_is_u_ads=x_is_u_ads,
-                                                const_u=const_u, return_entries=True)
-        u_ref_range = [const_u, const_u] if x_is_u_ads else self.chempot_range
-        u_ads_range = [const_u, const_u] if not x_is_u_ads else [-5,0]
 
         already_labelled = []
         for clean_entry in self.entry_dict[miller_index]:
@@ -629,22 +621,9 @@ class SurfaceEnergyPlotter(object):
                 c = colors[len(already_labelled)]
                 already_labelled.append(label)
 
-            xrange = []
-            if show_stable:
-                for intersect in intersections:
-                    if clean_entry in intersect[2]:
-                        xrange.append(intersect[0])
-                if x_is_u_ads:
-                    u_ads_range = xrange
-                else:
-                    u_ref_range = xrange
-                if len(xrange) < 2:
-                    continue
-                print("xrange", xrange)
-
-            self.chempot_vs_gamma_plot_one(plt, clean_entry, u_ref_range,
-                                           color=c, label=label, JPERM2=JPERM2,
-                                           x_is_u_ads=x_is_u_ads, u_ads_range=u_ads_range)
+            self.chempot_vs_gamma_plot_one(plt, clean_entry, color=c, label=label,
+                                           JPERM2=JPERM2, x_is_u_ads=x_is_u_ads,
+                                           const_u=const_u)
 
             for ads_entry in self.entry_dict[miller_index][clean_entry]:
                 # Plot the adsorbed slabs
@@ -657,20 +636,9 @@ class SurfaceEnergyPlotter(object):
                     c = colors[len(already_labelled)]
                     already_labelled.append(label)
 
-                xrange = []
-                if show_stable:
-                    for intersect in intersections:
-                        if ads_entry in intersect[2]:
-                            xrange.append(intersect[0])
-                    if x_is_u_ads:
-                        u_ads_range = xrange
-                    else:
-                        u_ref_range = xrange
-
-                self.chempot_vs_gamma_plot_one(plt, clean_entry, u_ref_range,
-                                               ads_entry=ads_entry, color=c,
-                                               label=label, JPERM2=JPERM2,
-                                               x_is_u_ads=x_is_u_ads)
+                self.chempot_vs_gamma_plot_one(plt, clean_entry, color=c, label=label,
+                                               ads_entry=ads_entry, JPERM2=JPERM2,
+                                               x_is_u_ads=x_is_u_ads, const_u=const_u)
 
         # Make the figure look nice
         xrange = self.chempot_range if not x_is_u_ads else [-5, 0]
