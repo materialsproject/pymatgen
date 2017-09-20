@@ -1,5 +1,5 @@
-pymatgen.entries.entry_tools module
-===================================
+pymatgen\.entries\.entry\_tools module
+======================================
 
 .. automodule:: pymatgen.entries.entry_tools
     :members:

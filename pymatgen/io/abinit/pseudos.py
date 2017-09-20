@@ -160,7 +160,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
         return "\n".join(lines)
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def summary(self):
         """String summarizing the most important properties."""
 
@@ -173,11 +174,13 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """File basename."""
         return os.path.basename(self.filepath)
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def Z(self):
         """The atomic number of the atom."""
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def Z_val(self):
         """Valence charge."""
 
@@ -198,11 +201,13 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """Element symbol."""
         return self.element.symbol
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def l_max(self):
         """Maximum angular momentum."""
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def l_local(self):
         """Angular momentum used for the local part."""
 
@@ -230,7 +235,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             m = hashlib.md5(text.encode("utf-8"))
             return m.hexdigest()
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def supports_soc(self):
         """
         True if the pseudo can be used in a calculation with spin-orbit coupling.
@@ -382,7 +388,8 @@ class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
     by the concrete classes representing norm-conserving pseudopotentials.
     """
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def nlcc_radius(self):
         """
         Radius at which the core charge vanish (i.e. cut-off in a.u.).
@@ -422,7 +429,8 @@ class PawPseudo(six.with_metaclass(abc.ABCMeta, object)):
     #    """True if the pseudo is generated with non-linear core correction."""
     #    return True
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def paw_radius(self):
         """Radius of the PAW sphere in a.u."""
 

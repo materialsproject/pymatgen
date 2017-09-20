@@ -1,6 +1,61 @@
 Change log
 ==========
 
+v2017.9.3
+---------
+* VDW support (Marco Esters) 
+* Bug fix release.
+
+v2017.9.1
+---------
+* Massive refactoring of PhaseDiagram. Now, PDAnalyzer is completely defunct
+  and all analysis is carried out within PhaseDiagram itself, e.g.,
+  pd.get_e_above_hull as opposed to PDAnalyzer(pd).get_e_above_hull.
+* Refactoring of structure prediction. Now in
+  pymatgen.analysis.structure_prediction.
+* New core Spectrum object and associated pymatgen.vis.plotters.SpectrumPlotter.
+* Parsing energies from gen_scfman module in Qchem 5 (Brandon Wood)
+* Improvements to LAMMPSData, vasp IO.
+
+v2017.8.21
+----------
+* Minor bug fixes.
+
+v2017.8.20
+----------
+* Input sets for GW and BSE calculations (Zhenbin Wang) and grain boundary
+  calculations (Hui Zheng). Input sets now support overriding of POTCAR
+  settings.
+* Haven ratio calculation (Iek-Heng Chu).
+* LAMMPS io updates (Kiran Matthews).
+* Oxidation state guessing algorithms based on ICSD data (Anubhav Jain).
+* New local_env module for local environment analysis. (Nils Zimmerman).
+* pymatgen.util.plotting.periodic_table_heatmap (Iek-Heng Chu).
+* Improvements to surface code for tasker 3 to 2 reconstructions.
+* pymatgen.analysis.interface_reactions.py for analyzing interfacial reactions
+  (Yihan Xiao).
+
+v2017.8.16
+----------
+* PointGroupAnalyzer now allows for symmetrization of molecules. (@mcocdawc)
+* QuasiharmonicDebyeApprox with anharmonic contribution. (Brandon)
+* Improvements to LAMMPS io. (Kiran)
+* Misc bug fixes.
+
+v2017.8.14
+----------
+* Fixes and minor improvements to elastic, bader and defect analyses.
+
+v2017.8.4
+---------
+* Major refactoring and improvements to lammps io. (Kiran)
+* Major improvements to BaderAnalysis. (Joey and Zhi)
+* Major improvements to Magmom support in cifs, SOC calculations, etc.
+  (Matthew Horton)
+* Add remove_site_property function. Add magmom for Eu3+ and Eu2+.
+* BoltztrapAnalyzer/Plotter support for seebeck effective mass and complexity
+  factor (fraricci)
+
 v2017.7.21
 ----------
 * Misc bug fixes to elastic (J. Montaya), 

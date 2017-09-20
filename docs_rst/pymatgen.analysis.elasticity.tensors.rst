@@ -1,5 +1,5 @@
-pymatgen.analysis.elasticity.tensors module
-===========================================
+pymatgen\.analysis\.elasticity\.tensors module
+==============================================
 
 .. automodule:: pymatgen.analysis.elasticity.tensors
     :members:

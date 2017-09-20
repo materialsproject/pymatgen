@@ -13,6 +13,7 @@ from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
 from monty.json import MSONable
 from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
+from pymatgen.electronic_structure.core import Magmom
 
 """
 This module defines classes representing non-periodic and periodic sites.

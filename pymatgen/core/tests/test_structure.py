@@ -452,7 +452,7 @@ class StructureTest(PymatgenTest):
 
         # Test slice replacement.
         s = PymatgenTest.get_structure("Li2O")
-        s[1:3] = "S"
+        s[0:2] = "S"
         self.assertEqual(s.formula, "Li1 S2")
 
     def test_non_hash(self):
@@ -514,7 +514,7 @@ class StructureTest(PymatgenTest):
         s.remove_sites([1, 2])
         self.assertEqual(s.formula, "Ge0.25")
 
-    def test_add_site_property(self):
+    def test_add_remove_site_property(self):
         s = self.structure
         s.add_site_property("charge", [4.1, -5])
         self.assertEqual(s[0].charge, 4.1)
@@ -522,6 +522,8 @@ class StructureTest(PymatgenTest):
         s.add_site_property("magmom", [3, 2])
         self.assertEqual(s[0].charge, 4.1)
         self.assertEqual(s[0].magmom, 3)
+        s.remove_site_property("magmom")
+        self.assertRaises(AttributeError, getattr, s[0], "magmom")
 
     def test_propertied_structure(self):
         #Make sure that site properties are set to None for missing values.
@@ -571,6 +573,32 @@ class StructureTest(PymatgenTest):
         s_specie.remove_oxidation_states()
         self.assertEqual(s_elem, s_specie, "Oxidation state remover "
                                            "failed")
+
+    def test_add_oxidation_states_by_guess(self):
+        s = PymatgenTest.get_structure("Li2O")
+        s.add_oxidation_state_by_guess()
+        for i in s:
+            self.assertTrue(i.specie in [Specie("Li", 1),
+                                         Specie("O", -2)])
+
+    def test_add_remove_spin_states(self):
+
+        latt = Lattice.cubic(4.17)
+        species = ["Ni", "O"]
+        coords = [[0, 0, 0],
+                  [0.5, 0.5, 0.5]]
+        nio = Structure.from_spacegroup(225, latt, species, coords)
+
+        spins = {"Ni": 5}
+        nio.add_spin_by_element(spins)
+        self.assertEqual(nio[0].specie.spin, 5, "Failed to add spin states")
+
+        nio.remove_spin()
+        self.assertRaises(AttributeError, getattr, nio[0].specie, 'spin')
+
+        spins = [5, -5, -5, 5, 0, 0, 0, 0] # AFM on (001)
+        nio.add_spin_by_site(spins)
+        self.assertEqual(nio[1].specie.spin, -5, "Failed to add spin states")
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
@@ -1113,6 +1141,8 @@ class MoleculeTest(PymatgenTest):
         self.mol.add_site_property("magmom", [3, 2, 2, 2, 2])
         self.assertEqual(self.mol[0].charge, 4.1)
         self.assertEqual(self.mol[0].magmom, 3)
+        self.mol.remove_site_property("magmom")
+        self.assertRaises(AttributeError, getattr, self.mol[0], "magmom")
 
     def test_to_from_dict(self):
         d = self.mol.as_dict()

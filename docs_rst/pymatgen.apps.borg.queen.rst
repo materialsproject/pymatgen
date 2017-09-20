@@ -1,5 +1,5 @@
-pymatgen.apps.borg.queen module
-===============================
+pymatgen\.apps\.borg\.queen module
+==================================
 
 .. automodule:: pymatgen.apps.borg.queen
     :members:

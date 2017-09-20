@@ -1,5 +1,5 @@
-pymatgen.phasediagram.plotter module
-====================================
+pymatgen\.phasediagram\.plotter module
+======================================
 
 .. automodule:: pymatgen.phasediagram.plotter
     :members:

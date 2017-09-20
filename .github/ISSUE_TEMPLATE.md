@@ -1,5 +1,5 @@
-<When reporting bugs/issues, please supply the following information. If
-this is a feature request, please simply state the requested feature.>
+When reporting bugs/issues, please supply the following information. If
+this is a feature request, please simply state the requested feature.
 
 ## System
 
@@ -9,30 +9,30 @@ this is a feature request, please simply state the requested feature.>
 
 ## Summary
 
-* <Short 1-2 bullet points stating the problem.>
+* 1-2 short bullet points stating the problem.
 
 ## Example code
 
 ```python
-<Example code generating error>
+# Example code generating error
 ```
 
 ## Error message
 
 ```
-<Error message>
+# Error message
 ```
 
 ## Suggested solution (if any)
 
-* <If you have a suggestion on how to solve the issue, you may write it
-  here.>
+* If you have a suggestion on how to solve the issue, you may write it
+  here.
 
 ## Files (if any)
 
-<If input files are needed to reproduce the error, please provide 
+* If input files are needed to reproduce the error, please provide 
 either links (e.g., Dropbox or GDrive) for large files or simply paste
-the file below for small files.>
+the file below for small files.
 
 ```
 <contents of file 1>

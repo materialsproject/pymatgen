@@ -80,7 +80,8 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
     Results = WorkResults
 
     # interface modeled after subprocess.Popen
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def processes(self):
         """Return a list of objects that support the `subprocess.Popen` protocol."""
 

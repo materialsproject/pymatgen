@@ -1489,7 +1489,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def executable(self):
         """
         Path to the executable associated to the task (internally stored in self._executable).
@@ -3940,7 +3941,7 @@ class BseTask(ManyBodyTask):
 
 class OpticTask(Task):
     """
-    Task for the computation of optical spectra with optic i.e.
+    Task for the computation of optical xas with optic i.e.
     RPA without local-field effects and velocity operator computed from DDK files.
     """
     color_rgb = np.array((255, 204, 102)) / 255

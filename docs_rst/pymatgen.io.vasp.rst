@@ -1,5 +1,5 @@
-pymatgen.io.vasp package
-========================
+pymatgen\.io\.vasp package
+==========================
 
 Subpackages
 -----------
@@ -12,7 +12,6 @@ Submodules
 
 .. toctree::
 
-   pymatgen.io.vasp.GWvaspinputsets
    pymatgen.io.vasp.inputs
    pymatgen.io.vasp.outputs
    pymatgen.io.vasp.sets

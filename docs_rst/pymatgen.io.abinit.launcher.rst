@@ -1,5 +1,5 @@
-pymatgen.io.abinit.launcher module
-==================================
+pymatgen\.io\.abinit\.launcher module
+=====================================
 
 .. automodule:: pymatgen.io.abinit.launcher
     :members:

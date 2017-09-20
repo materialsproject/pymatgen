@@ -13,6 +13,7 @@ from collections import defaultdict
 
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
+from monty.json import MSONable
 
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 from pymatgen.core.periodic_table import Element
@@ -391,7 +392,7 @@ class UCorrection(Correction):
         return "{} {} Correction".format(self.name, self.compat_type)
 
 
-class Compatibility(object):
+class Compatibility(MSONable):
     """
     The Compatibility class combines a list of corrections to be applied to
     an entry or a set of entries. Note that some of the Corrections have
@@ -540,6 +541,9 @@ class MaterialsProjectCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                  check_potcar_hash=False):
+        self.compat_type = compat_type
+        self.correct_peroxide = correct_peroxide
+        self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super(MaterialsProjectCompatibility, self).__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
@@ -570,6 +574,9 @@ class MITCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                 check_potcar_hash=False):
+        self.compat_type = compat_type
+        self.correct_peroxide = correct_peroxide
+        self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super(MITCompatibility, self).__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
@@ -600,6 +607,9 @@ class MITAqueousCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                 check_potcar_hash=False):
+        self.compat_type = compat_type
+        self.correct_peroxide = correct_peroxide
+        self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super(MITAqueousCompatibility, self).__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
@@ -631,6 +641,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                 check_potcar_hash=False):
+        self.compat_type = compat_type
+        self.correct_peroxide = correct_peroxide
+        self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super(MaterialsProjectAqueousCompatibility, self).__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),

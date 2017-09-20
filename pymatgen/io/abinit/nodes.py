@@ -853,7 +853,8 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
    ### Abstract protocol ####
    ##########################
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def status(self):
         """The status of the `Node`."""
 

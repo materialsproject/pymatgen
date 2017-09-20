@@ -103,7 +103,7 @@ class PhononBandStructure(MSONable):
         """
         i = np.unravel_index(np.argmin(self.bands), self.bands.shape)
 
-        return self.qpoints[i[0]], self.bands[i]
+        return self.qpoints[i[1]], self.bands[i]
 
     def has_imaginary_freq(self, tol=1e-5):
         """
