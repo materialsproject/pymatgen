@@ -61,8 +61,9 @@ logger = logging.getLogger(__name__)
 # Favor the use of the newer "enum.x" by Gus Hart instead of the older
 # "multienum.x"
 enum_cmd = which('enum.x') or which('multienum.x')
+makestr_cmd = which('makestr.x') or which('makeStr.x')
 
-@requires(enum_cmd and which('makestr.x'),
+@requires(enum_cmd and makestr_cmd,
           "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
           "and 'makestr.x' to be in the path. Please download the library at"
           "http://enum.sourceforge.net/ and follow the instructions in "
@@ -305,7 +306,7 @@ class EnumlibAdaptor(object):
 
     def _get_structures(self, num_structs):
         structs = []
-        rs = subprocess.Popen(["makestr.x",
+        rs = subprocess.Popen([makestr_cmd,
                                "struct_enum.out", str(0),
                                str(num_structs - 1)],
                               stdout=subprocess.PIPE,
