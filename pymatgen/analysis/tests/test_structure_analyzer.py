@@ -479,8 +479,15 @@ class OrderParametersTest(PymatgenTest):
             [14.5, 14.5, 15], [14.5, 15.5, 15], [15.5, 14.5, 15], [15.5, 15.5, 15]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.see_saw = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]),
+            ["H", "H", "H", "H", "H"],
+            [[15, 15, 15], [15, 15, 14], [15, 15, 16], [15, 14, 15], [15, 15, 14]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
         #from pymatgen.io.xyz import XYZ
-        #XYZ(self.cuboctahedron).write_file('test.xyz')
+        #XYZ(self.see_saw).write_file('test.xyz')
 
 
     def test_init(self):
@@ -491,10 +498,11 @@ class OrderParametersTest(PymatgenTest):
         op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
             "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd", \
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
-            "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct"]
+            "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
+            "see_saw"]
         #op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], [], None]
         op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], \
-            [], [], [], [], [], [], [], [], [], [], [], [], [], []]
+            [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
         ops_044 = OrderParameters(op_types, op_paras, 0.44)
         ops_071 = OrderParameters(op_types, op_paras, 0.71)
         ops_087 = OrderParameters(op_types, op_paras, 0.87)
@@ -652,6 +660,11 @@ class OrderParametersTest(PymatgenTest):
             self.cuboctahedron, 0, indeces_neighs=[i for i in range(1, 13)])
         self.assertAlmostEqual(int(op_vals[24] * 1000 + 0.5), 1000)
 
+        # See-saw motif.
+        op_vals = ops_101.get_order_parameters(
+            self.see_saw, 0, indeces_neighs=[i for i in range(1, 5)])
+        self.assertAlmostEqual(int(op_vals[25] * 1000 + 0.5), 1000)
+
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[1])
         self.assertIsNotNone(op_vals[0])
@@ -681,6 +694,7 @@ class OrderParametersTest(PymatgenTest):
         del self.pentagonal_bipyramid
         del self.T_shape
         del self.cuboctahedron
+        del self.see_saw
 
 if __name__ == '__main__':
     unittest.main()
