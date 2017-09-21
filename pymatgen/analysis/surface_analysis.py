@@ -18,7 +18,6 @@ import copy
 
 import numpy as np
 from scipy.stats import linregress
-from matplotlib import cm
 import itertools
 import warnings
 import random
@@ -434,6 +433,7 @@ class SurfaceEnergyPlotter(object):
         self.se_calculator = surface_energy_calculator
         self.chempot_range = surface_energy_calculator.chempot_range()
         self.entry_dict = entry_dict
+        self.color_dict = color_palette(self.entry_dict)
         self.ref_el_comp = str(self.se_calculator.ref_el_comp.elements[0])
 
     def max_adsorption_chempot_range(self, const_u_ref, buffer=0.1):
@@ -501,7 +501,7 @@ class SurfaceEnergyPlotter(object):
 
         return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
 
-    def area_frac_vs_chempot_plot(self, cmap=cm.jet, xrange=None,
+    def area_frac_vs_chempot_plot(self, xrange=None,
                                   increments=10, x_is_u_ads=False):
         """
         Plots the change in the area contribution of
@@ -516,9 +516,6 @@ class SurfaceEnergyPlotter(object):
             increments (bool): Number of data points between min/max or point
                 of intersection. Defaults to 5 points.
         """
-
-        # Choose unique colors for each facet
-        f = [int(i) for i in np.linspace(0, 255, len(self.entry_dict.keys()))]
 
         xrange = self.chempot_range if not xrange else xrange
         all_chempots = np.linspace(min(xrange), max(xrange),
@@ -542,13 +539,15 @@ class SurfaceEnergyPlotter(object):
         axes = plt.gca()
 
         for i, hkl in enumerate(self.entry_dict.keys()):
+            clean_entry = list(self.entry_dict[hkl].keys())[0]
             # Ignore any facets that never show up on the
             # Wulff shape regardless of chemical potential
             if all([a == 0 for a in hkl_area_dict[hkl]]):
                 continue
             else:
                 plt.plot(all_chempots, hkl_area_dict[hkl],
-                         '--', color=cmap(f[i]), label=str(hkl))
+                         '--', color=self.color_dict[clean_entry],
+                         label=str(hkl))
 
         # Make the figure look nice
         plt.ylabel(r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
@@ -559,7 +558,7 @@ class SurfaceEnergyPlotter(object):
         return plt
 
     def chempot_vs_gamma_plot_one(self, plt, clean_entry, label='',
-                                  ads_entry=None, color='r', JPERM2=False,
+                                  ads_entry=None, JPERM2=False,
                                   x_is_u_ads=False, const_u=0):
 
         u_ref_range = [const_u, const_u] if x_is_u_ads else self.chempot_range
@@ -585,11 +584,12 @@ class SurfaceEnergyPlotter(object):
         se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
             if JPERM2 else gamma_range
         u_range = u_ref_range if not x_is_u_ads else u_ads_range
+        color = self.color_dict[ads_entry] if ads_entry else self.color_dict[clean_entry]
         plt.plot(u_range, se_range, mark, color=color, label=label)
 
         return plt
 
-    def chempot_vs_gamma_clean(self, miller_index=(), cmap=cm.jet, JPERM2=False):
+    def chempot_vs_gamma_clean(self, miller_index=(), JPERM2=False):
         """
         Plots the surface energy of all facets as a function of chemical potential.
             Each facet will be associated with its own distinct colors. Dashed lines
@@ -608,9 +608,6 @@ class SurfaceEnergyPlotter(object):
         plt = pretty_plot(width=8, height=7)
         axes = plt.gca()
 
-        # Choose unique colors for each facet
-        colors = self.color_palette(miller_index=miller_index, cmap=cmap)
-
         # Now we plot each individual slab surface energy
         already_labelled = []
         for hkl in self.entry_dict.keys():
@@ -624,13 +621,11 @@ class SurfaceEnergyPlotter(object):
                     () if miller_index else hkl)
 
                 if label in already_labelled:
-                    c = colors[already_labelled.index(label)]
                     label = None
                 else:
-                    c = colors[len(already_labelled)]
                     already_labelled.append(label)
 
-                self.chempot_vs_gamma_plot_one(plt, entry, color=c, label=label,
+                self.chempot_vs_gamma_plot_one(plt, entry, label=label,
                                                JPERM2=JPERM2, x_is_u_ads=False)
 
         # Make the figure look nice
@@ -640,15 +635,11 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def chempot_vs_gamma_facet(self, miller_index, cmap=cm.jet, const_u=0,
+    def chempot_vs_gamma_facet(self, miller_index, const_u=0,
                                JPERM2=False, show_unstable=False):
 
         plt = pretty_plot(width=8, height=7)
         axes = plt.gca()
-
-        # Choose unique colors for each facet
-        colors = self.color_palette(cmap=cmap,
-                                    miller_index=miller_index)
 
         already_labelled = []
         x_is_u_ads = False
@@ -660,13 +651,11 @@ class SurfaceEnergyPlotter(object):
 
             label = self.create_slab_label(clean_entry)
             if label in already_labelled:
-                c = colors[already_labelled.index(label)]
                 label = None
             else:
-                c = colors[len(already_labelled)]
                 already_labelled.append(label)
 
-            self.chempot_vs_gamma_plot_one(plt, clean_entry, color=c, label=label,
+            self.chempot_vs_gamma_plot_one(plt, clean_entry, label=label,
                                            JPERM2=JPERM2, x_is_u_ads=x_is_u_ads,
                                            const_u=const_u)
 
@@ -675,14 +664,12 @@ class SurfaceEnergyPlotter(object):
                 # Generate a label for the type of slab
                 label = self.create_slab_label(clean_entry, ads_entry=ads_entry)
                 if label in already_labelled:
-                    c = colors[already_labelled.index(label)]
                     label = None
                 else:
-                    c = colors[len(already_labelled)]
                     already_labelled.append(label)
 
                 self.chempot_vs_gamma_plot_one(plt, clean_entry, JPERM2=JPERM2,
-                                               ads_entry=ads_entry, color=c,
+                                               ads_entry=ads_entry,
                                                label=label, const_u=const_u,
                                                x_is_u_ads=x_is_u_ads)
 
@@ -702,17 +689,6 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def color_palette(self, miller_index=(), cmap=cm.jet):
-
-        total_surfaces = 0
-        for hkl in self.entry_dict.keys():
-            if miller_index and hkl != tuple(miller_index):
-                continue
-            total_surfaces += len(self.entry_dict[hkl].keys())
-            for entry in self.entry_dict[hkl].keys():
-                total_surfaces += len(self.entry_dict[hkl][entry])
-        return [cmap(int(i)) for i in np.linspace(0, 255, total_surfaces)]
-
     def chempot_plot_addons(self, plt, xrange, axes,
                             pad=2.4, rect=[-0.047, 0, 0.84, 1], x_is_u_ads=False):
 
@@ -730,6 +706,7 @@ class SurfaceEnergyPlotter(object):
         plt.tight_layout(pad=pad, rect=rect)
         plt.plot([xrange[0], xrange[0]], ylim, '--k')
         plt.plot([xrange[1], xrange[1]], ylim, '--k')
+        plt.plot(xrange, [0,0], 'k')
         xy = [np.mean([xrange[1]]), np.mean(ylim)]
         plt.annotate("%s-rich" % (x_species), xy=xy,
                      xytext=xy, rotation=90, fontsize=17)
@@ -784,6 +761,7 @@ class SurfaceEnergyPlotter(object):
 
         return
 
+
 def vaspruns_to_entry_dict(vaspruns):
     """
     Helper function to generate the entry_dict parameter for
@@ -791,3 +769,36 @@ def vaspruns_to_entry_dict(vaspruns):
     """
 
     return
+
+
+import random, copy
+
+def color_palette(entry_dict):
+
+    color_dict = {}
+    for hkl in entry_dict.keys():
+        rgb_indices = [0, 1, 2]
+        color = [0, 0, 0, 1]
+        random.shuffle(rgb_indices)
+        for i, ind in enumerate(rgb_indices):
+            if i == 2:
+                break
+            color[ind] = np.random.uniform(0, 1)
+
+        # Get the clean (solid) colors first
+        clean_list = np.linspace(0, 1, len(entry_dict[hkl]))
+        for i, clean in enumerate(entry_dict[hkl].keys()):
+            c = copy.copy(color)
+            c[rgb_indices[2]] = clean_list[i]
+            color_dict[clean] = c
+
+            clean_list2 = np.linspace(0, 1, len(entry_dict[hkl][clean]))
+            # Now get the adsorbed (transparent) colors
+            for ads_entry in entry_dict[hkl][clean]:
+                c = copy.copy(color)
+                c[rgb_indices[2]] = clean_list2[i]
+                c[3] = 0.25
+                color_dict[ads_entry] = c
+
+    return color_dict
+
