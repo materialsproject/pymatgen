@@ -10,7 +10,7 @@ import json
 import datetime
 from copy import deepcopy
 
-from monty.json import MontyDecoder
+from monty.json import MontyDecoder, jsanitize
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser
@@ -27,14 +27,12 @@ TransformedStructure is a structure that has been modified by undergoing a
 series of transformations.
 """
 
-
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 2, 2012"
-
 
 dec = MontyDecoder()
 
@@ -190,7 +188,7 @@ class TransformedStructure(MSONable):
         """
         for t in transformations:
             self.append_transformation(t,
-                    return_alternatives=return_alternatives)
+                                       return_alternatives=return_alternatives)
 
     def get_vasp_input(self, vasp_input_set=MPRelaxSet, **kwargs):
         """
@@ -326,10 +324,10 @@ class TransformedStructure(MSONable):
         d = self.final_structure.as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
-        d["history"] = deepcopy(self.history)
+        d["history"] = jsanitize(self.history)
         d["version"] = __version__
         d["last_modified"] = str(datetime.datetime.utcnow())
-        d["other_parameters"] = deepcopy(self.other_parameters)
+        d["other_parameters"] = jsanitize(self.other_parameters)
         return d
 
     @classmethod
@@ -349,11 +347,11 @@ class TransformedStructure(MSONable):
         hist = []
         for h in self.history:
             snl_metadata = h.pop('_snl', {})
-            hist.append({'name' : snl_metadata.pop('name', 'pymatgen'),
-                         'url' : snl_metadata.pop('url',
-                                    'http://pypi.python.org/pypi/pymatgen'),
-                         'description' : h})
-        from pymatgen.matproj.snl import StructureNL
+            hist.append({'name': snl_metadata.pop('name', 'pymatgen'),
+                         'url': snl_metadata.pop('url',
+                                                 'http://pypi.python.org/pypi/pymatgen'),
+                         'description': h})
+        from pymatgen.util.provenance import StructureNL
         return StructureNL(self.final_structure, authors, projects, references,
                            remarks, data, hist, created_at)
 
@@ -371,6 +369,6 @@ class TransformedStructure(MSONable):
         hist = []
         for h in snl.history:
             d = h.description
-            d['_snl'] = {'url' : h.url, 'name' : h.name}
+            d['_snl'] = {'url': h.url, 'name': h.name}
             hist.append(d)
         return cls(snl.structure, history=hist)

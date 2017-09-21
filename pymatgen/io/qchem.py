@@ -1612,6 +1612,7 @@ class QcOutput(object):
         homo_lumo = []
         bsse = None
         hiershfiled_pop = False
+        gen_scfman = False
         for line in output.split("\n"):
             for ep, message in error_defs:
                 if ep.search(line):
@@ -1653,6 +1654,11 @@ class QcOutput(object):
                 if "SCF time:  CPU" in line:
                     parse_scf_iter = False
                     continue
+                if 'Convergence criterion met' in line and gen_scfman:
+                    scf_successful = True
+                    name = "GEN_SCFMAN"
+                    energy = Energy(float(line.split()[1]), "Ha").to("eV")
+                    energies.append(tuple([name, energy]))
                 if 'Convergence criterion met' in line:
                     scf_successful = True
                 m = scf_iter_pattern.search(line)
@@ -1832,11 +1838,11 @@ class QcOutput(object):
                 name = None
                 energy = None
                 m = scf_energy_pattern.search(line)
-                if m:
+                if m and not gen_scfman:
                     name = "SCF"
                     energy = Energy(m.group("energy"), "Ha").to("eV")
                 m = corr_energy_pattern.search(line)
-                if m and m.group("name") != "SCF":
+                if m and m.group("name") != "SCF" and not gen_scfman:
                     name = m.group("name")
                     energy = Energy(m.group("energy"), "Ha").to("eV")
                 m = detailed_charge_pattern.search(line)
@@ -1860,6 +1866,8 @@ class QcOutput(object):
                         pop_method = "nbo"
                         parse_nbo_charge = True
                         charges[pop_method] = []
+                if "GEN_SCFMAN: A general SCF calculation manager " in line:
+                    gen_scfman = True
                 if "N A T U R A L   B O N D   O R B I T A L   A N A L Y S I S" in line:
                     nbo_available = True
                 if name and energy:

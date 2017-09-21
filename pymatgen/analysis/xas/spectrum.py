@@ -24,28 +24,35 @@ class XANES(Spectrum):
     Args:
         x: A sequence of x-ray energies in eV
         y: A sequence of mu(E)
+        structure (Structure): Structure associated with the XANES.
+        absorption_specie (Specie): Specie associated with the XANES.
+        edge (str):
 
     .. attribute: x
         The sequence of energies
+
     .. attribute: y
         The sequence of mu(E)
+
     .. attribute: absorption_specie
         The absorption_species of the spectrum
+
     .. attribute: edge
         The edge of XANES spectrum
     """
-    XLABEL = 'Energy (eV)'
-    YLABEL = 'Intensity (mu)'
+    XLABEL = 'Energy'
+    YLABEL = 'Intensity'
 
     def __init__(self, x, y, structure, absorption_specie, edge):
         super(XANES, self).__init__(x, y, structure, absorption_specie, edge)
         self.structure = structure
         self.absorption_specie = absorption_specie
         self.edge = edge
-
-    def find_e0(self):
-        """
-        Use the maximum gradient to find e0
-        """
         self.e0 = self.x[np.argmax(np.gradient(self.y) / np.gradient(self.x))]
 
+    def __str__(self):
+        return "%s %s Edge for %s: %s" % (
+            self.absorption_specie, self.edge,
+            self.structure.composition.reduced_formula,
+            super(XANES, self).__str__()
+        )

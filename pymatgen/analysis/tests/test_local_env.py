@@ -124,6 +124,10 @@ class MiniDistNNTest(PymatgenTest):
             ["Cl1-", "Cs1+"], [[2.105, 2.105, 2.105], [0, 0, 0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.mos2 = Structure(
+            Lattice([[3.19, 0, 0], [-1.595, 2.763, 0], [0, 0, 17.44]]),
+            ['Mo', 'S', 'S'], [[-1e-06, 1.842, 3.72], [1.595, 0.92, 5.29], \
+            [1.595, 0.92, 2.155]], coords_are_cartesian=True)
 
     def test_all_nn_classes(self):
         self.assertAlmostEqual(MinimumDistanceNN().get_cn(
@@ -132,6 +136,11 @@ class MiniDistNNTest(PymatgenTest):
             self.nacl, 0), 6)
         self.assertAlmostEqual(MinimumDistanceNN(tol=0.01).get_cn(
             self.cscl, 0), 8)
+        self.assertAlmostEqual(MinimumDistanceNN(tol=0.1).get_cn(
+            self.mos2, 0), 6)
+        for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
+            self.assertTrue(image in [[0, 0, 0], [0, 1, 0], [-1, 0, 0], \
+                    [0, 0, 0], [0, 1, 0], [-1, 0, 0]])
 
         self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
             self.diamond, 0), 4)
@@ -151,6 +160,7 @@ class MiniDistNNTest(PymatgenTest):
         del self.diamond
         del self.nacl
         del self.cscl
+        del self.mos2
 
 
 class MotifIdentificationTest(PymatgenTest):

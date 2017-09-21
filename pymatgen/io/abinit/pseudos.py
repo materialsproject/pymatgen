@@ -27,7 +27,7 @@ from monty.os.path import find_exts
 from monty.string import list_strings, is_string
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
-from pymatgen.serializers.json_coders import pmg_serialize
+from pymatgen.util.serialization import pmg_serialize
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
 logger = logging.getLogger(__name__)
