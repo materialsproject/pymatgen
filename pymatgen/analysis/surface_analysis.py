@@ -14,13 +14,11 @@ TODO:
 
 from __future__ import division, unicode_literals
 
-import copy
-
 import numpy as np
 from scipy.stats import linregress
 import itertools
 import warnings
-import random
+import random, copy
 
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -770,8 +768,6 @@ def vaspruns_to_entry_dict(vaspruns):
 
     return
 
-
-import random, copy
 
 def color_palette(entry_dict):
 
