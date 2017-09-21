@@ -30,7 +30,7 @@ from pymatgen.transformations.standard_transformations import \
 from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
-from pymatgen.matproj.snl import StructureNL
+from pymatgen.util.provenance import StructureNL
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
