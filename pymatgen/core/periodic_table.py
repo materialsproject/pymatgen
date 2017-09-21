@@ -1280,6 +1280,9 @@ def get_el_sp(obj):
     if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
 
+    if isinstance(obj, (list, tuple)):
+        return [get_el_sp(o) for o in obj]
+
     try:
         c = float(obj)
         i = int(c)
