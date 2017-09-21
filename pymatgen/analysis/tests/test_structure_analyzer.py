@@ -491,7 +491,8 @@ class OrderParametersTest(PymatgenTest):
 
 
     def test_init(self):
-        self.assertIsNotNone(OrderParameters(["cn"], [[]], 0.99))
+        self.assertIsNotNone(
+            OrderParameters(["cn"], parameters=None, cutoff=0.99))
 
     def test_get_order_parameters(self):
         # Set up everything.
@@ -500,16 +501,16 @@ class OrderParametersTest(PymatgenTest):
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
             "see_saw"]
-        #op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], [], None]
-        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], \
-            [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
-        ops_044 = OrderParameters(op_types, op_paras, 0.44)
-        ops_071 = OrderParameters(op_types, op_paras, 0.71)
-        ops_087 = OrderParameters(op_types, op_paras, 0.87)
-        ops_099 = OrderParameters(op_types, op_paras, 0.99)
-        ops_101 = OrderParameters(op_types, op_paras, 1.01)
-        ops_501 = OrderParameters(op_types, op_paras, 5.01)
-        ops_voro = OrderParameters(op_types, op_paras)
+        op_paras = [None, None, [45.0, 0.0667], None, None, None, None, None, \
+                    None, None, None, None, None, None, None, None, None, None,\
+                    None, None, None, None, None, None, None, None]
+        ops_044 = OrderParameters(op_types, parameters=op_paras, cutoff=0.44)
+        ops_071 = OrderParameters(op_types, parameters=op_paras, cutoff=0.71)
+        ops_087 = OrderParameters(op_types, parameters=op_paras, cutoff=0.87)
+        ops_099 = OrderParameters(op_types, parameters=op_paras, cutoff=0.99)
+        ops_101 = OrderParameters(op_types, parameters=op_paras, cutoff=1.01)
+        ops_501 = OrderParameters(op_types, parameters=op_paras, cutoff=5.01)
+        ops_voro = OrderParameters(op_types, parameters=op_paras)
 
         # Single bond.
         op_vals = ops_101.get_order_parameters(self.single_bond, 0)

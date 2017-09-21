@@ -1069,400 +1069,126 @@ class OrderParameters(object):
                 pruned using the get_coordinated_sites method from the
                 VoronoiCoordFinder class.
         """
-        if len(types) == 0:
-            raise ValueError("Empty types list!")
         for t in types:
             if t not in OrderParameters.__supported_types:
                 raise ValueError("Unknown order parameter type (" + \
                                  t + ")!")
-        if parameters is not None:
+        if parameters is None:
+            parameters = [None for t in types]
+        else:
             if len(types) != len(parameters):
                 raise ValueError("1st dimension of parameters array is not"
                                  " consistent with types list!")
-            for lp in parameters:
-                if len(lp) > 0:
-                    for p in lp:
-                        if type(p) != float and type(p) != int:
-                            raise AttributeError("Expected only float and"
-                                                 " integer type parameters!")
-            loc_parameters = list(parameters)
-        else:
-            loc_parameters = [[] for t in types]
         self._types = tuple(types)
-        tmpparas = []
+        self._paras = [None for t in types]
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
         self._max_trig_order = -1
         for i, t in enumerate(self._types):
-            # add here any additional parameter checking and
-            #     default value assignment
-            tmpparas.append([])
             if t == "cn":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Normalizing constant for"
-                                         " coordination-number based order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i].append(loc_parameters[i][0])
+                self._paras[i] = [parameters[i][0]] \
+                    if parameters[i] is not None else [1.0]
             elif t == "sgl_bd":
-                tmpparas[i].append(None)
+                self._paras[i] = [None]
             elif t == "lin":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0667]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " linear order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i] = [1.0 / loc_parameters[i][0]]
+                self._paras[i] = [parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0667]
             elif t == "bent":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0, 1.0 / 0.0667]
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] > 180.0:
-                        warn("Target angle for bent order parameter is"
-                            " not in ]0,180] interval.")
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " bent order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i] = [loc_parameters[i][0] / 180.0, \
-                                1.0 / loc_parameters[i][1]]
+                self._paras[i] = [parameters[i][0] / 180.0, \
+                                  1.0 / parameters[i][1]] \
+                    if parameters[i] is not None else [1.0, 1.0 / 0.0667]
             elif t == "tet_legacy":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0 / 0.0667)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " original tetrahedral order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][0])
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0667]
             elif t == "tet":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0 / 0.0667)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " tetrahedral order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][0])
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0667]
             elif t == "oct_legacy":
-                if len(loc_parameters[i]) < 4:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0556)
-                    tmpparas[i].append(0.25)
-                    tmpparas[i].append(4.0 / 3.0)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in original octahedral order"
-                             " parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in original"
-                                         " octahedral order parameter is"
-                                         " zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
-                    if loc_parameters[i][2] == 0.0:
-                        raise ValueError("Gaussian width for equatorial"
-                                         " configurations in original"
-                                         " octahedral order parameter is"
-                                         " zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][2])
-                    if loc_parameters[i][3] - 1.0 == 0.0:
-                        raise ValueError("Shift constant may not be"
-                                         " unity!")
-                    if loc_parameters[i][3] < 0.0 or loc_parameters[i][3] > 1.0:
-                        warn("Shift constant outside [0,1[.")
-                    tmpparas[i].append(loc_parameters[i][3])
-                    tmpparas[i].append(1.0 / (1.0 - loc_parameters[i][3]))
+                self._paras[i] = [parameters[i][0] * pi / 180.0, \
+                    1.0 / parameters[i][1], 1.0 / parameters[i][2], \
+                    parameters[i][3], 1.0 / (1.0 - loc_parameters[i][3])] \
+                    if parameters[i] is not None else [8.0 * pi / 9.0, \
+                    1.0 / 0.0667, 1.0 / 0.0556, 0.25, 4.0 / 3.0]
             elif t == "oct":
-                if len(loc_parameters[i]) < 3:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in octahedral order"
-                             " parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in octahedral"
-                                         " order parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
-                    if loc_parameters[i][2] == 0.0:
-                        raise ValueError("Gaussian width for equatorial"
-                                         " configurations in octahedral"
-                                         " order parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][2])
+                self._paras[i] = [parameters[i][0] * pi / 180.0, \
+                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
+                    if parameters[i] is not None else [8.0 * pi / 9.0, \
+                    1.0 / 0.0667, 1.0 / 0.0556]
             elif t == "see_saw":
-                if len(loc_parameters[i]) < 3:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    tmpparas[i].append(1.0 / loc_parameters[i][1])
-                    tmpparas[i].append(1.0 / loc_parameters[i][2])
+                self._paras[i] = [parameters[i][0] * pi / 180.0, \
+                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
+                    if parameters[i] is not None else [8.0 * pi / 9.0, \
+                    1.0 / 0.0667, 1.0 / 0.0556]
             elif t == "bcc":
-                if len(loc_parameters[i]) < 2:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                        0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in bcc order"
-                             " parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in bcc"
-                                         " order parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
+                self._paras[i] = [parameters[i][0] * pi / 180.0, \
+                    1.0 / parameters[i][1]] \
+                    if parameters[i] is not None else [8.0 * pi / 9.0, \
+                    1.0 / 0.0667]
             elif t == "tri_plan":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0 / 0.074)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " trigonal planar order"
-                                         " parameter!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][0])
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.074]
             elif t == "reg_tri":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0222]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for angles in"
-                                " trigonal pyramid tip of regular triangle"
-                                " order parameter is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0222]
             elif t == "sq_plan":
-                if len(loc_parameters[i]) < 3:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in square-planar order"
-                             " parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in square-planar"
-                                         " order parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
-                    if loc_parameters[i][2] == 0.0:
-                        raise ValueError("Gaussian width for equatorial"
-                                         " configurations in square-planar"
-                                         " order parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][2])
+                self._paras[i] = [parameters[i][0] * pi / 180.0, \
+                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
+                    if parameters[i] is not None else [8.0 * pi / 9.0, \
+                    1.0 / 0.0667, 1.0 / 0.0556]
             elif t == "tri_pyr":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " trigonal-pyramidal order"
-                                         " parameter!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][0])
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0556]
             elif t == "sq":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0333]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for angles in"
-                                " pyramid tip of square order parameter"
-                                " is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0333]
             elif t == "pent_plan":
-                if len(loc_parameters[i]) < 2:
-                    tmpparas[i].append(0.6 * pi)
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " pentagonal planar order"
-                                         " parameter!")
-                    else:
-                        tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
+                self._paras[i] = [parameters[i][0] * pi / 180.0, \
+                    1.0 / parameters[i][1]] \
+                    if parameters[i] is not None else [0.6 * pi, \
+                    1.0 / 0.0556]
             elif t == "reg_pent":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0222]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for angles in"
-                                " pentagonal pyramid tip of regular pentagon"
-                                " order parameter is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0222]
             elif t == "T":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0556]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for angles in"
-                                " T-shape order parameter is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0556]
             elif t == "sq_pyr":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0556]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for angles in"
-                                " square pyramid order parameter is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0556]
             elif t == "sq_pyr_legacy":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0333, 1.0 / 0.1]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for angles in"
-                                " pyramid order parameter is zero!")
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for lengths in"
-                                " square pyramid order parameter is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0], \
-                            1.0 / loc_parameters[i][1]]
+                self._paras[i] = [1.0 / parameters[i][0], \
+                    1.0 / parameters[i][1]] if parameters[i] is not None \
+                    else [1.0 / 0.0333, 1.0 / 0.1]
             elif t == "pent_pyr":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " pentagonal-pyramidal order"
-                                         " parameter!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][0])
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0556]
             elif t == "hex_pyr":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " hexagonal-pyramidal order"
-                                         " parameter!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][0])
+                self._paras[i] = [1.0 / parameters[i][0]] \
+                    if parameters[i] is not None else [1.0 / 0.0556]
             elif t == "tri_bipyr":
-                if len(loc_parameters[i]) < 3:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in trigonal bipyramidal"
-                             " order parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in trigonal"
-                                         " bipyramidal order parameter is"
-                                         " zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
-                    if loc_parameters[i][2] == 0.0:
-                        raise ValueError("Gaussian width for equatorial"
-                                         " configurations in trigonal"
-                                         " bipyramidal order parameter"
-                                         " is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][2])
+                self._paras[i] = [parameters[i][0] * pi / 180.0, \
+                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
+                    if parameters[i] is not None else [8.0 * pi / 9.0, \
+                    1.0 / 0.0667, 1.0 / 0.0556]
             elif t == "pent_bipyr":
-                if len(loc_parameters[i]) < 3:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in pentagonal bipyramidal"
-                             " order parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in pentagonal"
-                                         " bipyramidal order parameter is"
-                                         " zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
-                    if loc_parameters[i][2] == 0.0:
-                        raise ValueError("Gaussian width for equatorial"
-                                         " configurations in pentagonal"
-                                         " bipyramidal order parameter"
-                                         " is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][2])
+                self._paras[i] = [parameters[i][0] * pi / 180.0, \
+                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
+                    if parameters[i] is not None else [8.0 * pi / 9.0, \
+                    1.0 / 0.0667, 1.0 / 0.0556]
             elif t == "hex_bipyr":
-                if len(loc_parameters[i]) < 3:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in hexagonal bipyramidal"
-                             " order parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in hexagonal"
-                                         " bipyramidal order parameter is"
-                                         " zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
-                    if loc_parameters[i][2] == 0.0:
-                        raise ValueError("Gaussian width for equatorial"
-                                         " configurations in hexagonal"
-                                         " bipyramidal order parameter"
-                                         " is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][2])
+                self._paras[i] = [parameters[i][0] * pi / 180.0, \
+                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
+                    if parameters[i] is not None else [8.0 * pi / 9.0, \
+                    1.0 / 0.0667, 1.0 / 0.0556]
             elif t == "cuboct":
-                if len(loc_parameters[i]) < 3:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(75.0 * pi / 180.0)
-                    tmpparas[i].append(105.0 * pi / 180.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0556)
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    tmpparas[i].append(loc_parameters[i][1] * pi / 180.0)
-                    tmpparas[i].append(loc_parameters[i][2] * pi / 180.0)
-                    tmpparas[i].append(1.0 / loc_parameters[i][3])
-                    tmpparas[i].append(1.0 / loc_parameters[i][4])
-                    tmpparas[i].append(1.0 / loc_parameters[i][5])
+                self._paras[i] = [parameters[i][0] * pi / 180.0, \
+                    parameters[i][1] * pi / 180.0, \
+                    parameters[i][2] * pi / 180.0,\
+                    1.0 / parameters[i][3], 1.0 / parameters[i][4], \
+                    1.0 / parameters[i][5]] \
+                    if parameters[i] is not None else [8.0 * pi / 9.0, \
+                    75.0 * pi / 180.0, 105.0 * pi / 180.0, 1.0 / 0.0667, \
+                    1.0 / 0.0556, 1.0 / 0.0556]
             # All following types should be well-defined/-implemented,
             # and they should not require parameters.
             elif t != "q2" and t != "q4" and t != "q6":
@@ -1494,7 +1220,6 @@ class OrderParameters(object):
                 self._max_trig_order = 6
 
         # Finish parameter treatment.
-        self._paras = list(tmpparas)
         if cutoff < 0.0:
             self._cutoff = -cutoff
             self._voroneigh = True
