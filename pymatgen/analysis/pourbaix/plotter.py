@@ -34,7 +34,7 @@ from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
 from pymatgen.analysis.pourbaix.maker import PREFAC
 from pymatgen.analysis.pourbaix.entry import MultiEntry
 
-from pymatgen.phasediagram.plotter import uniquelines
+from pymatgen.analysis.phase_diagram import uniquelines
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.coord_utils import in_coord_list

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.adsorption module &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.analysis.adsorption module &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,7 +56,7 @@
 <span id="pymatgen-analysis-adsorption-module"></span><h1>pymatgen.analysis.adsorption module<a class="headerlink" href="#module-pymatgen.analysis.adsorption" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder">
-<em class="property">class </em><code class="descname">AdsorbateSiteFinder</code><span class="sig-paren">(</span><em>slab</em>, <em>selective_dynamics=False</em>, <em>height=0.9</em>, <em>mi_vec=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">AdsorbateSiteFinder</code><span class="sig-paren">(</span><em>slab</em>, <em>selective_dynamics=False</em>, <em>height=0.9</em>, <em>mi_vec=None</em>, <em>top_surface=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class finds adsorbate sites on slabs and generates
 adsorbate structures according to user-defined criteria.
@@ -101,6 +101,9 @@ non-surface sites as fixed for selective dynamics</li>
 concurrent with the miller index, this enables use with
 slabs that have been reoriented, but the miller vector
 must be supplied manually</li>
+<li><strong>top_surface</strong> (<em>bool</em>) – Which surface to adsorb, True for the surface
+above the center of mass, False for the surface below
+center of mass</li>
 </ul>
 </td>
 </tr>
@@ -360,6 +363,41 @@ as input to in_coord_list_pbc for dupl. checking</li>
 </dd></dl>
 
 <dl class="function">
+<dt id="pymatgen.analysis.adsorption.adsorb_both_surfaces">
+<code class="descname">adsorb_both_surfaces</code><span class="sig-paren">(</span><em>slab</em>, <em>molecule</em>, <em>selective_dynamics=False</em>, <em>height=0.9</em>, <em>mi_vec=None</em>, <em>repeat=None</em>, <em>min_lw=5.0</em>, <em>reorient=True</em>, <em>find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#adsorb_both_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.adsorb_both_surfaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that generates all adsorption structures for a given
+molecular adsorbate on both surfaces of a slab.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – slab object for which to find adsorbate sites</li>
+<li><strong>selective_dynamics</strong> (<em>bool</em>) – flag for whether to assign
+non-surface sites as fixed for selective dynamics</li>
+<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule corresponding to adsorbate</li>
+<li><strong>selective_dynamics</strong> – flag for whether to assign
+non-surface sites as fixed for selective dynamics</li>
+<li><strong>height</strong> (<em>float</em>) – height criteria for selection of surface sites</li>
+<li><strong>mi_vec</strong> (<em>3-D array-like</em>) – vector corresponding to the vector
+concurrent with the miller index, this enables use with
+slabs that have been reoriented, but the miller vector
+must be supplied manually</li>
+<li><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – repeat argument for supercell generation</li>
+<li><strong>min_lw</strong> (<em>float</em>) – minimum length and width of the slab, only used
+if repeat is None</li>
+<li><strong>reorient</strong> (<em>bool</em>) – flag on whether or not to reorient adsorbate
+along the miller index</li>
+<li><strong>find_args</strong> (<em>dict</em>) – dictionary of arguments to be passed to the
+call to self.find_adsorption_sites, e.g. {“distance”:2.0}</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pymatgen.analysis.adsorption.cart_to_frac">
 <code class="descname">cart_to_frac</code><span class="sig-paren">(</span><em>lattice</em>, <em>cart_coord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#cart_to_frac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.cart_to_frac" title="Permalink to this definition">¶</a></dt>
 <dd><p>converts cartesian coordinates to fractional</p>
@@ -460,7 +498,7 @@ normal to the A-B plane</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>
 

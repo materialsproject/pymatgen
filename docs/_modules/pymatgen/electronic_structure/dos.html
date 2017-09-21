@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.dos &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.electronic_structure.dos &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -67,8 +67,10 @@
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.spectrum</span> <span class="k">import</span> <span class="n">Spectrum</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="k">import</span> <span class="n">get_linear_interpolated_value</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module defines classes to represent the density of states, etc.</span>
@@ -80,6 +82,158 @@
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Mar 20, 2012&quot;</span>
+
+
+<div class="viewcode-block" id="DOS"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.DOS">[docs]</a><span class="k">class</span> <span class="nc">DOS</span><span class="p">(</span><span class="n">Spectrum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Replacement basic DOS object. All other DOS objects are extended versions</span>
+<span class="sd">    of this object. Work in progress.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        energies: A sequence of energies</span>
+<span class="sd">        densities (ndarray): Either a Nx1 or a Nx2 array. If former, it is</span>
+<span class="sd">            interpreted as a Spin.up only density. Otherwise, the first column</span>
+<span class="sd">            is interpreted as Spin.up and the other is Spin.down.</span>
+<span class="sd">        efermi: Fermi level energy.</span>
+
+
+<span class="sd">    .. attribute: energies</span>
+
+<span class="sd">        The sequence of energies</span>
+
+<span class="sd">    .. attribute: densities</span>
+
+<span class="sd">        A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}</span>
+
+<span class="sd">    .. attribute: efermi</span>
+
+<span class="sd">        Fermi level</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">XLABEL</span> <span class="o">=</span> <span class="s2">&quot;Energy&quot;</span>
+    <span class="n">YLABEL</span> <span class="o">=</span> <span class="s2">&quot;Density&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">densities</span><span class="p">,</span> <span class="n">efermi</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DOS</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">densities</span><span class="p">,</span> <span class="n">efermi</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">efermi</span>
+
+<div class="viewcode-block" id="DOS.get_interpolated_gap"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.DOS.get_interpolated_gap">[docs]</a>    <span class="k">def</span> <span class="nf">get_interpolated_gap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Expects a DOS object and finds the gap</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tol: tolerance in occupations for determining the gap</span>
+<span class="sd">            abs_tol: Set to True for an absolute tolerance and False for a</span>
+<span class="sd">                relative one.</span>
+<span class="sd">            spin: Possible values are None - finds the gap in the summed</span>
+<span class="sd">                densities, Up - finds the gap in the up spin channel,</span>
+<span class="sd">                Down - finds the gap in the down spin channel.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (gap, cbm, vbm):</span>
+<span class="sd">                Tuple of floats in eV corresponding to the gap, cbm and vbm.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">tdos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ydim</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">abs_tol</span><span class="p">:</span>
+            <span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span> <span class="o">*</span> <span class="n">tdos</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">tdos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">below_fermi</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">))</span>
+                       <span class="k">if</span> <span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="ow">and</span> <span class="n">tdos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">]</span>
+        <span class="n">above_fermi</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">))</span>
+                       <span class="k">if</span> <span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="ow">and</span> <span class="n">tdos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">]</span>
+        <span class="n">vbm_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">below_fermi</span><span class="p">)</span>
+        <span class="n">cbm_start</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">above_fermi</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vbm_start</span> <span class="o">==</span> <span class="n">cbm_start</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Interpolate between adjacent values</span>
+            <span class="n">terminal_dens</span> <span class="o">=</span> <span class="n">tdos</span><span class="p">[</span><span class="n">vbm_start</span><span class="p">:</span><span class="n">vbm_start</span> <span class="o">+</span> <span class="mi">2</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">terminal_energies</span> <span class="o">=</span> <span class="n">energies</span><span class="p">[</span><span class="n">vbm_start</span><span class="p">:</span><span class="n">vbm_start</span> <span class="o">+</span> <span class="mi">2</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">get_linear_interpolated_value</span><span class="p">(</span><span class="n">terminal_dens</span><span class="p">,</span>
+                                                  <span class="n">terminal_energies</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+            <span class="n">terminal_dens</span> <span class="o">=</span> <span class="n">tdos</span><span class="p">[</span><span class="n">cbm_start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span><span class="n">cbm_start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">terminal_energies</span> <span class="o">=</span> <span class="n">energies</span><span class="p">[</span><span class="n">cbm_start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span><span class="n">cbm_start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">get_linear_interpolated_value</span><span class="p">(</span><span class="n">terminal_dens</span><span class="p">,</span>
+                                                <span class="n">terminal_energies</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">start</span></div>
+
+<div class="viewcode-block" id="DOS.get_cbm_vbm"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.DOS.get_cbm_vbm">[docs]</a>    <span class="k">def</span> <span class="nf">get_cbm_vbm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Expects a DOS object and finds the cbm and vbm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tol: tolerance in occupations for determining the gap</span>
+<span class="sd">            abs_tol: An absolute tolerance (True) and a relative one (False)</span>
+<span class="sd">            spin: Possible values are None - finds the gap in the summed</span>
+<span class="sd">                densities, Up - finds the gap in the up spin channel,</span>
+<span class="sd">                Down - finds the gap in the down spin channel.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (cbm, vbm): float in eV corresponding to the gap</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># determine tolerance</span>
+        <span class="k">if</span> <span class="n">spin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tdos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ydim</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span>
+            <span class="n">tdos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tdos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">abs_tol</span><span class="p">:</span>
+            <span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span> <span class="o">*</span> <span class="n">tdos</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">tdos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># find index of fermi energy</span>
+        <span class="n">i_fermi</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i_fermi</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">:</span>
+            <span class="n">i_fermi</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># work backwards until tolerance is reached</span>
+        <span class="n">i_gap_start</span> <span class="o">=</span> <span class="n">i_fermi</span>
+        <span class="k">while</span> <span class="n">i_gap_start</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">tdos</span><span class="p">[</span><span class="n">i_gap_start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="n">i_gap_start</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="c1"># work forwards until tolerance is reached</span>
+        <span class="n">i_gap_end</span> <span class="o">=</span> <span class="n">i_gap_start</span>
+        <span class="k">while</span> <span class="n">i_gap_end</span> <span class="o">&lt;</span> <span class="n">tdos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">tdos</span><span class="p">[</span><span class="n">i_gap_end</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="n">i_gap_end</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">i_gap_end</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i_gap_end</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i_gap_start</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DOS.get_gap"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.DOS.get_gap">[docs]</a>    <span class="k">def</span> <span class="nf">get_gap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Expects a DOS object and finds the gap.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tol: tolerance in occupations for determining the gap</span>
+<span class="sd">            abs_tol: An absolute tolerance (True) and a relative one (False)</span>
+<span class="sd">            spin: Possible values are None - finds the gap in the summed</span>
+<span class="sd">                densities, Up - finds the gap in the up spin channel,</span>
+<span class="sd">                Down - finds the gap in the down spin channel.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            gap in eV</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">cbm</span><span class="p">,</span> <span class="n">vbm</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cbm_vbm</span><span class="p">(</span><span class="n">tol</span><span class="p">,</span> <span class="n">abs_tol</span><span class="p">,</span> <span class="n">spin</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">cbm</span> <span class="o">-</span> <span class="n">vbm</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string which can be easily plotted (using gnuplot).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">densities</span><span class="p">:</span>
+            <span class="n">stringarray</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;#</span><span class="si">{:30s}</span><span class="s2"> </span><span class="si">{:30s}</span><span class="s2"> </span><span class="si">{:30s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Energy&quot;</span><span class="p">,</span>
+                                                          <span class="s2">&quot;DensityUp&quot;</span><span class="p">,</span>
+                                                          <span class="s2">&quot;DensityDown&quot;</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">energy</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">):</span>
+                <span class="n">stringarray</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:.5f}</span><span class="s2"> </span><span class="si">{:.5f}</span><span class="s2"> </span><span class="si">{:.5f}</span><span class="s2">&quot;</span>
+                                   <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stringarray</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;#</span><span class="si">{:30s}</span><span class="s2"> </span><span class="si">{:30s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Energy&quot;</span><span class="p">,</span> <span class="s2">&quot;DensityUp&quot;</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">energy</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">):</span>
+                <span class="n">stringarray</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:.5f}</span><span class="s2"> </span><span class="si">{:.5f}</span><span class="s2">&quot;</span>
+                                   <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stringarray</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Dos"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.Dos">[docs]</a><span class="k">class</span> <span class="nc">Dos</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -577,7 +731,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -351,7 +351,8 @@ class AbinitTimerParser(collections.Iterable):
         n = len(timers)
         xx = np.arange(n)
 
-        ax.set_color_cycle(['g', 'b', 'c', 'm', 'y', 'k'])
+        #ax.set_color_cycle(['g', 'b', 'c', 'm', 'y', 'k'])
+        ax.set_prop_cycle(color=['g', 'b', 'c', 'm', 'y', 'k'])
 
         lines, legend_entries = [], []
         # Plot sections with good efficiency.

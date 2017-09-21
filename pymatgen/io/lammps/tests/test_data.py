@@ -10,6 +10,7 @@ import unittest
 from collections import OrderedDict
 
 import numpy as np
+import pymatgen as mg
 
 from pymatgen.io.lammps.data import LammpsData, parse_data_file
 from pymatgen.core.structure import Molecule
@@ -18,6 +19,8 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.lammps.data import LammpsForceFieldData
 from pymatgen.io.lammps.force_field import ForceField
 from pymatgen.io.lammps.topology import Topology
+
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
@@ -136,19 +139,14 @@ class TestLammpsDataStructure(unittest.TestCase):
 
         np.testing.assert_almost_equal(self.lammps_data.atomic_masses,
                                        atomic_masses, decimal=6)
-        np.testing.assert_almost_equal(self.lammps_data.atoms_data, atoms_data,
-                                       decimal=6)
         np.testing.assert_almost_equal(self.lammps_data.box_size, box_size,
                                        decimal=6)
         np.testing.assert_almost_equal(self.lammps_data.box_tilt, box_tilt,
                                        decimal=6)
-        neutral_atoms_data = np.delete(atoms_data, 2, axis=1)
-        np.testing.assert_almost_equal(self.lammps_data_neutral.atoms_data,
-                                       neutral_atoms_data, decimal=6)
 
     def test_from_file(self):
         self.lammps_data.write_file(
-            os.path.join(test_dir, "lammps_data.dat"))
+            os.path.join(test_dir, "lammps_data.dat"),significant_figures=15)
         lammps_data = LammpsData.from_file(
             os.path.join(test_dir, "lammps_data.dat"), atom_style="charge")
         self.assertEqual(lammps_data.structure, self.lammps_data.structure)
@@ -166,6 +164,14 @@ class TestLammpsDataStructure(unittest.TestCase):
         self.assertEqual(lammps_data.structure.symbol_set[0], 'O')
         self.assertEqual(lammps_data.structure.symbol_set[1], 'H')
         self.assertEqual(lammps_data.structure.volume, 27000)
+
+        # test tilt structure
+        tilt_str = mg.Structure.from_file(os.path.join(test_dir, "POSCAR"))
+        lmp_tilt_data = LammpsData.from_structure(tilt_str)
+        s = StructureMatcher()
+        groups = s.group_structures([lmp_tilt_data.structure, tilt_str])
+        self.assertEqual(len(groups), 1)
+
 
     def tearDown(self):
         for x in ["lammps_data.dat"]:

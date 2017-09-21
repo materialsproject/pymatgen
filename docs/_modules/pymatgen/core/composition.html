@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.composition &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.core.composition &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -638,7 +638,7 @@
                 <span class="s2">&quot;nelements&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())}</span>
 
 <div class="viewcode-block" id="Composition.oxi_state_guesses"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.oxi_state_guesses">[docs]</a>    <span class="k">def</span> <span class="nf">oxi_state_guesses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oxi_states_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                          <span class="n">all_oxi_states</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                          <span class="n">all_oxi_states</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_sites</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the composition is charge-balanced and returns back all</span>
 <span class="sd">        charge-balanced oxidation state combinations. Composition must have</span>
@@ -646,7 +646,7 @@
 <span class="sd">        more degrees of freedom. e.g., if possible oxidation states of</span>
 <span class="sd">        element X are [2,4] and Y are [-3], then XY is not charge balanced</span>
 <span class="sd">        but X2Y2 is. Results are returned from most to least probable based</span>
-<span class="sd">        on ICSD statistics.</span>
+<span class="sd">        on ICSD statistics. Use max_sites to improve performance if needed.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            oxi_states_override (dict): dict of str-&gt;list to override an</span>
@@ -658,12 +658,31 @@
 <span class="sd">                Otherwise, default is Element.common_oxidation_states. Note</span>
 <span class="sd">                that the full oxidation state list is *very* inclusive and</span>
 <span class="sd">                can produce nonsensical results.</span>
+<span class="sd">            max_sites (int): if possible, will reduce Compositions to at most</span>
+<span class="sd">                this many many sites to speed up oxidation state guesses. Set</span>
+<span class="sd">                to -1 to just reduce fully.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of dicts - each dict reports an element symbol and average</span>
 <span class="sd">                oxidation state across all sites in that composition. If the</span>
 <span class="sd">                composition is not charge balanced, an empty list is returned.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># reduce Composition if necessary</span>
+        <span class="k">if</span> <span class="n">max_sites</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_composition</span>
+
+        <span class="k">elif</span> <span class="n">max_sites</span> <span class="ow">and</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">&gt;</span> <span class="n">max_sites</span><span class="p">:</span>
+            <span class="n">reduced_comp</span><span class="p">,</span> <span class="n">reduced_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span>\
+                <span class="n">get_reduced_composition_and_factor</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">reduced_factor</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">reduced_comp</span> <span class="o">*=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_sites</span> <span class="o">/</span> <span class="n">reduced_comp</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">))</span>
+                <span class="n">comp</span> <span class="o">=</span> <span class="n">reduced_comp</span>  <span class="c1"># as close to max_sites as possible</span>
+            <span class="k">if</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">&gt;</span> <span class="n">max_sites</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Composition </span><span class="si">{}</span><span class="s2"> cannot accommodate max_sites &quot;</span>
+                                 <span class="s2">&quot;setting!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
 
         <span class="c1"># Load prior probabilities of oxidation states, used to rank solutions</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">Composition</span><span class="o">.</span><span class="n">oxi_prob</span><span class="p">:</span>
@@ -678,13 +697,13 @@
         <span class="n">oxi_states_override</span> <span class="o">=</span> <span class="n">oxi_states_override</span> <span class="ow">or</span> <span class="p">{}</span>
 
         <span class="c1"># assert: Composition only has integer amounts</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">amt</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">amt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">amt</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Charge balance analysis requires integer &quot;</span>
                              <span class="s2">&quot;values in Composition!&quot;</span><span class="p">)</span>
 
         <span class="c1"># for each element, determine all possible sum of oxidations</span>
         <span class="c1"># (taking into account nsites for that particular element)</span>
-        <span class="n">el_amt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span>
+        <span class="n">el_amt</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span>
         <span class="n">els</span> <span class="o">=</span> <span class="n">el_amt</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="n">el_sums</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># matrix: dim1= el_idx, dim2=possible sums</span>
         <span class="n">el_sum_scores</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>  <span class="c1"># dict of el_idx, sum -&gt; score</span>
@@ -1085,7 +1104,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
