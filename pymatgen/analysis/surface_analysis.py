@@ -207,6 +207,16 @@ class SurfaceEnergyCalculator(object):
         chempot_range = list(chempot_range)
         return sorted([chempot_range[0][0], chempot_range[1][0]])
 
+    def chempot_range_adsorption(self, ads_slab_entry, clean_slab_entry,
+                                 const_u_ref, buffer=0.2):
+
+        c1 = self.surface_energy_coefficients(clean_slab_entry)
+        c2 = self.surface_energy_coefficients(clean_slab_entry,
+                                              ads_slab_entry=ads_slab_entry)
+        u, gamma = self.solve_2_linear_eqns(c1, c2, x_is_u_ads=True,
+                                            const_u=const_u_ref)
+        return [u-abs(u)*buffer, 0]
+
     def surface_energy_coefficients(self, clean_slab_entry, ads_slab_entry=None):
         """
         Calculates the coefficients of the surface energy for a single slab
@@ -253,11 +263,12 @@ class SurfaceEnergyCalculator(object):
         # return the coefficients of the surface energy
         # b1 is the coefficient for chempot of reference atom
         b1 = (-1 / (2 * Aclean))*(Ny - (self.y / self.x) * Nx)
+
         #b2 is the coefficient for chempot of adsorbate
         b2 = (-1*Nads) / (Nsurfs * Aads)
         gibbs_binding = self.gibbs_binding_energy(ads_slab_entry,
                                                   clean_slab_entry) if ads_slab_entry else 0
-        # b3 is the intercept
+        # b3 is the intercept (clean surface energy for a clean, stoichiometric system)
         b3 = (1 / (2 * Aclean)) * (clean_slab_entry.energy - (Nx/self.x)*self.gbulk - \
                               (Ny - (self.y / self.x) * Nx) * [entry.energy_per_atom \
                                                                for entry in self.reactants
@@ -346,6 +357,22 @@ class SurfaceEnergyCalculator(object):
 
         return Nsurfs
 
+    def solve_2_linear_eqns(self, c1, c2, x_is_u_ads=False, const_u=0):
+
+        """
+        Helper method to solve the intersect for two linear equations.
+        """
+        # set one of the terms as a constant (either the adsorption
+        # or clean term) to get 2 linear eqns of 1 variable
+        i = 0 if x_is_u_ads else 1
+        b11 = np.dot([c1[i], c1[2]], [const_u, 1])
+        b12 = np.dot([c2[i], c2[2]], [const_u, 1])
+        i = 1 if x_is_u_ads else 0
+
+        # Now solve the two eqns
+        return np.linalg.solve([[c1[i], -1], [c2[i], -1]],
+                               [-1*b11, -1*b12])
+
 
 class SurfaceEnergyPlotter(object):
     """
@@ -408,6 +435,19 @@ class SurfaceEnergyPlotter(object):
         self.chempot_range = surface_energy_calculator.chempot_range()
         self.entry_dict = entry_dict
         self.ref_el_comp = str(self.se_calculator.ref_el_comp.elements[0])
+
+    def max_adsorption_chempot_range(self, const_u_ref, buffer=0.1):
+
+        all_ranges = []
+        for hkl in self.entry_dict.keys():
+            for clean_entry in self.entry_dict[hkl].keys():
+                for ads_entry in self.entry_dict[hkl][clean_entry]:
+                    all_ranges.append(self.se_calculator.\
+                                      chempot_range_adsorption(ads_entry, clean_entry,
+                                                               const_u_ref=const_u_ref,
+                                                               buffer=buffer))
+        sorted_ranges = sorted(all_ranges, key=lambda r: r[0])
+        return sorted_ranges[0]
 
     def wulff_shape_from_chempot(self, u_ref=0, u_ads=0, symprec=1e-5):
         """
@@ -523,8 +563,8 @@ class SurfaceEnergyPlotter(object):
                                   x_is_u_ads=False, const_u=0):
 
         u_ref_range = [const_u, const_u] if x_is_u_ads else self.chempot_range
-        u_ads_range = [const_u, const_u] if not x_is_u_ads else [-5,0]
-
+        u_ads_range = [const_u, const_u] if not x_is_u_ads \
+            else self.max_adsorption_chempot_range(const_u)
 
         # use dashed lines for slabs that are not stoichiometric
         # wrt bulk. Label with formula if nonstoichiometric
@@ -600,8 +640,8 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def chempot_vs_gamma_facet(self, miller_index, cmap=cm.jet, x_is_u_ads=False,
-                               JPERM2=False, const_u=0):
+    def chempot_vs_gamma_facet(self, miller_index, cmap=cm.jet, const_u=0,
+                               JPERM2=False, show_unstable=False):
 
         plt = pretty_plot(width=8, height=7)
         axes = plt.gca()
@@ -611,7 +651,12 @@ class SurfaceEnergyPlotter(object):
                                     miller_index=miller_index)
 
         already_labelled = []
+        x_is_u_ads = False
         for clean_entry in self.entry_dict[miller_index]:
+
+            # Plot wrt to adsorption chempot if any adsorption entries exist
+            if self.entry_dict[miller_index][clean_entry]:
+                x_is_u_ads = True
 
             label = self.create_slab_label(clean_entry)
             if label in already_labelled:
@@ -636,12 +681,14 @@ class SurfaceEnergyPlotter(object):
                     c = colors[len(already_labelled)]
                     already_labelled.append(label)
 
-                self.chempot_vs_gamma_plot_one(plt, clean_entry, color=c, label=label,
-                                               ads_entry=ads_entry, JPERM2=JPERM2,
-                                               x_is_u_ads=x_is_u_ads, const_u=const_u)
+                self.chempot_vs_gamma_plot_one(plt, clean_entry, JPERM2=JPERM2,
+                                               ads_entry=ads_entry, color=c,
+                                               label=label, const_u=const_u,
+                                               x_is_u_ads=x_is_u_ads)
 
         # Make the figure look nice
-        xrange = self.chempot_range if not x_is_u_ads else [-5, 0]
+        xrange = self.chempot_range if not x_is_u_ads \
+            else self.max_adsorption_chempot_range(const_u)
         plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
             else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
         plt = self.chempot_plot_addons(plt, xrange, axes,
@@ -649,8 +696,8 @@ class SurfaceEnergyPlotter(object):
         xlim = axes.get_xlim()
         ylim = axes.get_ylim()
         clean_se = self.se_calculator.calculate_gamma_at_u(clean_entry)
-        plt.annotate(miller_index, xy=[np.mean(xlim), clean_se+max(ylim)*0.1],
-                     xytext=[np.mean(xlim), clean_se+max(ylim)*0.1],
+        plt.annotate(miller_index, xy=[np.mean(xlim), np.mean([max(ylim), clean_se])],
+                     xytext=[np.mean(xlim), np.mean([max(ylim), clean_se])],
                      fontsize=20)
 
         return plt
@@ -702,8 +749,6 @@ class SurfaceEnergyPlotter(object):
             label += " +%s, ML=%.2f" %(self.se_calculator.adsorbate_as_str,
                                        self.se_calculator.get_monolayer(ads_entry,
                                                                         entry))
-            print(label, ads_entry.composition, entry.composition)
-
         return label
 
     def surface_phase_diagram(self, y_param, x_param, miller_index):
