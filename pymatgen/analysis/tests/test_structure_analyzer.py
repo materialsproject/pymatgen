@@ -453,8 +453,6 @@ class OrderParametersTest(PymatgenTest):
             [1.4199, 0, 0], [-1.4199, 0, 0]], \
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
-        #from pymatgen.io.xyz import XYZ
-        #XYZ(self.pentagonal_pyramid).write_file('test.xyz')
         self.trigonal_pyramid = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]), ["P", "Cl", "Cl", "Cl", "Cl"],
@@ -486,8 +484,6 @@ class OrderParametersTest(PymatgenTest):
             [[15, 15, 15], [15, 15, 14], [15, 15, 16], [15, 14, 15], [14, 15, 15]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
-        #from pymatgen.io.xyz import XYZ
-        #XYZ(self.see_saw).write_file('test.xyz')
 
 
     def test_init(self):
