@@ -64,7 +64,7 @@ Below are a quick look at some of the graphical output possible.
 Why use pymatgen?
 =================
 
-There are many materials analysis codes out there, both commerical and free.
+There are many materials analysis codes out there, both commercial and free.
 So you might ask - why should I use pymatgen over others? Pymatgen offer
 several advantages over other codes out there:
 

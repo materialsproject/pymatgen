@@ -1,12 +1,6 @@
 pymatgen\.matproj package
 =========================
 
-Subpackages
------------
-
-.. toctree::
-
-
 Submodules
 ----------
 

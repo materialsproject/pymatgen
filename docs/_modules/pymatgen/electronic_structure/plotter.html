@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -67,17 +67,17 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">patches</span>
 
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">OrbitalType</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">BandStructureSymmLine</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span><span class="p">,</span> \
     <span class="n">add_fig_kwargs</span><span class="p">,</span> <span class="n">get_ax3d_fig_plt</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Energy</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.boltztrap</span> <span class="k">import</span> <span class="n">BoltztrapError</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="k">import</span> <span class="n">HighSymmKpath</span>
 
@@ -1523,16 +1523,14 @@
                     <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">branches</span><span class="p">:</span>
                         <span class="n">br</span> <span class="o">+=</span> <span class="mi">1</span>
                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nb_bands</span><span class="p">):</span>
-                            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">shift</span><span class="p">[</span><span class="n">br</span><span class="p">],</span>
-                                         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">]),</span>
+                            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">shift</span><span class="p">[</span><span class="n">br</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">])),</span>
                                      <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
                                       <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span>
                                       <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">]))],</span>
                                      <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">band_linewidth</span><span class="p">)</span>
 
                             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
-                                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">shift</span><span class="p">[</span><span class="n">br</span><span class="p">],</span>
-                                             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">]),</span>
+                                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">shift</span><span class="p">[</span><span class="n">br</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">])),</span>
                                          <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span>
                                               <span class="n">j</span><span class="p">]</span>
                                           <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span>
@@ -1585,9 +1583,6 @@
         <span class="k">return</span> <span class="n">plt</span></div>
 
     <span class="k">def</span> <span class="nf">_Orbitals_SumOrbitals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictio</span><span class="p">,</span> <span class="n">sum_morbs</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
-        <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
-        <span class="kn">import</span> <span class="nn">copy</span>
         <span class="n">all_orbitals</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;px&#39;</span><span class="p">,</span> <span class="s1">&#39;py&#39;</span><span class="p">,</span> <span class="s1">&#39;pz&#39;</span><span class="p">,</span> <span class="s1">&#39;dxy&#39;</span><span class="p">,</span> <span class="s1">&#39;dyz&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;dxz&#39;</span><span class="p">,</span> <span class="s1">&#39;dx2&#39;</span><span class="p">,</span> <span class="s1">&#39;dz2&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;f_3&#39;</span><span class="p">,</span> <span class="s1">&#39;f_2&#39;</span><span class="p">,</span> <span class="s1">&#39;f_1&#39;</span><span class="p">,</span> <span class="s1">&#39;f0&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">,</span> <span class="s1">&#39;f3&#39;</span><span class="p">]</span>
@@ -2211,7 +2206,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rgb_legend</span> <span class="o">=</span> <span class="n">rgb_legend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fig_size</span> <span class="o">=</span> <span class="n">fig_size</span>
 
-<div class="viewcode-block" id="BSDOSPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSDOSPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">dos</span><span class="p">):</span>
+<div class="viewcode-block" id="BSDOSPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSDOSPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">dos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a matplotlib plot object.</span>
 <span class="sd">        Args:</span>
@@ -2229,19 +2224,25 @@
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mplt</span>
 
         <span class="c1"># make sure the user-specified band structure projection is valid</span>
-        <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">dos</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span>
         <span class="n">bs_projection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs_projection</span>
+        <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">dos</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">bs_projection</span> <span class="ow">and</span> <span class="n">bs</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
+
         <span class="n">rgb_legend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb_legend</span> <span class="ow">and</span> <span class="n">bs_projection</span> <span class="ow">and</span> \
                      <span class="n">bs_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;elements&quot;</span> <span class="ow">and</span> \
                      <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">bs_projection</span> <span class="ow">and</span> <span class="n">bs_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;elements&quot;</span> <span class="ow">and</span> \
-                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span>
-                                       <span class="mi">3</span><span class="p">]</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_projection_on_elements</span><span class="p">()):</span>
+                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="ow">or</span>
+                     <span class="ow">not</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_projection_on_elements</span><span class="p">()):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;Cannot get element projected data; either the projection data &quot;</span>
-                <span class="s2">&quot;doesn&#39;t exist, or you don&#39;t have a compound with exactly 2 or 3&quot;</span>
-                <span class="s2">&quot; unique elements.&quot;</span><span class="p">)</span>
+                <span class="s2">&quot;doesn&#39;t exist, or you don&#39;t have a compound with exactly 2 &quot;</span>
+                <span class="s2">&quot;or 3 unique elements.&quot;</span><span class="p">)</span>
             <span class="n">bs_projection</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># specify energy range of plot</span>
@@ -2290,16 +2291,19 @@
                 <span class="n">x_distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_distances</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">distance_interval</span><span class="p">)</span>
 
         <span class="c1"># set up bs and dos plot</span>
-        <span class="n">gs</span> <span class="o">=</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">dos</span> <span class="k">else</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
         <span class="n">fig</span> <span class="o">=</span> <span class="n">mplt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fig_size</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
         <span class="n">bs_ax</span> <span class="o">=</span> <span class="n">mplt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">dos_ax</span> <span class="o">=</span> <span class="n">mplt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
+            <span class="n">dos_ax</span> <span class="o">=</span> <span class="n">mplt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="c1"># set basic axes limits for the plot</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x_distances</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">)</span>
-        <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
+            <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">)</span>
 
         <span class="c1"># add BS xticks, labels, etc.</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">xlabel_distances</span><span class="p">)</span>
@@ -2314,11 +2318,12 @@
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span> <span class="o">+</span> <span class="mf">1E-5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">egrid_interval</span><span class="p">))</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span> <span class="o">+</span> <span class="mf">1E-5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">egrid_interval</span><span class="p">),</span>
                               <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tick_fontsize</span><span class="p">)</span>
-        <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span> <span class="o">+</span> <span class="mf">1E-5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">egrid_interval</span><span class="p">))</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dotted&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
-        <span class="n">dos_ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dotted&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
+            <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span> <span class="o">+</span> <span class="mf">1E-5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">egrid_interval</span><span class="p">))</span>
+            <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
+            <span class="n">dos_ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dotted&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># renormalize the band energy to the Fermi level</span>
         <span class="n">band_energies</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2329,7 +2334,8 @@
                     <span class="n">band_energies</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">e</span> <span class="o">-</span> <span class="n">bs</span><span class="o">.</span><span class="n">efermi</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">band</span><span class="p">])</span>
 
         <span class="c1"># renormalize the DOS energies to Fermi level</span>
-        <span class="n">dos_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
+            <span class="n">dos_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">]</span>
 
         <span class="c1"># get the projection data to set colors for the band structure</span>
         <span class="n">colordata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_colordata</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">bs_projection</span><span class="p">)</span>
@@ -2345,59 +2351,64 @@
                                   <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">],</span>
                                   <span class="n">linestyles</span><span class="o">=</span><span class="n">linestyles</span><span class="p">)</span>
 
-        <span class="c1"># Plot the DOS and projected DOS</span>
-        <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">,</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">:</span>
-                <span class="c1"># plot the total DOS</span>
-                <span class="n">dos_densities</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span>
-                <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;total&quot;</span> <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span> <span class="k">else</span> <span class="kc">None</span>
-                <span class="n">dos_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">dos_densities</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">),</span>
-                            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
-                <span class="n">dos_ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">dos_densities</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span>
-                                    <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span>
-                                    <span class="n">facecolor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
+            <span class="c1"># Plot the DOS and projected DOS</span>
+            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">,</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">:</span>
+                    <span class="c1"># plot the total DOS</span>
+                    <span class="n">dos_densities</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;total&quot;</span> <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span> <span class="k">else</span> <span class="kc">None</span>
+                    <span class="n">dos_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">dos_densities</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span>
+                                <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+                    <span class="n">dos_ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">dos_densities</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span>
+                                        <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span>
+                                        <span class="n">facecolor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">))</span>
 
-                <span class="c1"># plot the atom-projected DOS</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;elements&quot;</span><span class="p">:</span>
-                    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">]</span>
-                    <span class="n">el_dos</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_element_dos</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elements</span><span class="p">):</span>
-                        <span class="n">dos_densities</span> <span class="o">=</span> <span class="n">el_dos</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)]</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">*</span> \
-                                        <span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span>
-                        <span class="n">label</span> <span class="o">=</span> <span class="n">el</span> <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span> <span class="k">else</span> <span class="kc">None</span>
-                        <span class="n">dos_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">dos_densities</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span>
-                                    <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
-
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;orbitals&quot;</span><span class="p">:</span>
-                    <span class="c1"># plot each of the atomic projected DOS</span>
-                    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">]</span>
-                    <span class="n">spd_dos</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_spd_dos</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">orb</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">OrbitalType</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="n">OrbitalType</span><span class="o">.</span><span class="n">p</span><span class="p">,</span>
-                                               <span class="n">OrbitalType</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="n">OrbitalType</span><span class="o">.</span><span class="n">f</span><span class="p">]):</span>
-                        <span class="k">if</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">spd_dos</span><span class="p">:</span>
-                            <span class="n">dos_densities</span> <span class="o">=</span> <span class="n">spd_dos</span><span class="p">[</span><span class="n">orb</span><span class="p">]</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">*</span> \
-                                            <span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span>
-                            <span class="n">label</span> <span class="o">=</span> <span class="n">orb</span> <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span> <span class="k">else</span> <span class="kc">None</span>
+                    <span class="c1"># plot the atom-projected DOS</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;elements&quot;</span><span class="p">:</span>
+                        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">]</span>
+                        <span class="n">el_dos</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_element_dos</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elements</span><span class="p">):</span>
+                            <span class="n">dos_densities</span> <span class="o">=</span> <span class="n">el_dos</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)]</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span>
+                                                <span class="n">spin</span><span class="p">]</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span>
+                            <span class="n">label</span> <span class="o">=</span> <span class="n">el</span> <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span> <span class="k">else</span> <span class="kc">None</span>
                             <span class="n">dos_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">dos_densities</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span>
                                         <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
 
-        <span class="c1"># get index of lowest and highest energy being plotted, used to help auto-scale DOS x-axis</span>
-        <span class="n">emin_idx</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">emin</span><span class="p">)</span>
-        <span class="n">emax_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">)</span> <span class="o">-</span> <span class="nb">next</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span>
-                                            <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">))</span>
-                                            <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">emax</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;orbitals&quot;</span><span class="p">:</span>
+                        <span class="c1"># plot each of the atomic projected DOS</span>
+                        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">]</span>
+                        <span class="n">spd_dos</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_spd_dos</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">orb</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">OrbitalType</span><span class="o">.</span><span class="n">s</span><span class="p">,</span>
+                                                   <span class="n">OrbitalType</span><span class="o">.</span><span class="n">p</span><span class="p">,</span>
+                                                   <span class="n">OrbitalType</span><span class="o">.</span><span class="n">d</span><span class="p">,</span>
+                                                   <span class="n">OrbitalType</span><span class="o">.</span><span class="n">f</span><span class="p">]):</span>
+                            <span class="k">if</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">spd_dos</span><span class="p">:</span>
+                                <span class="n">dos_densities</span> <span class="o">=</span> <span class="n">spd_dos</span><span class="p">[</span><span class="n">orb</span><span class="p">]</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">*</span> \
+                                                <span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span>
+                                <span class="n">label</span> <span class="o">=</span> <span class="n">orb</span> <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span> <span class="k">else</span> <span class="kc">None</span>
+                                <span class="n">dos_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">dos_densities</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span>
+                                            <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
 
-        <span class="c1"># determine DOS x-axis range</span>
-        <span class="n">dos_xmin</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span> <span class="k">else</span> <span class="o">-</span><span class="nb">max</span><span class="p">(</span>
-            <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">emin_idx</span><span class="p">:</span><span class="n">emax_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.05</span><span class="p">)</span>
-        <span class="n">dos_xmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">max</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">emin_idx</span><span class="p">:</span><span class="n">emax_idx</span><span class="p">])</span> <span class="o">*</span>
-                        <span class="mf">1.05</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dos_xmin</span><span class="p">)])</span>
+            <span class="c1"># get index of lowest and highest energy being plotted, used to help auto-scale DOS x-axis</span>
+            <span class="n">emin_idx</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">)</span> <span class="k">if</span>
+                            <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">emin</span><span class="p">)</span>
+            <span class="n">emax_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">)</span> <span class="o">-</span> \
+                       <span class="nb">next</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">))</span>
+                            <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">emax</span><span class="p">)</span>
 
-        <span class="c1"># set up the DOS x-axis and add Fermi level line</span>
-        <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">dos_xmin</span><span class="p">,</span> <span class="n">dos_xmax</span><span class="p">)</span>
-        <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([])</span>
-        <span class="n">dos_ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="n">dos_xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">dos_xmax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;DOS&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">axis_fontsize</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
+            <span class="c1"># determine DOS x-axis range</span>
+            <span class="n">dos_xmin</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span> <span class="k">else</span> <span class="o">-</span><span class="nb">max</span><span class="p">(</span>
+                <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">emin_idx</span><span class="p">:</span><span class="n">emax_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.05</span><span class="p">)</span>
+            <span class="n">dos_xmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">max</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">emin_idx</span><span class="p">:</span><span class="n">emax_idx</span><span class="p">])</span> <span class="o">*</span>
+                            <span class="mf">1.05</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dos_xmin</span><span class="p">)])</span>
+
+            <span class="c1"># set up the DOS x-axis and add Fermi level line</span>
+            <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">dos_xmin</span><span class="p">,</span> <span class="n">dos_xmax</span><span class="p">)</span>
+            <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([])</span>
+            <span class="n">dos_ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="n">dos_xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">dos_xmax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;DOS&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">axis_fontsize</span><span class="p">,</span>
+                              <span class="n">family</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
 
         <span class="c1"># add legend for band structure</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs_legend</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rgb_legend</span><span class="p">:</span>
@@ -2430,7 +2441,7 @@
                                    <span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bs_legend</span><span class="p">)</span>
 
         <span class="c1"># add legend for DOS</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_legend</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dos</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_legend</span><span class="p">:</span>
             <span class="n">dos_ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">legend_fontsize</span><span class="p">,</span>
                                                <span class="s1">&#39;family&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">},</span>
                           <span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dos_legend</span><span class="p">)</span>
@@ -4048,7 +4059,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.8.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

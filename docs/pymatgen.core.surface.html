@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.surface module &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.core.surface module &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,7 +56,7 @@
 <span id="pymatgen-core-surface-module"></span><h1>pymatgen.core.surface module<a class="headerlink" href="#module-pymatgen.core.surface" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.core.surface.Slab">
-<em class="property">class </em><code class="descname">Slab</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>coords</em>, <em>miller_index</em>, <em>oriented_unit_cell</em>, <em>shift</em>, <em>scale_factor</em>, <em>validate_proximity=False</em>, <em>to_unit_cell=False</em>, <em>coords_are_cartesian=False</em>, <em>site_properties=None</em>, <em>energy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Slab</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>coords</em>, <em>miller_index</em>, <em>oriented_unit_cell</em>, <em>shift</em>, <em>scale_factor</em>, <em>reorient_lattice=True</em>, <em>validate_proximity=False</em>, <em>to_unit_cell=False</em>, <em>coords_are_cartesian=False</em>, <em>site_properties=None</em>, <em>energy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
 <p>Subclass of Structure representing a Slab. Implements additional
 attributes pertaining to slabs, but the init method does not
@@ -123,6 +123,8 @@ this Slab is created (by scaling in the c-direction).</li>
 termination.</li>
 <li><strong>scale_factor</strong> (<em>array</em>) – scale_factor Final computed scale factor
 that brings the parent cell to the surface cell.</li>
+<li><strong>reorient_lattice</strong> (<em>bool</em>) – reorients the lattice parameters such that
+the c direction is the third vector of the lattice matrix</li>
 <li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
 <li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
@@ -254,7 +256,7 @@ as if each comparison were reversed.</li>
 
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.get_surface_sites">
-<code class="descname">get_surface_sites</code><span class="sig-paren">(</span><em>decimal=5</em>, <em>tag=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_surface_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_surface_sites" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_surface_sites</code><span class="sig-paren">(</span><em>tag=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_surface_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_surface_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the surface sites and their site indices in a dictionary. The oriented unit
 cell of the slab will determine the coordination number of a typical site. We use
 VoronoiCoordFinder to determine the coordination number of bulk sites and slab
@@ -266,8 +268,6 @@ broken bonds and for finding adsorption sites.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
-<dt>decimal (int): The decimal place to determine a unique</dt>
-<dd>coordination number</dd>
 <dt>tag (bool): Option to adds site attribute “is_surfsite” (bool) to</dt>
 <dd>all sites of slab. Defaults to False</dd>
 </dl>
@@ -311,7 +311,10 @@ the desired behavior).</li>
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.have_equivalent_surfaces">
 <code class="descname">have_equivalent_surfaces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.have_equivalent_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.have_equivalent_surfaces" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Check if we have same number of equivalent sites on both surfaces.
+This is an alternative to checking Laue symmetry (is_symmetric())
+if we want to ensure both surfaces in the slab are the same</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.is_polar">
@@ -366,7 +369,7 @@ slabs with larger surface areas.</td>
 
 <dl class="class">
 <dt id="pymatgen.core.surface.SlabGenerator">
-<em class="property">class </em><code class="descname">SlabGenerator</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>miller_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SlabGenerator</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>miller_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>reorient_lattice=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class generates different slabs using shift values determined by where
 a unique termination can be found along with other criterias such as where a
@@ -462,6 +465,8 @@ is not guaranteed, but the oriented cell will have the c
 vector as normal as possible (within the search range) to the
 surface. A value of up to the max absolute Miller index is
 usually sufficient.</li>
+<li><strong>reorient_lattice</strong> (<em>bool</em>) – reorients the lattice parameters such that
+the c direction is the third vector of the lattice matrix</li>
 </ul>
 </td>
 </tr>
@@ -695,7 +700,7 @@ structure. All other indices are equivalent to one of these.</div></blockquote>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>
 

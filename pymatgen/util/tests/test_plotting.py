@@ -13,6 +13,8 @@ class FuncTestCase(PymatgenTest):
                        'Th': 1.2475885304040335, 'Ni': -2.0354391922547705}
         plt = periodic_table_heatmap(random_data, cmap="plasma")
         plt = periodic_table_heatmap(random_data)
+        plt = periodic_table_heatmap(random_data, max_row=7)
+        plt = periodic_table_heatmap(random_data, max_row=10)
 
 
 if __name__ == "__main__":

@@ -32,6 +32,7 @@ import numpy as np
 from bisect import bisect_left
 from scipy.spatial import Voronoi
 from pymatgen import Element
+from pymatgen.core.structure import Structure
 from pymatgen.util.num import abs_cap
 from pymatgen.analysis.bond_valence import BV_PARAMS
 from pymatgen.analysis.structure_analyzer import OrderParameters
@@ -262,7 +263,7 @@ class NearNeighbors(object):
                 location of near neighbors.
         Returns:
             images (list of 3D integer array): image locations of
-                near neighbors as lattice translational vectors.
+                near neighbors.
         """
 
         return [e['image'] for e in self.get_nn_info(structure, n)]
@@ -281,9 +282,9 @@ class NearNeighbors(object):
             siw (list of dicts): each dictionary provides information
                 about a single near neighbor, where key 'site' gives
                 access to the corresponding Site object, 'image' gives
-                the image location (lattice translation vector), and
-                'weight' provides the weight that a given near-neighbor
-                site contributes to the coordination number (1 or smaller).
+                the image location, and 'weight' provides the weight
+                that a given near-neighbor site contributes
+                to the coordination number (1 or smaller).
         """
 
         raise NotImplementedError("get_nn_info(structure, n)"
@@ -395,8 +396,10 @@ class VoronoiNN(NearNeighbors):
         for site, weight in self.get_voronoi_polyhedra(
                 structure, n).items():
             if weight > self.tol and site.specie in targets:
-                dist, image = structure.sites[n].distance_and_image(site)
-                siw.append({'site': site, 'image': image, 'weight': weight})
+                siw.append({'site': site, 'image': [
+                        int(f) if f >= 0 else int(f-1) \
+                        for f in site.frac_coords],
+                        'weight': weight})
         return siw
 
 
@@ -476,8 +479,10 @@ class JMolNN(NearNeighbors):
             # Confirm neighbor based on bond length specific to atom pair
             if dist <= bonds[(site.specie, neighb.specie)] + self.tol:
                 weight = min_rad / dist
-                d, image = site.distance_and_image(neighb)
-                siw.append({'site': neighb, 'image': image, 'weight': weight})
+                siw.append({'site': neighb, 'image': [
+                        int(f) if f >= 0 else int(f-1) \
+                        for f in neighb.frac_coords],
+                        'weight': weight})
         return siw
 
 
@@ -525,8 +530,9 @@ class MinimumDistanceNN(NearNeighbors):
         for s, dist in neighs_dists:
             if dist < (1.0 + self.tol) * min_dist:
                 w = min_dist / dist
-                d, i = site.distance_and_image(s)
-                siw.append({'site': s, 'image': i, 'weight': w})
+                siw.append({'site': s, 'image': [
+                        int(f) if f >= 0 else int(f-1) for f in s.frac_coords],
+                        'weight': w})
         return siw
 
 
@@ -588,8 +594,9 @@ class MinimumOKeeffeNN(NearNeighbors):
         for reldist, s in reldists_neighs:
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
-                d, i = site.distance_and_image(s)
-                siw.append({'site': s, 'image': i, 'weight': w})
+                siw.append({'site': s, 'image': [
+                        int(f) if f >= 0 else int(f-1) \
+                        for f in s.frac_coords], 'weight': w})
 
         return siw
 
@@ -646,8 +653,10 @@ class MinimumVIRENN(NearNeighbors):
         for reldist, s in reldists_neighs:
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
-                d, i = site.distance_and_image(s)
-                siw.append({'site': s, 'image': i, 'weight': w})
+                siw.append({'site': s, 'image': [
+                        int(f) if f >= 0 else int(f-1) \
+                        for f in s.frac_coords],
+                        'weight': w})
 
         return siw
 

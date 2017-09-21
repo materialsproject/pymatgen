@@ -426,6 +426,8 @@ class Element(Enum):
                             if "10<sup>" in toks[1]:
                                 base_power = re.findall(r'([+-]?\d+)', toks[1])
                                 factor = "e" + base_power[1]
+                                if toks[0] in ["&gt;", "high"]:
+                                    toks[0] = "1" # return the border value
                                 toks[0] += factor
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
@@ -1277,6 +1279,9 @@ def get_el_sp(obj):
     """
     if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
+
+    if isinstance(obj, (list, tuple)):
+        return [get_el_sp(o) for o in obj]
 
     try:
         c = float(obj)

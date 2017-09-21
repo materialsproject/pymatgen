@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2017.8.21 documentation</title>
+    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2017.9.3 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.21',
+        VERSION:     '2017.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -219,6 +219,118 @@ for the site.</td>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {“s”: Dos object, …}</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of {orbital</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.dos.DOS">
+<em class="property">class </em><code class="descname">DOS</code><span class="sig-paren">(</span><em>energies</em>, <em>densities</em>, <em>efermi</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.spectrum.html#pymatgen.core.spectrum.Spectrum" title="pymatgen.core.spectrum.Spectrum"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.spectrum.Spectrum</span></code></a></p>
+<p>Replacement basic DOS object. All other DOS objects are extended versions
+of this object. Work in progress.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>energies</strong> – A sequence of energies</li>
+<li><strong>densities</strong> (<em>ndarray</em>) – Either a Nx1 or a Nx2 array. If former, it is
+interpreted as a Spin.up only density. Otherwise, the first column
+is interpreted as Spin.up and the other is Spin.down.</li>
+<li><strong>efermi</strong> – Fermi level energy.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.DOS.XLABEL">
+<code class="descname">XLABEL</code><em class="property"> = 'Energy'</em><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.XLABEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.DOS.YLABEL">
+<code class="descname">YLABEL</code><em class="property"> = 'Density'</em><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.YLABEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.DOS.get_cbm_vbm">
+<code class="descname">get_cbm_vbm</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_cbm_vbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_cbm_vbm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the cbm and vbm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – An absolute tolerance (True) and a relative one (False)</li>
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
+densities, Up - finds the gap in the up spin channel,
+Down - finds the gap in the down spin channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float in eV corresponding to the gap</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(cbm, vbm)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.DOS.get_gap">
+<code class="descname">get_gap</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the gap.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – An absolute tolerance (True) and a relative one (False)</li>
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
+densities, Up - finds the gap in the up spin channel,
+Down - finds the gap in the down spin channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">gap in eV</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.DOS.get_interpolated_gap">
+<code class="descname">get_interpolated_gap</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_interpolated_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_interpolated_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the gap</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – Set to True for an absolute tolerance and False for a
+relative one.</li>
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
+densities, Up - finds the gap in the up spin channel,
+Down - finds the gap in the down spin channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple of floats in eV corresponding to the gap, cbm and vbm.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(gap, cbm, vbm)</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -450,7 +562,7 @@ level.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>
 
