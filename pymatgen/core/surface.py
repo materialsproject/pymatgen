@@ -530,26 +530,6 @@ class Slab(Structure):
             self.add_site_property("is_surf_site", properties)
         return surf_sites_dict
 
-    # def surface_composition(self, top=True):
-    #     """
-    #     Returns the composition at the surface. Useful
-    #     for determining the type of termination
-    #
-    #     Args:
-    #         top (bool): Get the composition at the top surface if True
-    #     """
-    #
-    #     surfsites = self.get_surface_sites()
-    #     sites = surfsites["top"] if top else surfsites["bottom"]
-    #
-    #     comp_dict = {}
-    #     for site in sites:
-    #         if site[0].species_string not in comp_dict.keys():
-    #             comp_dict[site[0].species_string] = 0
-    #         comp_dict[site[0].species_string] += 1
-    #
-    #     return Composition(comp_dict)
-
     def have_equivalent_surfaces(self):
         """
         Check if we have same number of equivalent sites on both surfaces.
@@ -939,11 +919,12 @@ class SlabGenerator(object):
             for r in c_ranges:
                 if r[0] <= shift <= r[1]:
                     bonds_broken += 1
-            if bonds_broken <= max_broken_bonds:
-                # For now, set the energy to be equal to no. of broken bonds
-                # per unit cell.
-                slab = self.get_slab(shift, tol=tol, energy=bonds_broken)
-                slabs.append(slab)
+            slab = self.get_slab(shift, tol=tol, energy=bonds_broken)
+            if bonds_broken > max_broken_bonds:
+                # If the number of broken bonds is exceeded,
+                # we repair the broekn bonds on the slab
+                slab = self.repair_broken_bonds(slab, bonds)
+            slabs.append(slab)
 
         # Further filters out any surfaces made that might be the same
         m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
@@ -964,6 +945,143 @@ class SlabGenerator(object):
                 new_slabs.append(g[0])
 
         return sorted(new_slabs, key=lambda s: s.energy)
+
+    def repair_broken_bonds(self, slab, bonds):
+        """
+        This method will find undercoordinated atoms due to slab
+        cleaving specified by the bonds parameter and move them
+        to the other surface to make sure the bond is kept intact.
+        In a future release of surface.py, the ghost_sites will be
+        used to tell us how the repair bonds should look like.
+
+        Arg:
+            slab (structure): A structure object representing a slab.
+
+        Returns:
+            (Slab) A Slab object with a particular shifted oriented unit cell.
+        """
+
+        for pair in bonds.keys():
+
+            # First lets determine which element should be the reference (center
+            # element) to determine broken bonds. e.g. P for a PO4 bond.
+            blength = bonds[pair]
+
+            # find integer coordination numbers of
+            # the pair of elements wrt to each other
+            cn_dict = {}
+            for i, el in enumerate(pair):
+                cnlist = []
+                for site in self.oriented_unit_cell:
+                    poly_coord = 0
+                    if site.species_string == el:
+
+                        for nn in self.oriented_unit_cell.get_neighbors(site,
+                                                                        blength):
+                            if nn[0].species_string == pair[i-1]:
+                                poly_coord += 1
+                    cnlist.append(poly_coord)
+                cn_dict[el] = cnlist
+
+            # We make the element with the higher coordination our reference
+            if max(cn_dict[pair[0]]) > max(cn_dict[pair[1]]):
+                element1, element2 = pair
+            else:
+                element2, element1 = pair
+
+            # pre-determine the number of broken bonds
+            # first so we will know how many iterations
+            # of repairs to do
+            to_repair = []
+            for i, site in enumerate(slab):
+
+                if site.species_string == element1:
+                    poly_coord = 0
+                    for neighbor in slab.get_neighbors(site, blength):
+                        if neighbor[0].species_string == element2:
+                            poly_coord += 1
+                    # suppose we find an undercoordinated reference ion
+                    if poly_coord not in cn_dict[element1]:
+                        to_repair.append(i)
+
+            # Iterate through the repair process with
+            # the number of polyhedrons to repair
+            for n in to_repair:
+                # is it on the top or bottom?
+                # where to move entire polyhedron
+                # where to move central atom only to get coordination
+
+                # We get the central atom of the polyhedron that is broken
+                # (undercoordinated), move it to the other surface
+                slab = self.move_to_other_side(slab, [n])
+
+                # find its NNs with the corresponding
+                # species it should be coordinated with
+                neighbors = slab.get_neighbors(slab[n], blength,
+                                               include_index=True)
+                tomove = []
+                for nn in neighbors:
+                    if nn[0].species_string == element2:
+                        tomove.append(nn[2])
+                tomove.append(n)
+                # and then move those NNs along with the central
+                # atom back to the other side of the slab again
+                slab = self.move_to_other_side(slab, tomove)
+
+        # Check if all specified bonds have been repaired
+        for site in slab:
+            if site.species_string == element1:
+                poly_coord = 0
+                for neighbor in slab.get_neighbors(site, blength):
+                    if neighbor[0].species_string == element2:
+                        poly_coord += 1
+                if poly_coord not in cn_dict[element1]:
+                    warnings.warn("Slab could not be repaired" )
+                    continue
+
+        # if the bonds have been fixed (CN of element1
+        # relative to element2 in slab is same as in
+        # bulk), add the repaired slab to the list
+
+        return slab
+
+    def move_to_other_side(self, init_slab, index_of_sites):
+        """
+        This method will Move a set of sides to the
+        other side of the slab (opposite surface).
+
+        Arg:
+            init_slab (structure): A structure object representing a slab.
+            index_of_sites (list of ints): The list of indices representing
+                the sites we want to move to the other side.
+
+        Returns:
+            (Slab) A Slab object with a particular shifted oriented unit cell.
+        """
+
+        slab = init_slab.copy()
+
+        # Determine what fraction the slab is of the total cell size
+        # in the c direction. Round to nearest rational number.
+        h = self._proj_height
+        nlayers_slab = int(math.ceil(self.min_slab_size / h))
+        nlayers_vac = int(math.ceil(self.min_vac_size / h))
+        nlayers = nlayers_slab + nlayers_vac
+        slab_ratio = nlayers_slab / nlayers
+
+        # Sort the index of sites based on which side they are on
+        top_site_index = [ i for i in index_of_sites if
+                           slab[i].frac_coords[2] > slab.center_of_mass[2]]
+        bottom_site_index = [ i for i in index_of_sites if
+                              slab[i].frac_coords[2] < slab.center_of_mass[2]]
+
+        slab.translate_sites(top_site_index, [0, 0, slab_ratio])
+        slab.translate_sites(bottom_site_index, [0, 0, -slab_ratio])
+
+        return Slab(init_slab.lattice, slab.species, slab.frac_coords,
+                    init_slab.miller_index, init_slab.oriented_unit_cell,
+                    init_slab.shift, init_slab.scale_factor,
+                    energy=init_slab.energy)
 
     def nonstoichiometric_symmetrized_slab(self, slab, tol=1e-3):
 
