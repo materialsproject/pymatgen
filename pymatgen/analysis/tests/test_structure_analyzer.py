@@ -483,7 +483,7 @@ class OrderParametersTest(PymatgenTest):
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]),
             ["H", "H", "H", "H", "H"],
-            [[15, 15, 15], [15, 15, 14], [15, 15, 16], [15, 14, 15], [15, 15, 14]],
+            [[15, 15, 15], [15, 15, 14], [15, 15, 16], [15, 14, 15], [14, 15, 15]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
         #from pymatgen.io.xyz import XYZ
@@ -543,7 +543,7 @@ class OrderParametersTest(PymatgenTest):
         self.assertIsNone(op_vals[8])
         op_vals = ops_101.get_order_parameters(self.cubic, 0)
         self.assertAlmostEqual(op_vals[0], 6.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 14)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 24)
         self.assertAlmostEqual(int(op_vals[4] * 1000), 1000)
         self.assertAlmostEqual(int(op_vals[5] * 1000), 333)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
@@ -553,7 +553,7 @@ class OrderParametersTest(PymatgenTest):
         # Bcc structure.
         op_vals = ops_087.get_order_parameters(self.bcc, 0)
         self.assertAlmostEqual(op_vals[0], 8.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 142)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 200)
         self.assertAlmostEqual(int(op_vals[4] * 1000), 145)
         self.assertAlmostEqual(int(op_vals[5] * 1000), 975)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
@@ -563,7 +563,7 @@ class OrderParametersTest(PymatgenTest):
         # Fcc structure.
         op_vals = ops_071.get_order_parameters(self.fcc, 0)
         self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 30)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 36)
         self.assertAlmostEqual(int(op_vals[4] * 1000), 78)
         self.assertAlmostEqual(int(op_vals[5] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
@@ -573,8 +573,8 @@ class OrderParametersTest(PymatgenTest):
         # Hcp structure.
         op_vals = ops_101.get_order_parameters(self.hcp, 0)
         self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 30)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), 89)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 33)
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 82)
         self.assertAlmostEqual(int(op_vals[5] * 1000), -38)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[7] * 1000), 97)
@@ -584,7 +584,7 @@ class OrderParametersTest(PymatgenTest):
         op_vals = ops_044.get_order_parameters(self.diamond, 0)
         self.assertAlmostEqual(op_vals[0], 4.0)
         self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), 45)
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 37)
         self.assertAlmostEqual(int(op_vals[5] * 1000), 727)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
@@ -615,7 +615,7 @@ class OrderParametersTest(PymatgenTest):
         # Pentagonal planar.
         op_vals = ops_101.get_order_parameters(
                 self.pentagonal_planar.sites, 0, indeces_neighs=[1,2,3,4,5])
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 50) # 100)
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 33)
         self.assertAlmostEqual(int(op_vals[16] * 1000 + 0.5), 1000)
 
         # Trigonal pyramid motif.
@@ -626,7 +626,7 @@ class OrderParametersTest(PymatgenTest):
         # Square pyramid motif.
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
         self.assertAlmostEqual(int(op_vals[11] * 1000 + 0.5), 1000)
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 500)
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 375)
         self.assertAlmostEqual(int(op_vals[17] * 1000 + 0.5), 1000)
 
         # Pentagonal pyramid motif.

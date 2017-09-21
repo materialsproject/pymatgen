@@ -2182,10 +2182,12 @@ class OrderParameters(object):
                             if t == "lin":
                                 tmp = self._paras[i][0] * (thetak * ipi - 1.0)
                                 ops[i] += exp(-0.5 * tmp * tmp)
+                                norms[i][j] += 1
                             elif t == "bent":
                                 tmp = self._paras[i][1] * (
                                     thetak * ipi - self._paras[i][0])
                                 ops[i] += exp(-0.5 * tmp * tmp)
+                                norms[i][j] += 1
                             elif t == "tri_plan":
                                 tmp = self._paras[i][0] * (
                                     thetak * ipi - twothird)
@@ -2199,7 +2201,8 @@ class OrderParameters(object):
                                     # k is south pole to j
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
-                                    ops[i] += 1.0 * exp(-0.5 * tmp * tmp)
+                                    ops[i] += exp(-0.5 * tmp * tmp)
+                                    norms[i][j] += 1
                             elif t == "pent_plan":
                                 if thetak <= self._paras[i][0]:
                                     # k is in upper equatorial region
@@ -2212,37 +2215,43 @@ class OrderParameters(object):
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     ops[i] += 3.0 * exp(-0.5 * tmp * tmp)
+                                    norms[i][j] += 3
                             elif t == "see_saw":
                                 if thetak >= self._paras[i][0]:
                                     # k is south pole to j
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     qsptheta[i][j] += exp(-0.5 * tmp * tmp)
-                                    norms[i][j] += 1.0
+                                    norms[i][j] += 1
                             elif t == "bcc" and j < k:
                                 if thetak >= self._paras[i][0]:
                                     # k is south pole to j
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     ops[i] += 6.0 * exp(-0.5 * tmp * tmp)
+                                    norms[i][j] += 6
                             elif t == "sq_pyr_legacy":
                                 tmp = self._paras[i][0] * (thetak * ipi - 0.5)
-                                qsptheta[i][j] = qsptheta[i][j] + exp(-0.5 * tmp * tmp)
+                                qsptheta[i][j] += exp(-0.5 * tmp * tmp)
+                                norms[i][j] += 1
                             elif t == "tri_bipyr":
                                 if thetak >= self._paras[i][0]:
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     qsptheta[i][j] = 2.0 * exp(-0.5 * tmp * tmp)
+                                    norms[i][j] += 2
                             elif t == "pent_bipyr":
                                 if thetak >= self._paras[i][0]:
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     qsptheta[i][j] = 4.0 * exp(-0.5 * tmp * tmp)
+                                    norms[i][j] += 4
                             elif t == "hex_bipyr":
                                 if thetak >= self._paras[i][0]:
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     qsptheta[i][j] = 5.0 * exp(-0.5 * tmp * tmp)
+                                    norms[i][j] += 5
                             elif t == "cuboct":
                                 if thetak >= self._paras[i][0]:
                                     # k is south pole to j
@@ -2277,18 +2286,21 @@ class OrderParameters(object):
                                             tmp2 = math.cos(phi)
                                             ops[i] += gaussthetak[i] * exp(
                                                 -0.5 * tmp * tmp) * tmp2 * tmp2
+                                            norms[i][j] += 1
                                         elif t == "tet_legacy":
                                             tmp = self._paras[i][0] * (
                                                 thetam * ipi - tetangoverpi)
                                             ops[i] += gaussthetak[i] * exp(
                                                 -0.5 * tmp * tmp) * math.cos(
                                                 3.0 * phi)
+                                            norms[i][j] += 1
                                         elif t == "tet":
                                             tmp = self._paras[i][0] * (
                                                 thetam * ipi - tetangoverpi)
                                             tmp2 = math.cos(1.5 * phi)
                                             ops[i] += gaussthetak[i] * exp(
                                                 -0.5 * tmp * tmp) * tmp2 * tmp2
+                                            norms[i][j] += 1
                                         elif t == "sq_plan":
                                             if thetak < self._paras[i][0] and \
                                                     thetam < self._paras[i][0]:
@@ -2298,6 +2310,7 @@ class OrderParameters(object):
                                                 ops[i] += tmp * tmp * \
                                                         exp(
                                                         -0.5 * tmp2 * tmp2)
+                                                norms[i][j] += 1
                                         elif t == "tri_pyr":
                                             tmp = math.cos(1.5 * phi)
                                             tmp2 = self._paras[i][0] * (
@@ -2309,6 +2322,7 @@ class OrderParameters(object):
                                                     -0.5 * tmp2 * tmp2) * \
                                                     exp(
                                                     -0.5 * tmp3 * tmp3)
+                                            norms[i][j] += 1
                                         elif t == "pent_plan":
                                             if thetak <= self._paras[i][0] and \
                                                     thetam >= self._paras[i][0]:
@@ -2318,6 +2332,7 @@ class OrderParameters(object):
                                                 ops[i] += gaussthetak[i] * \
                                                     exp(-0.5 * tmp * \
                                                     tmp) * tmp2 * tmp2
+                                                norms[i][j] += 1
                                         elif t == "pent_pyr":
                                             tmp = math.cos(2.5 * phi)
                                             tmp2 = self._paras[i][0] * (
@@ -2329,6 +2344,7 @@ class OrderParameters(object):
                                                     -0.5 * tmp2 * tmp2) * \
                                                     exp(
                                                     -0.5 * tmp3 * tmp3)
+                                            norms[i][j] += 1
                                         elif t == "hex_pyr":
                                             tmp = math.cos(3.0 * phi)
                                             tmp2 = self._paras[i][0] * (
@@ -2340,6 +2356,7 @@ class OrderParameters(object):
                                                     -0.5 * tmp2 * tmp2) * \
                                                     exp(
                                                     -0.5 * tmp3 * tmp3)
+                                            norms[i][j] += 1
                                         elif t == "oct_legacy":
                                             if thetak < self._paras[i][0] and \
                                                             thetam < \
@@ -2352,6 +2369,7 @@ class OrderParameters(object):
                                                               exp(
                                                                   -0.5 * tmp2 * tmp2) - \
                                                               self._paras[i][3])
+                                                norms[i][j] += 1
                                         elif t == "T":
                                             tmp = math.cos(1.0 * phi)
                                             tmp2 = self._paras[i][0] * (
@@ -2363,6 +2381,7 @@ class OrderParameters(object):
                                                     -0.5 * tmp2 * tmp2) * \
                                                     exp(
                                                     -0.5 * tmp3 * tmp3)
+                                            norms[i][j] += 1
                                         elif t == "sq_pyr":
                                             tmp = math.cos(2.0 * phi)
                                             tmp2 = self._paras[i][0] * ( 
@@ -2374,6 +2393,7 @@ class OrderParameters(object):
                                                     -0.5 * tmp2 * tmp2) * \
                                                     exp(
                                                     -0.5 * tmp3 * tmp3)
+                                            norms[i][j] += 1
                                         elif t == "see_saw":
                                             if thetak < self._paras[i][0] and \
                                                     thetam < self._paras[i][0]:
@@ -2395,6 +2415,7 @@ class OrderParameters(object):
                                                 ops[i] += tmp * tmp * \
                                                         exp(
                                                         -0.5 * tmp2 * tmp2)
+                                                norms[i][j] += 1
                                         elif t == "bcc" and j < k:
                                             if thetak < self._paras[i][0]:
                                                 if thetak > piover2:
@@ -2417,6 +2438,7 @@ class OrderParameters(object):
                                                 qsptheta[i][j] += \
                                                     tmp * tmp * exp( \
                                                     -0.5 * tmp2 * tmp2)
+                                                norms[i][j] += 1
                                         elif t == "pent_bipyr":
                                             if thetak < self._paras[i][0] and \
                                                     thetam < self._paras[i][0]:
@@ -2426,6 +2448,7 @@ class OrderParameters(object):
                                                 qsptheta[i][j] += \
                                                     tmp * tmp * exp( \
                                                     -0.5 * tmp2 * tmp2)
+                                                norms[i][j] += 1
                                         elif t == "hex_bipyr":
                                             if thetak < self._paras[i][0] and \
                                                     thetam < self._paras[i][0]:
@@ -2435,6 +2458,7 @@ class OrderParameters(object):
                                                 qsptheta[i][j] += \
                                                     tmp * tmp * exp( \
                                                     -0.5 * tmp2 * tmp2)
+                                                norms[i][j] += 1
                                         elif t == "cuboct":
                                             if thetam < self._paras[i][0] and \
                                                     thetak > self._paras[i][1] and \
@@ -2470,32 +2494,21 @@ class OrderParameters(object):
 
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
-                if t == "lin":
-                    ops[i] = ops[i] / float(nneigh * (
-                            nneigh - 1)) if nneigh > 1 else None
-                elif t == "bent":
-                    ops[i] = ops[i] / float(nneigh * (
-                            nneigh - 1)) if nneigh > 1 else None
-                elif t == "tri_plan" or t == "tet" or t == "tet_legacy":
-                    ops[i] = ops[i] / float(nneigh * (nneigh - 1) * (
-                            nneigh - 2)) if nneigh > 2 else None
-                elif t == "pent_plan":
-                    ops[i] = ops[i] / float(nneigh * (nneigh - 3) * (
-                            nneigh - 3)) if nneigh > 3 else None
-                elif t == "sq_plan":
-                    ops[i] = ops[i] / float(nneigh * (1 + (nneigh - 2) * (
-                            nneigh - 3))) if nneigh > 3 else None
-                elif t == "oct" or t == "oct_legacy":
-                    ops[i] = ops[i] / float(nneigh * (3 + (nneigh - 2) * (
-                            nneigh - 3))) if nneigh > 3 else None
+                if t in ["lin", "bent", "tri_plan", "sq_plan", "tet", \
+                         "tet_legacy", "pent_plan", "oct", "oct_legacy", \
+                         "cuboct"]:
+                    ops[i] = ops[i] / sum(norms[i]) \
+                        if sum(norms[i]) > 1.0e-12 else None
+                elif t in ["T", "tri_pyr", "see_saw", "sq_pyr", "tri_bipyr", \
+                           "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr"]:
+                    for j in range(nneigh):
+                        qsptheta[i][j] = qsptheta[i][j] / norms[i][j] \
+                            if norms[i][j] > 1.0e-12 else 0.0
+                    ops[i] = max(qsptheta[i]) if len(qsptheta[i]) > 0 else None
                 elif t == "bcc":
                     ops[i] = ops[i] / float(0.5 * float(
                             nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) \
                             if nneigh > 3 else None
-                elif t == "T" or t == "tri_pyr" or t == "sq_pyr" or \
-                        t == "pent_pyr" or t == "hex_pyr":
-                    ops[i] = max(qsptheta[i]) / float(
-                        (nneigh - 1) * (nneigh - 2)) if nneigh > 2 else None
                 elif t == "sq_pyr_legacy":
                     if nneigh > 1:
                         dmean = np.mean(dist)
@@ -2507,26 +2520,6 @@ class OrderParameters(object):
                                 nneigh * (nneigh - 1))
                     else:
                         ops[i] = None
-                elif t == "tri_bipyr":
-                    ops[i] = max(qsptheta[i]) / float(
-                            2 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
-                            else None
-                elif t == "pent_bipyr":
-                    ops[i] = max(qsptheta[i]) / float(
-                            4 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
-                            else None
-                elif t == "hex_bipyr":
-                    ops[i] = max(qsptheta[i]) / float(
-                            5 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
-                            else None
-                elif t == "cuboct":
-                    ops[i] = ops[i] / sum(norms[i]) \
-                        if sum(norms[i]) > 0.0 else None
-                elif t == "see_saw":
-                    for j in range(nneigh):
-                        qsptheta[i][j] = qsptheta[i][j] / norms[i][j] \
-                            if norms[i][j] > 0.0 else 0.0
-                    ops[i] = max(qsptheta[i]) if len(qsptheta[i]) > 0 else None
 
         # Then, deal with the new-style OPs that require vectors between
         # neighbors.
