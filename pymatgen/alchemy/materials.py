@@ -10,7 +10,7 @@ import json
 import datetime
 from copy import deepcopy
 
-from monty.json import MontyDecoder
+from monty.json import MontyDecoder, jsanitize
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser
@@ -324,10 +324,10 @@ class TransformedStructure(MSONable):
         d = self.final_structure.as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
-        d["history"] = deepcopy(self.history)
+        d["history"] = jsanitize(self.history)
         d["version"] = __version__
         d["last_modified"] = str(datetime.datetime.utcnow())
-        d["other_parameters"] = deepcopy(self.other_parameters)
+        d["other_parameters"] = jsanitize(self.other_parameters)
         return d
 
     @classmethod
