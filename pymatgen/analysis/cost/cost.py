@@ -23,7 +23,7 @@ import six
 import scipy.constants as const
 
 from pymatgen import Composition, Element
-from pymatgen.matproj.snl import is_valid_bibtex
+from pymatgen.util.provenance import is_valid_bibtex
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from io import open
 
