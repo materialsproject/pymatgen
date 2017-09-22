@@ -25,6 +25,7 @@ from pymatgen.analysis.energy_models import IsingModel
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.analysis.energy_models import SymmetryModel
+from pymatgen.util.testing import PymatgenTest
 
 """
 Created on Jul 24, 2012
@@ -171,6 +172,18 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         self.assertIsInstance(trans.apply_transformation(s), Structure)
         for s in alls:
             self.assertNotIn("energy", s)
+
+    def test_occu_tol(self):
+        s = PymatgenTest.get_structure("Li2O")
+        s["Li+"] = {"Li+": 0.48}
+        trans = EnumerateStructureTransformation(occu_tol=4)
+        ss = trans.apply_transformation(s, return_ranked_list=10)
+        self.assertEqual(len(ss), 1)
+        s = PymatgenTest.get_structure("Li2O")
+        s["Li+"] = {"Li+": 0.24}
+        trans = EnumerateStructureTransformation(max_cell_size=2, occu_tol=4)
+        ss = trans.apply_transformation(s, return_ranked_list=10)
+        self.assertEqual(len(ss), 3)
 
     def test_to_from_dict(self):
         trans = EnumerateStructureTransformation()
@@ -343,7 +356,4 @@ class SlabTransformationTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    import logging
-
-    logging.basicConfig(level=logging.INFO)
     unittest.main()

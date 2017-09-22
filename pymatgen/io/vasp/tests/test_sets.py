@@ -10,7 +10,7 @@ from monty.json import MontyDecoder
 
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Kpoints
-from pymatgen import Specie, Lattice, Structure
+from pymatgen.core import Specie, Lattice, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.outputs import Vasprun
@@ -411,6 +411,44 @@ class MITMDSetTest(unittest.TestCase):
         v = dec.process_decoded(d)
         self.assertEqual(type(v), MITMDSet)
         self.assertEqual(v._config_dict["INCAR"]["TEBEG"], 300)
+
+
+class MVLNPTMDSetTest(unittest.TestCase):
+    def setUp(self):
+        file_path = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(file_path)
+        self.struct = poscar.structure
+        self.mvl_npt_set = MVLNPTMDSet(self.struct, start_temp=0,
+                                       end_temp=300, nsteps=1000)
+
+    def test_incar(self):
+        npt_set = self.mvl_npt_set
+        
+        syms = npt_set.potcar_symbols
+        self.assertEqual(syms, ['Fe', 'P', 'O'])
+
+        incar = npt_set.incar
+        self.assertNotIn("LDAUU", incar)
+        self.assertAlmostEqual(incar['EDIFF'], 1e-5)
+        self.assertEquals(incar["LANGEVIN_GAMMA_L"], 1)
+        self.assertEquals(incar["LANGEVIN_GAMMA"], [10, 10, 10])
+        enmax = max([npt_set.potcar[i].keywords["ENMAX"] for i in
+                     range(self.struct.ntypesp)])
+        self.assertAlmostEqual(incar["ENCUT"], 1.5 * enmax)
+        self.assertEquals(incar["IALGO"], 48)
+        self.assertEquals(incar["ISIF"], 3)
+        self.assertEquals(incar["MDALGO"], 3)
+        self.assertEquals(incar["SMASS"], 0)
+
+        kpoints = npt_set.kpoints
+        self.assertEqual(kpoints.kpts, [(1, 1, 1)])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+
+    def test_as_from_dict(self):
+        d = self.mvl_npt_set.as_dict()
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MVLNPTMDSet)
+        self.assertEqual(v._config_dict["INCAR"]["NSW"], 1000)
 
 
 class MITNEBSetTest(unittest.TestCase):
