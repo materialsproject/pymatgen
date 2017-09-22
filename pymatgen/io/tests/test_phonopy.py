@@ -84,7 +84,7 @@ class StructureConversionTest(PymatgenTest):
 
 class GetDisplacedStructuresTest(PymatgenTest):
 
-    def test_phonon_spectrum(self):
+    def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(os.path.join(test_dir, "POSCAR-unitcell"),
                                     False)
         supercell_matrix = [[2,0,0], [0,1,0], [0,0,2]]
