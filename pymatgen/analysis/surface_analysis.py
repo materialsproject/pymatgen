@@ -207,10 +207,16 @@ class SurfaceEnergyCalculator(object):
         c1 = self.surface_energy_coefficients(clean_slab_entry)
         c2 = self.surface_energy_coefficients(clean_slab_entry,
                                               ads_slab_entry=ads_slab_entry)
-        u, gamma = self.solve_2_linear_eqns(c1, c2, x_is_u_ads=True,
-                                            const_u=const_u_ref)
-        u = 0 if not u else u
-        return [u-abs(u)*buffer, 0]
+        umin, gamma = self.solve_2_linear_eqns(c1, c2, x_is_u_ads=True,
+                                               const_u=const_u_ref)
+        umin = -1*10e-5 if not umin else umin
+        # Make sure upper limit of u doesn't lead to negative or 0 values.
+        # Substract a value approaching 0 to avoid surface energies of 0
+        umax = (1*10e-5-const_u_ref*c2[0]-c2[2])/c2[1] if \
+            0 > self.calculate_gamma_at_u(clean_slab_entry,
+                                          ads_slab_entry=ads_slab_entry,
+                                          u_ref=const_u_ref, u_ads=0) else 0
+        return [umin-abs(umin)*buffer, umax]
 
     def surface_energy_coefficients(self, clean_slab_entry, ads_slab_entry=None):
         """
@@ -368,7 +374,6 @@ class SurfaceEnergyCalculator(object):
         # If the slopes are equal, i.e. lines are parallel
         if c1[i] == c2[i]:
             return [None, None]
-
         # Now solve the two eqns, return [del_u, gamma]
         return np.linalg.solve([[c1[i], -1], [c2[i], -1]],
                                [-1*b11, -1*b12])
@@ -447,10 +452,17 @@ class SurfaceEnergyPlotter(object):
                                       chempot_range_adsorption(ads_entry, clean_entry,
                                                                const_u_ref=const_u_ref,
                                                                buffer=buffer))
-        sorted_ranges = sorted(all_ranges, key=lambda r: r[0])
-        # If there is no intersection, the range is [-1,0]
-        sorted_ranges = [[-1,0]] if not sorted_ranges else sorted_ranges
-        return sorted_ranges[0]
+
+        if not all_ranges:
+            # If there is no intersection, the range is [-1,0]
+            return [-1,0]
+        # ensure our lower limit is at an intersection with the clean slab
+            all_ranges = sorted(all_ranges, key=lambda r: r[0])
+        max_range = [all_ranges[0][0]]
+        # ensure our upper limit corresponds to gamm > 0 or if gamma > 0 when u = 0
+        all_ranges = sorted(all_ranges, key=lambda r: r[1])
+        max_range.append(all_ranges[0][1])
+        return max_range
 
     def wulff_shape_from_chempot(self, u_ref=0, u_ads=0, symprec=1e-5):
         """
@@ -654,7 +666,6 @@ class SurfaceEnergyPlotter(object):
                           if self.entry_dict[miller_index][clean_entry]])
         if not show_unstable:
             clean_only = False if x_is_u_ads else True
-            print(clean_only, "clean_only", "const_u", const_u, "hkl", miller_index)
             stable_u_range_dict = self.stable_u_range_dict(clean_only=clean_only,
                                                            const_u=const_u,
                                                            miller_index=miller_index)
@@ -669,7 +680,6 @@ class SurfaceEnergyPlotter(object):
                 already_labelled.append(label)
 
             urange = stable_u_range_dict[clean_entry] if not show_unstable else None
-            print(miller_index, urange, "clean")
             if urange != []:
                 self.chempot_vs_gamma_plot_one(plt, clean_entry, label=label,
                                                JPERM2=JPERM2, x_is_u_ads=x_is_u_ads,
@@ -684,7 +694,6 @@ class SurfaceEnergyPlotter(object):
                 else:
                     already_labelled.append(label)
                 urange = stable_u_range_dict[ads_entry] if not show_unstable else None
-                print(miller_index, urange, "ads")
                 if urange != []:
                     self.chempot_vs_gamma_plot_one(plt, clean_entry, JPERM2=JPERM2,
                                                    ads_entry=ads_entry,
@@ -741,12 +750,10 @@ class SurfaceEnergyPlotter(object):
                 self.se_calculator.ucell_entry.composition.reduced_composition:
             label += " %s" % (entry.composition.reduced_composition)
         if ads_entry:
-            label += " +%s, ML=%.2f" %(self.se_calculator.adsorbate_as_str,
-                                       self.se_calculator.get_monolayer(ads_entry,
-                                                                        entry))
+            label += r"+%s" %(self.se_calculator.adsorbate_as_str)
         return label
 
-    def color_palette_dict(self):
+    def color_palette_dict(self, alpha=0.35):
 
         color_dict = {}
         for hkl in self.entry_dict.keys():
@@ -765,13 +772,11 @@ class SurfaceEnergyPlotter(object):
                 c[rgb_indices[2]] = clean_list[i]
                 color_dict[clean] = c
 
-                clean_list2 = np.linspace(0, 1, len(self.entry_dict[hkl][clean]))
                 # Now get the adsorbed (transparent) colors
-                for ii, ads_entry in enumerate(self.entry_dict[hkl][clean]):
-                    c = copy.copy(color)
-                    c[rgb_indices[2]] = clean_list2[ii]
-                    c[3] = 0.25
-                    color_dict[ads_entry] = c
+                for ads_entry in self.entry_dict[hkl][clean]:
+                    c_ads = copy.copy(c)
+                    c_ads[3] = alpha
+                    color_dict[ads_entry] = c_ads
 
         return color_dict
 
@@ -823,25 +828,29 @@ class SurfaceEnergyPlotter(object):
                                                                   const_u=const_u)
 
                 if u:
-                    u = standard_range[0] if u < standard_range[0] else u
-                    u = standard_range[1] if u > standard_range[1] else u
 
-                for entry in pair:
-                    if entry not in all_intesects_dict.keys():
-                        all_intesects_dict[entry] = []
-                    if u:
-                        all_intesects_dict[entry].append(u)
+                    if u < standard_range[0]:
+                        u_new = standard_range[0]
+                    elif u > standard_range[1]:
+                        u_new = standard_range[1]
+                    else:
+                        u_new = u
+
+                    for entry in pair:
+                        if entry not in all_intesects_dict.keys():
+                            all_intesects_dict[entry] = []
+                        all_intesects_dict[entry].append(u_new)
 
             # Now that we have every single intersection for a given
             # slab, find the range of u where each slab is stable
             for entry in all_intesects_dict.keys():
                 if entry not in stable_urange_dict.keys():
                     stable_urange_dict[entry] = []
-                for u in all_intesects_dict[entry]:
+                for u_int in all_intesects_dict[entry]:
                     stable_entries = []
                     for i in [-1, 1]:
-                        u_ads = u+i*(10e-6) if x_is_u_ads else const_u
-                        u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
+                        u_ads = u_int+i*(10e-6) if x_is_u_ads else const_u
+                        u_ref = u_int+i*(10e-6) if not x_is_u_ads else const_u
                         # return_stable_slab_entry_at_u() will only return one entry for one gamma,
                         # since u is at an intersection, this entry is ambiguous, we need to get
                         # the entry slightly above and below u and check if the current entry is
@@ -851,9 +860,9 @@ class SurfaceEnergyPlotter(object):
                                                                                  u_ads=u_ads,
                                                                                  u_ref=u_ref)
                         stable_entries.append(stable_entry)
-                    # If this entry in stable at this u, append u
+                    # If this entry is stable at this u, append u
                     if entry in stable_entries:
-                        stable_urange_dict[entry].append(u)
+                        stable_urange_dict[entry].append(u_int)
                         entry_exists = True
 
             # Now check for entries with only one intersection
@@ -863,19 +872,24 @@ class SurfaceEnergyPlotter(object):
                 # If no u, this entry is never stable
                 if len(stable_urange_dict[entry]) == 1:
                     u = stable_urange_dict[entry][0]
-                    for i in [-1, 1]:
-                        u_ads = u+i*(10e-6) if x_is_u_ads else const_u
-                        u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
+                    if u in standard_range:
+                        stable_urange_dict[entry].append(standard_range[standard_range.index(u)-1])
+                        entry_exists = True
+                    else:
+                        for i in [-1, 1]:
+                            u_ads = u+i*(10e-6) if x_is_u_ads else const_u
+                            u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
 
-                        e, se = self.return_stable_slab_entry_at_u(hkl,
-                                                                   u_ads=u_ads,
-                                                                   u_ref=u_ref)
-                        if e == entry:
-                            # If the entry stable below u, assume it is
-                            # stable at -inf, otherwise its stable at +inf
-                            u2 = standard_range[0] if i == -1 else standard_range[1]
-                            stable_urange_dict[entry].append(u2)
-                            entry_exists = True
+                            e, se = self.return_stable_slab_entry_at_u(hkl,
+                                                                       u_ads=u_ads,
+                                                                       u_ref=u_ref)
+                            if e == entry:
+                                # If the entry stable below u, assume it is
+                                # stable at -inf, otherwise its stable at +inf
+                                u2 = standard_range[0] if i == -1 else standard_range[1]
+                                stable_urange_dict[entry].append(u2)
+                                entry_exists = True
+
                 # now sort the ranges for each entry
                 stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
 
