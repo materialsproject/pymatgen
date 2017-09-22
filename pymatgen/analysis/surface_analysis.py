@@ -363,7 +363,7 @@ class SurfaceEnergyCalculator(object):
         b12 = np.dot([c2[i], c2[2]], [const_u, 1])
         i = 1 if x_is_u_ads else 0
 
-        # Now solve the two eqns
+        # Now solve the two eqns, return [del_u, gamma]
         return np.linalg.solve([[c1[i], -1], [c2[i], -1]],
                                [-1*b11, -1*b12])
 
@@ -428,7 +428,7 @@ class SurfaceEnergyPlotter(object):
         self.se_calculator = surface_energy_calculator
         self.chempot_range = surface_energy_calculator.chempot_range()
         self.entry_dict = entry_dict
-        self.color_dict = color_palette(self.entry_dict)
+        self.color_dict = self.color_palette_dict()
         self.ref_el_comp = str(self.se_calculator.ref_el_comp.elements[0])
 
     def max_adsorption_chempot_range(self, const_u_ref, buffer=0.1):
@@ -554,11 +554,15 @@ class SurfaceEnergyPlotter(object):
 
     def chempot_vs_gamma_plot_one(self, plt, clean_entry, label='',
                                   ads_entry=None, JPERM2=False,
-                                  x_is_u_ads=False, const_u=0):
+                                  x_is_u_ads=False, const_u=0,
+                                  urange=None):
 
-        u_ref_range = [const_u, const_u] if x_is_u_ads else self.chempot_range
-        u_ads_range = [const_u, const_u] if not x_is_u_ads \
-            else self.max_adsorption_chempot_range(const_u)
+        if x_is_u_ads:
+            u_ref_range = [const_u, const_u]
+            u_ads_range = urange if urange else self.max_adsorption_chempot_range(const_u)
+        else:
+            u_ref_range = urange if urange else self.chempot_range
+            u_ads_range = [const_u, const_u]
 
         # use dashed lines for slabs that are not stoichiometric
         # wrt bulk. Label with formula if nonstoichiometric
@@ -566,7 +570,6 @@ class SurfaceEnergyPlotter(object):
                        self.se_calculator.ucell_entry. \
                            composition.reduced_composition else '-'
 
-        # Get the rise and run of the plot
         gamma_range = [self.se_calculator.calculate_gamma_at_u(clean_entry,
                                                                ads_slab_entry=ads_entry,
                                                                u_ref=u_ref_range[0],
@@ -578,9 +581,10 @@ class SurfaceEnergyPlotter(object):
 
         se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
             if JPERM2 else gamma_range
-        u_range = u_ref_range if not x_is_u_ads else u_ads_range
+        if not urange:
+            urange = u_ref_range if not x_is_u_ads else u_ads_range
         color = self.color_dict[ads_entry] if ads_entry else self.color_dict[clean_entry]
-        plt.plot(u_range, se_range, mark, color=color, label=label)
+        plt.plot(urange, se_range, mark, color=color, label=label)
 
         return plt
 
@@ -644,15 +648,22 @@ class SurfaceEnergyPlotter(object):
             if self.entry_dict[miller_index][clean_entry]:
                 x_is_u_ads = True
 
+            if not show_unstable:
+                clean_only = False if x_is_u_ads else True
+                stable_u_range_dict = self.stable_u_range_dict(clean_only=clean_only,
+                                                               const_u=const_u,
+                                                               miller_index=miller_index)
+
             label = self.create_slab_label(clean_entry)
             if label in already_labelled:
                 label = None
             else:
                 already_labelled.append(label)
 
+            urange = stable_u_range_dict[clean_entry] if not show_unstable else None
             self.chempot_vs_gamma_plot_one(plt, clean_entry, label=label,
                                            JPERM2=JPERM2, x_is_u_ads=x_is_u_ads,
-                                           const_u=const_u)
+                                           const_u=const_u, urange=urange)
 
             for ads_entry in self.entry_dict[miller_index][clean_entry]:
                 # Plot the adsorbed slabs
@@ -662,11 +673,11 @@ class SurfaceEnergyPlotter(object):
                     label = None
                 else:
                     already_labelled.append(label)
-
+                urange = stable_u_range_dict[ads_entry] if not show_unstable else None
                 self.chempot_vs_gamma_plot_one(plt, clean_entry, JPERM2=JPERM2,
                                                ads_entry=ads_entry,
                                                label=label, const_u=const_u,
-                                               x_is_u_ads=x_is_u_ads)
+                                               x_is_u_ads=x_is_u_ads, urange=urange)
 
         # Make the figure look nice
         xrange = self.chempot_range if not x_is_u_ads \
@@ -675,17 +686,17 @@ class SurfaceEnergyPlotter(object):
             else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
         plt = self.chempot_plot_addons(plt, xrange, axes,
                                        x_is_u_ads=x_is_u_ads)
-        xlim = axes.get_xlim()
-        ylim = axes.get_ylim()
-        clean_se = self.se_calculator.calculate_gamma_at_u(clean_entry)
-        plt.annotate(miller_index, xy=[np.mean(xlim), np.mean([max(ylim), clean_se])],
-                     xytext=[np.mean(xlim), np.mean([max(ylim), clean_se])],
-                     fontsize=20)
+
+        const_species = self.se_calculator.adsorbate_as_str  if not \
+            x_is_u_ads else self.ref_el_comp
+        plt.title(r"%s,  $\Delta\mu_{%s}=%.2f$" %(str(miller_index),
+                                                  const_species, const_u))
 
         return plt
 
     def chempot_plot_addons(self, plt, xrange, axes,
-                            pad=2.4, rect=[-0.047, 0, 0.84, 1], x_is_u_ads=False):
+                            pad=2.4, rect=[-0.047, 0, 0.84, 1],
+                            x_is_u_ads=False):
 
         # Make the figure look nice
         x_species = self.ref_el_comp if not \
@@ -722,6 +733,148 @@ class SurfaceEnergyPlotter(object):
                                        self.se_calculator.get_monolayer(ads_entry,
                                                                         entry))
         return label
+
+    def color_palette_dict(self):
+
+        color_dict = {}
+        for hkl in self.entry_dict.keys():
+            rgb_indices = [0, 1, 2]
+            color = [0, 0, 0, 1]
+            random.shuffle(rgb_indices)
+            for i, ind in enumerate(rgb_indices):
+                if i == 2:
+                    break
+                color[ind] = np.random.uniform(0, 1)
+
+            # Get the clean (solid) colors first
+            clean_list = np.linspace(0, 1, len(self.entry_dict[hkl]))
+            for i, clean in enumerate(self.entry_dict[hkl].keys()):
+                c = copy.copy(color)
+                c[rgb_indices[2]] = clean_list[i]
+                color_dict[clean] = c
+
+                clean_list2 = np.linspace(0, 1, len(self.entry_dict[hkl][clean]))
+                # Now get the adsorbed (transparent) colors
+                for ads_entry in self.entry_dict[hkl][clean]:
+                    c = copy.copy(color)
+                    c[rgb_indices[2]] = clean_list2[i]
+                    c[3] = 0.25
+                    color_dict[ads_entry] = c
+
+        return color_dict
+
+    def stable_u_range_dict(self, clean_only=True, const_u=0,
+                            buffer=0.1, miller_index=()):
+
+        all_intesects_dict = {}
+        stable_urange_dict = {}
+        max_ads_range = self.max_adsorption_chempot_range(const_u,
+                                                          buffer=buffer)
+        standard_range = max_ads_range if not clean_only else self.chempot_range
+        standard_range = sorted(standard_range)
+        x_is_u_ads = False if clean_only else True
+
+        # Get all entries for a specific facet
+        for hkl in self.entry_dict.keys():
+            if miller_index and hkl != tuple(miller_index):
+                continue
+            entries_in_hkl = [entry for entry in self.entry_dict[hkl]]
+            print("entries_in_hkl", len(entries_in_hkl))
+            if not clean_only:
+                ads_entries_in_hkl = []
+                for entry in self.entry_dict[hkl]:
+                    ads_entries_in_hkl.extend([ads_entry for ads_entry in
+                                               self.entry_dict[hkl][entry]])
+                entries_in_hkl.extend(ads_entries_in_hkl)
+
+            # if there is only one entry for this facet, then just give it the
+            # default urange, you can't make combinations with just 1 item
+            if len(entries_in_hkl) == 1:
+                stable_urange_dict[entries_in_hkl[0]] = standard_range
+                continue
+            for pair in itertools.combinations(entries_in_hkl, 2):
+                print("pair:", len(pair))
+                # Check if entry is adsorbed entry or clean, this is
+                # a hassle so figure out a cleaner way to do this
+                clean_ads_coeffs = []
+                for p in pair:
+                    p1 = self.get_clean_ads_entry_pair(p)
+                    c = self.se_calculator.surface_energy_coefficients(p1[0],
+                                                                       ads_slab_entry=p1[1])
+                    clean_ads_coeffs.append(c)
+
+                u, gamma = self.se_calculator.solve_2_linear_eqns(clean_ads_coeffs[0],
+                                                                  clean_ads_coeffs[1],
+                                                                  x_is_u_ads=x_is_u_ads,
+                                                                  const_u=const_u)
+                for entry in pair:
+                    if entry not in all_intesects_dict.keys():
+                        all_intesects_dict[entry] = []
+                    all_intesects_dict[entry].append(u)
+
+            # Now that we have every single intersection for a given
+            # slab, find the range of u where each slab is stable
+            for entry in all_intesects_dict.keys():
+                if entry not in stable_urange_dict.keys():
+                    stable_urange_dict[entry] = []
+                for u in all_intesects_dict[entry]:
+                    stable_entries = []
+                    for i in [-1, 1]:
+                        u_ads = u+i*(10e-6) if x_is_u_ads else const_u
+                        u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
+                        # return_stable_slab_entry_at_u() will only return one entry for one gamma,
+                        # since u is at an intersection, this entry is ambiguous, we need to get
+                        # the entry slightly above and below u and check if the current entry is
+                        # any of these entries. Another inconvenience that needs to be fixed
+
+                        stable_entry, gamma = self.return_stable_slab_entry_at_u(hkl,
+                                                                                 u_ads=u_ads,
+                                                                                 u_ref=u_ref)
+                        stable_entries.append(stable_entry)
+                    # If this entry in stable at this u, append u
+                    if entry in stable_entries:
+                        stable_urange_dict[entry].append(u)
+
+            # Now check for entries with only one intersection
+            # is it stable below or above u_intersect
+            for entry in stable_urange_dict.keys():
+                # If only one u, its stable from u to +-inf.
+                # If no u, this entry is never stable
+                if len(stable_urange_dict[entry]) == 1:
+                    u = stable_urange_dict[entry][0]
+                    for i in [-1, 1]:
+                        u_ads = u+i*(10e-6) if x_is_u_ads else const_u
+                        u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
+                        e, se = self.return_stable_slab_entry_at_u(hkl,
+                                                                   u_ads=u_ads,
+                                                                   u_ref=u_ref)
+                        if e == entry:
+                            # If the entry stable below u, assume it is
+                            # stable at -inf, otherwise its stable at +inf
+                            u2 = standard_range[0] if i == -1 else standard_range[1]
+                            stable_urange_dict[entry].append(u2)
+
+                # now sort the ranges for each entry
+                stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
+
+        return stable_urange_dict
+
+    def get_clean_ads_entry_pair(self, entry):
+
+        """
+        Returns a pair of entries, the first is the clean entry, the second
+        is either nonetype (if the initial entry is clean) or the
+        corresponding adsorbed entry
+        """
+
+        for hkl in self.entry_dict.keys():
+            if entry in list(self.entry_dict[hkl].keys()):
+                # its a clean entry
+                return [entry, None]
+            else:
+                for clean_entry in self.entry_dict[hkl].keys():
+                    if entry in self.entry_dict[hkl][clean_entry]:
+                        return [clean_entry, entry]
 
     def surface_phase_diagram(self, y_param, x_param, miller_index):
 
@@ -764,34 +917,3 @@ def vaspruns_to_entry_dict(vaspruns):
     """
 
     return
-
-
-def color_palette(entry_dict):
-
-    color_dict = {}
-    for hkl in entry_dict.keys():
-        rgb_indices = [0, 1, 2]
-        color = [0, 0, 0, 1]
-        random.shuffle(rgb_indices)
-        for i, ind in enumerate(rgb_indices):
-            if i == 2:
-                break
-            color[ind] = np.random.uniform(0, 1)
-
-        # Get the clean (solid) colors first
-        clean_list = np.linspace(0, 1, len(entry_dict[hkl]))
-        for i, clean in enumerate(entry_dict[hkl].keys()):
-            c = copy.copy(color)
-            c[rgb_indices[2]] = clean_list[i]
-            color_dict[clean] = c
-
-            clean_list2 = np.linspace(0, 1, len(entry_dict[hkl][clean]))
-            # Now get the adsorbed (transparent) colors
-            for ads_entry in entry_dict[hkl][clean]:
-                c = copy.copy(color)
-                c[rgb_indices[2]] = clean_list2[i]
-                c[3] = 0.25
-                color_dict[ads_entry] = c
-
-    return color_dict
-
