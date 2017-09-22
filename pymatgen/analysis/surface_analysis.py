@@ -209,6 +209,7 @@ class SurfaceEnergyCalculator(object):
                                               ads_slab_entry=ads_slab_entry)
         u, gamma = self.solve_2_linear_eqns(c1, c2, x_is_u_ads=True,
                                             const_u=const_u_ref)
+        u = 0 if not u else u
         return [u-abs(u)*buffer, 0]
 
     def surface_energy_coefficients(self, clean_slab_entry, ads_slab_entry=None):
@@ -356,12 +357,17 @@ class SurfaceEnergyCalculator(object):
         """
         Helper method to solve the intersect for two linear equations.
         """
+
         # set one of the terms as a constant (either the adsorption
         # or clean term) to get 2 linear eqns of 1 variable
         i = 0 if x_is_u_ads else 1
         b11 = np.dot([c1[i], c1[2]], [const_u, 1])
         b12 = np.dot([c2[i], c2[2]], [const_u, 1])
         i = 1 if x_is_u_ads else 0
+
+        # If the slopes are equal, i.e. lines are parallel
+        if c1[i] == c2[i]:
+            return [None, None]
 
         # Now solve the two eqns, return [del_u, gamma]
         return np.linalg.solve([[c1[i], -1], [c2[i], -1]],
@@ -442,6 +448,8 @@ class SurfaceEnergyPlotter(object):
                                                                const_u_ref=const_u_ref,
                                                                buffer=buffer))
         sorted_ranges = sorted(all_ranges, key=lambda r: r[0])
+        # If there is no intersection, the range is [-1,0]
+        sorted_ranges = [[-1,0]] if not sorted_ranges else sorted_ranges
         return sorted_ranges[0]
 
     def wulff_shape_from_chempot(self, u_ref=0, u_ads=0, symprec=1e-5):
@@ -640,19 +648,19 @@ class SurfaceEnergyPlotter(object):
         plt = pretty_plot(width=8, height=7)
         axes = plt.gca()
 
+        # Plot wrt to adsorption chempot if any adsorption entries exist
+        x_is_u_ads = any([True for clean_entry in
+                          self.entry_dict[miller_index].keys()
+                          if self.entry_dict[miller_index][clean_entry]])
+        if not show_unstable:
+            clean_only = False if x_is_u_ads else True
+            print(clean_only, "clean_only", "const_u", const_u, "hkl", miller_index)
+            stable_u_range_dict = self.stable_u_range_dict(clean_only=clean_only,
+                                                           const_u=const_u,
+                                                           miller_index=miller_index)
+
         already_labelled = []
-        x_is_u_ads = False
         for clean_entry in self.entry_dict[miller_index]:
-
-            # Plot wrt to adsorption chempot if any adsorption entries exist
-            if self.entry_dict[miller_index][clean_entry]:
-                x_is_u_ads = True
-
-            if not show_unstable:
-                clean_only = False if x_is_u_ads else True
-                stable_u_range_dict = self.stable_u_range_dict(clean_only=clean_only,
-                                                               const_u=const_u,
-                                                               miller_index=miller_index)
 
             label = self.create_slab_label(clean_entry)
             if label in already_labelled:
@@ -661,9 +669,11 @@ class SurfaceEnergyPlotter(object):
                 already_labelled.append(label)
 
             urange = stable_u_range_dict[clean_entry] if not show_unstable else None
-            self.chempot_vs_gamma_plot_one(plt, clean_entry, label=label,
-                                           JPERM2=JPERM2, x_is_u_ads=x_is_u_ads,
-                                           const_u=const_u, urange=urange)
+            print(miller_index, urange, "clean")
+            if urange != []:
+                self.chempot_vs_gamma_plot_one(plt, clean_entry, label=label,
+                                               JPERM2=JPERM2, x_is_u_ads=x_is_u_ads,
+                                               const_u=const_u, urange=urange)
 
             for ads_entry in self.entry_dict[miller_index][clean_entry]:
                 # Plot the adsorbed slabs
@@ -674,10 +684,12 @@ class SurfaceEnergyPlotter(object):
                 else:
                     already_labelled.append(label)
                 urange = stable_u_range_dict[ads_entry] if not show_unstable else None
-                self.chempot_vs_gamma_plot_one(plt, clean_entry, JPERM2=JPERM2,
-                                               ads_entry=ads_entry,
-                                               label=label, const_u=const_u,
-                                               x_is_u_ads=x_is_u_ads, urange=urange)
+                print(miller_index, urange, "ads")
+                if urange != []:
+                    self.chempot_vs_gamma_plot_one(plt, clean_entry, JPERM2=JPERM2,
+                                                   ads_entry=ads_entry,
+                                                   label=label, const_u=const_u,
+                                                   x_is_u_ads=x_is_u_ads, urange=urange)
 
         # Make the figure look nice
         xrange = self.chempot_range if not x_is_u_ads \
@@ -755,9 +767,9 @@ class SurfaceEnergyPlotter(object):
 
                 clean_list2 = np.linspace(0, 1, len(self.entry_dict[hkl][clean]))
                 # Now get the adsorbed (transparent) colors
-                for ads_entry in self.entry_dict[hkl][clean]:
+                for ii, ads_entry in enumerate(self.entry_dict[hkl][clean]):
                     c = copy.copy(color)
-                    c[rgb_indices[2]] = clean_list2[i]
+                    c[rgb_indices[2]] = clean_list2[ii]
                     c[3] = 0.25
                     color_dict[ads_entry] = c
 
@@ -776,10 +788,13 @@ class SurfaceEnergyPlotter(object):
 
         # Get all entries for a specific facet
         for hkl in self.entry_dict.keys():
+
+            # bool to check if at least one surface exists for a facet
+            entry_exists = False
+
             if miller_index and hkl != tuple(miller_index):
                 continue
             entries_in_hkl = [entry for entry in self.entry_dict[hkl]]
-            print("entries_in_hkl", len(entries_in_hkl))
             if not clean_only:
                 ads_entries_in_hkl = []
                 for entry in self.entry_dict[hkl]:
@@ -793,7 +808,6 @@ class SurfaceEnergyPlotter(object):
                 stable_urange_dict[entries_in_hkl[0]] = standard_range
                 continue
             for pair in itertools.combinations(entries_in_hkl, 2):
-                print("pair:", len(pair))
                 # Check if entry is adsorbed entry or clean, this is
                 # a hassle so figure out a cleaner way to do this
                 clean_ads_coeffs = []
@@ -807,10 +821,16 @@ class SurfaceEnergyPlotter(object):
                                                                   clean_ads_coeffs[1],
                                                                   x_is_u_ads=x_is_u_ads,
                                                                   const_u=const_u)
+
+                if u:
+                    u = standard_range[0] if u < standard_range[0] else u
+                    u = standard_range[1] if u > standard_range[1] else u
+
                 for entry in pair:
                     if entry not in all_intesects_dict.keys():
                         all_intesects_dict[entry] = []
-                    all_intesects_dict[entry].append(u)
+                    if u:
+                        all_intesects_dict[entry].append(u)
 
             # Now that we have every single intersection for a given
             # slab, find the range of u where each slab is stable
@@ -834,6 +854,7 @@ class SurfaceEnergyPlotter(object):
                     # If this entry in stable at this u, append u
                     if entry in stable_entries:
                         stable_urange_dict[entry].append(u)
+                        entry_exists = True
 
             # Now check for entries with only one intersection
             # is it stable below or above u_intersect
@@ -845,6 +866,7 @@ class SurfaceEnergyPlotter(object):
                     for i in [-1, 1]:
                         u_ads = u+i*(10e-6) if x_is_u_ads else const_u
                         u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
+
                         e, se = self.return_stable_slab_entry_at_u(hkl,
                                                                    u_ads=u_ads,
                                                                    u_ref=u_ref)
@@ -853,9 +875,18 @@ class SurfaceEnergyPlotter(object):
                             # stable at -inf, otherwise its stable at +inf
                             u2 = standard_range[0] if i == -1 else standard_range[1]
                             stable_urange_dict[entry].append(u2)
-
+                            entry_exists = True
                 # now sort the ranges for each entry
                 stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
+
+            # Now we make sure that each facet has at least
+            # one entry, if no entries exist, this means there
+            # is not intersection, get the most stable surface
+            if not entry_exists:
+                e, se = self.return_stable_slab_entry_at_u(hkl,
+                                                           u_ads=const_u,
+                                                           u_ref=const_u)
+                stable_urange_dict[e] = standard_range
 
         return stable_urange_dict
 
