@@ -11,6 +11,7 @@ import json
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.composition import Composition
 from pymatgen.analysis.structure_prediction.substitutor import Substitutor
+from pymatgen.util.testing import PymatgenTest
 
 
 def get_table():
@@ -27,7 +28,7 @@ def get_table():
     return lambda_table
 
 
-class SubstitutorTest(unittest.TestCase):
+class SubstitutorTest(PymatgenTest):
 
     def setUp(self):
         self.s = Substitutor(threshold=1e-3, lambda_table=get_table(),
@@ -43,9 +44,14 @@ class SubstitutorTest(unittest.TestCase):
         self.assertEqual(len(subs), 4
                          , 'incorrect number of substitutions')
 
+        structures = [{"structure": PymatgenTest.get_structure("Li2O"),
+                       "id": "pmgtest"}]
+        subs = self.s.pred_from_structures(["Na+", "O2-"], structures)
+        self.assertEqual(subs[0].formula, "Na2 O1")
+
     def test_as_dict(self):
         Substitutor.from_dict(self.s.as_dict())
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
