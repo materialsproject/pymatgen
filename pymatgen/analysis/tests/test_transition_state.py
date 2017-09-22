@@ -25,12 +25,12 @@ __date__ = "2/5/16"
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', 'neb_analysis')
 
+from pymatgen.analysis.transition_state import combine_neb_plots
 
 class NEBAnalysisTest(PymatgenTest):
     def runTest(self):
-        neb_analysis1 = NEBAnalysis.from_dir(os.path.join(test_dir, 'neb1', 'neb'),
-                                            relaxation_dirs=(os.path.join(test_dir, 'neb1', 'start'),
-                                                             os.path.join(test_dir, 'neb1', 'end')))
+        neb_analysis1 = NEBAnalysis.from_dir(os.path.join
+                                             (test_dir, 'neb1', 'neb'))
         neb_analysis1_from_dict = NEBAnalysis.from_dict(neb_analysis1.as_dict())
         json_data = json.dumps(neb_analysis1.as_dict())
 
@@ -61,6 +61,12 @@ class NEBAnalysisTest(PymatgenTest):
 
         neb_analysis2.setup_spline(spline_options={'saddle_point': 'zero_slope'})
         self.assertArrayAlmostEqual(neb_analysis2.get_extrema()[1][0], (0.30371133723478794, 528.46229631648691))
+
+def test_combine_neb_plots():
+    neb_dir = os.path.join(test_dir, 'neb1', 'neb')
+    combine_neb_plots([neb_dir, neb_dir])
+
+test_combine_neb_plots()
 
 if __name__ == '__main__':
     unittest.main()

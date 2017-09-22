@@ -19,6 +19,8 @@ except ImportError:
 
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.io.vasp import Poscar, Outcar
+from pymatgen.analysis.structure_matcher import StructureMatcher
+import warnings
 
 """
 Some reimplementation of Henkelman's Transition State Analysis utilities,
@@ -303,3 +305,92 @@ class NEBAnalysis(MSONable):
                 'energies': jsanitize(self.energies),
                 'forces': jsanitize(self.forces),
                 'structures': [s.as_dict() for s in self.structures]}
+
+def combine_neb_plots(root_dirs, arranged_dirs=False, reverse_plot=False):
+    """
+    root_dirs (list): paths to the root directory with 00 ~ 0n subdirectories
+    of the NEB calculation. E.g., 00, 01, 02...06 in which 00 and 06 are
+    terminal relaxations and 01 ~ 05 are image relaxations.
+
+    arranged_dirs: need to manually arrange 00 ~ 0n subdirectories of each
+    root_dir to get the combined-barrier plot corresponding to the percolation
+    path if the code gives a warning, which is due to similar structures of
+    terminal relaxations. Or only the barrier value is correct! E.g., if there
+    are two root_dirs to combine, arrange in such a way that 06 of the first
+    root_dir is 00 of the second root_dir.
+
+    reverse_plot: reverse the plot or percolation direction.
+    """
+    x = StructureMatcher()
+    warn = False
+    for fd_index in range(len(root_dirs)):
+        if fd_index == 0:
+            neb1 = NEBAnalysis.from_dir(root_dirs[fd_index])
+            neb1_energies = list(neb1.energies)
+            neb1_structures = neb1.structures
+            neb1_forces = neb1.forces
+            neb1_r = neb1.r
+            continue
+
+        neb2 = NEBAnalysis.from_dir(root_dirs[fd_index])
+        neb2_energies = list(neb2.energies)
+
+        neb1_start_s = neb1_structures[0]
+        neb2_start_s, neb2_end_s = neb2.structures[0], neb2.structures[-1]
+
+        if x.fit(neb1_start_s, neb2_start_s) == True \
+                and x.fit(neb1_start_s, neb2_end_s) == True:
+            warn = True
+            if arranged_dirs:
+                neb1_energies = neb1_energies[0:len(neb1_energies) - 1] \
+                                + [(neb1_energies[-1] + neb2_energies[0]) / 2] \
+                                + neb2_energies[
+                                                                  1:]
+                neb1_structures = neb1_structures + neb2.structures[1:]
+                neb1_forces = list(neb1_forces) + list(neb2.forces)[1:]
+                neb1_r = list(neb1_r) + [i + neb1_r[-1] for i in
+                                         list(neb2.r)[1:]]
+
+        if (x.fit(neb1_start_s, neb2_start_s) == True
+            and x.fit(neb1_start_s, neb2_end_s) == False) \
+                or (warn == True and arranged_dirs == False):
+            neb1_energies = list(reversed(neb1_energies[1:])) + [
+                (neb1_energies[0] + neb2_energies[0]) / 2] + neb2_energies[1:]
+            neb1_structures = list(
+                reversed((neb1_structures[1:]))) + neb2.structures
+            neb1_forces = list(reversed(list(neb1_forces)[1:])) + list(
+                neb2.forces)
+            neb1_r = list(reversed(
+                [i * -1 - neb1_r[-1] * -1 for i in list(neb1_r)[1:]])) + [
+                         i + neb1_r[-1] for i in list(neb2.r)]
+
+        elif x.fit(neb1_start_s, neb2_start_s) == False \
+                and x.fit(neb1_start_s, neb2_end_s) == True:
+            neb1_energies = (neb2_energies[0:len(neb2_energies) - 1]) + [
+                (neb1_energies[0] + neb2_energies[-1]) / 2] + neb1_energies[1:]
+            neb1_structures = (neb2.structures[
+                               0:len(neb2_energies) - 1]) + neb1_structures
+            neb1_forces = list(neb2.forces)[0:len(neb2_energies) - 1] + list(
+                neb1_forces)
+            neb1_r = list(reversed(
+                [i * -1 - neb2.r[-1] * -1 for i in list(neb2.r)[1:]])) + [
+                         i + neb2.r[-1] for i in list(neb1_r)]
+
+        elif x.fit(neb1_start_s, neb2_start_s) == False \
+                and x.fit(neb1_start_s, neb2_end_s) == False:
+            raise ValueError("no matched structures for connection!")
+
+    if warn:
+        warnings.warn(
+            "Need to arrange root_dirs or only the barrier value is correct!",
+            Warning)
+
+    if reverse_plot:
+        na = NEBAnalysis(
+            list(reversed([i * -1 - neb1_r[-1] * -1 for i in list(neb1_r)])),
+            list(reversed(neb1_energies)),
+            list(reversed(neb1_forces)), list(reversed(neb1_structures)))
+    else:
+        na = NEBAnalysis(neb1_r, neb1_energies, neb1_forces, neb1_structures)
+    plt = na.get_plot()
+    return plt
