@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -167,9 +167,9 @@ new box(it that is required).</li>
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="classmethod">
 <dt id="pymatgen.io.lammps.data.LammpsData.get_atoms_data">
-<em class="property">static </em><code class="descname">get_atoms_data</code><span class="sig-paren">(</span><em>structure</em>, <em>atomic_masses_dict</em>, <em>set_charge=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.get_atoms_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.get_atoms_data" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">get_atoms_data</code><span class="sig-paren">(</span><em>structure</em>, <em>atomic_masses_dict</em>, <em>set_charge=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.get_atoms_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.get_atoms_data" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>return the atoms data:</dt>
 <dd><dl class="first last docutils">
@@ -250,14 +250,19 @@ between the atom id and corresponding atomic masses</td>
 
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.LammpsData.write_file">
-<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em>, <em>significant_figures=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>write lammps data input file from the string representation
 of the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – data file name</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – data file name</li>
+<li><strong>significant_figures</strong> (<em>int</em>) – No. of significant figures to
+output. Default to 6.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -509,7 +514,7 @@ the index is the global mol id</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 
