@@ -25,7 +25,7 @@ import warnings
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.analyzer import generate_full_symmops
-from pymatgen.util.coord_utils import in_coord_list, in_coord_list_pbc
+from pymatgen.util.coord import in_coord_list, in_coord_list_pbc
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
 from pymatgen.core.surface import generate_all_slabs, Slab

@@ -23,7 +23,7 @@ from scipy.spatial import ConvexHull
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, DummySpecie, get_el_sp
-from pymatgen.util.coord_utils import Simplex, in_coord_list
+from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, \
