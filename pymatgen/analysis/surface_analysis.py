@@ -1,5 +1,3 @@
-# Surface analysis
-
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
@@ -518,8 +516,8 @@ class SurfaceEnergyPlotter(object):
 
         return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
 
-    def area_frac_vs_chempot_plot(self, xrange=None, u_const=0,
-                                  increments=10, x_is_u_ads=False):
+    def area_frac_vs_chempot_plot(self, u_const=0, increments=10,
+                                  x_is_u_ads=False):
         """
         Plots the change in the area contribution of
         each facet as a function of chemical potential.
@@ -534,7 +532,8 @@ class SurfaceEnergyPlotter(object):
                 of intersection. Defaults to 5 points.
         """
 
-        xrange = self.chempot_range if not xrange else xrange
+        xrange = self.chempot_range if not x_is_u_ads \
+            else self.max_adsorption_chempot_range(u_const)
         all_chempots = np.linspace(min(xrange), max(xrange),
                                    increments)
 
@@ -607,8 +606,6 @@ class SurfaceEnergyPlotter(object):
         if not urange:
             urange = u_ref_range if not x_is_u_ads else u_ads_range
         color = self.color_dict[ads_entry] if ads_entry else self.color_dict[clean_entry]
-        if len(urange) != 2:
-            print(urange)
         plt.plot(urange, se_range, mark, color=color, label=label)
 
         return plt
@@ -732,13 +729,12 @@ class SurfaceEnergyPlotter(object):
 
         ylim = axes.get_ylim()
         plt.xticks(rotation=60)
-        plt.ylim(ylim)
+        plt.ylim([0, ylim[1]])
         xlim = axes.get_xlim()
         plt.xlim(xlim)
         plt.tight_layout(pad=pad, rect=rect)
         plt.plot([xrange[0], xrange[0]], ylim, '--k')
         plt.plot([xrange[1], xrange[1]], ylim, '--k')
-        plt.plot(xrange, [0,0], 'k')
         xy = [np.mean([xrange[1]]), np.mean(ylim)]
         plt.annotate("%s-rich" % (x_species), xy=xy,
                      xytext=xy, rotation=90, fontsize=17)
@@ -833,7 +829,8 @@ class SurfaceEnergyPlotter(object):
                                                                   const_u=const_u)
 
                 if u:
-
+                    # If the u in a list is beyond the standard
+                    # range, set it to one of the limits
                     if u < standard_range[0]:
                         u_new = standard_range[0]
                     elif u > standard_range[1]:
@@ -873,32 +870,33 @@ class SurfaceEnergyPlotter(object):
             # Now check for entries with only one intersection
             # is it stable below or above u_intersect
             for entry in stable_urange_dict.keys():
+                # First lets check if all the u values for
+                # an entry are the same as the standard range,
+                # if so, just set it to the standard range
+                if stable_urange_dict[entry]:
+                    if all([u in standard_range for u in stable_urange_dict[entry]]):
+                        stable_urange_dict[entry] = standard_range
+
                 # If only one u, its stable from u to +-inf.
                 # If no u, this entry is never stable
                 if len(stable_urange_dict[entry]) == 1:
                     u = stable_urange_dict[entry][0]
-                    if u in standard_range:
-                        stable_urange_dict[entry].append(standard_range[standard_range.index(u)-1])
-                        entry_exists = True
-                    else:
-                        for i in [-1, 1]:
-                            u_ads = u+i*(10e-6) if x_is_u_ads else const_u
-                            u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
+                    for i in [-1, 1]:
+                        u_ads = u+i*(10e-6) if x_is_u_ads else const_u
+                        u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
 
-                            e, se = self.return_stable_slab_entry_at_u(hkl,
-                                                                       u_ads=u_ads,
-                                                                       u_ref=u_ref)
-                            if e == entry:
-                                # If the entry stable below u, assume it is
-                                # stable at -inf, otherwise its stable at +inf
-                                u2 = standard_range[0] if i == -1 else standard_range[1]
-                                stable_urange_dict[entry].append(u2)
-                                entry_exists = True
+                        e, se = self.return_stable_slab_entry_at_u(hkl,
+                                                                   u_ads=u_ads,
+                                                                   u_ref=u_ref)
+                        if e == entry:
+                            # If the entry stable below u, assume it is
+                            # stable at -inf, otherwise its stable at +inf
+                            u2 = standard_range[0] if i == -1 else standard_range[1]
+                            stable_urange_dict[entry].append(u2)
+                            entry_exists = True
 
                 # now sort the ranges for each entry
                 stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
-                if len(stable_urange_dict[entry]) != 2:
-                    print(stable_urange_dict[entry], miller_index)
             # Now we make sure that each facet has at least
             # one entry, if no entries exist, this means there
             # is not intersection, get the most stable surface
