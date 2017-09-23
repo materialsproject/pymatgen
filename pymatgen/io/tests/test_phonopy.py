@@ -69,7 +69,7 @@ class PhonopyParserTest(PymatgenTest):
 
 class StructureConversionTest(PymatgenTest):
 
-    @unittest.skipIf(Phonopy is None)
+    @unittest.skipIf(Phonopy is None, "Phonopy not present")
     def test_structure_conversion(self):
         s_pmg = PymatgenTest.get_structure("LiFePO4")
         s_ph = get_phonopy_structure(s_pmg)
@@ -93,7 +93,7 @@ class StructureConversionTest(PymatgenTest):
 
 class GetDisplacedStructuresTest(PymatgenTest):
 
-    @unittest.skipIf(Phonopy is None)
+    @unittest.skipIf(Phonopy is None, "Phonopy not present")
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(os.path.join(test_dir, "POSCAR-unitcell"),
                                     False)
