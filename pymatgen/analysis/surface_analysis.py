@@ -1,3 +1,5 @@
+# Surface analysis
+
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
@@ -457,7 +459,7 @@ class SurfaceEnergyPlotter(object):
             # If there is no intersection, the range is [-1,0]
             return [-1,0]
         # ensure our lower limit is at an intersection with the clean slab
-            all_ranges = sorted(all_ranges, key=lambda r: r[0])
+        all_ranges = sorted(all_ranges, key=lambda r: r[0])
         max_range = [all_ranges[0][0]]
         # ensure our upper limit corresponds to gamm > 0 or if gamma > 0 when u = 0
         all_ranges = sorted(all_ranges, key=lambda r: r[1])
@@ -516,7 +518,7 @@ class SurfaceEnergyPlotter(object):
 
         return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
 
-    def area_frac_vs_chempot_plot(self, xrange=None,
+    def area_frac_vs_chempot_plot(self, xrange=None, u_const=0,
                                   increments=10, x_is_u_ads=False):
         """
         Plots the change in the area contribution of
@@ -543,8 +545,9 @@ class SurfaceEnergyPlotter(object):
 
         # Get plot points for each Miller index
         for u in all_chempots:
-            wulffshape = self.wulff_shape_from_chempot(u_ads=u) if \
-                x_is_u_ads else self.wulff_shape_from_chempot(u_ref=u)
+            u_ads = u if x_is_u_ads else u_const
+            u_ref = u if not x_is_u_ads else u_const
+            wulffshape = self.wulff_shape_from_chempot(u_ads=u_ads, u_ref=u_ref)
 
             for hkl in wulffshape.area_fraction_dict.keys():
                 hkl_area_dict[hkl].append(wulffshape.area_fraction_dict[hkl])
@@ -604,6 +607,8 @@ class SurfaceEnergyPlotter(object):
         if not urange:
             urange = u_ref_range if not x_is_u_ads else u_ads_range
         color = self.color_dict[ads_entry] if ads_entry else self.color_dict[clean_entry]
+        if len(urange) != 2:
+            print(urange)
         plt.plot(urange, se_range, mark, color=color, label=label)
 
         return plt
@@ -892,7 +897,8 @@ class SurfaceEnergyPlotter(object):
 
                 # now sort the ranges for each entry
                 stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
-
+                if len(stable_urange_dict[entry]) != 2:
+                    print(stable_urange_dict[entry], miller_index)
             # Now we make sure that each facet has at least
             # one entry, if no entries exist, this means there
             # is not intersection, get the most stable surface
