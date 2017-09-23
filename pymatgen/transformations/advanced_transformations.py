@@ -252,12 +252,12 @@ class EnumerateStructureTransformation(AbstractTransformation):
             Defaults to 1.
         symm_prec (float): Tolerance to use for symmetry detection. Defaults to
             0.1.
-        occu_tol (int): If set, the code will first round and scale total
-            occupancies to the nearest rational 1/occu_tol. This handles
-            structures that contain partial occupancies that are close to a
-            rational number. E.g., sometimes the total reported occupancy is
-            0.249, and if occu_tol is set to 4, all occupancies in the crystal
-            will be scaled so that they sum to 0.25.
+        occu_tol (int): If set, the code will first round and scale
+            occupancies to the nearest rational number, with maximum
+            denominator = occu_tol. This handles structures that contain
+            partial occupancies that are close to a rational number. E.g.,
+            sometimes the reported occupancy is 0.249, and if occu_tol is set
+            to 4, this will be rounded to 0.25.
         refine_structure (bool): This parameter has the same meaning as in
             enumlib_caller. If you are starting from a structure that has been
             relaxed via some electronic structure code, it is usually much
@@ -320,15 +320,11 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
         if self.occu_tol:
             species = [dict(d) for d in structure.species_and_occu]
-            composition = structure.composition
             # Here, we rescale all occupancies such that they meet the frac
             # limit.
-            for k, v in composition.items():
-                for sp in species:
-                    for k2 in sp.keys():
-                        if k2 == k:
-                            sp[k2] *= Fraction(v).limit_denominator(
-                                self.occu_tol) / v
+            for sp in species:
+                for k, v in sp.items():
+                    sp[k] = float(Fraction(v).limit_denominator(self.occu_tol))
             structure = Structure(structure.lattice, species,
                                   structure.frac_coords)
 
