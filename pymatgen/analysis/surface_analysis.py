@@ -189,9 +189,11 @@ class SurfaceEnergyCalculator(object):
             else:
                 all_u = []
                 for entry in chempot_ranges.keys():
+                    print(chempot_ranges[entry])
                     all_u.extend(chempot_ranges[entry][0]._coords)
                 chempot_range = [min(all_u), max(all_u)]
         else:
+            # For elemental system
             ucell_comp = self.ucell_entry.composition
             chempot_range = [chempot_ranges[entry] for entry in chempot_ranges.keys()
                              if entry.composition ==
@@ -270,11 +272,10 @@ class SurfaceEnergyCalculator(object):
         gibbs_binding = self.gibbs_binding_energy(ads_slab_entry,
                                                   clean_slab_entry) if ads_slab_entry else 0
         # b3 is the intercept (clean surface energy for a clean, stoichiometric system)
+        g_y = [entry.energy_per_atom for entry in self.reactants
+               if entry.composition.reduced_composition == self.ref_el_comp][0]
         b3 = (1 / (2 * Aclean)) * (clean_slab_entry.energy - (Nx/self.x)*self.gbulk - \
-                              (Ny - (self.y / self.x) * Nx) * [entry.energy_per_atom \
-                                                               for entry in self.reactants
-                                                               if entry.composition.reduced_composition
-                                                               == self.ref_el_comp][0]) + \
+                              (Ny - (self.y / self.x) * Nx) * g_y) + \
              gibbs_binding*(Nads/(Nsurfs*Aads))
 
         return [b1, b2, b3]
@@ -425,7 +426,7 @@ class SurfaceEnergyPlotter(object):
 
     """
 
-    def __init__(self, entry_dict, surface_energy_calculator):
+    def __init__(self, entry_dict, surface_energy_calculator, custom_chempot_range=[]):
         """
         Object for plotting surface energy in different ways for clean and
             adsorbed surfaces.
@@ -437,7 +438,8 @@ class SurfaceEnergyPlotter(object):
         """
 
         self.se_calculator = surface_energy_calculator
-        self.chempot_range = surface_energy_calculator.chempot_range()
+        self.chempot_range = custom_chempot_range if custom_chempot_range \
+            else surface_energy_calculator.chempot_range()
         self.entry_dict = entry_dict
         self.color_dict = self.color_palette_dict()
         self.ref_el_comp = str(self.se_calculator.ref_el_comp.elements[0])
@@ -729,7 +731,7 @@ class SurfaceEnergyPlotter(object):
 
         ylim = axes.get_ylim()
         plt.xticks(rotation=60)
-        plt.ylim([0, ylim[1]])
+        plt.ylim(ylim)
         xlim = axes.get_xlim()
         plt.xlim(xlim)
         plt.tight_layout(pad=pad, rect=rect)
