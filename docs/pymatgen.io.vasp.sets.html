@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -177,6 +177,7 @@ runs.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</li>
 <li><strong>start_temp</strong> (<em>int</em>) – Starting temperature.</li>
 <li><strong>end_temp</strong> (<em>int</em>) – Final temperature.</li>
 <li><strong>nsteps</strong> (<em>int</em>) – Number of time steps for simulations. The NSW parameter.</li>
@@ -184,8 +185,6 @@ runs.</p>
 parameter. Defaults to 2fs.</li>
 <li><strong>spin_polarized</strong> (<em>bool</em>) – Whether to do spin polarized calculations.
 The ISPIN parameter. Defaults to False.</li>
-<li><strong>sort_structure</strong> (<em>bool</em>) – Whether to sort structure. Defaults to False
-(different behavior from standard input sets).</li>
 <li><strong>**kwargs</strong> – Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal"><span class="pre">DictSet</span></code></a>.</li>
 </ul>
 </td>
@@ -756,6 +755,35 @@ which is requested by GW calculation.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.io.vasp.sets.MVLNPTMDSet">
+<em class="property">class </em><code class="descname">MVLNPTMDSet</code><span class="sig-paren">(</span><em>structure</em>, <em>start_temp</em>, <em>end_temp</em>, <em>nsteps</em>, <em>time_step=2</em>, <em>spin_polarized=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLNPTMDSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLNPTMDSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MITMDSet" title="pymatgen.io.vasp.sets.MITMDSet"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.sets.MITMDSet</span></code></a></p>
+<p>Class for writing a vasp md run in NPT ensemble.</p>
+<p class="rubric">Notes</p>
+<p>To eliminate Pulay stress, the default ENCUT is set to a rather
+large value of ENCUT, which is 1.5 * ENMAX.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
+<li><strong>start_temp</strong> (<em>int</em>) – Starting temperature.</li>
+<li><strong>end_temp</strong> (<em>int</em>) – Final temperature.</li>
+<li><strong>nsteps</strong> (<em>int</em>) – Number of time steps for simulations. The NSW parameter.</li>
+<li><strong>time_step</strong> (<em>int</em>) – The time step for the simulation. The POTIM
+parameter. Defaults to 2fs.</li>
+<li><strong>spin_polarized</strong> (<em>bool</em>) – Whether to do spin polarized calculations.
+The ISPIN parameter. Defaults to False.</li>
+<li><strong>**kwargs</strong> – Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal"><span class="pre">DictSet</span></code></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.io.vasp.sets.MVLSlabSet">
 <em class="property">class </em><code class="descname">MVLSlabSet</code><span class="sig-paren">(</span><em>slab</em>, <em>k_product=50</em>, <em>bulk=False</em>, <em>auto_dipole=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLSlabSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLSlabSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
@@ -976,7 +1004,7 @@ Vasp input files, e.g. get_kpoints.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

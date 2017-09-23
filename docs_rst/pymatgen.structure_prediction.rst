@@ -1,6 +1,12 @@
 pymatgen\.structure\_prediction package
 =======================================
 
+Subpackages
+-----------
+
+.. toctree::
+
+
 Submodules
 ----------
 
@@ -8,6 +14,7 @@ Submodules
 
    pymatgen.structure_prediction.substitution_probability
    pymatgen.structure_prediction.substitutor
+   pymatgen.structure_prediction.volume_predictor
 
 Module contents
 ---------------

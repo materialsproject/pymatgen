@@ -246,21 +246,26 @@ class EnumerateStructureTransformation(AbstractTransformation):
     transformation, and at a much faster speed.
 
     Args:
-        min_cell_size:
-            The minimum cell size wanted. Must be an int. Defaults to 1.
-        max_cell_size:
-            The maximum cell size wanted. Must be an int. Defaults to 1.
-        symm_prec:
-            Tolerance to use for symmetry.
-        refine_structure:
-            This parameter has the same meaning as in enumlib_caller.
-            If you are starting from a structure that has been relaxed via
-            some electronic structure code, it is usually much better to
-            start with symmetry determination and then obtain a refined
-            structure. The refined structure have cell parameters and
+        min_cell_size (int): The minimum cell size wanted. Must be an int.
+            Defaults to 1.
+        max_cell_size (int): The maximum cell size wanted. Must be an int.
+            Defaults to 1.
+        symm_prec (float): Tolerance to use for symmetry detection. Defaults to
+            0.1.
+        occu_tol (int): If set, the code will first round and scale
+            occupancies to the nearest rational number, with maximum
+            denominator = occu_tol. This handles structures that contain
+            partial occupancies that are close to a rational number. E.g.,
+            sometimes the reported occupancy is 0.249, and if occu_tol is set
+            to 4, this will be rounded to 0.25.
+        refine_structure (bool): This parameter has the same meaning as in
+            enumlib_caller. If you are starting from a structure that has been
+            relaxed via some electronic structure code, it is usually much
+            better to start with symmetry determination and then obtain a
+            refined structure. The refined structure have cell parameters and
             atomic positions shifted to the expected symmetry positions,
             which makes it much less sensitive precision issues in enumlib.
-            If you are already starting from an experimental cif, refinment
+            If you are already starting from an experimental cif, refinement
             should have already been done and it is not necessary. Defaults
             to False.
         enum_precision_parameter (float): Finite precision parameter for
@@ -277,11 +282,12 @@ class EnumerateStructureTransformation(AbstractTransformation):
     """
 
     def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1,
-                 refine_structure=False, enum_precision_parameter=0.001,
-                 check_ordered_symmetry=True):
+                 occu_tol=None, refine_structure=False,
+                 enum_precision_parameter=0.001, check_ordered_symmetry=True):
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
+        self.occu_tol = occu_tol
         self.refine_structure = refine_structure
         self.enum_precision_parameter = enum_precision_parameter
         self.check_ordered_symmetry = check_ordered_symmetry
@@ -311,6 +317,16 @@ class EnumerateStructureTransformation(AbstractTransformation):
             num_to_return = int(return_ranked_list)
         except ValueError:
             num_to_return = 1
+
+        if self.occu_tol:
+            species = [dict(d) for d in structure.species_and_occu]
+            # Here, we rescale all occupancies such that they meet the frac
+            # limit.
+            for sp in species:
+                for k, v in sp.items():
+                    sp[k] = float(Fraction(v).limit_denominator(self.occu_tol))
+            structure = Structure(structure.lattice, species,
+                                  structure.frac_coords)
 
         if self.refine_structure:
             finder = SpacegroupAnalyzer(structure, self.symm_prec)

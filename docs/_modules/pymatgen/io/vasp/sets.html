@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1559,22 +1559,22 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for writing a vasp md run. This DOES NOT do multiple stage</span>
 <span class="sd">    runs.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        start_temp (int): Starting temperature.</span>
-<span class="sd">        end_temp (int): Final temperature.</span>
-<span class="sd">        nsteps (int): Number of time steps for simulations. The NSW parameter.</span>
-<span class="sd">        time_step (int): The time step for the simulation. The POTIM</span>
-<span class="sd">            parameter. Defaults to 2fs.</span>
-<span class="sd">        spin_polarized (bool): Whether to do spin polarized calculations.</span>
-<span class="sd">            The ISPIN parameter. Defaults to False.</span>
-<span class="sd">        sort_structure (bool): Whether to sort structure. Defaults to False</span>
-<span class="sd">            (different behavior from standard input sets).</span>
-<span class="sd">        \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">start_temp</span><span class="p">,</span> <span class="n">end_temp</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                  <span class="n">spin_polarized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input structure.</span>
+<span class="sd">            start_temp (int): Starting temperature.</span>
+<span class="sd">            end_temp (int): Final temperature.</span>
+<span class="sd">            nsteps (int): Number of time steps for simulations. The NSW parameter.</span>
+<span class="sd">            time_step (int): The time step for the simulation. The POTIM</span>
+<span class="sd">                parameter. Defaults to 2fs.</span>
+<span class="sd">            spin_polarized (bool): Whether to do spin polarized calculations.</span>
+<span class="sd">                The ISPIN parameter. Defaults to False.</span>
+<span class="sd">            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># MD default settings</span>
         <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;TEBEG&#39;</span><span class="p">:</span> <span class="n">start_temp</span><span class="p">,</span> <span class="s1">&#39;TEEND&#39;</span><span class="p">:</span> <span class="n">end_temp</span><span class="p">,</span> <span class="s1">&#39;NSW&#39;</span><span class="p">:</span> <span class="n">nsteps</span><span class="p">,</span>
@@ -1607,6 +1607,54 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">gamma_automatic</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MVLNPTMDSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLNPTMDSet">[docs]</a><span class="k">class</span> <span class="nc">MVLNPTMDSet</span><span class="p">(</span><span class="n">MITMDSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for writing a vasp md run in NPT ensemble.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">start_temp</span><span class="p">,</span> <span class="n">end_temp</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">spin_polarized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Notes:</span>
+<span class="sd">            To eliminate Pulay stress, the default ENCUT is set to a rather</span>
+<span class="sd">            large value of ENCUT, which is 1.5 * ENMAX.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            start_temp (int): Starting temperature.</span>
+<span class="sd">            end_temp (int): Final temperature.</span>
+<span class="sd">            nsteps(int): Number of time steps for simulations. The NSW parameter.</span>
+<span class="sd">            time_step (int): The time step for the simulation. The POTIM</span>
+<span class="sd">                parameter. Defaults to 2fs.</span>
+<span class="sd">            spin_polarized (bool): Whether to do spin polarized calculations.</span>
+<span class="sd">                The ISPIN parameter. Defaults to False.</span>
+<span class="sd">            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_incar_settings&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="c1"># NPT-AIMD default settings</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;IALGO&quot;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span>
+                    <span class="s2">&quot;ISIF&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                    <span class="s2">&quot;LANGEVIN_GAMMA&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">*</span> <span class="n">structure</span><span class="o">.</span><span class="n">ntypesp</span><span class="p">,</span>
+                    <span class="s2">&quot;LANGEVIN_GAMMA_L&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;MDALGO&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                    <span class="s2">&quot;PMASS&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                    <span class="s2">&quot;PSTRESS&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s2">&quot;SMASS&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+        <span class="n">defaults</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;user_incar_settings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaults</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">MVLNPTMDSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">start_temp</span><span class="p">,</span> <span class="n">end_temp</span><span class="p">,</span>
+                                          <span class="n">nsteps</span><span class="p">,</span> <span class="n">time_step</span><span class="p">,</span> <span class="n">spin_polarized</span><span class="p">,</span>
+                                          <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Set NPT-AIMD ENCUT = 1.5 * VASP_default</span>
+        <span class="n">enmax</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">keywords</span><span class="p">[</span><span class="s1">&#39;ENMAX&#39;</span><span class="p">]</span>
+                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">ntypesp</span><span class="p">)]</span>
+        <span class="n">encut</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">enmax</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">][</span><span class="s2">&quot;ENCUT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encut</span></div>
 
 
 <div class="viewcode-block" id="get_vasprun_outcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.get_vasprun_outcar">[docs]</a><span class="k">def</span> <span class="nf">get_vasprun_outcar</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">parse_dos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse_eigen</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -1764,7 +1812,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
