@@ -9,11 +9,16 @@ from pymatgen.core import Structure, Lattice
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import PhononDos, CompletePhononDos
 from monty.serialization import loadfn
-from phonopy import Phonopy
-from phonopy.structure.atoms import PhonopyAtoms
-from phonopy.file_IO import write_disp_yaml
+from monty.dev import requires
+try:
+    from phonopy import Phonopy
+    from phonopy.structure.atoms import PhonopyAtoms
+    from phonopy.file_IO import write_disp_yaml
+except ImportError:
+    Phonopy = None
 
 
+@requires(Phonopy, "phonopy not installed!")
 def get_pmg_structure(phonopy_structure):
     """
     Convert a PhonopyAtoms object to pymatgen Structure object.
@@ -35,6 +40,7 @@ def get_pmg_structure(phonopy_structure):
                                       "magnetic_moments": mms})
 
 
+@requires(Phonopy, "phonopy not installed!")
 def get_phonopy_structure(pmg_structure):
     """
     Convert a pymatgen Structure object to a PhonopyAtoms object.
@@ -219,6 +225,7 @@ def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
     return CompletePhononDos(structure, total_dos, pdoss)
 
 
+@requires(Phonopy, "phonopy not installed!")
 def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=None,
                              yaml_fname=None, **kwargs):
     """

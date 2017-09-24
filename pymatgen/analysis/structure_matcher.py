@@ -23,8 +23,8 @@ from pymatgen.core.composition import Composition
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc
-from pymatgen.util.coord_utils import lattice_points_in_supercell
+from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc
+from pymatgen.util.coord import lattice_points_in_supercell
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

@@ -14,7 +14,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, \
 from monty.json import MontyDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen import Structure, Element, Lattice
-from pymatgen.util.coord_utils import find_in_coord_list_pbc
+from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
