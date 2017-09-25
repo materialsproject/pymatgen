@@ -189,7 +189,6 @@ class SurfaceEnergyCalculator(object):
             else:
                 all_u = []
                 for entry in chempot_ranges.keys():
-                    print(chempot_ranges[entry])
                     all_u.extend(chempot_ranges[entry][0]._coords)
                 chempot_range = [min(all_u), max(all_u)]
         else:
@@ -684,14 +683,15 @@ class SurfaceEnergyPlotter(object):
             already_labelled = []
             for clean_entry in self.entry_dict[hkl]:
 
-                label = self.create_slab_label(clean_entry, miller_index=hkl)
-                if label in already_labelled:
-                    label = None
-                else:
-                    already_labelled.append(label)
-
                 urange = stable_u_range_dict[clean_entry] if not show_unstable else None
                 if urange != []:
+
+                    label = self.create_slab_label(clean_entry, miller_index=hkl)
+                    if label in already_labelled:
+                        label = None
+                    else:
+                        already_labelled.append(label)
+
                     self.chempot_vs_gamma_plot_one(plt, clean_entry, label=label,
                                                    JPERM2=JPERM2, x_is_u_ads=x_is_u_ads,
                                                    const_u=const_u, urange=urange)
