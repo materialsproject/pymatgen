@@ -169,7 +169,7 @@ class BoltztrapRunner(MSONable):
         self.tauen = tauen
         self.soc = soc
         self.kpt_line = kpt_line
-        self.cb_cut=cb_cut/100.
+        self.cb_cut = cb_cut/100.
         if isinstance(doping, list) and len(doping) > 0:
             self.doping = doping
         else:
@@ -351,7 +351,7 @@ class BoltztrapRunner(MSONable):
                         for i in range(len(self._bs.kpoints)):
                             tmp_proj = []
                             for j in range(
-                                    int(math.floor(self._bs.nb_bands*(1-self.cb_cut))):
+                                    int(math.floor(self._bs.nb_bands*(1-self.cb_cut)))):
                                 tmp_proj.append(
                                     self._bs.projections[Spin(self.spin)][j][
                                         i][oi][site_nb])
