@@ -931,6 +931,18 @@ class SurfaceEnergyPlotter(object):
                     if entry in self.entry_dict[hkl][clean_entry]:
                         return [clean_entry, entry]
 
+    def BE_vs_SE(self):
+
+        return
+
+    def nanoscale_stability(self):
+
+        return
+
+    def H_wrt_bulk(self):
+
+        return
+
     def surface_phase_diagram(self, y_param, x_param, miller_index):
 
         """

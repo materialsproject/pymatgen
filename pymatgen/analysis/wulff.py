@@ -458,7 +458,7 @@ class WulffShape(object):
                 ax1, cmap=cmap, norm=norm, boundaries=[0] + bounds + [10],
                 extend='both', ticks=bounds[:-1], spacing='proportional',
                 orientation='vertical')
-            cbar.set_label('Surface Energies ($J/m^2$)', fontsize=100)
+            cbar.set_label('Surface Energies ($J/m^2$)', fontsize=30)
 
         if grid_off:
             ax.grid('off')
