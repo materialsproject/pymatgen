@@ -869,7 +869,7 @@ class OrderParameters(object):
 
     __supported_types = (
             "cn", "sgl_bd", "lin", "bent", "tri_plan", "reg_tri", "sq_plan", \
-            "pent_plan", "sq", "tet", "tet_legacy", "tri_pyr", "reg_pent", \
+            "pent_plan", "sq", "tet", "tet_legacy", "tri_pyr", \
             "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "oct", "oct_legacy", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", \
             "cuboct", "see_saw", "bcc", "q2", "q4", "q6")
@@ -902,7 +902,6 @@ class OrderParameters(object):
                   "sq_plan": OP recognizing square planar environments;
                   "tri_pyr": OP recognizing trigonal pyramidal coordination;
                   "sq": OP recognizing square coordination;
-                  "reg_pent": OP recognizing coordination with a regular pentagon;
                   "pent_plan": OP recognizing pentagonal planar environments;
                   "T": OP recognizing T-shape coordination;
                   "sq_pyr": OP recognizing square pyramidal coordination;
@@ -988,11 +987,6 @@ class OrderParameters(object):
                                (144 degrees) equatorial region (108);
                                Gaussian width for penalizing deviations
                                away from 72 and 144 degrees, resp., (0.0556);
-                  "reg_pent": Gaussian width for penalizing angles away from
-                              the expected angles, given the estimated
-                              height-to-side ratio of the pentagonal pyramid
-                              in which the central atom is located at the
-                              tip (0.04);
                   "T": Gaussian width in fractions of pi
                        for penalizing angles away from 90 degrees
                        (0.0556);
@@ -1146,9 +1140,6 @@ class OrderParameters(object):
                     1.0 / parameters[i][1]] \
                     if parameters[i] is not None else [0.6 * pi, \
                     1.0 / 0.0556]
-            elif t == "reg_pent":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0222]
             elif t == "T":
                 self._paras[i] = [1.0 / parameters[i][0]] \
                     if parameters[i] is not None else [1.0 / 0.0556]
@@ -1208,7 +1199,7 @@ class OrderParameters(object):
                     t == "hex_pyr" or t == "pent_bipyr" or \
                     t == "hex_bipyr" or t == "T" or t =="cuboct":
                 self._computerijs = self._geomops = True
-            if t == "reg_tri" or t =="sq" or t == "reg_pent":
+            if t == "reg_tri" or t =="sq":
                 self._computerijs = self._computerjks = self._geomops2 = True
             if t == "q2" or t == "q4" or t == "q6":
                 self._computerijs = self._boops = True
@@ -2268,7 +2259,7 @@ class OrderParameters(object):
             dhalf = max(distjk_unique) / 2.0 if len(distjk_unique) > 0 else 0
 
             for i, t in enumerate(self._types):
-                if t == "reg_tri" or t == "sq" or t == "reg_pent":
+                if t == "reg_tri" or t == "sq":
                     if nneigh < 3:
                         ops[i] = None
                     else:
@@ -2280,9 +2271,6 @@ class OrderParameters(object):
                         elif t == "sq":
                             a = 2.0 * asin(b / (2.0 * sqrt(h*h + dhalf*dhalf)))
                             nmax = 4
-                        elif t == "reg_pent":
-                            pass # xxx
-                            nmax = 5
                         for j in range(min([nneigh,nmax])):
                             ops[i] = ops[i] * exp(-0.5 * ((
                                     aijs[j] - a) * self._paras[i][0])**2)
