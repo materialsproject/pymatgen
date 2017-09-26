@@ -1,8 +1,11 @@
 Change log
 ==========
 
-v2017.7.21
+v2017.9.23
 ----------
-* Misc bug fixes to elastic (J. Montaya), 
-* Decrease default symprec in SpacegroupAnalyzer to 0.01, which should be 
-  sufficiently flexible for a lot of non-DFT applications.
+* Gibbs free energy of a material with respect to Pourbaix stable domains.
+* Phonopy io now supports structure conversions.
+* EnumerateStructureTransformation now implements a useful occupancy rounding.
+* MVLNPTMDSet
+* Improved PDPlotter options.
+* Misc bug fixes.

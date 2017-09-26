@@ -1,5 +1,5 @@
-pymatgen.analysis.adsorption module
-===================================
+pymatgen\.analysis\.adsorption module
+=====================================
 
 .. automodule:: pymatgen.analysis.adsorption
     :members:

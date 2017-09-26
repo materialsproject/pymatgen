@@ -1,5 +1,5 @@
-pymatgen.transformations.site_transformations module
-====================================================
+pymatgen\.transformations\.site\_transformations module
+=======================================================
 
 .. automodule:: pymatgen.transformations.site_transformations
     :members:

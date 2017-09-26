@@ -1,5 +1,5 @@
-pymatgen.util.io_utils module
-=============================
+pymatgen\.util\.io\_utils module
+================================
 
 .. automodule:: pymatgen.util.io_utils
     :members:

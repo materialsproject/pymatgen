@@ -3,6 +3,13 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+from pymatgen.analysis.energy_models import EwaldElectrostaticModel, \
+    SymmetryModel, IsingModel
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+
+import os
+import unittest
 
 """
 TODO: Modify module doc.
@@ -15,14 +22,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "11/19/13"
-
-from pymatgen.analysis.energy_models import EwaldElectrostaticModel, \
-    SymmetryModel, IsingModel
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-
-import os
-import unittest
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -54,6 +53,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
         d = m.as_dict()
         self.assertIsInstance(EwaldElectrostaticModel.from_dict(d),
                               EwaldElectrostaticModel)
+
 
 class SymmetryModelTest(unittest.TestCase):
 

@@ -25,7 +25,7 @@ from monty.inspect import all_subclasses
 from monty.json import MontyDecoder
 from pymatgen.core.structure import Structure
 from monty.json import MSONable
-from pymatgen.serializers.json_coders import pmg_serialize
+from pymatgen.util.serialization import pmg_serialize
 from .abiinspect import YamlTokenizer
 
 logger = logging.getLogger(__name__)

@@ -9,7 +9,7 @@ import os
 import json
 import collections
 import itertools
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 import random
 import warnings
 from fnmatch import fnmatch
@@ -33,7 +33,7 @@ from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_angle, all_distances, \
+from pymatgen.util.coord import get_angle, all_distances, \
     lattice_points_in_supercell
 from pymatgen.core.units import Mass, Length
 
@@ -64,7 +64,8 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     # Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.5
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def sites(self):
         """
         Returns a tuple of sites.
@@ -534,8 +535,9 @@ class IStructure(SiteCollection, MSONable):
                    site_properties=all_site_properties)
 
     @classmethod
-    def from_magnetic_spacegroup(cls, msg, lattice, species, coords, site_properties,
-                                  transform_setting=None, coords_are_cartesian=False, tol=1e-5):
+    def from_magnetic_spacegroup(
+            cls, msg, lattice, species, coords, site_properties,
+            transform_setting=None, coords_are_cartesian=False, tol=1e-5):
          """
          Generate a structure using a magnetic spacegroup. Note that only
          symmetrically distinct species, coords and magmoms should be provided.]
@@ -601,7 +603,7 @@ class IStructure(SiteCollection, MSONable):
              raise ValueError(
                  "Supplied lattice with parameters %s is incompatible with "
                  "supplied spacegroup %s!" % (latt.lengths_and_angles,
-                                              sgp.symbol)
+                                              msg.symbol)
              )
 
          if len(species) != len(coords):
@@ -1443,6 +1445,8 @@ class IStructure(SiteCollection, MSONable):
 
         if fmt == "cif" or fnmatch(fname, "*.cif*"):
             writer = CifWriter(self)
+        elif fmt == "mcif" or fnmatch(fname, "*.mcif*"):
+            writer = CifWriter(self, write_magmoms=True)
         elif fmt == "poscar" or fnmatch(fname, "*POSCAR*"):
             writer = Poscar(self)
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
@@ -1562,7 +1566,7 @@ class IStructure(SiteCollection, MSONable):
         fname = os.path.basename(filename)
         with zopen(filename, "rt") as f:
             contents = f.read()
-        if fnmatch(fname.lower(), "*.cif*"):
+        if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(contents, fmt="cif",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
@@ -2395,6 +2399,24 @@ class Structure(IStructure, collections.MutableSequence):
                                           site.frac_coords, self._lattice,
                                           properties=props)
 
+    def remove_site_property(self, property_name):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name (str): The name of the property to add.
+            values (list): A sequence of values. Must be same length as
+                number of sites.
+        """
+        for i in range(len(self._sites)):
+            site = self._sites[i]
+            props = {k: v
+                     for k, v in site.properties.items()
+                     if k != property_name}
+            self._sites[i] = PeriodicSite(site.species_and_occu,
+                                          site.frac_coords, self._lattice,
+                                          properties=props)
+
     def replace_species(self, species_mapping):
         """
         Swap species in a structure.
@@ -2689,6 +2711,80 @@ class Structure(IStructure, collections.MutableSequence):
                                     properties=site.properties)
             self._sites[i] = new_site
 
+    def add_oxidation_state_by_guess(self, *kwargs):
+        """
+        Decorates the structure with oxidation state, guessing
+        using Composition.oxi_state_guesses()
+
+        Args:
+            *kwargs: parameters to pass into oxi_state_guesses()
+        """
+        oxid_guess = self.composition.oxi_state_guesses(*kwargs)
+        oxid_guess = oxid_guess or \
+                     [dict([(e.symbol, 0) for e in self.composition])]
+        self.add_oxidation_state_by_element(oxid_guess[0])
+
+    def add_spin_by_element(self, spins):
+        """
+        Add spin states to a structure.
+
+        Args:
+            spisn (dict): Dict of spins associated with
+            elements or species, e.g. {"Ni":+5} or {"Ni2+":5}
+        """
+        for i, site in enumerate(self._sites):
+            new_sp = {}
+            for sp, occu in site.species_and_occu.items():
+                sym = sp.symbol
+                oxi_state = getattr(sp, "oxi_state", None)
+                new_sp[Specie(sym, oxidation_state=oxi_state,
+                              properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
+            new_site = PeriodicSite(new_sp, site.frac_coords,
+                                    self._lattice,
+                                    coords_are_cartesian=False,
+                                    properties=site.properties)
+            self._sites[i] = new_site
+
+    def add_spin_by_site(self, spins):
+        """
+        Add spin states to a structure by site.
+
+        Args:
+            spins (list): List of spins
+                E.g., [+5, -5, 0, 0]
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for sp, occu in site.species_and_occu.items():
+                    sym = sp.symbol
+                    oxi_state = getattr(sp, "oxi_state", None)
+                    new_sp[Specie(sym, oxidation_state=oxi_state,
+                                  properties={'spin': spins[i]})] = occu
+                new_site = PeriodicSite(new_sp, site.frac_coords,
+                                        self._lattice,
+                                        coords_are_cartesian=False,
+                                        properties=site.properties)
+                self._sites[i] = new_site
+
+        except IndexError:
+            raise ValueError("Spin of all sites must be "
+                             "specified in the dictionary.")
+
+    def remove_spin(self):
+        """
+        Removes spin states from a structure.
+        """
+        for i, site in enumerate(self._sites):
+            new_sp = collections.defaultdict(float)
+            for sp, occu in site.species_and_occu.items():
+                new_sp[Specie(sp.symbol, oxidation_state=sp.oxi_state)] += occu
+            new_site = PeriodicSite(new_sp, site.frac_coords,
+                                    self._lattice,
+                                    coords_are_cartesian=False,
+                                    properties=site.properties)
+            self._sites[i] = new_site
+
     def make_supercell(self, scaling_matrix, to_unit_cell=True):
         """
         Create a supercell.
@@ -2939,6 +3035,23 @@ class Molecule(IMolecule, collections.MutableSequence):
             if not props:
                 props = {}
             props[property_name] = values[i]
+            self._sites[i] = Site(site.species_and_occu, site.coords,
+                                  properties=props)
+
+    def remove_site_property(self, property_name):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name (str): The name of the property to add.
+            values (list): A sequence of values. Must be same length as
+                number of sites.
+        """
+        for i in range(len(self._sites)):
+            site = self._sites[i]
+            props = {k: v
+                     for k, v in site.properties.items()
+                     if k != property_name}
             self._sites[i] = Site(site.species_and_occu, site.coords,
                                   properties=props)
 

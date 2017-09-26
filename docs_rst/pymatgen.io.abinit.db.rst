@@ -1,5 +1,5 @@
-pymatgen.io.abinit.db module
-============================
+pymatgen\.io\.abinit\.db module
+===============================
 
 .. automodule:: pymatgen.io.abinit.db
     :members:

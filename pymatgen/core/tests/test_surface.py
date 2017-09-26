@@ -41,10 +41,6 @@ class SlabTest(PymatgenTest):
                            [0.500000, 0.000000, 0.500000],
                            [0.500000, 0.500000, 0.000000]])
 
-        laue_groups = ["-1", "2/m", "mmm", "4/m",
-                       "4/mmm", "-3", "-3m", "6/m",
-                       "6/mmm", "m-3", "m-3m"]
-
         self.ti = Ti
         self.agfcc = Ag_fcc
         self.zno1 = zno1
@@ -53,7 +49,6 @@ class SlabTest(PymatgenTest):
                             [[0, 0, 0]])
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
-        self.laue_groups = laue_groups
 
     def test_init(self):
         zno_slab = Slab(self.zno55.lattice, self.zno55.species,
@@ -107,10 +102,38 @@ class SlabTest(PymatgenTest):
         self.assertFalse(self.zno55.is_polar())
         cscl = self.get_structure("CsCl")
         cscl.add_oxidation_state_by_element({"Cs": 1, "Cl": -1})
-        slab = SlabGenerator(cscl, [1, 0, 0], 5, 5,
+        slab = SlabGenerator(cscl, [1, 0, 0], 5, 5, reorient_lattice=False,
                              lll_reduce=False, center_slab=False).get_slab()
         self.assertArrayAlmostEqual(slab.dipole, [-4.209, 0, 0])
         self.assertTrue(slab.is_polar())
+
+    def test_surface_sites_and_symmetry(self):
+        # test if surfaces are equivalent by using
+        # Laue symmetry and surface site equivalence
+
+        for bool in [True, False]:
+            # We will also set the slab to be centered and
+            # off centered in order to test the center of mass
+            slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, center_slab=bool)
+            slab = slabgen.get_slabs()[0]
+            surf_sites_dict = slab.get_surface_sites()
+            self.assertEqual(len(surf_sites_dict["top"]), len(surf_sites_dict["bottom"]))
+            total_surf_sites = sum([len(surf_sites_dict[key])
+                                    for key in surf_sites_dict.keys()])
+            self.assertTrue(slab.is_symmetric())
+            self.assertEqual(total_surf_sites/2, 4)
+            self.assertTrue(slab.have_equivalent_surfaces())
+
+            # Test if the ratio of surface sites per area is
+            # constant, ie are the surface energies the same
+            r1 = total_surf_sites/(2*slab.surface_area)
+            slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, primitive=False)
+            slab = slabgen.get_slabs()[0]
+            surf_sites_dict = slab.get_surface_sites()
+            total_surf_sites = sum([len(surf_sites_dict[key])
+                                    for key in surf_sites_dict.keys()])
+            r2 = total_surf_sites/(2*slab.surface_area)
+            self.assertArrayEqual(r1, r2)
 
     def test_symmetrization(self):
 
@@ -140,10 +163,9 @@ class SlabTest(PymatgenTest):
 
             for i, slab in enumerate(slabs):
                 sg = SpacegroupAnalyzer(slab)
-                pg = sg.get_point_group_symbol()
 
                 # Check if a slab is symmetric
-                if str(pg) not in self.laue_groups:
+                if not sg.is_laue():
                     assymetric_count += 1
                 else:
                     symmetric_count += 1
@@ -151,6 +173,7 @@ class SlabTest(PymatgenTest):
             # Check if slabs are all symmetric
             self.assertEqual(assymetric_count, 0)
             self.assertEqual(symmetric_count, len(slabs))
+
 
 class SlabGeneratorTest(PymatgenTest):
 
@@ -176,8 +199,8 @@ class SlabGeneratorTest(PymatgenTest):
             if sg.crystal_system == "hexagonal" or (sg.crystal_system == \
                     "trigonal" and (sg.symbol.endswith("H") or
                     sg.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
-                                        153, 154, 156, 157, 158, 159, 162, 163,
-                                        164, 165])):
+                                      153, 154, 156, 157, 158, 159, 162, 163,
+                                      164, 165])):
                 latt = Lattice.hexagonal(5, 10)
             else:
                 # Cubic lattice is compatible with all other space groups.
@@ -291,6 +314,59 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertAlmostEqual(norm_slab.lattice.angles[0], 90)
         self.assertAlmostEqual(norm_slab.lattice.angles[1], 90)
 
+    def get_tasker2_slabs(self):
+        # The uneven distribution of ions on the (111) facets of Halite
+        # type slabs are typical examples of Tasker 3 structures. We
+        # will test this algo to generate a Tasker 2 structure instead
+        lattice = Lattice.cubic(3.010)
+        frac_coords = [[0.00000, 0.00000, 0.00000],
+                       [0.00000, 0.50000, 0.50000],
+                       [0.50000, 0.00000, 0.50000],
+                       [0.50000, 0.50000, 0.00000],
+                       [0.50000, 0.00000, 0.00000],
+                       [0.50000, 0.50000, 0.50000],
+                       [0.00000, 0.00000, 0.50000],
+                       [0.00000, 0.50000, 0.00000]]
+        species = ['Mg', 'Mg', 'Mg', 'Mg', 'O', 'O', 'O', 'O']
+        MgO = Structure(lattice, species, frac_coords)
+        MgO.add_oxidation_state_by_element({"Mg": 2, "O": -6})
+        slabgen = SlabGenerator(MgO, (1,1,1), 10, 10,
+                                max_normal_search=1)
+        # We generate the Tasker 3 structure first
+        slab = slabgen.get_slabs()[0]
+        self.assertFalse(slab.is_symmetric())
+        self.assertTrue(slab.is_polar())
+        # Now to generate the Tasker 2 structure, we must
+        # ensure there are enough ions on top to move around
+        slab.make_supercell([2,1,1])
+        slabs = slab.get_tasker2_slabs()
+        # Check if our Tasker 2 slab is nonpolar and symmetric
+        for slab in slabs:
+            self.assertTrue(slab.is_symmetric())
+            self.assertFalse(slab.is_polar())
+
+    def test_move_to_other_side(self):
+
+        # Tests to see if sites are added to opposite side
+        s = self.get_structure("LiFePO4")
+        slabgen = SlabGenerator(s, (0,0,1), 10, 10, center_slab=True)
+        slab = slabgen.get_slab()
+        surface_sites = slab.get_surface_sites()
+
+        # check if top sites are moved to the bottom
+        top_index = [ss[1] for ss in surface_sites["top"]]
+        slab = slabgen.move_to_other_side(slab, top_index)
+        all_bottom = [slab[i].frac_coords[2] < slab.center_of_mass[2]
+                      for i in top_index]
+        self.assertTrue(all(all_bottom))
+
+        # check if bottom sites are moved to the top
+        bottom_index = [ss[1] for ss in surface_sites["bottom"]]
+        slab = slabgen.move_to_other_side(slab, bottom_index)
+        all_top = [slab[i].frac_coords[2] > slab.center_of_mass[2]
+                      for i in bottom_index]
+        self.assertTrue(all(all_top))
+
 
 class MillerIndexFinderTests(PymatgenTest):
 
@@ -350,10 +426,6 @@ class MillerIndexFinderTests(PymatgenTest):
                                    max_broken_bonds=100)
         self.assertEqual(len(slabs), 3)
 
-        slabs1 = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1,
-                                    bonds={("P", "O"): 3})
-        self.assertEqual(len(slabs1), 4)
-
         slabs2 = generate_all_slabs(self.lifepo4, 1, 10, 10,
                                     bonds={("P", "O"): 3, ("Fe", "O"): 3})
         self.assertEqual(len(slabs2), 0)
@@ -366,6 +438,36 @@ class MillerIndexFinderTests(PymatgenTest):
         mill = (0, 0, 1)
         for s in slabs3:
             self.assertEqual(s.miller_index, mill)
+
+        slabs1 = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1,
+                                    bonds={("P", "O"): 3})
+        self.assertEqual(len(slabs1), 4)
+
+        # Now we test this out for repair_broken_bonds()
+        slabs1_repair = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1,
+                                    bonds={("P", "O"): 3}, repair=True)
+        self.assertGreater(len(slabs1_repair), len(slabs1))
+
+        # Lets see if there are no broken PO4 polyhedrons
+        miller_list = get_symmetrically_distinct_miller_indices(self.lifepo4, 1)
+        all_miller_list = []
+        for slab in slabs1_repair:
+            hkl = tuple(slab.miller_index)
+            if hkl not in all_miller_list:
+                all_miller_list.append(hkl)
+            broken = []
+            for site in slab:
+                if site.species_string == "P":
+                    neighbors = slab.get_neighbors(site, 3)
+                    cn = 0
+                    for nn in neighbors:
+                        cn += 1 if nn[0].species_string == "O" else 0
+                    broken.append(cn != 4)
+            self.assertFalse(any(broken))
+
+        # check if we were able to produce at least one
+        # termination for each distinct Miller _index
+        self.assertEqual(len(miller_list), len(all_miller_list))
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,5 @@
-pymatgen.symmetry.maggroups module
-==================================
+pymatgen\.symmetry\.maggroups module
+====================================
 
 .. automodule:: pymatgen.symmetry.maggroups
     :members:

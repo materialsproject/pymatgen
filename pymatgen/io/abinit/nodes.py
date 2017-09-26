@@ -22,7 +22,7 @@ from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from monty.json import MSONable
-from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
+from pymatgen.util.serialization import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_extensions
 
 
@@ -853,7 +853,8 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
    ### Abstract protocol ####
    ##########################
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def status(self):
         """The status of the `Node`."""
 

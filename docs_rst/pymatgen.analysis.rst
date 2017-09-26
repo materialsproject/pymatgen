@@ -1,5 +1,5 @@
-pymatgen.analysis package
-=========================
+pymatgen\.analysis package
+==========================
 
 Subpackages
 -----------
@@ -14,6 +14,8 @@ Subpackages
     pymatgen.analysis.ferroelectricity
     pymatgen.analysis.hhi
     pymatgen.analysis.pourbaix
+    pymatgen.analysis.structure_prediction
+    pymatgen.analysis.xas
 
 Submodules
 ----------
@@ -26,16 +28,20 @@ Submodules
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
    pymatgen.analysis.ewald
+   pymatgen.analysis.interface_reactions
+   pymatgen.analysis.local_env
    pymatgen.analysis.molecule_matcher
    pymatgen.analysis.molecule_structure_comparator
    pymatgen.analysis.nmr
    pymatgen.analysis.path_finder
+   pymatgen.analysis.phase_diagram
    pymatgen.analysis.piezo
    pymatgen.analysis.quasiharmonic
    pymatgen.analysis.reaction_calculator
    pymatgen.analysis.structure_analyzer
    pymatgen.analysis.structure_matcher
    pymatgen.analysis.substrate_analyzer
+   pymatgen.analysis.surface_analysis
    pymatgen.analysis.thermochemistry
    pymatgen.analysis.transition_state
    pymatgen.analysis.wulff

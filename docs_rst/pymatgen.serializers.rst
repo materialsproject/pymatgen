@@ -1,11 +1,5 @@
-pymatgen.serializers package
-============================
-
-Subpackages
------------
-
-.. toctree::
-
+pymatgen\.serializers package
+=============================
 
 Submodules
 ----------

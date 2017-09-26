@@ -64,7 +64,7 @@ Below are a quick look at some of the graphical output possible.
 Why use pymatgen?
 =================
 
-There are many materials analysis codes out there, both commerical and free.
+There are many materials analysis codes out there, both commercial and free.
 So you might ask - why should I use pymatgen over others? Pymatgen offer
 several advantages over other codes out there:
 
@@ -165,6 +165,13 @@ Detailed installation instructions, including installation of
 option dependencies, set up for POTCAR generation, Materials Project REST
 interface usage, setup for developers, etc.are given on this
 :doc:`page </installation>`.
+
+For some extras, you can also install the optional dependencies using::
+
+   pip install pymatgen[extra]
+
+For an always up-to-date list of extras, consult the `setup.py's extras_require
+<https://github.com/materialsproject/pymatgen/blob/master/setup.py>`_.
 
 .. toctree::
    :maxdepth: 2

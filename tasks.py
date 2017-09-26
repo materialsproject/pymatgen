@@ -1,7 +1,4 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from invoke import task
 import glob
 import os
 import json
@@ -10,7 +7,6 @@ import requests
 import re
 import subprocess
 import datetime
-from invoke import task
 
 from monty.os import cd
 from pymatgen import __version__ as CURRENT_VER
@@ -81,11 +77,13 @@ def make_doc(ctx):
         ctx.run("cp -r html/* .")
         ctx.run("rm -r html")
         ctx.run("rm -r doctrees")
+        ctx.run("rm -r _sources")
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
         ctx.run("echo \"pymatgen.org\" > CNAME")
         # Avoid the use of jekyll so that _dir works as intended.
         ctx.run("touch .nojekyll")
+
 
 @task
 def update_doc(ctx):
@@ -97,7 +95,9 @@ def update_doc(ctx):
 
 @task
 def publish(ctx):
-    ctx.run("python setup.py release")
+    ctx.run("rm dist/*.*", warn=True)
+    ctx.run("python setup.py register sdist bdist_wheel")
+    ctx.run("twine upload dist/*")
 
 
 @task
@@ -131,8 +131,8 @@ def update_coverage(ctx):
 
 @task
 def merge_stable(ctx):
-    ctx.run("git commit -a -m \"v%s release\"" % NEW_VER)
-    ctx.run("git push")
+    ctx.run("git tag -a v%s -m \"v%s release\"" % (NEW_VER, NEW_VER))
+    ctx.run("git push --tags")
     ctx.run("git checkout stable")
     ctx.run("git pull")
     ctx.run("git merge master")
@@ -189,7 +189,7 @@ def log_ver(ctx):
 
 @task
 def release(ctx, notest=False):
-    ctx.run("rm -r dist build pymatgen.egg-info")
+    ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
