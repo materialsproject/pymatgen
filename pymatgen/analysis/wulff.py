@@ -166,7 +166,6 @@ class WulffShape(object):
         """
         self.color_ind = list(range(len(miller_list)))
 
-        self.input_miller_fig = [hkl_tuple_to_str(x) for x in miller_list]
         # store input data
         self.structure = Structure(lattice, ["H"], [[0, 0, 0]])
         self.miller_list = tuple([tuple(x) for x in miller_list])
@@ -206,9 +205,9 @@ class WulffShape(object):
         self.on_wulff, self.color_area = self._get_simpx_plane()
 
         miller_area = []
-        for m, in_mill_fig in enumerate(self.input_miller_fig):
+        for m, hkl in enumerate(self.miller_list):
             miller_area.append(
-                in_mill_fig + ' : ' + str(round(self.color_area[m], 4)))
+                hkl_tuple_to_str(hkl) + ' : ' + str(round(self.color_area[m], 4)))
         self.miller_area = miller_area
 
     def _get_all_miller_e(self):
@@ -297,6 +296,11 @@ class WulffShape(object):
         """
         assign colors according to the surface energies of on_wulff facets.
 
+        Args:
+            color_set: default is 'PuBu'. Can be a dictionary of
+                {(h,k,l): (r,g,b,alpha)} if one wishes to customize
+                the facet colors to their liking
+
         return:
             (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
             e_surf_on_wulff_list)
@@ -310,7 +314,6 @@ class WulffShape(object):
                            for i, e_surf in enumerate(self.e_surf_list)
                            if self.on_wulff[i]]
 
-        c_map = plt.get_cmap(color_set)
         e_surf_on_wulff.sort(key=lambda x: x[1], reverse=False)
         e_surf_on_wulff_list = [x[1] for x in e_surf_on_wulff]
         if len(e_surf_on_wulff) > 1:
@@ -320,15 +323,24 @@ class WulffShape(object):
             # if there is only one hkl on wulff, choose the color of the median
             cnorm = mpl.colors.Normalize(vmin=min(e_surf_on_wulff_list) - 0.1,
                                          vmax=max(e_surf_on_wulff_list) + 0.1)
-        scalar_map = mpl.cm.ScalarMappable(norm=cnorm, cmap=c_map)
+
+        if type(color_set).__name__ == 'str':
+            c_map = plt.get_cmap(color_set)
+            scalar_map = mpl.cm.ScalarMappable(norm=cnorm, cmap=c_map)
+        else:
+            scalar_map = None
 
         for i, e_surf in e_surf_on_wulff:
-            plane_color = scalar_map.to_rgba(e_surf, alpha=alpha)
+            plane_color = scalar_map.to_rgba(e_surf, alpha=alpha) if scalar_map \
+                else color_set[tuple(self.miller_list[i])]
             color_list[i] = plane_color
             color_proxy_on_wulff.append(
                 plt.Rectangle((2, 2), 1, 1, fc=plane_color, alpha=alpha))
-            miller_on_wulff.append(self.input_miller_fig[i])
-        scalar_map.set_array([x[1] for x in e_surf_on_wulff])
+            hkl = hkl_tuple_to_str(self.miller_list[i])
+            miller_on_wulff.append(hkl)
+
+        if scalar_map:
+            scalar_map.set_array([x[1] for x in e_surf_on_wulff])
         color_proxy = [plt.Rectangle((2, 2), 1, 1, fc=x, alpha=alpha)
                        for x in color_list]
 
@@ -353,7 +365,9 @@ class WulffShape(object):
         Get the Wulff shape plot.
 
         Args:
-            color_set: default is 'PuBu'
+            color_set: default is 'PuBu'. Can be a dictionary of
+                {(h,k,l): (r,g,b,alpha)} if one wishes to customize
+                the facet colors to their liking
             grid_off (bool): default is True
             axis_off (bool): default is Ture
             show_area (bool): default is False
