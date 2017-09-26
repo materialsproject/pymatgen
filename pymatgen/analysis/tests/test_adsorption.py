@@ -6,7 +6,7 @@ import os
 
 import numpy as np
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.util.coord_utils import in_coord_list, in_coord_list_pbc
+from pymatgen.util.coord import in_coord_list, in_coord_list_pbc
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.analysis.adsorption import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

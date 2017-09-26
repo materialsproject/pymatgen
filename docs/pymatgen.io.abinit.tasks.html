@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -80,7 +80,7 @@ Ideally, the TaskManager should be the <strong>main entry point</strong> used by
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.ENTRIES">
-<code class="descname">ENTRIES</code><em class="property"> = {'policy', 'qadapters', 'db_connector', 'batch_adapter'}</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.ENTRIES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ENTRIES</code><em class="property"> = {'policy', 'batch_adapter', 'db_connector', 'qadapters'}</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.ENTRIES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1127,7 +1127,7 @@ Returns <code class="xref py py-class docutils literal"><span class="pre">Sigres
 <dt id="pymatgen.io.abinit.tasks.OpticTask">
 <em class="property">class </em><code class="descname">OpticTask</code><span class="sig-paren">(</span><em>optic_input</em>, <em>nscf_node</em>, <em>ddk_nodes</em>, <em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.tasks.Task</span></code></p>
-<p>Task for the computation of optical xas with optic i.e.
+<p>Task for the computation of optical spectra with optic i.e.
 RPA without local-field effects and velocity operator computed from DDK files.</p>
 <p>Create an instance of <a class="reference internal" href="#pymatgen.io.abinit.tasks.OpticTask" title="pymatgen.io.abinit.tasks.OpticTask"><code class="xref py py-class docutils literal"><span class="pre">OpticTask</span></code></a> from an string containing the input.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1404,7 +1404,7 @@ the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

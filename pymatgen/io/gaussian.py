@@ -11,7 +11,7 @@ import warnings
 from pymatgen.core.operations import SymmOp
 from pymatgen import Element, Molecule, Composition
 from monty.io import zopen
-from pymatgen.util.coord_utils import get_angle
+from pymatgen.util.coord import get_angle
 import scipy.constants as cst
 
 from pymatgen.electronic_structure.core import Spin

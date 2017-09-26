@@ -6,7 +6,7 @@ from __future__ import division, unicode_literals
 import numpy as np
 
 from pymatgen.core.structure import Structure
-from pymatgen.util.coord_utils import get_linear_interpolated_value
+from pymatgen.util.coord import get_linear_interpolated_value
 from monty.json import MSONable
 
 """

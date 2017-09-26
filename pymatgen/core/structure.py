@@ -33,7 +33,7 @@ from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_angle, all_distances, \
+from pymatgen.util.coord import get_angle, all_distances, \
     lattice_points_in_supercell
 from pymatgen.core.units import Mass, Length
 

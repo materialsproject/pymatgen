@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.pourbaix.analyzer module &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.analysis.pourbaix.analyzer module &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -71,6 +71,26 @@
 <dt id="pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.g">
 <code class="descname">g</code><span class="sig-paren">(</span><em>entry</em>, <em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix/analyzer.html#PourbaixAnalyzer.g"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.g" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get free energy for a given pH, and V.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_all_decomp_and_e_above_hull">
+<code class="descname">get_all_decomp_and_e_above_hull</code><span class="sig-paren">(</span><em>single_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix/analyzer.html#PourbaixAnalyzer.get_all_decomp_and_e_above_hull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_all_decomp_and_e_above_hull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the decomposition entries, species and hull energies
+for all the multi-entries which have the “material” as the only solid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>single_entry</strong> – single entry for which to find all of the
+decompositions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(decomp_entries, hull_energies, decomp_species, entries)
+for all multi_entries containing the single_entry as the
+only solid</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -166,6 +186,24 @@ energy above hull of 0.</td>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_gibbs_free_energy">
+<code class="descname">get_gibbs_free_energy</code><span class="sig-paren">(</span><em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix/analyzer.html#PourbaixAnalyzer.get_gibbs_free_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_gibbs_free_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the gibbs free energy of the Pourbaix stable entry
+at a given pH and V</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pH</strong> – pH
+V: potential vs SHE</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">gibbs free energy (eV/atom)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.numerical_tol">
 <code class="descname">numerical_tol</code><em class="property"> = 1e-08</em><a class="headerlink" href="#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.numerical_tol" title="Permalink to this definition">¶</a></dt>
@@ -211,7 +249,7 @@ energy above hull of 0.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

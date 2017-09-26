@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.phonopy &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.io.phonopy &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -62,10 +62,49 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.phonon.bandstructure</span> <span class="k">import</span> <span class="n">PhononBandStructureSymmLine</span>
 <span class="kn">from</span> <span class="nn">pymatgen.phonon.dos</span> <span class="k">import</span> <span class="n">PhononDos</span><span class="p">,</span> <span class="n">CompletePhononDos</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">phonopy</span> <span class="k">import</span> <span class="n">Phonopy</span>
+<span class="kn">from</span> <span class="nn">phonopy.structure.atoms</span> <span class="k">import</span> <span class="n">PhonopyAtoms</span>
+<span class="kn">from</span> <span class="nn">phonopy.file_IO</span> <span class="k">import</span> <span class="n">write_disp_yaml</span>
+
+
+<div class="viewcode-block" id="get_pmg_structure"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.get_pmg_structure">[docs]</a><span class="k">def</span> <span class="nf">get_pmg_structure</span><span class="p">(</span><span class="n">phonopy_structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a PhonopyAtoms object to pymatgen Structure object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        phonopy_structure (PhonopyAtoms): A phonopy structure object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lattice</span> <span class="o">=</span> <span class="n">phonopy_structure</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+    <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">phonopy_structure</span><span class="o">.</span><span class="n">get_scaled_positions</span><span class="p">()</span>
+    <span class="n">symbols</span> <span class="o">=</span> <span class="n">phonopy_structure</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">()</span>
+    <span class="n">masses</span> <span class="o">=</span> <span class="n">phonopy_structure</span><span class="o">.</span><span class="n">get_masses</span><span class="p">()</span>
+    <span class="n">mms</span> <span class="o">=</span> <span class="n">phonopy_structure</span><span class="o">.</span><span class="n">get_magnetic_moments</span><span class="p">()</span>
+    <span class="n">mms</span> <span class="o">=</span> <span class="n">mms</span> <span class="ow">or</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">symbols</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span>
+                     <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;phonopy_masses&quot;</span><span class="p">:</span> <span class="n">masses</span><span class="p">,</span>
+                                      <span class="s2">&quot;magnetic_moments&quot;</span><span class="p">:</span> <span class="n">mms</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="get_phonopy_structure"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.get_phonopy_structure">[docs]</a><span class="k">def</span> <span class="nf">get_phonopy_structure</span><span class="p">(</span><span class="n">pmg_structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a pymatgen Structure object to a PhonopyAtoms object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pmg_structure (pymatgen Structure): A Pymatgen structure object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">pmg_structure</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">PhonopyAtoms</span><span class="p">(</span><span class="n">symbols</span><span class="o">=</span><span class="n">symbols</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="n">pmg_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
+                        <span class="n">scaled_positions</span><span class="o">=</span><span class="n">pmg_structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_structure_from_dict"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.get_structure_from_dict">[docs]</a><span class="k">def</span> <span class="nf">get_structure_from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
@@ -92,7 +131,8 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The dictionary does not contain structural information&#39;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lattice&#39;</span><span class="p">],</span> <span class="n">species</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;phonopy_masses&quot;</span><span class="p">:</span> <span class="n">masses</span><span class="p">})</span></div>
+    <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lattice&#39;</span><span class="p">],</span> <span class="n">species</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span>
+                     <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;phonopy_masses&quot;</span><span class="p">:</span> <span class="n">masses</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="eigvec_to_eigdispl"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.eigvec_to_eigdispl">[docs]</a><span class="k">def</span> <span class="nf">eigvec_to_eigdispl</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="n">mass</span><span class="p">):</span>
@@ -175,8 +215,10 @@
 
     <span class="n">labels_dict</span> <span class="o">=</span> <span class="n">labels_dict</span> <span class="ow">or</span> <span class="n">phonopy_labels_dict</span>
 
-    <span class="n">ph_bs</span> <span class="o">=</span> <span class="n">PhononBandStructureSymmLine</span><span class="p">(</span><span class="n">qpts</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">rec_latt</span><span class="p">,</span> <span class="n">has_nac</span><span class="o">=</span><span class="n">has_nac</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="n">labels_dict</span><span class="p">,</span>
-                                        <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">eigendisplacements</span><span class="o">=</span><span class="n">eigendisplacements</span><span class="p">)</span>
+    <span class="n">ph_bs</span> <span class="o">=</span> <span class="n">PhononBandStructureSymmLine</span><span class="p">(</span><span class="n">qpts</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">rec_latt</span><span class="p">,</span> <span class="n">has_nac</span><span class="o">=</span><span class="n">has_nac</span><span class="p">,</span>
+                                        <span class="n">labels_dict</span><span class="o">=</span><span class="n">labels_dict</span><span class="p">,</span>
+                                        <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
+                                        <span class="n">eigendisplacements</span><span class="o">=</span><span class="n">eigendisplacements</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ph_bs</span></div>
 
@@ -232,6 +274,61 @@
         <span class="n">pdoss</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdos</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">CompletePhononDos</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">total_dos</span><span class="p">,</span> <span class="n">pdoss</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_displaced_structures"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.get_displaced_structures">[docs]</a><span class="k">def</span> <span class="nf">get_displaced_structures</span><span class="p">(</span><span class="n">pmg_structure</span><span class="p">,</span> <span class="n">atom_disp</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">supercell_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">yaml_fname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a set of symmetrically inequivalent displaced structures for</span>
+<span class="sd">    phonon calculations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pmg_structure (Structure): A pymatgen structure object.</span>
+<span class="sd">        atom_disp (float): Atomic displacement. Default is 0.01 $\AA$.</span>
+<span class="sd">        supercell_matrix (3x3 array): Scaling matrix for supercell.</span>
+<span class="sd">        yaml_fname (string): If not None, it represents the full path to</span>
+<span class="sd">            the outputting displacement yaml file, e.g. disp.yaml.</span>
+<span class="sd">        **kwargs: Parameters used in Phonopy.generate_displacement method.</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        A list of symmetrically inequivalent structures with displacements, in</span>
+<span class="sd">        which the first element is the perfect supercell structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">is_plusminus</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_plusminus&quot;</span><span class="p">,</span> <span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+    <span class="n">is_diagonal</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_diagonal&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">is_trigonal</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_trigonal&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">ph_structure</span> <span class="o">=</span> <span class="n">get_phonopy_structure</span><span class="p">(</span><span class="n">pmg_structure</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">supercell_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">supercell_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">phonon</span> <span class="o">=</span> <span class="n">Phonopy</span><span class="p">(</span><span class="n">unitcell</span><span class="o">=</span><span class="n">ph_structure</span><span class="p">,</span> <span class="n">supercell_matrix</span><span class="o">=</span><span class="n">supercell_matrix</span><span class="p">)</span>
+    <span class="n">phonon</span><span class="o">.</span><span class="n">generate_displacements</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="n">atom_disp</span><span class="p">,</span>
+                                  <span class="n">is_plusminus</span><span class="o">=</span><span class="n">is_plusminus</span><span class="p">,</span>
+                                  <span class="n">is_diagonal</span><span class="o">=</span><span class="n">is_diagonal</span><span class="p">,</span>
+                                  <span class="n">is_trigonal</span><span class="o">=</span><span class="n">is_trigonal</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">yaml_fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">displacements</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">get_displacements</span><span class="p">()</span>
+        <span class="n">directions</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">get_displacement_directions</span><span class="p">()</span>
+        <span class="n">write_disp_yaml</span><span class="p">(</span><span class="n">displacements</span><span class="o">=</span><span class="n">displacements</span><span class="p">,</span>
+                        <span class="n">supercell</span><span class="o">=</span><span class="n">phonon</span><span class="o">.</span><span class="n">get_supercell</span><span class="p">(),</span>
+                        <span class="n">directions</span><span class="o">=</span><span class="n">directions</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">yaml_fname</span><span class="p">)</span>
+
+    <span class="c1"># Supercell structures with displacement</span>
+    <span class="n">disp_supercells</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">get_supercells_with_displacements</span><span class="p">()</span>
+    <span class="c1"># Perfect supercell structure</span>
+    <span class="n">init_supercell</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">get_supercell</span><span class="p">()</span>
+    <span class="c1"># Structure list to be returned</span>
+    <span class="n">structure_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_pmg_structure</span><span class="p">(</span><span class="n">init_supercell</span><span class="p">)]</span>
+
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">disp_supercells</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">continue</span>
+        <span class="n">structure_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_pmg_structure</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">structure_list</span></div>
 </pre></div>
 
           </div>
@@ -262,7 +359,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

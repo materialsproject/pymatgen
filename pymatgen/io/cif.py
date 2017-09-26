@@ -24,7 +24,7 @@ except ImportError:
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from monty.io import zopen
-from pymatgen.util.coord_utils import in_coord_list_pbc, pbc_diff, \
+from pymatgen.util.coord import in_coord_list_pbc, pbc_diff, \
     find_in_coord_list_pbc
 from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
