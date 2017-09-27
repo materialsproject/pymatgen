@@ -5,6 +5,12 @@ import unittest
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.phonopy import *
+try:
+    from phonopy import Phonopy
+    from phonopy.structure.atoms import PhonopyAtoms
+    from phonopy.file_IO import write_disp_yaml
+except ImportError:
+    Phonopy = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "phonopy")
@@ -60,6 +66,8 @@ class PhonopyParserTest(PymatgenTest):
         self.assertIn(Element.Na, cdos.get_element_dos())
         self.assertIn(Element.Cl, cdos.get_element_dos())
 
+
+@unittest.skipIf(Phonopy is None, "Phonopy not present")
 class StructureConversionTest(PymatgenTest):
 
     def test_structure_conversion(self):
@@ -82,6 +90,8 @@ class StructureConversionTest(PymatgenTest):
         self.assertEqual(s_ph.get_number_of_atoms(), s_pmg.num_sites)
         self.assertEqual(s_pmg.num_sites, s_pmg2.num_sites)
 
+
+@unittest.skipIf(Phonopy is None, "Phonopy not present")
 class GetDisplacedStructuresTest(PymatgenTest):
 
     def test_get_displaced_structures(self):

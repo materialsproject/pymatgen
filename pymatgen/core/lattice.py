@@ -15,7 +15,7 @@ from numpy import pi, dot, transpose, radians
 
 from monty.json import MSONable
 from monty.dev import deprecated
-from pymatgen.util.coord_utils import pbc_shortest_vectors
+from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.num import abs_cap
 
 """

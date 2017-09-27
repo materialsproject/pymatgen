@@ -27,7 +27,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.coord_utils import in_coord_list
+from pymatgen.util.coord import in_coord_list
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
 """

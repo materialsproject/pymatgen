@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.plotting module &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.util.plotting module &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -127,7 +127,7 @@ plt: matplotlib pyplot module.</td>
 
 <dl class="function">
 <dt id="pymatgen.util.plotting.periodic_table_heatmap">
-<code class="descname">periodic_table_heatmap</code><span class="sig-paren">(</span><em>elemental_data</em>, <em>cbar_label=''</em>, <em>show_plot=False</em>, <em>cmap='YlOrRd'</em>, <em>blank_color='grey'</em>, <em>show_value=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#periodic_table_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.periodic_table_heatmap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">periodic_table_heatmap</code><span class="sig-paren">(</span><em>elemental_data</em>, <em>cbar_label=''</em>, <em>show_plot=False</em>, <em>cmap='YlOrRd'</em>, <em>blank_color='grey'</em>, <em>value_format=None</em>, <em>max_row=9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#periodic_table_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.periodic_table_heatmap" title="Permalink to this definition">¶</a></dt>
 <dd><p>A static method that generates a heat map overlapped on a periodic table.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -142,9 +142,14 @@ in the final table elemental_data={“Fe”: 4.2, “O”: 5.0}.</li>
 <li><strong>figure_name</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – Name of the plot (absolute path) being saved
 if not None.</li>
 <li><strong>show_plot</strong> (<em>bool</em>) – Whether to show the heatmap. Default is False.</li>
+<li><strong>value_format</strong> (<em>str</em>) – Formatting string to show values. If None, no value
+is shown. Example: “%.4f” shows float to four decimals.</li>
 <li><strong>cmap</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – Color scheme of the heatmap. Default is ‘coolwarm’.</li>
 <li><strong>blank_color</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – Color assigned for the missing elements in
 elemental_data. Default is “grey”.</li>
+<li><strong>max_row</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – Maximum number of rows of the periodic table to be
+shown. Default is 9, which means the periodic table heat map covers
+the first 9 rows of elements.</li>
 </ul>
 </td>
 </tr>
@@ -274,7 +279,7 @@ ratio.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

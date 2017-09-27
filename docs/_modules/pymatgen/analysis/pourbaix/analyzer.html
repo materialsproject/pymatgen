@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.pourbaix.analyzer &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.analysis.pourbaix.analyzer &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -67,6 +67,7 @@
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">cmp_to_key</span>
 <span class="kn">from</span> <span class="nn">pyhull.halfspace</span> <span class="k">import</span> <span class="n">Halfspace</span><span class="p">,</span> <span class="n">HalfspaceIntersection</span>
 <span class="kn">from</span> <span class="nn">pyhull.convex_hull</span> <span class="k">import</span> <span class="n">ConvexHull</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix.entry</span> <span class="k">import</span> <span class="n">MultiEntry</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">zip</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -77,6 +78,7 @@
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Sai Jayaraman&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Arunima Singh, Joseph Montoya&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;sjayaram@mit.edu&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Nov 7, 2012&quot;</span>
@@ -253,12 +255,24 @@
 
     <span class="k">def</span> <span class="nf">_get_facet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get any facet that a composition falls into.</span>
+<span class="sd">        Get any facet that a Pourbaix Entry falls into.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">facet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">facets</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_facet</span><span class="p">(</span><span class="n">facet</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">facet</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No facet found for comp = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_get_all_facets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all the facets that a Pourbaix Entry falls into</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_facets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">facet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">facets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_facet</span><span class="p">(</span><span class="n">facet</span><span class="p">,</span><span class="n">entry</span><span class="p">):</span>
+               <span class="n">all_facets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">facet</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_facets</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No facet found for comp = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
 
     <span class="k">def</span> <span class="nf">_get_facet_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">facet</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -278,6 +292,51 @@
         <span class="n">nPhi</span> <span class="o">=</span> <span class="o">-</span><span class="n">entry</span><span class="o">.</span><span class="n">nPhi</span>
         <span class="k">return</span> <span class="n">g0</span> <span class="o">-</span> <span class="n">npH</span> <span class="o">*</span> <span class="n">pH</span> <span class="o">-</span> <span class="n">nPhi</span> <span class="o">*</span> <span class="n">V</span></div>
 
+<div class="viewcode-block" id="PourbaixAnalyzer.get_all_decomp_and_e_above_hull"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.analyzer.html#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_all_decomp_and_e_above_hull">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_decomp_and_e_above_hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">single_entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the decomposition entries, species and hull energies </span>
+<span class="sd">        for all the multi-entries which have the &quot;material&quot; as the only solid.  </span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            single_entry: single entry for which to find all of the</span>
+<span class="sd">                decompositions</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (decomp_entries, hull_energies, decomp_species, entries)</span>
+<span class="sd">            for all multi_entries containing the single_entry as the</span>
+<span class="sd">            only solid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">decomp_entries</span><span class="p">,</span> <span class="n">hull_energies</span><span class="p">,</span> <span class="n">decomp_species</span><span class="p">,</span> <span class="n">entries</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+
+        <span class="c1"># for all entries where the material is the only solid</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">all_entries</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">MultiEntry</span><span class="p">):</span>
+           <span class="n">possible_entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">all_entries</span>
+                             <span class="k">if</span> <span class="n">single_entry</span> <span class="o">==</span> <span class="n">e</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+           <span class="n">possible_entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">all_entries</span>
+                         <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">phases</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;Solid&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                         <span class="ow">and</span> <span class="n">single_entry</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">entrylist</span><span class="p">]</span>
+        
+        <span class="k">for</span> <span class="n">possible_entry</span> <span class="ow">in</span> <span class="n">possible_entries</span><span class="p">:</span>
+            <span class="c1"># Find the decomposition details if the material</span>
+            <span class="c1"># is in the Pourbaix Multi Entry or Pourbaix Entry</span>
+            <span class="n">facets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_all_facets</span><span class="p">(</span><span class="n">possible_entry</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">facet</span> <span class="ow">in</span> <span class="n">facets</span><span class="p">:</span>
+                <span class="n">entrylist</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">qhull_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">facet</span><span class="p">]</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_comp_matrix</span><span class="p">(</span><span class="n">entrylist</span><span class="p">)</span>
+                <span class="n">compm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_comp_matrix</span><span class="p">([</span><span class="n">possible_entry</span><span class="p">])</span>
+                <span class="n">decomp_amts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">transpose</span><span class="p">()),</span> <span class="n">compm</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+                <span class="n">decomp</span><span class="p">,</span> <span class="n">decomp_names</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">decomp_amt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">decomp_amts</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">decomp_amt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">PourbaixAnalyzer</span><span class="o">.</span><span class="n">numerical_tol</span><span class="p">:</span>
+                        <span class="n">decomp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">qhull_entries</span><span class="p">[</span><span class="n">facet</span><span class="p">[</span><span class="n">i</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">decomp_amt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">decomp_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">decomp</span><span class="p">)</span>
+                <span class="n">hull_energy</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">entry</span><span class="o">.</span><span class="n">g0</span> <span class="o">*</span> <span class="n">amt</span> <span class="k">for</span> <span class="n">entry</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">decomp</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+                <span class="n">hull_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">possible_entry</span><span class="o">.</span><span class="n">g0</span> <span class="o">-</span> <span class="n">hull_energy</span><span class="p">)</span>
+                <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">possible_entry</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">decomp_entries</span><span class="p">,</span> <span class="n">hull_energies</span><span class="p">,</span> <span class="n">entries</span></div>
+
 <div class="viewcode-block" id="PourbaixAnalyzer.get_decomposition"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.analyzer.html#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_decomposition">[docs]</a>    <span class="k">def</span> <span class="nf">get_decomposition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the decomposition at a particular composition</span>
@@ -292,12 +351,14 @@
         <span class="n">entrylist</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">qhull_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">facet</span><span class="p">]</span>
         <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_comp_matrix</span><span class="p">(</span><span class="n">entrylist</span><span class="p">)</span>
         <span class="n">compm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_comp_matrix</span><span class="p">([</span><span class="n">entry</span><span class="p">])</span>
-        <span class="n">decompamts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">transpose</span><span class="p">()),</span> <span class="n">compm</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+        <span class="n">decomp_amts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">transpose</span><span class="p">()),</span> <span class="n">compm</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
         <span class="n">decomp</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_names</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="c1">#Scrub away zero amounts</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">decompamts</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">decompamts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">PourbaixAnalyzer</span><span class="o">.</span><span class="n">numerical_tol</span><span class="p">:</span>
-                <span class="n">decomp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">qhull_entries</span><span class="p">[</span><span class="n">facet</span><span class="p">[</span><span class="n">i</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">decompamts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">decomp_amts</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">decomp_amts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">PourbaixAnalyzer</span><span class="o">.</span><span class="n">numerical_tol</span><span class="p">:</span>
+                <span class="n">decomp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">qhull_entries</span><span class="p">[</span><span class="n">facet</span><span class="p">[</span><span class="n">i</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">decomp_amts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decomp_names</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">qhull_entries</span><span class="p">[</span><span class="n">facet</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">decomp_amts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">decomp</span></div>
 
 <div class="viewcode-block" id="PourbaixAnalyzer.get_decomp_and_e_above_hull"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.analyzer.html#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_decomp_and_e_above_hull">[docs]</a>    <span class="k">def</span> <span class="nf">get_decomp_and_e_above_hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
@@ -313,9 +374,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">g0</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">g0</span>
         <span class="n">decomp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_decomposition</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-        <span class="n">hullenergy</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">entry</span><span class="o">.</span><span class="n">g0</span> <span class="o">*</span> <span class="n">amt</span>
+        <span class="n">hull_energy</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">entry</span><span class="o">.</span><span class="n">g0</span> <span class="o">*</span> <span class="n">amt</span>
                           <span class="k">for</span> <span class="n">entry</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">decomp</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
-        <span class="k">return</span> <span class="n">decomp</span><span class="p">,</span> <span class="n">g0</span> <span class="o">-</span> <span class="n">hullenergy</span></div>
+        <span class="k">return</span> <span class="n">decomp</span><span class="p">,</span> <span class="n">g0</span> <span class="o">-</span> <span class="n">hull_energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_names</span></div>
 
 <div class="viewcode-block" id="PourbaixAnalyzer.get_e_above_hull"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.analyzer.html#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_e_above_hull">[docs]</a>    <span class="k">def</span> <span class="nf">get_e_above_hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -328,7 +389,29 @@
 <span class="sd">            Energy above convex hull of entry. Stable entries should have</span>
 <span class="sd">            energy above hull of 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_decomp_and_e_above_hull</span><span class="p">(</span><span class="n">entry</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_decomp_and_e_above_hull</span><span class="p">(</span><span class="n">entry</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="PourbaixAnalyzer.get_gibbs_free_energy"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.analyzer.html#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_gibbs_free_energy">[docs]</a>    <span class="k">def</span> <span class="nf">get_gibbs_free_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pH</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Provides the gibbs free energy of the Pourbaix stable entry</span>
+<span class="sd">        at a given pH and V</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pH: pH</span>
+<span class="sd">             V: potential vs SHE</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             gibbs free energy (eV/atom) </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">stable_entries</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">pH</span><span class="p">,</span> <span class="n">V</span><span class="p">)})</span>
+        <span class="n">gibbs_energy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">stable_entry</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">gibbs_energy</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">gibbs_energy</span><span class="p">,</span> <span class="n">stable_entry</span><span class="p">)</span></div></div>
+
 </pre></div>
 
           </div>
@@ -359,7 +442,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
