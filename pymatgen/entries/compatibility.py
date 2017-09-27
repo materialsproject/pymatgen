@@ -380,9 +380,10 @@ class UCorrection(Correction):
 
         for el in comp.elements:
             sym = el.symbol
-            #Check for bad U values
+            # Check for bad U values
             if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                raise CompatibilityError('Invalid U value on {}'.format(sym))
+                raise CompatibilityError('Invalid U value of %s on %s' %
+                                         (calc_u.get(sym, 0), sym))
             if sym in ucorr:
                 correction += float(ucorr[sym]) * comp[el]
 
