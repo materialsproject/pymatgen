@@ -5,11 +5,15 @@ import unittest
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.phonopy import *
-try:
-    from phonopy import Phonopy
-    from phonopy.structure.atoms import PhonopyAtoms
-    from phonopy.file_IO import write_disp_yaml
-except ImportError:
+import sys
+if sys.version_info >= (3,0):
+    try:
+        from phonopy import Phonopy
+        from phonopy.structure.atoms import PhonopyAtoms
+        from phonopy.file_IO import write_disp_yaml
+    except ImportError:
+        Phonopy = None
+else:
     Phonopy = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
