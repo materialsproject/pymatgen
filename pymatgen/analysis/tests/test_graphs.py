@@ -105,7 +105,7 @@ class StructureGraphTest(unittest.TestCase):
                      (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (0, 0, 0)}),
                      (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (1, 0, 0)})]
 
-        self.assertEqual(sg.graph.edges(data=True), ref_edges)
+        self.assertEqual(list(sg.graph.edges(data=True)), ref_edges)
 
     def test_str(self):
 
@@ -281,6 +281,9 @@ from    to  to_image
 
         self.assertEqual(molecules[0].composition.formula, "Be1 H16 C26 S2 N2 O2")
         self.assertEqual(len(molecules), 1)
+
+        molecules = self.mos2_sg.get_subgraphs_as_molecules()
+        self.assertEqual(len(molecules), 0)
 
 if __name__ == "__main__":
     unittest.main()

@@ -480,6 +480,8 @@ class Critic2Output(MSONable):
                            [l3[0], l3[1], l3[2]]]
                 unique_critical_points[unique_idx].field_hessian = hessian
 
+        self.critical_points = unique_critical_points
+
         # parse graph connecting critical points
         for i, line in enumerate(stdout):
             if "* Complete CP list, bcp and rcp connectivity table" in line:
@@ -494,13 +496,18 @@ class Critic2Output(MSONable):
         # We perform a mapping from one to the other,
         # and re-index all nodes accordingly.
         node_mapping = {}  # critic2_index:structure_index
-        kd = KDTree(self.structure.frac_coords)
+        # ensure frac coords are in [0,1] range
+        frac_coords = np.array(self.structure.frac_coords) % 1
+        kd = KDTree(frac_coords)
         for i, line in enumerate(stdout):
             if i >= start_i and i <= end_i:
                 l = line.split()
                 if l[2] == "n":
                     critic2_idx = int(l[0]) - 1
-                    frac_coord = [float(l[3]), float(l[4]), float(l[5])]
+                    frac_coord = np.array([float(l[3]), float(l[4]), float(l[5])]) % 1
+                    if critic2_idx != kd.query(frac_coord)[1]:
+                        print(critic2_idx)
+                        print(frac_coord)
                     node_mapping[critic2_idx] = kd.query(frac_coord)[1]
 
         if len(node_mapping) != len(self.structure):
@@ -517,15 +524,15 @@ class Critic2Output(MSONable):
 
                 idx = _remap(int(l[0]) - 1)
                 unique_idx = int(l[1]) - 1
+                frac_coords = [float(l[3]), float(l[4]), float(l[5])]
 
-                self._add_node(idx, unique_idx, [float(l[3]), float(l[4]), float(l[5])])
+                self._add_node(idx, unique_idx, frac_coords)
                 if len(l) > 6:
                     from_idx = _remap(int(l[6]) - 1)
                     to_idx = _remap(int(l[10]) - 1)
                     self._add_edge(idx, from_idx=from_idx, from_lvec=(int(l[7]), int(l[8]), int(l[9])),
                                   to_idx=to_idx, to_lvec=(int(l[11]), int(l[12]), int(l[13])))
 
-        self.critical_points = unique_critical_points
         self._map = node_mapping
 
     def _add_node(self, idx, unique_idx, frac_coords):
@@ -535,14 +542,9 @@ class Critic2Output(MSONable):
         :param idx: unique index
         :param unique_idx: index of unique CriticalPoint,
         used to look up more information of point (field etc.)
-        :param frac_coords: fractional co-ordinates of point
+        :param frac_coord: fractional co-ordinates of point
         :return:
         """
-        if idx < len(self.structure) and \
-                (not np.allclose(self.structure[idx].frac_coords, frac_coords, atol=1e-3)):
-            raise ValueError("Ordering of sites has changed! This may be a parser bug, "
-                             "contact @mkhorton to report it.")
-
         self.nodes[idx] = {'unique_idx': unique_idx, 'frac_coords': frac_coords}
 
     def _add_edge(self, idx, from_idx, from_lvec, to_idx, to_lvec):

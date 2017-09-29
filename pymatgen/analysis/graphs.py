@@ -45,8 +45,8 @@ class StructureGraph(MSONable):
     def __init__(self, structure, graph_data):
         """
         If constructing this class manually, use the `with_empty_graph`
-        method or `with_local_env` method (using an algorithm provided
-        by the `local_env` module, such as O'Keeffe).
+        method or `with_local_env_strategy` method (using an algorithm
+        provided by the `local_env` module, such as O'Keeffe).
 
         This class that contains connection information:
         relationships between sites represented by a Graph structure,
@@ -325,6 +325,7 @@ class StructureGraph(MSONable):
         return self.graph.degree(n)
 
     def draw_graph_to_file(self, filename="graph",
+                           diff=None,
                            hide_unconnected_nodes=False,
                            hide_image_edges=True,
                            edge_colors=False,
@@ -349,6 +350,10 @@ class StructureGraph(MSONable):
         :param filename: filename to output, will detect filetype
         from extension (any graphviz filetype supported, such as
         pdf or png)
+        :param diff (StructureGraph): an additional graph to
+        compare with, will color edges red that do not exist in diff
+        and edges green that are in diff graph but not in the
+        reference graph
         :param hide_unconnected_nodes: if True, hide unconnected
         nodes
         :param hide_image_edges: if True, do not draw edges that
@@ -440,7 +445,7 @@ class StructureGraph(MSONable):
                     d['label'] = "{:.2f} {}".format(d['weight'], units)
 
             # update edge with our new style attributes
-            g.edge[u][v][k].update(d)
+            g.edges[u, v, k].update(d)
 
         # optionally remove periodic image edges,
         # these can be confusing due to periodic boundaries
@@ -452,6 +457,23 @@ class StructureGraph(MSONable):
         # these can appear when removing periodic edges
         if hide_unconnected_nodes:
             g = g.subgraph([n for n in g.degree() if g.degree()[n] != 0])
+
+        # optionally highlight differences with another graph
+        if diff:
+            diff = self.diff(diff, strict=True)
+            green_edges = []
+            red_edges = []
+            for u, v, k, d in g.edges(keys=True, data=True):
+                if (u, v, d['to_jimage']) in diff['self']:
+                    # edge has been deleted
+                    red_edges.append((u, v, k))
+                elif (u, v, d['to_jimage']) in diff['other']:
+                    # edge has been added
+                    green_edges.append((u, v, k))
+            for u, v, k in green_edges:
+                g.edges[u, v, k].update({'color_uv': '#00ff00'})
+            for u, v, k in red_edges:
+                g.edges[u, v, k].update({'color_uv': '#ff0000'})
 
         basename, extension = os.path.splitext(filename)
         extension = extension[1:]
@@ -723,7 +745,7 @@ class StructureGraph(MSONable):
 
         s = header + "\n" + header_line + "\n"
 
-        edges = g.edges(data=True)
+        edges = list(g.edges(data=True))
 
         # sort edges for consistent ordering
         edges.sort(key=itemgetter(0,1))
@@ -821,7 +843,7 @@ class StructureGraph(MSONable):
         return (edges == edges_other) and \
                (self.structure == other_sorted.structure)
 
-    def diff(self, other):
+    def diff(self, other, strict=True):
         """
         Compares two StructureGraphs. Returns dict with
         keys 'self', 'other', 'both' with edges that are
@@ -842,25 +864,41 @@ class StructureGraph(MSONable):
         differently.
 
         :param other: StructureGraph
+        :param strict: if False, will compare bonds
+        from different Structures, with node indices
+        replaced by Specie strings, will not count
+        number of occurrences of bonds
         :return:
         """
 
-        if self.structure != other.structure:
+        if self.structure != other.structure and strict:
             return ValueError("Meaningless to compare StructureGraphs if "
                               "corresponding Structures are different.")
 
-        # sort for consistent node indices
-        # PeriodicSite should have a proper __hash__() value,
-        # using its frac_coords as a convenient key
-        mapping = {tuple(site.frac_coords):self.structure.index(site) for site in other.structure}
-        other_sorted = other.__copy__()
-        other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])
+        if strict:
 
-        edges = {(u, v, d['to_jimage'])
-                 for u, v, d in self.graph.edges(keys=False, data=True)}
+            # sort for consistent node indices
+            # PeriodicSite should have a proper __hash__() value,
+            # using its frac_coords as a convenient key
+            mapping = {tuple(site.frac_coords):self.structure.index(site) for site in other.structure}
+            other_sorted = other.__copy__()
+            other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])
 
-        edges_other = {(u, v, d['to_jimage'])
-                       for u, v, d in other_sorted.graph.edges(keys=False, data=True)}
+            edges = {(u, v, d['to_jimage'])
+                     for u, v, d in self.graph.edges(keys=False, data=True)}
+
+            edges_other = {(u, v, d['to_jimage'])
+                           for u, v, d in other_sorted.graph.edges(keys=False, data=True)}
+
+        else:
+
+            edges = {(str(self.structure[u].specie),
+                      str(self.structure[v].specie))
+                     for u, v, d in self.graph.edges(keys=False, data=True)}
+
+            edges_other = {(str(other.structure[u].specie),
+                            str(other.structure[v].specie))
+                           for u, v, d in other.graph.edges(keys=False, data=True)}
 
         if len(edges) == 0 and len(edges_other) == 0:
             jaccard_dist = 0  # by definition
@@ -887,7 +925,8 @@ class StructureGraph(MSONable):
         as isomorphic if edges have the same weights. Typically,
         this means molecules will need to have the same bond
         lengths to be defined as duplicates, otherwise bond
-        lengths can differ.
+        lengths can differ. This is a fairly robust approach,
+        but will treat e.g. enantiomers as being duplicates.
 
         :return: list of unique Molecules in Structure
         """
@@ -895,7 +934,8 @@ class StructureGraph(MSONable):
         # creating a supercell is an easy way to extract
         # molecules (and not, e.g., layers of a 2D crystal)
         # without adding extra logic
-        supercell_sg = self*(3,3,3)
+        if getattr(self, '_supercell_sg', None) is None:
+            self._supercell_sg = supercell_sg = self*(3,3,3)
 
         # make undirected to find connected subgraphs
         supercell_sg.graph = nx.Graph(supercell_sg.graph)
