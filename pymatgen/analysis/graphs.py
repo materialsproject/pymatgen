@@ -10,7 +10,7 @@ import numpy as np
 import os.path
 
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
-from pymatgen.util.coord_utils import lattice_points_in_supercell
+from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
 
 from monty.json import MSONable
