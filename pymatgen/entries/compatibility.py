@@ -5,6 +5,7 @@
 from __future__ import division, unicode_literals
 
 import os
+import abc
 import warnings
 import six
 from six.moves import filter, map
@@ -19,7 +20,6 @@ from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 
-import abc
 
 """
 This module implements Compatibility corrections for mixing runs of different
@@ -174,8 +174,6 @@ class GasCorrection(Correction):
 
     Args:
         config_file: Path to the selected compatibility.yaml config file.
-        correct_peroxide: Specify whether peroxide/superoxide/ozonide
-            corrections are to be applied or not.
     """
     def __init__(self, config_file):
         c = loadfn(config_file)
@@ -380,9 +378,10 @@ class UCorrection(Correction):
 
         for el in comp.elements:
             sym = el.symbol
-            #Check for bad U values
+            # Check for bad U values
             if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                raise CompatibilityError('Invalid U value on {}'.format(sym))
+                raise CompatibilityError('Invalid U value of %s on %s' %
+                                         (calc_u.get(sym, 0), sym))
             if sym in ucorr:
                 correction += float(ucorr[sym]) * comp[el]
 
@@ -486,9 +485,9 @@ class Compatibility(MSONable):
         corrections = []
         corr_dict = self.get_corrections_dict(entry)
         for c in self.corrections:
-            cd = {"name": str(c)}
-            cd["description"] = c.__doc__.split("Args")[0].strip()
-            cd["value"] = corr_dict.get(str(c), 0)
+            cd = {"name": str(c),
+                  "description": c.__doc__.split("Args")[0].strip(),
+                  "value": corr_dict.get(str(c), 0)}
             corrections.append(cd)
         d["corrections"] = corrections
         return d
@@ -503,10 +502,10 @@ class Compatibility(MSONable):
             entry: A ComputedEntry.
         """
         d = self.get_explanation_dict(entry)
-        print("The uncorrected value of the energy of %s is %f eV" % (
-            entry.composition, d["uncorrected_energy"]))
-        print("The following corrections / screening are applied for %s:\n" %\
-            d["compatibility"])
+        print("The uncorrected value of the energy of %s is %f eV" %
+              (entry.composition, d["uncorrected_energy"]))
+        print("The following corrections / screening are applied for %s:\n" %
+              d["compatibility"])
         for c in d["corrections"]:
             print("%s correction: %s\n" % (c["name"],
                                            c["description"]))
@@ -573,7 +572,7 @@ class MITCompatibility(Compatibility):
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                check_potcar_hash=False):
+                 check_potcar_hash=False):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
@@ -606,7 +605,7 @@ class MITAqueousCompatibility(Compatibility):
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                check_potcar_hash=False):
+                 check_potcar_hash=False):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
@@ -640,7 +639,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                check_potcar_hash=False):
+                 check_potcar_hash=False):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash

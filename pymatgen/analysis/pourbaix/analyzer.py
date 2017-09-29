@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 
-from pymatgen.util.coord_utils import Simplex
+from pymatgen.util.coord import Simplex
 from functools import cmp_to_key
 from pyhull.halfspace import Halfspace, HalfspaceIntersection
 from pyhull.convex_hull import ConvexHull

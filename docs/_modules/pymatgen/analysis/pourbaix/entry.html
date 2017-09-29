@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.pourbaix.entry &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.analysis.pourbaix.entry &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -91,7 +91,7 @@
 
 <span class="n">PREFAC</span> <span class="o">=</span> <span class="mf">0.0591</span>
 
-
+<span class="c1"># TODO: revise pbxentry to include multientries</span>
 <div class="viewcode-block" id="PourbaixEntry"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.entry.html#pymatgen.analysis.pourbaix.entry.PourbaixEntry">[docs]</a><span class="k">class</span> <span class="nc">PourbaixEntry</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An object encompassing all data relevant to an ion in a pourbaix diagram.</span>
@@ -101,15 +101,14 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An</span>
-<span class="sd">            entry object</span>
-<span class="sd">        energy: Energy of entry</span>
+<span class="sd">            entry object </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">IonEntry</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="n">entry</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">conc</span> <span class="o">=</span> <span class="mf">1.0e-6</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">=</span> <span class="s2">&quot;Ion&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">charge</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">ion</span><span class="o">.</span><span class="n">charge</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="n">entry</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">conc</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -117,23 +116,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">uncorrected_energy</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">energy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">correction</span> <span class="o">=</span> <span class="n">correction</span>
-        <span class="n">nH</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">nO</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">nM</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">elt</span> <span class="o">==</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">):</span>
-                <span class="n">nH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span>
-            <span class="k">elif</span> <span class="n">elt</span> <span class="o">==</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">):</span>
-                <span class="n">nO</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">nM</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span>
+        <span class="n">nH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span> 
+        <span class="n">nO</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+        <span class="n">nM</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">-</span> <span class="n">nH</span> <span class="o">-</span> <span class="n">nO</span>
+ 
         <span class="bp">self</span><span class="o">.</span><span class="n">nM</span> <span class="o">=</span> <span class="n">nM</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">npH</span> <span class="o">=</span> <span class="p">(</span><span class="n">nH</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nO</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nH2O</span> <span class="o">=</span> <span class="n">nO</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nPhi</span> <span class="o">=</span> <span class="p">(</span><span class="n">nH</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nO</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Solid&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+=</span> <span class="s2">&quot;(s)&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Ion&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span> 
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -262,9 +257,10 @@
             <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;Pourbaix Entry : </span><span class="si">{}</span><span class="s2"> with energy = </span><span class="si">{:.4f}</span><span class="s2">, npH = </span><span class="si">{}</span><span class="s2">, nPhi = </span><span class="si">{}</span><span class="s2">,</span><span class="se">\</span>
-<span class="s2">             nH2O = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">npH</span><span class="p">,</span>
-                               <span class="bp">self</span><span class="o">.</span><span class="n">nPhi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nH2O</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;Pourbaix Entry : </span><span class="si">{}</span><span class="s2"> with energy = </span><span class="si">{:.4f}</span><span class="s2">, npH = </span><span class="si">{}</span><span class="s2">, &quot;</span>\
+               <span class="s2">&quot;nPhi = </span><span class="si">{}</span><span class="s2">, nH2O = </span><span class="si">{}</span><span class="s2">, entry_id = </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">npH</span><span class="p">,</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">nPhi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nH2O</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
@@ -296,6 +292,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">nM</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_composition</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span> <span class="n">entry_list</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">uncorrected_energy</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> \
                 <span class="n">e</span><span class="o">.</span><span class="n">uncorrected_energy</span>
@@ -306,6 +303,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">nM</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">e</span><span class="o">.</span><span class="n">nM</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+=</span> <span class="n">e</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; + &quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">entry_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_composition</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
 
     <span class="nd">@property</span>
@@ -328,13 +326,17 @@
         <span class="k">return</span> <span class="n">fact</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Multiple Pourbaix Entry : with energy = </span><span class="si">{:.4f}</span><span class="s2">, npH = </span><span class="si">{}</span><span class="s2">, &quot;</span>\
-            <span class="s2">&quot;nPhi = </span><span class="si">{}</span><span class="s2">, nH2O = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">g0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">npH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nPhi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nH2O</span><span class="p">)</span>
-        <span class="nb">str</span> <span class="o">+=</span> <span class="s2">&quot;, species: &quot;</span>
-        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entrylist</span><span class="p">:</span>
-            <span class="nb">str</span> <span class="o">+=</span> <span class="n">entry</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; + &quot;</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot;Multiple Pourbaix Entry : with energy = </span><span class="si">{:.4f}</span><span class="s2">, npH = </span><span class="si">{}</span><span class="s2">, &quot;</span>\
+               <span class="s2">&quot;nPhi = </span><span class="si">{}</span><span class="s2">, nH2O = </span><span class="si">{}</span><span class="s2">, entry_id = </span><span class="si">{}</span><span class="s2">, species: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">g0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">npH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nPhi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nH2O</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">phase_type</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entrylist</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_composition</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
@@ -366,21 +368,23 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">composition</span> <span class="o">=</span> <span class="n">ion</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ion</span> <span class="o">=</span> <span class="n">ion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">composition</span> <span class="o">=</span> <span class="n">ion</span><span class="o">.</span><span class="n">composition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ion</span><span class="o">.</span><span class="n">reduced_formula</span>
 
 <div class="viewcode-block" id="IonEntry.from_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.entry.html#pymatgen.analysis.pourbaix.entry.IonEntry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an IonEntry object from a dict.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">IonEntry</span><span class="p">(</span><span class="n">Ion</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;composition&quot;</span><span class="p">]),</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="n">IonEntry</span><span class="p">(</span><span class="n">Ion</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;ion&quot;</span><span class="p">]),</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">],</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="IonEntry.as_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.entry.html#pymatgen.analysis.pourbaix.entry.IonEntry.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a dict of composition, energy, and ion name</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;composition&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">}</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ion&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ion</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> 
+             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
     <span class="nd">@property</span>
@@ -534,7 +538,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

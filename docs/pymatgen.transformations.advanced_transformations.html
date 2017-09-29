@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -154,7 +154,7 @@ i.e., min_cell_size, etc.</li>
 
 <dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation">
-<em class="property">class </em><code class="descname">EnumerateStructureTransformation</code><span class="sig-paren">(</span><em>min_cell_size=1</em>, <em>max_cell_size=1</em>, <em>symm_prec=0.1</em>, <em>refine_structure=False</em>, <em>enum_precision_parameter=0.001</em>, <em>check_ordered_symmetry=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">EnumerateStructureTransformation</code><span class="sig-paren">(</span><em>min_cell_size=1</em>, <em>max_cell_size=1</em>, <em>symm_prec=0.1</em>, <em>occu_tol=None</em>, <em>refine_structure=False</em>, <em>enum_precision_parameter=0.001</em>, <em>check_ordered_symmetry=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Order a disordered structure using enumlib. For complete orderings, this
 generally produces fewer structures that the OrderDisorderedStructure
@@ -164,17 +164,26 @@ transformation, and at a much faster speed.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>min_cell_size</strong> – The minimum cell size wanted. Must be an int. Defaults to 1.</li>
-<li><strong>max_cell_size</strong> – The maximum cell size wanted. Must be an int. Defaults to 1.</li>
-<li><strong>symm_prec</strong> – Tolerance to use for symmetry.</li>
-<li><strong>refine_structure</strong> – This parameter has the same meaning as in enumlib_caller.
-If you are starting from a structure that has been relaxed via
-some electronic structure code, it is usually much better to
-start with symmetry determination and then obtain a refined
-structure. The refined structure have cell parameters and
+<li><strong>min_cell_size</strong> (<em>int</em>) – The minimum cell size wanted. Must be an int.
+Defaults to 1.</li>
+<li><strong>max_cell_size</strong> (<em>int</em>) – The maximum cell size wanted. Must be an int.
+Defaults to 1.</li>
+<li><strong>symm_prec</strong> (<em>float</em>) – Tolerance to use for symmetry detection. Defaults to
+0.1.</li>
+<li><strong>occu_tol</strong> (<em>int</em>) – If set, the code will first round and scale
+occupancies to the nearest rational number, with maximum
+denominator = occu_tol. This handles structures that contain
+partial occupancies that are close to a rational number. E.g.,
+sometimes the reported occupancy is 0.249, and if occu_tol is set
+to 4, this will be rounded to 0.25.</li>
+<li><strong>refine_structure</strong> (<em>bool</em>) – This parameter has the same meaning as in
+enumlib_caller. If you are starting from a structure that has been
+relaxed via some electronic structure code, it is usually much
+better to start with symmetry determination and then obtain a
+refined structure. The refined structure have cell parameters and
 atomic positions shifted to the expected symmetry positions,
 which makes it much less sensitive precision issues in enumlib.
-If you are already starting from an experimental cif, refinment
+If you are already starting from an experimental cif, refinement
 should have already been done and it is not necessary. Defaults
 to False.</li>
 <li><strong>enum_precision_parameter</strong> (<em>float</em>) – Finite precision parameter for
@@ -496,7 +505,7 @@ added to the full list. Defaults to 1, i.e., only best structure.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 
