@@ -246,6 +246,17 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(conv.lattice.b, 31.437979757624728)
         self.assertAlmostEqual(conv.lattice.c, 3.99648651)
 
+        parser = CifParser(os.path.join(test_dir, 'orac_632475.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure()
+        self.assertAlmostEqual(conv.lattice.alpha, 90)
+        self.assertAlmostEqual(conv.lattice.beta, 90)
+        self.assertAlmostEqual(conv.lattice.gamma, 90)
+        self.assertAlmostEqual(conv.lattice.a, 3.1790663399999999)
+        self.assertAlmostEqual(conv.lattice.b, 9.9032878699999998)
+        self.assertAlmostEqual(conv.lattice.c, 3.5372412099999999)
+
         parser = CifParser(os.path.join(test_dir, 'monoc_1028.cif'))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
@@ -312,6 +323,17 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(prim.lattice.a, 15.854897098324196)
         self.assertAlmostEqual(prim.lattice.b, 15.854897098324196)
         self.assertAlmostEqual(prim.lattice.c, 3.99648651)
+
+        parser = CifParser(os.path.join(test_dir, 'orac_632475.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure()
+        self.assertAlmostEqual(prim.lattice.alpha, 90)
+        self.assertAlmostEqual(prim.lattice.beta, 90)
+        self.assertAlmostEqual(prim.lattice.gamma, 144.40557588533386)
+        self.assertAlmostEqual(prim.lattice.a, 5.2005185662155391)
+        self.assertAlmostEqual(prim.lattice.b, 5.2005185662155391)
+        self.assertAlmostEqual(prim.lattice.c, 3.5372412099999999)
 
         parser = CifParser(os.path.join(test_dir, 'monoc_1028.cif'))
         structure = parser.get_structures(False)[0]

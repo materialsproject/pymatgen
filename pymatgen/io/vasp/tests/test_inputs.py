@@ -146,6 +146,34 @@ cart
         self.assertArrayAlmostEqual(site.coords,
                                     np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
+    def test_significant_figures(self):
+        si = 14
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+
+        # Silicon structure for testing.
+        latt = [[3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603]]
+        struct = Structure(latt, [si, si], coords)
+        poscar = Poscar(struct)
+        expected_str = '''Si2
+1.0
+3.84 0.00 0.00
+1.92 3.33 0.00
+0.00 -2.22 3.14
+Si
+2
+direct
+0.00 0.00 0.00 Si
+0.75 0.50 0.75 Si
+'''
+
+        actual_str = poscar.get_string(significant_figures=2)
+        self.assertEqual(actual_str, expected_str, "Wrong POSCAR output!")
+
+
     def test_str(self):
         si = 14
         coords = list()

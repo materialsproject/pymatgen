@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Introduction &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>Introduction &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -47,7 +47,7 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -106,7 +106,7 @@ DiffusionAnalyzer.</span></p>
 </div>
 <div class="section" id="why-use-pymatgen">
 <h1>Why use pymatgen?<a class="headerlink" href="#why-use-pymatgen" title="Permalink to this headline">¶</a></h1>
-<p>There are many materials analysis codes out there, both commerical and free.
+<p>There are many materials analysis codes out there, both commercial and free.
 So you might ask - why should I use pymatgen over others? Pymatgen offer
 several advantages over other codes out there:</p>
 <ol class="arabic simple">
@@ -142,11 +142,15 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 </div>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2017-9-3">
-<h2>v2017.9.3<a class="headerlink" href="#v2017-9-3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2017-9-23">
+<h2>v2017.9.23<a class="headerlink" href="#v2017-9-23" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>VDW support (Marco Esters)</li>
-<li>Bug fix release.</li>
+<li>Gibbs free energy of a material with respect to Pourbaix stable domains.</li>
+<li>Phonopy io now supports structure conversions.</li>
+<li>EnumerateStructureTransformation now implements a useful occupancy rounding.</li>
+<li>MVLNPTMDSet</li>
+<li>Improved PDPlotter options.</li>
+<li>Misc bug fixes.</li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -209,6 +213,11 @@ cloning the source, you can type in the root of the repo:</p>
 option dependencies, set up for POTCAR generation, Materials Project REST
 interface usage, setup for developers, etc.are given on this
 <a class="reference internal" href="installation.html"><span class="doc">page</span></a>.</p>
+<p>For some extras, you can also install the optional dependencies using:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pymatgen</span><span class="p">[</span><span class="n">extra</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For an always up-to-date list of extras, consult the <a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/master/setup.py">setup.py’s extras_require</a>.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Requirements</a><ul>
@@ -632,7 +641,7 @@ to indicate the copyright and license terms:</p>
 <li><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li><a class="reference internal" href="#change-log">Change log</a><ul>
-<li><a class="reference internal" href="#v2017-9-3">v2017.9.3</a></li>
+<li><a class="reference internal" href="#v2017-9-23">v2017.9.23</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a><ul>
@@ -697,7 +706,7 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

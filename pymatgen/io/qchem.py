@@ -22,7 +22,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Energy, FloatWithUnit
 from monty.json import MSONable
-from pymatgen.util.coord_utils import get_angle
+from pymatgen.util.coord import get_angle
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2013, The Electrolyte Genome Project"

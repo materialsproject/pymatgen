@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lammps.data &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.io.lammps.data &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -155,17 +155,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span> <span class="o">=</span> <span class="n">box_tilt</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">atom_style</span> <span class="o">=</span> <span class="n">atom_style</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">significant_figures</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        string representation of LammpsData</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            significant_figures (int): No. of significant figures to</span>
+<span class="sd">                output. Default to 6.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            String representation of the data file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">float_fmt</span> <span class="o">=</span> <span class="s1">&#39;%.</span><span class="si">{}</span><span class="s1">f&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">significant_figures</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">list_str</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ad</span><span class="p">])</span>
-                              <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="n">l</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">list_str</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">accu_sw</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Need to use accu_sw to control if to use float_format or not.</span>
+<span class="sd">            Since for atomic mass, Lammps cannot read in formatted value.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">accu_sw</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">float_fmt</span> <span class="o">%</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ad</span><span class="p">])</span>
+                                    <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="n">l</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ad</span><span class="p">])</span>
+                                  <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="n">l</span><span class="p">])</span>
 
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">LammpsData</span><span class="o">.</span><span class="n">TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -178,7 +190,7 @@
             <span class="n">tilt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.6f}</span><span class="s2"> </span><span class="si">{:.6f}</span><span class="s2"> </span><span class="si">{:.6f}</span><span class="s2"> xy xz yz&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="n">masses</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_masses</span><span class="p">),</span>
-            <span class="n">atoms</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms_data</span><span class="p">),</span>
+            <span class="n">atoms</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms_data</span><span class="p">,</span> <span class="n">accu_sw</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
             <span class="o">**</span><span class="n">d</span>
         <span class="p">)</span>
 
@@ -204,7 +216,7 @@
 
         <span class="n">gamma</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">xy</span> <span class="o">/</span> <span class="n">b</span><span class="p">))</span>
         <span class="n">beta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">xz</span> <span class="o">/</span> <span class="n">c</span><span class="p">))</span>
-        <span class="n">alpha</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">((</span><span class="n">yhi</span> <span class="o">*</span> <span class="n">yz</span> <span class="o">+</span> <span class="n">xy</span> <span class="o">*</span> <span class="n">xz</span><span class="p">)</span> <span class="o">/</span> <span class="n">a</span> <span class="o">/</span> <span class="n">c</span><span class="p">))</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">((</span><span class="n">yhi</span> <span class="o">*</span> <span class="n">yz</span> <span class="o">+</span> <span class="n">xy</span> <span class="o">*</span> <span class="n">xz</span><span class="p">)</span> <span class="o">/</span> <span class="n">b</span> <span class="o">/</span> <span class="n">c</span><span class="p">))</span>
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">)</span>
         <span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
@@ -280,16 +292,18 @@
             <span class="n">box_tilt</span> <span class="o">=</span> <span class="p">[</span><span class="n">xy</span><span class="p">,</span> <span class="n">xz</span><span class="p">,</span> <span class="n">yz</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">box_size</span><span class="p">,</span> <span class="n">box_tilt</span></div>
 
-<div class="viewcode-block" id="LammpsData.write_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsData.write_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">significant_figures</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        write lammps data input file from the string representation</span>
 <span class="sd">        of the data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            filename (string): data file name</span>
+<span class="sd">            significant_figures (int): No. of significant figures to</span>
+<span class="sd">                output. Default to 6.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="n">significant_figures</span><span class="o">=</span><span class="n">significant_figures</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="LammpsData.get_basic_system_info"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_basic_system_info">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_basic_system_info</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
@@ -315,8 +329,8 @@
              <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elements</span><span class="p">)])</span>
         <span class="k">return</span> <span class="n">natoms</span><span class="p">,</span> <span class="n">natom_types</span><span class="p">,</span> <span class="n">atomic_masses_dict</span></div>
 
-<div class="viewcode-block" id="LammpsData.get_atoms_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_atoms_data">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_atoms_data</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="p">,</span> <span class="n">set_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="LammpsData.get_atoms_data"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_atoms_data">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_atoms_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">atomic_masses_dict</span><span class="p">,</span> <span class="n">set_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        return the atoms data:</span>
 <span class="sd">            Molecule:</span>
@@ -343,6 +357,19 @@
 <span class="sd">            For Structure:</span>
 <span class="sd">                [[atom_id, atom_type, charge(if present), x, y, z], ... ]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># for structure,create new lattice. Lammps data requires lattice vector a is in x-direction.</span>
+        <span class="c1"># The plane formed by lattice vector a,b should be perpendicular to z-direction.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+            <span class="n">box_size</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">box_size</span><span class="p">,</span> <span class="n">box_tilt</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">check_box_size</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">box_size</span><span class="p">)</span>
+<span class="c1">#            xy, xz, yz = box_tilt if box_tilt is not None else [0.0, 0.0, 0.0]</span>
+            <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">box_size</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">box_tilt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box_size</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span>
+                               <span class="p">[</span><span class="n">box_tilt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">box_tilt</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">box_size</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]]])</span>
+            <span class="n">new_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+
+            <span class="c1"># rotate the original structure according to the new lattice.</span>
+            <span class="n">structure</span><span class="o">.</span><span class="n">modify_lattice</span><span class="p">(</span><span class="n">new_lattice</span><span class="p">)</span>
+
         <span class="n">atoms_data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># to comply with atom_style=&#39;molecular&#39; and &#39;full&#39;</span>
         <span class="n">mol_id</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
@@ -561,14 +588,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dihedrals_data</span> <span class="o">=</span> <span class="n">dihedrals_data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">imdihedrals_data</span> <span class="o">=</span> <span class="n">imdihedrals_data</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">significant_figures</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            significant_figures (int): No. of significant figures to</span>
+<span class="sd">                output. Default to 6.</span>
 <span class="sd">        returns a string of lammps data input file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">float_fmt</span> <span class="o">=</span> <span class="s1">&#39;%.</span><span class="si">{}</span><span class="s1">f&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">significant_figures</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">list_str</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ad</span><span class="p">])</span>
-                              <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="n">l</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">list_str</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">accu_sw</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Need to use accu_sw to control if to use float_format or not.</span>
+<span class="sd">            Since for atomic mass, Lammps cannot read in formatted value.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">accu_sw</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">float_fmt</span> <span class="o">%</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ad</span><span class="p">])</span>
+                                    <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="n">l</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ad</span><span class="p">])</span>
+                                  <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="n">l</span><span class="p">])</span>
 
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pair&quot;</span><span class="p">,</span> <span class="s2">&quot;bond&quot;</span><span class="p">,</span> <span class="s2">&quot;angle&quot;</span><span class="p">,</span> <span class="s2">&quot;dihedral&quot;</span><span class="p">,</span> <span class="s2">&quot;improper&quot;</span><span class="p">]:</span>
@@ -584,11 +623,11 @@
             <span class="n">tilt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.6f}</span><span class="s2"> </span><span class="si">{:.6f}</span><span class="s2"> </span><span class="si">{:.6f}</span><span class="s2"> xy xz yz&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="n">masses</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_masses</span><span class="p">),</span>
-            <span class="n">atoms</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms_data</span><span class="p">),</span>
-            <span class="n">bonds</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bonds_data</span><span class="p">),</span>
-            <span class="n">angles</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angles_data</span><span class="p">),</span>
-            <span class="n">dihedrals</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dihedrals_data</span><span class="p">),</span>
-            <span class="n">impropers</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imdihedrals_data</span><span class="p">),</span>
+            <span class="n">atoms</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms_data</span><span class="p">,</span> <span class="n">accu_sw</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">bonds</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bonds_data</span><span class="p">,</span> <span class="n">accu_sw</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">angles</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angles_data</span><span class="p">,</span> <span class="n">accu_sw</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">dihedrals</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dihedrals_data</span><span class="p">,</span><span class="n">accu_sw</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">impropers</span><span class="o">=</span><span class="n">list_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imdihedrals_data</span><span class="p">,</span><span class="n">accu_sw</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
             <span class="o">**</span><span class="n">d</span>
         <span class="p">)</span>
 
@@ -995,7 +1034,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

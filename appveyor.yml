@@ -33,6 +33,7 @@ install:
   - 'conda update --yes --all'
   - "pip install -r requirements.txt"
   - "pip install pybtex nose coverage ase coveralls fdint ase twine networkx"  # Note that pyhull is excluded because it does not work on Windows.
+  - "pip install pybtex nose coverage ase coveralls fdint ase phonopy twine networkx"  # Note that pyhull is excluded because it does not work on Windows.
 
   # Run develop to install in dev mode and build C extension.
   - "python setup.py develop"

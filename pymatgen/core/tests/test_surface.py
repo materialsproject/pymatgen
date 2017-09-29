@@ -345,6 +345,28 @@ class SlabGeneratorTest(PymatgenTest):
             self.assertTrue(slab.is_symmetric())
             self.assertFalse(slab.is_polar())
 
+    def test_move_to_other_side(self):
+
+        # Tests to see if sites are added to opposite side
+        s = self.get_structure("LiFePO4")
+        slabgen = SlabGenerator(s, (0,0,1), 10, 10, center_slab=True)
+        slab = slabgen.get_slab()
+        surface_sites = slab.get_surface_sites()
+
+        # check if top sites are moved to the bottom
+        top_index = [ss[1] for ss in surface_sites["top"]]
+        slab = slabgen.move_to_other_side(slab, top_index)
+        all_bottom = [slab[i].frac_coords[2] < slab.center_of_mass[2]
+                      for i in top_index]
+        self.assertTrue(all(all_bottom))
+
+        # check if bottom sites are moved to the top
+        bottom_index = [ss[1] for ss in surface_sites["bottom"]]
+        slab = slabgen.move_to_other_side(slab, bottom_index)
+        all_top = [slab[i].frac_coords[2] > slab.center_of_mass[2]
+                      for i in bottom_index]
+        self.assertTrue(all(all_top))
+
 
 class MillerIndexFinderTests(PymatgenTest):
 
@@ -404,10 +426,6 @@ class MillerIndexFinderTests(PymatgenTest):
                                    max_broken_bonds=100)
         self.assertEqual(len(slabs), 3)
 
-        slabs1 = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1,
-                                    bonds={("P", "O"): 3})
-        self.assertEqual(len(slabs1), 4)
-
         slabs2 = generate_all_slabs(self.lifepo4, 1, 10, 10,
                                     bonds={("P", "O"): 3, ("Fe", "O"): 3})
         self.assertEqual(len(slabs2), 0)
@@ -420,6 +438,36 @@ class MillerIndexFinderTests(PymatgenTest):
         mill = (0, 0, 1)
         for s in slabs3:
             self.assertEqual(s.miller_index, mill)
+
+        slabs1 = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1,
+                                    bonds={("P", "O"): 3})
+        self.assertEqual(len(slabs1), 4)
+
+        # Now we test this out for repair_broken_bonds()
+        slabs1_repair = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1,
+                                    bonds={("P", "O"): 3}, repair=True)
+        self.assertGreater(len(slabs1_repair), len(slabs1))
+
+        # Lets see if there are no broken PO4 polyhedrons
+        miller_list = get_symmetrically_distinct_miller_indices(self.lifepo4, 1)
+        all_miller_list = []
+        for slab in slabs1_repair:
+            hkl = tuple(slab.miller_index)
+            if hkl not in all_miller_list:
+                all_miller_list.append(hkl)
+            broken = []
+            for site in slab:
+                if site.species_string == "P":
+                    neighbors = slab.get_neighbors(site, 3)
+                    cn = 0
+                    for nn in neighbors:
+                        cn += 1 if nn[0].species_string == "O" else 0
+                    broken.append(cn != 4)
+            self.assertFalse(any(broken))
+
+        # check if we were able to produce at least one
+        # termination for each distinct Miller _index
+        self.assertEqual(len(miller_list), len(all_miller_list))
 
 if __name__ == "__main__":
     unittest.main()
