@@ -122,7 +122,7 @@ class StandardTransmuter(object):
         """
         if self.ncores and transformation.use_multiprocessing:
             p = Pool(self.ncores)
-            #need to condense arguments into single tuple to use map
+            # need to condense arguments into single tuple to use map
             z = map(
                 lambda x: (x, transformation, extend_collection, clear_redo),
                 self.transformed_structures)
@@ -173,7 +173,7 @@ class StandardTransmuter(object):
         output_dir, following the format output_dir/{formula}_{number}.
 
         Args:
-            vasp_input_set: pymatgen.io.vaspio_set.VaspInputSet to create
+            vasp_input_set: pymatgen.io.vasp.set.VaspInputSet to create
                 vasp input files from structures
             output_dir: Directory to output files
             create_directory (bool): Create the directory if not present.
