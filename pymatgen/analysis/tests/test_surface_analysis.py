@@ -6,8 +6,6 @@ import json
 
 import numpy as np
 
-from pymatgen import SETTINGS
-from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.analysis.surface_analysis import SurfaceEnergyCalculator, \
     SurfaceEnergyPlotter, Composition
 from pymatgen.util.testing import PymatgenTest
@@ -27,17 +25,16 @@ def get_path(path_str):
                         "surface_tests", path_str)
     return path
 
-@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
-                 "PMG_MAPI_KEY environment variable not set.")
-
 class SurfaceEnergyCalculatorTest(PymatgenTest):
 
     def setUp(self):
 
         self.entry_dict = get_entry_dict(os.path.join(get_path(""),
                                                       "Cu_entries.txt"))
-        c = Composition("Cu")
-        self.Cu_analyzer = SurfaceEnergyCalculator("mp-30", c, c)
+        with open(os.path.join(get_path(""), 'Cu_ucell_entry.txt')) as ucell_entry:
+            ucell_entry = json.loads(ucell_entry.read())
+        ucell_entry = ComputedStructureEntry.from_dict(ucell_entry)
+        self.Cu_analyzer = SurfaceEnergyCalculator(ucell_entry)
 
     def test_gamma_calculator(self):
 
@@ -47,7 +44,7 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
         self.assertEqual(len(self.entry_dict.keys()), 13)
         all_se = []
         for hkl, entries in self.entry_dict.items():
-            u1, u2 = self.Cu_analyzer.chempot_range()
+            u1, u2 = -1, 0
             se1 = self.Cu_analyzer.calculate_gamma_at_u(list(entries.keys())[0], u_ref=u1)
             se2 = self.Cu_analyzer.calculate_gamma_at_u(list(entries.keys())[0], u_ref=u2)
             # For a stoichiometric system, we expect surface
@@ -69,16 +66,16 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
         self.assertEqual(b1, 0)
         self.assertEqual(b3, min(all_se))
 
-    def test_chempot_range(self):
-
-        # check we always get two values in a list
-        chempot = self.Cu_analyzer.chempot_range()
-        self.assertEqual(len(chempot), 2)
-
-        # test chemical potential range when using the same reference composition
-        chempot = self.Cu_analyzer.chempot_range()
-        self.assertArrayEqual(-1, chempot[0])
-        self.assertArrayEqual(0, chempot[1])
+    # def test_chempot_range(self):
+    #
+    #     # check we always get two values in a list
+    #     chempot = self.Cu_analyzer.chempot_range()
+    #     self.assertEqual(len(chempot), 2)
+    #
+    #     # test chemical potential range when using the same reference composition
+    #     chempot = self.Cu_analyzer.chempot_range()
+    #     self.assertArrayEqual(-1, chempot[0])
+    #     self.assertArrayEqual(0, chempot[1])
 
     def test_adsorption_quantities(self):
 

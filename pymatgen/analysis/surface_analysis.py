@@ -5,9 +5,10 @@
 """
 TODO:
     -Only works for monatomic adsorbates
-    -Only works for slabs of three species or less, e.g.
-        clean ternary, binary+adsorbate, clean binary,
-        elemental+adsorbate or clean elemental slab
+    -Only works for 1 reference element if we are dealing
+        with non-stoichiometric slabs.
+    -Need a method to automatically get chempot range when
+        dealing with non-stoichiometric slabs
     -Will address these issues and make the analyzer more
         generalized in the future
 """
@@ -24,11 +25,9 @@ from pymatgen.core.structure import Structure, Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.surface import Slab
 from pymatgen.analysis.wulff import WulffShape
-from pymatgen import MPRester
-from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen import Element
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.analysis.reaction_calculator import ComputedReaction
+from pymatgen.analysis.reaction_calculator import Reaction
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -100,9 +99,8 @@ class SurfaceEnergyCalculator(object):
 
     """
 
-    def __init__(self, ucell_entry, comp1, ref_el_comp,
-                 exclude_ids=[], custom_entries=[],
-                 mapi_key=None, adsorbate_entry=None):
+    def __init__(self, ucell_entry, ref_el_entry=None,
+                 adsorbate_entry=None):
         """
         Analyzes surface energies and Wulff shape of a particular
             material using the chemical potential.
@@ -128,45 +126,36 @@ class SurfaceEnergyCalculator(object):
                     Either way, the extract term is going to be in energy per atom.
         """
 
-        self.comp1 = comp1
-        self.ref_el_comp = ref_el_comp
-        self.mprester = MPRester(mapi_key) if mapi_key else MPRester()
-        self.ucell_entry = self.mprester.get_entry_by_material_id( \
-            ucell_entry, inc_structure=True) \
-            if type(ucell_entry).__name__ == "str" else ucell_entry
+        self.ref_el_entry = ref_el_entry
+        self.ref_el_as_str = ref_el_entry.composition.elements[0].name \
+            if ref_el_entry else None
+        self.ucell_entry = ucell_entry
         ucell_comp = self.ucell_entry.composition
 
-        entries = [entry for entry in
-                   self.mprester.get_entries_in_chemsys(list( \
-                       ucell_comp.reduced_composition.as_dict().keys()),
-                       property_data=["e_above_hull",
-                                      "material_id"])
-                   if entry.data["e_above_hull"] == 0 and
-                   entry.data["material_id"] not in exclude_ids] \
-            if not custom_entries else custom_entries
-
         # Get x and y, the number of compositions in a formula unit of the bulk
-        self.reactants = [entry for entry in entries if
-                          entry.composition.reduced_composition in [comp1,
-                                                                    self.ref_el_comp]]
-        rxn = ComputedReaction(self.reactants, [self.ucell_entry])
-        if len(rxn.reactants) == len(rxn.products):
-            x = y = 1
+        if self.ref_el_entry:
+            ref_el_comp = Composition(self.ref_el_as_str)
+            reactant_formula = ""
+            for el in ucell_comp.as_dict().keys():
+                if el != self.ref_el_as_str:
+                    reactant_formula += el + str(ucell_comp.as_dict()[el])
+            reactant_comp = Composition(reactant_formula)
+            self.reactants = [reactant_comp, ref_el_comp]
+            rxn = Reaction(self.reactants,
+                           [ucell_entry.composition.reduced_composition])
+            x = rxn.get_coeff(reactant_comp)
+            y = rxn.get_coeff(ref_el_comp)
         else:
-            y = abs(rxn.coeffs[rxn.all_comp.index(self.ref_el_comp)])
-            x = abs(rxn.coeffs[rxn.all_comp.index(comp1)])
-
-        # Calculate Gibbs free energy of the bulk per unit formula
-        gbulk = self.ucell_entry.energy / \
-                ucell_comp.get_integer_formula_and_factor()[1]
+            x = y = 1
 
         self.x = x
         self.y = y
-        self.gbulk = gbulk
+        # Calculate Gibbs free energy of the bulk per unit formula
+        self.gbulk = self.ucell_entry.energy / \
+                     ucell_comp.get_integer_formula_and_factor()[1]
         self.adsorbate_entry = adsorbate_entry
         self.adsorbate_as_str = self.adsorbate_entry.composition.elements[0].name \
             if self.adsorbate_entry else None
-        self.decomp_entries = entries
 
     def surface_energy_coefficients(self, clean_slab_entry, ads_slab_entry=None):
         """
@@ -182,8 +171,6 @@ class SurfaceEnergyCalculator(object):
         Returns (list): List of the coefficients for surface energy [b1, b2, b3]
         """
 
-        reduced_comp = self.ucell_entry.composition.reduced_composition.as_dict()
-        # Get the composition in the slab
         slab = clean_slab_entry.structure
         # Calculate surface area
         m = slab.lattice.matrix
@@ -196,15 +183,13 @@ class SurfaceEnergyCalculator(object):
         else:
             Aads = 1
 
-
-        comp = slab.composition.as_dict()
-
-        if len(reduced_comp.keys()) == 1:
-            Nx = Ny = comp[self.ucell_entry.structure[0].species_string]
+        # Get the compositions in the slab
+        if self.ref_el_entry:
+            rxn = Reaction(self.reactants, [clean_slab_entry.composition])
+            Nx = rxn.get_coeff(self.reactants[0])
+            Ny = rxn.get_coeff(self.reactants[1])
         else:
-            Nx = slab.composition.as_dict()[str(self.comp1.elements[0])]
-            Ny = slab.composition.as_dict()[str(self.ref_el_comp.elements[0])]
-
+            Nx = Ny = slab.composition.get_integer_formula_and_factor()[1]
 
         # get number of adsorbates in slab
         Nads = self.Nads_in_slab(ads_slab_entry) if ads_slab_entry else 0
@@ -220,8 +205,7 @@ class SurfaceEnergyCalculator(object):
         gibbs_binding = self.gibbs_binding_energy(ads_slab_entry,
                                                   clean_slab_entry) if ads_slab_entry else 0
         # b3 is the intercept (clean surface energy for a clean, stoichiometric system)
-        g_y = [entry.energy_per_atom for entry in self.reactants
-               if entry.composition.reduced_composition == self.ref_el_comp][0]
+        g_y = self.ref_el_entry.energy_per_atom if self.ref_el_entry else 0
         b3 = (1 / (2 * Aclean)) * (clean_slab_entry.energy - (Nx/self.x)*self.gbulk - \
                               (Ny - (self.y / self.x) * Nx) * g_y) + \
              gibbs_binding*(Nads/(Nsurfs*Aads))
@@ -374,7 +358,7 @@ class SurfaceEnergyPlotter(object):
 
     """
 
-    def __init__(self, entry_dict, surface_energy_calculator, custom_chempot_range=[]):
+    def __init__(self, entry_dict, surface_energy_calculator, chempot_range):
         """
         Object for plotting surface energy in different ways for clean and
             adsorbed surfaces.
@@ -386,45 +370,10 @@ class SurfaceEnergyPlotter(object):
         """
 
         self.se_calculator = surface_energy_calculator
-        self.chempot_range = custom_chempot_range if custom_chempot_range \
-            else self.get_chempot_range()
+        self.chempot_range = chempot_range
         self.entry_dict = entry_dict
         self.color_dict = self.color_palette_dict()
         self.ref_el_comp = str(self.se_calculator.ref_el_comp.elements[0])
-
-    def get_chempot_range(self, full_chempot=True):
-        """
-        Calculates the chemical potential range allowed for
-        non-stoichiometric clean surface energy calculations
-        Args:
-            full_chempot (bool): Whether or not to calculate
-                the range based on chemical potential from the
-                referance element to the compound of the ucell_entry
-                (False), or to consider all decompositions.
-        """
-
-        pd = PhaseDiagram(self.se_calculator.decomp_entries)
-        chempot_ranges = pd.get_chempot_range_map(self.se_calculator.ref_el_comp.elements)
-        # If no chemical potential is found, we return u=0, eg.
-        # for a elemental system, the relative u of Cu for Cu is 0
-        if full_chempot:
-            if not chempot_ranges:
-                chempot_range = [[-1, -1], [0, 0]]
-            else:
-                all_u = []
-                for entry in chempot_ranges.keys():
-                    all_u.extend(chempot_ranges[entry][0]._coords)
-                chempot_range = [min(all_u), max(all_u)]
-        else:
-            # For elemental system
-            ucell_comp = self.se_calculator.ucell_entry.composition
-            chempot_range = [chempot_ranges[entry] for entry in chempot_ranges.keys()
-                             if entry.composition ==
-                             ucell_comp][0][0]._coords if \
-                chempot_ranges else [[-1, -1], [0, 0]]
-
-        chempot_range = list(chempot_range)
-        return sorted([chempot_range[0][0], chempot_range[1][0]])
 
     def chempot_range_adsorption(self, ads_slab_entry, clean_slab_entry,
                                  const_u_ref, buffer=0.2):
