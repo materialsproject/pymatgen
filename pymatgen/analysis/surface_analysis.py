@@ -136,13 +136,13 @@ class SurfaceEnergyCalculator(object):
             reactant_formula = ""
             for el in ucell_comp.as_dict().keys():
                 if el != self.ref_el_as_str:
-                    reactant_formula += el + str(ucell_comp.as_dict()[el])
+                    reactant_formula += el + str(ucell_comp.reduced_composition.as_dict()[el])
             reactant_comp = Composition(reactant_formula)
             self.reactants = [reactant_comp, ref_el_comp]
             rxn = Reaction(self.reactants,
-                           [ucell_entry.composition.reduced_composition])
-            x = rxn.get_coeff(reactant_comp)
-            y = rxn.get_coeff(ref_el_comp)
+                           [self.ucell_entry.composition.reduced_composition])
+            x = abs(rxn.get_coeff(reactant_comp))
+            y = abs(rxn.get_coeff(ref_el_comp))
         else:
             x = y = 1
 
@@ -188,7 +188,7 @@ class SurfaceEnergyCalculator(object):
             Ny = abs(rxn.get_coeff(self.reactants[1]))
         else:
             Nx = Ny = slab.composition.get_integer_formula_and_factor()[1]
-        print("Nx, Ny,", Nx, Ny)
+
         # get number of adsorbates in slab
         Nads = self.Nads_in_slab(ads_slab_entry) if ads_slab_entry else 0
         # get number of adsorbed surfaces, set to 1 for clean to avoid division by 0
