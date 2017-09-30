@@ -168,57 +168,6 @@ class SurfaceEnergyCalculator(object):
             if self.adsorbate_entry else None
         self.decomp_entries = entries
 
-    def chempot_range(self, full_chempot=True):
-        """
-        Calculates the chemical potential range allowed for
-        non-stoichiometric clean surface energy calculations
-        Args:
-            full_chempot (bool): Whether or not to calculate
-                the range based on chemical potential from the
-                referance element to the compound of the ucell_entry
-                (False), or to consider all decompositions.
-        """
-
-        pd = PhaseDiagram(self.decomp_entries)
-        chempot_ranges = pd.get_chempot_range_map(self.ref_el_comp.elements)
-        # If no chemical potential is found, we return u=0, eg.
-        # for a elemental system, the relative u of Cu for Cu is 0
-        if full_chempot:
-            if not chempot_ranges:
-                chempot_range = [[-1, -1], [0, 0]]
-            else:
-                all_u = []
-                for entry in chempot_ranges.keys():
-                    all_u.extend(chempot_ranges[entry][0]._coords)
-                chempot_range = [min(all_u), max(all_u)]
-        else:
-            # For elemental system
-            ucell_comp = self.ucell_entry.composition
-            chempot_range = [chempot_ranges[entry] for entry in chempot_ranges.keys()
-                             if entry.composition ==
-                             ucell_comp][0][0]._coords if \
-                chempot_ranges else [[-1, -1], [0, 0]]
-
-        chempot_range = list(chempot_range)
-        return sorted([chempot_range[0][0], chempot_range[1][0]])
-
-    def chempot_range_adsorption(self, ads_slab_entry, clean_slab_entry,
-                                 const_u_ref, buffer=0.2):
-
-        c1 = self.surface_energy_coefficients(clean_slab_entry)
-        c2 = self.surface_energy_coefficients(clean_slab_entry,
-                                              ads_slab_entry=ads_slab_entry)
-        umin, gamma = self.solve_2_linear_eqns(c1, c2, x_is_u_ads=True,
-                                               const_u=const_u_ref)
-        umin = -1*10e-5 if not umin else umin
-        # Make sure upper limit of u doesn't lead to negative or 0 values.
-        # Substract a value approaching 0 to avoid surface energies of 0
-        umax = (1*10e-5-const_u_ref*c2[0]-c2[2])/c2[1] if \
-            0 > self.calculate_gamma_at_u(clean_slab_entry,
-                                          ads_slab_entry=ads_slab_entry,
-                                          u_ref=const_u_ref, u_ads=0) else 0
-        return [umin-abs(umin)*buffer, umax]
-
     def surface_energy_coefficients(self, clean_slab_entry, ads_slab_entry=None):
         """
         Calculates the coefficients of the surface energy for a single slab
@@ -438,10 +387,62 @@ class SurfaceEnergyPlotter(object):
 
         self.se_calculator = surface_energy_calculator
         self.chempot_range = custom_chempot_range if custom_chempot_range \
-            else surface_energy_calculator.chempot_range()
+            else self.get_chempot_range()
         self.entry_dict = entry_dict
         self.color_dict = self.color_palette_dict()
         self.ref_el_comp = str(self.se_calculator.ref_el_comp.elements[0])
+
+    def get_chempot_range(self, full_chempot=True):
+        """
+        Calculates the chemical potential range allowed for
+        non-stoichiometric clean surface energy calculations
+        Args:
+            full_chempot (bool): Whether or not to calculate
+                the range based on chemical potential from the
+                referance element to the compound of the ucell_entry
+                (False), or to consider all decompositions.
+        """
+
+        pd = PhaseDiagram(self.se_calculator.decomp_entries)
+        chempot_ranges = pd.get_chempot_range_map(self.se_calculator.ref_el_comp.elements)
+        # If no chemical potential is found, we return u=0, eg.
+        # for a elemental system, the relative u of Cu for Cu is 0
+        if full_chempot:
+            if not chempot_ranges:
+                chempot_range = [[-1, -1], [0, 0]]
+            else:
+                all_u = []
+                for entry in chempot_ranges.keys():
+                    all_u.extend(chempot_ranges[entry][0]._coords)
+                chempot_range = [min(all_u), max(all_u)]
+        else:
+            # For elemental system
+            ucell_comp = self.se_calculator.ucell_entry.composition
+            chempot_range = [chempot_ranges[entry] for entry in chempot_ranges.keys()
+                             if entry.composition ==
+                             ucell_comp][0][0]._coords if \
+                chempot_ranges else [[-1, -1], [0, 0]]
+
+        chempot_range = list(chempot_range)
+        return sorted([chempot_range[0][0], chempot_range[1][0]])
+
+    def chempot_range_adsorption(self, ads_slab_entry, clean_slab_entry,
+                                 const_u_ref, buffer=0.2):
+
+        c1 = self.se_calculator.surface_energy_coefficients(clean_slab_entry)
+        c2 = self.se_calculator.surface_energy_coefficients(clean_slab_entry,
+                                              ads_slab_entry=ads_slab_entry)
+        umin, gamma = self.se_calculator.solve_2_linear_eqns(c1, c2, x_is_u_ads=True,
+                                               const_u=const_u_ref)
+        umin = -1*10e-5 if not umin else umin
+        # Make sure upper limit of u doesn't lead to negative or 0 values.
+        # Substract a value approaching 0 to avoid surface energies of 0
+        umax = (1*10e-5-const_u_ref*c2[0]-c2[2])/c2[1] if \
+            0 > self.se_calculator.calculate_gamma_at_u(clean_slab_entry,
+                                          ads_slab_entry=ads_slab_entry,
+                                          u_ref=const_u_ref, u_ads=0) else 0
+        return [umin-abs(umin)*buffer, umax]
+
 
     def max_adsorption_chempot_range(self, const_u_ref, buffer=0.1):
 
@@ -449,7 +450,7 @@ class SurfaceEnergyPlotter(object):
         for hkl in self.entry_dict.keys():
             for clean_entry in self.entry_dict[hkl].keys():
                 for ads_entry in self.entry_dict[hkl][clean_entry]:
-                    all_ranges.append(self.se_calculator.\
+                    all_ranges.append(self.\
                                       chempot_range_adsorption(ads_entry, clean_entry,
                                                                const_u_ref=const_u_ref,
                                                                buffer=buffer))
