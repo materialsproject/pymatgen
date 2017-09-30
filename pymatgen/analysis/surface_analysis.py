@@ -42,8 +42,8 @@ __date__ = "8/24/17"
 
 class SurfaceEnergyCalculator(object):
     """
-    A class used for analyzing the surface energies of a material of a given
-        material_id. By default, this will use entries calculated from the
+    A class used for analyzing the surface energies of a material.
+        By default, this will use entries calculated from the
         Materials Project to obtain chemical potential and bulk energy. As a
         result, the difference in VASP parameters between the user's entry
         and the parameters used by Materials Project, may lead to a rough

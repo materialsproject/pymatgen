@@ -2,13 +2,16 @@ import unittest
 import os
 import random
 import glob
+import json
 
 import numpy as np
 
 from pymatgen import SETTINGS
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.analysis.surface_analysis import SurfaceEnergyAnalyzer
+from pymatgen.analysis.surface_analysis import SurfaceEnergyCalculator, \
+    SurfaceEnergyPlotter, Composition
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -20,61 +23,110 @@ __date__ = "Aug 24, 2017"
 
 def get_path(path_str):
     cwd = os.path.abspath(os.path.dirname(__file__))
-    path = os.path.join(cwd, "..", "..", "..", "test_files", "surface_tests",
-                        path_str)
+    path = os.path.join(cwd, "..", "..", "..", "test_files",
+                        "surface_tests", path_str)
     return path
 
-@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
-class SurfaceEnergyAnalyzerTest(PymatgenTest):
+@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
+                 "PMG_MAPI_KEY environment variable not set.")
+
+class SurfaceEnergyCalculatorTest(PymatgenTest):
 
     def setUp(self):
 
-
-
-        vasprun_dict = {}
-        for v in glob.glob(os.path.join(get_path(""), "*")):
-            if ".xml.Cu" in v:
-                vasprun_dict[tuple([int(i) for i in v[-6:].strip(".gz")])] = [Vasprun(v)]
-        self.vasprun_dict = vasprun_dict
-        self.Cu_analyzer = SurfaceEnergyAnalyzer("mp-30", self.vasprun_dict, "Cu")
+        self.entry_dict = get_entry_dict(os.path.join(get_path(""),
+                                                      "Cu_entries.txt"))
+        c = Composition("Cu")
+        self.Cu_analyzer = SurfaceEnergyCalculator("mp-30", c, c)
 
     def test_gamma_calculator(self):
 
+        # Test case for clean Cu surface
+
         # make sure we've loaded all our files correctly
-        self.assertEqual(len(self.vasprun_dict.keys()), 13)
-        for hkl, vaspruns in self.vasprun_dict.items():
-            se_range = self.Cu_analyzer.calculate_gamma(vaspruns[0])
+        self.assertEqual(len(self.entry_dict.keys()), 13)
+        all_se = []
+        for hkl, entries in self.entry_dict.items():
+            u1, u2 = self.Cu_analyzer.chempot_range()
+            se1 = self.Cu_analyzer.calculate_gamma_at_u(list(entries.keys())[0], u_ref=u1)
+            se2 = self.Cu_analyzer.calculate_gamma_at_u(list(entries.keys())[0], u_ref=u2)
             # For a stoichiometric system, we expect surface
             # energy to be independent of chemical potential
-            self.assertEqual(se_range[0], se_range[1])
+            self.assertEqual(se1, se2)
+            all_se.append(se1)
 
-    def test_get_intersections(self):
+        clean111_entry = list(self.entry_dict[(1,1,1)].keys())[0]
+        # The (111) facet should be the most stable
+        self.assertEqual(min(all_se),
+                         self.Cu_analyzer.calculate_gamma_at_u( \
+                             clean111_entry, 0))
 
-        # Just test if its working, for Cu, there are no different
-        #  terminations so everything should be a nonetype
-        for hkl in self.vasprun_dict.keys():
-            self.assertFalse(self.Cu_analyzer.get_intersections(hkl))
+        # Get the coefficients for surfacce energy. For a clean
+        # stoichiometric system, the third term should be the surface energy
+        # and the adsorption and nonstoichiometric terms should be 0
+        b1, b2, b3 = self.Cu_analyzer.surface_energy_coefficients(clean111_entry)
+        self.assertEqual(b1, b2)
+        self.assertEqual(b1, 0)
+        self.assertEqual(b3, min(all_se))
 
-    def test_get_wulff_shape_dict(self):
+    def test_chempot_range(self):
 
-        # for pure Cu, all facets are independent of chemical potential,
-        # so we assume Wulff does not change wrt chemical potential
-        wulff_dict = self.Cu_analyzer.wulff_shape_dict(at_intersections=True)
-        self.assertEqual(len(wulff_dict.keys()), 1)
-        wulffshape = list(wulff_dict.values())[0]
-        # The Wulff shape of Cu should have at least 70% (100) and (111) facets
-        area_fraction_dict = wulffshape.area_fraction_dict
-        self.assertGreater(area_fraction_dict[(1,0,0)]+\
-                           area_fraction_dict[(1,1,1)], 0.7)
-        # test out self.wulff_shape_from_chempot(), all Wulff
-        # shapes should the same regardless of chemical potential
-        wulff1 = self.Cu_analyzer.wulff_shape_from_chempot(\
-            min(self.Cu_analyzer.chempot_range))
-        wulff2 = self.Cu_analyzer.wulff_shape_from_chempot(\
-            max(self.Cu_analyzer.chempot_range))
-        for hkl in self.Cu_analyzer.vasprun_dict.keys():
-            self.assertEqual(wulff1.area_fraction_dict[hkl],
-                             wulff2.area_fraction_dict[hkl])
+        # check we always get two values in a list
+        chempot = self.Cu_analyzer.chempot_range()
+        self.assertEqual(len(chempot), 2)
+
+        # test chemical potential range when using the same reference composition
+        chempot = self.Cu_analyzer.chempot_range()
+        self.assertArrayEqual(-1, chempot[0])
+        self.assertArrayEqual(0, chempot[1])
+
+    def test_adsorption_quantities(self):
+
+        print()
+
+    def test_solve_2_linear_eqns(self):
+
+        # For clean nonstoichiometric system, the two equations should
+        # be parallel because the surface energy is a constant
+        clean111_entry = list(self.entry_dict[(1, 1, 1)].keys())[0]
+        clean100_entry = list(self.entry_dict[(1, 0, 0)].keys())[0]
+        c111 = self.Cu_analyzer.surface_energy_coefficients(clean111_entry)
+        c100 = self.Cu_analyzer.surface_energy_coefficients(clean100_entry)
+        soln = self.Cu_analyzer.solve_2_linear_eqns(c111, c100)
+        self.assertFalse(soln[0])
+        self.assertEqual(soln[1], soln[0])
+
+class SurfaceEnergyPlotterTest(PymatgenTest):
+
+    def setUp(self):
+
+        entry_dict = get_entry_dict(os.path.join(get_path(""),
+                                                 "Cu_entries.txt"))
+        c = Composition("Cu")
+        calculator = SurfaceEnergyCalculator("mp-30", c, c)
+        self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, calculator)
+
+
 
 if __name__ == "__main__":
     unittest.main()
+
+def get_entry_dict(filename):
+    # helper to generate an entry_dict
+
+    entry_dict = {}
+    with open(filename) as entries:
+        entries = json.loads(entries.read())
+    for k in entries.keys():
+        n = k[25:]
+        miller_index = []
+        for i, s in enumerate(n):
+            if i > 2:
+                break
+            miller_index.append(int(s))
+        hkl = tuple(miller_index)
+        if hkl not in entry_dict.keys():
+            entry_dict[hkl] = {}
+        entry_dict[hkl][ComputedStructureEntry.from_dict(entries[k])] = []
+
+    return entry_dict
