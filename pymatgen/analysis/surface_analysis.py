@@ -16,16 +16,14 @@ TODO:
 from __future__ import division, unicode_literals
 
 import numpy as np
-from scipy.stats import linregress
 import itertools
 import warnings
 import random, copy
 
-from pymatgen.core.structure import Structure, Composition
+
+from pymatgen.core.composition import Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.surface import Slab
 from pymatgen.analysis.wulff import WulffShape
-from pymatgen import Element
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction
 
@@ -186,11 +184,11 @@ class SurfaceEnergyCalculator(object):
         # Get the compositions in the slab
         if self.ref_el_entry:
             rxn = Reaction(self.reactants, [clean_slab_entry.composition])
-            Nx = rxn.get_coeff(self.reactants[0])
-            Ny = rxn.get_coeff(self.reactants[1])
+            Nx = abs(rxn.get_coeff(self.reactants[0]))
+            Ny = abs(rxn.get_coeff(self.reactants[1]))
         else:
             Nx = Ny = slab.composition.get_integer_formula_and_factor()[1]
-
+        print("Nx, Ny,", Nx, Ny)
         # get number of adsorbates in slab
         Nads = self.Nads_in_slab(ads_slab_entry) if ads_slab_entry else 0
         # get number of adsorbed surfaces, set to 1 for clean to avoid division by 0
@@ -200,7 +198,7 @@ class SurfaceEnergyCalculator(object):
         # b1 is the coefficient for chempot of reference atom
         b1 = (-1 / (2 * Aclean))*(Ny - (self.y / self.x) * Nx)
 
-        #b2 is the coefficient for chempot of adsorbate
+        # b2 is the coefficient for chempot of adsorbate
         b2 = (-1*Nads) / (Nsurfs * Aads)
         gibbs_binding = self.gibbs_binding_energy(ads_slab_entry,
                                                   clean_slab_entry) if ads_slab_entry else 0
@@ -373,7 +371,9 @@ class SurfaceEnergyPlotter(object):
         self.chempot_range = chempot_range
         self.entry_dict = entry_dict
         self.color_dict = self.color_palette_dict()
-        self.ref_el_comp = str(self.se_calculator.ref_el_comp.elements[0])
+        self.ref_el_comp = str(self.se_calculator.ref_el_entry.composition.elements[0].name) if \
+            self.se_calculator.ref_el_entry else \
+            self.se_calculator.ucell_entry.composition.get_integer_formula_and_factor()[0]
 
     def chempot_range_adsorption(self, ads_slab_entry, clean_slab_entry,
                                  const_u_ref, buffer=0.2):
