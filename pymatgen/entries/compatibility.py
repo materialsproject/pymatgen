@@ -169,7 +169,7 @@ class PotcarCorrection(Correction):
 @cached_class
 class GasCorrection(Correction):
     """
-    Correct anion energies to obtain the right formation energies. Note that
+    Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
 
     Args:
@@ -197,7 +197,7 @@ class GasCorrection(Correction):
 @cached_class
 class AnionCorrection(Correction):
     """
-    Correct gas energies to obtain the right formation energies. Note that
+    Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
 
     Args:
