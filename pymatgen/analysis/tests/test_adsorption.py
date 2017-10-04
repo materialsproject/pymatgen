@@ -33,11 +33,13 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         self.asf_111_bottom = AdsorbateSiteFinder(self.slab_dict["111"],
                                                   top_surface=False)
         self.asf_110 = AdsorbateSiteFinder(self.slab_dict["110"])
+        self.asf_struct = AdsorbateSiteFinder(
+                Structure.from_sites(self.slab_dict["111"].sites))
 
     def test_init(self):
         asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
         asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
-
+        
     def test_from_bulk_and_miller(self):
         # Standard site finding
         asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 1, 1))
@@ -70,6 +72,8 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         sites = self.asf_110.find_adsorption_sites()
         self.assertEqual(len(sites['all']), 4)
         sites = self.asf_211.find_adsorption_sites()
+        # Test on structure
+        sites = self.asf_struct.find_adsorption_sites()
 
     def test_generate_adsorption_structures(self):
         co = Molecule("CO", [[0, 0, 0], [0, 0, 1.23]])
@@ -110,12 +114,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         slab = self.slab_dict["111"]
         rot = get_rot(slab)
         reoriented = reorient_z(slab)
-        self.assertArrayAlmostEqual(slab.frac_coords[0],
-                                    cart_to_frac(slab.lattice, 
-                                                 slab.cart_coords[0]))
-        self.assertArrayAlmostEqual(slab.cart_coords[0],
-                                    frac_to_cart(slab.lattice,
-                                                 slab.frac_coords[0]))
+
 
 if __name__ == '__main__':
     unittest.main()
