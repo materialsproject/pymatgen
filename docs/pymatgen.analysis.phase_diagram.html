@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.phase_diagram module &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.analysis.phase_diagram module &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -329,7 +329,7 @@ e.g., Li_{2}O</li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter">
-<em class="property">class </em><code class="descname">PDPlotter</code><span class="sig-paren">(</span><em>phasediagram</em>, <em>show_unstable=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">PDPlotter</code><span class="sig-paren">(</span><em>phasediagram</em>, <em>show_unstable=0</em>, <em>**plotkwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>A plotter class for phase diagrams.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -341,6 +341,15 @@ e.g., Li_{2}O</li>
 <li><strong>show_unstable</strong> (<em>float</em>) – Whether unstable phases will be plotted as
 well as red crosses. If a number &gt; 0 is entered, all phases with
 ehull &lt; show_unstable will be shown.</li>
+<li><strong>**plotkwargs</strong> – <p>Keyword args passed to matplotlib.pyplot.plot. Can
+be used to customize markers etc. If not set, the default is
+{</p>
+<blockquote>
+<div>”markerfacecolor”: (0.2157, 0.4941, 0.7216),
+“markersize”: 10,
+“linewidth”: 3</div></blockquote>
+<p>}</p>
+</li>
 </ul>
 </td>
 </tr>
@@ -462,7 +471,7 @@ energy of the elemental phase. If False, gives absolute values.</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.write_image">
-<code class="descname">write_image</code><span class="sig-paren">(</span><em>stream</em>, <em>image_format='svg'</em>, <em>label_stable=True</em>, <em>label_unstable=True</em>, <em>ordering=None</em>, <em>energy_colormap=None</em>, <em>process_attributes=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.write_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.write_image" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write_image</code><span class="sig-paren">(</span><em>stream</em>, <em>image_format='svg'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.write_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.write_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the phase diagram to an image in a stream.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -472,6 +481,7 @@ energy of the elemental phase. If False, gives absolute values.</li>
 <li><strong>stream</strong> – stream to write to. Can be a file stream or a StringIO stream.</li>
 <li><strong>image_format</strong> – format for image. Can be any of matplotlib supported formats.
 Defaults to svg for best results for vector graphics.</li>
+<li><strong>**kwargs</strong> – Pass through to get_plot functino.</li>
 </ul>
 </td>
 </tr>
@@ -1071,7 +1081,7 @@ used for converting convex hull facets into line pairs of coordinates.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

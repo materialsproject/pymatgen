@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.advanced_transformations &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -303,21 +303,26 @@
 <span class="sd">    transformation, and at a much faster speed.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        min_cell_size:</span>
-<span class="sd">            The minimum cell size wanted. Must be an int. Defaults to 1.</span>
-<span class="sd">        max_cell_size:</span>
-<span class="sd">            The maximum cell size wanted. Must be an int. Defaults to 1.</span>
-<span class="sd">        symm_prec:</span>
-<span class="sd">            Tolerance to use for symmetry.</span>
-<span class="sd">        refine_structure:</span>
-<span class="sd">            This parameter has the same meaning as in enumlib_caller.</span>
-<span class="sd">            If you are starting from a structure that has been relaxed via</span>
-<span class="sd">            some electronic structure code, it is usually much better to</span>
-<span class="sd">            start with symmetry determination and then obtain a refined</span>
-<span class="sd">            structure. The refined structure have cell parameters and</span>
+<span class="sd">        min_cell_size (int): The minimum cell size wanted. Must be an int.</span>
+<span class="sd">            Defaults to 1.</span>
+<span class="sd">        max_cell_size (int): The maximum cell size wanted. Must be an int.</span>
+<span class="sd">            Defaults to 1.</span>
+<span class="sd">        symm_prec (float): Tolerance to use for symmetry detection. Defaults to</span>
+<span class="sd">            0.1.</span>
+<span class="sd">        occu_tol (int): If set, the code will first round and scale</span>
+<span class="sd">            occupancies to the nearest rational number, with maximum</span>
+<span class="sd">            denominator = occu_tol. This handles structures that contain</span>
+<span class="sd">            partial occupancies that are close to a rational number. E.g.,</span>
+<span class="sd">            sometimes the reported occupancy is 0.249, and if occu_tol is set</span>
+<span class="sd">            to 4, this will be rounded to 0.25.</span>
+<span class="sd">        refine_structure (bool): This parameter has the same meaning as in</span>
+<span class="sd">            enumlib_caller. If you are starting from a structure that has been</span>
+<span class="sd">            relaxed via some electronic structure code, it is usually much</span>
+<span class="sd">            better to start with symmetry determination and then obtain a</span>
+<span class="sd">            refined structure. The refined structure have cell parameters and</span>
 <span class="sd">            atomic positions shifted to the expected symmetry positions,</span>
 <span class="sd">            which makes it much less sensitive precision issues in enumlib.</span>
-<span class="sd">            If you are already starting from an experimental cif, refinment</span>
+<span class="sd">            If you are already starting from an experimental cif, refinement</span>
 <span class="sd">            should have already been done and it is not necessary. Defaults</span>
 <span class="sd">            to False.</span>
 <span class="sd">        enum_precision_parameter (float): Finite precision parameter for</span>
@@ -334,11 +339,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">symm_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-                 <span class="n">refine_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">enum_precision_parameter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
-                 <span class="n">check_ordered_symmetry</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                 <span class="n">occu_tol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">refine_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">enum_precision_parameter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">check_ordered_symmetry</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symm_prec</span> <span class="o">=</span> <span class="n">symm_prec</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_cell_size</span> <span class="o">=</span> <span class="n">min_cell_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_cell_size</span> <span class="o">=</span> <span class="n">max_cell_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occu_tol</span> <span class="o">=</span> <span class="n">occu_tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">refine_structure</span> <span class="o">=</span> <span class="n">refine_structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enum_precision_parameter</span> <span class="o">=</span> <span class="n">enum_precision_parameter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_ordered_symmetry</span> <span class="o">=</span> <span class="n">check_ordered_symmetry</span>
@@ -368,6 +374,16 @@
             <span class="n">num_to_return</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">return_ranked_list</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="n">num_to_return</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">occu_tol</span><span class="p">:</span>
+            <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">]</span>
+            <span class="c1"># Here, we rescale all occupancies such that they meet the frac</span>
+            <span class="c1"># limit.</span>
+            <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">sp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">Fraction</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occu_tol</span><span class="p">))</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span>
+                                  <span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refine_structure</span><span class="p">:</span>
             <span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_prec</span><span class="p">)</span>
@@ -926,7 +942,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

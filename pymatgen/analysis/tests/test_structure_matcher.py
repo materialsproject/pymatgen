@@ -10,11 +10,12 @@ import json
 import numpy as np
 
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
-    ElementComparator, FrameworkComparator, OrderDisorderElementComparator
+    ElementComparator, FrameworkComparator, OrderDisorderElementComparator, \
+    OccupancyComparator
 from monty.json import MontyDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen import Structure, Element, Lattice
-from pymatgen.util.coord_utils import find_in_coord_list_pbc
+from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -659,6 +660,25 @@ class StructureMatcherTest(PymatgenTest):
 
         self.assertTrue(sm_sites.fit(s1, s2))
         self.assertFalse(sm_atoms.fit(s1, s2))
+
+    def test_occupancy_comparator(self):
+
+        lp = Lattice.orthorhombic(10, 20, 30)
+        pcoords = [[0, 0, 0],
+                   [0.5, 0.5, 0.5]]
+        s1 = Structure(lp, [{'Na':0.6, 'K':0.4}, 'Cl'], pcoords)
+        s2 = Structure(lp, [{'Xa':0.4, 'Xb':0.6}, 'Cl'], pcoords)
+        s3 = Structure(lp, [{'Xa':0.5, 'Xb':0.5}, 'Cl'], pcoords)
+
+        sm_sites = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
+                                    primitive_cell=False, scale=True,
+                                    attempt_supercell=True,
+                                    allow_subset=True,
+                                    supercell_size = 'num_sites',
+                                    comparator=OccupancyComparator())
+
+        self.assertTrue(sm_sites.fit(s1, s2))
+        self.assertFalse(sm_sites.fit(s1, s3))
 
     def test_electronegativity(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)

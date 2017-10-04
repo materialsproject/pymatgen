@@ -21,7 +21,7 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 from __future__ import division, unicode_literals
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_recp_symmetry_operation
-from pymatgen.util.coord_utils import get_angle
+from pymatgen.util.coord import get_angle
 import numpy as np
 import scipy as sp
 from scipy.spatial import ConvexHull

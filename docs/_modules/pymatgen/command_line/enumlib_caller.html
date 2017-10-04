@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.command_line.enumlib_caller &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.command_line.enumlib_caller &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -118,8 +118,9 @@
 <span class="c1"># Favor the use of the newer &quot;enum.x&quot; by Gus Hart instead of the older</span>
 <span class="c1"># &quot;multienum.x&quot;</span>
 <span class="n">enum_cmd</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;enum.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;multienum.x&#39;</span><span class="p">)</span>
+<span class="n">makestr_cmd</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makestr.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makeStr.x&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="EnumlibAdaptor"><a class="viewcode-back" href="../../../pymatgen.command_line.enumlib_caller.html#pymatgen.command_line.enumlib_caller.EnumlibAdaptor">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">enum_cmd</span> <span class="ow">and</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makestr.x&#39;</span><span class="p">),</span>
+<div class="viewcode-block" id="EnumlibAdaptor"><a class="viewcode-back" href="../../../pymatgen.command_line.enumlib_caller.html#pymatgen.command_line.enumlib_caller.EnumlibAdaptor">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">enum_cmd</span> <span class="ow">and</span> <span class="n">makestr_cmd</span><span class="p">,</span>
           <span class="s2">&quot;EnumlibAdaptor requires the executables &#39;enum.x&#39; or &#39;multienum.x&#39; &quot;</span>
           <span class="s2">&quot;and &#39;makestr.x&#39; to be in the path. Please download the library at&quot;</span>
           <span class="s2">&quot;http://enum.sourceforge.net/ and follow the instructions in &quot;</span>
@@ -362,7 +363,7 @@
 
     <span class="k">def</span> <span class="nf">_get_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_structs</span><span class="p">):</span>
         <span class="n">structs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">rs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;makestr.x&quot;</span><span class="p">,</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">makestr_cmd</span><span class="p">,</span>
                                <span class="s2">&quot;struct_enum.out&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
                                <span class="nb">str</span><span class="p">(</span><span class="n">num_structs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)],</span>
                               <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
@@ -443,7 +444,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

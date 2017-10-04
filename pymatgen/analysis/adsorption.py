@@ -25,7 +25,7 @@ import warnings
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.analyzer import generate_full_symmops
-from pymatgen.util.coord_utils import in_coord_list, in_coord_list_pbc
+from pymatgen.util.coord import in_coord_list, in_coord_list_pbc
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
 from pymatgen.core.surface import generate_all_slabs, Slab
@@ -191,7 +191,7 @@ class AdsorbateSiteFinder(object):
             unique_sites, unique_perp_fracs = [], []
             for site in surf_sites:
                 this_perp = site.coords - np.dot(site.coords, self.mvec)
-                this_perp_frac = cart_to_frac(slab.lattice, this_perp)
+                this_perp_frac = slab.lattice.get_fractional_coords(this_perp)
                 if not in_coord_list_pbc(unique_perp_fracs, this_perp_frac):
                     unique_sites.append(site)
                     unique_perp_fracs.append(this_perp_frac)
@@ -300,12 +300,12 @@ class AdsorbateSiteFinder(object):
         for key, sites in ads_sites.items():
             # Pare off outer sites for bridge/hollow
             if key in ['bridge', 'hollow']:
-                frac_coords = [cart_to_frac(self.slab.lattice, ads_site)
+                frac_coords = [self.slab.lattice.get_fractional_coords(ads_site)
                                for ads_site in sites]
                 frac_coords = [frac_coord for frac_coord in frac_coords
                                if (frac_coord[0] > 1 and frac_coord[0] < 4
                                    and frac_coord[1] > 1 and frac_coord[1] < 4)]
-                sites = [frac_to_cart(self.slab.lattice, frac_coord)
+                sites = [self.slab.lattice.get_cartesian_coords(frac_coord)
                          for frac_coord in frac_coords]
             if near_reduce:
                 sites = self.near_reduce(sites, threshold=near_reduce)
@@ -316,8 +316,9 @@ class AdsorbateSiteFinder(object):
                 sites = self.symm_reduce(sites, threshold=symm_reduce)
                 # we substract the distance from the bottom site if we
                 # wish to adsorb at the surface below the center of mass
-                com = frac_to_cart(self.slab.lattice,
-                                   self.slab.center_of_mass)
+                weights = [s.species_and_occu.weight for s in self.slab]
+                com = np.average(self.slab.frac_coords, weights=weights, axis=0)
+                com = self.slab.lattice.get_cartesian_coords(com)
 
                 sites = [site - distance * self.mvec if
                          site[2] < com[2] else
@@ -340,7 +341,7 @@ class AdsorbateSiteFinder(object):
         symm_ops = surf_sg.get_symmetry_operations()
         unique_coords = []
         # Convert to fractional
-        coords_set = [cart_to_frac(self.slab.lattice, coords)
+        coords_set = [self.slab.lattice.get_fractional_coords(coords)
                       for coords in coords_set]
         for coords in coords_set:
             incoord = False
@@ -352,7 +353,7 @@ class AdsorbateSiteFinder(object):
             if not incoord:
                 unique_coords += [coords]
         # convert back to cartesian
-        return [frac_to_cart(self.slab.lattice, coords)
+        return [self.slab.lattice.get_cartesian_coords(coords)
                 for coords in unique_coords]
 
     def near_reduce(self, coords_set, threshold=1e-4):
@@ -365,12 +366,12 @@ class AdsorbateSiteFinder(object):
             threshold (float): threshold value for distance
         """
         unique_coords = []
-        coords_set = [cart_to_frac(self.slab.lattice, coords)
+        coords_set = [self.slab.lattice.get_fractional_coords(coords)
                       for coords in coords_set]
         for coord in coords_set:
             if not in_coord_list_pbc(unique_coords, coord, threshold):
                 unique_coords += [coord]
-        return [frac_to_cart(self.slab.lattice, coords)
+        return [self.slab.lattice.get_cartesian_coords(coords)
                 for coords in unique_coords]
 
     def ensemble_center(self, site_list, indices, cartesian=True):
@@ -577,8 +578,8 @@ def put_coord_inside(lattice, cart_coordinate):
     """
     converts a cartesian coordinate such that it is inside the unit cell.
     """
-    fc = cart_to_frac(lattice, cart_coordinate)
-    return frac_to_cart(lattice, [c - np.floor(c) for c in fc])
+    fc = lattice.get_fractional_coords(cart_coordinate)
+    return lattice.get_cartesian_coords([c - np.floor(c) for c in fc])
 
 
 def reorient_z(structure):
@@ -590,21 +591,7 @@ def reorient_z(structure):
     sop = get_rot(struct)
     struct.apply_operation(sop)
     return struct
-
-
-def frac_to_cart(lattice, frac_coord):
-    """
-    converts fractional coordinates to cartesian
-    """
-    return np.dot(np.transpose(lattice.matrix), frac_coord)
-
-
-def cart_to_frac(lattice, cart_coord):
-    """
-    converts cartesian coordinates to fractional
-    """
-    return np.dot(np.linalg.inv(np.transpose(lattice.matrix)), cart_coord)
-
+ 
 
 # Get color dictionary
 colors = loadfn(os.path.join(os.path.dirname(vis.__file__),
@@ -638,8 +625,8 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     sites = sorted(slab.sites, key=lambda x: x.coords[2])
     alphas = 1 - decay * (np.max(coords[:, 2]) - coords[:, 2])
     alphas = alphas.clip(min=0)
-    corner = [0, 0, cart_to_frac(slab.lattice, coords[-1])[-1]]
-    corner = frac_to_cart(slab.lattice, corner)[:2]
+    corner = [0, 0, slab.lattice.get_fractional_coords(coords[-1])[-1]]
+    corner = slab.lattice.get_cartesian_coords(corner)[:2]
     verts = orig_cell[:2, :2]
     lattsum = verts[0] + verts[1]
     # Draw circles at sites and stack them accordingly

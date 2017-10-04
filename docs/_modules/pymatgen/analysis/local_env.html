@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.analysis.local_env &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -89,6 +89,7 @@
 <span class="kn">from</span> <span class="nn">bisect</span> <span class="k">import</span> <span class="n">bisect_left</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">Voronoi</span>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">abs_cap</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BV_PARAMS</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_analyzer</span> <span class="k">import</span> <span class="n">OrderParameters</span>
@@ -319,7 +320,7 @@
 <span class="sd">                location of near neighbors.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            images (list of 3D integer array): image locations of</span>
-<span class="sd">                near neighbors as lattice translational vectors.</span>
+<span class="sd">                near neighbors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span></div>
@@ -338,9 +339,9 @@
 <span class="sd">            siw (list of dicts): each dictionary provides information</span>
 <span class="sd">                about a single near neighbor, where key &#39;site&#39; gives</span>
 <span class="sd">                access to the corresponding Site object, &#39;image&#39; gives</span>
-<span class="sd">                the image location (lattice translation vector), and</span>
-<span class="sd">                &#39;weight&#39; provides the weight that a given near-neighbor</span>
-<span class="sd">                site contributes to the coordination number (1 or smaller).</span>
+<span class="sd">                the image location, and &#39;weight&#39; provides the weight</span>
+<span class="sd">                that a given near-neighbor site contributes</span>
+<span class="sd">                to the coordination number (1 or smaller).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_nn_info(structure, n)&quot;</span>
@@ -452,8 +453,10 @@
         <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_voronoi_polyhedra</span><span class="p">(</span>
                 <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">weight</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="ow">and</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
-                <span class="n">dist</span><span class="p">,</span> <span class="n">image</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">distance_and_image</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
-                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">weight</span><span class="p">})</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> \
+                        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span>
+                        <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">weight</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
@@ -533,8 +536,10 @@
             <span class="c1"># Confirm neighbor based on bond length specific to atom pair</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="n">bonds</span><span class="p">[(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">neighb</span><span class="o">.</span><span class="n">specie</span><span class="p">)]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                 <span class="n">weight</span> <span class="o">=</span> <span class="n">min_rad</span> <span class="o">/</span> <span class="n">dist</span>
-                <span class="n">d</span><span class="p">,</span> <span class="n">image</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">distance_and_image</span><span class="p">(</span><span class="n">neighb</span><span class="p">)</span>
-                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">neighb</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">weight</span><span class="p">})</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">neighb</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> \
+                        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">neighb</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span>
+                        <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">weight</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
@@ -582,8 +587,9 @@
         <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">min_dist</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">min_dist</span> <span class="o">/</span> <span class="n">dist</span>
-                <span class="n">d</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">distance_and_image</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">})</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span>
+                        <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
@@ -645,8 +651,9 @@
         <span class="k">for</span> <span class="n">reldist</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">reldists_neighs</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">reldist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">min_reldist</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">min_reldist</span> <span class="o">/</span> <span class="n">reldist</span>
-                <span class="n">d</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">distance_and_image</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">})</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> \
+                        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span> <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">})</span>
 
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
@@ -703,8 +710,10 @@
         <span class="k">for</span> <span class="n">reldist</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">reldists_neighs</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">reldist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">min_reldist</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">min_reldist</span> <span class="o">/</span> <span class="n">reldist</span>
-                <span class="n">d</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">distance_and_image</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">})</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> \
+                        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span>
+                        <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">})</span>
 
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
@@ -923,7 +932,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

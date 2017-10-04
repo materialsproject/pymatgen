@@ -11,7 +11,7 @@ from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.util.coord_utils import get_linear_interpolated_value
+from pymatgen.util.coord import get_linear_interpolated_value
 from monty.json import MSONable
 
 

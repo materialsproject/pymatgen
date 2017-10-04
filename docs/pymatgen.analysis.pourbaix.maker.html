@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.pourbaix.maker module &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.analysis.pourbaix.maker module &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -71,6 +71,31 @@
 <dt id="pymatgen.analysis.pourbaix.maker.PourbaixDiagram.facets">
 <code class="descname">facets</code><a class="headerlink" href="#pymatgen.analysis.pourbaix.maker.PourbaixDiagram.facets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Facets of the convex hull in the form of  [[1,2,3],[4,5,6]…]</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.pourbaix.maker.PourbaixDiagram.process_multientry">
+<em class="property">static </em><code class="descname">process_multientry</code><span class="sig-paren">(</span><em>entry_list</em>, <em>prod_comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix/maker.html#PourbaixDiagram.process_multientry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix.maker.PourbaixDiagram.process_multientry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static method for finding a multientry based on
+a list of entries and a product composition.
+Essentially checks to see if a valid aqueous
+reaction exists between the entries and the
+product composition and returns a MultiEntry
+with weights according to the coefficients if so.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>entry_list</strong> (<em>[</em><em>Entry</em><em>]</em>) – list of entries from which to
+create a MultiEntry</li>
+<li><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition constraint for setting
+weights of MultiEntry</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -150,7 +175,7 @@ composition data and energy per atom values created from qhull_entries.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 
