@@ -241,7 +241,7 @@ class SurfaceEnergyCalculator(object):
 
         return n
 
-    def gibbs_binding_energy(self, ads_slab_entry, clean_slab_entry):
+    def gibbs_binding_energy(self, ads_slab_entry, clean_slab_entry, eads=False):
         """
         Calculates the adsorption energy or Gibb's
         binding energy of an adsorbate on a surface
@@ -253,8 +253,9 @@ class SurfaceEnergyCalculator(object):
         n = self.get_monolayer(ads_slab_entry, clean_slab_entry)
         Nads = self.Nads_in_slab(ads_slab_entry)
 
-        return (ads_slab_entry.energy - n * clean_slab_entry.energy) / Nads \
-               - self.adsorbate_entry.energy_per_atom
+        BE = (ads_slab_entry.energy - n * clean_slab_entry.energy) / Nads \
+             - self.adsorbate_entry.energy_per_atom
+        return BE*Nads if eads else BE
 
     def Nads_in_slab(self, ads_slab_entry):
         """
@@ -670,6 +671,28 @@ class SurfaceEnergyPlotter(object):
         plt = self.chempot_plot_addons(plt, xrange, axes,
                                        x_is_u_ads=x_is_u_ads)
 
+        return plt
+
+    def monolayer_vs_BE(self, plot_eads=False):
+
+        plt = pretty_plot(width=8, height=7)
+        axes = plt.gca()
+        for hkl in self.entry_dict.keys():
+            for clean_entry in self.entry_dict[hkl].keys():
+                if self.entry_dict[hkl][clean_entry]:
+                    monolayer = [1/self.se_calculator.get_monolayer(ads_entry, clean_entry) \
+                                 for ads_entry in self.entry_dict[hkl][clean_entry]]
+                    BEs = [self.se_calculator.gibbs_binding_energy(ads_entry, clean_entry,
+                                                                   eads=plot_eads) \
+                           for ads_entry in self.entry_dict[hkl][clean_entry]]
+
+                    monolayer, BEs = zip(*sorted(zip(monolayer, BEs)))
+                    plt.plot(monolayer, BEs, '-o', c=self.color_dict[clean_entry], label=hkl)
+
+        plt.xlabel("%s Coverage (ML)" %(self.se_calculator.adsorbate_as_str))
+        plt.ylabel("Binding Energy (eV)")
+        plt.legend()
+        plt.tight_layout()
 
         return plt
 
@@ -894,20 +917,9 @@ class SurfaceEnergyPlotter(object):
         return
 
     def surface_phase_diagram(self, y_param, x_param, miller_index):
-
-        """
-        Builds a 2D surface phase diagram of two parameters for a specific
-            facet. Parameters can be chemical potentials (e.g. u_a, u_b,
-            u_c), pressure, temperature, electric potential, pH, etc.
-
-        Args:
-        """
-
         return
 
     def wulff_shape_extrapolated_model(self):
-        # the area fraction of all facets for a single configuration can be modelled as
-        # a arctan function with a pseudo asymptote approaching 0. This model gives us a
         return
 
     def surface_pourbaix_diagram(self):
@@ -925,12 +937,3 @@ class SurfaceEnergyPlotter(object):
     def broken_bond_vs_gamma(self):
 
         return
-
-
-def vaspruns_to_entry_dict(vaspruns):
-    """
-    Helper function to generate the entry_dict parameter for
-        SurfaceEnergyCalculator from a list of Vasprun objects.
-    """
-
-    return

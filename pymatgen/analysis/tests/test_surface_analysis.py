@@ -66,18 +66,12 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
         self.assertEqual(b1, 0)
         self.assertEqual(b3, min(all_se))
 
-    # def test_chempot_range(self):
-    #
-    #     # check we always get two values in a list
-    #     chempot = self.Cu_analyzer.chempot_range()
-    #     self.assertEqual(len(chempot), 2)
-    #
-    #     # test chemical potential range when using the same reference composition
-    #     chempot = self.Cu_analyzer.chempot_range()
-    #     self.assertArrayEqual(-1, chempot[0])
-    #     self.assertArrayEqual(0, chempot[1])
-
     def test_adsorption_quantities(self):
+
+        # monolayer
+        # gibbs_binding_energy
+        # Nads_in_slab
+        # Nsurfs_ads_in_slab
 
         print()
 
@@ -99,9 +93,73 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
 
         entry_dict = get_entry_dict(os.path.join(get_path(""),
                                                  "Cu_entries.txt"))
-        c = Composition("Cu")
-        calculator = SurfaceEnergyCalculator("mp-30", c, c)
-        self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, calculator)
+        with open(os.path.join(get_path(""), 'Cu_ucell_entry.txt')) as ucell_entry:
+            ucell_entry = json.loads(ucell_entry.read())
+        ucell_entry = ComputedStructureEntry.from_dict(ucell_entry)
+        calculator = SurfaceEnergyCalculator(ucell_entry)
+        self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, calculator, [-1, 0])
+
+    def test_max_adsorption_chempot_range(self):
+
+        print()
+
+    def test_chempot_range_adsorption(self):
+
+        print()
+
+    def test_wulff_shape_from_chempot(self):
+
+        # Test if it generates a Wulff shape, test if
+        # all the facets for Cu wulff shape are inside.
+        Cu_wulff = self.Cu_analyzer.wulff_shape_from_chempot()
+        area_frac_dict = Cu_wulff.area_fraction_dict
+        facets_hkl = [(1,1,1), (3,3,1), (3,1,0), (1,0,0),
+                      (3,1,1), (2,1,0), (2,2,1)]
+        for hkl in area_frac_dict.keys():
+            if hkl in facets_hkl:
+                self.assertNotEqual(area_frac_dict[hkl], 0)
+            else:
+                self.assertEqual(area_frac_dict[hkl], 0)
+
+    def test_return_stable_slab_entry_at_u(self):
+
+        print()
+
+    def test_area_frac_vs_chempot_plot(self):
+
+        print()
+
+    def test_chempot_vs_gamma_plot_one(self):
+
+        print()
+
+    def test_chempot_vs_gamma_clean(self):
+
+        print()
+
+    def test_chempot_vs_gamma_facet(self):
+
+        print()
+
+    def test_chempot_plot_addons(self):
+
+        print()
+
+    def test_create_slab_label(self):
+
+        print()
+
+    def test_color_palette_dict(self):
+
+        print()
+
+    def test_stable_u_range_dict(self):
+
+        print()
+
+    def test_get_clean_ads_entry_pair(self):
+
+        print()
 
 
 

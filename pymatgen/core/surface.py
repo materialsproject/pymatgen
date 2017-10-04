@@ -83,12 +83,18 @@ class Slab(Structure):
 
         The shift value in Angstrom that indicates how much this
         slab has been shifted.
+
+    .. attribute:: proj_height
+
+        The projected height of the oriented unit cell. Useful for
+            moving atoms to the other side of the surface.
     """
 
     def __init__(self, lattice, species, coords, miller_index,
-                 oriented_unit_cell, shift, scale_factor, reorient_lattice=True,
-                 validate_proximity=False, to_unit_cell=False,
-                 coords_are_cartesian=False, site_properties=None, energy=None):
+                 oriented_unit_cell, shift, scale_factor, proj_height,
+                 reorient_lattice=True, validate_proximity=False,
+                 to_unit_cell=False, coords_are_cartesian=False,
+                 site_properties=None, energy=None):
         """
         Makes a Slab structure, a structure object with additional information
         and methods pertaining to slabs.
@@ -121,6 +127,8 @@ class Slab(Structure):
                 termination.
             scale_factor (array): scale_factor Final computed scale factor
                 that brings the parent cell to the surface cell.
+            proj_height (float): projected height of the oriented unit cell.
+                Useful for moving atoms to the other side of the surface.
             reorient_lattice (bool): reorients the lattice parameters such that
                 the c direction is the third vector of the lattice matrix
             validate_proximity (bool): Whether to check if there are sites
@@ -139,6 +147,7 @@ class Slab(Structure):
         self.scale_factor = scale_factor
         self.energy = energy
         self.reorient_lattice = reorient_lattice
+        self.proj_height = proj_height
         lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,
                                           lattice.alpha, lattice.beta,
                                           lattice.gamma) \
@@ -168,6 +177,7 @@ class Slab(Structure):
                     coords=self.cart_coords, miller_index=self.miller_index,
                     oriented_unit_cell=self.oriented_unit_cell,
                     shift=self.shift, scale_factor=self.scale_factor,
+                    proj_height=self.proj_height,
                     coords_are_cartesian=True, energy=self.energy,
                     reorient_lattice=self.reorient_lattice)
 
@@ -258,7 +268,8 @@ class Slab(Structure):
                 fcoords = [x[1] for x in sp_fcoord]
                 slab = Slab(self.lattice, species, fcoords, self.miller_index,
                             self.oriented_unit_cell, self.shift,
-                            self.scale_factor, energy=self.energy,
+                            self.scale_factor, self.proj_height,
+                            energy=self.energy,
                             reorient_lattice=self.reorient_lattice)
                 slabs.append(slab)
         s = StructureMatcher()
@@ -297,7 +308,8 @@ class Slab(Structure):
         s = Structure.from_sites(sites)
         return Slab(s.lattice, s.species_and_occu, s.frac_coords,
                     self.miller_index, self.oriented_unit_cell, self.shift,
-                    self.scale_factor, site_properties=s.site_properties,
+                    self.scale_factor, self.proj_height,
+                    site_properties=s.site_properties,
                     reorient_lattice=self.reorient_lattice)
 
     def copy(self, site_properties=None, sanitize=False):
@@ -327,7 +339,8 @@ class Slab(Structure):
             props.update(site_properties)
         return Slab(self.lattice, self.species_and_occu, self.frac_coords,
                     self.miller_index, self.oriented_unit_cell, self.shift,
-                    self.scale_factor, site_properties=props,
+                    self.scale_factor, self.proj_height,
+                    site_properties=props,
                     reorient_lattice=self.reorient_lattice)
 
     @property
@@ -454,6 +467,7 @@ class Slab(Structure):
             miller_index=d["miller_index"],
             oriented_unit_cell=Structure.from_dict(d["oriented_unit_cell"]),
             shift=d["shift"], scale_factor=d["scale_factor"],
+            proj_height=d["proj_height"],
             site_properties=s.site_properties, energy=d["energy"]
         )
 
@@ -806,8 +820,8 @@ class SlabGenerator(object):
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
-                    self.oriented_unit_cell, shift,
-                    scale_factor, site_properties=slab.site_properties,
+                    self.oriented_unit_cell, shift, scale_factor,
+                    self._proj_height, site_properties=slab.site_properties,
                     energy=energy, reorient_lattice=self.reorient_lattice)
 
     def _calculate_possible_shifts(self, tol=0.1):
@@ -1061,7 +1075,7 @@ class SlabGenerator(object):
 
         return Slab(init_slab.lattice, slab.species, slab.frac_coords,
                     init_slab.miller_index, init_slab.oriented_unit_cell,
-                    init_slab.shift, init_slab.scale_factor,
+                    init_slab.shift, init_slab.scale_factor, init_slab.proj_height,
                     energy=init_slab.energy)
 
     def nonstoichiometric_symmetrized_slab(self, slab, tol=1e-3):
