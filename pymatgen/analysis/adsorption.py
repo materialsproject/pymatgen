@@ -62,7 +62,7 @@ class AdsorbateSiteFinder(object):
     """
 
     def __init__(self, slab, selective_dynamics=False,
-                 height=0.9, mi_vec=None, top_surface=True):
+                 height=0.9, mi_vec=None):
         """
         Create an AdsorbateSiteFinder object.
 
@@ -81,7 +81,6 @@ class AdsorbateSiteFinder(object):
 
         """
         # get surface normal from miller index
-        self.top_surface = top_surface
         if mi_vec:
             self.mvec = mi_vec
         else:
@@ -179,10 +178,7 @@ class AdsorbateSiteFinder(object):
                             for site in slab.sites])
 
         # Mask based on window threshold along the miller index.
-        topmask = (m_projs - np.amax(m_projs)) >= -height
-        bottommask = (np.min(m_projs) - m_projs) >= -height
-        mask = topmask if self.top_surface else bottommask
-
+        mask = (m_projs - np.amax(m_projs)) >= -height
         surf_sites = [slab.sites[n] for n in np.where(mask)[0]]
         if xy_tol:
             # sort surface sites by height
@@ -314,15 +310,7 @@ class AdsorbateSiteFinder(object):
                          for coord in sites]
             if symm_reduce:
                 sites = self.symm_reduce(sites, threshold=symm_reduce)
-                # we substract the distance from the bottom site if we
-                # wish to adsorb at the surface below the center of mass
-                weights = [s.species_and_occu.weight for s in self.slab]
-                com = np.average(self.slab.frac_coords, weights=weights, axis=0)
-                com = self.slab.lattice.get_cartesian_coords(com)
-
-                sites = [site - distance * self.mvec if
-                         site[2] < com[2] else
-                         site + distance * self.mvec for site in sites]
+            sites = [site + distance * self.mvec for site in sites]
 
             ads_sites[key] = sites
         return ads_sites
@@ -470,84 +458,6 @@ class AdsorbateSiteFinder(object):
         return structs
 
 
-def adsorb_both_surfaces(slab, molecule, selective_dynamics=False,
-                         height=0.9, mi_vec=None, repeat=None,
-                         min_lw=5.0, reorient=True, find_args={}):
-    """
-    Function that generates all adsorption structures for a given
-    molecular adsorbate on both surfaces of a slab.
-
-    Args:
-        slab (Slab): slab object for which to find adsorbate sites
-        selective_dynamics (bool): flag for whether to assign
-            non-surface sites as fixed for selective dynamics
-        molecule (Molecule): molecule corresponding to adsorbate
-        selective_dynamics (bool): flag for whether to assign
-            non-surface sites as fixed for selective dynamics
-        height (float): height criteria for selection of surface sites
-        mi_vec (3-D array-like): vector corresponding to the vector
-            concurrent with the miller index, this enables use with
-            slabs that have been reoriented, but the miller vector
-            must be supplied manually
-        repeat (3-tuple or list): repeat argument for supercell generation
-        min_lw (float): minimum length and width of the slab, only used
-            if repeat is None
-        reorient (bool): flag on whether or not to reorient adsorbate
-            along the miller index
-        find_args (dict): dictionary of arguments to be passed to the
-            call to self.find_adsorption_sites, e.g. {"distance":2.0}
-    """
-
-    matcher = StructureMatcher()
-
-    # Get adsorption on top
-    adsgen_top = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
-                                     height=height, mi_vec=mi_vec, top_surface=True)
-    structs = adsgen_top.generate_adsorption_structures(molecule, repeat=repeat,
-                                                        min_lw=min_lw, reorient=reorient,
-                                                        find_args=find_args)
-    adslabs = [g[0] for g in matcher.group_structures(structs)]
-    # Get adsorption on bottom
-    adsgen_bottom = AdsorbateSiteFinder(slab, selective_dynamics=selective_dynamics,
-                                        height=height, mi_vec=mi_vec, top_surface=False)
-    structs = adsgen_bottom.generate_adsorption_structures(molecule, repeat=repeat,
-                                                           min_lw=min_lw, reorient=reorient,
-                                                           find_args=find_args)
-    adslabs.extend([g[0] for g in matcher.group_structures(structs)])
-
-    # Group symmetrically similar slabs
-    adsorbed_slabs = []
-    for group in matcher.group_structures(adslabs):
-        # Further group each group by which surface adsorbed
-        top_ads, bottom_ads = [], []
-        for s in group:
-            sites = sorted(s, key=lambda site: site.frac_coords[2])
-            if sites[0].surface_properties == "adsorbate":
-                bottom_ads.append(s)
-            else:
-                top_ads.append(s)
-        if not top_ads or not bottom_ads:
-            warnings.warn("There are not enough sites at the bottom or "
-                          "top to generate a symmetric adsorbed slab")
-            continue
-
-        # Combine the adsorbates of both top and bottom slabs
-        # into one slab with one adsorbate on each side
-        coords = list(top_ads[0].frac_coords)
-        species = top_ads[0].species
-        lattice = top_ads[0].lattice
-        coords.extend([site.frac_coords for site in bottom_ads[0]
-                       if site.surface_properties == "adsorbate"])
-        species.extend([site.specie for site in bottom_ads[0]
-                        if site.surface_properties == "adsorbate"])
-
-        slab = Slab(lattice, species, coords, slab.miller_index,
-                    slab.oriented_unit_cell, slab.shift, slab.scale_factor)
-        adsorbed_slabs.append(slab)
-
-    return adsorbed_slabs
-
-
 def get_mi_vec(slab):
     """
     Convenience function which returns the unit vector aligned
@@ -591,7 +501,7 @@ def reorient_z(structure):
     sop = get_rot(struct)
     struct.apply_operation(sop)
     return struct
- 
+
 
 # Get color dictionary
 colors = loadfn(os.path.join(os.path.dirname(vis.__file__),
