@@ -28,7 +28,7 @@ from pymatgen.symmetry.analyzer import generate_full_symmops
 from pymatgen.util.coord import in_coord_list, in_coord_list_pbc
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
-from pymatgen.core.surface import generate_all_slabs, Slab
+from pymatgen.core.surface import generate_all_slabs
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
 from matplotlib import patches
@@ -456,6 +456,80 @@ class AdsorbateSiteFinder(object):
             structs.append(self.add_adsorbate(
                 molecule, coords, repeat=repeat, reorient=reorient))
         return structs
+
+    def adsorb_both_surfaces(self, molecule, repeat=None, min_lw=5.0,
+                             reorient=True, find_args={}, ltol=0.1,
+                             stol=0.1, angle_tol=0.01):
+
+        # First get all possible adsorption configurations for this surface
+        adslabs = self.generate_adsorption_structures(molecule, repeat=repeat, min_lw=min_lw,
+                                                      reorient=reorient, find_args=find_args)
+
+        # Now we need to sort the sites by their position along
+        # c as well as whether or not they are adsorbate
+        single_ads = []
+        for i, slab in enumerate(adslabs):
+            sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
+            ads_indices = [site_index for site_index, site in enumerate(sorted_sites) \
+                           if site.surface_properties == "adsorbate"]
+            non_ads_indices = [site_index for site_index, site in enumerate(sorted_sites) \
+                               if site.surface_properties != "adsorbate"]
+
+            species, fcoords, props = [], [], {"surface_properties": []}
+            for site in sorted_sites:
+                species.append(site.specie)
+                fcoords.append(site.frac_coords)
+                props["surface_properties"].append(site.surface_properties)
+
+            slab_other_side = Structure(slab.lattice, species,
+                                        fcoords, site_properties=props)
+
+            # For each adsorbate, get its distance from the surface and move it
+            # to the other side with the same distance from the other surface
+            for ads_index in ads_indices:
+                props["surface_properties"].append("adsorbate")
+                adsite = sorted_sites[ads_index]
+                diff = abs(adsite.frac_coords[2] - \
+                           sorted_sites[non_ads_indices[-1]].frac_coords[2])
+                slab_other_side.append(adsite.specie, [adsite.frac_coords[0],
+                                                       adsite.frac_coords[1],
+                                                       sorted_sites[0].frac_coords[2] - diff],
+                                       properties={"surface_properties": "adsorbate"})
+                # slab_other_side[-1].add
+
+            # Remove the adsorbates on the original side of the slab
+            # to create a slab with one adsorbate on the other side
+            slab_other_side.remove_sites(ads_indices)
+
+            # Put both slabs with adsorption on one side
+            # and the other in a list of slabs for grouping
+            single_ads.extend([slab, slab_other_side])
+
+        # Now group the slabs.
+        matcher = StructureMatcher(ltol=ltol, stol=stol,
+                                   angle_tol=angle_tol)
+        groups = matcher.group_structures(single_ads)
+
+        # Each group should be a pair with adsorbate on one side and the other.
+        # If a slab has no equivalent adsorbed slab on the other side, skip.
+        adsorb_both_sides = []
+        for i, group in enumerate(groups):
+            if len(group) != 2:
+                continue
+            ads1 = [site for site in group[0] if \
+                    site.surface_properties == "adsorbate"][0]
+            group[1].append(ads1.specie, ads1.frac_coords,
+                            properties={"surface_properties": "adsorbate"})
+            # Build the slab object
+            species, fcoords, props = [], [], {"surface_properties": []}
+            for site in group[1]:
+                species.append(site.specie)
+                fcoords.append(site.frac_coords)
+                props["surface_properties"].append(site.surface_properties)
+            s = Structure(group[1].lattice, species, fcoords, site_properties=props)
+            adsorb_both_sides.append(s)
+
+        return adsorb_both_sides
 
 
 def get_mi_vec(slab):
