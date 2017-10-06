@@ -687,6 +687,17 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'th'][0][0], -0.052)
         self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'dh'][0][0], 0.0)
 
+    def test_drift(self):
+        outcar = Outcar(os.path.join(test_dir, "OUTCAR"))
+        self.assertEqual(len(outcar.data['drift']),5)
+        self.assertAlmostEqual(np.sum(outcar.data['drift']),0)
+
+        outcar = Outcar(os.path.join(test_dir, "OUTCAR.CL"))
+        self.assertEqual(len(outcar.data['drift']), 79)
+        self.assertAlmostEqual(np.sum(outcar.data['drift']),  0.448010)
+
+
+
 
 class BSVasprunTest(unittest.TestCase):
 
