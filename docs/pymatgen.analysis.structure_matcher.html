@@ -199,6 +199,41 @@ definition in Site and PeriodicSite.</li>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.analysis.structure_matcher.OccupancyComparator">
+<em class="property">class </em><code class="descname">OccupancyComparator</code><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#OccupancyComparator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></code></a></p>
+<p>A Comparator that matches occupancies on sites,
+irrespective of the species of those sites.</p>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.OccupancyComparator.are_equal">
+<code class="descname">are_equal</code><span class="sig-paren">(</span><em>sp1</em>, <em>sp2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#OccupancyComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator.are_equal" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</li>
+<li><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if sets of occupancies (amt) are equal on both sites.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash">
+<code class="descname">get_hash</code><span class="sig-paren">(</span><em>composition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#OccupancyComparator.get_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.analysis.structure_matcher.OrderDisorderElementComparator">
 <em class="property">class </em><code class="descname">OrderDisorderElementComparator</code><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#OrderDisorderElementComparator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></code></a></p>
@@ -745,7 +780,7 @@ in different groups without comparison.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

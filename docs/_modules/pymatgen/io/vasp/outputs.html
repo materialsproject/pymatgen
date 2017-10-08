@@ -1548,6 +1548,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">=</span> <span class="n">total_energy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
 
+        <span class="c1"># Read the drift:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="s2">&quot;drift&quot;</span><span class="p">:</span><span class="s2">&quot;total drift:\s+(\S+)\s+(\S+)\s+(\S+)&quot;</span><span class="p">},</span>
+                          <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">postprocess</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
         <span class="c1"># Check if calculation is spin polarized</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="s1">&#39;spin&#39;</span><span class="p">:</span> <span class="s1">&#39;ISPIN  =      2&#39;</span><span class="p">})</span>
@@ -3715,7 +3720,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
