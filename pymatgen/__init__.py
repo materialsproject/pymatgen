@@ -81,7 +81,7 @@ def get_structure_from_mp(formula):
     return min(entries, key=lambda e: e.energy_per_atom).structure
 
 
-if sys.version_info < (3,):
+if sys.version_info < (3, 5):
     warnings.warn("""
 Pymatgen will drop Py2k support from v2019.1.1. Pls consult the documentation
 at https://www.pymatgen.org for more details.""")
