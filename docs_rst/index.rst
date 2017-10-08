@@ -38,6 +38,26 @@ become a member of `pymatgen's Google Groups`_.
 
     *The code is mightier than the pen.*
 
+Development News
+================
+
+Py3k-only with effect from 2019.1.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pymatgen has supported both Python 2.7 as well as Python 3.x from version 3.0.
+With increasing support by most standard libraries for Py3k, it no longer makes
+sense to maintain this dual support going foward. Dual support imposes costs in
+terms of developmental effort, and also forces compromises in code quality and
+efficiency. Though some legacy clusters may only come with Py2k installed by
+default, the recommended approach in any case is to create an isolated Py3k
+environment.
+
+The pymatgen development team will phase out Py2k support over the course of
+2018. From v2018.1.1, new features implemented in pymatgen no longer need to
+support Py2k (i.e., unittests do not need to pass Py2k testing), though
+existing features will still be Py2k compatible. From v2019.1.1, pymatgen will
+be Py3k only.
+
 Matgenie & Examples
 ===================
 
@@ -92,12 +112,7 @@ several advantages over other codes out there:
    and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
    other research groups.
 
-With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x. For developers working to add new features to pymatgen, this
-also means that all new code going forward has to be Python 2.7+ and 3
-compatible. Our approach is to have a single codebase support Python 2.7 and
-3.x, as per current best practices. Please review the `coding guidelines
-</contributing>`_.
+Please review the `coding guidelines </contributing>`_.
 
 .. include:: latest_changes.rst
 
