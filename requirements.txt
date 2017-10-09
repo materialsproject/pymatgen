@@ -1,4 +1,4 @@
-numpy==1.13.1
+numpy==1.13.3
 pydispatcher==2.0.5
 sympy==1.1.1
 requests==2.18.4

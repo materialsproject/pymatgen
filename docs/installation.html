@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Requirements &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>Requirements &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -51,7 +51,7 @@
         <li class="right" >
           <a href="index.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -69,7 +69,7 @@ be available on <a class="reference external" href="http://pypi.python.org">PyPI
 <li>Python 2.7-3.x supported. <strong>It is highly recommended that you use latest
 Python 3.x unless you know you need other dependencies that works with
 Python 2.x only.</strong></li>
-<li>numpy&gt;=1.9</li>
+<li>numpy&gt;=1.10</li>
 <li>scipy&gt;0.14</li>
 <li>matplotlib&gt;=1.5+</li>
 <li>monty&gt;=0.9.6</li>
@@ -100,6 +100,8 @@ Note that the ASE package is incompatible with Python 3.x at the moment.</li>
 usage of the adapters in pymatgen.io.babelio between pymatgen’s Molecule
 and OpenBabel’s OBMol. Opens up input and output support for the very large
 number of input and output formats supported by OpenBabel.</li>
+<li>networkx: For graph analysis associated with critic2 topological analysis
+of electron charge densities, pygraphviz is also required for visualization.</li>
 <li>nose - For unittesting. Not optional for developers.</li>
 </ol>
 </div>
@@ -120,7 +122,7 @@ advanced transformations (e.g., MagOrderingTransformation) use
 EnumerateStructureTransformation. The enum.x and makestr.x
 executables must be in the path. Get it at <a class="reference external" href="http://enum.sourceforge.net">http://enum.sourceforge.net</a> and
 follow the instructions to compile multienum.x and makestr.x.</li>
-<li>bader: For use with <code class="xref py py-class docutils literal"><span class="pre">pymatgen.command_line.bader.BaderAnalysis</span></code>.
+<li>bader: For use with <a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis" title="pymatgen.command_line.bader_caller.BaderAnalysis"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.command_line.bader_caller.BaderAnalysis</span></code></a>.
 This library by Henkelmann et al. provides a robust way to calculate the
 Bader analysis from a CHGCAR. The bader executable must be in the path.
 Get it at <a class="reference external" href="http://theory.cm.utexas.edu/bader">http://theory.cm.utexas.edu/bader</a>.</li>
@@ -128,9 +130,15 @@ Get it at <a class="reference external" href="http://theory.cm.utexas.edu/bader"
 which is in turn used extensively by <a class="reference internal" href="pymatgen.analysis.defects.html#module-pymatgen.analysis.defects" title="pymatgen.analysis.defects"><code class="xref py py-mod docutils literal"><span class="pre">pymatgen.analysis.defects</span></code></a> to
 compute empirical defect energies.</li>
 <li>aconvasp: For use with the <a class="reference internal" href="pymatgen.command_line.aconvasp_caller.html#module-pymatgen.command_line.aconvasp_caller" title="pymatgen.command_line.aconvasp_caller"><code class="xref py py-mod docutils literal"><span class="pre">pymatgen.command_line.aconvasp_caller</span></code></a>.</li>
-<li>Zeo++ (<a class="reference external" href="http://www.maciejharanczyk.info/Zeopp/">http://www.maciejharanczyk.info/Zeopp/</a>): For defect structure
+<li>Zeo++ (<a class="reference external" href="http://zeoplusplus.org">http://zeoplusplus.org</a>): For defect structure
 generation. This is required in addition to installing the zeo Python
 package.</li>
+<li>critic2 (<a class="reference external" href="https://github.com/aoterodelaroza/critic2">https://github.com/aoterodelaroza/critic2</a>): For topological
+analysis of critical points from electronic charge density. Provides
+more detailed information compared to bader. For use with
+<code class="xref py py-class docutils literal"><span class="pre">pymatgen.command_line.critic2_caller.Critic2Caller</span></code>.</li>
+<li>graphviz (<a class="reference external" href="http://graphviz.org">http://graphviz.org</a>): For visualization of graphs generated
+using critic2.</li>
 </ol>
 </div>
 </div>
@@ -608,13 +616,13 @@ can do using pymatgen:</p>
         <li class="right" >
           <a href="index.html" title="Introduction"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

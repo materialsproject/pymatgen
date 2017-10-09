@@ -24,7 +24,7 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.coord_utils import find_in_coord_list, pbc_diff
+from pymatgen.util.coord import find_in_coord_list, pbc_diff
 
 """
 An interface to the excellent spglib library by Atsushi Togo

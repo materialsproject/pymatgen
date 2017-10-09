@@ -11,7 +11,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
     get_el_sp
 from monty.json import MSONable
-from pymatgen.util.coord_utils import pbc_diff
+from pymatgen.util.coord import pbc_diff
 from pymatgen.core.composition import Composition
 from pymatgen.electronic_structure.core import Magmom
 

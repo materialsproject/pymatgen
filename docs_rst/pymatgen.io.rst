@@ -20,6 +20,7 @@ Submodules
    pymatgen.io.adf
    pymatgen.io.aiida
    pymatgen.io.ase
+   pymatgen.io.atat
    pymatgen.io.babel
    pymatgen.io.cif
    pymatgen.io.cssr
