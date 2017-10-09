@@ -64,7 +64,8 @@ class NEBAnalysisTest(PymatgenTest):
 
 def test_combine_neb_plots():
     neb_dir = os.path.join(test_dir, 'neb1', 'neb')
-    combine_neb_plots([neb_dir, neb_dir])
+    neb_analysis = NEBAnalysis.from_dir(neb_dir)
+    combine_neb_plots([neb_analysis, neb_analysis])
 
 test_combine_neb_plots()
 
