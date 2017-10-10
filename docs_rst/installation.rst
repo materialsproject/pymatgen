@@ -8,7 +8,7 @@ be available on `PyPI <http://pypi.python.org>`_.
 1. Python 2.7-3.x supported. **It is highly recommended that you use latest
    Python 3.x unless you know you need other dependencies that works with
    Python 2.x only.**
-2. numpy>=1.9
+2. numpy>=1.10
 3. scipy>0.14
 4. matplotlib>=1.5+
 5. monty>=0.9.6
@@ -41,7 +41,9 @@ Optional libraries that are required if you need certain features.
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-6. nose - For unittesting. Not optional for developers.
+6. networkx: For graph analysis associated with critic2 topological analysis
+   of electron charge densities, pygraphviz is also required for visualization.
+7. nose - For unittesting. Not optional for developers.
 
 Optional non-Python programs
 ----------------------------
@@ -61,7 +63,7 @@ the moment) required only for certain features:
    EnumerateStructureTransformation. The enum.x and makestr.x
    executables must be in the path. Get it at http://enum.sourceforge.net and
    follow the instructions to compile multienum.x and makestr.x.
-3. bader: For use with :class:`pymatgen.command_line.bader.BaderAnalysis`.
+3. bader: For use with :class:`pymatgen.command_line.bader_caller.BaderAnalysis`.
    This library by Henkelmann et al. provides a robust way to calculate the
    Bader analysis from a CHGCAR. The bader executable must be in the path.
    Get it at http://theory.cm.utexas.edu/bader.
@@ -69,9 +71,15 @@ the moment) required only for certain features:
    which is in turn used extensively by :mod:`pymatgen.analysis.defects` to
    compute empirical defect energies.
 5. aconvasp: For use with the :mod:`pymatgen.command_line.aconvasp_caller`.
-6. Zeo++ (http://www.maciejharanczyk.info/Zeopp/): For defect structure
+6. Zeo++ (http://zeoplusplus.org): For defect structure
    generation. This is required in addition to installing the zeo Python
    package.
+7. critic2 (https://github.com/aoterodelaroza/critic2): For topological
+   analysis of critical points from electronic charge density. Provides
+   more detailed information compared to bader. For use with
+   :class:`pymatgen.command_line.critic2_caller.Critic2Caller`.
+8. graphviz (http://graphviz.org): For visualization of graphs generated
+   using critic2.
 
 Conda-based install
 ===================

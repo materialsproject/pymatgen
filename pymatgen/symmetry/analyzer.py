@@ -24,7 +24,7 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.coord_utils import find_in_coord_list, pbc_diff
+from pymatgen.util.coord import find_in_coord_list, pbc_diff
 
 """
 An interface to the excellent spglib library by Atsushi Togo
@@ -439,7 +439,7 @@ class SpacegroupAnalyzer(object):
         elif "F" in self.get_space_group_symbol():
             transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]],
                               dtype=np.float) / 2
-        elif "C" in self.get_space_group_symbol():
+        elif "C" in self.get_space_group_symbol() or "A" in self.get_space_group_symbol():
             if self.get_crystal_system() == "monoclinic":
                 transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]],
                                   dtype=np.float) / 2
@@ -519,6 +519,16 @@ class SpacegroupAnalyzer(object):
                 for i in range(2):
                     transf[i][sorted_dic[i]['orig_index']] = 1
                 c = latt.abc[2]
+            elif self.get_space_group_symbol().startswith("A"): #change to C-centering to match Setyawan/Curtarolo convention             
+                transf[2] = [1, 0, 0]
+                a, b = sorted(latt.abc[1:])
+                sorted_dic = sorted([{'vec': latt.matrix[i],
+                                      'length': latt.abc[i],
+                                      'orig_index': i} for i in [1, 2]],
+                                    key=lambda k: k['length'])
+                for i in range(2):
+                    transf[i][sorted_dic[i]['orig_index']] = 1
+                c = latt.abc[0]
             else:
                 for i in range(len(sorted_dic)):
                     transf[i][sorted_dic[i]['orig_index']] = 1

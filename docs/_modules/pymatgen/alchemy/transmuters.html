@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.alchemy.transmuters &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.alchemy.transmuters &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -82,7 +82,6 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Pool</span>
 <span class="kn">from</span> <span class="nn">pymatgen.alchemy.materials</span> <span class="k">import</span> <span class="n">TransformedStructure</span>
@@ -179,7 +178,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncores</span> <span class="ow">and</span> <span class="n">transformation</span><span class="o">.</span><span class="n">use_multiprocessing</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ncores</span><span class="p">)</span>
-            <span class="c1">#need to condense arguments into single tuple to use map</span>
+            <span class="c1"># need to condense arguments into single tuple to use map</span>
             <span class="n">z</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
                 <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">transformation</span><span class="p">,</span> <span class="n">extend_collection</span><span class="p">,</span> <span class="n">clear_redo</span><span class="p">),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">)</span>
@@ -230,16 +229,7 @@
 <span class="sd">        output_dir, following the format output_dir/{formula}_{number}.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            vasp_input_set: pymatgen.io.vaspio_set.VaspInputSet to create</span>
-<span class="sd">                vasp input files from structures</span>
-<span class="sd">            output_dir: Directory to output files</span>
-<span class="sd">            create_directory (bool): Create the directory if not present.</span>
-<span class="sd">                Defaults to True.</span>
-<span class="sd">            subfolder: Callable to create subdirectory name from</span>
-<span class="sd">                transformed_structure. e.g.,</span>
-<span class="sd">                lambda x: x.other_parameters[&quot;tags&quot;][0] to use the first tag.</span>
-<span class="sd">            include_cif (bool): Whether to output a CIF as well. CIF files</span>
-<span class="sd">                are generally better supported in visualization programs.</span>
+<span class="sd">            \\*\\*kwargs: All kwargs supported by batch_write_vasp_input.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">batch_write_vasp_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -506,7 +496,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -514,7 +504,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

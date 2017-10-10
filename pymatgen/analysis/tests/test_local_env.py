@@ -11,7 +11,8 @@ import os
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
         VoronoiNN, JMolNN, \
         MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
-        get_neighbors_of_site_with_index, site_is_of_motif_type
+        get_neighbors_of_site_with_index, site_is_of_motif_type, \
+        NearNeighbors
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
@@ -260,6 +261,31 @@ class MotifIdentificationTest(PymatgenTest):
         del self.nacl
         del self.cscl
 
+class NearNeighborTest(PymatgenTest):
+
+    def setUp(self):
+        self.diamond = Structure(
+            Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264],
+                     [0, 0, 2.528]]), ["C0+", "C0+"], [[2.554, 1.806, 4.423],
+                                                       [0.365, 0.258, 0.632]],
+            validate_proximity=False,
+            to_unit_cell=False, coords_are_cartesian=True,
+            site_properties=None)
+
+    def set_nn_info(self):
+
+        # check conformance
+        # implicitly assumes that all NearNeighbors subclasses
+        # will correctly identify bonds in diamond, if it
+        # can't there are probably bigger problems
+        subclasses = NearNeighbors.__subclasses__()
+        for subclass in subclasses:
+            nn_info = subclass().get_nn_info(self.diamond, 0)
+            self.assertEqual(nn_info[0]['site_index'], 1)
+            self.assertEqual(nn_info[0]['image'][0], 1)
+
+    def tearDown(self):
+        del self.diamond
 
 if __name__ == '__main__':
     unittest.main()

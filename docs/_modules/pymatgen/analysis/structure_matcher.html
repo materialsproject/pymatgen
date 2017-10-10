@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2017.9.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.9.23',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -80,8 +80,8 @@
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.optimization.linear_assignment</span> <span class="k">import</span> <span class="n">LinearAssignment</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils_cython</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">is_coord_subset_pbc</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="k">import</span> <span class="n">lattice_points_in_supercell</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord_cython</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">is_coord_subset_pbc</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">lattice_points_in_supercell</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;William Davidson Richards, Stephen Dacek, Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
@@ -314,6 +314,33 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">1</span></div></div>
 
+<div class="viewcode-block" id="OccupancyComparator"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OccupancyComparator">[docs]</a><span class="k">class</span> <span class="nc">OccupancyComparator</span><span class="p">(</span><span class="n">AbstractComparator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Comparator that matches occupancies on sites,</span>
+<span class="sd">    irrespective of the species of those sites.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="OccupancyComparator.are_equal"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OccupancyComparator.are_equal">[docs]</a>    <span class="k">def</span> <span class="nf">are_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            sp1: First species. A dict of {specie/element: amt} as per the</span>
+<span class="sd">                definition in Site and PeriodicSite.</span>
+<span class="sd">            sp2: Second species. A dict of {specie/element: amt} as per the</span>
+<span class="sd">                definition in Site and PeriodicSite.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if sets of occupancies (amt) are equal on both sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">set1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sp1</span><span class="o">.</span><span class="n">element_composition</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">set2</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sp2</span><span class="o">.</span><span class="n">element_composition</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">set1</span> <span class="o">==</span> <span class="n">set2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="OccupancyComparator.get_hash"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">):</span>
+        <span class="c1"># Difficult to define sensible hash</span>
+        <span class="k">return</span> <span class="mi">1</span></div></div>
 
 <div class="viewcode-block" id="StructureMatcher"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.StructureMatcher">[docs]</a><span class="k">class</span> <span class="nc">StructureMatcher</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1165,7 +1192,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1173,7 +1200,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

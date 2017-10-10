@@ -6,10 +6,11 @@ from __future__ import unicode_literals
 
 import numpy as np
 
-from pymatgen.util.coord_utils import Simplex
+from pymatgen.util.coord import Simplex
 from functools import cmp_to_key
 from pyhull.halfspace import Halfspace, HalfspaceIntersection
 from pyhull.convex_hull import ConvexHull
+from pymatgen.analysis.pourbaix.entry import MultiEntry
 from six.moves import zip
 
 """
@@ -20,6 +21,7 @@ __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.0"
 __maintainer__ = "Sai Jayaraman"
+__credits__ = "Arunima Singh, Joseph Montoya"
 __email__ = "sjayaram@mit.edu"
 __status__ = "Development"
 __date__ = "Nov 7, 2012"
@@ -196,12 +198,24 @@ class PourbaixAnalyzer(object):
 
     def _get_facet(self, entry):
         """
-        Get any facet that a composition falls into.
+        Get any facet that a Pourbaix Entry falls into.
         """
         for facet in self._pd.facets:
             if self._in_facet(facet, entry):
                 return facet
         raise RuntimeError("No facet found for comp = {}".format(entry.name))
+
+    def _get_all_facets(self, entry):
+        """
+        Get all the facets that a Pourbaix Entry falls into
+        """
+        all_facets = []
+        for facet in self._pd.facets:
+            if self._in_facet(facet,entry):
+               all_facets.append(facet)
+        return all_facets
+        raise RuntimeError("No facet found for comp = {}".format(entry.name))
+
 
     def _get_facet_entries(self, facet):
         """
@@ -221,6 +235,51 @@ class PourbaixAnalyzer(object):
         nPhi = -entry.nPhi
         return g0 - npH * pH - nPhi * V
 
+    def get_all_decomp_and_e_above_hull(self, single_entry):
+        """
+        Computes the decomposition entries, species and hull energies 
+        for all the multi-entries which have the "material" as the only solid.  
+        
+        Args:
+            single_entry: single entry for which to find all of the
+                decompositions
+
+        Returns:
+            (decomp_entries, hull_energies, decomp_species, entries)
+            for all multi_entries containing the single_entry as the
+            only solid
+        """
+        decomp_entries, hull_energies, decomp_species, entries = [], [], [], []
+
+        # for all entries where the material is the only solid
+        if not isinstance(self._pd.all_entries[0], MultiEntry):
+           possible_entries = [e for e in self._pd.all_entries
+                             if single_entry == e]
+        else:
+           possible_entries = [e for e in self._pd.all_entries
+                         if e.phases.count("Solid") == 1
+                         and single_entry in e.entrylist]
+        
+        for possible_entry in possible_entries:
+            # Find the decomposition details if the material
+            # is in the Pourbaix Multi Entry or Pourbaix Entry
+            facets = self._get_all_facets(possible_entry)
+            for facet in facets:
+                entrylist = [self._pd.qhull_entries[i] for i in facet]
+                m = self._make_comp_matrix(entrylist)
+                compm = self._make_comp_matrix([possible_entry])
+                decomp_amts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
+                decomp, decomp_names = {}, {}
+                for i, decomp_amt in enumerate(decomp_amts):
+                    if abs(decomp_amt[0]) > PourbaixAnalyzer.numerical_tol:
+                        decomp[self._pd.qhull_entries[facet[i]]] = decomp_amt[0]
+                decomp_entries.append(decomp)
+                hull_energy = sum([entry.g0 * amt for entry, amt in decomp.items()])
+                hull_energies.append(possible_entry.g0 - hull_energy)
+                entries.append(possible_entry)
+        
+        return decomp_entries, hull_energies, entries
+
     def get_decomposition(self, entry):
         """
         Provides the decomposition at a particular composition
@@ -235,12 +294,14 @@ class PourbaixAnalyzer(object):
         entrylist = [self._pd.qhull_entries[i] for i in facet]
         m = self._make_comp_matrix(entrylist)
         compm = self._make_comp_matrix([entry])
-        decompamts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
+        decomp_amts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
         decomp = dict()
+        self.decomp_names = dict()
         #Scrub away zero amounts
-        for i in range(len(decompamts)):
-            if abs(decompamts[i][0]) > PourbaixAnalyzer.numerical_tol:
-                decomp[self._pd.qhull_entries[facet[i]]] = decompamts[i][0]
+        for i in range(len(decomp_amts)):
+            if abs(decomp_amts[i][0]) > PourbaixAnalyzer.numerical_tol:
+                decomp[self._pd.qhull_entries[facet[i]]] = decomp_amts[i][0]
+                self.decomp_names[self._pd.qhull_entries[facet[i]].name] = decomp_amts[i][0]
         return decomp
 
     def get_decomp_and_e_above_hull(self, entry):
@@ -256,9 +317,9 @@ class PourbaixAnalyzer(object):
         """
         g0 = entry.g0
         decomp = self.get_decomposition(entry)
-        hullenergy = sum([entry.g0 * amt
+        hull_energy = sum([entry.g0 * amt
                           for entry, amt in decomp.items()])
-        return decomp, g0 - hullenergy
+        return decomp, g0 - hull_energy, self.decomp_names
 
     def get_e_above_hull(self, entry):
         """
@@ -272,3 +333,25 @@ class PourbaixAnalyzer(object):
             energy above hull of 0.
         """
         return self.get_decomp_and_e_above_hull(entry)[1]
+
+    def get_gibbs_free_energy(self, pH, V):
+        """
+        Provides the gibbs free energy of the Pourbaix stable entry
+        at a given pH and V
+
+        Args:
+            pH: pH
+             V: potential vs SHE
+
+        Returns:
+             gibbs free energy (eV/atom) 
+        """
+        data = {}
+
+        for entry in self._pd.stable_entries:
+            data.update({entry.name: self.g(entry, pH, V)})
+        gibbs_energy = min(data.values())
+        stable_entry = [k for k, v in data.items() if v == gibbs_energy]
+
+        return (gibbs_energy, stable_entry)
+

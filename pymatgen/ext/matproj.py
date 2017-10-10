@@ -617,7 +617,7 @@ class MPRester(object):
         Returns:
             A list of inserted submission ids.
         """
-        from pymatgen.matproj.snl import StructureNL
+        from pymatgen.util.provenance import StructureNL
         snl_list = StructureNL.from_structures(structures, authors, projects,
                                                references, remarks, data,
                                                histories, created_at)
