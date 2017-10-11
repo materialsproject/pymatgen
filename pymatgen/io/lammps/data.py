@@ -185,23 +185,27 @@ Atoms
         return Structure(lattice, species, coords, coords_are_cartesian=True)
 
     @staticmethod
-    def check_box_size(structure, box_size, translate=False):
+    def check_box_size(structure, box_size, translate_mol=False):
         """
-        For Molecule objects: check the box size and if necessary translate
-        the molecule so that all the sites are contained within the bounding box.
-        Structure objects: compute the tilt. See
-            http://lammps.sandia.gov/doc/Section_howto.html#howto-12
+        Molecule objects: check the box size and if necessary
+        translate the molecule so that all the sites are contained
+        within the bounding box.
+        Structure objects: compute the box tilt and rotate all the
+        periodic sites accordingly.
 
         Args:
-            structure(Structure/Molecule)
-            box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
-            translate (bool): if true move the molecule to the center of the
-                new box.
+            structure(Molecule/Structure)
+            box_size (list): (For molecule)
+                [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
+            translate_mol (bool): (For molecule) if true move the
+                molecule to the center of the new box.
 
         Returns:
             box_size, box_tilt
         """
         box_tilt = None
+
+        # Molecule
         if isinstance(structure, Molecule):
             box_size = box_size or [[0, 10], [0, 10], [0, 10]]
             box_lengths_req = [
@@ -215,16 +219,17 @@ Atoms
                 print("Minimum required box lengths {} larger than the provided "
                       "box lengths{}. Resetting the box size to {}".format(
                     box_lengths_req, box_lengths, box_size))
-                translate = True
-            if translate:
+                translate_mol = True
+            if translate_mol:
                 com = structure.center_of_mass
                 new_com = [(side[1] + side[0]) / 2 for side in box_size]
                 translate_by = np.array(new_com) - np.array(com)
                 structure.translate_sites(range(len(structure)), translate_by)
+
         # Structure
-        else:
+        elif isinstance(structure, Structure):
             a, b, c = structure.lattice.abc
-            m = structure.lattice.matrix.copy()
+            m = structure.lattice.matrix
             xhi = a
             xy = np.dot(m[1], m[0] / xhi)
             yhi = np.sqrt(b ** 2 - xy ** 2)
@@ -233,6 +238,8 @@ Atoms
             zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2)
             box_size = [[0.0, xhi], [0.0, yhi], [0.0, zhi]]
             box_tilt = [xy, xz, yz]
+            lattice = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
+            structure.modify_lattice(lattice)
         return box_size, box_tilt
 
     def write_file(self, filename, significant_figures=6):
@@ -272,8 +279,8 @@ Atoms
              for i, el in enumerate(elements)])
         return natoms, natom_types, atomic_masses_dict
 
-    @classmethod
-    def get_atoms_data(cls, structure, atomic_masses_dict, set_charge=True):
+    @staticmethod
+    def get_atoms_data(structure, atomic_masses_dict, set_charge=True):
         """
         return the atoms data:
             Molecule:
@@ -300,19 +307,6 @@ Atoms
             For Structure:
                 [[atom_id, atom_type, charge(if present), x, y, z], ... ]
         """
-        # for structure,create new lattice. Lammps data requires lattice vector a is in x-direction.
-        # The plane formed by lattice vector a,b should be perpendicular to z-direction.
-        if not isinstance(structure, Molecule):
-            box_size = None
-            box_size, box_tilt = cls.check_box_size(structure, box_size)
-#            xy, xz, yz = box_tilt if box_tilt is not None else [0.0, 0.0, 0.0]
-            matrix = np.array([[box_size[0][1], 0, 0], [box_tilt[0], box_size[1][1], 0],
-                               [box_tilt[1], box_tilt[2], box_size[2][1]]])
-            new_lattice = Lattice(matrix)
-
-            # rotate the original structure according to the new lattice.
-            structure.modify_lattice(new_lattice)
-
         atoms_data = []
         # to comply with atom_style='molecular' and 'full'
         mol_id = 1 if isinstance(structure, Molecule) else None
@@ -335,7 +329,7 @@ Atoms
 
     @classmethod
     def from_structure(cls, input_structure, box_size=None, set_charge=True,
-                       translate=True):
+                       translate_mol=True):
         """
         Set LammpsData from the given structure or molecule object. If the input
         structure is a Molecule and if it doesnt fit in the input box then the
@@ -348,7 +342,7 @@ Atoms
             set_charge (bool): whether or not to set the charge field in
                 Atoms. If true, the charge will be non-zero only if the
                 input_structure has the "charge" site property set.
-            translate (bool): if true move the molecule to the center of the
+            translate_mol (bool): if true move the molecule to the center of the
                 new box(it that is required).
 
         Returns:
@@ -356,7 +350,7 @@ Atoms
         """
 
         box_size, box_tilt = cls.check_box_size(input_structure, box_size,
-                                                translate=translate)
+                                                translate_mol=translate_mol)
         natoms, natom_types, atomic_masses_dict = \
             cls.get_basic_system_info(input_structure.copy())
 
