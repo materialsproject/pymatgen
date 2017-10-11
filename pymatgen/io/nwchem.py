@@ -89,7 +89,8 @@ class NwTask(MSONable):
                                     "classical MD.",
                   "": "dummy"}
 
-    def __init__(self, charge, spin_multiplicity, basis_set, basis_set_option="cartesian",
+    def __init__(self, charge, spin_multiplicity, basis_set,
+                 basis_set_option="cartesian",
                  title=None, theory="dft", operation="optimize",
                  theory_directives=None, alternate_directives=None):
         """
@@ -166,7 +167,9 @@ $theory_spec
 task $theory $operation""")
 
         return t.substitute(
-            title=self.title, charge=self.charge, basis_set_option=self.basis_set_option,
+            title=self.title, charge=self.charge,
+            spinmult=self.spin_multiplicity,
+            basis_set_option=self.basis_set_option,
             bset_spec="\n".join(bset_spec),
             theory_spec="\n".join(theory_spec),
             theory=self.theory, operation=self.operation)
