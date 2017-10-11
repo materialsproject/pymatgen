@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2017.9.29
+----------
+* critic2 command line caller for topological analysis (M. Horton)
+* Refactor coord_util -> coord.
+
 v2017.9.23
 ----------
 * Gibbs free energy of a material with respect to Pourbaix stable domains.

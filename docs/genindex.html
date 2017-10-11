@@ -358,7 +358,7 @@
 </li>
       <li><a href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.all_comp">all_comp (BalancedReaction attribute)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.all_distances">all_distances() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.all_distances">all_distances() (in module pymatgen.util.coord)</a>
 </li>
       <li><a href="pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.YamlTokenizer.all_docs_with_tag">all_docs_with_tag() (YamlTokenizer method)</a>
 </li>
@@ -654,6 +654,8 @@
         <li><a href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.FrameworkComparator.are_equal">(FrameworkComparator method)</a>
 </li>
         <li><a href="pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.are_equal">(MoleculeStructureComparator method)</a>
+</li>
+        <li><a href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OccupancyComparator.are_equal">(OccupancyComparator method)</a>
 </li>
         <li><a href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.are_equal">(OrderDisorderElementComparator method)</a>
 </li>
@@ -1170,9 +1172,9 @@
 </li>
       <li><a href="pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BandStructureWork">BandStructureWork (class in pymatgen.io.abinit.works)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.Simplex.bary_coords">bary_coords() (Simplex method)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.Simplex.bary_coords">bary_coords() (Simplex method)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.barycentric_coords">barycentric_coords() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.barycentric_coords">barycentric_coords() (in module pymatgen.util.coord)</a>
 </li>
       <li><a href="pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.basename">basename (Directory attribute)</a>
 
@@ -1365,8 +1367,6 @@
 </li>
       </ul></li>
       <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.cart_forces">cart_forces (GaussianOutput attribute)</a>
-</li>
-      <li><a href="pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.cart_to_frac">cart_to_frac() (in module pymatgen.analysis.adsorption)</a>
 </li>
       <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints_supported_modes.Cartesian">Cartesian (Kpoints_supported_modes attribute)</a>
 </li>
@@ -1726,12 +1726,12 @@
         <li><a href="pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection.convert_to_ieee">(TensorCollection method)</a>
 </li>
       </ul></li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.coord_list_mapping">coord_list_mapping() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.coord_list_mapping">coord_list_mapping() (in module pymatgen.util.coord)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.coord_list_mapping_pbc">coord_list_mapping_pbc() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.coord_list_mapping_pbc">coord_list_mapping_pbc() (in module pymatgen.util.coord)</a>
 
       <ul>
-        <li><a href="pymatgen.util.coord_utils_cython.html#pymatgen.util.coord_utils_cython.coord_list_mapping_pbc">(in module pymatgen.util.coord_utils_cython)</a>
+        <li><a href="pymatgen.util.coord_cython.html#pymatgen.util.coord_cython.coord_list_mapping_pbc">(in module pymatgen.util.coord_cython)</a>
 </li>
       </ul></li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures">coordination_geometry_symmetry_measures() (LocalGeometryFinder method)</a>
@@ -1750,7 +1750,7 @@
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints">CoordinationGeometry.NeighborsSetsHints (class in pymatgen.analysis.chemenv.coordination_environments.coordination_geometries)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.Simplex.coords">coords (Simplex attribute)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.Simplex.coords">coords (Simplex attribute)</a>
 
       <ul>
         <li><a href="pymatgen.core.sites.html#pymatgen.core.sites.Site.coords">(Site attribute)</a>
@@ -2620,9 +2620,9 @@
 </li>
       <li><a href="pymatgen.symmetry.structure.html#pymatgen.symmetry.structure.SymmetrizedStructure.find_equivalent_sites">find_equivalent_sites() (SymmetrizedStructure method)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.find_in_coord_list">find_in_coord_list() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.find_in_coord_list">find_in_coord_list() (in module pymatgen.util.coord)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.find_in_coord_list_pbc">find_in_coord_list_pbc() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.find_in_coord_list_pbc">find_in_coord_list_pbc() (in module pymatgen.util.coord)</a>
 </li>
       <li><a href="pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.find_last_timden_file">find_last_timden_file() (Directory method)</a>
 </li>
@@ -2758,8 +2758,6 @@
         <li><a href="pymatgen.apps.battery.insertion_battery.html#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.frac_discharge">(InsertionVoltagePair attribute)</a>
 </li>
       </ul></li>
-      <li><a href="pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.frac_to_cart">frac_to_cart() (in module pymatgen.analysis.adsorption)</a>
-</li>
       <li><a href="pymatgen.core.composition.html#pymatgen.core.composition.Composition.fractional_composition">fractional_composition (Composition attribute)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.func_utils.html#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.fractions">fractions() (CSMFiniteRatioFunction method)</a>
@@ -3552,7 +3550,7 @@
 </li>
       <li><a href="pymatgen.analysis.structure_prediction.substitutor.html#pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species">get_allowed_species() (Substitutor method)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.get_angle">get_angle() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.get_angle">get_angle() (in module pymatgen.util.coord)</a>
 
       <ul>
         <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.get_angle">(SiteCollection method)</a>
@@ -4033,6 +4031,8 @@
 </li>
         <li><a href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.FrameworkComparator.get_hash">(FrameworkComparator method)</a>
 </li>
+        <li><a href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash">(OccupancyComparator method)</a>
+</li>
         <li><a href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.get_hash">(OrderDisorderElementComparator method)</a>
 </li>
         <li><a href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.SpeciesComparator.get_hash">(SpeciesComparator method)</a>
@@ -4098,7 +4098,7 @@
 </li>
       <li><a href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_lattice_type">get_lattice_type() (SpacegroupAnalyzer method)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.get_linear_interpolated_value">get_linear_interpolated_value() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.get_linear_interpolated_value">get_linear_interpolated_value() (in module pymatgen.util.coord)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.get_linearly_independent_vectors">get_linearly_independent_vectors() (in module pymatgen.analysis.chemenv.utils.math_utils)</a>
 </li>
@@ -5516,11 +5516,11 @@
 </li>
       <li><a href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.in_array_list">in_array_list() (in module pymatgen.symmetry.groups)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.in_coord_list">in_coord_list() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.in_coord_list">in_coord_list() (in module pymatgen.util.coord)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.in_coord_list_pbc">in_coord_list_pbc() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.in_coord_list_pbc">in_coord_list_pbc() (in module pymatgen.util.coord)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.Simplex.in_simplex">in_simplex() (Simplex method)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.Simplex.in_simplex">in_simplex() (Simplex method)</a>
 </li>
       <li><a href="pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.in_spectator_mode">in_spectator_mode (Node attribute)</a>
 </li>
@@ -5776,12 +5776,12 @@
 </li>
       <li><a href="pymatgen.io.abinit.helpers.html#pymatgen.io.abinit.helpers.is_converged">is_converged() (in module pymatgen.io.abinit.helpers)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.is_coord_subset">is_coord_subset() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.is_coord_subset">is_coord_subset() (in module pymatgen.util.coord)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.is_coord_subset_pbc">is_coord_subset_pbc() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.is_coord_subset_pbc">is_coord_subset_pbc() (in module pymatgen.util.coord)</a>
 
       <ul>
-        <li><a href="pymatgen.util.coord_utils_cython.html#pymatgen.util.coord_utils_cython.is_coord_subset_pbc">(in module pymatgen.util.coord_utils_cython)</a>
+        <li><a href="pymatgen.util.coord_cython.html#pymatgen.util.coord_cython.is_coord_subset_pbc">(in module pymatgen.util.coord_cython)</a>
 </li>
       </ul></li>
       <li><a href="pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Status.is_critical">is_critical (Status attribute)</a>
@@ -6194,7 +6194,7 @@
       </ul></li>
       <li><a href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.lattice_from_abivars">lattice_from_abivars() (in module pymatgen.io.abinit.abiobjects)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.lattice_points_in_supercell">lattice_points_in_supercell() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.lattice_points_in_supercell">lattice_points_in_supercell() (in module pymatgen.util.coord)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.lattice_rec">lattice_rec (BandStructure attribute)</a>
 
@@ -6316,7 +6316,7 @@
       </ul></li>
       <li><a href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModelModes.linden">linden (PPModelModes attribute)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.Simplex.line_intersection">line_intersection() (Simplex method)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.Simplex.line_intersection">line_intersection() (Simplex method)</a>
 </li>
       <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints_supported_modes.Line_mode">Line_mode (Kpoints_supported_modes attribute)</a>
 </li>
@@ -6556,6 +6556,8 @@
 </li>
       <li><a href="pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc5">mclc5() (HighSymmKpath method)</a>
 </li>
+      <li><a href="pymatgen.io.atat.html#pymatgen.io.atat.Mcsqs">Mcsqs (class in pymatgen.io.atat)</a>
+</li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.Md">Md (Element attribute)</a>
 </li>
       <li><a href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.md5">md5 (Pseudo attribute)</a>
@@ -6674,10 +6676,10 @@
 </li>
       <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M06">MGGA_X_M06 (LibxcFunc attribute)</a>
 </li>
-      <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M06_2X">MGGA_X_M06_2X (LibxcFunc attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M06_2X">MGGA_X_M06_2X (LibxcFunc attribute)</a>
+</li>
       <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M06_HF">MGGA_X_M06_HF (LibxcFunc attribute)</a>
 </li>
       <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M06_L">MGGA_X_M06_L (LibxcFunc attribute)</a>
@@ -7268,6 +7270,8 @@
 </li>
       <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Orbital.occ">occ (Orbital attribute)</a>
 </li>
+      <li><a href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OccupancyComparator">OccupancyComparator (class in pymatgen.analysis.structure_matcher)</a>
+</li>
       <li><a href="pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.off_color">off_color (WulffShape attribute)</a>
 </li>
       <li><a href="pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.NMRChemicalShiftNotation.MarylandNotation.omega">omega (NMRChemicalShiftNotation.MarylandNotation attribute)</a>
@@ -7568,12 +7572,12 @@
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.Pb">Pb (Element attribute)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.pbc_diff">pbc_diff() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.pbc_diff">pbc_diff() (in module pymatgen.util.coord)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.pbc_shortest_vectors">pbc_shortest_vectors() (in module pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.pbc_shortest_vectors">pbc_shortest_vectors() (in module pymatgen.util.coord)</a>
 
       <ul>
-        <li><a href="pymatgen.util.coord_utils_cython.html#pymatgen.util.coord_utils_cython.pbc_shortest_vectors">(in module pymatgen.util.coord_utils_cython)</a>
+        <li><a href="pymatgen.util.coord_cython.html#pymatgen.util.coord_cython.pbc_shortest_vectors">(in module pymatgen.util.coord_cython)</a>
 </li>
       </ul></li>
       <li><a href="pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.pbc_wrap">pbc_wrap() (in module pymatgen.io.lammps.output)</a>
@@ -7838,7 +7842,7 @@
 </li>
       <li><a href="pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldSummation.point_energy_matrix">point_energy_matrix (EwaldSummation attribute)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.Simplex.point_from_bary_coords">point_from_bary_coords() (Simplex method)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.Simplex.point_from_bary_coords">point_from_bary_coords() (Simplex method)</a>
 </li>
       <li><a href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.PointGroup">PointGroup (class in pymatgen.symmetry.groups)</a>
 </li>
@@ -8434,6 +8438,8 @@
 </li>
       <li><a href="pymatgen.io.ase.html#module-pymatgen.io.ase">pymatgen.io.ase (module)</a>
 </li>
+      <li><a href="pymatgen.io.atat.html#module-pymatgen.io.atat">pymatgen.io.atat (module)</a>
+</li>
       <li><a href="pymatgen.io.babel.html#module-pymatgen.io.babel">pymatgen.io.babel (module)</a>
 </li>
       <li><a href="pymatgen.io.cif.html#module-pymatgen.io.cif">pymatgen.io.cif (module)</a>
@@ -8570,9 +8576,11 @@
 </li>
       <li><a href="pymatgen.util.convergence.html#module-pymatgen.util.convergence">pymatgen.util.convergence (module)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#module-pymatgen.util.coord_utils">pymatgen.util.coord_utils (module)</a>
+      <li><a href="pymatgen.util.coord.html#module-pymatgen.util.coord">pymatgen.util.coord (module)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils_cython.html#module-pymatgen.util.coord_utils_cython">pymatgen.util.coord_utils_cython (module)</a>
+      <li><a href="pymatgen.util.coord_cython.html#module-pymatgen.util.coord_cython">pymatgen.util.coord_cython (module)</a>
+</li>
+      <li><a href="pymatgen.util.coord_utils.html#module-pymatgen.util.coord_utils">pymatgen.util.coord_utils (module)</a>
 </li>
       <li><a href="pymatgen.util.io_utils.html#module-pymatgen.util.io_utils">pymatgen.util.io_utils (module)</a>
 </li>
@@ -9548,7 +9556,7 @@
 </li>
       <li><a href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone">SimpleVaspToComputedEntryDrone (class in pymatgen.apps.borg.hive)</a>
 </li>
-      <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.Simplex">Simplex (class in pymatgen.util.coord_utils)</a>
+      <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.Simplex">Simplex (class in pymatgen.util.coord)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.single_cap_hints">single_cap_hints() (CoordinationGeometry.NeighborsSetsHints method)</a>
 </li>
@@ -9566,10 +9574,10 @@
 </li>
       <li><a href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.site_is_of_motif_type">site_is_of_motif_type() (in module pymatgen.analysis.local_env)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.site_properties">site_properties (SiteCollection attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar.site_symbols">site_symbols (Poscar attribute)</a>
 
       <ul>
@@ -9863,6 +9871,8 @@
       <li><a href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.structure_from_abivars">structure_from_abivars() (in module pymatgen.io.abinit.abiobjects)</a>
 </li>
       <li><a href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.structure_from_ncdata">structure_from_ncdata() (in module pymatgen.io.abinit.netcdf)</a>
+</li>
+      <li><a href="pymatgen.io.atat.html#pymatgen.io.atat.Mcsqs.structure_from_string">structure_from_string() (Mcsqs static method)</a>
 </li>
       <li><a href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.structure_lines">structure_lines() (GulpIO method)</a>
 </li>
@@ -10271,6 +10281,8 @@
       <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput.to_string">to_string() (GaussianInput method)</a>
 
       <ul>
+        <li><a href="pymatgen.io.atat.html#pymatgen.io.atat.Mcsqs.to_string">(Mcsqs method)</a>
+</li>
         <li><a href="pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeHistory.to_string">(NodeHistory method)</a>
 </li>
         <li><a href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.to_string">(Pseudo method)</a>
@@ -10621,7 +10633,7 @@
       <ul>
         <li><a href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice.volume">(Lattice attribute)</a>
 </li>
-        <li><a href="pymatgen.util.coord_utils.html#pymatgen.util.coord_utils.Simplex.volume">(Simplex attribute)</a>
+        <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.Simplex.volume">(Simplex attribute)</a>
 </li>
         <li><a href="pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.volume">(WulffShape attribute)</a>
 </li>
@@ -11046,7 +11058,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
