@@ -115,6 +115,12 @@ class CompositionTest(PymatgenTest):
             self.assertAlmostEqual(c.average_electroneg,
                                    val[i])
 
+    def test_total_electrons(self):
+		test_cases = {'C': 6, 'SrTiO3': 78}
+        for item in test_cases.keys()
+        	c = Composition(item)
+        	self.assertAlmostEqual(c.total_electrons, test_cases[item])
+
     def test_formula(self):
         correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4',
                             'Li4 O4', 'Li3 Fe2 Mo3 O12', 'Li3 Fe2 P6 C10 O54',
