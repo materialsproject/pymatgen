@@ -8,7 +8,7 @@ from six.moves import zip
 import itertools
 import numpy as np
 import math
-from . import coord_cython as cuc
+from . import coord_utils_cython as cuc
 
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic

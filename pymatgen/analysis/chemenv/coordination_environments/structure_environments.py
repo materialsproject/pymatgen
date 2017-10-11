@@ -628,6 +628,8 @@ class StructureEnvironments(MSONable):
         subplot_distang.set_xlim([-0.5, len(cn_maps)-0.5])
         subplot.set_xticklabels([str(cn_map) for cn_map in cn_maps])
 
+        return fig, subplot
+
     def get_environments_figure(self, isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
                                 additional_condition=AC.ONLY_ACB, colormap=None, figsize=None,
                                 strategy=None):
@@ -760,7 +762,7 @@ class StructureEnvironments(MSONable):
         scalarmap.set_array([mymin, mymax])
         cb = fig.colorbar(scalarmap, ax=subplot, extend='max')
         cb.set_label('Continuous symmetry measure')
-        return fig
+        return fig, subplot
 
     def plot_environments(self,  isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
                           additional_condition=AC.ONLY_ACB, figsize=None, strategy=None):
@@ -778,39 +780,20 @@ class StructureEnvironments(MSONable):
         :param figsize: Size of the figure to be plotted
         :return: Nothing returned, just plot the figure
         """
-        fig = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
-                                           additional_condition=additional_condition, figsize=figsize,
-                                           strategy=strategy)
+        fig, subplot = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
+                                                    additional_condition=additional_condition, figsize=figsize,
+                                                    strategy=strategy)
         if fig is None:
             return
         fig.show()
 
     def save_environments_figure(self,  isite, imagename='image.png', plot_type=None, title='Coordination numbers',
                                  max_dist=2.0, additional_condition=AC.ONLY_ACB, figsize=None):
-        fig = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
+        fig, subplot = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
                                            additional_condition=additional_condition, figsize=figsize)
         if fig is None:
             return
         fig.savefig(imagename)
-
-    def to_bv_dict(self, isite):
-        out = {"neighbours_lists": [], "continuous_symmetry_measures": []}
-        for cn, coordnbs_list in self.voronoi._unique_coordinated_neighbors[isite].items():
-            for i_coordnbs, coordnbs in enumerate(coordnbs_list):
-                neighbours = []
-                for ineighb, neighb in enumerate(coordnbs[0]):
-                    mydict = {'neighbour': neighb.as_dict(),
-                              'distance': coordnbs[2][ineighb]['distance'],
-                              'normalized_distance': coordnbs[2][ineighb]['normalized_distance'],
-                              'angle': coordnbs[2][ineighb]['angle'],
-                              'normalized_angle': coordnbs[2][ineighb]['normalized_angle']}
-                    neighbours.append(mydict)
-                ce = self.ce_list[isite][cn][i_coordnbs]
-                mingeoms = ce.minimum_geometries()
-                csm_dict = {ce: ce_dict['symmetry_measure'] for ce, ce_dict in mingeoms}
-                out["neighbours_lists"].append(neighbours)
-                out["continuous_symmetry_measures"].append(csm_dict)
-        return out
 
     def differences_wrt(self, other):
         differences = []
@@ -852,6 +835,21 @@ class StructureEnvironments(MSONable):
                 return differences
         for isite, self_site_nb_sets in enumerate(self.neighbors_sets):
             other_site_nb_sets = other.neighbors_sets[isite]
+            if self_site_nb_sets is None:
+                if other_site_nb_sets is None:
+                    continue
+                else:
+                    differences.append({'difference': 'neighbors_sets[isite={:d}]'.format(isite),
+                                        'comparison': 'has_neighbors',
+                                        'self': 'None',
+                                        'other': set(other_site_nb_sets.keys())})
+                    continue
+            elif other_site_nb_sets is None:
+                differences.append({'difference': 'neighbors_sets[isite={:d}]'.format(isite),
+                                    'comparison': 'has_neighbors',
+                                    'self': set(self_site_nb_sets.keys()),
+                                    'other': 'None'})
+                continue
             self_site_cns = set(self_site_nb_sets.keys())
             other_site_cns = set(other_site_nb_sets.keys())
             if self_site_cns != other_site_cns:
@@ -1287,12 +1285,13 @@ class LightStructureEnvironments(MSONable):
         fractions = []
         for isite, site in enumerate(self.structure):
             if element in [sp.symbol for sp in site.species_and_occu]:
-                if oxi_state == self.valences[isite]:
+                if self.valences == 'undefined' or oxi_state == self.valences[isite]:
                     for ce_dict in self.coordination_environments[isite]:
                         if ce_symbol == ce_dict['ce_symbol']:
                             isites.append(isite)
-                            csms.append(ce_dict['ce_symbol'])
+                            csms.append(ce_dict['csm'])
                             fractions.append(ce_dict['ce_fraction'])
+        return {'isites': isites, 'fractions': fractions, 'csms': csms}
 
     def get_site_info_for_specie_allces(self, specie, min_fraction=0.0):
         allces = {}
@@ -1300,7 +1299,7 @@ class LightStructureEnvironments(MSONable):
         oxi_state = specie.oxi_state
         for isite, site in enumerate(self.structure):
             if element in [sp.symbol for sp in site.species_and_occu]:
-                if oxi_state == self.valences[isite]:
+                if self.valences == 'undefined' or oxi_state == self.valences[isite]:
                     if self.coordination_environments[isite] is None:
                         continue
                     for ce_dict in self.coordination_environments[isite]:
@@ -1332,6 +1331,8 @@ class LightStructureEnvironments(MSONable):
         return len(self.statistics_dict['anion_list']) == 1 and anion in self.statistics_dict['anion_list']
 
     def site_contains_environment(self, isite, ce_symbol):
+        if self.coordination_environments[isite] is None:
+            return False
         return ce_symbol in [ce_dict['ce_symbol'] for ce_dict in self.coordination_environments[isite]]
 
     def site_has_clear_environment(self, isite, conditions=None):
@@ -1398,11 +1399,11 @@ class LightStructureEnvironments(MSONable):
         return False
 
     @property
-    def uniquely_determined_coordination_environments(self):
+    def uniquely_determines_coordination_environments(self):
         """
         True if the coordination environments are uniquely determined.
         """
-        return self.strategy.uniquely_determined_coordination_environments
+        return self.strategy.uniquely_determines_coordination_environments
 
     def __eq__(self, other):
         """
