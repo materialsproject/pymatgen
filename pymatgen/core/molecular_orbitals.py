@@ -5,8 +5,8 @@
 from __future__ import division, print_function, unicode_literals
 from itertools import chain, combinations
 
-from pymatgen_dev.core.periodic_table import Element
-from pymatgen_dev.core.composition import Composition
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.composition import Composition
 
 '''
 This module implements a MolecularOrbital class to represent band character in

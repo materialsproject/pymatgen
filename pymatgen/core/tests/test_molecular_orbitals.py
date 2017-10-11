@@ -6,8 +6,8 @@ from __future__ import division, unicode_literals
 
 import unittest
 
-from pymatgen_dev.util.testing import PymatgenTest
-from pymatgen_dev.core.molecular_orbitals import MolecularOrbitals
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.molecular_orbitals import MolecularOrbitals
 
 test_case = MolecularOrbitals('NaCl')
 
