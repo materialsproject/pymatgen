@@ -497,7 +497,7 @@ class OrderParametersTest(PymatgenTest):
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
             "see_saw"]
-        op_paras = [None, None, [45.0, 0.0667], None, None, None, None, None, \
+        op_paras = [None, None, [45./180., 1./0.0667], None, None, None, None, None, \
                     None, None, None, None, None, None, None, None, None, None,\
                     None, None, None, None, None, None, None, None]
         ops_044 = OrderParameters(op_types, parameters=op_paras, cutoff=0.44)
@@ -540,7 +540,7 @@ class OrderParametersTest(PymatgenTest):
         self.assertIsNone(op_vals[8])
         op_vals = ops_101.get_order_parameters(self.cubic, 0)
         self.assertAlmostEqual(op_vals[0], 6.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 24)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 23)
         self.assertAlmostEqual(int(op_vals[4] * 1000), 1000)
         self.assertAlmostEqual(int(op_vals[5] * 1000), 333)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)

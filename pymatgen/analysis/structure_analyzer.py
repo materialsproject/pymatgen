@@ -863,8 +863,8 @@ def gramschmidt(vin, uin):
 
 class OrderParameters(object):
     """
-    This class permits the calculation of various types of local order
-    parameters.
+    This class permits the calculation of various types of local
+    structure order parameters.
     """
 
     __supported_types = (
@@ -930,7 +930,7 @@ class OrderParameters(object):
                                 (Zimmermann et al., J. Am. Chem. Soc.,
                                 137, 13352-13361, 2015) that can, however,
                                 produce small negative values sometimes.
-            parameters ([[float]]): 2D list of floating point numbers that store
+            parameters (str): xxx ([[float]]): xxx 2D list of floating point numbers that store
                 parameters associated with the different order parameters
                 that are to be calculated (1st dimension = length of
                 types tuple; any 2nd dimension may be zero, in which case
@@ -1067,148 +1067,46 @@ class OrderParameters(object):
             if t not in OrderParameters.__supported_types:
                 raise ValueError("Unknown order parameter type (" + \
                                  t + ")!")
-        if parameters is None:
-            parameters = [None for t in types]
-        else:
-            if len(types) != len(parameters):
-                raise ValueError("1st dimension of parameters array is not"
-                                 " consistent with types list!")
         self._types = tuple(types)
-        self._paras = [None for t in types]
+
+        default_paras = []
+        with open(os.path.join(os.path.dirname(
+                __file__),'op_paras.yaml'), "rt") as f:
+            default_paras = yaml.safe_load(f)
+            f.close()
+        self._paras = []
+        for i, t in enumerate(self._types):
+            if parameters is None:
+                tmp_paras = default_paras[t][:]
+            elif parameters[i] is None:
+                tmp_paras = default_paras[t][:]
+            else:
+                tmp_paras = parameters[i][:]
+            self._paras.append(tuple(tmp_paras[:]))
+
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
         self._max_trig_order = -1
-        for i, t in enumerate(self._types):
-            if t == "cn":
-                self._paras[i] = [parameters[i][0]] \
-                    if parameters[i] is not None else [1.0]
-            elif t == "sgl_bd":
-                self._paras[i] = [None]
-            elif t == "lin":
-                self._paras[i] = [parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0667]
-            elif t == "bent":
-                self._paras[i] = [parameters[i][0] / 180.0, \
-                                  1.0 / parameters[i][1]] \
-                    if parameters[i] is not None else [1.0, 1.0 / 0.0667]
-            elif t == "tet_legacy":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0667]
-            elif t == "tet":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0667]
-            elif t == "oct_legacy":
-                self._paras[i] = [parameters[i][0] * pi / 180.0, \
-                    1.0 / parameters[i][1], 1.0 / parameters[i][2], \
-                    parameters[i][3], 1.0 / (1.0 - loc_parameters[i][3])] \
-                    if parameters[i] is not None else [8.0 * pi / 9.0, \
-                    1.0 / 0.0667, 1.0 / 0.0556, 0.25, 4.0 / 3.0]
-            elif t == "oct":
-                self._paras[i] = [parameters[i][0] * pi / 180.0, \
-                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
-                    if parameters[i] is not None else [8.0 * pi / 9.0, \
-                    1.0 / 0.0667, 1.0 / 0.0556]
-            elif t == "see_saw":
-                self._paras[i] = [parameters[i][0] * pi / 180.0, \
-                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
-                    if parameters[i] is not None else [8.0 * pi / 9.0, \
-                    1.0 / 0.0667, 1.0 / 0.0556]
-            elif t == "bcc":
-                self._paras[i] = [parameters[i][0] * pi / 180.0, \
-                    1.0 / parameters[i][1]] \
-                    if parameters[i] is not None else [8.0 * pi / 9.0, \
-                    1.0 / 0.0667]
-            elif t == "tri_plan":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.074]
-            elif t == "reg_tri":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0222]
-            elif t == "sq_plan":
-                self._paras[i] = [parameters[i][0] * pi / 180.0, \
-                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
-                    if parameters[i] is not None else [8.0 * pi / 9.0, \
-                    1.0 / 0.0667, 1.0 / 0.0556]
-            elif t == "tri_pyr":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0556]
-            elif t == "sq":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0333]
-            elif t == "pent_plan":
-                self._paras[i] = [parameters[i][0] * pi / 180.0, \
-                    1.0 / parameters[i][1]] \
-                    if parameters[i] is not None else [0.6 * pi, \
-                    1.0 / 0.0556]
-            elif t == "T":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0556]
-            elif t == "sq_pyr":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0556]
-            elif t == "sq_pyr_legacy":
-                self._paras[i] = [1.0 / parameters[i][0], \
-                    1.0 / parameters[i][1]] if parameters[i] is not None \
-                    else [1.0 / 0.0333, 1.0 / 0.1]
-            elif t == "pent_pyr":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0556]
-            elif t == "hex_pyr":
-                self._paras[i] = [1.0 / parameters[i][0]] \
-                    if parameters[i] is not None else [1.0 / 0.0556]
-            elif t == "tri_bipyr":
-                self._paras[i] = [parameters[i][0] * pi / 180.0, \
-                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
-                    if parameters[i] is not None else [8.0 * pi / 9.0, \
-                    1.0 / 0.0667, 1.0 / 0.0556]
-            elif t == "pent_bipyr":
-                self._paras[i] = [parameters[i][0] * pi / 180.0, \
-                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
-                    if parameters[i] is not None else [8.0 * pi / 9.0, \
-                    1.0 / 0.0667, 1.0 / 0.0556]
-            elif t == "hex_bipyr":
-                self._paras[i] = [parameters[i][0] * pi / 180.0, \
-                    1.0 / parameters[i][1], 1.0 / parameters[i][2]] \
-                    if parameters[i] is not None else [8.0 * pi / 9.0, \
-                    1.0 / 0.0667, 1.0 / 0.0556]
-            elif t == "cuboct":
-                self._paras[i] = [parameters[i][0] * pi / 180.0, \
-                    parameters[i][1] * pi / 180.0, \
-                    parameters[i][2] * pi / 180.0,\
-                    1.0 / parameters[i][3], 1.0 / parameters[i][4], \
-                    1.0 / parameters[i][5]] \
-                    if parameters[i] is not None else [8.0 * pi / 9.0, \
-                    75.0 * pi / 180.0, 105.0 * pi / 180.0, 1.0 / 0.0667, \
-                    1.0 / 0.0556, 1.0 / 0.0556]
-            # All following types should be well-defined/-implemented,
-            # and they should not require parameters.
-            elif t != "q2" and t != "q4" and t != "q6":
-                raise ValueError("unknown order-parameter type \"" + t + "\"")
 
-            # Add here any additional flags to be used during calculation.
-            # self._computerijs: compute vectors from centeral atom i
-            #                    to any neighbor j.
-            # self._computerjks: compute vectors from non-centeral atom j
-            #                    to any non-central atom k.
-            if t == "sgl_bd":
-                self._computerijs = True
-            if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
-                    t == "sq_pyr_legacy" or t == "tri_bipyr" or t == "tet_legacy" or \
-                    t == "oct_legacy" or t == "tri_plan" or t == "sq_plan" or \
-                    t == "pent_plan" or t == "tri_pyr" or t == "pent_pyr" or \
-                    t == "hex_pyr" or t == "pent_bipyr" or \
-                    t == "hex_bipyr" or t == "T" or t =="cuboct":
-                self._computerijs = self._geomops = True
-            if t == "reg_tri" or t =="sq":
-                self._computerijs = self._computerjks = self._geomops2 = True
-            if t == "q2" or t == "q4" or t == "q6":
-                self._computerijs = self._boops = True
-            if t == "q2" and self._max_trig_order < 2:
-                self._max_trig_order = 2
-            if t == "q4" and self._max_trig_order < 4:
-                self._max_trig_order = 4
-            if t == "q6" and self._max_trig_order < 6:
-                self._max_trig_order = 6
+        # Add here any additional flags to be used during calculation.
+        if "sgl_bd" in self._types:
+            self._computerijs = True
+        if not set(self._types).isdisjoint(
+            ["tet", "oct", "bcc", "sq_pyr", "sq_pyr_legacy", \
+             "tri_bipyr", "tet_legacy", "oct_legacy", "tri_plan", \
+             "sq_plan", "pent_plan", "tri_pyr", "pent_pyr", "hex_pyr", \
+             "pent_bipyr", "hex_bipyr", "T", "cuboct"]):
+            self._computerijs = self._geomops = True
+        if not set(self._types).isdisjoint(["reg_tri", "sq"]):
+            self._computerijs = self._computerjks = self._geomops2 = True
+        if not set(self._types).isdisjoint(["q2", "q4", "q6"]):
+            self._computerijs = self._boops = True
+        if "q2" in self._types:
+            self._max_trig_order = 2
+        if "q4" in self._types:
+            self._max_trig_order = 4
+        if "q6" in self._types:
+            self._max_trig_order = 6
 
         # Finish parameter treatment.
         if cutoff < 0.0:
