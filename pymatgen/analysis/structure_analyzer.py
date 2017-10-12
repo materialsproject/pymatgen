@@ -36,6 +36,12 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.surface import Slab, SlabGenerator
 
 
+default_op_paras = []
+with open(os.path.join(os.path.dirname(
+        __file__),'op_paras.yaml'), "rt") as f:
+    default_op_paras = yaml.safe_load(f)
+    f.close()
+
 class VoronoiCoordFinder(object):
     """
     Uses a Voronoi algorithm to determine the coordination for each site in a
@@ -1069,17 +1075,12 @@ class OrderParameters(object):
                                  t + ")!")
         self._types = tuple(types)
 
-        default_paras = []
-        with open(os.path.join(os.path.dirname(
-                __file__),'op_paras.yaml'), "rt") as f:
-            default_paras = yaml.safe_load(f)
-            f.close()
         self._paras = []
         for i, t in enumerate(self._types):
             if parameters is None:
-                tmp_paras = default_paras[t][:]
+                tmp_paras = default_op_paras[t][:]
             elif parameters[i] is None:
-                tmp_paras = default_paras[t][:]
+                tmp_paras = default_op_paras[t][:]
             else:
                 tmp_paras = parameters[i][:]
             self._paras.append(tuple(tmp_paras[:]))
