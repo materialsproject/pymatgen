@@ -75,10 +75,7 @@ class LammpsData(MSONable):
 
 {natom_types} atom types
 
-{xlo:.6f} {xhi:.6f} xlo xhi
-{ylo:.6f} {yhi:.6f} ylo yhi
-{zlo:.6f} {zhi:.6f} zlo zhi
-{tilt}
+{box}
 
 Masses 
 
@@ -89,6 +86,15 @@ Atoms
 {atoms}
 """
 
+    ATOMS_LINE_FORMAT = {"angle": ["molecule-ID", "atom-type", "x", "y", "z"],
+                         "atomic": ["atom-type", "x", "y", "z"],
+                         "bond": ["molecule-ID", "atom-type", "x", "y", "z"],
+                         "charge": ["atom-type", "q", "x", "y", "z"],
+                         "full": ["molecule-ID", "atom-type", "q",
+                                  "x", "y", "z"],
+                         "molecule": ["molecule-ID", "atom-type",
+                                      "x", "y", "z"]}
+
     def __init__(self, box_size, atomic_masses, atoms_data, box_tilt=None, atom_style='full'):
         self.box_size = box_size
         self.natoms = len(atoms_data)
@@ -98,44 +104,67 @@ Atoms
         self.box_tilt = box_tilt
         self.atom_style = atom_style
 
-    def __str__(self, significant_figures=6):
+    def __str__(self):
+        return self.get_string()
+
+    def get_string(self, significant_figures=6):
         """
         string representation of LammpsData
 
         Args:
             significant_figures (int): No. of significant figures to
                 output. Default to 6.
-        Returns:
-            String representation of the data file
-        """
-        float_fmt = '%.{}f'.format(significant_figures)
 
-        def list_str(l, accu_sw=False):
-            """
-            Need to use accu_sw to control if to use float_format or not.
-            Since for atomic mass, Lammps cannot read in formatted value.
-            """
-            if accu_sw:
-                return "\n".join([" ".join([str(float_fmt %x) for x in ad])
-                                    for ad in l])
-            else:
-                return "\n".join([" ".join([str(x) for x in ad])
-                                  for ad in l])
+        Returns:
+            String representation of the data file.
+        """
+
+        # box
+        box_lines = []
+        for bound, d in zip(self.box_size, "xyz"):
+            fillers = bound + [d] * 2
+            bound_format = " ".join(["{:.%df}" % significant_figures] * 2
+                                    + ["{}lo {}hi"])
+            box_lines.append(bound_format.format(*fillers))
+        if self.box_tilt:
+            tilt_format = " ".join(["{:.%df}" % significant_figures] * 3
+                                   + ["xy xz yz"])
+            box_lines.append(tilt_format.format(*self.box_tilt))
+        box = "\n".join(box_lines)
+
+        # masses
+        masses_lines = ["{} {}".format(i + 1, v)
+                        for i, v in enumerate(self.atomic_masses)]
+        masses = "\n".join(masses_lines)
+
+        # atoms
+        atom_format = self.ATOMS_LINE_FORMAT[self.atom_style]
+        float_quans = ["q", "x", "y", "z"]
+        map_temp = lambda t: "{:.%df}" % significant_figures \
+            if significant_figures and t in float_quans else "{}"
+        temp = " ".join(map(map_temp, atom_format))
+        atoms_lines = []
+        for i, data in enumerate(self.atoms_data):
+            fillers = [data[k] for k in atom_format]
+            atoms_lines.append("{} ".format(i + 1) + temp.format(*fillers))
+        atoms = "\n".join(atoms_lines)
 
         d = {k: v for k, v in self.__dict__.items()}
-        return LammpsData.TEMPLATE.format(
-            xlo=self.box_size[0][0],
-            xhi=self.box_size[0][1],
-            ylo=self.box_size[1][0],
-            yhi=self.box_size[1][1],
-            zlo=self.box_size[2][0],
-            zhi=self.box_size[2][1],
-            tilt="{:.6f} {:.6f} {:.6f} xy xz yz".format(
-                self.box_tilt[0], self.box_tilt[1], self.box_tilt[2]) if self.box_tilt else "",
-            masses=list_str(self.atomic_masses),
-            atoms=list_str(self.atoms_data, accu_sw=True),
-            **d
-        )
+
+        return LammpsData.TEMPLATE.format(box=box, masses=masses,
+                                          atoms=atoms, **d)
+
+    def write_file(self, filename, significant_figures=6):
+        """
+        write lammps data input file from the string representation
+        of the data.
+        Args:
+            filename (string): data file name
+            significant_figures (int): No. of significant figures to
+                output. Default to 6.
+        """
+        with open(filename, 'w') as f:
+            f.write(self.get_string(significant_figures=significant_figures))
 
     @property
     def structure(self):
@@ -240,20 +269,8 @@ Atoms
             box_tilt = [xy, xz, yz]
             lattice = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
             structure.modify_lattice(lattice)
+
         return box_size, box_tilt
-
-    def write_file(self, filename, significant_figures=6):
-        """
-        write lammps data input file from the string representation
-        of the data.
-
-        Args:
-            filename (string): data file name
-            significant_figures (int): No. of significant figures to
-                output. Default to 6.
-        """
-        with open(filename, 'w') as f:
-            f.write(self.__str__(significant_figures=significant_figures))
 
     @staticmethod
     def get_basic_system_info(structure):
@@ -274,9 +291,8 @@ Atoms
         natom_types = len(s.symbol_set)
         elements = s.composition.elements
         elements = sorted(elements, key=lambda el: el.atomic_mass)
-        atomic_masses_dict = OrderedDict(
-            [(el.symbol, [i + 1, float(el.data["Atomic mass"])])
-             for i, el in enumerate(elements)])
+        atomic_masses_dict = OrderedDict([(el.symbol, float(el.atomic_mass))
+                                          for el in elements])
         return natoms, natom_types, atomic_masses_dict
 
     @staticmethod
@@ -297,7 +313,7 @@ Atoms
         Args:
             structure (Structure/Molecule)
             atomic_masses_dict (dict):
-                { atom symbol : [atom_id, atomic mass], ... }
+                { atom symbol : atomic mass, ... }
             set_charge (bool): whether or not to set the charge field in Atoms
 
         Returns:
@@ -311,19 +327,20 @@ Atoms
         # to comply with atom_style='molecular' and 'full'
         mol_id = 1 if isinstance(structure, Molecule) else None
 
-        for i, site in enumerate(structure):
-            atom_type = atomic_masses_dict[site.specie.symbol][0]
-            line = [i + 1]
-            line += [mol_id] if mol_id else []
-            line.append(atom_type)
-            if set_charge:
-                if isinstance(site, PeriodicSite):
-                    charge = getattr(site.specie, "oxi_state", 0.0)
-                else:
-                    charge = getattr(site, "charge", 0.0)
-                line.append(charge)
-            line.extend([site.x, site.y, site.z])
-            atoms_data.append(line)
+        for site in structure:
+            site_data = {}
+
+            # minimum required data: type of atom and coords
+            el = site.specie.symbol
+            site_data["atom-type"] = list(atomic_masses_dict.keys()).index(el) + 1
+            for c, d in zip(site.coords, "xyz"):
+                site_data[d] = c
+
+            # other data
+            if mol_id:
+                site_data["molecule-ID"] = mol_id
+            site_data["q"] = getattr(site.specie, "oxi_state", 0.0)
+            atoms_data.append(site_data)
 
         return atoms_data
 
