@@ -1091,24 +1091,6 @@ class OrderParameters(object):
             else:
                 tmp_paras = parameters[i][:]
             self._paras.append(tmp_paras[:])
-            # Add constants.
-            if t == "tri_plan":
-                self._paras[i].append(2.0/3.0)
-            elif t in ["tet", "tet_legacy"]:
-                self._paras[i].append(acos(-1.0 / 3.0) / pi)
-            elif t in ["sq_plan", "see_saw"]:
-                self._paras[i].append(1)
-            elif t == "tri_bipyr":
-                self._paras[i].append(2)
-            elif t in ["oct", "oct_legacy", "sq_bipyr"]:
-                self._paras[i].append(3)
-            elif t == "pent_bipyr":
-                self._paras[i].append(4)
-            elif t == "hex_bipyr":
-                self._paras[i].append(5)
-            elif t == "bcc":
-                self._paras[i].append(0) # dummy
-                self._paras[i].append(6)
 
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
@@ -1833,12 +1815,13 @@ class OrderParameters(object):
                                         thetak * ipi - 1.0)
                                     if t in ["tri_bipyr", "sq_bipyr", \
                                             "pent_bipyr", "hex_bipyr"]:
-                                        qsptheta[i][j] = (self._paras[i][3] * \
+                                        qsptheta[i][j] = (self._paras[i][5] * \
                                             exp(-0.5 * tmp * tmp))
+                                        norms[i][j] += self._paras[i][5]
                                     else:
                                         qsptheta[i][j] += (self._paras[i][3] * \
                                             exp(-0.5 * tmp * tmp))
-                                    norms[i][j] += self._paras[i][3]
+                                        norms[i][j] += self._paras[i][3]
                             elif t == "pent_plan":
                                 if thetak <= self._paras[i][0]:
                                     tmp = self._paras[i][1] * (
@@ -1872,49 +1855,14 @@ class OrderParameters(object):
                                 # angles between plane j-i-k and i-m vector.
                                 if not flag_xaxis and not flag_xtwoaxis:
                                     for i, t in enumerate(self._types):
-                                        if t == "tri_plan":
+                                        if t in ["tri_plan", "tet", "tet_legacy"]:
                                             tmp = self._paras[i][0] * (
-                                                thetam * ipi - twothird)
-                                            tmp2 = cos(phi)
+                                                thetam * ipi - \
+                                                self._paras[i][1])
+                                            tmp2 = cos(self._paras[i][2] * \
+                                                phi) ** self._paras[i][3]
                                             ops[i] += gaussthetak[i] * exp(
-                                                -0.5 * tmp * tmp) * tmp2 * tmp2
-                                            norms[i][j] += 1
-                                        elif t == "tet_legacy":
-                                            tmp = self._paras[i][0] * (
-                                                thetam * ipi - tetangoverpi)
-                                            ops[i] += gaussthetak[i] * exp(
-                                                -0.5 * tmp * tmp) * cos(
-                                                3.0 * phi)
-                                            norms[i][j] += 1
-                                        elif t == "tet":
-                                            tmp = self._paras[i][0] * (
-                                                thetam * ipi - tetangoverpi)
-                                            tmp2 = cos(1.5 * phi)
-                                            ops[i] += gaussthetak[i] * exp(
-                                                -0.5 * tmp * tmp) * tmp2 * tmp2
-                                            norms[i][j] += 1
-                                        elif t == "sq_plan":
-                                            if thetak < self._paras[i][0] and \
-                                                    thetam < self._paras[i][0]:
-                                                tmp = cos(phi)
-                                                tmp2 = self._paras[i][2] * (
-                                                        thetam * ipi - 0.5)
-                                                #ops[i] += tmp * tmp * \
-                                                qsptheta[i][j] += tmp * tmp * \
-                                                        exp(
-                                                        -0.5 * tmp2 * tmp2)
-                                                norms[i][j] += 1
-                                        elif t == "tri_pyr":
-                                            tmp = cos(1.5 * phi)
-                                            tmp2 = self._paras[i][0] * (
-                                                    thetak * ipi - 0.5)
-                                            tmp3 = self._paras[i][0] * (
-                                                    thetam * ipi - 0.5)
-                                            qsptheta[i][j] += tmp * tmp * \
-                                                    exp(
-                                                    -0.5 * tmp2 * tmp2) * \
-                                                    exp(
-                                                    -0.5 * tmp3 * tmp3)
+                                                -0.5 * tmp * tmp) * tmp2
                                             norms[i][j] += 1
                                         elif t == "pent_plan":
                                             if thetak <= self._paras[i][0] and \
@@ -1926,89 +1874,37 @@ class OrderParameters(object):
                                                     exp(-0.5 * tmp * \
                                                     tmp) * tmp2 * tmp2
                                                 norms[i][j] += 1
-                                        elif t == "pent_pyr":
-                                            tmp = cos(2.5 * phi)
+                                        elif t in ["T", "tri_pyr", "sq_pyr", \
+                                                "pent_pyr", "hex_pyr"]:
+                                            tmp = cos(self._paras[i][1] * \
+                                                phi) ** self._paras[i][2]
                                             tmp2 = self._paras[i][0] * (
-                                                    thetak * ipi - 0.5)
+                                                thetak * ipi - 0.5)
                                             tmp3 = self._paras[i][0] * (
-                                                    thetam * ipi - 0.5)
-                                            qsptheta[i][j] += tmp * tmp * \
-                                                    exp(
-                                                    -0.5 * tmp2 * tmp2) * \
-                                                    exp(
-                                                    -0.5 * tmp3 * tmp3)
+                                                thetam * ipi - 0.5)
+                                            qsptheta[i][j] += tmp * exp(
+                                                -0.5 * tmp2 * tmp2) * exp(
+                                                -0.5 * tmp3 * tmp3)
                                             norms[i][j] += 1
-                                        elif t == "hex_pyr":
-                                            tmp = cos(3.0 * phi)
-                                            tmp2 = self._paras[i][0] * (
-                                                    thetak * ipi - 0.5)
-                                            tmp3 = self._paras[i][0] * (
-                                                    thetam * ipi - 0.5)
-                                            qsptheta[i][j] += tmp * tmp * \
-                                                    exp(
-                                                    -0.5 * tmp2 * tmp2) * \
-                                                    exp(
-                                                    -0.5 * tmp3 * tmp3)
-                                            norms[i][j] += 1
-                                        elif t == "oct_legacy":
-                                            if thetak < self._paras[i][0] and \
-                                                            thetam < \
-                                                            self._paras[i][0]:
-                                                tmp = cos(2.0 * phi)
-                                                tmp2 = self._paras[i][2] * (
-                                                    thetam * ipi - 0.5)
-                                                #ops[i] 
-                                                qsptheta[i][j] += tmp * tmp * \
-                                                          self._paras[i][4] * (
-                                                              exp(
-                                                                  -0.5 * tmp2 * tmp2) - \
-                                                              self._paras[i][3])
-                                                norms[i][j] += 1
-                                        elif t == "T":
-                                            tmp = cos(1.0 * phi)
-                                            tmp2 = self._paras[i][0] * (
-                                                    thetak * ipi - 0.5)
-                                            tmp3 = self._paras[i][0] * (
-                                                    thetam * ipi - 0.5)
-                                            qsptheta[i][j] += tmp * tmp * \
-                                                    exp(
-                                                    -0.5 * tmp2 * tmp2) * \
-                                                    exp(
-                                                    -0.5 * tmp3 * tmp3)
-                                            norms[i][j] += 1
-                                        elif t == "sq_pyr":
-                                            tmp = cos(2.0 * phi)
-                                            tmp2 = self._paras[i][0] * ( 
-                                                    thetak * ipi - 0.5)
-                                            tmp3 = self._paras[i][0] * (
-                                                    thetam * ipi - 0.5)
-                                            qsptheta[i][j] += tmp * tmp * \
-                                                    exp(
-                                                    -0.5 * tmp2 * tmp2) * \
-                                                    exp(
-                                                    -0.5 * tmp3 * tmp3)
-                                            norms[i][j] += 1
-                                        elif t == "see_saw":
+                                        elif t in ["sq_plan", "oct", \
+                                                "oct_legacy", "tri_bipyr", \
+                                                "sq_bipyr", "pent_bipyr", \
+                                                "hex_bipyr"]:
                                             if thetak < self._paras[i][0] and \
                                                     thetam < self._paras[i][0]:
-                                                tmp = self._paras[i][2] * (
-                                                    phi * ipi - 0.5)
+                                                [idx1, idx2] = [4, 5] if t in [
+                                                    "sq_plan", "oct", \
+                                                    "oct_legacy"] else [3, 4]
+                                                tmp = cos(self._paras[i][idx1] * \
+                                                    phi) ** self._paras[i][idx2]
                                                 tmp2 = self._paras[i][2] * (
                                                     thetam * ipi - 0.5)
-                                                qsptheta[i][j] += exp(
-                                                    -0.5 * tmp * tmp) * \
-                                                    exp(
-                                                    -0.5 * tmp2 * tmp2)
-                                                norms[i][j] += 1.0
-                                        elif t == "oct":
-                                            if thetak < self._paras[i][0] and \
-                                                    thetam < self._paras[i][0]:
-                                                tmp = cos(2.0 * phi)
-                                                tmp2 = self._paras[i][2] * (
-                                                        thetam * ipi - 0.5)
-                                                qsptheta[i][j] += tmp * tmp * \
-                                                        exp(
-                                                        -0.5 * tmp2 * tmp2)
+                                                qsptheta[i][j] += tmp * \
+                                                    exp(-0.5 * tmp2 * tmp2)
+                                                if t == "oct_legacy":
+                                                    qsptheta[i][j] += tmp * \
+                                                        self._paras[i][6] * \
+                                                        self._paras[i][5]
                                                 norms[i][j] += 1
                                         elif t == "bcc" and j < k:
                                             if thetak < self._paras[i][0]:
@@ -2023,46 +1919,18 @@ class OrderParameters(object):
                                                           1.6 * tmp * \
                                                           exp(
                                                               -0.5 * tmp * tmp)
-                                        elif t == "tri_bipyr":
+                                        elif t == "see_saw":
                                             if thetak < self._paras[i][0] and \
                                                     thetam < self._paras[i][0]:
-                                                tmp = cos(1.5 * phi)
+                                                tmp = self._paras[i][2] * (
+                                                    phi * ipi - 0.5)
                                                 tmp2 = self._paras[i][2] * (
                                                     thetam * ipi - 0.5)
-                                                qsptheta[i][j] += \
-                                                    tmp * tmp * exp( \
+                                                qsptheta[i][j] += exp(
+                                                    -0.5 * tmp * tmp) * \
+                                                    exp(
                                                     -0.5 * tmp2 * tmp2)
-                                                norms[i][j] += 1
-                                        elif t == "sq_bipyr":
-                                            if thetak < self._paras[i][0] and \
-                                                    thetam < self._paras[i][0]:
-                                                tmp = cos(2 * phi)
-                                                tmp2 = self._paras[i][2] * (
-                                                    thetam * ipi - 0.5)
-                                                qsptheta[i][j] += \
-                                                    tmp * tmp * exp( \
-                                                    -0.5 * tmp2 * tmp2)
-                                                norms[i][j] += 1
-                                        elif t == "pent_bipyr":
-                                            if thetak < self._paras[i][0] and \
-                                                    thetam < self._paras[i][0]:
-                                                tmp = cos(2.5 * phi)
-                                                tmp2 = self._paras[i][2] * (
-                                                    thetam * ipi - 0.5)
-                                                qsptheta[i][j] += \
-                                                    tmp * tmp * exp( \
-                                                    -0.5 * tmp2 * tmp2)
-                                                norms[i][j] += 1
-                                        elif t == "hex_bipyr":
-                                            if thetak < self._paras[i][0] and \
-                                                    thetam < self._paras[i][0]:
-                                                tmp = cos(3.0 * phi)
-                                                tmp2 = self._paras[i][2] * (
-                                                    thetam * ipi - 0.5)
-                                                qsptheta[i][j] += \
-                                                    tmp * tmp * exp( \
-                                                    -0.5 * tmp2 * tmp2)
-                                                norms[i][j] += 1
+                                                norms[i][j] += 1.0
                                         elif t == "cuboct":
                                             if thetam < self._paras[i][0] and \
                                                     thetak > self._paras[i][4] and \
