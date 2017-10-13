@@ -116,7 +116,7 @@ class AbstractGeometry(object):
             if len(bare_coords) < 5:
                 if include_central_site_in_centroid:
                     raise ValueError(
-                        "The center is the central site, no calculation of the centroid,"
+                        "The center is the central site, no calculation of the centroid, "
                         "variable include_central_site_in_centroid should be set to False")
                 if central_site is None:
                     raise ValueError(
@@ -137,7 +137,7 @@ class AbstractGeometry(object):
         elif centering_type == 'central_site':
             if include_central_site_in_centroid:
                 raise ValueError(
-                    "The center is the central site, no calculation of the centroid,"
+                    "The center is the central site, no calculation of the centroid, "
                     "variable include_central_site_in_centroid should be set to False")
             if central_site is None:
                 raise ValueError(

@@ -19,18 +19,6 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
 se_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
                             'test_files', "chemenv", "structure_environments_files")
 
-# class FakeNbSet(object):
-#
-#     cn = None
-#
-#     def __len__(self):
-#         return self.cn
-#     pass
-#
-# class DummyStructureEnvironments(object):
-#     pass
-
-
 
 class StructureEnvironmentsTest(PymatgenTest):
 
