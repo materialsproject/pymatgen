@@ -497,7 +497,8 @@ class OrderParametersTest(PymatgenTest):
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
             "see_saw"]
-        op_paras = [None, [1, 1./0.0667], [45./180, 1./0.0667], None, \
+        op_paras = [None, {'TA': 1, 'IGW_TA': 1./0.0667}, \
+                    {'TA': 45./180, 'IGW_TA': 1./0.0667}, None, \
                     None, None, None, None, None, None, None, None, None, \
                     None, None, None, None, None, None, None, None, None, \
                     None, None, None, None]

@@ -36,9 +36,9 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.surface import Slab, SlabGenerator
 
 
-default_op_paras = []
+default_op_paras = {}
 with open(os.path.join(os.path.dirname(
-        __file__),'op_paras.yaml'), "rt") as f:
+        __file__),'op_paras_dict.yaml'), "rt") as f:
     default_op_paras = yaml.safe_load(f)
     f.close()
 
@@ -874,8 +874,8 @@ class OrderParameters(object):
     """
 
     __supported_types = (
-            "cn", "sgl_bd", "lin", "bent", "tri_plan", "reg_tri", "sq_plan", \
-            "pent_plan", "sq", "tet", "tet_legacy", "tri_pyr", \
+            "cn", "sgl_bd", "bent", "tri_plan", "reg_tri", "sq_plan", \
+            "pent_plan", "sq", "tet", "tri_pyr", \
             "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "sq_bipyr", "oct", \
             "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", \
             "T", "cuboct", "see_saw", "bcc", "q2", "q4", "q6")
@@ -921,11 +921,6 @@ class OrderParameters(object):
                   "reg_tri": regular triangle with varying height
                              to basal plane;
                   "sq": square coordination (cf., "reg_tri");
-                  "tet_legacy": original Peters-style OP recognizing
-                                tetrahedral coordination environments
-                                (Zimmermann et al., J. Am. Chem. Soc.,
-                                137, 13352-13361, 2015) that can, however,
-                                produce small negative values sometimes;
                   "oct_legacy": original Peters-style OP recognizing
                                 octahedral coordination environments
                                 (Zimmermann et al., J. Am. Chem. Soc.,
@@ -1033,8 +1028,6 @@ class OrderParameters(object):
                   "q2", "q4", "q6": no parameters required.
                   "reg_tri": .
                   "sq": .
-                  "tet_legacy" ([]): Gaussian width for penalizing deviations
-                                away perfect tetrahedral angle (0.0667);
                   "oct_legacy" ([]): threshold angle in degrees distinguishing
                                 a second neighbor to be either close to the
                                 south pole or close to the equator (160.0);
@@ -1063,13 +1056,14 @@ class OrderParameters(object):
 
         self._paras = []
         for i, t in enumerate(self._types):
+            d = default_op_paras[t].copy() if default_op_paras[t] is not None \
+                else None
             if parameters is None:
-                tmp_paras = default_op_paras[t][:]
+                self._paras.append(d)
             elif parameters[i] is None:
-                tmp_paras = default_op_paras[t][:]
+                self._paras.append(d)
             else:
-                tmp_paras = parameters[i][:]
-            self._paras.append(tmp_paras[:])
+                self._paras.append(parameters[i].copy())
 
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
@@ -1080,7 +1074,7 @@ class OrderParameters(object):
             self._computerijs = True
         if not set(self._types).isdisjoint(
             ["tet", "oct", "bcc", "sq_pyr", "sq_pyr_legacy", \
-             "tri_bipyr", "tet_legacy", "sq_bipyr", "oct_legacy", "tri_plan", \
+             "tri_bipyr", "sq_bipyr", "oct_legacy", "tri_plan", \
              "sq_plan", "pent_plan", "tri_pyr", "pent_pyr", "hex_pyr", \
              "pent_bipyr", "hex_bipyr", "T", "cuboct"]):
             self._computerijs = self._geomops = True
@@ -1701,7 +1695,7 @@ class OrderParameters(object):
         # First, coordination number and distance-based OPs.
         for i, t in enumerate(self._types):
             if t == "cn":
-                ops[i] = nneigh / self._paras[i][0]
+                ops[i] = nneigh / self._paras[i]['norm']
             elif t == "sgl_bd":
                 dist_sorted = sorted(dist)
                 if len(dist_sorted) == 1:
@@ -1777,42 +1771,41 @@ class OrderParameters(object):
                         # Contributions of j-i-k angles, where i represents the central atom
                         # and j and k two of the neighbors.
                         for i, t in enumerate(self._types):
-                            if t in ["lin", "bent", "sq_pyr_legacy"]:
-                                tmp = self._paras[i][1] * (
-                                    thetak * ipi - self._paras[i][0])
+                            if t in ["bent", "sq_pyr_legacy"]:
+                                tmp = self._paras[i]['IGW_TA'] * (
+                                    thetak * ipi - self._paras[i]['TA'])
                                 qsptheta[i][j] += exp(-0.5 * tmp * tmp)
                                 norms[i][j] += 1
-                            elif t in ["tri_plan", "tet", "tet_legacy"]:
-                                tmp = self._paras[i][0] * (
-                                    thetak * ipi - self._paras[i][1])
+                            elif t in ["tri_plan", "tet"]:
+                                tmp = self._paras[i]['IGW_TA'] * (
+                                    thetak * ipi - self._paras[i]['TA'])
                                 gaussthetak[i] = exp(-0.5 * tmp * tmp)
                             elif t in ["sq_plan", "oct", "oct_legacy", \
                                     "see_saw", "tri_bipyr", "sq_bipyr", \
                                     "pent_bipyr", "hex_bipyr", "cuboct"]:
-                                if thetak >= self._paras[i][0]:
-                                    tmp = self._paras[i][1] * (
+                                if thetak >= self._paras[i]['min_SPP']:
+                                    tmp = self._paras[i]['IGW_SPP'] * (
                                         thetak * ipi - 1.0)
                                     if t in ["tri_bipyr", "sq_bipyr", \
                                             "pent_bipyr", "hex_bipyr"]:
-                                        qsptheta[i][j] = (self._paras[i][5] * \
+                                        qsptheta[i][j] = (self._paras[i]['w_SPP'] * \
                                             exp(-0.5 * tmp * tmp))
-                                        norms[i][j] += self._paras[i][5]
                                     else:
-                                        qsptheta[i][j] += (self._paras[i][3] * \
+                                        qsptheta[i][j] += (self._paras[i]['w_SPP'] * \
                                             exp(-0.5 * tmp * tmp))
-                                        norms[i][j] += self._paras[i][3]
+                                    norms[i][j] += self._paras[i]['w_SPP']
                             elif t == "pent_plan":
-                                if thetak <= self._paras[i][0]:
-                                    tmp = self._paras[i][1] * (
+                                if thetak <= self._paras[i]['TA']:
+                                    tmp = self._paras[i]['IGW_TA'] * (
                                         thetak * ipi - 0.4)
                                     gaussthetak[i] = exp(-0.5 * tmp * tmp)
                             elif t == "bcc" and j < k:
-                                if thetak >= self._paras[i][0]:
-                                    tmp = self._paras[i][1] * (
+                                if thetak >= self._paras[i]['min_SPP']:
+                                    tmp = self._paras[i]['IGW_SPP'] * (
                                         thetak * ipi - 1.0)
-                                    qsptheta[i][j] += (self._paras[i][3] * \
+                                    qsptheta[i][j] += (self._paras[i]['w_SPP'] * \
                                         exp(-0.5 * tmp * tmp))
-                                    norms[i][j] += self._paras[i][3]
+                                    norms[i][j] += self._paras[i]['w_SPP']
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -1834,19 +1827,19 @@ class OrderParameters(object):
                                 # angles between plane j-i-k and i-m vector.
                                 if not flag_xaxis and not flag_xtwoaxis:
                                     for i, t in enumerate(self._types):
-                                        if t in ["tri_plan", "tet", "tet_legacy"]:
-                                            tmp = self._paras[i][0] * (
+                                        if t in ["tri_plan", "tet"]:
+                                            tmp = self._paras[i]['IGW_TA'] * (
                                                 thetam * ipi - \
-                                                self._paras[i][1])
-                                            tmp2 = cos(self._paras[i][2] * \
-                                                phi) ** self._paras[i][3]
+                                                self._paras[i]['TA'])
+                                            tmp2 = cos(self._paras[i]['fac_AA'] * \
+                                                phi) ** self._paras[i]['exp_cos_AA']
                                             ops[i] += gaussthetak[i] * exp(
                                                 -0.5 * tmp * tmp) * tmp2
                                             norms[i][j] += 1
                                         elif t == "pent_plan":
-                                            if thetak <= self._paras[i][0] and \
-                                                    thetam >= self._paras[i][0]:
-                                                tmp = self._paras[i][1] * (
+                                            if thetak <= self._paras[i]['TA'] and \
+                                                    thetam >= self._paras[i]['TA']:
+                                                tmp = self._paras[i]['IGW_TA'] * (
                                                     thetam * ipi - 0.8)
                                                 tmp2 = cos(phi)
                                                 ops[i] += gaussthetak[i] * \
@@ -1855,11 +1848,11 @@ class OrderParameters(object):
                                                 norms[i][j] += 1
                                         elif t in ["T", "tri_pyr", "sq_pyr", \
                                                 "pent_pyr", "hex_pyr"]:
-                                            tmp = cos(self._paras[i][1] * \
-                                                phi) ** self._paras[i][2]
-                                            tmp2 = self._paras[i][0] * (
+                                            tmp = cos(self._paras[i]['fac_AA'] * \
+                                                phi) ** self._paras[i]['exp_cos_AA']
+                                            tmp2 = self._paras[i]['IGW_EP'] * (
                                                 thetak * ipi - 0.5)
-                                            tmp3 = self._paras[i][0] * (
+                                            tmp3 = self._paras[i]['IGW_EP'] * (
                                                 thetam * ipi - 0.5)
                                             qsptheta[i][j] += tmp * exp(
                                                 -0.5 * tmp2 * tmp2) * exp(
@@ -1869,24 +1862,21 @@ class OrderParameters(object):
                                                 "oct_legacy", "tri_bipyr", \
                                                 "sq_bipyr", "pent_bipyr", \
                                                 "hex_bipyr"]:
-                                            if thetak < self._paras[i][0] and \
-                                                    thetam < self._paras[i][0]:
-                                                [idx1, idx2] = [4, 5] if t in [
-                                                    "sq_plan", "oct", \
-                                                    "oct_legacy"] else [3, 4]
-                                                tmp = cos(self._paras[i][idx1] * \
-                                                    phi) ** self._paras[i][idx2]
-                                                tmp2 = self._paras[i][2] * (
+                                            if thetak < self._paras[i]['min_SPP'] and \
+                                                    thetam < self._paras[i]['min_SPP']:
+                                                tmp = cos(self._paras[i]['fac_AA'] * \
+                                                    phi) ** self._paras[i]['exp_cos_AA']
+                                                tmp2 = self._paras[i]['IGW_EP'] * (
                                                     thetam * ipi - 0.5)
                                                 qsptheta[i][j] += tmp * \
                                                     exp(-0.5 * tmp2 * tmp2)
                                                 if t == "oct_legacy":
-                                                    qsptheta[i][j] += tmp * \
+                                                    qsptheta[i][j] -= tmp * \
                                                         self._paras[i][6] * \
-                                                        self._paras[i][5]
+                                                        self._paras[i][7]
                                                 norms[i][j] += 1
                                         elif t == "bcc" and j < k:
-                                            if thetak < self._paras[i][0]:
+                                            if thetak < self._paras[i]['min_SPP']:
                                                 if thetak > piover2:
                                                     fac = 1.0
                                                 else:
@@ -1894,24 +1884,21 @@ class OrderParameters(object):
                                                 tmp = (thetam - piover2) / (
                                                     19.47 * pi / 180.0)
                                                 qsptheta[i][j] += fac * cos(
-                                                    3.0 * phi) * \
-                                                          1.6 * tmp * \
-                                                          exp(
-                                                              -0.5 * tmp * tmp)
+                                                    3.0 * phi) * 1.6 * tmp * \
+                                                    exp(-0.5 * tmp * tmp)
                                         elif t == "see_saw":
-                                            if thetak < self._paras[i][0] and \
-                                                    thetam < self._paras[i][0]:
-                                                tmp = self._paras[i][2] * (
+                                            if thetak < self._paras[i]['min_SPP'] and \
+                                                    thetam < self._paras[i]['min_SPP']:
+                                                tmp = self._paras[i]['IGW_EP'] * (
                                                     phi * ipi - 0.5)
-                                                tmp2 = self._paras[i][2] * (
+                                                tmp2 = self._paras[i]['IGW_EP'] * (
                                                     thetam * ipi - 0.5)
                                                 qsptheta[i][j] += exp(
                                                     -0.5 * tmp * tmp) * \
-                                                    exp(
-                                                    -0.5 * tmp2 * tmp2)
+                                                    exp(-0.5 * tmp2 * tmp2)
                                                 norms[i][j] += 1.0
                                         elif t == "cuboct":
-                                            if thetam < self._paras[i][0] and \
+                                            if thetam < self._paras[i]['min_SPP'] and \
                                                     thetak > self._paras[i][4] and \
                                                     thetak < self._paras[i][2]:
                                                 if thetam > self._paras[i][4] and \
@@ -1946,10 +1933,10 @@ class OrderParameters(object):
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
                 if t in ["tri_plan", "tet", \
-                         "tet_legacy", "pent_plan"]:
+                         "pent_plan"]:
                     ops[i] = ops[i] / sum(norms[i]) \
                         if sum(norms[i]) > 1.0e-12 else None
-                elif t in ["lin", "bent", "sq_plan", "oct", "oct_legacy", \
+                elif t in ["bent", "sq_plan", "oct", "oct_legacy", \
                         "cuboct"]:
                     ops[i] = sum(qsptheta[i]) / sum(norms[i]) \
                         if sum(norms[i]) > 1.0e-12 else None
