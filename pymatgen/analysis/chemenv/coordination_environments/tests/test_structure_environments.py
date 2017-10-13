@@ -14,6 +14,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
 from pymatgen.core.periodic_table import Specie
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import MultiWeightsChemenvStrategy
 
 se_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
                             'test_files', "chemenv", "structure_environments_files")
@@ -171,6 +172,23 @@ class StructureEnvironmentsTest(PymatgenTest):
 
         stats = lse.get_statistics()
 
+        neighbors = lse.strategy.get_site_neighbors(site=lse.structure[isite])
+        self.assertArrayAlmostEqual(neighbors[0].coords, np.array([ 0.2443798, 1.80409653, -1.13218359]))
+        self.assertArrayAlmostEqual(neighbors[1].coords, np.array([ 1.44020353, 1.11368738, 1.13218359]))
+        self.assertArrayAlmostEqual(neighbors[2].coords, np.array([ 2.75513098, 2.54465207, -0.70467298]))
+        self.assertArrayAlmostEqual(neighbors[3].coords, np.array([ 0.82616785, 3.65833945, 0.70467298]))
+
+        equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
+        self.assertEqual(equiv_site_index_and_transform[0], 0)
+        self.assertArrayAlmostEqual(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
+        self.assertArrayAlmostEqual(equiv_site_index_and_transform[2], [0.0, 0.0, -1.0])
+
+        equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[1])
+        self.assertEqual(equiv_site_index_and_transform[0], 3)
+        self.assertArrayAlmostEqual(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
+        self.assertArrayAlmostEqual(equiv_site_index_and_transform[2], [0.0, 0.0, 0.0])
+
+
         self.assertEqual(stats['atom_coordination_environments_present'], {'Si': {'T:4': 3.0}})
         self.assertEqual(stats['coordination_environments_atom_present'], {'T:4': {'Si': 3.0}})
         self.assertEqual(stats['fraction_atom_coordination_environments_present'], {'Si': {'T:4': 1.0}})
@@ -195,6 +213,18 @@ class StructureEnvironmentsTest(PymatgenTest):
         self.assertTrue(lse.uniquely_determines_coordination_environments)
         self.assertFalse(lse.__ne__(lse))
 
+        envs = lse.strategy.get_site_coordination_environments(lse.structure[6])
+        self.assertEqual(len(envs), 1)
+        self.assertEqual(envs[0][0], 'T:4')
+
+        multi_strategy = MultiWeightsChemenvStrategy.stats_article_weights_parameters()
+
+        lse_multi = LightStructureEnvironments.from_structure_environments(strategy=multi_strategy,
+                                                                           structure_environments=se,
+                                                                           valences='undefined')
+        self.assertAlmostEqual(lse_multi.coordination_environments[isite][0]['csm'], 0.009887784240541068)
+        self.assertAlmostEqual(lse_multi.coordination_environments[isite][0]['ce_fraction'], 1.0)
+        self.assertEqual(lse_multi.coordination_environments[isite][0]['ce_symbol'], 'T:4')
 
     @classmethod
     def tearDownClass(cls):

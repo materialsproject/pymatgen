@@ -10,7 +10,6 @@ import time
 from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
 from monty.json import MSONable
-from pymatgen.analysis.structure_analyzer import solid_angle
 from scipy.spatial import Voronoi
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid_angle
@@ -161,10 +160,7 @@ class DetailedVoronoiContainer(MSONable):
 
                     ridge_point2 = max(ridge_points)
                     facets = [all_vertices[i] for i in ridge_vertices_indices]
-                    try:
-                        sa = solid_angle(site.coords, facets)
-                    except ValueError:
-                        sa = my_solid_angle(site.coords, facets)
+                    sa = my_solid_angle(site.coords, facets)
                     maxangle = max([sa, maxangle])
 
                     mindist = min([mindist, distances[ridge_point2]])

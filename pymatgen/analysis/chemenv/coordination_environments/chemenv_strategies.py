@@ -128,6 +128,8 @@ class AdditionalConditionInt(int, StrategyOption):
         allowed_values += ' - {:d} for "{}"\n'.format(integer, description)
 
     def __new__(cls, integer):
+        if int(integer) != integer:
+            raise ValueError("Additional condition {} is not an integer".format(str(integer)))
         intger = int.__new__(cls, integer)
         if intger not in AdditionalConditions.ALL:
             raise ValueError("Additional condition {:d} is not allowed".format(integer))
@@ -182,10 +184,6 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
         except:
             self.symops = []
 
-    def equivalent_site_index(self, psite):
-        return self.equivalent_site_index_and_transform(psite)[0]
-        #return self.structure_environments.structure.index(psite.to_unit_cell)
-
     def equivalent_site_index_and_transform(self, psite):
         # Get the index of the site in the unit cell of which the PeriodicSite psite is a replica.
         try:
@@ -236,16 +234,6 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
         if not found:
             raise EquivalentSiteSearchError(psite)
         return [self.structure_environments.sites_map[isite], dequivsite, dthissite + dthissite2, mysym]
-
-    def apply_strategy(self):
-        """
-        Applies the strategy to the structure_environments object in order to define the coordination environments of
-        the sites in the structure_environments object
-        :param structure_environments: StructureEnvironments object containing all the information needed to define the
-        coordination environment of the sites in the structure
-        :return: The coordination environment(s) of the sites
-        """
-        raise NotImplementedError()
 
     @abc.abstractmethod
     def get_site_neighbors(self, site):
@@ -335,7 +323,7 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
 
     def setup_options(self, all_options_dict):
         for option_name, option_value in all_options_dict.items():
-            self.set_option(self.STRATEGY_OPTIONS[option_name]['internal'], option_value)
+            self.set_option(option_name, option_value)
 
     @abc.abstractmethod
     def __eq__(self, other):
@@ -387,17 +375,18 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = OrderedDict({'distance_cutoff': {'type': DistanceCutoffFloat, 'internal': '_distance_cutoff',
-                                                        'default': DEFAULT_DISTANCE_CUTOFF},
-                                    'angle_cutoff': {'type': AngleCutoffFloat, 'internal': '_angle_cutoff',
-                                                     'default': DEFAULT_ANGLE_CUTOFF},
-                                    'additional_condition': {'type': AdditionalConditionInt,
-                                                             'internal': '_additional_condition',
-                                                             'default': DEFAULT_ADDITIONAL_CONDITION},
-                                    'continuous_symmetry_measure_'
-                                    'cutoff': {'type': CSMFloat,
-                                               'internal': '_continuous_symmetry_measure_cutoff',
-                                               'default': DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF}})
+    STRATEGY_OPTIONS = OrderedDict()
+    STRATEGY_OPTIONS['distance_cutoff'] =  {'type': DistanceCutoffFloat, 'internal': '_distance_cutoff',
+                                            'default': DEFAULT_DISTANCE_CUTOFF}
+    STRATEGY_OPTIONS['angle_cutoff'] = {'type': AngleCutoffFloat, 'internal': '_angle_cutoff',
+                                        'default': DEFAULT_ANGLE_CUTOFF}
+    STRATEGY_OPTIONS['additional_condition'] = {'type': AdditionalConditionInt,
+                                                'internal': '_additional_condition',
+                                                'default': DEFAULT_ADDITIONAL_CONDITION}
+    STRATEGY_OPTIONS['continuous_symmetry_measure_cutoff'] = {'type': CSMFloat,
+                                                              'internal': '_continuous_symmetry_measure_cutoff',
+                                                              'default': DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF}
+
     STRATEGY_DESCRIPTION = '    Simplest ChemenvStrategy using fixed angle and distance parameters \n' \
                            '    for the definition of neighbors in the Voronoi approach. \n' \
                            '    The coordination environment is then given as the one with the \n' \
@@ -413,10 +402,10 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         :param angle_cutoff: Angle cutoff used
         """
         AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
-        self._distance_cutoff = DistanceCutoffFloat(distance_cutoff)
-        self._angle_cutoff = AngleCutoffFloat(angle_cutoff)
-        self._additional_condition = AdditionalConditionInt(additional_condition)
-        self._continuous_symmetry_measure_cutoff = CSMFloat(continuous_symmetry_measure_cutoff)
+        self.distance_cutoff = distance_cutoff
+        self.angle_cutoff = angle_cutoff
+        self.additional_condition = additional_condition
+        self.continuous_symmetry_measure_cutoff = continuous_symmetry_measure_cutoff
 
     @property
     def uniquely_determines_coordination_environments(self):
@@ -426,20 +415,33 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     def distance_cutoff(self):
         return self._distance_cutoff
 
+    @distance_cutoff.setter
+    def distance_cutoff(self, distance_cutoff):
+        self._distance_cutoff = DistanceCutoffFloat(distance_cutoff)
+
     @property
     def angle_cutoff(self):
         return self._angle_cutoff
+
+    @angle_cutoff.setter
+    def angle_cutoff(self, angle_cutoff):
+        self._angle_cutoff = AngleCutoffFloat(angle_cutoff)
 
     @property
     def additional_condition(self):
         return self._additional_condition
 
+    @additional_condition.setter
+    def additional_condition(self, additional_condition):
+        self._additional_condition = AdditionalConditionInt(additional_condition)
+
     @property
     def continuous_symmetry_measure_cutoff(self):
         return self._continuous_symmetry_measure_cutoff
 
-    def apply_strategy(self):
-        return None
+    @continuous_symmetry_measure_cutoff.setter
+    def continuous_symmetry_measure_cutoff(self, continuous_symmetry_measure_cutoff):
+        self._continuous_symmetry_measure_cutoff = CSMFloat(continuous_symmetry_measure_cutoff)
 
     def get_site_neighbors(self, site, isite=None, dequivsite=None, dthissite=None, mysym=None):#, neighbors_map=None):
         #if neighbors_map is not None:
@@ -594,10 +596,11 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = OrderedDict({'additional_condition': {'type': AdditionalConditionInt,
-                                                             'internal': '_additional_condition',
-                                                             'default': DEFAULT_ADDITIONAL_CONDITION},
-                                    'surface_calculation_type': {}})
+    STRATEGY_OPTIONS = OrderedDict()
+    STRATEGY_OPTIONS['additional_condition'] = {'type': AdditionalConditionInt,
+                                                'internal': '_additional_condition',
+                                                'default': DEFAULT_ADDITIONAL_CONDITION}
+    STRATEGY_OPTIONS['surface_calculation_type'] = {}
     STRATEGY_DESCRIPTION = '    Simple Abundance ChemenvStrategy using the most "abundant" neighbors map \n' \
                            '    for the definition of neighbors in the Voronoi approach. \n' \
                            '    The coordination environment is then given as the one with the \n' \
@@ -611,6 +614,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         :param structure_environments: StructureEnvironments object containing all the information on the
         coordination of the sites in a structure
         """
+        raise NotImplementedError('SimpleAbundanceChemenvStrategy not yet implemented')
         AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self._additional_condition = additional_condition
 
@@ -710,6 +714,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
                  additional_condition=AbstractChemenvStrategy.AC.ONLY_ACB,
                  max_nabundant=5, target_environments=DEFAULT_TARGET_ENVIRONMENTS, target_penalty_type='max_csm',
                  max_csm=5.0, symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE):
+        raise NotImplementedError('TargettedPenaltiedAbundanceChemenvStrategy not yet implemented')
         SimpleAbundanceChemenvStrategy.__init__(self, structure_environments,
                                                 additional_condition=additional_condition,
                                                 symmetry_measure_type=symmetry_measure_type)
@@ -1799,11 +1804,11 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
                     cn_maps_new.append(cn_map)
             cn_maps = cn_maps_new
         for cn_map, weights in weights_additional_info['weights'][isite].items():
-            weights_additional_info['weights'][isite][cn_map]['Product'] = np.product(weights.values())
+            weights_additional_info['weights'][isite][cn_map]['Product'] = np.product(list(weights.values()))
 
         w_nb_sets = {cn_map: weights['Product']
                      for cn_map, weights in weights_additional_info['weights'][isite].items()}
-        w_nb_sets_total = np.sum(w_nb_sets.values())
+        w_nb_sets_total = np.sum(list(w_nb_sets.values()))
         nb_sets_fractions = {cn_map: w_nb_set / w_nb_sets_total for cn_map, w_nb_set in w_nb_sets.items()}
         for cn_map in weights_additional_info['weights'][isite]:
             weights_additional_info['weights'][isite][cn_map]['NbSetFraction'] = nb_sets_fractions[cn_map]
