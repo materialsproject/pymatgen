@@ -449,6 +449,9 @@ class Magmom(MSONable):
     def __lt__(self, other):
         return abs(self) < abs(other)
 
+    def __neg__(self):
+        return Magmom(-self.moment, saxis=self.saxis)
+
     def __hash__(self):
         return (tuple(self.moment)+tuple(self.saxis)).__hash__()
 
