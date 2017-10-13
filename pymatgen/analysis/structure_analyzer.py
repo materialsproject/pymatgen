@@ -38,7 +38,7 @@ from pymatgen.core.surface import Slab, SlabGenerator
 
 default_op_paras = {}
 with open(os.path.join(os.path.dirname(
-        __file__),'op_paras_dict.yaml'), "rt") as f:
+        __file__),'op_paras.yaml'), "rt") as f:
     default_op_paras = yaml.safe_load(f)
     f.close()
 
