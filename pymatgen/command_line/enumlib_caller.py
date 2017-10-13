@@ -362,6 +362,8 @@ class EnumlibAdaptor(object):
                             sites.append(PeriodicSite(site.species_and_occu,
                                                       site.frac_coords,
                                                       super_latt).to_unit_cell)
+                        else:
+                            logger.warning("Skipping sites that include species X.")
                     structs.append(Structure.from_sites(sorted(sites)))
 
         except Exception as e:
