@@ -492,14 +492,15 @@ class OrderParametersTest(PymatgenTest):
 
     def test_get_order_parameters(self):
         # Set up everything.
-        op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
+        op_types = ["cn", "bent", "bent", "tet", "oct", "bcc", "q2", "q4", \
             "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd", \
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
             "see_saw"]
-        op_paras = [None, None, [45./180., 1./0.0667], None, None, None, None, None, \
-                    None, None, None, None, None, None, None, None, None, None,\
-                    None, None, None, None, None, None, None, None]
+        op_paras = [None, [1, 1./0.0667], [45./180, 1./0.0667], None, \
+                    None, None, None, None, None, None, None, None, None, \
+                    None, None, None, None, None, None, None, None, None, \
+                    None, None, None, None]
         ops_044 = OrderParameters(op_types, parameters=op_paras, cutoff=0.44)
         ops_071 = OrderParameters(op_types, parameters=op_paras, cutoff=0.71)
         ops_087 = OrderParameters(op_types, parameters=op_paras, cutoff=0.87)

@@ -886,47 +886,41 @@ class OrderParameters(object):
             types ([string]): list of strings representing the types of
                 order parameters to be calculated. Note that multiple
                 mentions of the same type may occur. Currently available
-                types are:
+                types recognize following environments:
                   "cn": simple coordination number---normalized
                         if desired;
-                  "sgl_bd": single-bond OP;
-                  "lin": Peters-style OP recognizing linear coordination
-                         (Zimmermann & Jain, in progress, 2017);
-                  "bent": Peters-style OP recognizing bent coordination
+                  "sgl_bd": single bonds;
+                  "bent": bent (angular) coordinations
                           (Zimmermann & Jain, in progress, 2017);
-                  "tet": Peters-style OP recognizing tetrahedral
-                         environments (Zimmermann et al., submitted,
-                         2017);
-                  "oct": Peters-style OP recognizing octahedral
-                         environments (Zimmermann et al., submitted,
-                         2017);
-                  "bcc": Peters-style OP recognizing local
-                         body-centered cubic environment (Peters,
+                  "T": T-shape coordinations;
+                  "see_saw": see saw-like coordinations;
+                  "tet": tetrahedra
+                         (Zimmermann et al., submitted, 2017);
+                  "oct": octahedra
+                         (Zimmermann et al., submitted, 2017);
+                  "bcc": body-centered cubic environments (Peters,
                          J. Chem. Phys., 131, 244103, 2009);
-                  "tri_plan": OP recognizing trigonal planar environments;
-                  "reg_tri": OP recognizing coordination with a regular triangle;
-                  "sq_plan": OP recognizing square planar environments;
-                  "tri_pyr": OP recognizing trigonal pyramidal coordination;
-                  "sq": OP recognizing square coordination;
-                  "pent_plan": OP recognizing pentagonal planar environments;
-                  "T": OP recognizing T-shape coordination;
-                  "sq_pyr": OP recognizing square pyramidal coordination;
-                  "sq_pyr_legacy": OP recognizing pyramidal coordination;
-                  "tri_bipyr": OP recognizing trigonal bipyramidal coordination;
-                  "sq_bipyr": OP recognizing square bipyramidal coordination;
-                  "pent_bipyr": OP recognizing pentagonal bipyramidal coordination;
-                  "hex_bipyr": OP recognizing hexagonal bipyramidal coordination;
-                  "pent_pyr": OP recognizing pentagonal pyramidal
-                              coordination;
-                  "hex_pyr": OP recognizing hexagonal pyramidal
-                              coordination;
-                  "cuboct": OP recognizing cuboctahedral coordination;
-                  "see_saw": OP recognizing see-saw-like coordination;
-                  "q2": bond orientational order parameter (BOOP)
-                        of weight l=2 (Steinhardt et al., Phys. Rev. B,
-                        28, 784-805, 1983);
+                  "tri_plan": trigonal planar environments;
+                  "sq_plan": square planar environments;
+                  "pent_plan": pentagonal planar environments;
+                  "tri_pyr": trigonal pyramids (coordinated atom is in
+                             the center of the basal plane);
+                  "sq_pyr": square pyramids;
+                  "pent_pyr": pentagonal pyramids;
+                  "hex_pyr": hexagonal pyramids;
+                  "tri_bipyr": trigonal bipyramids;
+                  "sq_bipyr": square bipyramids;
+                  "pent_bipyr": pentagonal bipyramids;
+                  "hex_bipyr": hexagonal bipyramids;
+                  "cuboct": cuboctahedra;
+                  "q2": motif-unspecific bond orientational order
+                        parameter (BOOP) of weight l=2 (Steinhardt
+                        et al., Phys. Rev. B, 28, 784-805, 1983);
                   "q4": BOOP of weight l=4;
                   "q6": BOOP of weight l=6.
+                  "reg_tri": regular triangle with varying height
+                             to basal plane;
+                  "sq": square coordination (cf., "reg_tri");
                   "tet_legacy": original Peters-style OP recognizing
                                 tetrahedral coordination environments
                                 (Zimmermann et al., J. Am. Chem. Soc.,
@@ -937,105 +931,94 @@ class OrderParameters(object):
                                 (Zimmermann et al., J. Am. Chem. Soc.,
                                 137, 13352-13361, 2015) that can, however,
                                 produce small negative values sometimes.
-            parameters (str): xxx ([[float]]): xxx 2D list of floating point numbers that store
-                parameters associated with the different order parameters
-                that are to be calculated (1st dimension = length of
-                types tuple; any 2nd dimension may be zero, in which case
-                default values are used). In the following, those order
-                parameters q_i are listed that require further parameters
-                for their computation (values in brackets denote default
-                values):
-                  "cn":  normalizing constant (1);
-                  "sgl_bd": no parameter required;
-                  "lin": Gaussian width in fractions of pi (180 degrees)
-                         reflecting the "speed of penalizing" deviations
-                         away from 180 degrees of any individual
-                         neighbor1-center-neighbor2 configuration (0.0667);
-                  "bent": target angle in degrees (180);
-                          Gaussian width for penalizing deviations away
-                          from perfect target angle in fractions of pi
-                          (0.0667);
-                  "tet": Gaussian width for penalizing deviations
-                         away perfect tetrahedral angle (0.0667);
-                  "oct": threshold angle in degrees distinguishing
-                         a second neighbor to be either close to the
-                         south pole or close to the equator (160.0);
-                         Gaussian width for penalizing deviations
-                         away from south pole (0.0667); Gaussian
-                         width for penalizing deviations away from
-                         equator (0.0556);
-                  "bcc": south-pole threshold angle as for "oct" (160.0);
-                         south-pole Gaussian width as for "oct" (0.0667);
-                  "tri_plan": Gaussian width for penalizing deviations
+                  "sq_pyr_legacy": square pyramids (legacy);
+            parameters ([[float]]): 2D list of floating point numbers
+                that store parameters associated with the different order
+                parameters that are to be calculated (1st dimension =
+                length of types tuple; if entry is None, default
+                values are used). In the following, those order
+                parameters, q_i, are listed that require further
+                parameters for their computation (values in brackets
+                denote default values):
+                  "cn": 1. normalizing constant.
+                  "sgl_bd": no parameters required.
+                  "bent": 1. target angle (TA) in fractions of pi (180
+                      degrees); 2. inverse of Gaussian width (IGW)
+                      in fractions of 1/pi reflecting the speed of
+                      penalizing deviations away from the target angle
+                      of any individual neighbor1-center-neighbor2
+                      configuration.
+                  "T": 1. IGW for penalizing deviations away from
+                      expected equatorial position (EP); 2. factor to
+                      multiply azimuth angle (AA) with in cosine term;
+                      3. exponent applied to cosine term of AA.
+                  "see_saw": 1. smallest polar angle (PA) in radians to
+                      consider a neighbor to be still in South pole
+                      position (SPP); 2. IGW for penalizing deviations
+                      away from expected SPP; 3. IGW for penalizing
+                      deviations away from expected EP; 4. weight for
+                      SPP contribution relative to each equatorial
+                      position.
+                  "tet": 1. IGW for penalizing deviations away from
+                      perfect tetrahedral angle; 2. tetrahedral
+                      angle in frac. of pi; 3. AA factor;
+                      4. AA-term exponent.
+                  "oct": 1. minimum PA for SPP;
+                         2. IGW for penalizing SPP deviations;
+                         3. IGW for penalizing EP deviations;
+                         4. SPP weight;
+                         5. AA factor; 6. AA-term exponent.
+                  "bcc" ([]): 1. minimum PA for SPP;
+                      2. IGW for penalizing SPP deviations;
+                      3. dummy (ignored);
+                      4. IGW for penalizing close-to-EP deviations;
+                  "tri_plan" ([]): Gaussian width for penalizing deviations
                               away from 120 degrees (0.074);
-                  "reg_tri": Gaussian width for penalizing angles away from
-                             the expected angles, given the estimated
-                             height-to-side ratio of the trigonal pyramid
-                             in which the central atom is located at the
-                             tip (0.0222);
-                  "sq_plan": threshold angle in degrees distinguishing
+                  "sq_plan" ([]): threshold angle in degrees distinguishing
                              a second neighbor to be either close to the
                              south pole or close to the equator (160.0);
                              Gaussian width for penalizing deviations
                              away from south pole (0.0667); Gaussian
                              width for penalizing deviations away from
                              equator (0.0556);
-                  "sq": Gaussian width for penalizing angles away from
-                        the expected angles, given the estimated
-                        height-to-diagonal ratio of the pyramid in which
-                        the central atom is located at the tip
-                        (0.0333);
-                  "tri_pyr": Gaussian width in fractions of pi
+                  "pent_plan": .
+                  "tri_pyr" ([]): Gaussian width in fractions of pi
                              for penalizing angles away from 90 degrees
                              (0.0556);
-                  "pent_plan": threshold angle in degrees distinguishing
-                               a second neighbor to be either close to the
-                               upper (polar angle 72 degrees) or lower
-                               (144 degrees) equatorial region (108);
-                               Gaussian width for penalizing deviations
-                               away from 72 and 144 degrees, resp., (0.0556);
-                  "T": Gaussian width in fractions of pi
-                       for penalizing angles away from 90 degrees
-                       (0.0556);
-                  "sq_pyr": Gaussian width in fractions of pi
+                  "sq_pyr" ([]): Gaussian width in fractions of pi
                             for penalizing angles away from 90 degrees
                             (0.0556);
-                  "sq_pyr_legacy": Gaussian width in fractions of pi
-                            for penalizing angles away from 90 degrees
-                            (0.0333);
-                            Gaussian width in Angstrom for penalizing
-                            variations in neighbor distances (0.1);
-                  "pent_pyr": Gaussian width in fractions of pi
+                  "pent_pyr" ([]): Gaussian width in fractions of pi
                               for penalizing angles away from 90 degrees
                               (0.0556);
-                  "hex_pyr": Gaussian width in fractions of pi
+                  "hex_pyr" ([]): Gaussian width in fractions of pi
                              for penalizing angles away from 90 degrees
                              (0.0556);
-                  "tri_bipyr": threshold angle to identify close to
+                  "tri_bipyr" ([]): threshold angle to identify close to
                             South pole positions (160.0, cf., oct).
                             Gaussian width for penalizing deviations away
                             from south pole (0.0667);
                             Gaussian width for penalizing deviations away
                             from equator (0.0556).
-                  "sq_bipyr": threshold angle to identify close to
+                  "sq_bipyr" ([]): threshold angle to identify close to
                               South pole positions (160.0, cf., oct).
                               Gaussian width for penalizing deviations away
                               from south pole (0.0667);
                               Gaussian width for penalizing deviations away
                               from equator (0.0556).
-                  "pent_bipyr": threshold angle to identify close to
+                  "pent_bipyr" ([]): threshold angle to identify close to
                                 South pole positions (160.0, cf., oct).
                                 Gaussian width for penalizing deviations away
                                 from south pole (0.0667);
                                 Gaussian width for penalizing deviations away
                                 from equator (0.0556).
-                  "hex_bipyr": threshold angle to identify close to
+                  "hex_bipyr" ([]): threshold angle to identify close to
                                South pole positions (160.0, cf., oct);
                                Gaussian width for penalizing deviations away
                                from south pole (0.0667);
                                Gaussian width for penalizing deviations away
                                from equator (0.0556).
-                  "cuboct": threshold angle to identify close to
+                  "cuboct" ([]): threshold angle to identify close to
                             South pole positions (160.0, cf., oct);
                             threshold angle to identify above Equator
                             positions (75 degrees);
@@ -1047,17 +1030,12 @@ class OrderParameters(object):
                             from equator (0.0556);
                             Gaussian width for penalizing deviations away
                             from above and below equator, resp., (0.0556);
-                  "see_saw": threshold angle in degrees distinguishing
-                             a second neighbor to be either close to the
-                             south pole or close to the equator (160.0);
-                             Gaussian width for penalizing deviations
-                             away from south pole (0.0667); Gaussian
-                             width for penalizing deviations away from
-                             equator and azimuth angle being 90 degrees
-                             (0.0556);
-                  "tet_legacy": Gaussian width for penalizing deviations
+                  "q2", "q4", "q6": no parameters required.
+                  "reg_tri": .
+                  "sq": .
+                  "tet_legacy" ([]): Gaussian width for penalizing deviations
                                 away perfect tetrahedral angle (0.0667);
-                  "oct_legacy": threshold angle in degrees distinguishing
+                  "oct_legacy" ([]): threshold angle in degrees distinguishing
                                 a second neighbor to be either close to the
                                 south pole or close to the equator (160.0);
                                 Gaussian width for penalizing deviations
@@ -1069,6 +1047,7 @@ class OrderParameters(object):
                                 the capabilities of distinguishing between
                                 different environments (e.g., tet vs oct)
                                 given a single mutual threshold q_thresh;
+                "sq_pyr_legacy": .
             cutoff (float): Cutoff radius to determine which nearest neighbors are
                 supposed to contribute to the order parameters.
                 If the value is negative the neighboring sites found by
