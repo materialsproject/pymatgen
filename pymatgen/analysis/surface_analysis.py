@@ -534,7 +534,8 @@ class SurfaceEnergyPlotter(object):
 
         if x_is_u_ads:
             u_ref_range = [const_u, const_u]
-            u_ads_range = urange if urange else self.max_adsorption_chempot_range(const_u)
+            u_ads_range = urange if urange else \
+                self.max_adsorption_chempot_range(const_u)
         else:
             u_ref_range = urange if urange else self.chempot_range
             u_ads_range = [const_u, const_u]
