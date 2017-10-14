@@ -28,6 +28,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.utils.chemenv_errors import NeighborsNotComputedChemenvError
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
+from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy
@@ -58,7 +59,7 @@ strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = Targette
 
 def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
             show_perfect=False, csm_info=None, symmetry_measure_type='csm_wcs_ctwcc', perfect_radius=0.1,
-            show_distorted=True):
+            show_distorted=True, faces_color_override=None):
     if show_perfect:
         if csm_info is None:
             raise ValueError('Not possible to show perfect environment without csm_info')
@@ -103,7 +104,10 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
             symbol = list(site.species_and_occu.keys())[0].symbol
-            mycolor = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
+            if faces_color_override:
+                mycolor = faces_color_override
+            else:
+                mycolor = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
             vis.add_faces(faces, mycolor, opacity=0.4)
             vis.add_edges(edges)
         if show_perfect:
@@ -128,7 +132,7 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
 
 
 # Visualizing a coordination geometry
-def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True):
+def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_color_override=None):
     if vis is None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
     myspecies = ["O"] * (cg.coordination_number+1)
@@ -141,7 +145,7 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True):
     structure = Molecule(species=myspecies, coords=coords)
     vis.set_structure(structure=structure, reset_camera=True)
     # neighbors_list = coords[1:]
-    draw_cg(vis, site=structure[0], neighbors=structure[1:], cg=cg)
+    draw_cg(vis, site=structure[0], neighbors=structure[1:], cg=cg, faces_color_override=faces_color_override)
     if view_index:
         for ineighbor, neighbor in enumerate(structure[1:]):
             vis.add_text(neighbor.coords, '{}'.format(ineighbor), color=(0, 0, 0))
@@ -152,11 +156,13 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True):
 
 def welcome(chemenv_config):
     print('Chemical Environment package (ChemEnv)')
+    print(chemenv_citations())
     print(chemenv_config.package_options_description())
 
 
 def thankyou():
     print('Thank you for using the ChemEnv package')
+    print(chemenv_citations())
 
 
 def compute_environments(chemenv_configuration):
