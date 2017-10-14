@@ -1045,8 +1045,9 @@ class OrderParameters(object):
     def num_ops(self):
 
         """"
-        Returns the number of different order parameters that are targeted
-        to be calculated.
+        Returns:
+            int: the number of different order parameters that are targeted
+                to be calculated.
         """
 
         return len(self._types)
@@ -1055,9 +1056,11 @@ class OrderParameters(object):
     def last_nneigh(self):
 
         """"
-        Returns the number of neighbors encountered during the most
-        recent order-parameter calculation. A value of -1 indicates that
-        no such calculation has yet been performed for this instance.
+        Returns:
+            int: the number of neighbors encountered during the most
+                recent order parameter calculation. A value of -1 indicates
+                that no such calculation has yet been performed for this
+                instance.
         """
 
         return len(self._last_nneigh)
@@ -1066,19 +1069,20 @@ class OrderParameters(object):
 
         """"
         Computes trigonometric terms that are required to
-        calculate bond orientational order parameters.
+        calculate bond orientational order parameters using
+        internal variables.
 
         Args:
-            thetas ([float]):
-                polar angles of all neighbors in radians.
-            phis ([float]):
+            thetas ([float]): polar angles of all neighbors in radians.
+            phis ([float]): azimuth angles of all neighbors in radians.
+                The list of
                 azimuth angles of all neighbors in radians.  The list of
-                azimuth angles is expected to have the same size as the list
-                of polar angles; otherwise, a ValueError is raised.  Also,
-                the two lists of angles have to be coherent in order. That
-                is, it is expected that the order in the list of azimuth
-                angles corresponds to a distinct sequence of neighbors.
-                And, this sequence has to equal the sequence
+                azimuth angles is expected to have the same size as the
+                list of polar angles; otherwise, a ValueError is raised.
+                Also, the two lists of angles have to be coherent in
+                order. That is, it is expected that the order in the list
+                of azimuth angles corresponds to a distinct sequence of
+                neighbors. And, this sequence has to equal the sequence
                 of neighbors in the list of polar angles.
 
         """
@@ -1117,13 +1121,11 @@ class OrderParameters(object):
         compute_trigonometric_terms function has been just called.
 
         Args:
-            thetas ([float]):
-                polar angles of all neighbors in radians.
-            phis ([float]):
-                azimuth angles of all neighbors in radians.
+            thetas ([float]): polar angles of all neighbors in radians.
+            phis ([float]): azimuth angles of all neighbors in radians.
 
-        Return:
-            q2 (float): bond orientational order parameter of weight l=2
+        Returns:
+            float: bond orientational order parameter of weight l=2
                 corresponding to the input angles thetas and phis.
         """
 
@@ -1188,13 +1190,11 @@ class OrderParameters(object):
         compute_trigonometric_terms function has been just called.
 
         Args:
-            thetas ([float]):
-                polar angles of all neighbors in radians.
-            phis ([float]):
-                azimuth angles of all neighbors in radians.
+            thetas ([float]): polar angles of all neighbors in radians.
+            phis ([float]): azimuth angles of all neighbors in radians.
 
-        Return:
-            q4 (float): bond orientational order parameter of weight l=4
+        Returns:
+            float: bond orientational order parameter of weight l=4
                 corresponding to the input angles thetas and phis.
         """
 
@@ -1299,13 +1299,11 @@ class OrderParameters(object):
         compute_trigonometric_terms function has been just called.
 
         Args:
-            thetas ([float]):
-                polar angles of all neighbors in radians.
-            phis ([float]):
-                azimuth angles of all neighbors in radians.
+            thetas ([float]): polar angles of all neighbors in radians.
+            phis ([float]): azimuth angles of all neighbors in radians.
 
-        Return:
-            q6 (float): bond orientational order parameter of weight l=6
+        Returns:
+            float: bond orientational order parameter of weight l=6
                 corresponding to the input angles thetas and phis.
         """
 
@@ -1472,15 +1470,17 @@ class OrderParameters(object):
     def get_type(self, index):
 
         """
-        Return type of order-parameter at the index provided and
+        Return type of order parameter at the index provided and
         represented by a short string.
 
         Args:
-            index (int):
-                index of order-parameter for which type is to be returned
+            index (int): index of order parameter for which type is
+                to be returned.
+        Returns:
+            str: OP type.
         """
         if index < 0 or index >= len(self._types):
-            raise ValueError("Index for getting order-parameter type"
+            raise ValueError("Index for getting order parameter type"
                              " out-of-bounds!")
         return self._types[index]
 
@@ -1495,36 +1495,37 @@ class OrderParameters(object):
 
         Args:
             index (int):
-                index of order-parameter for which associated parameters
-                are to be returned
+                index of order parameter for which associated parameters
+                are to be returned.
+        Returns:
+            [float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
             raise ValueError("Index for getting parameters associated with"
-                             " order-parameter calculation out-of-bounds!")
+                             " order parameter calculation out-of-bounds!")
         return self._paras[index]
 
-    def get_order_parameters(self, structure, n, indeces_neighs=None, \
+    def get_order_parameters(self, structure, n, indices_neighs=None, \
                              tol=0.0, target_spec=None):
 
         """
         Compute all order parameters of site n.
 
         Args:
-            structure (Structure):
-                input structure.
-            n (int):
-                index of site in input structure, for which OPs are to be
+            structure (Structure): input structure.
+            n (int): index of site in input structure,
+                for which OPs are to be
                 calculated.  Note that we do not use the sites iterator
                 here, but directly access sites via struct[index].
-            indeces_neighs ([int]):
-                list of indeces of those neighbors in Structure object
+            indices_neighs ([int]): list of indices of those neighbors
+                in Structure object
                 structure that are to be considered for OP computation.
                 This optional argument overwrites the way neighbors are
                 to be determined as defined in the constructor (i.e.,
                 Voronoi coordination finder via negative cutoff radius
                 vs constant cutoff radius if cutoff was positive).
                 We do not use information about the underlying
-                structure lattice if the neighbor indeces are explicitly
+                structure lattice if the neighbor indices are explicitly
                 provided.  This has two important consequences.  First,
                 the input Structure object can, in fact, be a
                 simple list of Site objects.  Second, no nearest images
@@ -1532,23 +1533,24 @@ class OrderParameters(object):
                 Note furthermore that this neighbor
                 determination type ignores the optional target_spec
                 argument.
-            tol (float):
-                threshold of weight (= solid angle / maximal solid angle)
+            tol (float): threshold of weight
+                (= solid angle / maximal solid angle)
                 to determine if a particular pair is
                 considered neighbors; this is relevant only in the case
                 when Voronoi polyhedra are used to determine coordination
-            target_spec (Specie):
-                target specie to be considered when calculating the order
+            target_spec (Specie): target species to be considered
+                when calculating the order
                 parameters of site n; None includes all species of input
                 structure.
 
         Returns:
-            list of floats representing order parameters.  Should it not be
+            [floats]: representing order parameters.  Should it not be
             possible to compute a given OP for a conceptual reason, the
             corresponding entry is None instead of a float.  For Steinhardt
             et al.'s bond orientational OPs and the other geometric OPs
-            ("tet", "oct", "bcc"), this can happen if there is a single
-            neighbor around site n in the structure because that, obviously,
+            ("tet", "oct", "bcc", etc.),
+            this can happen if there is a single
+            neighbor around site n in the structure because that
             does not permit calculation of angles between multiple
             neighbors.
         """
@@ -1558,8 +1560,8 @@ class OrderParameters(object):
             raise ValueError("Site index smaller zero!")
         if n >= len(structure):
             raise ValueError("Site index beyond maximum!")
-        if indeces_neighs is not None:
-            for index in indeces_neighs:
+        if indices_neighs is not None:
+            for index in indices_neighs:
                 if index >= len(structure):
                     raise ValueError("Neighbor site index beyond maximum!")
         if tol < 0.0:
@@ -1573,8 +1575,8 @@ class OrderParameters(object):
         # Note that we adopt the same way of accessing sites here as in
         # VoronoiCoordFinder; that is, not via the sites iterator.
         centsite = structure[n]
-        if indeces_neighs is not None:
-            neighsites = [structure[index] for index in indeces_neighs]
+        if indices_neighs is not None:
+            neighsites = [structure[index] for index in indices_neighs]
         elif self._voroneigh:
             vorocf = VoronoiCoordFinder(structure)
             neighsites = vorocf.get_coordinated_sites(n, tol, target_spec)

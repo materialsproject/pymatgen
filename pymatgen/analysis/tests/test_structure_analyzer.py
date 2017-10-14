@@ -528,7 +528,7 @@ class OrderParametersTest(PymatgenTest):
 
         # T-shape motif.
         op_vals = ops_101.get_order_parameters(
-            self.T_shape, 0, indeces_neighs=[1,2,3])
+            self.T_shape, 0, indices_neighs=[1,2,3])
         self.assertAlmostEqual(int(op_vals[23] * 1000), 1000)
 
         # Cubic structure.
@@ -613,13 +613,13 @@ class OrderParametersTest(PymatgenTest):
 
         # Pentagonal planar.
         op_vals = ops_101.get_order_parameters(
-                self.pentagonal_planar.sites, 0, indeces_neighs=[1,2,3,4,5])
+                self.pentagonal_planar.sites, 0, indices_neighs=[1,2,3,4,5])
         self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 33)
         self.assertAlmostEqual(int(op_vals[16] * 1000 + 0.5), 1000)
 
         # Trigonal pyramid motif.
         op_vals = ops_101.get_order_parameters(
-            self.trigonal_pyramid, 0, indeces_neighs=[1,2,3,4])
+            self.trigonal_pyramid, 0, indices_neighs=[1,2,3,4])
         self.assertAlmostEqual(int(op_vals[18] * 1000 + 0.5), 1000)
 
         # Square pyramid motif.
@@ -630,46 +630,46 @@ class OrderParametersTest(PymatgenTest):
 
         # Pentagonal pyramid motif.
         op_vals = ops_101.get_order_parameters(
-            self.pentagonal_pyramid, 0, indeces_neighs=[1,2,3,4,5,6])
+            self.pentagonal_pyramid, 0, indices_neighs=[1,2,3,4,5,6])
         self.assertAlmostEqual(int(op_vals[19] * 1000 + 0.5), 1000)
 
         # Hexagonal pyramid motif.
         op_vals = ops_101.get_order_parameters(
-            self.hexagonal_pyramid, 0, indeces_neighs=[1,2,3,4,5,6,7])
+            self.hexagonal_pyramid, 0, indices_neighs=[1,2,3,4,5,6,7])
         self.assertAlmostEqual(int(op_vals[20] * 1000 + 0.5), 1000)
 
         # Trigonal bipyramidal.
         op_vals = ops_101.get_order_parameters(
-            self.trigonal_bipyramidal.sites, 0, indeces_neighs=[1,2,3,4,5])
+            self.trigonal_bipyramidal.sites, 0, indices_neighs=[1,2,3,4,5])
         self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 1000)
 
         # Pentagonal bipyramidal.
         op_vals = ops_101.get_order_parameters(
             self.pentagonal_bipyramid.sites, 0,
-            indeces_neighs=[1,2,3,4,5,6,7])
+            indices_neighs=[1,2,3,4,5,6,7])
         self.assertAlmostEqual(int(op_vals[21] * 1000 + 0.5), 1000)
 
         # Hexagonal bipyramid motif.
         op_vals = ops_101.get_order_parameters(
-            self.hexagonal_bipyramid, 0, indeces_neighs=[1,2,3,4,5,6,7,8])
+            self.hexagonal_bipyramid, 0, indices_neighs=[1,2,3,4,5,6,7,8])
         self.assertAlmostEqual(int(op_vals[22] * 1000 + 0.5), 1000)
 
         # Cuboctahedral motif.
         op_vals = ops_101.get_order_parameters(
-            self.cuboctahedron, 0, indeces_neighs=[i for i in range(1, 13)])
+            self.cuboctahedron, 0, indices_neighs=[i for i in range(1, 13)])
         self.assertAlmostEqual(int(op_vals[24] * 1000 + 0.5), 1000)
 
         # See-saw motif.
         op_vals = ops_101.get_order_parameters(
-            self.see_saw, 0, indeces_neighs=[i for i in range(1, 5)])
+            self.see_saw, 0, indices_neighs=[i for i in range(1, 5)])
         self.assertAlmostEqual(int(op_vals[25] * 1000 + 0.5), 1000)
 
         # Test providing explicit neighbor lists.
-        op_vals = ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[1])
+        op_vals = ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[1])
         self.assertIsNotNone(op_vals[0])
         self.assertIsNone(op_vals[3])
         with self.assertRaises(ValueError):
-            ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[2])
+            ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[2])
 
 
     def tearDown(self):
