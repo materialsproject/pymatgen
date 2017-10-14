@@ -938,7 +938,7 @@ class OrderParameters(object):
                       (default value: 1)).
                   "TA": target angle (TA) in fraction of 180 degrees
                       ("bent" (1), "tet" (0.6081734479693927),
-                      "tri_plan" (0.66666666667), "pent_plan" (xxx: not in frac of pi 1.8849555921538759),
+                      "tri_plan" (0.66666666667), "pent_plan" (0.6),
                       "sq_pyr_legacy" (0.5)).
                   "IGW_TA": inverse Gaussian width (IGW) for penalizing
                       angles away from the target angle in inverse
@@ -1730,7 +1730,7 @@ class OrderParameters(object):
                                             exp(-0.5 * tmp * tmp))
                                     norms[i][j] += self._paras[i]['w_SPP']
                             elif t == "pent_plan":
-                                if thetak <= self._paras[i]['TA']:
+                                if thetak <= self._paras[i]['TA'] * pi:
                                     tmp = self._paras[i]['IGW_TA'] * (
                                         thetak * ipi - 0.4)
                                     gaussthetak[i] = exp(-0.5 * tmp * tmp)
@@ -1772,8 +1772,8 @@ class OrderParameters(object):
                                                 -0.5 * tmp * tmp) * tmp2
                                             norms[i][j] += 1
                                         elif t == "pent_plan":
-                                            if thetak <= self._paras[i]['TA'] and \
-                                                    thetam >= self._paras[i]['TA']:
+                                            if thetak <= self._paras[i]['TA'] * pi and \
+                                                    thetam >= self._paras[i]['TA'] * pi:
                                                 tmp = self._paras[i]['IGW_TA'] * (
                                                     thetam * ipi - 0.8)
                                                 tmp2 = cos(phi)
