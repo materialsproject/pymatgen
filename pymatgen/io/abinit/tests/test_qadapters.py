@@ -403,7 +403,7 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         s, params = qad.get_select(ret_dict=True)
         # IN_CORE PURE MPI: MPI: 4, OMP: 1
         aequal(params, 
-          {'ncpus': 1, 'chunks': 4, 'mpiprocs': 1, "mem": mem})
+          {'ncpus': 1, 'chunks': 4, 'mpiprocs': 1, "vmem": mem})
 
         qad.set_omp_threads(2)
         s, params = qad.get_select(ret_dict=True)
