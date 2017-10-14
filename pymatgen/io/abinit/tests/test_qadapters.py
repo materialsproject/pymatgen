@@ -409,20 +409,20 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 4, OMP: 2
         aequal(params, 
-            {'mem': mem, 'ncpus': 2, 'chunks': 4, 'ompthreads': 2, 'mpiprocs': 1})
+            {'vmem': mem, 'ncpus': 2, 'chunks': 4, 'ompthreads': 2, 'mpiprocs': 1})
 
         qad.set_mpi_procs(12)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 12, OMP: 2
         aequal(params, 
-            {'mem': mem, 'ncpus': 2, 'chunks': 12, 'ompthreads': 2, 'mpiprocs': 1})
+            {'vmem': mem, 'ncpus': 2, 'chunks': 12, 'ompthreads': 2, 'mpiprocs': 1})
 
         qad.set_omp_threads(5)
         qad.set_mpi_procs(3)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP, NOT commensurate with nodes:  MPI: 3, OMP: 5
         aequal(params, 
-            {'mem': mem, 'ncpus': 5, 'chunks': 3, 'ompthreads': 5, 'mpiprocs': 1})
+            {'vmem': mem, 'ncpus': 5, 'chunks': 3, 'ompthreads': 5, 'mpiprocs': 1})
 
         # Testing the handling of master memory overhead
         # Shared mode (the nodes might be shared amongst different jobs from different users)
