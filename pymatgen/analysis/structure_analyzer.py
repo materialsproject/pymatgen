@@ -927,124 +927,59 @@ class OrderParameters(object):
                                 137, 13352-13361, 2015) that can, however,
                                 produce small negative values sometimes.
                   "sq_pyr_legacy": square pyramids (legacy);
-            parameters ([[float]]): 2D list of floating point numbers
-                that store parameters associated with the different order
-                parameters that are to be calculated (1st dimension =
-                length of types tuple; if entry is None, default
-                values are used). In the following, those order
-                parameters, q_i, are listed that require further
-                parameters for their computation (values in brackets
-                denote default values):
-                  "cn": 1. normalizing constant.
-                  "sgl_bd": no parameters required.
-                  "bent": 1. target angle (TA) in fractions of pi (180
-                      degrees); 2. inverse of Gaussian width (IGW)
-                      in fractions of 1/pi reflecting the speed of
-                      penalizing deviations away from the target angle
-                      of any individual neighbor1-center-neighbor2
-                      configuration.
-                  "T": 1. IGW for penalizing deviations away from
-                      expected equatorial position (EP); 2. factor to
-                      multiply azimuth angle (AA) with in cosine term;
-                      3. exponent applied to cosine term of AA.
-                  "see_saw": 1. smallest polar angle (PA) in radians to
-                      consider a neighbor to be still in South pole
-                      position (SPP); 2. IGW for penalizing deviations
-                      away from expected SPP; 3. IGW for penalizing
-                      deviations away from expected EP; 4. weight for
-                      SPP contribution relative to each equatorial
-                      position.
-                  "tet": 1. IGW for penalizing deviations away from
-                      perfect tetrahedral angle; 2. tetrahedral
-                      angle in frac. of pi; 3. AA factor;
-                      4. AA-term exponent.
-                  "oct": 1. minimum PA for SPP;
-                         2. IGW for penalizing SPP deviations;
-                         3. IGW for penalizing EP deviations;
-                         4. SPP weight;
-                         5. AA factor; 6. AA-term exponent.
-                  "bcc" ([]): 1. minimum PA for SPP;
-                      2. IGW for penalizing SPP deviations;
-                      3. dummy (ignored);
-                      4. IGW for penalizing close-to-EP deviations;
-                  "tri_plan" ([]): Gaussian width for penalizing deviations
-                              away from 120 degrees (0.074);
-                  "sq_plan" ([]): threshold angle in degrees distinguishing
-                             a second neighbor to be either close to the
-                             south pole or close to the equator (160.0);
-                             Gaussian width for penalizing deviations
-                             away from south pole (0.0667); Gaussian
-                             width for penalizing deviations away from
-                             equator (0.0556);
-                  "pent_plan": .
-                  "tri_pyr" ([]): Gaussian width in fractions of pi
-                             for penalizing angles away from 90 degrees
-                             (0.0556);
-                  "sq_pyr" ([]): Gaussian width in fractions of pi
-                            for penalizing angles away from 90 degrees
-                            (0.0556);
-                  "pent_pyr" ([]): Gaussian width in fractions of pi
-                              for penalizing angles away from 90 degrees
-                              (0.0556);
-                  "hex_pyr" ([]): Gaussian width in fractions of pi
-                             for penalizing angles away from 90 degrees
-                             (0.0556);
-                  "tri_bipyr" ([]): threshold angle to identify close to
-                            South pole positions (160.0, cf., oct).
-                            Gaussian width for penalizing deviations away
-                            from south pole (0.0667);
-                            Gaussian width for penalizing deviations away
-                            from equator (0.0556).
-                  "sq_bipyr" ([]): threshold angle to identify close to
-                              South pole positions (160.0, cf., oct).
-                              Gaussian width for penalizing deviations away
-                              from south pole (0.0667);
-                              Gaussian width for penalizing deviations away
-                              from equator (0.0556).
-                  "pent_bipyr" ([]): threshold angle to identify close to
-                                South pole positions (160.0, cf., oct).
-                                Gaussian width for penalizing deviations away
-                                from south pole (0.0667);
-                                Gaussian width for penalizing deviations away
-                                from equator (0.0556).
-                  "hex_bipyr" ([]): threshold angle to identify close to
-                               South pole positions (160.0, cf., oct);
-                               Gaussian width for penalizing deviations away
-                               from south pole (0.0667);
-                               Gaussian width for penalizing deviations away
-                               from equator (0.0556).
-                  "cuboct" ([]): threshold angle to identify close to
-                            South pole positions (160.0, cf., oct);
-                            threshold angle to identify above Equator
-                            positions (75 degrees);
-                            threshold angle to identify above Equator
-                            positions (105 degrees);
-                            Gaussian width for penalizing deviations away
-                            from south pole (0.0667);
-                            Gaussian width for penalizing deviations away
-                            from equator (0.0556);
-                            Gaussian width for penalizing deviations away
-                            from above and below equator, resp., (0.0556);
-                  "q2", "q4", "q6": no parameters required.
-                  "reg_tri": .
-                  "sq": .
-                  "oct_legacy" ([]): threshold angle in degrees distinguishing
-                                a second neighbor to be either close to the
-                                south pole or close to the equator (160.0);
-                                Gaussian width for penalizing deviations
-                                away from south pole (0.0667); Gaussian
-                                width for penalizing deviations away from
-                                equator (0.0556); constant for shifting
-                                q_oct_legacy toward smaller values, which
-                                can be helpful when trying to fine-tune
-                                the capabilities of distinguishing between
-                                different environments (e.g., tet vs oct)
-                                given a single mutual threshold q_thresh;
-                "sq_pyr_legacy": .
-            cutoff (float): Cutoff radius to determine which nearest neighbors are
-                supposed to contribute to the order parameters.
-                If the value is negative the neighboring sites found by
-                distance and cutoff radius are further
+            parameters ([dict]): list of dictionaries
+                that store float-type parameters associated with the
+                definitions of the different order parameters
+                (length of list = number of OPs). If an entry
+                is None, default values are used that are read from
+                the op_paras.yaml file. With few exceptions, 9 different
+                parameters are used across all OPs:
+                  "norm": normalizing constant (used in "cn"
+                      (default value: 1)).
+                  "TA": target angle (TA) in fraction of 180 degrees
+                      ("bent" (1), "tet" (0.6081734479693927),
+                      "tri_plan" (0.66666666667), "pent_plan" (xxx: not in frac of pi 1.8849555921538759),
+                      "sq_pyr_legacy" (0.5)).
+                  "IGW_TA": inverse Gaussian width (IGW) for penalizing
+                      angles away from the target angle in inverse
+                      fractions of 180 degrees to ("bent" and "tet" (15),
+                      "tri_plan" (13.5), "pent_plan" (18),
+                      "sq_pyr_legacy" (30)).
+                  "IGW_EP": IGW for penalizing angles away from the
+                      equatorial plane (EP) at 90 degrees ("T", "see_saw",
+                      "oct", "sq_plan", "tri_pyr", "sq_pyr", "pent_pyr",
+                      "hex_pyr", "tri_bipyr", "sq_bipyr", "pent_bipyr",
+                      "hex_bipyr", and "oct_legacy" (18)).
+                  "fac_AA": factor applied to azimuth angle (AA) in cosine
+                      term ("T", "tri_plan", and "sq_plan" (1), "tet",
+                      "tri_pyr", and "tri_bipyr" (1.5), "oct", "sq_pyr",
+                      "sq_bipyr", and "oct_legacy" (2), "pent_pyr"
+                      and "pent_bipyr" (2.5), "hex_pyr" and
+                      "hex_bipyr" (3)).
+                  "exp_cos_AA": exponent applied to cosine term of AA
+                      ("T", "tet", "oct", "tri_plan", "sq_plan",
+                      "tri_pyr", "sq_pyr", "pent_pyr", "hex_pyr",
+                      "tri_bipyr", "sq_bipyr", "pent_bipyr", "hex_bipyr",
+                      and "oct_legacy" (2)).
+                  "min_SPP": smallest angle (in radians) to consider
+                      a neighbor to be
+                      at South pole position ("see_saw", "oct", "bcc",
+                      "sq_plan", "tri_bipyr", "sq_bipyr", "pent_bipyr",
+                      "hex_bipyr", "cuboct", and "oct_legacy"
+                      (2.792526803190927)).
+                  "IGW_SPP": IGW for penalizing angles away from South
+                      pole position ("see_saw", "oct", "bcc", "sq_plan",
+                      "tri_bipyr", "sq_bipyr", "pent_bipyr", "hex_bipyr",
+                      "cuboct", and "oct_legacy" (15)).
+                  "w_SPP": weight for South pole position relative to
+                      equatorial positions ("see_saw" and "sq_plan" (1),
+                      "cuboct" (1.8), "tri_bipyr" (2), "oct",
+                      "sq_bipyr", and "oct_legacy" (3), "pent_bipyr" (4),
+                      "hex_bipyr" (5), "bcc" (6)).
+            cutoff (float): Cutoff radius to determine which nearest
+                neighbors are supposed to contribute to the order
+                parameters. If the value is negative the neighboring
+                sites found by distance and cutoff radius are further
                 pruned using the get_coordinated_sites method from the
                 VoronoiCoordFinder class.
         """
