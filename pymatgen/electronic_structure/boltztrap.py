@@ -136,6 +136,10 @@ class BoltztrapRunner(MSONable):
                 to avoid a "factorization error" in BoltzTraP calculation.
                 If a kmesh that spans the whole Brillouin zone has been used,
                 or to disable all the symmetries, set symprec to None.
+            cb_cut: by default 10% of the highest conduction bands are 
+                removed because they are often not accurate. 
+                Tune cb_cut to change the percentage (0-100) of bands 
+                that are removed.                
 
     """
 
@@ -149,7 +153,7 @@ class BoltztrapRunner(MSONable):
                  lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0,
                  tauen=0, soc=False, doping=None, energy_span_around_fermi=1.5,
                  scissor=0.0, kpt_line=None, spin=None, cond_band=False,
-                 tmax=1300, tgrid=50, symprec=1e-3):
+                 tmax=1300, tgrid=50, symprec=1e-3, cb_cut=10):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -165,6 +169,7 @@ class BoltztrapRunner(MSONable):
         self.tauen = tauen
         self.soc = soc
         self.kpt_line = kpt_line
+        self.cb_cut = cb_cut/100.
         if isinstance(doping, list) and len(doping) > 0:
             self.doping = doping
         else:
@@ -254,7 +259,7 @@ class BoltztrapRunner(MSONable):
                         # use 90% of bottom bands since highest eigenvalues
                         # are usually incorrect
                         # ask Geoffroy Hautier for more details
-                        nb_bands = int(math.floor(self._bs.nb_bands * 0.9))
+                        nb_bands = int(math.floor(self._bs.nb_bands*(1-self.cb_cut)))
                         for j in range(nb_bands):
                             eigs.append(
                                 Energy(self._bs.bands[Spin(spin)][j][i] -
@@ -346,7 +351,7 @@ class BoltztrapRunner(MSONable):
                         for i in range(len(self._bs.kpoints)):
                             tmp_proj = []
                             for j in range(
-                                    int(math.floor(self._bs.nb_bands * 0.9))):
+                                    int(math.floor(self._bs.nb_bands*(1-self.cb_cut)))):
                                 tmp_proj.append(
                                     self._bs.projections[Spin(self.spin)][j][
                                         i][oi][site_nb])

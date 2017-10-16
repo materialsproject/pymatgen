@@ -1,11 +1,7 @@
 Change log
 ==========
 
-v2017.9.23
+v2017.9.29
 ----------
-* Gibbs free energy of a material with respect to Pourbaix stable domains.
-* Phonopy io now supports structure conversions.
-* EnumerateStructureTransformation now implements a useful occupancy rounding.
-* MVLNPTMDSet
-* Improved PDPlotter options.
-* Misc bug fixes.
+* critic2 command line caller for topological analysis (M. Horton)
+* Refactor coord_util -> coord.
