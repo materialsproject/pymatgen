@@ -28,8 +28,9 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jul 22, 2012"
 
 
-enumlib_present = which('multienum.x') and which('makestr.x')
-
+enum_cmd = which('enum.x') or which('multienum.x')
+makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
+enumlib_present = enum_cmd and makestr_cmd
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class EnumlibAdaptorTest(PymatgenTest):
