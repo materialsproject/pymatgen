@@ -28,6 +28,7 @@ Submodules
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
    pymatgen.analysis.ewald
+   pymatgen.analysis.graphs
    pymatgen.analysis.interface_reactions
    pymatgen.analysis.local_env
    pymatgen.analysis.molecule_matcher

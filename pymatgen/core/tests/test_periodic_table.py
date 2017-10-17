@@ -75,7 +75,7 @@ class ElementTestCase(PymatgenTest):
                 "superconduction_temperature",
                 "bulk_modulus", "youngs_modulus", "brinell_hardness",
                 "rigidity_modulus", "mineral_hardness",
-                "vickers_hardness", "density_of_solid",
+                "vickers_hardness", "density_of_solid", "atomic_orbitals"
                 "coefficient_of_linear_thermal_expansion", "oxidation_states",
                 "common_oxidation_states", "average_ionic_radius",
                 "ionic_radii"]
