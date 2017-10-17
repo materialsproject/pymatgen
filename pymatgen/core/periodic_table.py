@@ -1137,8 +1137,9 @@ class DummySpecie(Specie):
         """
         if not isinstance(other, DummySpecie):
             return False
-        return self.symbol == other.symbol \
-            and self._oxi_state == other._oxi_state
+        return isinstance(other, Specie) and self.symbol == other.symbol \
+            and self.oxi_state == other.oxi_state \
+            and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1254,10 +1255,13 @@ class DummySpecie(Specie):
 
     def __str__(self):
         output = self.symbol
-        if self._oxi_state >= 0:
-            output += formula_double_format(self._oxi_state) + "+"
-        else:
-            output += formula_double_format(-self._oxi_state) + "-"
+        if self.oxi_state is not None:
+            if self.oxi_state >= 0:
+                output += formula_double_format(self.oxi_state) + "+"
+            else:
+                output += formula_double_format(-self.oxi_state) + "-"
+        for p, v in self._properties.items():
+            output += ",%s=%s" % (p, v)
         return output
 
 
