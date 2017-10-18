@@ -271,8 +271,10 @@ class CifFile(object):
                           flags=re.MULTILINE | re.DOTALL)[1:]:
 
             # Skip over Cif block that contains powder diffraction data.
-            # Some elements in this block were missing from CIF files in Springer materials/Pauling file DBs.
-            # This block anyway does not contain any structure information, and CifParser was also not parsing it.
+            # Some elements in this block were missing from CIF files in
+            # Springer materials/Pauling file DBs.
+            # This block anyway does not contain any structure information, and
+            # CifParser was also not parsing it.
             if 'powder_pattern' in re.split(r"\n", x, 1)[0]:
                 continue
             c = CifBlock.from_string("data_" + x)
@@ -283,6 +285,7 @@ class CifFile(object):
     def from_file(cls, filename):
         with zopen(filename, "rt", errors="replace") as f:
             return cls.from_string(f.read())
+
 
 class CifParser(object):
     """
@@ -315,7 +318,8 @@ class CifParser(object):
             """
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
-            prefixes = ['_space_group_magn', '_atom_site_moment', '_space_group_symop_magn']
+            prefixes = ['_space_group_magn', '_atom_site_moment',
+                        '_space_group_symop_magn']
             for d in self._cif.data.values():
                 for k in d.data.keys():
                     for prefix in prefixes:
@@ -426,8 +430,9 @@ class CifParser(object):
                     symbol_str_lst = symbol_str.split(' + ')
                     for elocc_idx in range(len(symbol_str_lst)):
                         # Remove any bracketed items in the string
-                        symbol_str_lst[elocc_idx] = re.sub(r'\([0-9]*\)', '',
-                                                           symbol_str_lst[elocc_idx].strip())
+                        symbol_str_lst[elocc_idx] = re.sub(
+                            r'\([0-9]*\)', '',
+                            symbol_str_lst[elocc_idx].strip())
 
                         # Extract element name and its occupancy from the
                         # string, and store it as a
@@ -443,7 +448,8 @@ class CifParser(object):
 
                     for et, occu in els_occu.items():
                         # new atom site labels have 'fix' appended
-                        new_atom_site_label.append(et + '_fix' + str(len(new_atom_site_label)))
+                        new_atom_site_label.append(
+                            et + '_fix' + str(len(new_atom_site_label)))
                         new_atom_site_type_symbol.append(et)
                         new_atom_site_occupancy.append(str(occu))
                         new_fract_x.append(str(x))
@@ -503,9 +509,10 @@ class CifParser(object):
             for correct_key, original_key in changes_to_make.items():
                 data.data[correct_key] = data.data[original_key]
 
-            # some keys have been renamed, renamed_keys maps interim_keys to final_keys
-            renamed_keys = {"_magnetic_space_group.transform_to_standard_Pp_abc":
-                            "_space_group_magn.transform_BNS_Pp_abc"}
+            # renamed_keys maps interim_keys to final_keys
+            renamed_keys = {
+                "_magnetic_space_group.transform_to_standard_Pp_abc":
+                    "_space_group_magn.transform_BNS_Pp_abc"}
             changes_to_make = {}
 
             for interim_key, final_key in renamed_keys.items():
@@ -548,7 +555,7 @@ class CifParser(object):
                     if not in_coord_list_pbc(coords, coord,
                                              atol=self._site_tolerance):
                         coords.append(coord)
-            return coords, [Magmom(0)]*len(coords)  # return dummy magmoms
+            return coords, [Magmom(0)] * len(coords)  # return dummy magmoms
 
     def get_lattice(self, data, length_strings=("a", "b", "c"),
                     angle_strings=("alpha", "beta", "gamma"),
@@ -709,15 +716,19 @@ class CifParser(object):
                 for op in magsymmops:
                     for centering_op in centering_symops:
                         new_translation = [i - np.floor(i) for i
-                                           in op.translation_vector + centering_op.translation_vector]
+                                           in
+                                           op.translation_vector + centering_op.translation_vector]
                         new_time_reversal = op.time_reversal * centering_op.time_reversal
-                        all_ops.append(MagSymmOp.from_rotation_and_translation_and_time_reversal(
-                            rotation_matrix=op.rotation_matrix, translation_vec=new_translation,
-                            time_reversal=new_time_reversal))
+                        all_ops.append(
+                            MagSymmOp.from_rotation_and_translation_and_time_reversal(
+                                rotation_matrix=op.rotation_matrix,
+                                translation_vec=new_translation,
+                                time_reversal=new_time_reversal))
                 magsymmops = all_ops
 
         # else check to see if it specifies a magnetic space group
-        elif data.data.get("_space_group_magn.name_BNS") or data.data.get("_space_group_magn.number_BNS"):
+        elif data.data.get("_space_group_magn.name_BNS") or data.data.get(
+                "_space_group_magn.number_BNS"):
 
             if data.data.get("_space_group_magn.name_BNS"):
                 # get BNS label for MagneticSpaceGroup()
@@ -725,20 +736,25 @@ class CifParser(object):
             else:
                 # get BNS number for MagneticSpaceGroup()
                 # by converting string to list of ints
-                id = list(map(int, (data.data.get("_space_group_magn.number_BNS").split("."))))
+                id = list(map(int, (
+                data.data.get("_space_group_magn.number_BNS").split("."))))
 
             msg = MagneticSpaceGroup(id)
 
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc"):
-                if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
-                    return NotImplementedError("Non-standard settings not currently supported.")
+                if data.data.get(
+                        "_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
+                    return NotImplementedError(
+                        "Non-standard settings not currently supported.")
             elif data.data.get("_space_group_magn.transform_BNS_Pp"):
-                return NotImplementedError("Incomplete specification to implement.")
+                return NotImplementedError(
+                    "Incomplete specification to implement.")
 
             magsymmops = msg.symmetry_ops
 
         if not magsymmops:
-            warnings.warn("No magnetic symmetry detected, using primitive symmetry.")
+            warnings.warn(
+                "No magnetic symmetry detected, using primitive symmetry.")
             magsymmops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
 
         return magsymmops
@@ -767,16 +783,18 @@ class CifParser(object):
         Parse atomic magnetic moments from data dictionary
         """
         if lattice is None:
-            raise Exception('Magmoms given in terms of crystal axes in magCIF spec.')
+            raise Exception(
+                'Magmoms given in terms of crystal axes in magCIF spec.')
         try:
             magmoms = {
                 data["_atom_site_moment_label"][i]:
-                    Magmom.from_moment_relative_to_crystal_axes([str2float(data["_atom_site_moment_crystalaxis_x"][i]),
-                                                                 str2float(data["_atom_site_moment_crystalaxis_y"][i]),
-                                                                 str2float(data["_atom_site_moment_crystalaxis_z"][i])],
-                                                                lattice)
+                    Magmom.from_moment_relative_to_crystal_axes(
+                        [str2float(data["_atom_site_moment_crystalaxis_x"][i]),
+                         str2float(data["_atom_site_moment_crystalaxis_y"][i]),
+                         str2float(data["_atom_site_moment_crystalaxis_z"][i])],
+                        lattice)
                 for i in range(len(data["_atom_site_moment_label"]))
-                }
+            }
         except (ValueError, KeyError):
             return None
         return magmoms
@@ -810,7 +828,8 @@ class CifParser(object):
         # if magCIF, get magnetic symmetry moments and magmoms
         # else standard CIF, and use empty magmom dict
         if self.feature_flags["magcif_incommensurate"]:
-            raise NotImplementedError("Incommensurate structures not currently supported.")
+            raise NotImplementedError(
+                "Incommensurate structures not currently supported.")
         elif self.feature_flags["magcif"]:
             self.symmetry_operations = self.get_magsymops(data)
             magmoms = self.parse_magmoms(data, lattice=lattice)
@@ -828,7 +847,8 @@ class CifParser(object):
             coords = np.array(keys)
             for op in self.symmetry_operations:
                 c = op.operate(coord)
-                inds = find_in_coord_list_pbc(coords, c, atol=self._site_tolerance)
+                inds = find_in_coord_list_pbc(coords, c,
+                                              atol=self._site_tolerance)
                 # cant use if inds, because python is dumb and np.array([0]) evaluates
                 # to False
                 if len(inds):
@@ -840,7 +860,8 @@ class CifParser(object):
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
                 symbol = parse_symbol(data["_atom_site_type_symbol"][i])
-                num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][i])
+                num_h = get_num_implicit_hydrogens(
+                    data["_atom_site_type_symbol"][i])
             except KeyError:
                 symbol = parse_symbol(data["_atom_site_label"][i])
                 num_h = get_num_implicit_hydrogens(data["_atom_site_label"][i])
@@ -882,13 +903,15 @@ class CifParser(object):
                     coord_to_magmoms[coord] = magmom
                 else:
                     coord_to_species[match] += comp
-                    coord_to_magmoms[match] = None  # disordered magnetic not currently supported
+                    # disordered magnetic not currently supported
+                    coord_to_magmoms[match] = None
 
         sum_occu = [sum(c.values()) for c in coord_to_species.values()
                     if not set(c.elements) == {Element("O"), Element("H")}]
         if any([o > 1 for o in sum_occu]):
-            warnings.warn("Some occupancies (%s) sum to > 1! If they are within "
-                          "the tolerance, they will be rescaled." % str(sum_occu))
+            warnings.warn(
+                "Some occupancies (%s) sum to > 1! If they are within "
+                "the tolerance, they will be rescaled." % str(sum_occu))
 
         allspecies = []
         allcoords = []
@@ -899,21 +922,25 @@ class CifParser(object):
         if self.feature_flags["magcif"]:
             for k, v in coord_to_magmoms.items():
                 if v is None:
-                    # Proposed solution to this is to instead store magnetic moments
-                    # as Specie 'spin' property, instead of site property, but this
-                    # introduces ambiguities for end user (such as unintended use of
-                    # `spin` and Specie will have fictious oxidation state).
-                    raise NotImplementedError('Disordered magnetic structures not currently supported.')
+                    # Proposed solution to this is to instead store magnetic
+                    # moments as Specie 'spin' property, instead of site
+                    # property, but this introduces ambiguities for end user
+                    # (such as unintended use of `spin` and Specie will have
+                    # fictious oxidation state).
+                    raise NotImplementedError(
+                        'Disordered magnetic structures not currently supported.')
 
         if coord_to_species.items():
             for comp, group in groupby(
                     sorted(list(coord_to_species.items()), key=lambda x: x[1]),
                     key=lambda x: x[1]):
                 tmp_coords = [site[0] for site in group]
-                tmp_magmom = [coord_to_magmoms[tmp_coord] for tmp_coord in tmp_coords]
+                tmp_magmom = [coord_to_magmoms[tmp_coord] for tmp_coord in
+                              tmp_coords]
 
                 if self.feature_flags["magcif"]:
-                    coords, magmoms = self._unique_coords(tmp_coords, tmp_magmom)
+                    coords, magmoms = self._unique_coords(tmp_coords,
+                                                          tmp_magmom)
                 else:
                     coords, magmoms = self._unique_coords(tmp_coords)
 
@@ -936,7 +963,8 @@ class CifParser(object):
                 if 1 < totaloccu <= self._occupancy_tolerance:
                     allspecies[i] = species / totaloccu
 
-        if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
+        if allspecies and len(allspecies) == len(allcoords) \
+                and len(allspecies) == len(allmagmoms):
             site_properties = dict()
             if any(allhydrogens):
                 assert len(allhydrogens) == len(allcoords)
@@ -1018,14 +1046,16 @@ class CifParser(object):
                 except:
                     bibtex_entry[field] = "?"
 
-            bibtex_entry['key'] = bibtex_entry['authors'][0].split(',')[0]+":"+bibtex_entry['year']
+            bibtex_entry['key'] = bibtex_entry['authors'][0].split(',')[
+                                      0] + ":" + bibtex_entry['year']
             bibtex_entry['key'] = ''.join(bibtex_entry['key'].split())
             bibtex_entry['authors'] = " and ".join(bibtex_entry['authors'])
-            bibtex_entry['pages'] = "{0}--{1}".format(bibtex_entry['page_first'], bibtex_entry['page_last'])
+            bibtex_entry['pages'] = "{0}--{1}".format(
+                bibtex_entry['page_first'], bibtex_entry['page_last'])
 
             for field, entry in bibtex_entry.items():
                 if field is not 'key':
-                    bibtex_entry[field] = "{"+entry+"}"
+                    bibtex_entry[field] = "{" + entry + "}"
 
             bibtex_str = ("""{key},
     author = {authors},
@@ -1036,7 +1066,7 @@ class CifParser(object):
     number = {number},
     pages = {pages},
     doi = {doi}""".format(**bibtex_entry))
-            bibtex_strs.append("@article{"+bibtex_str+"\n}")
+            bibtex_strs.append("@article{" + bibtex_str + "\n}")
 
         return bibtex_strs
 
@@ -1050,7 +1080,6 @@ class CifParser(object):
 
 
 class CifWriter(object):
-
     def __init__(self, struct, symprec=None, write_magmoms=False):
         """
         A wrapper around CifFile to write CIF files from pymatgen structures.
@@ -1065,8 +1094,9 @@ class CifWriter(object):
         """
 
         if write_magmoms and symprec:
-            warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen,"
-                          "disabling symmetry detection.")
+            warnings.warn(
+                "Magnetic symmetry cannot currently be detected by pymatgen,"
+                "disabling symmetry detection.")
             symprec = None
 
         format_str = "{:.8f}"
@@ -1123,9 +1153,9 @@ class CifWriter(object):
         contains_oxidation = True
         try:
             symbol_to_oxinum = OrderedDict([
-                                               (el.__str__(),
-                                                float(el.oxi_state))
-                                               for el in sorted(comp.elements)])
+                (el.__str__(),
+                 float(el.oxi_state))
+                for el in sorted(comp.elements)])
         except AttributeError:
             symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in
                                             sorted(comp.elements)])
@@ -1158,10 +1188,13 @@ class CifWriter(object):
                     atom_site_label.append("{}{}".format(sp.symbol, count))
                     atom_site_occupancy.append(occu.__str__())
 
-                    magmom = Magmom(site.properties.get('magmom', getattr(sp, 'spin', 0)))
+                    magmom = Magmom(
+                        site.properties.get('magmom', getattr(sp, 'spin', 0)))
                     if write_magmoms and abs(magmom) > 0:
-                        moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
-                        atom_site_moment_label.append("{}{}".format(sp.symbol, count))
+                        moment = Magmom.get_moment_relative_to_crystal_axes(
+                            magmom, latt)
+                        atom_site_moment_label.append(
+                            "{}{}".format(sp.symbol, count))
                         atom_site_moment_crystalaxis_x.append(moment[0])
                         atom_site_moment_crystalaxis_y.append(moment[1])
                         atom_site_moment_crystalaxis_z.append(moment[2])
@@ -1174,7 +1207,7 @@ class CifWriter(object):
                                                     s.frac_coords]))[0],
                  len(sites))
                 for sites in sf.get_symmetrized_structure().equivalent_sites
-                ]
+            ]
             for site, mult in sorted(
                     unique_sites,
                     key=lambda t: (t[0].species_and_occu.average_electroneg,
@@ -1206,9 +1239,12 @@ class CifWriter(object):
                       "_atom_site_occupancy"])
         if write_magmoms:
             block["_atom_site_moment_label"] = atom_site_moment_label
-            block["_atom_site_moment_crystalaxis_x"] = atom_site_moment_crystalaxis_x
-            block["_atom_site_moment_crystalaxis_y"] = atom_site_moment_crystalaxis_y
-            block["_atom_site_moment_crystalaxis_z"] = atom_site_moment_crystalaxis_z
+            block[
+                "_atom_site_moment_crystalaxis_x"] = atom_site_moment_crystalaxis_x
+            block[
+                "_atom_site_moment_crystalaxis_y"] = atom_site_moment_crystalaxis_y
+            block[
+                "_atom_site_moment_crystalaxis_z"] = atom_site_moment_crystalaxis_z
             loops.append(["_atom_site_moment_label",
                           "_atom_site_moment_crystalaxis_x",
                           "_atom_site_moment_crystalaxis_y",
