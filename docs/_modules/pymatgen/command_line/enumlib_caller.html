@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.command_line.enumlib_caller &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.command_line.enumlib_caller &#8212; pymatgen 2017.10.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2017.10.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -66,6 +66,7 @@
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">glob</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="k">import</span> <span class="n">lcm</span>
@@ -118,12 +119,13 @@
 <span class="c1"># Favor the use of the newer &quot;enum.x&quot; by Gus Hart instead of the older</span>
 <span class="c1"># &quot;multienum.x&quot;</span>
 <span class="n">enum_cmd</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;enum.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;multienum.x&#39;</span><span class="p">)</span>
-<span class="n">makestr_cmd</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makestr.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makeStr.x&#39;</span><span class="p">)</span>
+<span class="c1"># prefer makestr.x at present</span>
+<span class="n">makestr_cmd</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makestr.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makeStr.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makeStr.py&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="EnumlibAdaptor"><a class="viewcode-back" href="../../../pymatgen.command_line.enumlib_caller.html#pymatgen.command_line.enumlib_caller.EnumlibAdaptor">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">enum_cmd</span> <span class="ow">and</span> <span class="n">makestr_cmd</span><span class="p">,</span>
           <span class="s2">&quot;EnumlibAdaptor requires the executables &#39;enum.x&#39; or &#39;multienum.x&#39; &quot;</span>
-          <span class="s2">&quot;and &#39;makestr.x&#39; to be in the path. Please download the library at&quot;</span>
-          <span class="s2">&quot;http://enum.sourceforge.net/ and follow the instructions in &quot;</span>
+          <span class="s2">&quot;and &#39;makestr.x&#39; or &#39;makeStr.py&#39; to be in the path. Please download the &quot;</span>
+          <span class="s2">&quot;library at http://enum.sourceforge.net/ and follow the instructions in &quot;</span>
           <span class="s2">&quot;the README to compile these two executables accordingly.&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">EnumlibAdaptor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -270,7 +272,7 @@
 
         <span class="n">curr_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">disordered_sites</span><span class="p">))</span>
         <span class="n">min_sgnum</span> <span class="o">=</span> <span class="n">get_sg_info</span><span class="p">(</span><span class="n">curr_sites</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Disorderd sites has sgnum </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Disordered sites has sgnum </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="n">min_sgnum</span><span class="p">))</span>
         <span class="c1"># It could be that some of the ordered sites has a lower symmetry than</span>
         <span class="c1"># the disordered sites.  So we consider the lowest symmetry sites as</span>
@@ -363,12 +365,18 @@
 
     <span class="k">def</span> <span class="nf">_get_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_structs</span><span class="p">):</span>
         <span class="n">structs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">rs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">makestr_cmd</span><span class="p">,</span>
-                               <span class="s2">&quot;struct_enum.out&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
-                               <span class="nb">str</span><span class="p">(</span><span class="n">num_structs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)],</span>
+
+        <span class="k">if</span> <span class="s2">&quot;.py&quot;</span> <span class="ow">in</span> <span class="n">makestr_cmd</span><span class="p">:</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-input&quot;</span><span class="p">,</span> <span class="s2">&quot;struct_enum.out&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_structs</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;struct_enum.out&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_structs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">makestr_cmd</span><span class="p">]</span> <span class="o">+</span> <span class="n">options</span><span class="p">,</span>
                               <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
                               <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">close_fds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">rs</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">stderr</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">original_latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
             <span class="c1"># Need to strip sites of site_properties, which would otherwise</span>
@@ -380,37 +388,45 @@
                 <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">])</span>
             <span class="n">inv_org_latt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">original_latt</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_structs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;vasp.</span><span class="si">{:06d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;scale factor&#39;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)-(\d+)&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\1 -\2&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-                <span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_species</span><span class="p">)</span>
-                <span class="n">sub_structure</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span>
-                <span class="c1"># Enumeration may have resulted in a super lattice. We need to</span>
-                <span class="c1"># find the mapping from the new lattice to the old lattice, and</span>
-                <span class="c1"># perform supercell construction if necessary.</span>
-                <span class="n">new_latt</span> <span class="o">=</span> <span class="n">sub_structure</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;vasp.*&#39;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;scale factor&#39;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)-(\d+)&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\1 -\2&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                    <span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_species</span><span class="p">)</span>
+                    <span class="n">sub_structure</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span>
+                    <span class="c1"># Enumeration may have resulted in a super lattice. We need to</span>
+                    <span class="c1"># find the mapping from the new lattice to the old lattice, and</span>
+                    <span class="c1"># perform supercell construction if necessary.</span>
+                    <span class="n">new_latt</span> <span class="o">=</span> <span class="n">sub_structure</span><span class="o">.</span><span class="n">lattice</span>
 
-                <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
 
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">transformation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">new_latt</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">inv_org_latt</span><span class="p">)</span>
-                    <span class="n">transformation</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">cell</span><span class="p">))</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
-                                      <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">transformation</span><span class="p">]</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Supercell matrix: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">transformation</span><span class="p">))</span>
-                    <span class="n">s</span> <span class="o">=</span> <span class="n">ordered_structure</span> <span class="o">*</span> <span class="n">transformation</span>
-                    <span class="n">sites</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">to_unit_cell</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span>
-                    <span class="n">super_latt</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">super_latt</span> <span class="o">=</span> <span class="n">new_latt</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">transformation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">new_latt</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">inv_org_latt</span><span class="p">)</span>
+                        <span class="n">transformation</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">cell</span><span class="p">))</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
+                                          <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">transformation</span><span class="p">]</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Supercell matrix: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">transformation</span><span class="p">))</span>
+                        <span class="n">s</span> <span class="o">=</span> <span class="n">ordered_structure</span> <span class="o">*</span> <span class="n">transformation</span>
+                        <span class="n">sites</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">to_unit_cell</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span>
+                        <span class="n">super_latt</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">super_latt</span> <span class="o">=</span> <span class="n">new_latt</span>
 
-                <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sub_structure</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">!=</span> <span class="s2">&quot;X&quot;</span><span class="p">:</span>  <span class="c1"># We exclude vacancies.</span>
-                        <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
-                                                  <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
-                                                  <span class="n">super_latt</span><span class="p">)</span><span class="o">.</span><span class="n">to_unit_cell</span><span class="p">)</span>
-                <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sites</span><span class="p">)))</span>
+                    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sub_structure</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">!=</span> <span class="s2">&quot;X&quot;</span><span class="p">:</span>  <span class="c1"># We exclude vacancies.</span>
+                            <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
+                                                      <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                                                      <span class="n">super_latt</span><span class="p">)</span><span class="o">.</span><span class="n">to_unit_cell</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Skipping sites that include species X.&quot;</span><span class="p">)</span>
+                    <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sites</span><span class="p">)))</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to read structures, test your makeStr binary is working &quot;</span>
+                         <span class="s2">&quot;correctly.&quot;</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Read in a total of </span><span class="si">{}</span><span class="s2"> structures.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_structs</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">structs</span></div>
@@ -444,7 +460,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -452,7 +468,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

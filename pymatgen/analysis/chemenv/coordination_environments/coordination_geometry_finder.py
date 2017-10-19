@@ -6,6 +6,13 @@ from __future__ import division, unicode_literals
 
 """
 This module contains the main object used to identify the coordination environments in a given structure.
+If you use this module, please cite the following:
+
+David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,
+Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,
+"Statistical analysis of coordination environments in oxides",
+Chem. Mater., 2017, 29 (19), pp 8346–8360,
+DOI: 10.1021/acs.chemmater.7b02766
 """
 
 __author__ = "David Waroquiers"
@@ -39,6 +46,7 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import \
     collinear, separation_in_list
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import \
     sort_separation
+from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import \
     AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import \
@@ -108,7 +116,7 @@ class AbstractGeometry(object):
             if len(bare_coords) < 5:
                 if include_central_site_in_centroid:
                     raise ValueError(
-                        "The center is the central site, no calculation of the centroid,"
+                        "The center is the central site, no calculation of the centroid, "
                         "variable include_central_site_in_centroid should be set to False")
                 if central_site is None:
                     raise ValueError(
@@ -129,7 +137,7 @@ class AbstractGeometry(object):
         elif centering_type == 'central_site':
             if include_central_site_in_centroid:
                 raise ValueError(
-                    "The center is the central site, no calculation of the centroid,"
+                    "The center is the central site, no calculation of the centroid, "
                     "variable include_central_site_in_centroid should be set to False")
             if central_site is None:
                 raise ValueError(
@@ -344,6 +352,7 @@ class LocalGeometryFinder(object):
                               include_central_site_in_centroid=True,
                               bva_distance_scale_factor=None,
                               structure_refinement=self.STRUCTURE_REFINEMENT_NONE)
+        print(chemenv_citations())
 
     def setup_parameters(self, centering_type='standard',
                          include_central_site_in_centroid=False,

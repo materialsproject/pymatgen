@@ -256,6 +256,10 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         return sum((el.X * abs(amt) for el, amt in self.items())) / \
             self.num_atoms
 
+    @property
+    def total_electrons(self):
+        return sum((el.Z * abs(amt) for el, amt in self.items()))
+
     def almost_equals(self, other, rtol=0.1, atol=1e-8):
         """
         Returns true if compositions are equal within a tolerance.
