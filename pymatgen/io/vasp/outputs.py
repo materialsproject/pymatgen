@@ -1491,6 +1491,11 @@ class Outcar(MSONable):
         self.final_energy = total_energy
         self.data = {}
 
+        # Read the drift:
+        self.read_pattern({"drift":"total drift:\s+(\S+)\s+(\S+)\s+(\S+)"},
+                          terminate_on_match=False,
+                          postprocess=float)
+
         # Check if calculation is spin polarized
         self.spin = False
         self.read_pattern({'spin': 'ISPIN  =      2'})

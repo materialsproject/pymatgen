@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.entries.compatibility &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.entries.compatibility &#8212; pymatgen 2017.10.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2017.10.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -62,6 +62,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">filter</span><span class="p">,</span> <span class="nb">map</span>
@@ -76,7 +77,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_analyzer</span> <span class="k">import</span> <span class="n">oxide_type</span><span class="p">,</span> <span class="n">sulfide_type</span>
 
-<span class="kn">import</span> <span class="nn">abc</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements Compatibility corrections for mixing runs of different</span>
@@ -226,13 +226,11 @@
 <div class="viewcode-block" id="GasCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.GasCorrection">[docs]</a><span class="nd">@cached_class</span>
 <span class="k">class</span> <span class="nc">GasCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Correct anion energies to obtain the right formation energies. Note that</span>
+<span class="sd">    Correct gas energies to obtain the right formation energies. Note that</span>
 <span class="sd">    this depends on calculations being run within the same input set.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        config_file: Path to the selected compatibility.yaml config file.</span>
-<span class="sd">        correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
-<span class="sd">            corrections are to be applied or not.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
@@ -256,7 +254,7 @@
 <div class="viewcode-block" id="AnionCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AnionCorrection">[docs]</a><span class="nd">@cached_class</span>
 <span class="k">class</span> <span class="nc">AnionCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Correct gas energies to obtain the right formation energies. Note that</span>
+<span class="sd">    Correct anion energies to obtain the right formation energies. Note that</span>
 <span class="sd">    this depends on calculations being run within the same input set.</span>
 
 <span class="sd">    Args:</span>
@@ -437,9 +435,10 @@
 
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
             <span class="n">sym</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">symbol</span>
-            <span class="c1">#Check for bad U values</span>
+            <span class="c1"># Check for bad U values</span>
             <span class="k">if</span> <span class="n">calc_u</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">usettings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span><span class="s1">&#39;Invalid U value on </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sym</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span><span class="s1">&#39;Invalid U value of </span><span class="si">%s</span><span class="s1"> on </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                                         <span class="p">(</span><span class="n">calc_u</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">sym</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">ucorr</span><span class="p">:</span>
                 <span class="n">correction</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ucorr</span><span class="p">[</span><span class="n">sym</span><span class="p">])</span> <span class="o">*</span> <span class="n">comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
 
@@ -543,9 +542,9 @@
         <span class="n">corrections</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">corr_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_corrections_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span><span class="p">:</span>
-            <span class="n">cd</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)}</span>
-            <span class="n">cd</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;Args&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="n">cd</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">corr_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">cd</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">),</span>
+                  <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;Args&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                  <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">corr_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="mi">0</span><span class="p">)}</span>
             <span class="n">corrections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;corrections&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">corrections</span>
         <span class="k">return</span> <span class="n">d</span></div>
@@ -560,10 +559,10 @@
 <span class="sd">            entry: A ComputedEntry.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_explanation_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The uncorrected value of the energy of </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%f</span><span class="s2"> eV&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;uncorrected_energy&quot;</span><span class="p">]))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The following corrections / screening are applied for </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>\
-            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;compatibility&quot;</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The uncorrected value of the energy of </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%f</span><span class="s2"> eV&quot;</span> <span class="o">%</span>
+              <span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;uncorrected_energy&quot;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The following corrections / screening are applied for </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>
+              <span class="n">d</span><span class="p">[</span><span class="s2">&quot;compatibility&quot;</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;corrections&quot;</span><span class="p">]:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> correction: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
                                            <span class="n">c</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]))</span>
@@ -630,7 +629,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
@@ -663,7 +662,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
@@ -697,7 +696,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
@@ -737,7 +736,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -745,7 +744,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
