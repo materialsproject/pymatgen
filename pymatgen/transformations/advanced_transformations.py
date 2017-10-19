@@ -10,7 +10,8 @@ try:
     from math import gcd
 except ImportError:
     from fractions import gcd
-from itertools import groupby
+from itertools import groupby, product
+from string import ascii_lowercase
 from warnings import warn
 import logging
 import math
@@ -20,7 +21,7 @@ import warnings
 from monty.fractions import lcm
 
 from pymatgen.core.structure import Composition
-from pymatgen.core.periodic_table import Element, Specie, get_el_sp
+from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, OrderDisorderedStructureTransformation
@@ -40,7 +41,7 @@ from pymatgen.core.surface import SlabGenerator
 This module implements more advanced transformations.
 """
 
-__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain"
+__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -246,26 +247,21 @@ class EnumerateStructureTransformation(AbstractTransformation):
     transformation, and at a much faster speed.
 
     Args:
-        min_cell_size (int): The minimum cell size wanted. Must be an int.
-            Defaults to 1.
-        max_cell_size (int): The maximum cell size wanted. Must be an int.
-            Defaults to 1.
-        symm_prec (float): Tolerance to use for symmetry detection. Defaults to
-            0.1.
-        occu_tol (int): If set, the code will first round and scale
-            occupancies to the nearest rational number, with maximum
-            denominator = occu_tol. This handles structures that contain
-            partial occupancies that are close to a rational number. E.g.,
-            sometimes the reported occupancy is 0.249, and if occu_tol is set
-            to 4, this will be rounded to 0.25.
-        refine_structure (bool): This parameter has the same meaning as in
-            enumlib_caller. If you are starting from a structure that has been
-            relaxed via some electronic structure code, it is usually much
-            better to start with symmetry determination and then obtain a
-            refined structure. The refined structure have cell parameters and
+        min_cell_size:
+            The minimum cell size wanted. Must be an int. Defaults to 1.
+        max_cell_size:
+            The maximum cell size wanted. Must be an int. Defaults to 1.
+        symm_prec:
+            Tolerance to use for symmetry.
+        refine_structure:
+            This parameter has the same meaning as in enumlib_caller.
+            If you are starting from a structure that has been relaxed via
+            some electronic structure code, it is usually much better to
+            start with symmetry determination and then obtain a refined
+            structure. The refined structure have cell parameters and
             atomic positions shifted to the expected symmetry positions,
             which makes it much less sensitive precision issues in enumlib.
-            If you are already starting from an experimental cif, refinement
+            If you are already starting from an experimental cif, refinment
             should have already been done and it is not necessary. Defaults
             to False.
         enum_precision_parameter (float): Finite precision parameter for
@@ -282,12 +278,11 @@ class EnumerateStructureTransformation(AbstractTransformation):
     """
 
     def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1,
-                 occu_tol=None, refine_structure=False,
-                 enum_precision_parameter=0.001, check_ordered_symmetry=True):
+                 refine_structure=False, enum_precision_parameter=0.001,
+                 check_ordered_symmetry=True):
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
-        self.occu_tol = occu_tol
         self.refine_structure = refine_structure
         self.enum_precision_parameter = enum_precision_parameter
         self.check_ordered_symmetry = check_ordered_symmetry
@@ -317,16 +312,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
             num_to_return = int(return_ranked_list)
         except ValueError:
             num_to_return = 1
-
-        if self.occu_tol:
-            species = [dict(d) for d in structure.species_and_occu]
-            # Here, we rescale all occupancies such that they meet the frac
-            # limit.
-            for sp in species:
-                for k, v in sp.items():
-                    sp[k] = float(Fraction(v).limit_denominator(self.occu_tol))
-            structure = Structure(structure.lattice, species,
-                                  structure.frac_coords)
 
         if self.refine_structure:
             finder = SpacegroupAnalyzer(structure, self.symm_prec)
@@ -452,37 +437,62 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
 
 
 class MagOrderingTransformation(AbstractTransformation):
-    """
-    This transformation takes a structure and returns a list of magnetic
-    orderings. Currently only works for ordered structures.
 
-    Args:
-        mag_elements_spin:
-            A mapping of elements/species to magnetically order to spin
-            magnitudes. E.g., {"Fe3+": 5, "Mn3+": 4}
-        order_parameter:
-            degree of magnetization. 0.5 corresponds to
-            antiferromagnetic order
-        energy_model:
-            Energy model used to rank the structures. Some models are
-            provided in :mod:`pymatgen.analysis.energy_models`.
-        **kwargs:
-            Same keyword args as :class:`EnumerateStructureTransformation`,
-            i.e., min_cell_size, etc.
-    """
 
-    def __init__(self, mag_species_spin, order_parameter=0.5,
-                 energy_model=SymmetryModel(), **kwargs):
+    def __init__(self, mag_species_spin,
+                 attempt_supercell=None, limit_number_of_results=None,
+                 order_parameter=0.5, energy_model=SymmetryModel(), **kwargs):
+        """
+        This transformation takes a structure and returns a list of magnetic
+        orderings. For disordered structures, make an ordered approximation
+        first.
+
+        :param mag_species_spin: A mapping of elements/species to their
+        spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
+        :param attempt_supercell: (bool, optional) Whether to attempt supercells
+        or not, if None will try sensible defaults. If there are too many
+        magnetic sites in the primitive cell, enumerate supercells will
+        be computationally infeasible.
+        :param limit_number_of_results: (int, optional) Limits number of
+        returned structures to the number provided *except* in the case of
+        where structures ranked equally and have the same number of sites, in
+        which case all equally-ranked structures are returned.
+        :param order_parameter: (float, advanced use only) default of 0.5
+        corresponds to ideal antiferromagnetic order, can take values from 0.0
+        to 1.0, can also be a dict to key different species to different orderings
+        e.g. {'Fe3+': 0.5, 'Fe2+': 1.0}, and furthermore, dict values can themselves
+        refer to constraints on site properties in the most advanced usage,
+        e.g. {'Fe': {'coordination_no': {4: 0.5, 6: 1.0}}
+        :param energy_model: Energy model to rank the returned structures,
+        see :mod: `pymatgen.analysis.energy_models` for more information (note
+        that this is not necessarily a physical energy). By default, returned
+        structures use SymmetryModel() which ranks structures from most
+        symmetric to least.
+        :param kwargs: Additional kwargs that are passed to
+        :class:`EnumerateStructureTransformation` such as min_cell_size etc.
+        """
         self.mag_species_spin = mag_species_spin
-        if order_parameter > 1 or order_parameter < 0:
-            raise ValueError('Order Parameter must lie between 0 and 1')
-        else:
-            self.order_parameter = order_parameter
-        self.energy_model = energy_model
-        self.kwargs = kwargs
 
-    @classmethod
-    def determine_min_cell(cls, structure, mag_species_spin, order_parameter):
+        # checking for sensible order_parameter values
+        if isinstance(order_parameter, float):
+            if order_parameter > 1 or order_parameter < 0:
+                raise ValueError('Order Parameter must lie between 0 and 1')
+            elif order_parameter != 0.5:
+                warnings.warn("Use care when using a non-standard order parameter, "
+                              "though it can be useful in some cases it can also "
+                              "lead to unintended behavior. Consult documentation.")
+            # convert to dict format
+            order_parameter = {key: order_parameter for key in mag_species_spin.keys()}
+
+        self.order_parameter = order_parameter
+
+        self.energy_model = energy_model
+        self.enum_kwargs = kwargs
+        self.attempt_supercell = attempt_supercell
+        self.limit_number_of_results = limit_number_of_results
+
+    @staticmethod
+    def determine_min_cell(disordered_structure):
         """
         Determine the smallest supercell that is able to enumerate
         the provided structure with the given order parameter
@@ -494,63 +504,194 @@ class MagOrderingTransformation(AbstractTransformation):
             """
             return n1 * n2 / gcd(n1, n2)
 
-        denom = Fraction(order_parameter).limit_denominator(100).denominator
-        atom_per_specie = [structure.composition[m]
-                           for m in mag_species_spin.keys()]
-        n_gcd = six.moves.reduce(gcd, atom_per_specie)
+        # assumes all order parameters for a given species are the same
+        mag_species_order_parameter = {}
+        mag_species_occurrences = {}
+        for idx, site in enumerate(disordered_structure):
+            if not site.is_ordered:
+                op = max(site.species_and_occu.values())
+                # this very hacky bit of code only works because we know
+                # that on disordered sites in this class, all species are the same
+                # but have different spins, and this is comma-delimited
+                sp = str(list(site.species_and_occu.keys())[0]).split(",")[0]
+                if sp in mag_species_order_parameter:
+                    mag_species_occurrences[sp] += 1
+                else:
+                    mag_species_order_parameter[sp] = op
+                    mag_species_occurrences[sp] = 1
 
-        if not n_gcd:
-            raise ValueError(
-                'The specified species do not exist in the structure'
-                ' to be enumerated')
+        smallest_n = []
 
-        return lcm(int(n_gcd), denom) / n_gcd
+        for sp, order_parameter in mag_species_order_parameter.items():
+            denom = Fraction(order_parameter).limit_denominator(100).denominator
+            num_atom_per_specie = mag_species_occurrences[sp]
+            n_gcd = gcd(denom, num_atom_per_specie)
+            smallest_n.append(lcm(int(n_gcd), denom) / n_gcd)
+
+        return max(smallest_n)
 
     def apply_transformation(self, structure, return_ranked_list=False):
+
+        # It's possible to need to order sites of the same specie separately.
+        # For example, if you want to treat tetrahedral sites as ferromagnetic
+        # and octahedral sites as antiferromagnetic (rather than treating the
+        # whole structure globally as ferrimagnetic). This often makes more sense
+        # physically, when considering the exchange interactions present, and
+        # can lead to more sensible enumerations. Why? Because the *overall*
+        # order parameter is dependent on how many sites of a given motif are present.
+
+        # To do this, we substitute dummy specie for these sites, and construct
+        # an effect mag_species_spin dict with the dummy species
+        # (Not convinced this is the best way of doing it, specific implementation
+        # might change)
+
+        def generate_dummy_specie():
+            """
+            :return: returns DummySpecie Mma, Mmb, etc.
+            """
+            subscript_length = 1
+            while True:
+                for subscript in product(ascii_lowercase, repeat=subscript_length):
+                    yield DummySpecie("Mm"+"".join(subscript))
+                subscript_length += 1
+
+        def remove_dummy_specie(structure, mapping):
+            """
+            :return: structure with DummySpecie removed
+            """
+            # want to preserve spin, which is why we enumerate rather
+            # than using replace_specie
+            for idx, site in enumerate(structure):
+                new_sp_occu = {}
+                for sp, occu in site.species_and_occu.items():
+                    new_sp = sp
+                    if isinstance(sp, DummySpecie):
+                        spin = sp._properties.get('spin', None)
+                        symbol = sp.symbol
+                        new_sp = Specie(mapping[symbol], properties={'spin': spin})
+                    new_sp_occu[new_sp] = occu
+                structure.replace(idx, new_sp_occu, properties=site.properties)
+            return structure
+
         # Make a mutable structure first
         mods = Structure.from_sites(structure)
+
+        dummy_species = generate_dummy_specie()
+        dummy_specie_mapping = {}
+        dummy_specie_mapping_inverse = {}  # to get us back to the original structure
+
+        # process order parameter first
+        # order parameter may be a single float for that specie type
+        # or a dict if there are additional constraints, e.g. different order parameter
+        # for different coordination numbers
+        site_prop_name = None
+        for sp, order_parameter in self.order_parameter.items():
+            if isinstance(order_parameter, dict):
+                # then we have separate order parameters for different site properties
+
+                # hope user isn't trying to enforce multiple constraints
+                if len(order_parameter.keys()) > 1:
+                    raise ValueError("Too many constraints defined.")
+
+                site_prop_name = list(order_parameter.keys())[0]
+                site_prop_order_params = order_parameter[site_prop_name]
+
+                dummy_specie_mapping[sp] = {}
+                for key in site_prop_order_params.keys():
+                    dummy_specie = next(dummy_species)
+                    dummy_specie_mapping[sp][key] = dummy_specie
+                    dummy_specie_mapping_inverse[dummy_specie.symbol] = sp
+        use_dummy_specie = bool(site_prop_name)  # to make purpose of code below clearer
+
+        # if we're not using dummy species (e.g. with a global order parameter, or
+        # species-specific order parameter), the below code is quite straight forward,
+        # and just substitutes a spin-disordered site for the ordered site
         for sp, spin in self.mag_species_spin.items():
+
             sp = get_el_sp(sp)
-            oxi_state = getattr(sp, "oxi_state", 0)
-            if spin:
-                up = Specie(sp.symbol, oxi_state, {"spin": abs(spin)})
-                down = Specie(sp.symbol, oxi_state, {"spin": -abs(spin)})
-                mods.replace_species(
-                    {sp: Composition({up: self.order_parameter,
-                                      down: 1 - self.order_parameter})})
-            else:
-                mods.replace_species(
-                    {sp: Specie(sp.symbol, oxi_state, {"spin": spin})})
+            oxi_state = getattr(sp, "oxi_state", None)
+
+            for idx, site in enumerate(structure):
+
+                if site.specie == sp:
+
+                    if spin:
+
+                        order_parameter = self.order_parameter.get(str(sp))
+
+                        if isinstance(order_parameter, dict):
+                            # if we have site constraints and are using dummy species
+
+                            # retrieve order parameter that satisfies site constraint
+                            site_prop_value = site.properties.get(site_prop_name, None)
+                            order_parameter_for_site = order_parameter[site_prop_name]\
+                                .get(site_prop_value, 1.0)
+
+                            # retrieve the dummy species for this site
+                            if order_parameter_for_site != 1.0:
+                                dummy_sp = dummy_specie_mapping[str(sp)][site_prop_value]
+                                up = DummySpecie(dummy_sp.symbol, properties={"spin": spin})
+                                down = DummySpecie(dummy_sp.symbol, properties={"spin": -spin})
+                            else:
+                                up = Specie(sp.symbol, oxi_state, {"spin": spin})
+                                down = Specie(sp.symbol, oxi_state, {"spin": -spin})
+
+                            mods.replace(idx, Composition({
+                                up: order_parameter_for_site,
+                                down: 1 - order_parameter_for_site
+                            }), properties=structure[idx].properties)
+
+                        else:
+
+                            up = Specie(sp.symbol, oxi_state, {"spin": spin})
+                            down = Specie(sp.symbol, oxi_state, {"spin": -spin})
+
+                            mods.replace(idx, Composition({
+                                up: order_parameter,
+                                down: 1 - order_parameter
+                            }), properties=structure[idx].properties)
+
+                    else:
+
+                        mods.replace(idx, Specie(sp.symbol, oxi_state, {"spin": spin}),
+                                     properties=structure[idx].properties)
 
         if mods.is_ordered:
+            if use_dummy_specie:
+                mods = remove_dummy_specie(mods, dummy_specie_mapping_inverse)
             return [mods] if return_ranked_list > 1 else mods
 
-        enum_args = self.kwargs
+        enum_kwargs = self.enum_kwargs.copy()
 
-        enum_args["min_cell_size"] = max(int(
-            MagOrderingTransformation.determine_min_cell(
-                structure, self.mag_species_spin,
-                self.order_parameter)),
-            enum_args.get("min_cell_size", 1))
+        enum_kwargs["min_cell_size"] = max(
+           int(self.determine_min_cell(mods)),
+           enum_kwargs.get("min_cell_size", 1)
+       )
 
-        max_cell = enum_args.get('max_cell_size')
+        max_cell = enum_kwargs.get('max_cell_size')
         if max_cell:
-            if enum_args["min_cell_size"] > max_cell:
+            if enum_kwargs["min_cell_size"] > max_cell:
                 raise ValueError('Specified max cell size is smaller'
                                  ' than the minimum enumerable cell size')
         else:
-            enum_args["max_cell_size"] = enum_args["min_cell_size"]
+            enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
 
-        t = EnumerateStructureTransformation(**enum_args)
+        t = EnumerateStructureTransformation(**enum_kwargs)
 
-        alls = t.apply_transformation(
-            mods, return_ranked_list=return_ranked_list)
+        alls = t.apply_transformation(mods,
+                                      return_ranked_list=return_ranked_list)
+
+        if use_dummy_specie:
+            if isinstance(alls, Structure):
+                alls = remove_dummy_specie(alls, dummy_specie_mapping_inverse)
+            else:
+                for idx, _ in enumerate(alls):
+                    alls[idx]["structure"] = remove_dummy_specie(alls[idx]["structure"],
+                                                                 dummy_specie_mapping_inverse)
 
         try:
             num_to_return = int(return_ranked_list)
         except ValueError:
-            warnings.warn("return_ranked_list cannot be cast to an int. "
-                          "Only 1 structure will be returned.")
             num_to_return = 1
 
         if num_to_return == 1 or not return_ranked_list:
@@ -584,7 +725,6 @@ class MagOrderingTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
-
 
 def _find_codopant(target, oxidation_state, allowed_elements=None):
     """
