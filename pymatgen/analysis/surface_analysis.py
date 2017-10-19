@@ -662,7 +662,7 @@ class SurfaceEnergyPlotter(object):
             x_is_u_ads else self.ref_el_comp
         if miller_index:
             plt.title(r"%s,  $\Delta\mu_{%s}=%.2f$" %(str(miller_index),
-                                                      const_species, const_u))
+                                                      const_species, const_u), fontsize=20)
 
         # Make the figure look nice
         xrange = self.chempot_range if not x_is_u_ads \
