@@ -9,6 +9,7 @@ import os
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.ext.jhu import get_kpoints
 from pymatgen.io.vasp.inputs import Incar
+from pymatgen.io.vasp.sets import MPRelaxSet
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -23,9 +24,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 class JhuTest(PymatgenTest):
     def test_get_kpoints(self):
         si = PymatgenTest.get_structure("Si")
-        file_name = os.path.join(test_dir, 'INCAR')
-        incar = Incar.from_file(file_name)
-        kpoints = get_kpoints(si, incar=incar)
+        input_set = MPRelaxSet(si)
+        kpoints = get_kpoints(si, incar=input_set.incar)
 
 if __name__ == '__main__':
     unittest.main()
