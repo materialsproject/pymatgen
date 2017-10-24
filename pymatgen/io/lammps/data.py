@@ -16,9 +16,9 @@ import numpy as np
 from monty.json import MSONable, MontyDecoder
 
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.lattice import Lattice
+from pymatgen.util.io_utils import clean_lines
 
 """
 This module implements classes for generating/parsing Lammps data file i.e
@@ -42,20 +42,34 @@ __credits__ = 'Brandon Wood'
 # exhaustive(as far i know) list of lammps data file keywords
 
 HEADER_KEYWORDS = {"atoms", "bonds", "angles", "dihedrals", "impropers",
-                   "atom types", "bond types", "angle types", "dihedral types",
-                   "improper types", "extra bond per atom", "extra angle per atom",
-                   "extra dihedral per atom", "extra improper per atom",
-                   "extra special per atom", "ellipsoids", "lines", "triangles",
-                   "bodies", "xlo xhi", "ylo yhi", "zlo zhi", "xy xz yz"}
+                   "atom types", "bond types", "angle types",
+                   "dihedral types", "improper types",
+                   "ellipsoids", "lines", "triangles", "bodies",
+                   "xlo xhi", "ylo yhi", "zlo zhi", "xy xz yz"}
 
-SECTION_KEYWORDS = {"atoms", "velocities", "masses", "ellipsoids", "lines",
-                    "triangles", "bodies", "bonds", "angles", "dihedrals",
-                    "impropers", "pair coeffs", "pairij coeffs", "bond coeffs",
-                    "angle coeffs", "dihedral coeffs", "improper coeffs",
-                    "bondbond coeffs", "bondangle coeffs",
-                    "middlebondtorsion coeffs", "endbondtorsion coeffs",
-                    "angletorsion coeffs", "angleangletorsion coeffs",
-                    "bondbond13 coeffs", "angleangle coeffs"}
+SECTION_KEYWORDS = {
+    # atom-property
+    "Atoms", "Velocities", "Masses", "Ellipsoids", "Lines", "Triangles",
+    "Bodies",
+    # molecular topology
+    "Bonds", "Angles", "Dihedrals", "Impropers",
+    # force field
+    "Pair Coeffs", "PairIJ Coeffs", "Bond Coeffs", "Angle Coeffs",
+    "Dihedral Coeffs", "Improper Coeffs",
+    # class 2 force field
+    "BondBond Coeffs", "BondAngle Coeffs", "MiddleBondTorsion Coeffs",
+    "EndBondTorsion Coeffs", "AngleTorsion Coeffs",
+    "AngleAngleTorsion Coeffs", "BondBond13 Coeffs", "AngleAngle Coeffs"
+}
+
+ATOMS_LINE_FORMAT = {"angle": ["molecule-ID", "atom-type", "x", "y", "z"],
+                     "atomic": ["atom-type", "x", "y", "z"],
+                     "bond": ["molecule-ID", "atom-type", "x", "y", "z"],
+                     "charge": ["atom-type", "q", "x", "y", "z"],
+                     "full": ["molecule-ID", "atom-type", "q", "x", "y", "z"],
+                     "molecule": ["molecule-ID", "atom-type", "x", "y", "z"]}
+
+ATOMS_FLOATS = ["q", "x", "y", "z"]
 
 
 class LammpsData(MSONable):
@@ -86,14 +100,6 @@ Atoms
 {atoms}
 """
 
-    ATOMS_LINE_FORMAT = {"angle": ["molecule-ID", "atom-type", "x", "y", "z"],
-                         "atomic": ["atom-type", "x", "y", "z"],
-                         "bond": ["molecule-ID", "atom-type", "x", "y", "z"],
-                         "charge": ["atom-type", "q", "x", "y", "z"],
-                         "full": ["molecule-ID", "atom-type", "q",
-                                  "x", "y", "z"],
-                         "molecule": ["molecule-ID", "atom-type",
-                                      "x", "y", "z"]}
 
     def __init__(self, box_size, atomic_masses, atoms_data, box_tilt=None, atom_style='full'):
         self.box_size = box_size
@@ -138,10 +144,9 @@ Atoms
         masses = "\n".join(masses_lines)
 
         # atoms
-        atom_format = self.ATOMS_LINE_FORMAT[self.atom_style]
-        float_quans = ["q", "x", "y", "z"]
+        atom_format = ATOMS_LINE_FORMAT[self.atom_style]
         map_temp = lambda t: "{:.%df}" % significant_figures \
-            if significant_figures and t in float_quans else "{}"
+            if significant_figures and t in ATOMS_FLOATS else "{}"
         temp = " ".join(map(map_temp, atom_format))
         atoms_lines = []
         for i, data in enumerate(self.atoms_data):
@@ -916,7 +921,7 @@ Impropers
                    dihedral_data, imdihedral_data)
 
 
-def parse_data_file(filename):
+def parse_data_file(filename, atom_style="full"):
     """
     A very general parser for arbitrary lammps data files.
 
@@ -927,34 +932,73 @@ def parse_data_file(filename):
         dict
     """
     data = {}
-    count_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)$')
-    types_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$')
-    box_pattern = re.compile(r'^\s*([0-9eE.+-]+)\s+([0-9eE.+-]+)\s+([xyz])lo\s+([xyz])hi$')
-    tilt_pattern = re.compile(r'^\s*([0-9eE.+-]+)\s+([0-9eE.+-]+)\s+([0-9eE.+-]+)\s+xy\s+xz\s+yz$')
-    key = None
+
     with open(filename) as f:
-        for line in f:
-            line = line.split("#")[0].strip()
-            if line:
-                if line.lower() in SECTION_KEYWORDS:
-                    key = line.lower()
-                    key = key.replace(" ", "-")
-                    data[key] = []
-                elif key and key in data:
-                    data[key].append([float(x) for x in line.split()])
+        lines = f.readlines()
+    clines = list(clean_lines(lines))
+    section_marks = [i for i, l in enumerate(clines) if l in SECTION_KEYWORDS]
+    parts = np.split(clines, section_marks)
+
+    header_pattern = {}
+    header_pattern["count"] = r'^\s*(\d+)\s+([a-zA-Z]+)$'
+    header_pattern["type"] = r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$'
+    header_pattern["bound"] = r'^\s*([0-9eE.+-]+)\s+([0-9eE.+-]+)' \
+                              r'\s+([xyz])lo \3hi$'
+    header_pattern["tilt"] = r'^\s*([0-9eE.+-]+)\s+([0-9eE.+-]+)' \
+                             r'\s+([0-9eE.+-]+)\s+xy xz yz$'
+
+    def parse_header(header_lines):
+        header = {"count": {}, "type": {}, "bound": {}}
+        for l in header_lines:
+            match = None
+            for k, v in header_pattern.items():
+                match = re.match(v, l)
+                if match:
+                    break
                 else:
-                    if types_pattern.search(line):
-                        m = types_pattern.search(line)
-                        data["{}-types".format(m.group(2))] = int(m.group(1))
-                    elif box_pattern.search(line):
-                        m = box_pattern.search(line)
-                        data[m.group(3)] = [float(m.group(1)), float(m.group(2))]
-                    elif count_pattern.search(line):
-                        tokens = line.split(" ", 1)
-                        data["n{}".format(tokens[-1])] = int(tokens[0])
-                    elif tilt_pattern.search(line):
-                        m = tilt_pattern.search(line)
-                        data["xy-xz-yz"] = [float(m.group(1)),
-                                            float(m.group(2)),
-                                            float(m.group(3))]
+                    continue
+            if match and k in ["count", "type"]:
+                header[k].update({match.group(2): int(match.group(1))})
+            elif match and k == "bound":
+                g = match.groups()
+                header["bound"][g[2]] = [float(i) for i in g[:2]]
+            elif match and k == "tilt":
+                header["tilt"] = [float(i) for i in match.groups()]
+        return header
+
+    data["header"] = parse_header(parts[0])
+
+    def parse_section(single_section_lines):
+        kw = single_section_lines[0]
+
+        if kw.endswith("Coeffs") and not kw.startswith("PairIJ"):
+            parse_line = lambda l: [float(x) for x in l[1:]]
+        elif kw == "PairIJ Coeffs":
+            parse_line = lambda l: {tuple([int(x) for x in l[:2]]):
+                                    [float(x) for x in l[2:]]}
+        elif kw in ["Bonds", "Angles", "Dihedrals", "Impropers"]:
+            n = {"Bonds": 2, "Angles": 3, "Dihedrals": 4, "Impropers": 4}
+            parse_line = lambda l: {int(l[1]):
+                                    [int(x) for x in l[2:n[kw] + 2]]}
+        elif kw == "Atoms":
+            keys = ATOMS_LINE_FORMAT[atom_style]
+            float_keys = [k for k in keys if k in ATOMS_FLOATS]
+            parse_line = lambda l: {k: float(v) if k in float_keys else int(v)
+                                    for (k, v)
+                                    in zip(keys, l[1:len(keys) + 1])}
+        elif kw == "Velocities":
+            parse_line = lambda l: [float(x) for x in l[1:4]]
+        elif kw == "Masses":
+            parse_line = lambda l: float(l[1])
+
+        section = {kw: []}
+        for line in single_section_lines[1:]:
+            l = line.split()
+            section[kw].append(parse_line(l))
+        return section
+
+    data["body"] = {}
+    for part in parts[1:]:
+        data["body"].update(parse_section(part))
+
     return data
