@@ -37,6 +37,21 @@ __email__ = "rit001@eng.ucsd.edu"
 __date__ = "8/24/17"
 
 
+"""
+This module defines tools to analyze surface and adsorption related
+quantities as well as related plots. If you use this module, please
+consider citing the following works::
+
+    R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
+    S. P. Ong, "Surface Energies of Elemental Crystals", Scientific Data,
+    2016, 3:160080, doi: 10.1038/sdata.2016.80.
+    and
+    Montoya, J. H., & Persson, K. A. (2017). A high-throughput framework
+    for determining adsorption energies on solid surfaces. Npj Computational
+    Materials, 3(1), 14. https://doi.org/10.1038/s41524-017-0017-z
+"""
+
+
 class SurfaceEnergyCalculator(object):
     """
     A class used for analyzing the surface energies of a material.
@@ -59,6 +74,7 @@ class SurfaceEnergyCalculator(object):
             Rogal, J., & Reuter, K. (2007). Ab Initio Atomistic Thermodynamics for
                 Surfaces : A Primer. Experiment, Modeling and Simulation of Gas-Surface
                 Interactions for Reactive Flows in Hypersonic Flights, 2–1 – 2–18.
+
 
     .. attribute:: ref_element
 
