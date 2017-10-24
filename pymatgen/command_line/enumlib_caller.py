@@ -10,6 +10,7 @@ import subprocess
 import itertools
 import logging
 import glob
+import warnings
 
 import numpy as np
 from monty.fractions import lcm
@@ -372,7 +373,7 @@ class EnumlibAdaptor(object):
                                                       site.frac_coords,
                                                       super_latt).to_unit_cell)
                         else:
-                            logger.warning("Skipping sites that include species X.")
+                            warnings.warn("Skipping sites that include species X.")
                     structs.append(Structure.from_sites(sorted(sites)))
 
         except Exception as e:
