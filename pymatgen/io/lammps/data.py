@@ -6,8 +6,8 @@ from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
 import re
-
 import math
+import warnings
 from io import open
 from collections import OrderedDict
 
@@ -939,16 +939,18 @@ def parse_data_file(filename, atom_style="full", sort_id=False):
     section_marks = [i for i, l in enumerate(clines) if l in SECTION_KEYWORDS]
     parts = np.split(clines, section_marks)
 
+    float_group = r'([0-9eE.+-]+)'
     header_pattern = {}
-    header_pattern["count"] = r'^\s*(\d+)\s+([a-zA-Z]+)$'
-    header_pattern["type"] = r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$'
-    header_pattern["bound"] = r'^\s*([0-9eE.+-]+)\s+([0-9eE.+-]+)' \
-                              r'\s+([xyz])lo \3hi$'
-    header_pattern["tilt"] = r'^\s*([0-9eE.+-]+)\s+([0-9eE.+-]+)' \
-                             r'\s+([0-9eE.+-]+)\s+xy xz yz$'
+    header_pattern["counts"] = r'^\s*(\d+)\s+([a-zA-Z]+)$'
+    header_pattern["types"] = r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$'
+    header_pattern["bounds"] = r'^\s*{}$'.format(r'\s+'.join(
+        [float_group] * 2 + [r"([xyz])lo \3hi"]))
+    header_pattern["tilt"] = r'^\s*{}$'.format(r'\s+'.join(
+        [float_group] * 3 + ["xy xz yz"]))
 
     def parse_header(header_lines):
-        header = {"count": {}, "type": {}, "bound": {}}
+        header = {"counts": {}, "types": {}}
+        bounds = {}
         for l in header_lines:
             match = None
             for k, v in header_pattern.items():
@@ -957,13 +959,14 @@ def parse_data_file(filename, atom_style="full", sort_id=False):
                     break
                 else:
                     continue
-            if match and k in ["count", "type"]:
-                header[k].update({match.group(2): int(match.group(1))})
-            elif match and k == "bound":
+            if match and k in ["counts", "types"]:
+                header[k][match.group(2)] = int(match.group(1))
+            elif match and k == "bounds":
                 g = match.groups()
-                header["bound"][g[2]] = [float(i) for i in g[:2]]
+                bounds[g[2]] = [float(i) for i in g[:2]]
             elif match and k == "tilt":
                 header["tilt"] = [float(i) for i in match.groups()]
+        header["bounds"] = [bounds.get(i, [-0.5, 0.5]) for i in "xyz"]
         return header
 
     data["header"] = parse_header(parts[0])
@@ -979,14 +982,26 @@ def parse_data_file(filename, atom_style="full", sort_id=False):
                                     [int(x) for x in l[2:n[kw] + 2]]}
         elif kw == "Atoms":
             keys = ATOMS_LINE_FORMAT[atom_style]
+            sample_l = single_section_lines[1].split()
+            if len(sample_l) == len(keys) + 1:
+                pass
+            elif len(sample_l) == len(keys) + 4:
+                keys += ["nx", "ny", "nz"]
+            else:
+                warnings.warn("Atoms section format might be imcompatible "
+                              "with atom_style %s." % atom_style)
             float_keys = [k for k in keys if k in ATOMS_FLOATS]
             parse_line = lambda l: {k: float(v) if k in float_keys else int(v)
                                     for (k, v)
                                     in zip(keys, l[1:len(keys) + 1])}
         elif kw == "Velocities":
-            parse_line = lambda l: {"velocities": [float(x) for x in l[1:4]]}
+            parse_line = lambda l: {"velocity": [float(x) for x in l[1:4]]}
         elif kw == "Masses":
             parse_line = lambda l: {"mass": float(l[1])}
+        else:
+            warnings.warn("%s section parser has not been implemented. "
+                          "Skipping..." % kw)
+            return {}
 
         section = {kw: []}
         splitted_lines = [l.split() for l in single_section_lines[1:]]
@@ -994,7 +1009,7 @@ def parse_data_file(filename, atom_style="full", sort_id=False):
             splitted_lines = sorted(splitted_lines, key=lambda l: int(l[0]))
         for l in splitted_lines:
             line_data = parse_line(l)
-            line_data.update({"id": int(l[0])})
+            line_data["id"] = int(l[0])
             section[kw].append(line_data)
         return section
 

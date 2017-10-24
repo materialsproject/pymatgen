@@ -7,6 +7,7 @@ from __future__ import division, print_function, unicode_literals, \
 
 import os
 import unittest
+import random
 from collections import OrderedDict
 
 import numpy as np
@@ -179,57 +180,6 @@ class TestLammpsDataStructure(unittest.TestCase):
                 os.remove(os.path.join(test_dir, x))
 
 
-class TestLammpsDataParser(unittest.TestCase):
-    def setUp(self):
-        self.data = parse_data_file(os.path.join(test_dir, "const_pot.data"))
-
-    def test_keys(self):
-        ans = sorted(['natoms', 'nbonds', 'nangles', 'ndihedrals', 'nimpropers',
-                      'atom-types', 'bond-types', 'angle-types', 'dihedral-types',
-                      'improper-types', 'x', 'y', 'z', 'masses', 'bond-coeffs',
-                      'angle-coeffs', 'atoms', 'bonds', 'angles'])
-        self.assertEqual(ans, sorted(self.data.keys()))
-
-    def test_values(self):
-        self.assertEqual(self.data["natoms"], 432)
-        self.assertEqual(self.data["nbonds"], 160)
-        self.assertEqual(self.data["nangles"], 80)
-        self.assertEqual(self.data["ndihedrals"], 0)
-        self.assertEqual(self.data["nimpropers"], 0)
-        self.assertEqual(self.data["atom-types"], 4)
-        self.assertEqual(self.data["bond-types"], 2)
-        self.assertEqual(self.data["angle-types"], 1)
-        self.assertEqual(self.data["dihedral-types"], 0)
-        self.assertEqual(self.data["improper-types"], 0)
-        self.assertEqual(self.data["atom-types"], 4)
-
-        np.testing.assert_almost_equal(self.data["x"], [0, 9.83800], decimal=6)
-        np.testing.assert_almost_equal(self.data["y"], [0, 8.52000], decimal=6)
-        np.testing.assert_almost_equal(self.data["z"], [-40.20000, 40.20000], decimal=6)
-        np.testing.assert_almost_equal(self.data["masses"],
-                                       [[1, 12.01070000],
-                                        [2, 15.03450000],
-                                        [3, 12.01000000],
-                                        [4, 14.00670000]], decimal=6)
-        np.testing.assert_almost_equal(self.data["bond-coeffs"],
-                                       [[1, 380.0, 1.46],
-                                        [2, 600.0, 1.157]], decimal=6)
-        np.testing.assert_almost_equal(self.data["angle-coeffs"],
-                                       [[1, 20.0, 180.0]], decimal=6)
-
-        self.assertEqual(len(self.data["atoms"]), self.data["natoms"])
-        self.assertEqual(len(self.data["bonds"]), self.data["nbonds"])
-        self.assertEqual(len(self.data["angles"]), self.data["nangles"])
-
-        # test random line from the data block
-        np.testing.assert_almost_equal(
-            self.data["atoms"][110],
-            [111, 37, 1, 0.12900000, 4.869000, 5.574000, -13.992000],
-            decimal=10)
-        self.assertEqual(self.data["bonds"][76], [77, 2, 115, 117])
-        self.assertEqual(self.data["angles"][68], [69, 1, 205, 207, 206])
-
-
 class TestLammpsForceFieldData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -364,6 +314,103 @@ class TestLammpsForceFieldData(unittest.TestCase):
         for x in ["lammps_ff_data.dat"]:
             if os.path.exists(os.path.join(test_dir, x)):
                 os.remove(os.path.join(test_dir, x))
+
+
+class FuncTest(unittest.TestCase):
+
+    def test_parse_data_file(self):
+        # peptide: test main features
+        peptide = parse_data_file(filename=os.path.join(test_dir,
+                                                        "data.peptide"))
+        # header
+        counts = peptide["header"]["counts"]
+        self.assertEqual(counts["atoms"], 2004)
+        self.assertEqual(counts["bonds"], 1365)
+        self.assertEqual(counts["angles"], 786)
+        self.assertEqual(counts["dihedrals"], 207)
+        self.assertEqual(counts["impropers"], 12)
+        types = peptide["header"]["types"]
+        self.assertEqual(types["atom"], 14)
+        self.assertEqual(types["bond"], 18)
+        self.assertEqual(types["angle"], 31)
+        self.assertEqual(types["dihedral"], 21)
+        self.assertEqual(types["improper"], 2)
+        bounds = peptide["header"]["bounds"]
+        np.testing.assert_array_equal(bounds, [[36.840194, 64.211560],
+                                               [41.013691, 68.385058],
+                                               [29.768095, 57.139462]])
+        # body: test data in the last line of each section
+        masses = peptide["body"]["Masses"]
+        self.assertDictEqual(masses[-1], {"id": 14, "mass": 1.0100})
+        pair_coeffs = peptide["body"]["Pair Coeffs"]
+        self.assertDictEqual(pair_coeffs[-1], {"id": 14,
+                                               "coeffs": [0.046000,
+                                                          0.400014,
+                                                          0.046000,
+                                                          0.400014]})
+        bond_coeffs = peptide["body"]["Bond Coeffs"]
+        self.assertDictEqual(bond_coeffs[-1], {"id": 18,
+                                               "coeffs": [450.000000,
+                                                          0.957200]})
+        angle_coeffs = peptide["body"]["Angle Coeffs"]
+        self.assertDictEqual(angle_coeffs[-1], {"id": 31,
+                                                "coeffs": [55.000000,
+                                                           104.520000,
+                                                           0.000000,
+                                                           0.000000]})
+        dihedral_coeffs = peptide["body"]["Dihedral Coeffs"]
+        self.assertDictEqual(dihedral_coeffs[-1], {"id": 21,
+                                                   "coeffs": [0.010000,
+                                                              3, 0,
+                                                              1.000000]})
+        improper_coeffs = peptide["body"]["Improper Coeffs"]
+        self.assertDictEqual(improper_coeffs[-1], {"id": 2,
+                                                   "coeffs": [20.000000,
+                                                              0.000000]})
+        atom = peptide["body"]["Atoms"][-1]
+        self.assertDictEqual(atom, {"id": 2004, "molecule-ID": 641,
+                                    "type": 14, "q": 0.417, "x": 56.55074,
+                                    "y": 49.75049, "z": 48.61854, "nx": 1,
+                                    "ny": 1, "nz": 1})
+        velocity = peptide["body"]["Velocities"][-1]
+        self.assertDictEqual(velocity, {"id": 2004,
+                                        "velocity": [-0.010076,
+                                                     -0.005729,
+                                                     -0.026032]})
+        bond = peptide["body"]["Bonds"][-1]
+        self.assertDictEqual(bond, {"id": 1365, "type": 18,
+                                    "bond": [2002, 2003]})
+        for i in bond["bond"]:
+            self.assertIsInstance(i, int)
+        angle = peptide["body"]["Angles"][-1]
+        self.assertDictEqual(angle, {"id": 786, "type": 31,
+                                     "angle": [2003, 2002, 2004]})
+        for i in angle["angle"]:
+            self.assertIsInstance(i, int)
+        dihedral = peptide["body"]["Dihedrals"][-1]
+        self.assertDictEqual(dihedral, {"id": 207, "type": 3,
+                                        "dihedral": [64, 79, 80, 82]})
+        for i in dihedral["dihedral"]:
+            self.assertIsInstance(i, int)
+        improper = peptide["body"]["Impropers"][-1]
+        self.assertDictEqual(improper, {"id": 12, "type": 2,
+                                        "improper": [79, 64, 80, 81]})
+        for i in improper["improper"]:
+            self.assertIsInstance(i, int)
+        # quartz: test box tilt and other atom style
+        quartz = parse_data_file(filename=os.path.join(test_dir,
+                                                       "data.quartz"),
+                                 atom_style="atomic")
+        tilt = quartz["header"]["tilt"]
+        self.assertListEqual(tilt, [-2.456700, 0.0, 0.0])
+        atom_data = quartz["body"]["Atoms"][-1]
+        self.assertDictEqual(atom_data, {"id": 9, "type": 2, "x": 1.375998,
+                                         "y": -1.140800, "z": -2.443511})
+        # nvt: test ID sorting feature
+        nvt = parse_data_file(filename=os.path.join(test_dir, "nvt.data"),
+                              sort_id=True)
+        atom_id = random.randint(1, 648)
+        self.assertEqual(atom_id, nvt["body"]["Atoms"][atom_id - 1]["id"])
 
 
 if __name__ == "__main__":
