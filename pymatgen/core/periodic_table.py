@@ -198,6 +198,15 @@ class Element(Enum):
         E.g., The electronic structure for Fe is represented as
         [Ar].3d<sup>6</sup>.4s<sup>2</sup>
 
+    .. attribute:: atomic_orbitals
+
+        Atomic Orbitals. Energy of the atomic orbitals as a dict.
+        E.g., The orbitals energies in eV are represented as
+        {'1s': -1.0, '2s': -0.1}
+        Data is obtained from
+        https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
+        The LDA values for neutral atoms are used    
+
     .. attribute:: thermal_conductivity
 
         Thermal conductivity
@@ -409,12 +418,14 @@ class Element(Enum):
                     "brinell_hardness", "rigidity_modulus",
                     "mineral_hardness", "vickers_hardness",
                     "density_of_solid", "atomic_radius_calculated",
-                    "van_der_waals_radius",
+                    "van_der_waals_radius", "atomic_orbitals",
                     "coefficient_of_linear_thermal_expansion"]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
+            elif type(val) == dict:
+                pass
             else:
                 try:
                     val = float(val)

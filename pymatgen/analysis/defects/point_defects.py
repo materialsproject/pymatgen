@@ -1632,11 +1632,11 @@ class StructureMotifInterstitial(Defect):
                                 continue
 
                             allsites = [s for s in neighs]
-                            indeces_neighs = [i for i in range(len(allsites))]
+                            indices_neighs = [i for i in range(len(allsites))]
                             allsites.append(struct_w_inter.sites[natoms-1])
                             opvals = ops.get_order_parameters(
                                         allsites, len(allsites)-1,
-                                        indeces_neighs=indeces_neighs)
+                                        indices_neighs=indices_neighs)
                             motif_type = "unrecognized"
                             if "tet" in motif_types:
                                 if nneighs == 4 and \

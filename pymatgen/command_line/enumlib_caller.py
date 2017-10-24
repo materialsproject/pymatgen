@@ -9,6 +9,7 @@ import math
 import subprocess
 import itertools
 import logging
+import glob
 
 import numpy as np
 from monty.fractions import lcm
@@ -61,12 +62,13 @@ logger = logging.getLogger(__name__)
 # Favor the use of the newer "enum.x" by Gus Hart instead of the older
 # "multienum.x"
 enum_cmd = which('enum.x') or which('multienum.x')
-makestr_cmd = which('makestr.x') or which('makeStr.x')
+# prefer makestr.x at present
+makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
 
 @requires(enum_cmd and makestr_cmd,
           "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
-          "and 'makestr.x' to be in the path. Please download the library at"
-          "http://enum.sourceforge.net/ and follow the instructions in "
+          "and 'makestr.x' or 'makeStr.py' to be in the path. Please download the "
+          "library at http://enum.sourceforge.net/ and follow the instructions in "
           "the README to compile these two executables accordingly.")
 class EnumlibAdaptor(object):
     """
@@ -213,7 +215,7 @@ class EnumlibAdaptor(object):
 
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         min_sgnum = get_sg_info(curr_sites)
-        logger.debug("Disorderd sites has sgnum %d" % (
+        logger.debug("Disordered sites has sgnum %d" % (
             min_sgnum))
         # It could be that some of the ordered sites has a lower symmetry than
         # the disordered sites.  So we consider the lowest symmetry sites as
@@ -306,12 +308,18 @@ class EnumlibAdaptor(object):
 
     def _get_structures(self, num_structs):
         structs = []
-        rs = subprocess.Popen([makestr_cmd,
-                               "struct_enum.out", str(0),
-                               str(num_structs - 1)],
+
+        if ".py" in makestr_cmd:
+            options = ["-input", "struct_enum.out", str(1), str(num_structs)]
+        else:
+            options = ["struct_enum.out", str(0), str(num_structs - 1)]
+
+        rs = subprocess.Popen([makestr_cmd] + options,
                               stdout=subprocess.PIPE,
                               stdin=subprocess.PIPE, close_fds=True)
-        rs.communicate()
+        stdout, stderr = rs.communicate()
+        if stderr:
+            logger.warning(stderr.decode())
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
             # Need to strip sites of site_properties, which would otherwise
@@ -332,37 +340,45 @@ class EnumlibAdaptor(object):
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
 
-        for n in range(1, num_structs + 1):
-            with open("vasp.{:06d}".format(n)) as f:
-                data = f.read()
-                data = re.sub(r'scale factor', "1", data)
-                data = re.sub(r'(\d+)-(\d+)', r'\1 -\2', data)
-                poscar = Poscar.from_string(data, self.index_species)
-                sub_structure = poscar.structure
-                # Enumeration may have resulted in a super lattice. We need to
-                # find the mapping from the new lattice to the old lattice, and
-                # perform supercell construction if necessary.
-                new_latt = sub_structure.lattice
+        try:
+            for file in glob.glob('vasp.*'):
+                with open(file) as f:
+                    data = f.read()
+                    data = re.sub(r'scale factor', "1", data)
+                    data = re.sub(r'(\d+)-(\d+)', r'\1 -\2', data)
+                    poscar = Poscar.from_string(data, self.index_species)
+                    sub_structure = poscar.structure
+                    # Enumeration may have resulted in a super lattice. We need to
+                    # find the mapping from the new lattice to the old lattice, and
+                    # perform supercell construction if necessary.
+                    new_latt = sub_structure.lattice
 
-                sites = []
+                    sites = []
 
-                if len(self.ordered_sites) > 0:
-                    transformation = np.dot(new_latt.matrix, inv_org_latt)
-                    transformation = [[int(round(cell)) for cell in row]
-                                      for row in transformation]
-                    logger.debug("Supercell matrix: {}".format(transformation))
-                    s = ordered_structure * transformation
-                    sites.extend([site.to_unit_cell for site in s])
-                    super_latt = sites[-1].lattice
-                else:
-                    super_latt = new_latt
+                    if len(self.ordered_sites) > 0:
+                        transformation = np.dot(new_latt.matrix, inv_org_latt)
+                        transformation = [[int(round(cell)) for cell in row]
+                                          for row in transformation]
+                        logger.debug("Supercell matrix: {}".format(transformation))
+                        s = ordered_structure * transformation
+                        sites.extend([site.to_unit_cell for site in s])
+                        super_latt = sites[-1].lattice
+                    else:
+                        super_latt = new_latt
 
-                for site in sub_structure:
-                    if site.specie.symbol != "X":  # We exclude vacancies.
-                        sites.append(PeriodicSite(site.species_and_occu,
-                                                  site.frac_coords,
-                                                  super_latt).to_unit_cell)
-                structs.append(Structure.from_sites(sorted(sites)))
+                    for site in sub_structure:
+                        if site.specie.symbol != "X":  # We exclude vacancies.
+                            sites.append(PeriodicSite(site.species_and_occu,
+                                                      site.frac_coords,
+                                                      super_latt).to_unit_cell)
+                        else:
+                            logger.warning("Skipping sites that include species X.")
+                    structs.append(Structure.from_sites(sorted(sites)))
+
+        except Exception as e:
+            logger.error(e)
+            logger.error("Failed to read structures, test your makeStr binary is working "
+                         "correctly.")
 
         logger.debug("Read in a total of {} structures.".format(num_structs))
         return structs

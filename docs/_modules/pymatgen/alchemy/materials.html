@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.alchemy.materials &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.alchemy.materials &#8212; pymatgen 2017.10.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2017.10.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -269,7 +269,8 @@
 <span class="sd">                pymatgen.io.vaspio_set.VaspInputSet like object that creates</span>
 <span class="sd">                vasp input files from structures</span>
 <span class="sd">            output_dir: Directory to output files</span>
-<span class="sd">            create_directory: Create the directory if not present. Defaults to True.</span>
+<span class="sd">            create_directory: Create the directory if not present. Defaults to</span>
+<span class="sd">                True.</span>
 <span class="sd">            \\*\\*kwargs: All keyword args supported by the VASP input set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vasp_input_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span>
@@ -328,8 +329,8 @@
 <span class="sd">            primitive (bool): Option to set if the primitive cell should be</span>
 <span class="sd">                extracted. Defaults to True. However, there are certain</span>
 <span class="sd">                instances where you might want to use a non-primitive cell,</span>
-<span class="sd">                e.g., if you are trying to generate all possible orderings of partial removals</span>
-<span class="sd">                or order a disordered structure.</span>
+<span class="sd">                e.g., if you are trying to generate all possible orderings of</span>
+<span class="sd">                partial removals or order a disordered structure.</span>
 <span class="sd">            occupancy_tolerance (float): If total occupancy of a site is</span>
 <span class="sd">                between 1 and occupancy_tolerance, the occupancies will be</span>
 <span class="sd">                scaled down to 1.</span>
@@ -405,8 +406,8 @@
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">:</span>
             <span class="n">snl_metadata</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;_snl&#39;</span><span class="p">,</span> <span class="p">{})</span>
             <span class="n">hist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">snl_metadata</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;pymatgen&#39;</span><span class="p">),</span>
-                         <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">snl_metadata</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">,</span>
-                                                 <span class="s1">&#39;http://pypi.python.org/pypi/pymatgen&#39;</span><span class="p">),</span>
+                         <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">snl_metadata</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
+                             <span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="s1">&#39;http://pypi.python.org/pypi/pymatgen&#39;</span><span class="p">),</span>
                          <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">h</span><span class="p">})</span>
         <span class="kn">from</span> <span class="nn">pymatgen.util.provenance</span> <span class="k">import</span> <span class="n">StructureNL</span>
         <span class="k">return</span> <span class="n">StructureNL</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">,</span> <span class="n">authors</span><span class="p">,</span> <span class="n">projects</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span>
@@ -459,7 +460,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -467,7 +468,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
