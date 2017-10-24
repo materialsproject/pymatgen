@@ -62,12 +62,12 @@ SECTION_KEYWORDS = {
     "AngleAngleTorsion Coeffs", "BondBond13 Coeffs", "AngleAngle Coeffs"
 }
 
-ATOMS_LINE_FORMAT = {"angle": ["molecule-ID", "atom-type", "x", "y", "z"],
-                     "atomic": ["atom-type", "x", "y", "z"],
-                     "bond": ["molecule-ID", "atom-type", "x", "y", "z"],
-                     "charge": ["atom-type", "q", "x", "y", "z"],
-                     "full": ["molecule-ID", "atom-type", "q", "x", "y", "z"],
-                     "molecule": ["molecule-ID", "atom-type", "x", "y", "z"]}
+ATOMS_LINE_FORMAT = {"angle": ["molecule-ID", "type", "x", "y", "z"],
+                     "atomic": ["type", "x", "y", "z"],
+                     "bond": ["molecule-ID", "type", "x", "y", "z"],
+                     "charge": ["type", "q", "x", "y", "z"],
+                     "full": ["molecule-ID", "type", "q", "x", "y", "z"],
+                     "molecule": ["molecule-ID", "type", "x", "y", "z"]}
 
 ATOMS_FLOATS = ["q", "x", "y", "z"]
 
@@ -921,7 +921,7 @@ Impropers
                    dihedral_data, imdihedral_data)
 
 
-def parse_data_file(filename, atom_style="full"):
+def parse_data_file(filename, atom_style="full", sort_id=False):
     """
     A very general parser for arbitrary lammps data files.
 
@@ -972,13 +972,10 @@ def parse_data_file(filename, atom_style="full"):
         kw = single_section_lines[0]
 
         if kw.endswith("Coeffs") and not kw.startswith("PairIJ"):
-            parse_line = lambda l: [float(x) for x in l[1:]]
-        elif kw == "PairIJ Coeffs":
-            parse_line = lambda l: {tuple([int(x) for x in l[:2]]):
-                                    [float(x) for x in l[2:]]}
+            parse_line = lambda l: {"coeffs": [float(x) for x in l[1:]]}
         elif kw in ["Bonds", "Angles", "Dihedrals", "Impropers"]:
             n = {"Bonds": 2, "Angles": 3, "Dihedrals": 4, "Impropers": 4}
-            parse_line = lambda l: {int(l[1]):
+            parse_line = lambda l: {"type": int(l[1]), kw[:-1].lower():
                                     [int(x) for x in l[2:n[kw] + 2]]}
         elif kw == "Atoms":
             keys = ATOMS_LINE_FORMAT[atom_style]
@@ -987,14 +984,18 @@ def parse_data_file(filename, atom_style="full"):
                                     for (k, v)
                                     in zip(keys, l[1:len(keys) + 1])}
         elif kw == "Velocities":
-            parse_line = lambda l: [float(x) for x in l[1:4]]
+            parse_line = lambda l: {"velocities": [float(x) for x in l[1:4]]}
         elif kw == "Masses":
-            parse_line = lambda l: float(l[1])
+            parse_line = lambda l: {"mass": float(l[1])}
 
         section = {kw: []}
-        for line in single_section_lines[1:]:
-            l = line.split()
-            section[kw].append(parse_line(l))
+        splitted_lines = [l.split() for l in single_section_lines[1:]]
+        if sort_id:
+            splitted_lines = sorted(splitted_lines, key=lambda l: int(l[0]))
+        for l in splitted_lines:
+            line_data = parse_line(l)
+            line_data.update({"id": int(l[0])})
+            section[kw].append(line_data)
         return section
 
     data["body"] = {}
