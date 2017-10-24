@@ -120,19 +120,21 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
             for hkl in self.metals_O_entry_dict[el].keys():
                 for clean in self.metals_O_entry_dict[el][hkl]:
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
-
                         # Determine the correct number of monolayers.
-                        ml = int(round(se_calc.get_monolayer(ads, clean)))
-                        self.assertEqual(ml, 4)
-
-
-
-
-        # gibbs_binding_energy
-        # Nads_in_slab
-        # Nsurfs_ads_in_slab
-
-        print()
+                        ml = se_calc.get_monolayer(ads, clean)
+                        self.assertEqual(int(round(ml)), 4)
+                        # Determine the correct number of adsorbates
+                        Nads = se_calc.Nads_in_slab(ads)
+                        self.assertEqual(Nads, 1)
+                        # Determine the correct number of surfaces with an adsorbate
+                        Nsurf = se_calc.Nsurfs_ads_in_slab(ads)
+                        self.assertEqual(Nsurf, 1)
+                        # Determine the correct binding energy
+                        gbind = (ads.energy - ml*clean.energy)/Nads - O.energy_per_atom
+                        self.assertEqual(gbind, se_calc.gibbs_binding_energy(ads, clean))
+                        # Determine the correction Gibbs adsorption energy
+                        eads = Nads * gbind
+                        self.assertEqual(eads, se_calc.gibbs_binding_energy(ads, clean, eads=True))
 
     def test_solve_2_linear_eqns(self):
 
