@@ -168,52 +168,42 @@ Atoms
         with open(filename, 'w') as f:
             f.write(self.get_string(significant_figures=significant_figures))
 
-    # @property
-    # def structure(self):
-    #     """
-    #     Transform from LammpsData file to a pymatgen structure object
-    #
-    #     Return:
-    #         A pymatgen structure object
-    #     """
-    #     species_map = {}
-    #     for sp in self.atomic_masses:
-    #         for el in Element:
-    #             if abs(el.atomic_mass - sp[1]) < 0.05:
-    #                 species_map[sp[0]] = el
-    #     xhi, yhi, zhi = self.box_size[0][1] - self.box_size[0][0], self.box_size[1][1] - self.box_size[1][0], \
-    #                     self.box_size[2][1] - self.box_size[0][0]
-    #     xy, xz, yz = self.box_tilt if self.box_tilt is not None else [0.0, 0.0, 0.0]
-    #     a = xhi
-    #     b = np.sqrt(yhi ** 2 + xy ** 2)
-    #     c = np.sqrt(zhi ** 2 + xz ** 2 + yz ** 2)
-    #
-    #     gamma = math.degrees(math.acos(xy / b))
-    #     beta = math.degrees(math.acos(xz / c))
-    #     alpha = math.degrees(math.acos((yhi * yz + xy * xz) / b / c))
-    #     lattice = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
-    #     species = []
-    #     coords = []
-    #     for d in self.atoms_data:
-    #         if self.atom_style == 'full':
-    #             if d[3] != 0:
-    #                 species.append(Specie(species_map[d[2]].symbol, d[3]))
-    #             else:
-    #                 species.append(species_map[d[1]])
-    #             coords.append(d[4:7])
-    #         elif self.atom_style == 'charge':
-    #             if d[2] != 0:
-    #                 species.append(Specie(species_map[d[1]].symbol, d[2]))
-    #             else:
-    #                 species.append(species_map[d[1]])
-    #             coords.append(d[3:6])
-    #         elif self.atom_style == 'atomic':
-    #             species.append(species_map[d[1]])
-    #             coords.append(d[2:5])
-    #         else:
-    #             raise RuntimeError('data style not implemented')
-    #
-    #     return Structure(lattice, species, coords, coords_are_cartesian=True)
+    @property
+    def structure(self):
+        """
+        Transform from LammpsData file to a pymatgen structure object
+
+        Return:
+            A pymatgen structure object
+        """
+        if "molecule-ID" in ATOMS_LINE_FORMAT[self.atom_style]:
+            warnings.warn("Exporting periodic structure will lose all "
+                          "molecular topology info")
+
+        # Lattice
+        tilt = self.box_tilt if self.box_tilt else [0] * 3
+        x, y, z = [b[1] for b in self.box_bounds]
+        latt = Lattice([[x, 0, 0], [tilt[0], y, 0], [tilt[1], tilt[2], z]])
+
+        # Species and coords
+        element_map = {}
+        for m in self.masses:
+            for el in Element:
+                if abs(el.atomic_mass - m["mass"]) < 0.05:
+                    element_map[m["id"]] = el
+
+        species, coords, charges = [], [], []
+        for a in self.atoms:
+            coords.append([a[k] for k in "xyz"])
+            species.append(element_map[a["type"]])
+            charges.append(a.get("q", 0))
+
+        structure = Structure(lattice=latt, species=species, coords=coords,
+                              coords_are_cartesian=True)
+        if "q" in ATOMS_LINE_FORMAT[self.atom_style] and np.any(charges):
+            structure.add_oxidation_state_by_site(charges)
+
+        return structure
 
     @staticmethod
     def get_element_map(structure):
