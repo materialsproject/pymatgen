@@ -67,7 +67,7 @@ ATOMS_LINE_FORMAT = {"angle": ["molecule-ID", "type", "x", "y", "z"],
                      "bond": ["molecule-ID", "type", "x", "y", "z"],
                      "charge": ["type", "q", "x", "y", "z"],
                      "full": ["molecule-ID", "type", "q", "x", "y", "z"],
-                     "molecule": ["molecule-ID", "type", "x", "y", "z"]}
+                     "molecular": ["molecule-ID", "type", "x", "y", "z"]}
 
 ATOMS_FLOATS = ["q", "x", "y", "z"]
 
@@ -100,13 +100,11 @@ Atoms
 {atoms}
 """
 
-
-    def __init__(self, box_size, atomic_masses, atoms_data, box_tilt=None, atom_style='full'):
-        self.box_size = box_size
-        self.natoms = len(atoms_data)
-        self.natom_types = len(atomic_masses)
-        self.atomic_masses = list(atomic_masses)
-        self.atoms_data = atoms_data
+    def __init__(self, masses, atoms, box_bounds, box_tilt=None,
+                 atom_style='full'):
+        self.masses = masses
+        self.atoms = atoms
+        self.box_bounds = box_bounds
         self.box_tilt = box_tilt
         self.atom_style = atom_style
 
@@ -125,37 +123,36 @@ Atoms
             String representation of the data file.
         """
 
+        float_ph = "{:.%df}" % significant_figures \
+            if significant_figures else "{}"
+
         # box
         box_lines = []
-        for bound, d in zip(self.box_size, "xyz"):
+        for bound, d in zip(self.box_bounds, "xyz"):
             fillers = bound + [d] * 2
-            bound_format = " ".join(["{:.%df}" % significant_figures] * 2
-                                    + ["{}lo {}hi"])
+            bound_format = " ".join([float_ph] * 2 + ["{}lo {}hi"])
             box_lines.append(bound_format.format(*fillers))
         if self.box_tilt:
-            tilt_format = " ".join(["{:.%df}" % significant_figures] * 3
-                                   + ["xy xz yz"])
+            tilt_format = " ".join([float_ph] * 3 + ["xy xz yz"])
             box_lines.append(tilt_format.format(*self.box_tilt))
         box = "\n".join(box_lines)
 
         # masses
-        masses_lines = ["{} {}".format(i + 1, v)
-                        for i, v in enumerate(self.atomic_masses)]
-        masses = "\n".join(masses_lines)
+        masses_mat = [[str(m[k]) for k in ["id", "mass"]]
+                      for m in self.masses]
+        masses = _pretty_section(masses_mat)
 
         # atoms
-        atom_format = ATOMS_LINE_FORMAT[self.atom_style]
-        map_temp = lambda t: "{:.%df}" % significant_figures \
-            if significant_figures and t in ATOMS_FLOATS else "{}"
-        temp = " ".join(map(map_temp, atom_format))
-        atoms_lines = []
-        for i, data in enumerate(self.atoms_data):
-            fillers = [data[k] for k in atom_format]
-            atoms_lines.append("{} ".format(i + 1) + temp.format(*fillers))
-        atoms = "\n".join(atoms_lines)
+        atom_format = ["id"] + ATOMS_LINE_FORMAT[self.atom_style]
+        if self.atoms[0].get("nx"):
+            atom_format.extend(["nx", "ny", "nz"])
+        map_str = lambda t: float_ph if t in ATOMS_FLOATS else "{}"
+        atoms_mat = []
+        for a in self.atoms:
+            atoms_mat.append([map_str(k).format(a[k]) for k in atom_format])
+        atoms = _pretty_section(atoms_mat)
 
-        d = {k: v for k, v in self.__dict__.items()}
-
+        d = {"natoms": len(self.atoms), "natom_types": len(self.masses)}
         return LammpsData.TEMPLATE.format(box=box, masses=masses,
                                           atoms=atoms, **d)
 
@@ -385,7 +382,7 @@ Atoms
                    box_tilt=box_tilt, atom_style=atom_style)
 
     @classmethod
-    def from_file(cls, data_file, atom_style="full"):
+    def from_file(cls, data_file, atom_style="full", sort_id=False):
         """
         Return LammpsData object from the data file.
         Note: use this to read in data files that conform with
@@ -398,33 +395,15 @@ Atoms
         Returns:
             LammpsData
         """
-        atoms_data = []
+        data = parse_data_file(data_file, atom_style=atom_style,
+                               sort_id=sort_id)
+        masses = data["body"]["Masses"]
+        atoms = data["body"]["Atoms"]
+        box_bounds = data["header"]["bounds"]
+        box_tilt = data["header"].get("tilt", None)
 
-        data = parse_data_file(data_file)
-        atomic_masses = [[int(x[0]), float(x[1])] for x in data["masses"]]
-        box_size = [data['x'], data['y'], data['z']]
-
-        int_limit = 2 if atom_style == "atomic" else 3
-
-        if "atoms" in data:
-            for x in data["atoms"]:
-                atoms_data.append([int(xi) for xi in x[:int_limit]] + x[int_limit:])
-
-        box_tilt = data.get("xy-xz-yz", None)
-
-        return cls(box_size, atomic_masses, atoms_data, box_tilt=box_tilt, atom_style=atom_style)
-
-    def as_dict(self):
-        d = MSONable.as_dict(self)
-        if hasattr(self, "kwargs"):
-            d.update(**self.kwargs)
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
-                   if not k.startswith("@")}
-        return cls(**decoded)
+        return cls(masses=masses, atoms=atoms, box_bounds=box_bounds,
+                   box_tilt=box_tilt, atom_style=atom_style)
 
 
 class LammpsForceFieldData(LammpsData):
@@ -1018,3 +997,10 @@ def parse_data_file(filename, atom_style="full", sort_id=False):
         data["body"].update(parse_section(part))
 
     return data
+
+
+def _pretty_section(str_mat):
+    lens = [max(map(len, col)) for col in zip(*str_mat)]
+    fmt = "  ".join("{:>%d}" % x for x in lens)
+    tab = "\n".join([fmt.format(*row) for row in str_mat])
+    return tab
