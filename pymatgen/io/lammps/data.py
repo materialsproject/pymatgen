@@ -152,9 +152,9 @@ Atoms
             atoms_mat.append([map_str(k).format(a[k]) for k in atom_format])
         atoms = _pretty_section(atoms_mat)
 
-        d = {"natoms": len(self.atoms), "natom_types": len(self.masses)}
+        stats = {"natoms": len(self.atoms), "natom_types": len(self.masses)}
         return LammpsData.TEMPLATE.format(box=box, masses=masses,
-                                          atoms=atoms, **d)
+                                          atoms=atoms, **stats)
 
     def write_file(self, filename, significant_figures=6):
         """
@@ -168,114 +168,55 @@ Atoms
         with open(filename, 'w') as f:
             f.write(self.get_string(significant_figures=significant_figures))
 
-    @property
-    def structure(self):
-        """
-        Transform from LammpsData file to a pymatgen structure object
-
-        Return:
-            A pymatgen structure object
-        """
-        species_map = {}
-        for sp in self.atomic_masses:
-            for el in Element:
-                if abs(el.atomic_mass - sp[1]) < 0.05:
-                    species_map[sp[0]] = el
-        xhi, yhi, zhi = self.box_size[0][1] - self.box_size[0][0], self.box_size[1][1] - self.box_size[1][0], \
-                        self.box_size[2][1] - self.box_size[0][0]
-        xy, xz, yz = self.box_tilt if self.box_tilt is not None else [0.0, 0.0, 0.0]
-        a = xhi
-        b = np.sqrt(yhi ** 2 + xy ** 2)
-        c = np.sqrt(zhi ** 2 + xz ** 2 + yz ** 2)
-
-        gamma = math.degrees(math.acos(xy / b))
-        beta = math.degrees(math.acos(xz / c))
-        alpha = math.degrees(math.acos((yhi * yz + xy * xz) / b / c))
-        lattice = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
-        species = []
-        coords = []
-        for d in self.atoms_data:
-            if self.atom_style == 'full':
-                if d[3] != 0:
-                    species.append(Specie(species_map[d[2]].symbol, d[3]))
-                else:
-                    species.append(species_map[d[1]])
-                coords.append(d[4:7])
-            elif self.atom_style == 'charge':
-                if d[2] != 0:
-                    species.append(Specie(species_map[d[1]].symbol, d[2]))
-                else:
-                    species.append(species_map[d[1]])
-                coords.append(d[3:6])
-            elif self.atom_style == 'atomic':
-                species.append(species_map[d[1]])
-                coords.append(d[2:5])
-            else:
-                raise RuntimeError('data style not implemented')
-
-        return Structure(lattice, species, coords, coords_are_cartesian=True)
-
-    @staticmethod
-    def check_box_size(structure, box_size, translate_mol=False):
-        """
-        Molecule objects: check the box size and if necessary
-        translate the molecule so that all the sites are contained
-        within the bounding box.
-        Structure objects: compute the box tilt and rotate all the
-        periodic sites accordingly.
-
-        Args:
-            structure(Molecule/Structure)
-            box_size (list): (For molecule)
-                [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
-            translate_mol (bool): (For molecule) if true move the
-                molecule to the center of the new box.
-
-        Returns:
-            box_size, box_tilt
-        """
-        box_tilt = None
-
-        # Molecule
-        if isinstance(structure, Molecule):
-            box_size = box_size or [[0, 10], [0, 10], [0, 10]]
-            box_lengths_req = [
-                np.max(structure.cart_coords[:, i]) - np.min(structure.cart_coords[:, i])
-                for i in range(3)]
-            box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
-            try:
-                np.testing.assert_array_less(box_lengths_req, box_lengths)
-            except AssertionError:
-                box_size = [[0.0, np.ceil(i * 1.1)] for i in box_lengths_req]
-                print("Minimum required box lengths {} larger than the provided "
-                      "box lengths{}. Resetting the box size to {}".format(
-                    box_lengths_req, box_lengths, box_size))
-                translate_mol = True
-            if translate_mol:
-                com = structure.center_of_mass
-                new_com = [(side[1] + side[0]) / 2 for side in box_size]
-                translate_by = np.array(new_com) - np.array(com)
-                structure.translate_sites(range(len(structure)), translate_by)
-
-        # Structure
-        elif isinstance(structure, Structure):
-            a, b, c = structure.lattice.abc
-            m = structure.lattice.matrix
-            xhi = a
-            xy = np.dot(m[1], m[0] / xhi)
-            yhi = np.sqrt(b ** 2 - xy ** 2)
-            xz = np.dot(m[2], m[0] / xhi)
-            yz = (np.dot(m[1], m[2]) - xy * xz) / yhi
-            zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2)
-            box_size = [[0.0, xhi], [0.0, yhi], [0.0, zhi]]
-            box_tilt = [xy, xz, yz]
-            lattice = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
-            structure.modify_lattice(lattice)
-
-        return box_size, box_tilt
+    # @property
+    # def structure(self):
+    #     """
+    #     Transform from LammpsData file to a pymatgen structure object
+    #
+    #     Return:
+    #         A pymatgen structure object
+    #     """
+    #     species_map = {}
+    #     for sp in self.atomic_masses:
+    #         for el in Element:
+    #             if abs(el.atomic_mass - sp[1]) < 0.05:
+    #                 species_map[sp[0]] = el
+    #     xhi, yhi, zhi = self.box_size[0][1] - self.box_size[0][0], self.box_size[1][1] - self.box_size[1][0], \
+    #                     self.box_size[2][1] - self.box_size[0][0]
+    #     xy, xz, yz = self.box_tilt if self.box_tilt is not None else [0.0, 0.0, 0.0]
+    #     a = xhi
+    #     b = np.sqrt(yhi ** 2 + xy ** 2)
+    #     c = np.sqrt(zhi ** 2 + xz ** 2 + yz ** 2)
+    #
+    #     gamma = math.degrees(math.acos(xy / b))
+    #     beta = math.degrees(math.acos(xz / c))
+    #     alpha = math.degrees(math.acos((yhi * yz + xy * xz) / b / c))
+    #     lattice = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
+    #     species = []
+    #     coords = []
+    #     for d in self.atoms_data:
+    #         if self.atom_style == 'full':
+    #             if d[3] != 0:
+    #                 species.append(Specie(species_map[d[2]].symbol, d[3]))
+    #             else:
+    #                 species.append(species_map[d[1]])
+    #             coords.append(d[4:7])
+    #         elif self.atom_style == 'charge':
+    #             if d[2] != 0:
+    #                 species.append(Specie(species_map[d[1]].symbol, d[2]))
+    #             else:
+    #                 species.append(species_map[d[1]])
+    #             coords.append(d[3:6])
+    #         elif self.atom_style == 'atomic':
+    #             species.append(species_map[d[1]])
+    #             coords.append(d[2:5])
+    #         else:
+    #             raise RuntimeError('data style not implemented')
+    #
+    #     return Structure(lattice, species, coords, coords_are_cartesian=True)
 
     @staticmethod
-    def get_basic_system_info(structure):
+    def get_element_map(structure):
         """
         Return basic system info from the given structure.
 
@@ -289,96 +230,77 @@ Atoms
         s = structure.copy()
         if isinstance(s, Structure):
             s.remove_oxidation_states()
-        natoms = len(s)
-        natom_types = len(s.symbol_set)
-        elements = s.composition.elements
-        elements = sorted(elements, key=lambda el: el.atomic_mass)
-        atomic_masses_dict = OrderedDict([(el.symbol, float(el.atomic_mass))
-                                          for el in elements])
-        return natoms, natom_types, atomic_masses_dict
+        elements = sorted(s.composition.elements, key=lambda e: e.atomic_mass)
+        element_map = {e.symbol: i + 1 for i, e in enumerate(elements)}
+        return element_map
 
     @staticmethod
-    def get_atoms_data(structure, atomic_masses_dict, set_charge=True):
-        """
-        return the atoms data:
-            Molecule:
-                atom_id, molecule tag, atom_type, charge(if present else 0),
-                x, y, z.
-                The molecule_tag is set to 1(i.e the whole structure corresponds to
-                just one molecule).
-                This corresponds to lammps command: "atom_style charge" or
-                 "atom_style full"
-            Structure:
-                atom_id, atom_type, species oxidation state, x, y, z
-                atom_style = atomic/charge
+    def get_atoms_data(structure, element_map, atom_style="full"):
 
-        Args:
-            structure (Structure/Molecule)
-            atomic_masses_dict (dict):
-                { atom symbol : atomic mass, ... }
-            set_charge (bool): whether or not to set the charge field in Atoms
+        s = structure.copy()
+        mol_id = 1 if isinstance(s, Molecule) else None
 
-        Returns:
-            For Molecule:
-                [[atom_id, molecule tag, atom_type, charge(if present),
-                x, y, z], ... ]
-            For Structure:
-                [[atom_id, atom_type, charge(if present), x, y, z], ... ]
-        """
-        atoms_data = []
-        # to comply with atom_style='molecular' and 'full'
-        mol_id = 1 if isinstance(structure, Molecule) else None
-
-        for site in structure:
-            site_data = {}
-
-            # minimum required data: type of atom and coords
-            el = site.specie.symbol
-            site_data["atom-type"] = list(atomic_masses_dict.keys()).index(el) + 1
-            for c, d in zip(site.coords, "xyz"):
-                site_data[d] = c
-
-            # other data
+        atoms = []
+        for i, site in enumerate(s):
+            atom_data = {}
+            atom_data["id"] = i + 1
+            atom_data["type"] = element_map[site.specie.symbol]
+            atom_data["x"], atom_data["y"], atom_data["z"] = site.coords
             if mol_id:
-                site_data["molecule-ID"] = mol_id
-            site_data["q"] = getattr(site.specie, "oxi_state", 0.0)
-            atoms_data.append(site_data)
+                atom_data["molecule-ID"] = mol_id
+            if "q" in ATOMS_LINE_FORMAT[atom_style]:
+                atom_data["q"] = getattr(site.specie, "oxi_state", 0.0)
+            atoms.append(atom_data)
 
-        return atoms_data
+        return atoms
 
     @classmethod
-    def from_structure(cls, input_structure, box_size=None, set_charge=True,
-                       translate_mol=True):
-        """
-        Set LammpsData from the given structure or molecule object. If the input
-        structure is a Molecule and if it doesnt fit in the input box then the
-        box size is updated based on the max and min site coordinates of the
-        molecules.
+    def from_structure(cls, structure, box_bounds=None, translate_mol=True,
+                       atom_style="full"):
+        box_tilt = None
+        s = structure.copy()
 
-        Args:
-            input_structure (Molecule/Structure)
-            box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
-            set_charge (bool): whether or not to set the charge field in
-                Atoms. If true, the charge will be non-zero only if the
-                input_structure has the "charge" site property set.
-            translate_mol (bool): if true move the molecule to the center of the
-                new box(it that is required).
+        # Molecule
+        if isinstance(s, Molecule):
+            box_bounds = box_bounds or [[0, 10], [0, 10], [0, 10]]
+            mol_dim = np.ptp(s.cart_coords, axis=0)
+            box_dim = np.ptp(box_bounds, axis=1)
+            try:
+                np.testing.assert_array_less(mol_dim, box_dim)
+            except AssertionError:
+                box_bounds = np.insert(np.ceil(mol_dim * 1.1)[:, None],
+                                       0, 0, axis=1).tolist()
+                warnings.warn("Minimum required box dimension {} larger than "
+                              "the provided box dimension {}. Resetting the "
+                              "box bounds to {}".format(mol_dim, box_dim,
+                                                        box_bounds))
+                translate_mol = True
+            if translate_mol:
+                com = s.center_of_mass
+                new_com = np.mean(box_bounds, axis=1)
+                translate_by = new_com - com
+                s.translate_sites(vector=translate_by)
 
-        Returns:
-            LammpsData
-        """
+        # Structure
+        elif isinstance(s, Structure):
+            a, b, c = s.lattice.abc
+            m = s.lattice.matrix
+            xhi = a
+            xy = np.dot(m[1], m[0] / xhi)
+            yhi = np.sqrt(b ** 2 - xy ** 2)
+            xz = np.dot(m[2], m[0] / xhi)
+            yz = (np.dot(m[1], m[2]) - xy * xz) / yhi
+            zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2)
+            box_bounds = [[0.0, xhi], [0.0, yhi], [0.0, zhi]]
+            box_tilt = [xy, xz, yz]
+            latt = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
+            s.modify_lattice(latt)
 
-        box_size, box_tilt = cls.check_box_size(input_structure, box_size,
-                                                translate_mol=translate_mol)
-        natoms, natom_types, atomic_masses_dict = \
-            cls.get_basic_system_info(input_structure.copy())
-
-        atoms_data = cls.get_atoms_data(input_structure, atomic_masses_dict,
-                                        set_charge=set_charge)
-
-        atom_style = 'full' if isinstance(input_structure, Molecule) else 'charge'
-
-        return cls(box_size, atomic_masses_dict.values(), atoms_data,
+        element_map = cls.get_element_map(s)
+        masses = [{"id": v, "mass": Element(k).atomic_mass.real}
+                  for k, v in sorted(element_map.items(), key=lambda x: x[1])]
+        atoms = cls.get_atoms_data(s, element_map, atom_style=atom_style)
+        return cls(masses=masses, atoms=atoms, box_bounds=box_bounds,
                    box_tilt=box_tilt, atom_style=atom_style)
 
     @classmethod
