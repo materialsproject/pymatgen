@@ -228,7 +228,7 @@ class Poscar(MSONable):
         names = None
         if check_for_POTCAR:
             for f in os.listdir(dirname):
-                if f == "POTCAR":
+                if "POTCAR" in f:
                     try:
                         potcar = Potcar.from_file(os.path.join(dirname, f))
                         names = [sym.split("_")[0] for sym in potcar.symbols]
