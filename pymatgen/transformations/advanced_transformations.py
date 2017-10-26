@@ -512,7 +512,6 @@ class MagOrderParameterConstraint(MSONable):
 class MagOrderingTransformation(AbstractTransformation):
 
     def __init__(self, mag_species_spin, order_parameter=0.5,
-                 limit_number_of_results=None, attempt_supercell=False,
                  energy_model=SymmetryModel(), **kwargs):
         """
         This transformation takes a structure and returns a list of collinear
@@ -528,14 +527,6 @@ class MagOrderingTransformation(AbstractTransformation):
         :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
         to specify more complicated orderings, see documentation for
         MagOrderParameterConstraint more details on usage
-        :param limit_number_of_results: (int, optional) Limits number of
-        returned structures to the number provided *except* in the case of
-        where structures ranked equally and have the same number of sites, in
-        which case all equally-ranked structures are returned.
-        :param attempt_supercell: (bool) Specifies whether to attempt supercells
-        or not, if False will try sensible defaults. If there are too many
-        magnetic sites in the primitive cell, enumerating supercells will
-        be computationally infeasible.
         :param energy_model: Energy model to rank the returned structures,
         see :mod: `pymatgen.analysis.energy_models` for more information (note
         that this is not necessarily a physical energy). By default, returned
@@ -564,8 +555,6 @@ class MagOrderingTransformation(AbstractTransformation):
         self.order_parameter = [op.as_dict() for op in order_parameter]
         self.energy_model = energy_model
         self.enum_kwargs = kwargs
-        self.attempt_supercell = attempt_supercell
-        self.limit_number_of_results = limit_number_of_results
 
     @staticmethod
     def determine_min_cell(disordered_structure):
