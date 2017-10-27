@@ -11,6 +11,9 @@ TODO:
         dealing with non-stoichiometric slabs
     -Simplify or clean the stable_u_range_dict() method
         for the SurfaceEnergyPlotter class
+    -Combine chempot_vs_gamma_clean(), chempot_vs_gamma_plot_one()
+        and chempot_vs_gamma_facet() into one class method.
+    -Annotations for which configuration is on a plot
 """
 
 from __future__ import division, unicode_literals
@@ -511,6 +514,7 @@ class SurfaceEnergyPlotter(object):
         """
         Returns the entry corresponding to the most stable
         slab for a particular facet at a specific chempot.
+
         Args:
             miller_index ((h,k,l)): The facet to find the most stable slab in
             u_ref (float): The chemical potential of the reference element
@@ -535,6 +539,7 @@ class SurfaceEnergyPlotter(object):
         """
         Plots the change in the area contribution of
         each facet as a function of chemical potential.
+
         Args:
             const_u (float): A chemical potential to hold constant if there are
                 more than one parameters.
@@ -600,7 +605,7 @@ class SurfaceEnergyPlotter(object):
         single surface entry as a function of chemical potential.
 
         Args:
-            plt (Pylab): A plot.
+            plt (Plot): A plot.
             clean_entry (entry): Entry containing the final energy and structure
                 of the slab whose surface energy we want to calculate
             ads_entry (entry): An optional entry object for the adsorbed slab,
@@ -840,8 +845,28 @@ class SurfaceEnergyPlotter(object):
 
         return stable_urange_dict
 
-    def chempot_vs_gamma_facet(self, miller_index=(), const_u=0,
-                               JPERM2=False, show_unstable=False, plt=None):
+    def chempot_vs_gamma_facet(self, miller_index=(), const_u=0, plt=None,
+                               JPERM2=False, show_unstable=False):
+        """
+        Plots the surface energy as a function of chemical potential.
+            Each facet will be associated with its own distinct colors.
+            Dashed lines will represent stoichiometries different from that
+            of the mpid's compound. Transparent lines indicates adsorption.
+
+        Args:
+            miller_index (list): Miller index for a specific facet to get a
+                dictionary for.
+            const_u (float): A chemical potential to hold constant if there are
+                more than one parameters.
+            plt (Plot): A plot.
+            JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
+                eV/A^2 (False)
+            show_unstable (bool): Whether or not to show parts of the surface
+                energy plot outside the region of stability.
+
+        Returns:
+            (Plot): Plot of surface energy vs chemical potential for all entries.
+        """
 
         plt = plt if plt else pretty_plot(width=8, height=7)
         axes = plt.gca()
@@ -907,9 +932,18 @@ class SurfaceEnergyPlotter(object):
         return plt
 
     def monolayer_vs_BE(self, plot_eads=False):
+        """
+        Plots the binding energy energy as a function of monolayers (ML),
+            i.e. the fractional area adsorbate density for all facets.
+        Args:
+            plot_eads (bool): Option to plot the adsorption energy (binding energy
+                multiplied by number of adsorbates) instead.
+
+        Returns:
+            (Plot): Plot of binding energy vs monolayer for all facets.
+        """
 
         plt = pretty_plot(width=8, height=7)
-        axes = plt.gca()
         for hkl in self.entry_dict.keys():
             for clean_entry in self.entry_dict[hkl].keys():
                 if self.entry_dict[hkl][clean_entry]:
@@ -918,12 +952,12 @@ class SurfaceEnergyPlotter(object):
                     BEs = [self.se_calculator.gibbs_binding_energy(ads_entry, clean_entry,
                                                                    eads=plot_eads) \
                            for ads_entry in self.entry_dict[hkl][clean_entry]]
-
+                    # sort the binding energies to plot only the most stable configuration
                     monolayer, BEs = zip(*sorted(zip(monolayer, BEs)))
                     plt.plot(monolayer, BEs, '-o', c=self.color_dict[clean_entry], label=hkl)
 
         plt.xlabel("%s Coverage (ML)" %(self.se_calculator.adsorbate_as_str))
-        plt.ylabel("Binding Energy (eV)")
+        plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
         plt.legend()
         plt.tight_layout()
 
@@ -932,6 +966,21 @@ class SurfaceEnergyPlotter(object):
     def chempot_plot_addons(self, plt, xrange, axes,
                             pad=2.4, rect=[-0.047, 0, 0.84, 1],
                             x_is_u_ads=False, ylim=[]):
+        """
+        Helper function to a chempot plot look nicer.
+
+        Args:
+            plt (Plot) Plot to add things to.
+            xrange (list): xlim parameter
+            axes(axes) Axes object from matplotlib
+            pad (float) For tight layout
+            rect (list): For tight layout
+            x_is_u_ads (bool): Whether or not to set the adsorption
+                chempot as a free variable (False).
+            ylim (ylim parameter):
+
+        return (Plot): Modified plot with addons.
+        """
 
         # Make the figure look nice
         x_species = self.ref_el_comp if not \
@@ -967,6 +1016,17 @@ class SurfaceEnergyPlotter(object):
         return label
 
     def color_palette_dict(self, alpha=0.35):
+        """
+        Helper function to assign each facet a unique color using a dictionary.
+
+        Args:
+            alpha (float): Degree of transparency
+
+        return (dict): Dictionary of colors (r,g,b,a) when plotting surface
+            energy stability. The keys are individual surface entries where
+            clean surfaces have a solid color while the corresponding adsorbed
+            surface will be transparent.
+        """
 
         color_dict = {}
         for hkl in self.entry_dict.keys():
@@ -994,11 +1054,13 @@ class SurfaceEnergyPlotter(object):
         return color_dict
 
     def get_clean_ads_entry_pair(self, entry):
-
         """
-        Returns a pair of entries, the first is the clean entry, the second
-        is either nonetype (if the initial entry is clean) or the
-        corresponding adsorbed entry
+        Helper function that returns a pair of entries, the first is
+        the clean entry, the second is either nonetype (if the
+        initial entry is clean) or the corresponding adsorbed entry.
+
+        Args:
+            entry (ComputedStructureEntry): entry for a slab.
         """
 
         for hkl in self.entry_dict.keys():
