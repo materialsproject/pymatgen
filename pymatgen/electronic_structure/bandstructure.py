@@ -454,6 +454,33 @@ class BandStructure(object):
 
         return result
 
+    def get_direct_band_gap_dict(self):
+        """
+        Returns a dictionary of information about the direct
+        band gap
+
+        Returns:
+            a dictionary of the band gaps indexed by spin
+            along with their band indices and k-point index
+        """
+        if self.is_metal():
+            raise ValueError("get_direct_band_gap_dict should"
+                             "only be used with non-metals")
+        direct_gap_dict = {}
+        for spin, v in self.bands.items():
+            above = v[np.all(v > self.efermi, axis=1)]
+            min_above = np.min(above, axis=0)
+            below = v[np.all(v < self.efermi, axis=1)]
+            max_below = np.max(below, axis=0)
+            diff = min_above - max_below
+            kpoint_index = np.argmin(diff)
+            band_indices = [np.argmax(below[:, kpoint_index]),
+                            np.argmin(above[:, kpoint_index]) + len(below)]
+            direct_gap_dict[spin] = {"value": diff[kpoint_index],
+                                     "kpoint_index": kpoint_index,
+                                     "band_indices": band_indices}
+        return direct_gap_dict
+
     def get_direct_band_gap(self):
         """
         Returns the direct band gap.
@@ -463,15 +490,9 @@ class BandStructure(object):
         """
         if self.is_metal():
             return 0.0
-        direct_gap = {}
-        for spin, v in self.bands.items():
-            above = v[np.all(v > self.efermi, axis=1)]
-            min_above = np.min(above, axis=0)
-            below = v[np.all(v < self.efermi, axis=1)]
-            max_below = np.max(below, axis=0)
-            direct_gap[spin] = np.min(min_above - max_below)
-        return min(direct_gap.values())
-    
+        dg = self.get_direct_band_gap_dict()
+        return min(v['value'] for v in dg.values())
+
     def as_dict(self):
         """
         Json-serializable dict representation of BandStructureSymmLine.
