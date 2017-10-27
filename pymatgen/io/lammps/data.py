@@ -113,14 +113,16 @@ Atoms
 
     def get_string(self, significant_figures=6):
         """
-        string representation of LammpsData
+        Return the string representation of LammpsData.
 
         Args:
             significant_figures (int): No. of significant figures to
-                output. Default to 6.
+                output float quantities like box bounds and tilt,
+                coordinates, etc. Default to 6.
 
         Returns:
             String representation of the data file.
+
         """
 
         float_ph = "{:.%df}" % significant_figures \
@@ -158,12 +160,14 @@ Atoms
 
     def write_file(self, filename, significant_figures=6):
         """
-        write lammps data input file from the string representation
-        of the data.
+        Write LAMMPS data input file.
+
         Args:
-            filename (string): data file name
+            filename (str): Data file name.
             significant_figures (int): No. of significant figures to
-                output. Default to 6.
+                output float quantities like box bounds and tilt,
+                coordinates, etc. Default to 6.
+
         """
         with open(filename, 'w') as f:
             f.write(self.get_string(significant_figures=significant_figures))
@@ -171,10 +175,8 @@ Atoms
     @property
     def structure(self):
         """
-        Transform from LammpsData file to a pymatgen structure object
+        A structure representation of simulation box.
 
-        Return:
-            A pymatgen structure object
         """
         if "molecule-ID" in ATOMS_LINE_FORMAT[self.atom_style]:
             warnings.warn("Exporting periodic structure will lose all "
@@ -207,14 +209,17 @@ Atoms
     @staticmethod
     def get_element_map(structure):
         """
-        Return basic system info from the given structure.
+        Process structure/molecule to extract all elements and sort
+        them by atomic mass. Return a dict with element symbols as
+        keys and atom type IDs as values, e.g., {"H": 1, "O": 2}.
+        Used for processing atoms data from structure/molecule.
 
         Args:
-            structure (Structure/Molecule)
+            structure (Structure/Molecule): Input object.
 
         Returns:
-            number of atoms, number of atom types, box size, mapping
-            between the atom id and corresponding atomic masses
+            {element symbol: atom type ID}
+
         """
         s = structure.copy()
         if isinstance(s, Structure):
@@ -225,6 +230,21 @@ Atoms
 
     @staticmethod
     def get_atoms_data(structure, element_map, atom_style="full"):
+        """
+        Process structure/molecule to generate data for Atoms section.
+        Returns a list of dicts, e.g., [{"id": 1, "type": 1,
+        "x": 0.0, "y": 0.0, "z": 0.0, ..}, ..].
+
+        Args:
+            structure (Structure/Molecule): Input object.
+            element_map (dict): Element map dict. See get_element_map
+                method.
+            atom_style (str): Format for Atoms section.
+
+        Returns:
+            [{atom data}]
+
+        """
 
         s = structure.copy()
         mol_id = 1 if isinstance(s, Molecule) else None
@@ -246,6 +266,23 @@ Atoms
     @classmethod
     def from_structure(cls, structure, box_bounds=None, translate_mol=True,
                        atom_style="full"):
+        """
+        Constructor to build a LammpsData object from a
+        Molecule/Structure object.
+
+        Args:
+            structure (Structure/Molecule): Input object.
+            box_bounds: Boundaries of simulation box. Default to None,
+                which means [[0, 10], [0, 10], [0, 10]] or a bigger box
+                is used for a molecule. No impact for structures since
+                the box is automatically set up from crystal lattice.
+            translate_mol (bool): Whether translate the molecule so
+                that its center of mass lies on the center of
+                simulation box. Default to True. No impact for
+                structures.
+            atom_style (str): Format for Atoms section.
+
+        """
         box_tilt = None
         s = structure.copy()
 
@@ -295,16 +332,13 @@ Atoms
     @classmethod
     def from_file(cls, data_file, atom_style="full", sort_id=False):
         """
-        Return LammpsData object from the data file.
-        Note: use this to read in data files that conform with
-        atom_style = charge or atomic or full
+        Read in a disk file written in LAMMPS data format.
 
         Args:
             data_file (string): data file name
-            atom_style (string): "full" or "charge" or "atomic"
+            atom_style (string): Format for Atoms section.
 
-        Returns:
-            LammpsData
+
         """
         data = parse_data_file(data_file, atom_style=atom_style,
                                sort_id=sort_id)
@@ -871,7 +905,7 @@ def parse_data_file(filename, atom_style="full", sort_id=False):
             parse_line = lambda l: {"type": int(l[1]), kw[:-1].lower():
                                     [int(x) for x in l[2:n[kw] + 2]]}
         elif kw == "Atoms":
-            keys = ATOMS_LINE_FORMAT[atom_style]
+            keys = ATOMS_LINE_FORMAT[atom_style].copy()
             sample_l = single_section_lines[1].split()
             if len(sample_l) == len(keys) + 1:
                 pass
