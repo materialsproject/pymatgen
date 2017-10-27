@@ -689,12 +689,12 @@ class OutcarTest(unittest.TestCase):
 
     def test_drift(self):
         outcar = Outcar(os.path.join(test_dir, "OUTCAR"))
-        self.assertEqual(len(outcar.data['drift']),5)
-        self.assertAlmostEqual(np.sum(outcar.data['drift']),0)
+        self.assertEqual(len(outcar.drift),5)
+        self.assertAlmostEqual(np.sum(outcar.drift),0)
 
         outcar = Outcar(os.path.join(test_dir, "OUTCAR.CL"))
-        self.assertEqual(len(outcar.data['drift']), 79)
-        self.assertAlmostEqual(np.sum(outcar.data['drift']),  0.448010)
+        self.assertEqual(len(outcar.drift), 79)
+        self.assertAlmostEqual(np.sum(outcar.drift),  0.448010)
 
 
 

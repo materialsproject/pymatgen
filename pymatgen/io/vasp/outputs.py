@@ -1498,7 +1498,7 @@ class Outcar(MSONable):
         self.read_pattern({"drift":"total drift:\s+(\S+)\s+(\S+)\s+(\S+)"},
                           terminate_on_match=False,
                           postprocess=float)        
-         self.drift = self.data.get('drift',[])
+        self.drift = self.data.get('drift',[])
            
 
         # Check if calculation is spin polarized
