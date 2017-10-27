@@ -287,9 +287,9 @@ class SurfaceEnergyCalculator(object):
         n = self.get_unit_primitive_area(ads_slab_entry, clean_slab_entry)
         Nads = self.Nads_in_slab(ads_slab_entry)
 
-        BE = (ads_slab_entry.energy - n * clean_slab_entry.energy) / Nads \
+        gbind = (ads_slab_entry.energy - n * clean_slab_entry.energy) / Nads \
              - self.adsorbate_entry.energy_per_atom
-        return BE*Nads if eads else BE
+        return gbind*Nads if eads else gbind
 
     def Nads_in_slab(self, ads_slab_entry):
         """
@@ -943,7 +943,7 @@ class SurfaceEnergyPlotter(object):
                                        x_is_u_ads=x_is_u_ads)
 
         return plt
-    def monolayer_vs_BE(self, plot_eads=False):
+    def monolayer_vs_gbind(self, plot_eads=False):
         """
         Plots the binding energy energy as a function of monolayers (ML),
             i.e. the fractional area adsorbate density for all facets.
@@ -961,13 +961,13 @@ class SurfaceEnergyPlotter(object):
                 if self.entry_dict[hkl][clean_entry]:
                     monolayer = [self.se_calculator.get_monolayer(ads_entry, clean_entry)\
                                  for ads_entry in self.entry_dict[hkl][clean_entry]]
-                    BEs = [self.se_calculator.gibbs_binding_energy(ads_entry, clean_entry,
+                    gbinds = [self.se_calculator.gibbs_binding_energy(ads_entry, clean_entry,
                                                                    eads=plot_eads) \
                            for ads_entry in self.entry_dict[hkl][clean_entry]]
                     # sort the binding energies and monolayers
                     # in order to properly draw a line plot
-                    monolayer, BEs = zip(*sorted(zip(monolayer, BEs)))
-                    plt.plot(monolayer, BEs, '-o', c=self.color_dict[clean_entry], label=hkl)
+                    monolayer, gbinds = zip(*sorted(zip(monolayer, gbinds)))
+                    plt.plot(monolayer, gbinds, '-o', c=self.color_dict[clean_entry], label=hkl)
 
         plt.xlabel("%s Coverage (ML)" %(self.se_calculator.adsorbate_as_str))
         plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
@@ -1085,7 +1085,7 @@ class SurfaceEnergyPlotter(object):
                     if entry in self.entry_dict[hkl][clean_entry]:
                         return [clean_entry, entry]
 
-    def BE_vs_gamma(self, plot_eads=False, const_u=0,
+    def gbind_vs_gamma(self, plot_eads=False, const_u=0,
                  annotate_monolayer=True, JPERM2=False):
         """
         For each facet, plot the clean surface energy against the most
