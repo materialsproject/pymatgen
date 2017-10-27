@@ -1128,6 +1128,7 @@ class SurfaceEnergyPlotter(object):
         plt.ylabel("Adsorption Energy (eV)") if plot_eads \
             else plt.ylabel("Binding Energy (eV)")
         plt.tight_layout()
+        plt.xticks(rotation=60)
 
         return plt
 
