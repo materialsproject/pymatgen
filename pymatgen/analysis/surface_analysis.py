@@ -240,7 +240,7 @@ class SurfaceEnergyCalculator(object):
                                                   ads_slab_entry=ads_slab_entry)
         return np.dot([u_ref, u_ads, 1], coeffs)
 
-    def get_monolayer(self, ads_slab_entry, clean_slab_entry):
+    def get_unit_primitive_area(self, ads_slab_entry, clean_slab_entry):
         """
         Returns the surface area of the adsorbed system per
         unit area of the primitive slab system.
@@ -256,6 +256,21 @@ class SurfaceEnergyCalculator(object):
         n = (A_ads / A_clean)
         return n
 
+    def get_monolayer(self, ads_slab_entry, clean_slab_entry):
+        """
+        Returns the primitive unit surface area density of the
+            adsorbate.
+        Args:
+            ads_slab_entry (entry): The entry of the adsorbed slab
+            clean_slab_entry (entry): The entry of the clean slab
+        """
+
+        unit_a = self.get_unit_primitive_area(ads_slab_entry, clean_slab_entry)
+        Nsurfs = self.Nsurfs_ads_in_slab(ads_slab_entry)
+        Nads = self.Nads_in_slab(ads_slab_entry)
+        return Nads/(unit_a*Nsurfs)
+
+
     def gibbs_binding_energy(self, ads_slab_entry,
                              clean_slab_entry, eads=False):
         """
@@ -269,7 +284,7 @@ class SurfaceEnergyCalculator(object):
                 adsorption energy normalized by number of adsorbates.
         """
 
-        n = self.get_monolayer(ads_slab_entry, clean_slab_entry)
+        n = self.get_unit_primitive_area(ads_slab_entry, clean_slab_entry)
         Nads = self.Nads_in_slab(ads_slab_entry)
 
         BE = (ads_slab_entry.energy - n * clean_slab_entry.energy) / Nads \
@@ -845,7 +860,7 @@ class SurfaceEnergyPlotter(object):
 
         return stable_urange_dict
 
-    def chempot_vs_gamma_facet(self, miller_index=(), const_u=0, plt=None,
+    def chempot_vs_gamma_facet(self, miller_index=(), const_u=0,
                                JPERM2=False, show_unstable=False):
         """
         Plots the surface energy as a function of chemical potential.
@@ -868,17 +883,15 @@ class SurfaceEnergyPlotter(object):
             (Plot): Plot of surface energy vs chemical potential for all entries.
         """
 
-        plt = plt if plt else pretty_plot(width=8, height=7)
+        plt = pretty_plot(width=8, height=7)
         axes = plt.gca()
 
-        # Do not plot wrt to adsorption chempot if no adsorption
-        # entries exist or only clean surface plot is required.
+        # Plot wrt to adsorption chempot if any adsorption entries exist
         x_is_u_ads = False
-        if not clean:
-            for hkl in self.entry_dict.keys():
-                for clean_entry in self.entry_dict[hkl].keys():
-                    if self.entry_dict[hkl][clean_entry]:
-                        x_is_u_ads = True
+        for hkl in self.entry_dict.keys():
+            for clean_entry in self.entry_dict[hkl].keys():
+                if self.entry_dict[hkl][clean_entry]:
+                    x_is_u_ads = True
 
         for hkl in self.entry_dict.keys():
             if miller_index and hkl != tuple(miller_index):
@@ -930,7 +943,6 @@ class SurfaceEnergyPlotter(object):
                                        x_is_u_ads=x_is_u_ads)
 
         return plt
-
     def monolayer_vs_BE(self, plot_eads=False):
         """
         Plots the binding energy energy as a function of monolayers (ML),
@@ -947,12 +959,13 @@ class SurfaceEnergyPlotter(object):
         for hkl in self.entry_dict.keys():
             for clean_entry in self.entry_dict[hkl].keys():
                 if self.entry_dict[hkl][clean_entry]:
-                    monolayer = [1/self.se_calculator.get_monolayer(ads_entry, clean_entry) \
+                    monolayer = [self.se_calculator.get_monolayer(ads_entry, clean_entry)\
                                  for ads_entry in self.entry_dict[hkl][clean_entry]]
                     BEs = [self.se_calculator.gibbs_binding_energy(ads_entry, clean_entry,
                                                                    eads=plot_eads) \
                            for ads_entry in self.entry_dict[hkl][clean_entry]]
-                    # sort the binding energies to plot only the most stable configuration
+                    # sort the binding energies and monolayers
+                    # in order to properly draw a line plot
                     monolayer, BEs = zip(*sorted(zip(monolayer, BEs)))
                     plt.plot(monolayer, BEs, '-o', c=self.color_dict[clean_entry], label=hkl)
 
@@ -1072,9 +1085,51 @@ class SurfaceEnergyPlotter(object):
                     if entry in self.entry_dict[hkl][clean_entry]:
                         return [clean_entry, entry]
 
-    def BE_vs_SE(self):
+    def BE_vs_SE(self, plot_eads=False, const_u=0,
+                 annotate_monolayer=True, JPERM2=False):
+        """
+        For each facet, plot the clean surface energy against the most
+            stable binding energy.
+        Args:
+            plot_eads (bool): Option to plot the adsorption energy (binding
+                energy multiplied by number of adsorbates) instead.
+            const_u (float): Ref element chemical potential as a constant.
+            annotate_monolayer (bool): Whether or not to label each data point
+                with its monolayer (adsorbate density per unit primiitve area)
+            JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
+                eV/A^2 (False)
 
-        return
+        Returns:
+            (Plot): Plot of clean surface energy vs binding energy for
+                all facets.
+        """
+
+        plt = pretty_plot(width=8, height=7)
+        for hkl in self.entry_dict.keys():
+            for clean_entry in self.entry_dict[hkl].keys():
+                if self.entry_dict[hkl][clean_entry]:
+
+                    clean_se = self.se_calculator.calculate_gamma_at_u(clean_entry,
+                                                                       u_ref=const_u)
+                    for ads_entry in self.entry_dict[hkl][clean_entry]:
+                        ml = self.se_calculator.get_monolayer(ads_entry, clean_entry)
+                        be = self.se_calculator.gibbs_binding_energy(ads_entry,
+                                                                     clean_entry,
+                                                                     eads=plot_eads)
+
+                        # Now plot the surface energy vs binding energy
+                        plt.scatter(clean_se, be)
+                        if annotate_monolayer:
+                            plt.annotate("%.2f" %(ml), xy=[clean_se, be],
+                                         xytext=[clean_se, be])
+
+        plt.xlabel(r"Surface energy ($J/m^2$)") if JPERM2 \
+            else plt.xlabel(r"Surface energy ($eV/\AA^2$)")
+        plt.ylabel("Adsorption Energy (eV)") if plot_eads \
+            else plt.ylabel("Binding Energy (eV)")
+        plt.tight_layout()
+
+        return plt
 
     def nanoscale_stability(self):
 

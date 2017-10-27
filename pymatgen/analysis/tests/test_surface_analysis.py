@@ -106,7 +106,7 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
                 for clean in self.metals_O_entry_dict[el][hkl]:
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         # Determine the correct number of monolayers.
-                        ml = se_calc.get_monolayer(ads, clean)
+                        ml = se_calc.get_unit_primitive_area(ads, clean)
                         self.assertEqual(int(round(ml)), 4)
                         # Determine the correct number of adsorbates
                         Nads = se_calc.Nads_in_slab(ads)
