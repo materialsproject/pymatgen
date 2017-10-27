@@ -1272,7 +1272,10 @@ class MVLSlabSet(MPRelaxSet):
             if self.auto_dipole:
                 slab_incar["IDIPOL"] = 3
                 slab_incar["LDIPOL"] = True
-                slab_incar["DIPOL"] = structure.center_of_mass
+                weights = [s.species_and_occu.weight for s in self.structure]
+                center_of_mass = np.average(self.structure.frac_coords,
+                                            weights=weights, axis=0)
+                slab_incar["DIPOL"] = center_of_mass
 
         self._config_dict["INCAR"].update(slab_incar)
 
