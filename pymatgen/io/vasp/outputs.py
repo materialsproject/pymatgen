@@ -1345,6 +1345,9 @@ class Outcar(MSONable):
     .. attribute:: elastic_tensor
         Total elastic moduli (Kbar) is given in a 6x6 array matrix.
 
+    .. attribute:: drift
+        Total drift for each step in eV/Atom
+
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
     read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().
@@ -1494,7 +1497,9 @@ class Outcar(MSONable):
         # Read the drift:
         self.read_pattern({"drift":"total drift:\s+(\S+)\s+(\S+)\s+(\S+)"},
                           terminate_on_match=False,
-                          postprocess=float)
+                          postprocess=float)        
+         self.drift = self.data.get('drift',[])
+           
 
         # Check if calculation is spin polarized
         self.spin = False
@@ -2372,7 +2377,8 @@ class Outcar(MSONable):
              "@class": self.__class__.__name__, "efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
-             "nelect": self.nelect, "is_stopped": self.is_stopped}
+             "nelect": self.nelect, "is_stopped": self.is_stopped,
+             "drift": self.drift}
 
         if self.lepsilon:
             d.update({'piezo_tensor': self.piezo_tensor,
