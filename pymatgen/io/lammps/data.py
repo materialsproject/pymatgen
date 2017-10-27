@@ -197,13 +197,12 @@ Atoms
             coords.append([a[k] for k in "xyz"])
             species.append(element_map[a["type"]])
             charges.append(a.get("q", 0))
+        site_properties = {"charge": charges} \
+            if "q" in ATOMS_LINE_FORMAT[self.atom_style] else None
 
-        structure = Structure(lattice=latt, species=species, coords=coords,
-                              coords_are_cartesian=True)
-        if "q" in ATOMS_LINE_FORMAT[self.atom_style] and np.any(charges):
-            structure.add_oxidation_state_by_site(charges)
-
-        return structure
+        return Structure(lattice=latt, species=species, coords=coords,
+                         coords_are_cartesian=True,
+                         site_properties=site_properties)
 
     @staticmethod
     def get_element_map(structure):
@@ -239,7 +238,7 @@ Atoms
             if mol_id:
                 atom_data["molecule-ID"] = mol_id
             if "q" in ATOMS_LINE_FORMAT[atom_style]:
-                atom_data["q"] = getattr(site.specie, "oxi_state", 0.0)
+                atom_data["q"] = site.properties.get("charge", 0.0)
             atoms.append(atom_data)
 
         return atoms
