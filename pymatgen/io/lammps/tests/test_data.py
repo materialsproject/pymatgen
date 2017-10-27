@@ -11,17 +11,15 @@ import random
 from collections import OrderedDict
 
 import numpy as np
-import pymatgen as mg
 
 from pymatgen.io.lammps.data import LammpsData, parse_data_file
-from pymatgen.core.structure import Molecule
+from pymatgen import Molecule, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.io.lammps.data import LammpsForceFieldData
 from pymatgen.io.lammps.force_field import ForceField
 from pymatgen.io.lammps.topology import Topology
 
-from pymatgen.analysis.structure_matcher import StructureMatcher
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
@@ -30,154 +28,160 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
 
 
-class TestLammpsDataMolecule(unittest.TestCase):
+class LammpsDataTest(PymatgenTest):
+
     @classmethod
     def setUpClass(cls):
-        polymer_chain = Molecule.from_file(os.path.join(test_dir, "polymer_chain.xyz"))
-        box_size = [[0.0, 20.0], [0.0, 20.0], [0.0, 20.0]]
-        cls.lammps_data = LammpsData.from_structure(polymer_chain, box_size)
+        cls.struc = cls.get_structure("TiO2")
+        cls.molec = Molecule(["C", "O", "N", "N", "H", "H", "H", "H"],
+                             [[0.0000, 0.0000, 0.1360],
+                              [0.0000, 0.0000, 1.3571],
+                              [-0.1024, 1.1558, -0.6072],
+                              [0.1024, -1.1558, -0.6072],
+                              [0.0000, 1.9999, -0.0416],
+                              [0.2399, 1.1640, -1.5444],
+                              [0.0000, -1.9999, -0.0416],
+                              [-0.2399, -1.1640, -1.5444]])
+        cls.ld = LammpsData.from_structure(cls.molec, box_bounds=None,
+                                           translate_mol=True,
+                                           atom_style="full")
 
-    def test_system_info(self):
-        atomic_masses = [[1, 1.00794], [2, 12.0107], [3, 15.9994]]
-        atoms_data = [[1, 1, 2, 0.0, 10.216511872506619, 11.338023345800135, 12.744427580409154],
-                      [2, 1, 1, 0.0, 9.8598518725066189, 12.346833345800135, 12.744427580409154],
-                      [3, 1, 1, 0.0, 9.844392872506619, 10.820737345800135, 11.842773580409153],
-                      [4, 1, 1, 0.0, 9.844392872506619, 10.820737345800135, 13.646081580409154],
-                      [5, 1, 3, 0.0, 11.724011872506619, 11.338023345800135, 12.744427580409154],
-                      [6, 1, 2, 0.0, 12.161361872506619, 9.9959933458001355, 12.744427580409154],
-                      [7, 1, 1, 0.0, 11.789241872506619, 9.4787033458001346, 11.842773580409153],
-                      [8, 1, 1, 0.0, 11.789241872506619, 9.4787033458001346, 13.646081580409154],
-                      [9, 1, 2, 0.0, 12.161361872506619, 9.9959933458001355, 11.236927580409153],
-                      [10, 1, 1, 0.0, 11.057400872506619, 9.9837103458001355, 11.249412580409153],
-                      [11, 1, 1, 0.0, 12.54163787250662, 8.959522345800135, 11.249412580409153],
-                      [12, 1, 3, 0.0, 12.647630872506618, 10.700686345800134, 9.9961595804091541],
-                      [13, 1, 2, 0.0, 12.161361872506619, 9.9959933458001355, 8.8739875804091533],
-                      [14, 1, 1, 0.0, 11.057398872506619, 9.9837063458001349, 8.8864715804091539],
-                      [15, 1, 1, 0.0, 12.541635872506619, 8.9595193458001354, 8.8864715804091539],
-                      [16, 1, 2, 0.0, 12.161361872506619, 8.4884933458001353, 8.8739875804091533],
-                      [17, 1, 1, 0.0, 11.524257872506618, 8.5009783458001351, 7.9723335804091535],
-                      [18, 1, 1, 0.0, 11.524257872506618, 8.5009783458001351, 9.7756415804091539],
-                      [19, 1, 3, 0.0, 13.017544872506619, 7.2477253458001352, 8.8739875804091533],
-                      [20, 1, 2, 0.0, 12.161361872506619, 6.1255533458001352, 8.8739875804091533],
-                      [21, 1, 1, 0.0, 11.524253872506618, 6.1380373458001349, 7.9723335804091535],
-                      [22, 1, 1, 0.0, 11.524253872506618, 6.1380373458001349, 9.7756415804091539],
-                      [23, 1, 2, 0.0, 10.653861872506619, 6.1255533458001352, 8.8739875804091533],
-                      [24, 1, 1, 0.0, 10.666346872506619, 6.7626573458001351, 7.9723335804091535],
-                      [25, 1, 1, 0.0, 10.666346872506619, 6.7626573458001351, 9.7756415804091539],
-                      [26, 1, 3, 0.0, 9.413093872506618, 5.2693693458001345, 8.8739875804091533],
-                      [27, 1, 2, 0.0, 8.2909218725066189, 6.1255533458001352, 8.8739875804091533],
-                      [28, 1, 1, 0.0, 8.3034058725066195, 6.7626613458001348, 7.9723335804091535],
-                      [29, 1, 1, 0.0, 8.3034058725066195, 6.7626613458001348, 9.7756415804091539],
-                      [30, 1, 2, 0.0, 8.2909218725066189, 7.6330533458001355, 8.8739875804091533],
-                      [31, 1, 1, 0.0, 8.9280258725066179, 7.6205673458001346, 7.9723335804091535],
-                      [32, 1, 1, 0.0, 8.9280258725066179, 7.6205673458001346, 9.7756415804091539],
-                      [33, 1, 3, 0.0, 7.4347378725066182, 8.8738213458001347, 8.8739875804091533],
-                      [34, 1, 2, 0.0, 8.2909218725066189, 9.9959933458001355, 8.8739875804091533],
-                      [35, 1, 1, 0.0, 8.9280298725066185, 9.9835093458001349, 7.9723335804091535],
-                      [36, 1, 1, 0.0, 8.9280298725066185, 9.9835093458001349, 9.7756415804091539],
-                      [37, 1, 2, 0.0, 8.2909218725066189, 11.503493345800134, 8.8739875804091533],
-                      [38, 1, 1, 0.0, 8.9280258725066179, 11.491008345800134, 7.9723335804091535],
-                      [39, 1, 1, 0.0, 8.9280258725066179, 11.491008345800134, 9.7756415804091539],
-                      [40, 1, 3, 0.0, 7.4347378725066182, 12.744261345800135, 8.8739875804091533],
-                      [41, 1, 2, 0.0, 8.2909218725066189, 13.866433345800136, 8.8739875804091533],
-                      [42, 1, 1, 0.0, 8.9280298725066185, 13.853949345800135, 7.9723335804091535],
-                      [43, 1, 1, 0.0, 8.9280298725066185, 13.853949345800135, 9.7756415804091539],
-                      [44, 1, 2, 0.0, 8.2909218725066189, 13.866433345800136, 10.381487580409154],
-                      [45, 1, 1, 0.0, 8.6711978725066192, 12.829962345800135, 10.369001580409153],
-                      [46, 1, 1, 0.0, 7.186960872506619, 13.854150345800136, 10.369001580409153],
-                      [47, 1, 3, 0.0, 8.777190872506619, 14.571127345800136, 11.622255580409155],
-                      [48, 1, 2, 0.0, 8.2909218725066189, 13.866433345800136, 12.744427580409154],
-                      [49, 1, 1, 0.0, 8.6711958725066189, 12.829959345800134, 12.731943580409153],
-                      [50, 1, 1, 0.0, 7.1869578725066185, 13.854147345800135, 12.731943580409153],
-                      [51, 1, 1, 0.0, 8.7837588725066187, 14.580646345800135, 13.427099580409154]]
-        natom_types = 3
-        natoms = 51
-        np.testing.assert_almost_equal(self.lammps_data.atomic_masses,
-                                       atomic_masses, decimal=10)
-        np.testing.assert_almost_equal(self.lammps_data.atoms_data, atoms_data,
-                                       decimal=6)
-        self.assertEqual(self.lammps_data.natom_types, natom_types)
-        self.assertEqual(self.lammps_data.natoms, natoms)
+    def test_get_string(self):
+        expected = """Generated by pymatgen.io.lammps.data.LammpsData
 
-    def test_from_file(self):
-        self.lammps_data.write_file(
-            os.path.join(test_dir, "lammps_data.dat"))
-        lammps_data = LammpsData.from_file(
-            os.path.join(test_dir, "lammps_data.dat"))
-        self.assertEqual(str(lammps_data), str(self.lammps_data))
+8 atoms
 
-    def tearDown(self):
-        for x in ["lammps_data.dat"]:
-            if os.path.exists(os.path.join(test_dir, x)):
-                os.remove(os.path.join(test_dir, x))
+4 atom types
 
+0.0000 10.0000 xlo xhi
+0.0000 10.0000 ylo yhi
+0.0000 10.0000 zlo zhi
 
-class TestLammpsDataStructure(unittest.TestCase):
-    def setUp(self):
-        self.structure = PymatgenTest.get_structure("Li2O")
-        self.lammps_data = LammpsData.from_structure(self.structure)
-        neutral_structure = self.structure.copy()
-        neutral_structure.remove_oxidation_states()
-        self.lammps_data_neutral = LammpsData.from_structure(neutral_structure,
-                                                             set_charge=False)
+Masses 
 
-    def test_system_info(self):
-        natom_types = 2
-        natoms = 3
-        atomic_masses = [[1, 6.941], [2, 15.9994]]
-        box_size = [[0., 3.291072],
-                    [0., 2.85387],
-                    [0., 2.691534]]
-        box_tilt = [1.63908, 1.639079, 0.948798]
-        atoms_data = [[1, 2, -2.0, 0.0, 0.0, 0.0],
-                      [2, 1, 1, 3.0121376101748445, 2.2136444099840591,
-                       4.7463233003201788],
-                      [3, 1, 1, 1.0030913698251558, 0.73718000001594119,
-                       1.5806037296798212]]
+1  1.00794
+2  12.0107
+3  14.0067
+4  15.9994
 
-        self.assertEqual(self.lammps_data.natom_types, natom_types)
-        self.assertEqual(self.lammps_data.natoms, natoms)
+Atoms 
 
-        np.testing.assert_almost_equal(self.lammps_data.atomic_masses,
-                                       atomic_masses, decimal=6)
-        np.testing.assert_almost_equal(self.lammps_data.box_size, box_size,
-                                       decimal=6)
-        np.testing.assert_almost_equal(self.lammps_data.box_tilt, box_tilt,
-                                       decimal=6)
+1  1  2  0.0000  5.0000  5.0000  5.0837
+2  1  4  0.0000  5.0000  5.0000  6.3048
+3  1  3  0.0000  4.8976  6.1558  4.3405
+4  1  3  0.0000  5.1024  3.8442  4.3405
+5  1  1  0.0000  5.0000  6.9999  4.9061
+6  1  1  0.0000  5.2399  6.1640  3.4033
+7  1  1  0.0000  5.0000  3.0001  4.9061
+8  1  1  0.0000  4.7601  3.8360  3.4033
+"""
+        self.assertEqual(self.ld.get_string(significant_figures=4), expected)
 
-    def test_from_file(self):
-        self.lammps_data.write_file(
-            os.path.join(test_dir, "lammps_data.dat"),significant_figures=15)
-        lammps_data = LammpsData.from_file(
-            os.path.join(test_dir, "lammps_data.dat"), atom_style="charge")
-        self.assertEqual(lammps_data.structure, self.lammps_data.structure)
+    def test_write_file(self):
+        self.ld.write_file("data.test")
+        ldr = LammpsData.from_file("data.test", atom_style="full")
+        self.assertListEqual(self.ld.box_bounds, ldr.box_bounds)
+        self.assertListEqual(self.ld.masses, ldr.masses)
+        ind = random.randint(0, 7)
+        for k in ["id", "molecule-ID", "type"]:
+            self.assertEqual(self.ld.atoms[ind][k], ldr.atoms[ind][k])
+        for k in "qxyz":
+            self.assertAlmostEqual(self.ld.atoms[ind][k],
+                                   ldr.atoms[ind][k], 6)
+        os.remove("data.test")
 
     def test_structure(self):
-        structure = self.lammps_data.structure
-        self.assertEqual(len(structure.composition.elements), 2)
-        self.assertEqual(structure.num_sites, 3)
-        self.assertEqual(structure.formula, "Li2 O1")
+        arg_latt = self.struc.lattice
+        ld = LammpsData.from_structure(self.struc, atom_style="charge")
+        attr = ld.structure
+        attr_latt = attr.lattice
+        np.testing.assert_array_almost_equal(arg_latt.abc, attr_latt.abc)
+        np.testing.assert_array_almost_equal(arg_latt.angles,
+                                             attr_latt.angles)
+        # test if certain componenets are 0s as required by LAMMPS for
+        # any tilted box
+        np.testing.assert_array_equal(attr_latt.matrix[(0, 0, 1), (1, 2, 2)],
+                                      np.zeros(3))
+        self.assertListEqual(self.struc.species, attr.species)
+        np.testing.assert_array_almost_equal(self.struc.frac_coords,
+                                             attr.frac_coords)
+        self.assertIn("charge", attr[0].properties)
+        ld0 = LammpsData.from_structure(self.struc, atom_style="atomic")
+        self.assertNotIn("charge", ld0.structure[0].properties)
 
-        lammps_data = LammpsData.from_file(os.path.join(test_dir, "nvt.data"), 'full')
-        self.assertEqual(type(lammps_data.structure).__name__, 'Structure')
-        self.assertEqual(len(lammps_data.structure.composition.elements), 2)
-        self.assertEqual(lammps_data.structure.num_sites, 648)
-        self.assertEqual(lammps_data.structure.symbol_set[0], 'O')
-        self.assertEqual(lammps_data.structure.symbol_set[1], 'H')
-        self.assertEqual(lammps_data.structure.volume, 27000)
+    def test_get_element_map(self):
+        element_map = LammpsData.get_element_map(structure=self.molec)
+        self.assertDictEqual(element_map, {"C": 2, "O": 4, "N": 3, "H": 1})
 
-        # test tilt structure
-        tilt_str = mg.Structure.from_file(os.path.join(test_dir, "POSCAR"))
-        lmp_tilt_data = LammpsData.from_structure(tilt_str)
-        s = StructureMatcher()
-        groups = s.group_structures([lmp_tilt_data.structure, tilt_str])
-        self.assertEqual(len(groups), 1)
+    def test_get_atoms_data(self):
+        element_map = {"C": 1, "O": 2, "N": 3, "H": 4}
+        atoms = LammpsData.get_atoms_data(structure=self.molec,
+                                          element_map=element_map)
+        ind = random.randint(0, 7)
+        site = self.molec[ind]
+        sample = atoms[ind]
+        self.assertEqual(sample["molecule-ID"], 1)
+        self.assertEqual(sample["id"], ind + 1)
+        self.assertEqual(sample["type"], element_map[site.specie.symbol])
+        self.assertEqual(sample["q"], 0.0)
+        np.testing.assert_array_equal([sample[k] for k in "xyz"], site.coords)
+        atoms0 = LammpsData.get_atoms_data(structure=self.molec,
+                                           element_map=element_map,
+                                           atom_style="molecular")
+        self.assertNotIn("q", atoms0[0])
 
+    def test_from_structure(self):
+        com = self.molec.center_of_mass
+        get_coords = lambda ld: [[a[k] for k in "xyz"] for a in ld.atoms]
+        self.assertIsNone(self.ld.box_tilt)
+        mass_list = [1.00794, 12.0107, 14.0067, 15.9994]
+        masses = [{"id": i + 1, "mass": m} for i, m in enumerate(mass_list)]
+        self.assertListEqual(self.ld.masses, masses)
+        shifted_coords = get_coords(self.ld)
+        np.testing.assert_array_equal(self.molec.cart_coords - com +
+                                      np.array([5] * 3), shifted_coords)
+        no_trans = LammpsData.from_structure(structure=self.molec,
+                                             box_bounds=None,
+                                             translate_mol=False)
+        unshifted_coords = get_coords(no_trans)
+        np.testing.assert_array_equal(self.molec.cart_coords,
+                                      unshifted_coords)
+        tiny_box = [[0, 0.4]] * 3
+        adjusted = LammpsData.from_structure(structure=self.molec,
+                                             box_bounds=tiny_box,
+                                             translate_mol=False)
+        adjusted_coords = get_coords(adjusted)
+        box_center = np.mean(adjusted.box_bounds, axis=1)
+        np.testing.assert_array_equal(self.molec.cart_coords - com +
+                                      box_center, adjusted_coords)
+        crystal = LammpsData.from_structure(structure=self.struc,
+                                            atom_style="atomic")
+        ax, by, cz = [b[1] for b in crystal.box_bounds]
+        bx, cx, cy = crystal.box_tilt
+        self.assertAlmostEqual(self.struc.lattice.a, ax)
+        self.assertAlmostEqual(self.struc.lattice.b, np.linalg.norm([bx, by]))
+        self.assertAlmostEqual(self.struc.lattice.c,
+                               np.linalg.norm([cx, cy, cz]))
+        latt = Lattice([[ax, 0, 0], [bx, by, 0], [cx, cy, cz]])
+        dummy_crystal = Structure(lattice=latt,
+                                  species=["H"] * len(self.struc),
+                                  coords=get_coords(crystal),
+                                  coords_are_cartesian=True)
+        np.testing.assert_array_almost_equal(self.struc.frac_coords,
+                                             dummy_crystal.frac_coords)
 
-    def tearDown(self):
-        for x in ["lammps_data.dat"]:
-            if os.path.exists(os.path.join(test_dir, x)):
-                os.remove(os.path.join(test_dir, x))
+    def test_from_file(self):
+        file_path = os.path.join(test_dir, "data.quartz")
+        ld = LammpsData.from_file(data_file=file_path, atom_style="atomic")
+        np.testing.assert_array_equal(ld.box_bounds, [[0, 4.913400],
+                                                      [0, 4.255129],
+                                                      [0, 5.405200]])
+        np.testing.assert_array_equal(ld.box_tilt, [-2.456700, 0.0, 0.0])
+        masses = [{"id": i + 1, "mass": m} for
+                  i, m in enumerate([28.0855, 15.9994])]
+        self.assertListEqual(ld.masses, masses)
+        self.assertDictEqual(ld.atoms[-1], {"id": 9, "type": 2, "x": 1.375998,
+                                            "y": -1.140800, "z": -2.443511})
 
 
 class TestLammpsForceFieldData(unittest.TestCase):
@@ -402,7 +406,7 @@ class FuncTest(unittest.TestCase):
                                                        "data.quartz"),
                                  atom_style="atomic")
         tilt = quartz["header"]["tilt"]
-        self.assertListEqual(tilt, [-2.456700, 0.0, 0.0])
+        np.testing.assert_array_equal(tilt, [-2.456700, 0.0, 0.0])
         atom_data = quartz["body"]["Atoms"][-1]
         self.assertDictEqual(atom_data, {"id": 9, "type": 2, "x": 1.375998,
                                          "y": -1.140800, "z": -2.443511})
