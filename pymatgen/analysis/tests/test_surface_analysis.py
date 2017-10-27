@@ -13,12 +13,12 @@ from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen import Structure, Lattice
 
 __author__ = "Richard Tran"
-__copyright__ = "Copyright 2012, The Materials Project"
+__copyright__ = "Copyright 2017, The Materials Virtual Lab"
 __version__ = "0.1"
 __maintainer__ = "Richard Tran"
+__credits__ = "Joseph Montoya"
 __email__ = "rit001@eng.ucsd.edu"
-__date__ = "Aug 24, 2017"
-
+__date__ = "8/24/17"
 
 def get_path(path_str):
     cwd = os.path.abspath(os.path.dirname(__file__))
