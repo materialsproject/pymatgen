@@ -10,6 +10,7 @@ from pymatgen.analysis.surface_analysis import SurfaceEnergyCalculator, \
     SurfaceEnergyPlotter, Composition
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen import Structure, Lattice
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -40,6 +41,20 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
         with open(os.path.join(get_path(""), 'isolated_O_entry.txt')) as isolated_O_entry:
             isolated_O_entry = json.loads(isolated_O_entry.read())
         self.O = ComputedStructureEntry.from_dict(isolated_O_entry)
+
+    def test_stoichiometry_and_chempot(self):
+
+        # If we wanted to calculate surface energy of LiFePO4 wrt to uLi,
+        # x=1, y=1 for a decomposition into Li (the reference) and FePO4
+        s = self.get_structure("LiFePO4")
+        Li = Structure.from_spacegroup("Im-3m", Lattice.cubic(3.478),
+                                       ["Li", "Li"], [(1,0,0),
+                                                      (0.5,0.5,0.5)])
+        LiFePO4 = ComputedStructureEntry(s, 0)
+        LiFePO4_se = SurfaceEnergyCalculator(LiFePO4,
+                                             ref_el_entry=ComputedStructureEntry(Li, 0))
+        self.assertAlmostEqual(LiFePO4_se.x, 1)
+        self.assertAlmostEqual(LiFePO4_se.y, 1)
 
     def test_gamma_calculator(self):
 

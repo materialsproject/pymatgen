@@ -9,8 +9,6 @@ TODO:
         with non-stoichiometric slabs.
     -Need a method to automatically get chempot range when
         dealing with non-stoichiometric slabs
-    -Will address these issues and make the analyzer more
-        generalized in the future
 """
 
 from __future__ import division, unicode_literals
@@ -30,9 +28,10 @@ from pymatgen.analysis.reaction_calculator import Reaction
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
 __author__ = "Richard Tran"
-__copyright__ = "Copyright 2014, The Materials Virtual Lab"
+__copyright__ = "Copyright 2017, The Materials Virtual Lab"
 __version__ = "0.1"
 __maintainer__ = "Richard Tran"
+__credits__ = "Joseph Montoya"
 __email__ = "rit001@eng.ucsd.edu"
 __date__ = "8/24/17"
 
@@ -54,20 +53,14 @@ consider citing the following works::
 
 class SurfaceEnergyCalculator(object):
     """
-    A class used for analyzing the surface energies of a material.
-        By default, this will use entries calculated from the
-        Materials Project to obtain chemical potential and bulk energy. As a
-        result, the difference in VASP parameters between the user's entry
-        and the parameters used by Materials Project, may lead to a rough
-        estimate of the surface energy. For best results, it is recommend that
-        the user calculates all decomposition components first, and insert the
-        results into their own database as a pymatgen-db entry and use those
-        entries instead (custom_entries). In addition, this code will only use
-        one bulk entry to calculate surface energy. Ideally, to get the most
-        accurate surface energy, the user should compare their slab energy to
-        the energy of the oriented unit cell with both calculations containing
-        consistent k-points to avoid convergence problems as the slab size is
-        varied. See:
+    A class used for analyzing the surface energies, adsorbate binding energies
+        and other quantities related to surface thermodynamics for a material.
+        By default, this code will only use one bulk entry to calculate surface
+        energy. Ideally, to get the most accurate surface energy, the user should
+        compare their slab energy to the energy of the oriented unit cell with
+        both calculations containing consistent k-points to avoid convergence
+        problems as the slab size is varied. See:
+
             Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
                 Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
         and
@@ -75,28 +68,28 @@ class SurfaceEnergyCalculator(object):
                 Surfaces : A Primer. Experiment, Modeling and Simulation of Gas-Surface
                 Interactions for Reactive Flows in Hypersonic Flights, 2–1 – 2–18.
 
-
-    .. attribute:: ref_element
+    .. attribute:: ref_el_entry
 
         All chemical potentials can be written in terms of the range of chemical
             potential of this element which will be used to calculate surface energy.
 
-    .. attribute:: mprester
+    .. attribute:: ref_el_as_str
 
-        Materials project rester for querying entries from the materials project.
-            Requires user MAPIKEY.
+        Reference element as a string (see ref_el_entry).
 
     .. attribute:: ucell_entry
 
-        Materials Project entry of the material of the slab.
+        Bulk entry of the base material of the slab.
 
     .. attribute:: x
 
-        Reduced amount composition of decomposed compound A in the bulk.
+        Reduced amount composition of decomposed compound A in the
+            bulk. e.g. x=1 for FePO4 in LiFePO4
 
     .. attribute:: y
 
-        Reduced amount composition of ref_element in the bulk.
+        Reduced amount composition of ref_element in the bulk. e.g.
+            y=2 for Li in LiFePO4
 
     .. attribute:: gbulk
 
@@ -107,10 +100,13 @@ class SurfaceEnergyCalculator(object):
         Energy per atom of ground state ref_element, eg. if ref_element=O,
             than e_of_element=1/2*E_O2.
 
-    .. attribute:: adsorbate
+    .. attribute:: adsorbate_entry
 
-        Composition of the adsorbate (if there is one).
+        Entry of the adsorbate (if there is one).
 
+    .. attribute:: adsorbate_as_str
+
+        Adsorbate formula as a string (see adsorbate_entry).
     """
 
     def __init__(self, ucell_entry, ref_el_entry=None,
@@ -121,25 +117,16 @@ class SurfaceEnergyCalculator(object):
         Args:
             ucell_entry (material_id or computed_entry): Materials Project or entry
                 of the bulk system the slab is based on (a string, e.g., mp-1234).
-            comp1 (Composition): Composition to be considered as dependent
-                variable.
-            ref_el_comp (Composition): Composition to be considered as independent
-                variable. E.g., if you want to show the stability
+            ref_el_entry (ComputedStructureEntry): Entry to be considered as
+                independent variable. E.g., if you want to show the stability
                 ranges of all Li-Co-O phases wrt to uLi
-            exclude_ids (list of material_ids): List of material_ids
-                to exclude when obtaining the decomposition components
-                to calculate the chemical potential
-            custom_entries (list of pymatgen-db type entries): List of
-                user specified pymatgen-db type entries to use in finding
-                decomposition components for the chemical potential
-            mapi_key (str): Materials Project API key for accessing the
-                MP database via MPRester
-            adsorbate_entry (Composition): Computed entry of adsorbate,
+            adsorbate_entry (ComputedStructureEntry): Computed entry of adsorbate,
                 defaults to None. Could be an isolated H2 or O2 molecule for gaseous
                     adsorption or just the bulk ground state structure for metals.
-                    Either way, the extract term is going to be in energy per atom.
+                    Either way, the extracted term is going to be in energy per atom.
         """
 
+        # Set up basic attributes
         self.ref_el_entry = ref_el_entry
         self.ref_el_as_str = ref_el_entry.composition.elements[0].name \
             if ref_el_entry else None
@@ -152,7 +139,8 @@ class SurfaceEnergyCalculator(object):
             reactant_formula = ""
             for el in ucell_comp.as_dict().keys():
                 if el != self.ref_el_as_str:
-                    reactant_formula += el + str(ucell_comp.reduced_composition.as_dict()[el])
+                    reactant_formula += \
+                        el + str(ucell_comp.reduced_composition.as_dict()[el])
             reactant_comp = Composition(reactant_formula)
             self.reactants = [reactant_comp, ref_el_comp]
             rxn = Reaction(self.reactants,
@@ -248,13 +236,19 @@ class SurfaceEnergyCalculator(object):
         return np.dot([u_ref, u_ads, 1], coeffs)
 
     def get_monolayer(self, ads_slab_entry, clean_slab_entry):
+        """
+        The surface area of the adsorbed system per
+        unit area of the primitive slab system.
+        Args:
+            ads_slab_entry (entry): The entry of the adsorbed slab
+            clean_slab_entry (entry): The entry of the clean slab
+        """
 
         m = ads_slab_entry.structure.lattice.matrix
         A_ads = np.linalg.norm(np.cross(m[0], m[1]))
         m = clean_slab_entry.structure.lattice.matrix
         A_clean = np.linalg.norm(np.cross(m[0], m[1]))
         n = (A_ads / A_clean)
-
         return n
 
     def gibbs_binding_energy(self, ads_slab_entry, clean_slab_entry, eads=False):
@@ -264,6 +258,9 @@ class SurfaceEnergyCalculator(object):
         Args:
             ads_slab_entry (entry): The entry of the adsorbed slab
             clean_slab_entry (entry): The entry of the clean slab
+            eads (bool): Whether to calculate the adsorption energy
+                (True) or the binding energy (False) which is just
+                adsorption energy normalized by number of adsorbates.
         """
 
         n = self.get_monolayer(ads_slab_entry, clean_slab_entry)
@@ -309,7 +306,12 @@ class SurfaceEnergyCalculator(object):
     def solve_2_linear_eqns(self, c1, c2, x_is_u_ads=False, const_u=0):
 
         """
-        Helper method to solve the intersect for two linear equations.
+        Helper method returns the solution to one variable for
+            two linear equations.
+        Args:
+            c1 (array): The coefficients of the first equation
+            c2 (array): The coefficients of the second equation
+
         """
 
         # set one of the terms as a constant (either the adsorption
