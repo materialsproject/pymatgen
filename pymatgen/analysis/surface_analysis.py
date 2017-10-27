@@ -1085,7 +1085,7 @@ class SurfaceEnergyPlotter(object):
                     if entry in self.entry_dict[hkl][clean_entry]:
                         return [clean_entry, entry]
 
-    def BE_vs_SE(self, plot_eads=False, const_u=0,
+    def BE_vs_gamma(self, plot_eads=False, const_u=0,
                  annotate_monolayer=True, JPERM2=False):
         """
         For each facet, plot the clean surface energy against the most
