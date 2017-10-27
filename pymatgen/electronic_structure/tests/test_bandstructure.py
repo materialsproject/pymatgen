@@ -15,6 +15,8 @@ from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.testing import PymatgenTest
 
+from monty.serialization import loadfn
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
@@ -110,6 +112,9 @@ class BandStructureSymmLine_test(PymatgenTest):
     def test_get_direct_band_gap(self):
         self.assertAlmostEqual(self.bs2.get_direct_band_gap(),
                                4.0125999999999999)
+        bs = loadfn(os.path.join(test_dir, "bs_vbr2.json"))
+        self.assertTrue(bs.get_direct_band_gap() > 0)
+        blargh
 
     def test_is_metal(self):
         self.assertFalse(self.bs2.is_metal(), "wrong metal assignment")

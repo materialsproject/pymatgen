@@ -463,22 +463,15 @@ class BandStructure(object):
         """
         if self.is_metal():
             return 0.0
-        cb = collections.defaultdict(list)
-        vb = collections.defaultdict(list)
+        direct_gap = {}
         for spin, v in self.bands.items():
-            for i in range(len(v)):
-                for j in range(len(self.kpoints)):
-                    if self.bands[Spin.up][i][j] > self.efermi:
-                        cb[spin].append(v[i][j])
-                        vb[spin].append(v[i - 1][j])
-        diff = []
-        for i in range(len(self.kpoints)):
-            diff.append(min(
-                [cb[Spin.up][i], cb.get(Spin.down, cb[Spin.up])[i]])
-                        - max(
-                [vb[Spin.up][i], vb.get(Spin.down, vb[Spin.up])[i]]))
-        return min(diff)
-
+            above = v[np.all(v > self.efermi, axis=1)]
+            min_above = np.min(above, axis=0)
+            below = v[np.all(v < self.efermi, axis=1)]
+            max_below = np.max(below, axis=0)
+            direct_gap[spin] = np.min(min_above - max_below)
+        return min(direct_gap.values())
+    
     def as_dict(self):
         """
         Json-serializable dict representation of BandStructureSymmLine.
