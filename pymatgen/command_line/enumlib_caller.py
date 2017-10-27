@@ -30,7 +30,7 @@ from monty.tempfile import ScratchDir
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
 
-This module depends on a compiled enumlib with the executables multienum.x and
+This module depends on a compiled enumlib with the executables enum.x and
 makestr.x available in the path. Please download the library at
 http://enum.sourceforge.net/ and follow the instructions in the README to
 compile these two executables accordingly.
@@ -64,6 +64,7 @@ logger = logging.getLogger(__name__)
 enum_cmd = which('enum.x') or which('multienum.x')
 # prefer makestr.x at present
 makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
+
 
 @requires(enum_cmd and makestr_cmd,
           "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
