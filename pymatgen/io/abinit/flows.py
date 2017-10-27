@@ -2549,7 +2549,8 @@ class NonLinearCoeffFlow(Flow):
     @classmethod
     def from_scf_input(cls, workdir, scf_input, manager=None, allocate=True):
         """
-        Create a `NonlinearFlow` for second order susceptibility calculations from an `AbinitInput` defining a ground-state run.
+        Create a `NonlinearFlow` for second order susceptibility calculations from
+        an `AbinitInput` defining a ground-state run.
 
         Args:
             workdir: Working directory of the flow.
@@ -2612,9 +2613,6 @@ class NonLinearCoeffFlow(Flow):
         print("retcode", retcode)
         #if retcode != 0: return retcode
         return retcode
-
-# Alias for compatibility reasons. For the time being, DO NOT REMOVE
-nonlinear_coeff_flow = NonLinearCoeffFlow
 
 
 def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False,

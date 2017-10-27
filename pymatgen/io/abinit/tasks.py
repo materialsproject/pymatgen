@@ -1186,7 +1186,6 @@ class AbinitBuild(object):
         return op(parse_version(self.version), parse_version(version_string))
 
 
-
 class FakeProcess(object):
     """
     This object is attached to a :class:`Task` instance if the task has not been submitted
@@ -3946,14 +3945,15 @@ class OpticTask(Task):
     """
     color_rgb = np.array((255, 204, 102)) / 255
 
-    def __init__(self, optic_input, nscf_node, ddk_nodes, workdir=None, manager=None):
+    def __init__(self, optic_input, nscf_node, ddk_nodes, use_ddknc=False, workdir=None, manager=None):
         """
         Create an instance of :class:`OpticTask` from an string containing the input.
 
         Args:
-            optic_input: string with the optic variables (filepaths will be added at run time).
-            nscf_node: The NSCF task that will produce thw WFK file or string with the path of the WFK file.
-            ddk_nodes: List of :class:`DdkTask` nodes that will produce the DDK files or list of DDF paths.
+            optic_input: :class:`OpticInput` object with optic variables.
+            nscf_node: The task that will produce the WFK file with the KS energies or path to the WFK file.
+            ddk_nodes: List of :class:`DdkTask` nodes that will produce the DDK files or list of DDK filepaths.
+                Order (x, y, z)
             workdir: Path to the working directory.
             manager: :class:`TaskManager` object.
         """
@@ -3964,8 +3964,11 @@ class OpticTask(Task):
         #print(self.nscf_node, self.ddk_nodes)
 
         # Use DDK extension instead of 1WF
-        deps = {n: "1WF" for n in self.ddk_nodes}
-        #deps = {n: "DDK" for n in self.ddk_nodes}
+        if use_ddknc:
+            deps = {n: "DDK.nc" for n in self.ddk_nodes}
+        else:
+            deps = {n: "1WF" for n in self.ddk_nodes}
+
         deps.update({self.nscf_node: "WFK"})
 
         super(OpticTask, self).__init__(optic_input, workdir=workdir, manager=manager, deps=deps)
@@ -4022,14 +4025,20 @@ class OpticTask(Task):
     @property
     def ddk_filepaths(self):
         """Returns (at runtime) the absolute path of the DDK files produced by the DDK runs."""
+        # This to support new version of optic that used DDK.nc
+        paths = [ddk_task.outdir.has_abiext("DDK.nc") for ddk_task in self.ddk_nodes]
+        if all(p for p in paths):
+            return paths
+
+        # This is deprecated and can be removed when new version of Abinit is released.
         return [ddk_task.outdir.has_abiext("1WF") for ddk_task in self.ddk_nodes]
 
     def make_input(self):
         """Construct and write the input file of the calculation."""
         # Set the file paths.
-        all_files ={"ddkfile_"+str(n+1) : ddk for n,ddk in enumerate(self.ddk_filepaths)}
-        all_files.update({"wfkfile" : self.wfk_filepath})
-        files_nml = {"FILES" : all_files}
+        all_files ={"ddkfile_" + str(n + 1): ddk for n, ddk in enumerate(self.ddk_filepaths)}
+        all_files.update({"wfkfile": self.wfk_filepath})
+        files_nml = {"FILES": all_files}
         files= nmltostring(files_nml)
 
         # Get the input specified by the user
@@ -4048,11 +4057,7 @@ class OpticTask(Task):
         """
 
     def get_results(self, **kwargs):
-        results = super(OpticTask, self).get_results(**kwargs)
-        #results.update(
-        #"epsilon_infinity":
-        #))
-        return results
+        return super(OpticTask, self).get_results(**kwargs)
 
     def fix_abicritical(self):
         """
