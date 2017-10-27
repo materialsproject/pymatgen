@@ -405,7 +405,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     tolerance. currently this is .1
 
     For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites
-    4, 5, 6, 7 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
+    4, 5, 6, 7 then 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
     will be filled, even though a lower energy combination might be found by
     putting all lithium in sites [4,5,6,7].
 
