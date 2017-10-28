@@ -863,6 +863,7 @@ def parse_data_file(filename, atom_style="full", sort_id=False):
     section_marks = [i for i, l in enumerate(clines) if l in SECTION_KEYWORDS]
     parts = np.split(clines, section_marks)
 
+    # First, parse header
     float_group = r'([0-9eE.+-]+)'
     header_pattern = {}
     header_pattern["counts"] = r'^\s*(\d+)\s+([a-zA-Z]+)$'
@@ -893,14 +894,16 @@ def parse_data_file(filename, atom_style="full", sort_id=False):
         header["bounds"] = [bounds.get(i, [-0.5, 0.5]) for i in "xyz"]
         return header
 
-    data["header"] = parse_header(parts[0])
+    header = parse_header(parts[0])
 
+    # Then, parse each section
+    topo_sections = ["Bonds", "Angles", "Dihedrals", "Impropers"]
     def parse_section(single_section_lines):
         kw = single_section_lines[0]
 
         if kw.endswith("Coeffs") and not kw.startswith("PairIJ"):
             parse_line = lambda l: {"coeffs": [float(x) for x in l[1:]]}
-        elif kw in ["Bonds", "Angles", "Dihedrals", "Impropers"]:
+        elif kw in topo_sections:
             n = {"Bonds": 2, "Angles": 3, "Dihedrals": 4, "Impropers": 4}
             parse_line = lambda l: {"type": int(l[1]), kw[:-1].lower():
                                     [int(x) for x in l[2:n[kw] + 2]]}
@@ -927,21 +930,42 @@ def parse_data_file(filename, atom_style="full", sort_id=False):
                           "Skipping..." % kw)
             return {}
 
-        section = {kw: []}
+        section = []
         splitted_lines = [l.split() for l in single_section_lines[1:]]
         if sort_id:
             splitted_lines = sorted(splitted_lines, key=lambda l: int(l[0]))
         for l in splitted_lines:
             line_data = parse_line(l)
             line_data["id"] = int(l[0])
-            section[kw].append(line_data)
-        return section
+            section.append(line_data)
+        return kw, section
 
-    data["body"] = {}
+    seen_atoms = False
+    body = {}
+    err_msg = "Bad LAMMPS data format where "
     for part in parts[1:]:
-        data["body"].update(parse_section(part))
+        name, section = parse_section(part)
+        if name == "Atoms":
+            seen_atoms = True
+        if name in topo_sections + ["Velocities"] and not seen_atoms:
+            raise RuntimeError(err_msg + "%s section appears before"
+                                         " Atoms section" % name)
+        body.update({name: section})
 
-    return data
+    err_msg += "Nos. of {} do not match between header and {} section"
+    assert len(body["Masses"]) == header["types"]["atom"],\
+        err_msg.format("atom types", "Masses")
+    atom_sections = ["Atoms", "Velocities"] \
+        if body.get("Velocities") else ["Atoms"]
+    for s in atom_sections:
+        assert len(body[s]) == header["counts"]["atoms"],\
+            err_msg.format("atoms", s)
+    for s in topo_sections:
+        if header["counts"].get(s.lower(), 0) > 0:
+            assert len(body[s]) == header["counts"][s.lower()],\
+                err_msg.format(s.lower(), s)
+
+    return {"header": header, "body": body}
 
 
 def _pretty_section(str_mat):
