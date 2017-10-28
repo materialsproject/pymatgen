@@ -8,6 +8,7 @@ from __future__ import division, print_function, unicode_literals, \
 import itertools
 import warnings
 import re
+import ast
 
 import numpy as np
 
@@ -424,8 +425,7 @@ class LammpsForceFieldData(MSONable):
                       if k in self.ff_coeffs.keys()]
             ff_parts = []
             for kw in ff_kws:
-                ff_mat = [["%d" % d["id"]]
-                          + [float_ph.format(i) for i in d["coeffs"]]
+                ff_mat = [[str(i) for i in [d["id"]] + d["coeffs"]]
                           for d in self.ff_coeffs[kw]]
                 if not kw.startswith("Pair"):
                     types[kw.lower()[:-7]] = len(ff_mat)
@@ -854,7 +854,8 @@ def parse_data_file(filename, atom_style="full", sort_id=False):
         kw = single_section_lines[0]
 
         if kw in SECTION_KEYWORDS["ff"] and kw is not "PairIJ Coeffs":
-            parse_line = lambda l: {"coeffs": [float(x) for x in l[1:]]}
+            parse_line = lambda l: {"coeffs": [ast.literal_eval(x)
+                                               for x in l[1:]]}
         elif kw in topo_sections:
             n = {"Bonds": 2, "Angles": 3, "Dihedrals": 4, "Impropers": 4}
             parse_line = lambda l: {"type": int(l[1]), kw[:-1].lower():
