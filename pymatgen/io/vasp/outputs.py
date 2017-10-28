@@ -1507,7 +1507,7 @@ class Outcar(MSONable):
         self.data = {}
 
         # Read the drift:
-        self.read_pattern({"drift":"total drift:\s+(\S+)\s+(\S+)\s+(\S+)"},
+        self.read_pattern({"drift":"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
                           terminate_on_match=False,
                           postprocess=float)        
         self.drift = self.data.get('drift',[])
