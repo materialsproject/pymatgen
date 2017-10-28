@@ -1101,7 +1101,6 @@ class SlabGenerator(object):
                 slab.remove_sites([c_dir.index(min(c_dir))])
 
                 # Check if the altered surface is symmetric
-
                 sg = SpacegroupAnalyzer(slab, symprec=tol)
 
                 if sg.is_laue():
