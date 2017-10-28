@@ -1469,7 +1469,8 @@ class IStructure(SiteCollection, MSONable):
             else:
                 return XSF(self).to_string()
         elif fmt == 'mcsqs' or fnmatch(fname, "*rndstr.in*") \
-                or fnmatch(fname, "*lat.in*"):
+                or fnmatch(fname, "*lat.in*") \
+                or fnmatch(fname, "*bestsqs*"):
             if filename:
                 with zopen(fname, "wt", encoding='ascii') as f:
                     return Mcsqs(self).to_string()
@@ -1608,6 +1609,12 @@ class IStructure(SiteCollection, MSONable):
                                 merge_tol=merge_tol)
         elif fnmatch(fname, "input*.xml"):
             return ExcitingInput.from_file(fname).structure
+        elif fnmatch(fname, "*rndstr.in*") \
+                or fnmatch(fname, "*lat.in*") \
+                or fnmatch(fname, "*bestsqs*"):
+            return cls.from_str(contents, fmt="mcsqs",
+                                primitive=primitive, sort=sort,
+                                merge_tol=merge_tol)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:

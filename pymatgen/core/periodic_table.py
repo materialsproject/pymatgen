@@ -914,7 +914,7 @@ class Specie(MSONable):
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity,
-        followed by oxidation state.
+        followed by oxidation state, followed by spin.
         """
         if self.X != other.X:
             return self.X < other.X
@@ -922,9 +922,15 @@ class Specie(MSONable):
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
             return self.symbol < other.symbol
-        else:
-            other_oxi = 0 if isinstance(other, Element) else other.oxi_state
+        elif self.oxi_state:
+            other_oxi = 0 if (isinstance(other, Element)
+                              or other.oxi_state is None) else other.oxi_state
             return self.oxi_state < other_oxi
+        elif getattr(self, "spin", False):
+            other_spin = getattr(other, "spin", 0)
+            return self.spin < other.spin
+        else:
+            return False
 
     @property
     def element(self):
@@ -1142,8 +1148,9 @@ class DummySpecie(Specie):
         """
         if not isinstance(other, DummySpecie):
             return False
-        return self.symbol == other.symbol \
-            and self._oxi_state == other._oxi_state
+        return isinstance(other, Specie) and self.symbol == other.symbol \
+            and self.oxi_state == other.oxi_state \
+            and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1259,10 +1266,13 @@ class DummySpecie(Specie):
 
     def __str__(self):
         output = self.symbol
-        if self._oxi_state >= 0:
-            output += formula_double_format(self._oxi_state) + "+"
-        else:
-            output += formula_double_format(-self._oxi_state) + "-"
+        if self.oxi_state is not None:
+            if self.oxi_state >= 0:
+                output += formula_double_format(self.oxi_state) + "+"
+            else:
+                output += formula_double_format(-self.oxi_state) + "-"
+        for p, v in self._properties.items():
+            output += ",%s=%s" % (p, v)
         return output
 
 
