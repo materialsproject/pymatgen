@@ -1348,6 +1348,18 @@ class Outcar(MSONable):
     .. attribute:: drift
         Total drift for each step in eV/Atom
 
+    .. attribute:: ngf
+        Dimensions for the Augementation grid
+
+    .. attribute: sampling_radii
+        Size of the sampling radii in VASP for the test charges for 
+        the electrostatic potential at each atom. Total array size is the number
+        of elements present in the calculation
+
+    .. attribute: electrostatic_potential
+        Average electrostatic potential at each atomic position in order
+        of the atoms in POSCAR.
+
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
     read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().
