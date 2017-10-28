@@ -1529,6 +1529,11 @@ class Outcar(MSONable):
             self.read_lcalcpol()
             self.read_pseudo_zval()
 
+        # Read electrostatic potential
+        self.read_pattern({'electrostatic': "average \(electrostatic\) potential at core"})
+        if self.data.get('electrostatic', []):
+            self.read_electrostatic_potential()
+
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
         """
@@ -1621,6 +1626,30 @@ class Outcar(MSONable):
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
+
+    def read_electrostatic_potential(self):
+        """
+        Parses the eletrostatic potential for the last ionic step
+        """
+        pattern = {"ngf": r"\s+dimension x,y,z NGXF=\s+([\.\-\d]+)\sNGYF=\s+([\.\-\d]+)\sNGZF=\s+([\.\-\d]+)"}
+        self.read_pattern(pattern, postprocess=int)
+        self.ngf = self.data.get("ngf",[[]])[0]
+
+        pattern = {"radii": r"the test charge radii are((?:\s+[\.\-\d]+)+)"}
+        self.read_pattern(pattern, reverse=True,terminate_on_match=True, postprocess=str)
+        self.sampling_radii = [float(f) for f in self.data["radii"][0][0].split()]
+
+        header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
+        table_pattern = r"((?:\s+\d+\s?[\.\-\d]+)+)"
+        footer_pattern = r"\s+E-fermi :"
+
+        pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
+        pots = "".join(itertools.chain.from_iterable(pots))
+
+        pots = re.findall("\s+\d+\s?([\.\-\d]+)+", pots)
+        pots = [float(f) for f in pots]
+
+        self.electrostatic_potential = pots
 
     def read_freq_dielectric(self):
         """
@@ -2378,7 +2407,9 @@ class Outcar(MSONable):
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
              "nelect": self.nelect, "is_stopped": self.is_stopped,
-             "drift": self.drift}
+             "drift": self.drift, "ngf": self.ngf, 
+             "sampling_radii": self.sampling_radii,
+             "electrostatic_potential": self.electrostatic_potential}
 
         if self.lepsilon:
             d.update({'piezo_tensor': self.piezo_tensor,
