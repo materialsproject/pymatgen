@@ -9,16 +9,16 @@ import unittest
 import os
 
 from pymatgen import Structure
-from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet
-from pymatgen.io.feff.inputs import Potential
-from pymatgen.io.cif import CifParser
+from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet, PostFEFFSet
+from pymatgen.io.feff.inputs import Potential, Tags, Atoms, Header
+from pymatgen.io.cif import CifParser, CifFile
+import shutil
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 
 class FeffInputSetTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
 
@@ -144,6 +144,39 @@ TITLE sites: 4
         self.assertNotIn("KMESH", elnes.tags)
         self.assertNotIn("CIF", elnes.tags)
         self.assertNotIn("TARGET", elnes.tags)
+
+    def test_feffdirectoryinput(self):
+        self.mp_xanes.write_input()
+        feff_dict_input = PostFEFFSet.from_prev_input('.')
+        self.assertTrue(feff_dict_input.tags == Tags.from_file())
+        self.assertTrue(str(feff_dict_input.header) == str(Header.from_file('HEADER')))
+        self.assertTrue(feff_dict_input.atoms == Atoms.atoms_string_from_file('feff.inp'))
+        self.assertTrue(feff_dict_input.potential == Potential.pot_string_from_file())
+        os.remove("HEADER")
+        os.remove("PARAMETERS")
+        os.remove('ATOMS')
+        os.remove('POTENTIALS')
+        os.remove("feff.inp")
+
+        reci_mp_xanes = MPXANESSet(self.absorbing_atom, self.structure,
+                                   user_tag_settings={"RECIPROCAL": ""})
+        reci_mp_xanes.write_input()
+        feff_reci_input = PostFEFFSet.from_prev_input('.')
+        self.assertTrue(feff_reci_input.tags == Tags.from_file())
+        self.assertTrue(str(feff_reci_input.header) == str(Header.from_file('HEADER')))
+        self.assertTrue("RECIPROCAL" in feff_reci_input.tags)
+
+        feff_reci_input.write_input('Dup_reci')
+        self.assertTrue(os.path.exists(os.path.join('.', 'Dup_reci', 'HEADER')))
+        self.assertTrue(os.path.exists(os.path.join('.', 'Dup_reci', 'feff.inp')))
+        self.assertTrue(os.path.exists(os.path.join('.', 'Dup_reci', 'PARAMETERS')))
+        self.assertFalse(os.path.exists(os.path.join('.', 'Dup_reci', 'ATOMS')))
+        self.assertFalse(os.path.exists(os.path.join('.', 'Dup_reci', 'POTENTIALS')))
+
+        cif_orig = CifFile.from_file(os.path.join('.', 'Co2O2.cif'))
+        cif_reci = CifFile.from_file(os.path.join('.', 'Dup_reci/Co2O2.cif'))
+        self.assertTrue(cif_orig.orig_string == cif_reci.orig_string)
+        shutil.rmtree(os.path.join('.', 'Dup_reci'))
 
 
 if __name__ == '__main__':
