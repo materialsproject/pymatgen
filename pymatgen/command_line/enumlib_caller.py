@@ -10,6 +10,7 @@ import subprocess
 import itertools
 import logging
 import glob
+import warnings
 
 import numpy as np
 from monty.fractions import lcm
@@ -30,7 +31,7 @@ from monty.tempfile import ScratchDir
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
 
-This module depends on a compiled enumlib with the executables multienum.x and
+This module depends on a compiled enumlib with the executables enum.x and
 makestr.x available in the path. Please download the library at
 http://enum.sourceforge.net/ and follow the instructions in the README to
 compile these two executables accordingly.
@@ -64,6 +65,7 @@ logger = logging.getLogger(__name__)
 enum_cmd = which('enum.x') or which('multienum.x')
 # prefer makestr.x at present
 makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
+
 
 @requires(enum_cmd and makestr_cmd,
           "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
@@ -325,10 +327,19 @@ class EnumlibAdaptor(object):
             # Need to strip sites of site_properties, which would otherwise
             # result in an index error. Hence Structure is reconstructed in
             # the next step.
+            site_properties = {}
+            for site in self.ordered_sites:
+                for k, v in site.properties.items():
+                    if k in site_properties:
+                        site_properties[k].append(v)
+                    else:
+                        site_properties[k] = [v]
             ordered_structure = Structure(
                 original_latt,
                 [site.species_and_occu for site in self.ordered_sites],
-                [site.frac_coords for site in self.ordered_sites])
+                [site.frac_coords for site in self.ordered_sites],
+                site_properties=site_properties
+            )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
 
         try:
@@ -363,7 +374,7 @@ class EnumlibAdaptor(object):
                                                       site.frac_coords,
                                                       super_latt).to_unit_cell)
                         else:
-                            logger.warning("Skipping sites that include species X.")
+                            warnings.warn("Skipping sites that include species X.")
                     structs.append(Structure.from_sites(sorted(sites)))
 
         except Exception as e:
