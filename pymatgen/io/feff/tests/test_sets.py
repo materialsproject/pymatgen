@@ -9,7 +9,7 @@ import unittest
 import os
 
 from pymatgen import Structure
-from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet, FEFFDirectoryInput
+from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet, PostFEFFSet
 from pymatgen.io.feff.inputs import Potential, Tags, Atoms, Header
 from pymatgen.io.cif import CifParser, CifFile
 import shutil
@@ -147,7 +147,7 @@ TITLE sites: 4
 
     def test_feffdirectoryinput(self):
         self.mp_xanes.write_input()
-        feff_dict_input = FEFFDirectoryInput.from_directory('.')
+        feff_dict_input = PostFEFFSet.from_prev_input('.')
         self.assertTrue(feff_dict_input.tags == Tags.from_file())
         self.assertTrue(str(feff_dict_input.header) == str(Header.from_file('HEADER')))
         self.assertTrue(feff_dict_input.atoms == Atoms.atoms_string_from_file('feff.inp'))
@@ -161,7 +161,7 @@ TITLE sites: 4
         reci_mp_xanes = MPXANESSet(self.absorbing_atom, self.structure,
                                    user_tag_settings={"RECIPROCAL": ""})
         reci_mp_xanes.write_input()
-        feff_reci_input = FEFFDirectoryInput.from_directory('.')
+        feff_reci_input = PostFEFFSet.from_prev_input('.')
         self.assertTrue(feff_reci_input.tags == Tags.from_file())
         self.assertTrue(str(feff_reci_input.header) == str(Header.from_file('HEADER')))
         self.assertTrue("RECIPROCAL" in feff_reci_input.tags)

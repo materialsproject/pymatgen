@@ -245,10 +245,11 @@ class FEFFDictSet(AbstractFeffInputSet):
         return "\n".join(output)
 
 
-class FEFFDirectoryInput(dict, AbstractFeffInputSet):
+class PostFEFFSet(dict, AbstractFeffInputSet):
     """
-    Generating FEFF input from a directory contains FEFF inputfiles, which is
-    useful when existing FEFF input needs some adjustment.
+    Post-processing FEFF input from a directory contains FEFF inputfiles, which is
+    useful when existing FEFF input needs some adjustment. Typically, you would use the classmethod
+    from_prev_input to initialize from a directory contains FEFF input files.
     """
 
     def __init__(self, header, parameters, atoms, potentials, optional_files=None):
@@ -309,11 +310,17 @@ class FEFFDirectoryInput(dict, AbstractFeffInputSet):
         return self['POTENTIALS']
 
     @staticmethod
-    def from_directory(input_dir, optional_files=None):
+    def from_prev_input(input_dir, optional_files=None):
         """
-        Read in a set of FEFF input from a directory. Note that only the
-        standard HEADER, ATOMS, PARAMETERS, POTENTIALS files are read unless
+        Generate a set of FEFF input files from a directory contains inputs of FEFF runs.
+        Note that only the standard HEADER, ATOMS, PARAMETERS, POTENTIALS files are read unless
         optional_filenames if specified
+
+        Args:
+            input_dir (str): The directory contains the input files of FEFF runs.
+            optional_files (dict) : Other input files supplied as a dict of {
+                filename: object}. The object should follow standard pymatgen
+                conventions in implementing a as_dict() and from_dict() method.
         """
         sub_d = {}
         for fname, ftype in [("HEADER", Header), ("PARAMETERS", Tags)]:
@@ -340,7 +347,7 @@ class FEFFDirectoryInput(dict, AbstractFeffInputSet):
             for fname, ftype in optional_files.items():
                 sub_d["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
 
-        return FEFFDirectoryInput(**sub_d)
+        return PostFEFFSet(**sub_d)
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """
@@ -371,7 +378,6 @@ class FEFFDirectoryInput(dict, AbstractFeffInputSet):
         if "ATOMS" not in feff:
             with open(os.path.join(output_dir, feff["PARAMETERS"]["CIF"]), "w") as f:
                 f.write(self.atoms.orig_string)
-
 
 
 class MPXANESSet(FEFFDictSet):
