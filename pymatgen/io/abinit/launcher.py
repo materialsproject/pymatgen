@@ -577,7 +577,7 @@ class PyFlowScheduler(object):
                 work.set_manager(new_manager)
 
         nqjobs = 0
-        if self.contact_resource_manager:
+        if self.contact_resource_manager: # or flow.TaskManager.qadapter.QTYPE == "shell":
             # This call is expensive and therefore it's optional
             nqjobs = flow.get_njobs_in_queue()
             if nqjobs is None:
@@ -639,9 +639,8 @@ class PyFlowScheduler(object):
         try:
             nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10)
             self.nlaunch += nlaunch
-
             if nlaunch:
-                print("[%s] Number of launches: %d" % (time.asctime(), nlaunch))
+                cprint("[%s] Number of launches: %d" % (time.asctime(), nlaunch), "yellow")
 
         except Exception:
             excs.append(straceback())
