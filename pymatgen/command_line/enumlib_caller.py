@@ -10,6 +10,7 @@ import subprocess
 import itertools
 import logging
 import glob
+import warnings
 
 import numpy as np
 from monty.fractions import lcm
@@ -326,10 +327,19 @@ class EnumlibAdaptor(object):
             # Need to strip sites of site_properties, which would otherwise
             # result in an index error. Hence Structure is reconstructed in
             # the next step.
+            site_properties = {}
+            for site in self.ordered_sites:
+                for k, v in site.properties.items():
+                    if k in site_properties:
+                        site_properties[k].append(v)
+                    else:
+                        site_properties[k] = [v]
             ordered_structure = Structure(
                 original_latt,
                 [site.species_and_occu for site in self.ordered_sites],
-                [site.frac_coords for site in self.ordered_sites])
+                [site.frac_coords for site in self.ordered_sites],
+                site_properties=site_properties
+            )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
 
         try:
@@ -364,7 +374,7 @@ class EnumlibAdaptor(object):
                                                       site.frac_coords,
                                                       super_latt).to_unit_cell)
                         else:
-                            logger.warning("Skipping sites that include species X.")
+                            warnings.warn("Skipping sites that include species X.")
                     structs.append(Structure.from_sites(sorted(sites)))
 
         except Exception as e:
