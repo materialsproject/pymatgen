@@ -1613,8 +1613,14 @@ class PotcarSingle(object):
         Attempt to return the atomic symbol based on the VRHFIN keyword.
         """
         element = self.keywords["VRHFIN"].split(":")[0].strip()
-        #VASP incorrectly gives the element symbol for Xe as "X"
-        return "Xe" if element == "X" else element
+        try:
+            return Element(element).symbol
+        except ValueError:
+            # VASP incorrectly gives the element symbol for Xe as "X"
+            # Some potentials, e.g., Zr_sv, gives the symbol as r.
+            if element == "X":
+                return "Xe"
+            return Element(self.symbol.split("_")[0]).symbol
 
     @property
     def atomic_no(self):
