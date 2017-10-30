@@ -11,6 +11,7 @@ angles and dihedrals
 
 import itertools
 
+import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.bonds import CovalentBond
@@ -94,10 +95,10 @@ class Topology(MSONable):
                 for site1, site2 in itertools.product(bond1_sites,
                                                       bond2_sites):
                     if CovalentBond.is_bonded(site1, site2, tol=tol):
-                        bond1_sites.remove(site1)
-                        bond2_sites.remove(site2)
-                        dihedral = bond1_sites + [site1,
-                                                  site2] + bond2_sites
+                        ep1 = [site for site in bond1_sites if site is not site1]
+                        ep2 = [site for site in bond1_sites if site is not site2]
+                        dihedral = ep1 + [site1,
+                                                  site2] + ep2
                         dihedral = [molecule.index(dihedral[0]),
                                     molecule.index(dihedral[1]),
                                     molecule.index(dihedral[2]),
@@ -107,7 +108,7 @@ class Topology(MSONable):
                                      str(getattr(dihedral[2], type_attrib)),
                                      str(getattr(dihedral[3], type_attrib)))]
                         dihedrals.append(dihedral)
-                        break
+                        continue
         atoms = [[str(site.specie), str(getattr(site, type_attrib))]
                  for site in molecule]
         bonds = [[molecule.index(b.site1), molecule.index(b.site2),
@@ -116,5 +117,32 @@ class Topology(MSONable):
         charges = None
         if hasattr(molecule[0], "charge"):
             charges = [site.charge for site in molecule]
-        return Topology(atoms, bonds, angles,
+        return Topology(atoms=atoms, bonds=bonds, angles=angles,
                         charges=charges, dihedrals=dihedrals)
+
+
+def get_bonding_topologies(molecule, tol=0.1):
+    bonds = molecule.get_covalent_bonds(tol=tol)
+    bond_arr = [list(map(molecule.index, [b.site1, b.site2])) for b in bonds]
+    bond_arr = np.array(bond_arr)
+    bond_sites, counts = np.unique(bond_arr, return_counts=True)
+    endpoints = bond_sites[np.where(counts > 1)]
+    ep_bonds = {}
+    for ep in endpoints:
+        ix = np.any(np.isin(bond_arr, ep), axis=1)
+        bonds = np.unique(bond_arr[ix]).tolist()
+        bonds.remove(ep)
+        ep_bonds[ep] = bonds
+    angle_arr = []
+    for k, v in ep_bonds.items():
+        angle_arr.extend([[i, k, j] for i, j in itertools.combinations(v, 2)])
+    angle_arr = np.array(angle_arr)
+    dihedral_bonds = bond_arr[np.all(np.isin(bond_arr, endpoints), axis=1)]
+    dihedral_arr = []
+    for i, j in dihedral_bonds:
+        ks = [k for k in ep_bonds[i] if k != j]
+        ls = [l for l in ep_bonds[j] if l != i]
+        dihedral_arr.extend([[k, i, j, l]
+                             for k, l in itertools.product(ks, ls) if k != l])
+    dihedral_arr = np.array(dihedral_arr)
+    return bond_arr, angle_arr, dihedral_arr
