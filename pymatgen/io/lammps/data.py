@@ -605,8 +605,12 @@ def _stringify_data_file(masses, atoms, box_bounds, box_tilt=None,
         ff_kws = [k for k in SECTION_KEYWORDS["ff"] if k in ff_coeffs.keys()]
         ff_parts = []
         for kw in ff_kws:
-            ff_mat = [[str(i) for i in [d["id"]] + d["coeffs"]]
-                      for d in ff_coeffs[kw]]
+            if kw is "PairIJ Coeffs":
+                ff_mat = [[str(i) for i in [d["id1"], d["id2"]] + d["coeffs"]]
+                           for d in ff_coeffs[kw]]
+            else:
+                ff_mat = [[str(i) for i in [d["id"]] + d["coeffs"]]
+                          for d in ff_coeffs[kw]]
             if not kw.startswith("Pair"):
                 types[kw.lower()[:-7]] = len(ff_mat)
             ff_parts.append(_pretty_section(kw, ff_mat))
@@ -702,11 +706,15 @@ def _parse_data_file(filename, atom_style="full", sort_id=False):
         if kw in SECTION_KEYWORDS["ff"] and kw is not "PairIJ Coeffs":
             parse_line = lambda l: {"coeffs": [ast.literal_eval(x)
                                                for x in l[1:]]}
+        elif kw is "PairIJ Coeffs":
+            parse_line = lambda l: {"id1": int(l[0]), "id2": int(l[1]),
+                                    "coeffs": [ast.literal_eval(x)
+                                               for x in l[2:]]}
         elif kw in topo_sections:
             n = {"Bonds": 2, "Angles": 3, "Dihedrals": 4, "Impropers": 4}
             parse_line = lambda l: {"type": int(l[1]), kw[:-1].lower():
                                     [int(x) for x in l[2:n[kw] + 2]]}
-        elif kw == "Atoms":
+        elif kw is "Atoms":
             keys = ATOMS_LINE_FORMAT[atom_style].copy()
             sample_l = single_section_lines[1].split()
             if len(sample_l) == len(keys) + 1:
@@ -720,9 +728,9 @@ def _parse_data_file(filename, atom_style="full", sort_id=False):
             parse_line = lambda l: {k: float(v) if k in float_keys else int(v)
                                     for (k, v)
                                     in zip(keys, l[1:len(keys) + 1])}
-        elif kw == "Velocities":
+        elif kw is "Velocities":
             parse_line = lambda l: {"velocity": [float(x) for x in l[1:4]]}
-        elif kw == "Masses":
+        elif kw is "Masses":
             parse_line = lambda l: {"mass": float(l[1])}
         else:
             warnings.warn("%s section parser has not been implemented. "
@@ -735,7 +743,8 @@ def _parse_data_file(filename, atom_style="full", sort_id=False):
             splitted_lines = sorted(splitted_lines, key=lambda l: int(l[0]))
         for l in splitted_lines:
             line_data = parse_line(l)
-            line_data["id"] = int(l[0])
+            if kw is not "PairIJ Coeffs":
+                line_data["id"] = int(l[0])
             section.append(line_data)
         return kw, section
 
