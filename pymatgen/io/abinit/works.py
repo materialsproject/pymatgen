@@ -1310,7 +1310,7 @@ class PhononWork(Work, MergeDdb):
     """
 
     @classmethod
-    def from_scf_task(cls, scf_task, qpoints, tolerance=None, manager=None):
+    def from_scf_task(cls, scf_task, qpoints, is_ngqpt=False, tolerance=None, manager=None):
         """
         Construct a `PhononWork` from a :class:`ScfTask` object.
         The input file for phonons is automatically generated from the input of the ScfTask.
@@ -1318,7 +1318,9 @@ class PhononWork(Work, MergeDdb):
 
         Args:
             scf_task: ScfTask object.
-            qpoints: q-points in reduced coordinates. Accepts single q-point or list of q-points
+            qpoints: q-points in reduced coordinates. Accepts single q-point, list of q-points
+                or three integers defining the q-mesh if `is_ngqpt`.
+            is_ngqpt: True if `qpoints` should be interpreted as divisions instead of q-points.
             tolerance: dict {varname: value} with the tolerance to be used in the DFPT run.
                 Defaults to {"tolvrs": 1.0e-10}.
             manager: :class:`TaskManager` object.
@@ -1326,7 +1328,10 @@ class PhononWork(Work, MergeDdb):
         if not isinstance(scf_task, ScfTask):
             raise TypeError("task %s does not inherit from ScfTask" % scf_task)
 
-        qpoints = np.reshape(qpoints, (-1,3))
+        if is_ngqpt:
+            qpoints = scf_task.input.abiget_ibz(ngkpt=qpoints, shiftk=[0, 0, 0], kptopt=1).points
+
+        qpoints = np.reshape(qpoints, (-1, 3))
 
         new = cls(manager=manager)
         for qpt in qpoints:
@@ -1337,13 +1342,16 @@ class PhononWork(Work, MergeDdb):
         return new
 
     @classmethod
-    def from_scf_input(cls, scf_input, qpoints, tolerance=None, manager=None):
+    def from_scf_input(cls, scf_input, qpoints, is_ngqpt=False, tolerance=None, manager=None):
         """
         Similar to `from_scf_task`, the difference is that this method requires
         an input for SCF calculation instead of a ScfTask. All the tasks (Scf + Phonon)
         are packed in a single Work whereas in the previous case we usually have multiple works.
         """
-        qpoints = np.reshape(qpoints, (-1,3))
+        if is_ngqpt:
+            qpoints = scf_input.abiget_ibz(ngkpt=qpoints, shiftk=[0, 0, 0], kptopt=1).points
+
+        qpoints = np.reshape(qpoints, (-1, 3))
 
         new = cls(manager=manager)
         scf_task = new.register_scf_task(scf_input)

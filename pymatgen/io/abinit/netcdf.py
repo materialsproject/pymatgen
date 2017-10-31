@@ -12,6 +12,7 @@ from collections import OrderedDict
 from monty.dev import requires
 from monty.collections import AttrDict
 from monty.functools import lazy_property
+from monty.string import marquee
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.core.structure import Structure
@@ -454,7 +455,16 @@ class AbinitHeader(AttrDict):
     def __str__(self):
         return self.to_string()
 
-    def to_string(self, verbose=0, **kwargs):
-        """String representation. kwargs are passed to `pprint.pformat`."""
+    def to_string(self, verbose=0, title=None, **kwargs):
+        """
+        String representation. kwargs are passed to `pprint.pformat`.
+
+        Args:
+            verbose: Verbosity level
+            title: Title string.
+        """
         from pprint import pformat
-        return pformat(self, **kwargs)
+        s = pformat(self, **kwargs)
+        if title is not None:
+            return "\n".join([marquee(title, mark="="), s])
+        return s
