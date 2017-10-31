@@ -5,7 +5,7 @@ requests==2.18.4
 monty==1.0.2
 ruamel.yaml==0.15.34
 six==1.11.0
-scipy==0.19.1
+scipy==1.0.0
 tabulate==0.8.1
 enum34==1.1.6; python_version < '3.5'
 matplotlib==2.1.0
