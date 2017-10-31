@@ -22,31 +22,29 @@ __email__ = "kmathew@lbl.gov"
 __credits__ = 'Brandon Wood'
 
 
+SECTION_KEYWORDS = {"atom": ["Atoms", "Velocities", "Masses",
+                             "Ellipsoids", "Lines", "Triangles", "Bodies"],
+                    "molecule": ["Bonds", "Angles", "Dihedrals", "Impropers"],
+                    "ff": ["Pair Coeffs", "PairIJ Coeffs", "Bond Coeffs",
+                           "Angle Coeffs", "Dihedral Coeffs",
+                           "Improper Coeffs"],
+                    "class2": ["BondBond Coeffs", "BondAngle Coeffs",
+                               "MiddleBondTorsion Coeffs",
+                               "EndBondTorsion Coeffs", "AngleTorsion Coeffs",
+                               "AngleAngleTorsion Coeffs",
+                               "BondBond13 Coeffs", "AngleAngle Coeffs"]}
+
+ATOMS_LINE_FORMAT = {"angle": ["molecule-ID", "type", "x", "y", "z"],
+                     "atomic": ["type", "x", "y", "z"],
+                     "bond": ["molecule-ID", "type", "x", "y", "z"],
+                     "charge": ["type", "q", "x", "y", "z"],
+                     "full": ["molecule-ID", "type", "q", "x", "y", "z"],
+                     "molecular": ["molecule-ID", "type", "x", "y", "z"]}
+
+ATOMS_FLOATS = ["q", "x", "y", "z"]
+
+
 class LammpsData(MSONable):
-
-    SECTION_KEYWORDS = {"atom": ["Atoms", "Velocities", "Masses",
-                                 "Ellipsoids", "Lines", "Triangles",
-                                 "Bodies"],
-                        "molecule": ["Bonds", "Angles", "Dihedrals",
-                                     "Impropers"],
-                        "ff": ["Pair Coeffs", "PairIJ Coeffs", "Bond Coeffs",
-                               "Angle Coeffs", "Dihedral Coeffs",
-                               "Improper Coeffs"],
-                        "class2": ["BondBond Coeffs", "BondAngle Coeffs",
-                                   "MiddleBondTorsion Coeffs",
-                                   "EndBondTorsion Coeffs",
-                                   "AngleTorsion Coeffs",
-                                   "AngleAngleTorsion Coeffs",
-                                   "BondBond13 Coeffs", "AngleAngle Coeffs"]}
-
-    ATOMS_LINE_FORMAT = {"angle": ["molecule-ID", "type", "x", "y", "z"],
-                         "atomic": ["type", "x", "y", "z"],
-                         "bond": ["molecule-ID", "type", "x", "y", "z"],
-                         "charge": ["type", "q", "x", "y", "z"],
-                         "full": ["molecule-ID", "type", "q", "x", "y", "z"],
-                         "molecular": ["molecule-ID", "type", "x", "y", "z"]}
-
-    ATOMS_FLOATS = ["q", "x", "y", "z"]
 
     def __init__(self, masses, atoms, box_bounds, box_tilt=None,
                  velocities=None, ff_coeffs=None, topology=None,
@@ -115,7 +113,7 @@ class LammpsData(MSONable):
         # ff_sections
         contents["ff_sections"] = ""
         if self.ff_coeffs:
-            ff_kws = [k for k in self.SECTION_KEYWORDS["ff"]
+            ff_kws = [k for k in SECTION_KEYWORDS["ff"]
                       if k in self.ff_coeffs.keys()]
             ff_parts = []
             for kw in ff_kws:
@@ -132,10 +130,10 @@ class LammpsData(MSONable):
             contents["ff_sections"] = "\n\n".join(ff_parts)
 
         # atoms
-        atom_format = ["id"] + self.ATOMS_LINE_FORMAT[self.atom_style]
+        atom_format = ["id"] + ATOMS_LINE_FORMAT[self.atom_style]
         if "nx" in self.atoms[0].keys():
             atom_format.extend(["nx", "ny", "nz"])
-        map_str = lambda t: float_ph if t in self.ATOMS_FLOATS else "{}"
+        map_str = lambda t: float_ph if t in ATOMS_FLOATS else "{}"
         atoms_mat = []
         for a in self.atoms:
             atoms_mat.append([map_str(k).format(a[k]) for k in atom_format])
@@ -154,7 +152,7 @@ class LammpsData(MSONable):
         # topo_sections
         contents["topo_sections"] = ""
         if self.topology:
-            topo_kws = [k for k in self.SECTION_KEYWORDS["molecule"]
+            topo_kws = [k for k in SECTION_KEYWORDS["molecule"]
                         if k in self.topology.keys()]
             topo_parts = []
             for kw in topo_kws:
@@ -186,7 +184,7 @@ class LammpsData(MSONable):
             lines = f.readlines()
         clines = list(clean_lines(lines))
         section_marks = [i for i, l in enumerate(clines) if l
-                         in itertools.chain(*cls.SECTION_KEYWORDS.values())]
+                         in itertools.chain(*SECTION_KEYWORDS.values())]
         parts = np.split(clines, section_marks)
 
         # First, parse header
@@ -219,12 +217,12 @@ class LammpsData(MSONable):
         header["bounds"] = [bounds.get(i, [-0.5, 0.5]) for i in "xyz"]
 
         # Then, parse each section
-        topo_sections = cls.SECTION_KEYWORDS["molecule"]
+        topo_sections = SECTION_KEYWORDS["molecule"]
 
         def parse_section(single_section_lines):
             kw = single_section_lines[0]
 
-            if kw in cls.SECTION_KEYWORDS["ff"] and kw != "PairIJ Coeffs":
+            if kw in SECTION_KEYWORDS["ff"] and kw != "PairIJ Coeffs":
                 parse_line = lambda l: {"coeffs": [ast.literal_eval(x)
                                                    for x in l[1:]]}
             elif kw == "PairIJ Coeffs":
@@ -236,7 +234,7 @@ class LammpsData(MSONable):
                 parse_line = lambda l: {"type": int(l[1]), kw[:-1].lower():
                     [int(x) for x in l[2:n[kw] + 2]]}
             elif kw == "Atoms":
-                keys = cls.ATOMS_LINE_FORMAT[atom_style].copy()
+                keys = ATOMS_LINE_FORMAT[atom_style].copy()
                 sample_l = single_section_lines[1].split()
                 if len(sample_l) == len(keys) + 1:
                     pass
@@ -245,7 +243,7 @@ class LammpsData(MSONable):
                 else:
                     warnings.warn("Atoms section format might be imcompatible"
                                   " with atom_style %s." % atom_style)
-                float_keys = [k for k in keys if k in cls.ATOMS_FLOATS]
+                float_keys = [k for k in keys if k in ATOMS_FLOATS]
                 parse_line = lambda l: {k: float(v) if k in float_keys
                 else int(v) for (k, v) in zip(keys, l[1:len(keys) + 1])}
             elif kw == "Velocities":
@@ -299,10 +297,10 @@ class LammpsData(MSONable):
         items["box_bounds"] = header["bounds"]
         items["box_tilt"] = header.get("tilt")
         items["velocities"] = body.get("Velocities")
-        ff_kws = [k for k in body.keys() if k in cls.SECTION_KEYWORDS["ff"]]
+        ff_kws = [k for k in body.keys() if k in SECTION_KEYWORDS["ff"]]
         items["ff_coeffs"] = {k: body[k] for k in ff_kws} if ff_kws else None
         topo_kws = [k for k in body.keys()
-                    if k in cls.SECTION_KEYWORDS["molecule"]]
+                    if k in SECTION_KEYWORDS["molecule"]]
         items["topology"] = {k: body[k] for k in topo_kws} \
             if topo_kws else None
         items["atom_style"] = atom_style
@@ -313,54 +311,67 @@ class Topology(MSONable):
 
     def __init__(self, sites, velocities=None, topologies=None):
 
-        if not velocities:
+        if velocities is None:
             if isinstance(sites, SiteCollection):
                 velocities = sites.site_properties.get("velocities")
             else:
                 velocities = [s.properties["velocities"] for s in sites]
+        else:
+            velo_arr = np.array(velocities)
+            assert velo_arr.shape == (len(sites), 3),\
+                "Wrong format for velocities"
 
         self.sites = sites
         self.velocities = velocities
         self.topologies = topologies
 
     @classmethod
-    def from_bonding(cls, molecule, velocities=None, tol=0.1):
+    def from_bonding(cls, molecule, velocities=None, bond=True, angle=True,
+                     dihedral=True, tol=0.1):
+        real_bonds = molecule.get_covalent_bonds(tol=tol)
+        bond_list = [list(map(molecule.index, [b.site1, b.site2]))
+                     for b in real_bonds]
+        if not bond or not bond_list:
+            return cls(sites=molecule, velocities=velocities)
+        else:
+            angle_list, dihedral_list = [], []
+            dests, freq = np.unique(bond_list, return_counts=True)
+            hubs = dests[np.where(freq > 1)]
+            bond_arr = np.array(bond_list)
+            if len(hubs) > 0:
+                hub_spokes = {}
+                for hub in hubs:
+                    ix = np.any(np.isin(bond_arr, hub), axis=1)
+                    bonds = np.unique(bond_arr[ix]).tolist()
+                    bonds.remove(hub)
+                    hub_spokes[hub] = sorted(bonds)
+            dihedral = False if len(bond_list) < 3 or len(hubs) < 2 \
+                else dihedral
+            angle = False if len(bond_list) < 2 or len(hubs) < 1 else angle
 
-        bonds = molecule.get_covalent_bonds(tol=tol)
-        bond_arr = np.array([list(map(molecule.index,
-                                      [b.site1, b.site2])) for b in bonds])
+            if angle:
+                for k, v in hub_spokes.items():
+                    angle_list.extend([[i, k, j] for i, j in
+                                       itertools.combinations(v, 2)])
+            if dihedral:
+                hub_cons = bond_arr[np.all(np.isin(bond_arr, hubs), axis=1)]
+                for i, j in hub_cons:
+                    ks = [k for k in hub_spokes[i] if k != j]
+                    ls = [l for l in hub_spokes[j] if l != i]
+                    dihedral_list.extend([[k, i, j, l] for k,l in
+                                          itertools.product(ks, ls)
+                                          if k != l])
 
-        bond_sites, counts = np.unique(bond_arr, return_counts=True)
-        endpoints = bond_sites[np.where(counts > 1)]
-        ep_bonds = {}
-        for ep in endpoints:
-            ix = np.any(np.isin(bond_arr, ep), axis=1)
-            bonds = np.unique(np.array(bond_arr)[ix]).tolist()
-            bonds.remove(ep)
-            ep_bonds[ep] = bonds
-
-        angle_arr = []
-        for k, v in ep_bonds.items():
-            angle_arr.extend([[i, k, j]
-                              for i, j in itertools.combinations(v, 2)])
-
-        dihedral_bonds = bond_arr[np.all(np.isin(bond_arr, endpoints),
-                                         axis=1)]
-        dihedral_arr = []
-        for i, j in dihedral_bonds:
-            ks = [k for k in ep_bonds[i] if k != j]
-            ls = [l for l in ep_bonds[j] if l != i]
-            dihedral_arr.extend([[k, i, j, l]
-                                 for k, l in itertools.product(ks, ls)
-                                 if k != l])
-
-        topologies = {"Bonds": bond_arr.tolist(), "Angle": angle_arr,
-                      "Dihedrals": dihedral_arr}
-        return cls(sites=molecule, velocities=velocities,
-                   topologies=topologies)
+            topo_list = list(map(lambda l: None if len(l) == 0 else l,
+                                 [bond_list, angle_list, dihedral_list]))
+            topologies = {k: v for k, v
+                          in zip(SECTION_KEYWORDS["molecule"][:3], topo_list)}
+            topologies = None if not any(topologies.values()) else topologies
+            return cls(sites=molecule, velocities=velocities,
+                       topologies=topologies)
 
 
-class Forcefield(MSONable):
+class ForceField(MSONable):
 
     def __init__(self, masses, ff_coeffs=None):
         self.masses = masses

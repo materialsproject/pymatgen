@@ -10,8 +10,9 @@ import os
 import random
 
 import numpy as np
+from pymatgen import Molecule
 
-from pymatgen.io.lammps.data import LammpsData
+from pymatgen.io.lammps.data import LammpsData, Topology
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -102,6 +103,93 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(len(pairij), n * (n + 1) / 2)
         self.assertDictEqual(pairij[-1],
                              {"id1": 4, "id2": 4, "coeffs": [1, 1, 1.1225]})
+
+
+class TopologyTest(unittest.TestCase):
+
+    def test_init(self):
+        nsites = random.randint(1, 10)
+        inner_velo = np.random.rand(nsites, 3)
+        outer_velo = np.random.rand(nsites, 3)
+        m = Molecule(["H"] * nsites, np.random.rand(nsites, 3) * 100,
+                     site_properties={"velocities": inner_velo})
+        # test set velocities from site properties
+        topo0 = Topology(sites=m, velocities=None)
+        np.testing.assert_array_equal(topo0.velocities, inner_velo)
+        # test using a list of sites instead of SiteCollection
+        topo1 = Topology(sites=m.sites, velocities=None)
+        np.testing.assert_array_equal(topo1.velocities, inner_velo)
+        # test overriding velocities
+        topo2 = Topology(sites=m, velocities=outer_velo)
+        np.testing.assert_array_equal(topo2.velocities, outer_velo)
+        # test wrong velocity format
+        wrong_nsites = np.random.rand(11, 3)
+        self.assertRaises(Exception,
+                          lambda: Topology(sites=m, velocities=wrong_nsites))
+        wrong_dims = np.random.rand(nsites, 2)
+        self.assertRaises(Exception,
+                          lambda: Topology(sites=m, velocities=wrong_dims))
+
+    def test_from_bonding(self):
+        # He: no bonding topologies
+        helium = Molecule(["He"], [[0, 0, 0]])
+        topo_he = Topology.from_bonding(molecule=helium)
+        self.assertIsNone(topo_he.topologies)
+        # H2: 1 bond only
+        hydrogen = Molecule(["H"] * 2, [[0, 0, 0], [0, 0, 0.7414]])
+        topo_h = Topology.from_bonding(molecule=hydrogen)
+        tp_h = topo_h.topologies
+        self.assertListEqual(tp_h["Bonds"], [[0, 1]])
+        self.assertIsNone(tp_h["Angles"])
+        self.assertIsNone(tp_h["Dihedrals"])
+        # water: 2 bonds and 1 angle only
+        water = Molecule(["O", "H", "H"], [[0.0000, 0.0000, 0.1173],
+                                           [0.0000, 0.7572, -0.4692],
+                                           [0.0000, -0.7572, -0.4692]])
+        topo_water = Topology.from_bonding(molecule=water)
+        tp_water = topo_water.topologies
+        self.assertListEqual(tp_water["Bonds"], [[0, 1], [0, 2]])
+        self.assertListEqual(tp_water["Angles"], [[1, 0, 2]])
+        self.assertIsNone(tp_water["Dihedrals"])
+        # EtOH
+        etoh = Molecule(["C", "C", "O", "H", "H", "H", "H", "H", "H"],
+                        [[1.1879, -0.3829, 0.0000],
+                         [0.0000, 0.5526, 0.0000],
+                         [-1.1867, -0.2472, 0.0000],
+                         [-1.9237, 0.3850, 0.0000],
+                         [2.0985, 0.2306, 0.0000],
+                         [1.1184, -1.0093, 0.8869],
+                         [1.1184, -1.0093, -0.8869],
+                         [-0.0227, 1.1812, 0.8852],
+                         [-0.0227, 1.1812, -0.8852]])
+        topo_etoh = Topology.from_bonding(molecule=etoh)
+        tp_etoh = topo_etoh.topologies
+        self.assertEqual(len(tp_etoh["Bonds"]), 8)
+        etoh_bonds = [[0, 1], [0, 4], [0, 5], [0, 6],
+                      [1, 2], [1, 7], [1, 8], [2, 3]]
+        np.testing.assert_array_equal(tp_etoh["Bonds"], etoh_bonds)
+        self.assertEqual(len(tp_etoh["Angles"]), 13)
+        etoh_angles = [[1, 0, 4], [1, 0, 5], [1, 0, 6], [4, 0, 5], [4, 0, 6],
+                       [5, 0, 6], [0, 1, 2], [0, 1, 7], [0, 1, 8], [2, 1, 7],
+                       [2, 1, 8], [7, 1, 8], [1, 2, 3]]
+        np.testing.assert_array_equal(tp_etoh["Angles"], etoh_angles)
+        self.assertEqual(len(tp_etoh["Dihedrals"]), 12)
+        etoh_dihedrals = [[4, 0, 1, 2], [4, 0, 1, 7], [4, 0, 1, 8],
+                          [5, 0, 1, 2], [5, 0, 1, 7], [5, 0, 1, 8],
+                          [6, 0, 1, 2], [6, 0, 1, 7], [6, 0, 1, 8],
+                          [0, 1, 2, 3], [7, 1, 2, 3], [8, 1, 2, 3]]
+        np.testing.assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
+        # bond flag to off
+        topo_etoh0 = Topology.from_bonding(molecule=etoh, bond=False,
+                                           angle=True, dihedral=True)
+        self.assertIsNone(topo_etoh0.topologies)
+        # angle or dihedral flag to off
+        topo_etoh1 = Topology.from_bonding(molecule=etoh, angle=False,
+                                           dihedral=True)
+        self.assertIsNone(topo_etoh1.topologies["Angles"])
+        topo_etoh2 = Topology.from_bonding(molecule=etoh, angle=True,
+                                           dihedral=False)
+        self.assertIsNone(topo_etoh2.topologies["Dihedrals"])
 
 
 if __name__ == "__main__":
