@@ -145,25 +145,21 @@ TITLE sites: 4
         self.assertNotIn("CIF", elnes.tags)
         self.assertNotIn("TARGET", elnes.tags)
 
-    def test_feffdirectoryinput(self):
-        self.mp_xanes.write_input()
-        feff_dict_input = PostFEFFSet.from_prev_input('.')
-        self.assertTrue(feff_dict_input.tags == Tags.from_file())
-        self.assertTrue(str(feff_dict_input.header) == str(Header.from_file('HEADER')))
-        self.assertTrue(feff_dict_input.atoms == Atoms.atoms_string_from_file('feff.inp'))
-        self.assertTrue(feff_dict_input.potential == Potential.pot_string_from_file())
-        os.remove("HEADER")
-        os.remove("PARAMETERS")
-        os.remove('ATOMS')
-        os.remove('POTENTIALS')
-        os.remove("feff.inp")
+    def test_postfeffset(self):
+        self.mp_xanes.write_input(os.path.join('.','xanes_3'))
+        feff_dict_input = PostFEFFSet.from_prev_input(os.path.join('.','xanes_3'))
+        self.assertTrue(feff_dict_input.tags == Tags.from_file(os.path.join('.','xanes_3/feff.inp')))
+        self.assertTrue(str(feff_dict_input.header) == str(Header.from_file(os.path.join('.','xanes_3/HEADER'))))
+        self.assertTrue(feff_dict_input.atoms == Atoms.atoms_string_from_file(os.path.join('.', 'xanes_3/feff.inp')))
+        self.assertTrue(feff_dict_input.potential == Potential.pot_string_from_file(os.path.join('.', 'xanes_3/feff.inp')))
+        shutil.rmtree(os.path.join('.', 'xanes_3'))
 
         reci_mp_xanes = MPXANESSet(self.absorbing_atom, self.structure,
                                    user_tag_settings={"RECIPROCAL": ""})
-        reci_mp_xanes.write_input()
-        feff_reci_input = PostFEFFSet.from_prev_input('.')
-        self.assertTrue(feff_reci_input.tags == Tags.from_file())
-        self.assertTrue(str(feff_reci_input.header) == str(Header.from_file('HEADER')))
+        reci_mp_xanes.write_input('xanes_reci')
+        feff_reci_input = PostFEFFSet.from_prev_input(os.path.join('.','xanes_reci'))
+        self.assertTrue(feff_reci_input.tags == Tags.from_file(os.path.join('.','xanes_reci/feff.inp')))
+        self.assertTrue(str(feff_reci_input.header) == str(Header.from_file(os.path.join('.','xanes_reci/HEADER'))))
         self.assertTrue("RECIPROCAL" in feff_reci_input.tags)
 
         feff_reci_input.write_input('Dup_reci')
@@ -173,11 +169,11 @@ TITLE sites: 4
         self.assertFalse(os.path.exists(os.path.join('.', 'Dup_reci', 'ATOMS')))
         self.assertFalse(os.path.exists(os.path.join('.', 'Dup_reci', 'POTENTIALS')))
 
-        cif_orig = CifFile.from_file(os.path.join('.', 'Co2O2.cif'))
+        cif_orig = CifFile.from_file(os.path.join('.', 'xanes_reci/Co2O2.cif'))
         cif_reci = CifFile.from_file(os.path.join('.', 'Dup_reci/Co2O2.cif'))
         self.assertTrue(cif_orig.orig_string == cif_reci.orig_string)
         shutil.rmtree(os.path.join('.', 'Dup_reci'))
-
+        shutil.rmtree(os.path.join('.', 'xanes_reci'))
 
 if __name__ == '__main__':
     unittest.main()
