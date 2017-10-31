@@ -12,8 +12,10 @@ import ast
 
 import numpy as np
 from monty.json import MSONable
+from ruamel.yaml import YAML
 
 from pymatgen.util.io_utils import clean_lines
+from pymatgen.core.structure import SiteCollection
 
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
@@ -258,12 +260,12 @@ class LammpsData(MSONable):
 
             section = []
             splitted_lines = [l.split() for l in single_section_lines[1:]]
-            if sort_id:
+            if sort_id and kw != "PairIJ Coeffs":
                 splitted_lines = sorted(splitted_lines,
                                         key=lambda l: int(l[0]))
             for l in splitted_lines:
                 line_data = parse_line(l)
-                if kw is not "PairIJ Coeffs":
+                if kw != "PairIJ Coeffs":
                     line_data["id"] = int(l[0])
                 section.append(line_data)
             return kw, section
@@ -305,3 +307,76 @@ class LammpsData(MSONable):
             if topo_kws else None
         items["atom_style"] = atom_style
         return cls(**items)
+
+
+class Topology(MSONable):
+
+    def __init__(self, sites, velocities=None, topologies=None):
+
+        if not velocities:
+            if isinstance(sites, SiteCollection):
+                velocities = sites.site_properties.get("velocities")
+            else:
+                velocities = [s.properties["velocities"] for s in sites]
+
+        self.sites = sites
+        self.velocities = velocities
+        self.topologies = topologies
+
+    @classmethod
+    def from_bonding(cls, molecule, velocities=None, tol=0.1):
+
+        bonds = molecule.get_covalent_bonds(tol=tol)
+        bond_arr = np.array([list(map(molecule.index,
+                                      [b.site1, b.site2])) for b in bonds])
+
+        bond_sites, counts = np.unique(bond_arr, return_counts=True)
+        endpoints = bond_sites[np.where(counts > 1)]
+        ep_bonds = {}
+        for ep in endpoints:
+            ix = np.any(np.isin(bond_arr, ep), axis=1)
+            bonds = np.unique(np.array(bond_arr)[ix]).tolist()
+            bonds.remove(ep)
+            ep_bonds[ep] = bonds
+
+        angle_arr = []
+        for k, v in ep_bonds.items():
+            angle_arr.extend([[i, k, j]
+                              for i, j in itertools.combinations(v, 2)])
+
+        dihedral_bonds = bond_arr[np.all(np.isin(bond_arr, endpoints),
+                                         axis=1)]
+        dihedral_arr = []
+        for i, j in dihedral_bonds:
+            ks = [k for k in ep_bonds[i] if k != j]
+            ls = [l for l in ep_bonds[j] if l != i]
+            dihedral_arr.extend([[k, i, j, l]
+                                 for k, l in itertools.product(ks, ls)
+                                 if k != l])
+
+        topologies = {"Bonds": bond_arr.tolist(), "Angle": angle_arr,
+                      "Dihedrals": dihedral_arr}
+        return cls(sites=molecule, velocities=velocities,
+                   topologies=topologies)
+
+
+class Forcefield(MSONable):
+
+    def __init__(self, masses, ff_coeffs=None):
+        self.masses = masses
+        self.ff_coeffs = ff_coeffs
+
+    def to_file(self, filename):
+        yaml = YAML(typ="safe")
+        with open(filename, "w") as f:
+            yaml.dump(self.__dict__, f)
+
+
+    @classmethod
+    def from_file(cls, filename):
+        yaml = YAML(typ="safe")
+        with open(filename, "r") as f:
+            d = yaml.load(f)
+        return cls(d["masses"], d["ff_coeffs"])
+
+
