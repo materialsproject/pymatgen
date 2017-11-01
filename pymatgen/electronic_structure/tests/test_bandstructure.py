@@ -172,6 +172,21 @@ class BandStructureSymmLine_test(PymatgenTest):
         bg_cbm0 = self.bs_cbm0.get_band_gap()
         self.assertAlmostEqual(bg_cbm0['energy'], 0, places=3, msg="wrong gap energy")
 
+    def test_get_sym_eq_kpoints_and_degeneracy(self):
+        bs = self.bs2
+        cbm_k = bs.get_cbm()['kpoint'].frac_coords
+        vbm_k = bs.get_vbm()['kpoint'].frac_coords
+        self.assertEquals(bs.get_kpoint_degeneracy(cbm_k), None)
+        bs.structure = loadfn(os.path.join(test_dir, "CaO_2605_structure.json"))
+        self.assertEquals(bs.get_kpoint_degeneracy(cbm_k), 3)
+        self.assertEquals(bs.get_kpoint_degeneracy(vbm_k), 1)
+        cbm_eqs = bs.get_sym_eq_kpoints(cbm_k)
+        self.assertTrue([0.5, 0., 0.5] in cbm_eqs)
+        self.assertTrue([0., 0.5, 0.5] in cbm_eqs)
+        self.assertTrue([0.5, 0.5, 0.] in cbm_eqs)
+        vbm_eqs = bs.get_sym_eq_kpoints(vbm_k)
+        self.assertTrue([0., 0., 0.] in vbm_eqs)
+
     def test_as_dict(self):
         s = json.dumps(self.bs.as_dict())
         self.assertIsNotNone(s)
