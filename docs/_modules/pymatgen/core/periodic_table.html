@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.periodic_table &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.core.periodic_table &#8212; pymatgen 2017.10.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.10.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -254,6 +254,15 @@
 <span class="sd">        Electronic structure. Simplified form with HTML formatting.</span>
 <span class="sd">        E.g., The electronic structure for Fe is represented as</span>
 <span class="sd">        [Ar].3d&lt;sup&gt;6&lt;/sup&gt;.4s&lt;sup&gt;2&lt;/sup&gt;</span>
+
+<span class="sd">    .. attribute:: atomic_orbitals</span>
+
+<span class="sd">        Atomic Orbitals. Energy of the atomic orbitals as a dict.</span>
+<span class="sd">        E.g., The orbitals energies in eV are represented as</span>
+<span class="sd">        {&#39;1s&#39;: -1.0, &#39;2s&#39;: -0.1}</span>
+<span class="sd">        Data is obtained from</span>
+<span class="sd">        https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations</span>
+<span class="sd">        The LDA values for neutral atoms are used    </span>
 
 <span class="sd">    .. attribute:: thermal_conductivity</span>
 
@@ -466,12 +475,14 @@
                     <span class="s2">&quot;brinell_hardness&quot;</span><span class="p">,</span> <span class="s2">&quot;rigidity_modulus&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;mineral_hardness&quot;</span><span class="p">,</span> <span class="s2">&quot;vickers_hardness&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;density_of_solid&quot;</span><span class="p">,</span> <span class="s2">&quot;atomic_radius_calculated&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;van_der_waals_radius&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;van_der_waals_radius&quot;</span><span class="p">,</span> <span class="s2">&quot;atomic_orbitals&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;coefficient_of_linear_thermal_expansion&quot;</span><span class="p">]:</span>
             <span class="n">kstr</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
             <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kstr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;no data&quot;</span><span class="p">):</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
@@ -483,6 +494,8 @@
                             <span class="k">if</span> <span class="s2">&quot;10&lt;sup&gt;&quot;</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                                 <span class="n">base_power</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;([+-]?\d+)&#39;</span><span class="p">,</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                                 <span class="n">factor</span> <span class="o">=</span> <span class="s2">&quot;e&quot;</span> <span class="o">+</span> <span class="n">base_power</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;&amp;gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">]:</span>
+                                    <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span> <span class="c1"># return the border value</span>
                                 <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">factor</span>
                                 <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="s2">&quot;electrical_resistivity&quot;</span><span class="p">:</span>
                                     <span class="n">unit</span> <span class="o">=</span> <span class="s2">&quot;ohm m&quot;</span>
@@ -1335,6 +1348,9 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">obj</span>
 
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
+
     <span class="k">try</span><span class="p">:</span>
         <span class="n">c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
@@ -1386,7 +1402,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1394,7 +1410,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

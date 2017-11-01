@@ -11,7 +11,7 @@ import warnings
 from pymatgen.core.operations import SymmOp
 from pymatgen import Element, Molecule, Composition
 from monty.io import zopen
-from pymatgen.util.coord_utils import get_angle
+from pymatgen.util.coord import get_angle
 import scipy.constants as cst
 
 from pymatgen.electronic_structure.core import Spin
@@ -1298,10 +1298,10 @@ class GaussianOutput(object):
         if not mol:
             mol = self.final_structure
 
-        if not charge:
+        if charge is None:
             charge = self.charge
 
-        if not spin_multiplicity:
+        if spin_multiplicity is None:
             spin_multiplicity = self.spin_mult
 
         if not title:

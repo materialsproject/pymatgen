@@ -396,7 +396,7 @@ loop_
 
     def test_symmetrized(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         writer = CifWriter(poscar.structure, symprec=0.1)
         ans = """# generated using pymatgen
 data_FePO4

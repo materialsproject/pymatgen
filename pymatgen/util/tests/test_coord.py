@@ -18,7 +18,7 @@ __date__ = "Apr 25, 2012"
 
 import random
 from pymatgen.core.lattice import Lattice
-from pymatgen.util.coord_utils import *
+from pymatgen.util.coord import *
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -210,15 +210,15 @@ class CoordUtilsTest(PymatgenTest):
         self.assertArrayAlmostEqual(dists, expected, 3)
 
         #now try with small loop threshold
-        from pymatgen.util import coord_utils
-        prev_threshold = coord_utils.LOOP_THRESHOLD
-        coord_utils.LOOP_THRESHOLD = 0
+        from pymatgen.util import coord
+        prev_threshold = coord.LOOP_THRESHOLD
+        coord.LOOP_THRESHOLD = 0
 
         vectors = pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
         dists = np.sum(vectors**2, axis = -1)**0.5
         self.assertArrayAlmostEqual(dists, expected, 3)
 
-        coord_utils.LOOP_THRESHOLD = prev_threshold
+        coord.LOOP_THRESHOLD = prev_threshold
 
     def test_get_angle(self):
         v1 = (1, 0, 0)

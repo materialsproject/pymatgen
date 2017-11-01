@@ -1252,11 +1252,10 @@ class MVLSlabSet(MPRelaxSet):
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
-    def __init__(self, slab, k_product=50, bulk=False,
+    def __init__(self, structure, k_product=50, bulk=False,
                  auto_dipole=False, **kwargs):
-        super(MVLSlabSet, self).__init__(slab, **kwargs)
-        self.structure = slab
-        self.slab = slab
+        super(MVLSlabSet, self).__init__(structure, **kwargs)
+        self.structure = structure
         self.k_product = k_product
         self.bulk = bulk
         self.auto_dipole = auto_dipole
@@ -1273,7 +1272,7 @@ class MVLSlabSet(MPRelaxSet):
             if self.auto_dipole:
                 slab_incar["IDIPOL"] = 3
                 slab_incar["LDIPOL"] = True
-                slab_incar["DIPOL"] = slab.center_of_mass
+                slab_incar["DIPOL"] = structure.center_of_mass
 
         self._config_dict["INCAR"].update(slab_incar)
 
@@ -1502,22 +1501,22 @@ class MITMDSet(MITRelaxSet):
     """
     Class for writing a vasp md run. This DOES NOT do multiple stage
     runs.
-
-    Args:
-        start_temp (int): Starting temperature.
-        end_temp (int): Final temperature.
-        nsteps (int): Number of time steps for simulations. The NSW parameter.
-        time_step (int): The time step for the simulation. The POTIM
-            parameter. Defaults to 2fs.
-        spin_polarized (bool): Whether to do spin polarized calculations.
-            The ISPIN parameter. Defaults to False.
-        sort_structure (bool): Whether to sort structure. Defaults to False
-            (different behavior from standard input sets).
-        \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2,
                  spin_polarized=False, **kwargs):
+        """
+        Args:
+            structure (Structure): Input structure.
+            start_temp (int): Starting temperature.
+            end_temp (int): Final temperature.
+            nsteps (int): Number of time steps for simulations. The NSW parameter.
+            time_step (int): The time step for the simulation. The POTIM
+                parameter. Defaults to 2fs.
+            spin_polarized (bool): Whether to do spin polarized calculations.
+                The ISPIN parameter. Defaults to False.
+            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
+        """
 
         # MD default settings
         defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
@@ -1550,6 +1549,54 @@ class MITMDSet(MITRelaxSet):
     @property
     def kpoints(self):
         return Kpoints.gamma_automatic()
+
+
+class MVLNPTMDSet(MITMDSet):
+    """
+    Class for writing a vasp md run in NPT ensemble.
+    """
+
+    def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2,
+                 spin_polarized=False, **kwargs):
+        """
+        Notes:
+            To eliminate Pulay stress, the default ENCUT is set to a rather
+            large value of ENCUT, which is 1.5 * ENMAX.
+        Args:
+            structure (Structure): input structure.
+            start_temp (int): Starting temperature.
+            end_temp (int): Final temperature.
+            nsteps(int): Number of time steps for simulations. The NSW parameter.
+            time_step (int): The time step for the simulation. The POTIM
+                parameter. Defaults to 2fs.
+            spin_polarized (bool): Whether to do spin polarized calculations.
+                The ISPIN parameter. Defaults to False.
+            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
+        """
+        user_incar_settings = kwargs.get("user_incar_settings", {})
+
+        # NPT-AIMD default settings
+        defaults = {"IALGO": 48,
+                    "ISIF": 3,
+                    "LANGEVIN_GAMMA": [10] * structure.ntypesp,
+                    "LANGEVIN_GAMMA_L": 1,
+                    "MDALGO": 3,
+                    "PMASS": 10,
+                    "PSTRESS": 0,
+                    "SMASS": 0}
+
+        defaults.update(user_incar_settings)
+        kwargs["user_incar_settings"] = defaults
+
+        super(MVLNPTMDSet, self).__init__(structure, start_temp, end_temp,
+                                          nsteps, time_step, spin_polarized,
+                                          **kwargs)
+
+        # Set NPT-AIMD ENCUT = 1.5 * VASP_default
+        enmax = [self.potcar[i].keywords['ENMAX']
+                 for i in range(structure.ntypesp)]
+        encut = max(enmax) * 1.5
+        self._config_dict["INCAR"]["ENCUT"] = encut
 
 
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):

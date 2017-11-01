@@ -60,7 +60,7 @@ class InterfaceReactionTest(unittest.TestCase):
                                       include_no_mixing_energy=1,
                                       pd_non_grand=None))
         self.assertTrue(
-            'Please provide grand phase diagram to compute no_mixing_energy for reactants!' == str(
+            'Please provide grand phase diagram to compute no_mixing_energy!' == str(
                 context1.exception))
 
         with self.assertRaises(Exception) as context2:
@@ -70,7 +70,7 @@ class InterfaceReactionTest(unittest.TestCase):
                                       include_no_mixing_energy=1,
                                       pd_non_grand=None))
         self.assertTrue(
-            'Please also provide non-grand phase diagram to compute no_mixing_energy for reactants!' == str(
+            'Please provide non-grand phase diagram to compute no_mixing_energy!' == str(
                 context2.exception))
 
     def test_get_entry_energy(self):

@@ -198,6 +198,15 @@ class Element(Enum):
         E.g., The electronic structure for Fe is represented as
         [Ar].3d<sup>6</sup>.4s<sup>2</sup>
 
+    .. attribute:: atomic_orbitals
+
+        Atomic Orbitals. Energy of the atomic orbitals as a dict.
+        E.g., The orbitals energies in eV are represented as
+        {'1s': -1.0, '2s': -0.1}
+        Data is obtained from
+        https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
+        The LDA values for neutral atoms are used    
+
     .. attribute:: thermal_conductivity
 
         Thermal conductivity
@@ -409,12 +418,14 @@ class Element(Enum):
                     "brinell_hardness", "rigidity_modulus",
                     "mineral_hardness", "vickers_hardness",
                     "density_of_solid", "atomic_radius_calculated",
-                    "van_der_waals_radius",
+                    "van_der_waals_radius", "atomic_orbitals",
                     "coefficient_of_linear_thermal_expansion"]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
+            elif type(val) == dict:
+                pass
             else:
                 try:
                     val = float(val)
@@ -903,7 +914,7 @@ class Specie(MSONable):
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity,
-        followed by oxidation state.
+        followed by oxidation state, followed by spin.
         """
         if self.X != other.X:
             return self.X < other.X
@@ -911,9 +922,15 @@ class Specie(MSONable):
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
             return self.symbol < other.symbol
-        else:
-            other_oxi = 0 if isinstance(other, Element) else other.oxi_state
+        elif self.oxi_state:
+            other_oxi = 0 if (isinstance(other, Element)
+                              or other.oxi_state is None) else other.oxi_state
             return self.oxi_state < other_oxi
+        elif getattr(self, "spin", False):
+            other_spin = getattr(other, "spin", 0)
+            return self.spin < other.spin
+        else:
+            return False
 
     @property
     def element(self):
@@ -1131,8 +1148,9 @@ class DummySpecie(Specie):
         """
         if not isinstance(other, DummySpecie):
             return False
-        return self.symbol == other.symbol \
-            and self._oxi_state == other._oxi_state
+        return isinstance(other, Specie) and self.symbol == other.symbol \
+            and self.oxi_state == other.oxi_state \
+            and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1248,10 +1266,13 @@ class DummySpecie(Specie):
 
     def __str__(self):
         output = self.symbol
-        if self._oxi_state >= 0:
-            output += formula_double_format(self._oxi_state) + "+"
-        else:
-            output += formula_double_format(-self._oxi_state) + "-"
+        if self.oxi_state is not None:
+            if self.oxi_state >= 0:
+                output += formula_double_format(self.oxi_state) + "+"
+            else:
+                output += formula_double_format(-self.oxi_state) + "-"
+        for p, v in self._properties.items():
+            output += ",%s=%s" % (p, v)
         return output
 
 
@@ -1279,6 +1300,9 @@ def get_el_sp(obj):
     """
     if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
+
+    if isinstance(obj, (list, tuple)):
+        return [get_el_sp(o) for o in obj]
 
     try:
         c = float(obj)

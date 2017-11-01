@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.core.structure &#8212; pymatgen 2017.10.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.10.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -90,7 +90,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">Site</span><span class="p">,</span> <span class="n">PeriodicSite</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.bonds</span> <span class="k">import</span> <span class="n">CovalentBond</span><span class="p">,</span> <span class="n">get_bond_length</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="k">import</span> <span class="n">get_angle</span><span class="p">,</span> <span class="n">all_distances</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">get_angle</span><span class="p">,</span> <span class="n">all_distances</span><span class="p">,</span> \
     <span class="n">lattice_points_in_supercell</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Length</span>
 
@@ -1496,6 +1496,7 @@
         <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Poscar</span>
         <span class="kn">from</span> <span class="nn">pymatgen.io.cssr</span> <span class="k">import</span> <span class="n">Cssr</span>
         <span class="kn">from</span> <span class="nn">pymatgen.io.xcrysden</span> <span class="k">import</span> <span class="n">XSF</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.atat</span> <span class="k">import</span> <span class="n">Mcsqs</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
         <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fmt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -1524,6 +1525,13 @@
                     <span class="k">return</span> <span class="n">s</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">XSF</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;mcsqs&#39;</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*rndstr.in*&quot;</span><span class="p">)</span> \
+                <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*lat.in*&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">Mcsqs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Mcsqs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
             <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
@@ -1562,6 +1570,7 @@
         <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Poscar</span>
         <span class="kn">from</span> <span class="nn">pymatgen.io.cssr</span> <span class="k">import</span> <span class="n">Cssr</span>
         <span class="kn">from</span> <span class="nn">pymatgen.io.xcrysden</span> <span class="k">import</span> <span class="n">XSF</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.atat</span> <span class="k">import</span> <span class="n">Mcsqs</span>
         <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;cif&quot;</span><span class="p">:</span>
             <span class="n">parser</span> <span class="o">=</span> <span class="n">CifParser</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span>
@@ -1580,6 +1589,8 @@
             <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;xsf&quot;</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">XSF</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span><span class="o">.</span><span class="n">structure</span>
+        <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;mcsqs&quot;</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">Mcsqs</span><span class="o">.</span><span class="n">structure_from_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized format `</span><span class="si">%s</span><span class="s2">`!&quot;</span> <span class="o">%</span> <span class="n">fmt</span><span class="p">)</span>
 
@@ -3406,7 +3417,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -3414,7 +3425,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -37,7 +37,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class PoscarTest(PymatgenTest):
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         comp = poscar.structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
 
@@ -146,6 +146,34 @@ cart
         self.assertArrayAlmostEqual(site.coords,
                                     np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
+    def test_significant_figures(self):
+        si = 14
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+
+        # Silicon structure for testing.
+        latt = [[3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603]]
+        struct = Structure(latt, [si, si], coords)
+        poscar = Poscar(struct)
+        expected_str = '''Si2
+1.0
+3.84 0.00 0.00
+1.92 3.33 0.00
+0.00 -2.22 3.14
+Si
+2
+direct
+0.00 0.00 0.00 Si
+0.75 0.50 0.75 Si
+'''
+
+        actual_str = poscar.get_string(significant_figures=2)
+        self.assertEqual(actual_str, expected_str, "Wrong POSCAR output!")
+
+
     def test_str(self):
         si = 14
         coords = list()
@@ -228,7 +256,7 @@ direct
 
     def test_setattr(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         self.assertRaises(ValueError, setattr, poscar, 'velocities',
                           [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
@@ -800,7 +828,7 @@ class VaspInputTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'INCAR')
         incar = Incar.from_file(filepath)
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         if "PMG_VASP_PSP_DIR" not in os.environ:
             test_potcar_dir = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",

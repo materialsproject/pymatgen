@@ -13,8 +13,9 @@ Submodules
 .. toctree::
 
    pymatgen.util.convergence
+   pymatgen.util.coord
+   pymatgen.util.coord_cython
    pymatgen.util.coord_utils
-   pymatgen.util.coord_utils_cython
    pymatgen.util.io_utils
    pymatgen.util.num
    pymatgen.util.num_utils

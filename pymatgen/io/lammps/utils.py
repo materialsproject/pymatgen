@@ -23,7 +23,7 @@ except ImportError:
 
 from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.coord_utils import get_angle
+from pymatgen.util.coord import get_angle
 from pymatgen.io.babel import BabelMolAdaptor
 
 from monty.os.path import which
