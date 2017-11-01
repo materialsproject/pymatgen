@@ -308,9 +308,35 @@ class LammpsData(MSONable):
 
 
 class Topology(MSONable):
+    """
+    Class carrying most data in Atoms, Velocities and molecular
+    topology (Bonds, Angles, Dihedrals, and Impropers) sections for ONE
+    single SiteCollection or its subclasses (Molecule/Structure), or a
+    plain list of Sites.
+
+    """
 
     def __init__(self, sites, charges=None, velocities=None,
                  topologies=None):
+        """
+
+        Args:
+            sites ([Site] or SiteCollection): A group of sites in a
+                list or as a Molecule/Structure.
+            charges ([q, ...]): Charge of each site in a (n,)
+                array/list, where n is the No. of sites.
+            velocities ([[vx, vy, vz], ...]): Velocity of each site in
+                a (n, 3) array/list, where n is the No. of sites.
+            topologies (dict): Bonds, angles, dihedrals and improper
+                dihedrals defined by site indices.
+                {
+                    "Bonds": [[i, j], ...],
+                    "Angles": [[i, j, k], ...],
+                    "Dihedrals": [[i, j, k, l], ...],
+                    "Impropers": [[i, j, k, l], ...]
+                }
+
+        """
         if charges is None:
             charges = sites.site_properties.get("charge") \
                 if isinstance(sites, SiteCollection) \
@@ -337,13 +363,34 @@ class Topology(MSONable):
         self.topologies = topologies
 
     @classmethod
-    def from_bonding(cls, molecule, velocities=None, bond=True, angle=True,
-                     dihedral=True, tol=0.1):
+    def from_bonding(cls, molecule, bond=True, angle=True,
+                     dihedral=True, charges=None, velocities=None, tol=0.1):
+        """
+        Another constructor that creates an instance from a molecule.
+        Covalent bonds and other bond-based topologies (angles and
+        dihedrals) can be automatically determined. Cannot be used for
+        non bond-based topologies, e.g., improper dihedrals.
+
+        Args:
+            molecule (Molecule): Input molecule.
+            bond (bool): Whether find bonds. If set to False, angle and
+                dihedral searching will be skipped. Default to True.
+            angle (bool): Whether find angles. Default to True.
+            dihedral (bool): Whether find dihedrals. Default to True.
+            charges ([q, ...]): Charge of each site in a (n,)
+                array/list, where n is the No. of atoms in molecule.
+            velocities ([[vx, vy, vz], ...]): Velocity of each site in
+                a (n, 3) array/list, where n is the No. of sites in
+                molecule.
+            tol (float): Bond distance tolerance. Default to 0.1.
+                Not recommended to alter.
+
+        """
         real_bonds = molecule.get_covalent_bonds(tol=tol)
         bond_list = [list(map(molecule.index, [b.site1, b.site2]))
                      for b in real_bonds]
-        if not bond or not bond_list:
-            return cls(sites=molecule, velocities=velocities)
+        if not all((bond, bond_list)):
+            return cls(sites=molecule, charges=charges, velocities=velocities)
         else:
             angle_list, dihedral_list = [], []
             dests, freq = np.unique(bond_list, return_counts=True)
@@ -355,7 +402,7 @@ class Topology(MSONable):
                     ix = np.any(np.isin(bond_arr, hub), axis=1)
                     bonds = np.unique(bond_arr[ix]).tolist()
                     bonds.remove(hub)
-                    hub_spokes[hub] = sorted(bonds)
+                    hub_spokes[hub] = bonds
             dihedral = False if len(bond_list) < 3 or len(hubs) < 2 \
                 else dihedral
             angle = False if len(bond_list) < 2 or len(hubs) < 1 else angle
@@ -378,7 +425,7 @@ class Topology(MSONable):
             topologies = {k: v for k, v
                           in zip(SECTION_KEYWORDS["molecule"][:3], topo_list)}
             topologies = None if not any(topologies.values()) else topologies
-            return cls(sites=molecule, velocities=velocities,
+            return cls(sites=molecule, charges=charges, velocities=velocities,
                        topologies=topologies)
 
 
