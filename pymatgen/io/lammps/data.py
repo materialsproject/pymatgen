@@ -309,19 +309,30 @@ class LammpsData(MSONable):
 
 class Topology(MSONable):
 
-    def __init__(self, sites, velocities=None, topologies=None):
+    def __init__(self, sites, charges=None, velocities=None,
+                 topologies=None):
+        if charges is None:
+            charges = sites.site_properties.get("charge") \
+                if isinstance(sites, SiteCollection) \
+                else [s.properties["charge"] for s in sites]
+        else:
+            charge_arr = np.array(charges)
+            assert charge_arr.shape == (len(sites),),\
+                "Wrong format for charges"
+            charges = charge_arr.tolist()
 
         if velocities is None:
-            if isinstance(sites, SiteCollection):
-                velocities = sites.site_properties.get("velocities")
-            else:
-                velocities = [s.properties["velocities"] for s in sites]
+            velocities = sites.site_properties.get("velocities") \
+                if isinstance(sites, SiteCollection) \
+                else [s.properties["velocities"] for s in sites]
         else:
-            velo_arr = np.array(velocities)
-            assert velo_arr.shape == (len(sites), 3),\
+            velocities_arr = np.array(velocities)
+            assert velocities_arr.shape == (len(sites), 3),\
                 "Wrong format for velocities"
+            velocities = velocities_arr.tolist()
 
         self.sites = sites
+        self.charges = charges
         self.velocities = velocities
         self.topologies = topologies
 
@@ -382,12 +393,9 @@ class ForceField(MSONable):
         with open(filename, "w") as f:
             yaml.dump(self.__dict__, f)
 
-
     @classmethod
     def from_file(cls, filename):
         yaml = YAML(typ="safe")
         with open(filename, "r") as f:
             d = yaml.load(f)
         return cls(d["masses"], d["ff_coeffs"])
-
-

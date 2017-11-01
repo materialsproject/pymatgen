@@ -107,28 +107,29 @@ class LammpsDataTest(unittest.TestCase):
 
 class TopologyTest(unittest.TestCase):
 
-    def test_init(self):
+    @staticmethod
+    def test_init():
         nsites = random.randint(1, 10)
-        inner_velo = np.random.rand(nsites, 3)
-        outer_velo = np.random.rand(nsites, 3)
+        inner_charge = np.random.rand(nsites) - 0.5
+        outer_charge = np.random.rand(nsites) - 0.5
+        inner_velo = np.random.rand(nsites, 3) - 0.5
+        outer_velo = np.random.rand(nsites, 3) - 0.5
         m = Molecule(["H"] * nsites, np.random.rand(nsites, 3) * 100,
-                     site_properties={"velocities": inner_velo})
-        # test set velocities from site properties
-        topo0 = Topology(sites=m, velocities=None)
-        np.testing.assert_array_equal(topo0.velocities, inner_velo)
+                     site_properties={"charge": inner_charge,
+                                      "velocities": inner_velo})
+        # test set charges and velocities from site properties
+        topo = Topology(sites=m)
+        np.testing.assert_array_equal(topo.charges, inner_charge)
+        np.testing.assert_array_equal(topo.velocities, inner_velo)
         # test using a list of sites instead of SiteCollection
-        topo1 = Topology(sites=m.sites, velocities=None)
-        np.testing.assert_array_equal(topo1.velocities, inner_velo)
-        # test overriding velocities
-        topo2 = Topology(sites=m, velocities=outer_velo)
-        np.testing.assert_array_equal(topo2.velocities, outer_velo)
-        # test wrong velocity format
-        wrong_nsites = np.random.rand(11, 3)
-        self.assertRaises(Exception,
-                          lambda: Topology(sites=m, velocities=wrong_nsites))
-        wrong_dims = np.random.rand(nsites, 2)
-        self.assertRaises(Exception,
-                          lambda: Topology(sites=m, velocities=wrong_dims))
+        topo_from_list = Topology(sites=m.sites)
+        np.testing.assert_array_equal(topo_from_list.charges, inner_charge)
+        np.testing.assert_array_equal(topo_from_list.velocities, inner_velo)
+        # test overriding charges and velocities
+        topo_override = Topology(sites=m, charges=outer_charge,
+                                 velocities=outer_velo)
+        np.testing.assert_array_equal(topo_override.charges, outer_charge)
+        np.testing.assert_array_equal(topo_override.velocities, outer_velo)
 
     def test_from_bonding(self):
         # He: no bonding topologies
