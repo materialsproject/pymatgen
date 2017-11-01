@@ -868,6 +868,21 @@ class BandStructureSymmLine(BandStructure, MSONable):
                     break
         return np.delete(points, rm_list, axis=0)
 
+    def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol=1e-2):
+        """
+        Returns degeneracy of a given k-point based on structure symmetry
+        Args:
+            kpoint (1x3 array): coordinate of the k-point
+            cartesian (bool): kpoint is in cartesian or fractional coordinates
+            tol (float): tolerance below which coordinates are considered equal
+
+        Returns:
+            (int or None): degeneracy or None if structure is not available
+        """
+        all_kpts = self.get_sym_eq_kpoints(kpoint, cartesian, tol=tol)
+        if all_kpts is not None:
+            return len(all_kpts)
+
     @classmethod
     def from_dict(cls, d):
         """
