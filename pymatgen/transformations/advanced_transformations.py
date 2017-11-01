@@ -242,6 +242,70 @@ class MultipleSubstitutionTransformation(object):
         return True
 
 
+class DiscretizeOccupanciesTransformation(AbstractTransformation):
+    """
+    Discretizes the site occupancies in a disordered structure; useful for
+    grouping similar structures or as a pre-processing step for order-disorder
+    transformations.
+
+    Args:
+        max_denominator:
+            An integer maximum denominator for discretization. A higher
+            denominator allows for finer resolution in the site occupancies.
+        tol:
+            A float that sets the maximum difference between the original and
+            discretized occupancies before throwing an error. The maximum
+            allowed difference is calculated as 1/max_denominator * 0.5 * tol.
+            A tol of 1.0 indicates to try to accept all discretizations.
+    """
+
+    def __init__(self, max_denominator=5, tol=0.25):
+        self.max_denominator = max_denominator
+        self.tol = tol
+
+    def apply_transformation(self, structure):
+        """
+        Discretizes the site occupancies in the structure.
+
+        Args:
+            structure: disordered Structure to discretize occupancies
+
+        Returns:
+            A new disordered Structure with occupancies discretized
+        """
+        if structure.is_ordered:
+            return structure
+
+        species = [dict(sp) for sp in structure.species_and_occu]
+
+        for sp in species:
+            for k, v in sp.items():
+                old_occ = sp[k]
+                new_occ = float(
+                    Fraction(old_occ).limit_denominator(self.max_denominator))
+                if round(abs(old_occ - new_occ), 6) > (
+                        1 / self.max_denominator / 2) * self.tol:
+                    raise RuntimeError(
+                        "Cannot discretize structure within tolerance!")
+                sp[k] = new_occ
+
+        return Structure(structure.lattice, species, structure.frac_coords)
+
+    def __str__(self):
+        return "DiscretizeOccupanciesTransformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
 class EnumerateStructureTransformation(AbstractTransformation):
     """
     Order a disordered structure using enumlib. For complete orderings, this
@@ -277,17 +341,28 @@ class EnumerateStructureTransformation(AbstractTransformation):
             structures. But sometimes including ordered sites
             slows down enumeration to the point that it cannot be
             completed. Switch to False in those cases. Defaults to True.
+        max_disordered_sites:
+            An alternate parameter to max_cell size. Will sequentially try
+            larger and larger cell sizes until (i) getting a result or (ii)
+            the number of disordered sites in the cell exceeds
+            max_disordered_sites. Must set max_cell_size to None when using
+            this parameter.
     """
 
     def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1,
                  refine_structure=False, enum_precision_parameter=0.001,
-                 check_ordered_symmetry=True):
+                 check_ordered_symmetry=True, max_disordered_sites=None):
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
         self.refine_structure = refine_structure
         self.enum_precision_parameter = enum_precision_parameter
         self.check_ordered_symmetry = check_ordered_symmetry
+        self.max_disordered_sites = max_disordered_sites
+
+        if max_cell_size and max_disordered_sites:
+            raise ValueError("Cannot set both max_cell_size and "
+                             "max_disordered_sites!")
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -328,15 +403,30 @@ class EnumerateStructureTransformation(AbstractTransformation):
             warn("Enumeration skipped for structure with composition {} "
                  "because it is ordered".format(structure.composition))
             structures = [structure.copy()]
+
+        if self.max_disordered_sites:
+            ndisordered = sum([1 for site in structure if not site.is_ordered])
+            if ndisordered > self.max_disordered_sites:
+                raise ValueError(
+                    "Too many disordered sites! ({} > {})".format(
+                        ndisordered, self.max_disordered_sites))
+            max_cell_sizes = range(self.min_cell_size, int(
+                    math.floor(self.max_disordered_sites / ndisordered)) + 1)
+
         else:
+            max_cell_sizes = [self.max_cell_size]
+
+        for max_cell_size in max_cell_sizes:
             adaptor = EnumlibAdaptor(
                 structure, min_cell_size=self.min_cell_size,
-                max_cell_size=self.max_cell_size,
+                max_cell_size=max_cell_size,
                 symm_prec=self.symm_prec, refine_structure=False,
                 enum_precision_parameter=self.enum_precision_parameter,
                 check_ordered_symmetry=self.check_ordered_symmetry)
             adaptor.run()
             structures = adaptor.structures
+            if structures:
+                break
 
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
@@ -1066,7 +1156,7 @@ class SlabTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure):
         sg = SlabGenerator(structure, self.miller_index, self.min_slab_size,
-                           self.min_vacuum_size, self.lll_reduce, 
+                           self.min_vacuum_size, self.lll_reduce,
                            self.center_slab, self.primitive,
                            self.max_normal_search)
         slab = sg.get_slab(self.shift, self.tol)
