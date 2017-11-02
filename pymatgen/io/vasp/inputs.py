@@ -10,6 +10,7 @@ import itertools
 import warnings
 import logging
 import math
+import glob
 
 import six
 import numpy as np
@@ -227,14 +228,14 @@ class Poscar(MSONable):
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         if check_for_POTCAR:
-            for f in os.listdir(dirname):
-                if f == "POTCAR":
-                    try:
-                        potcar = Potcar.from_file(os.path.join(dirname, f))
-                        names = [sym.split("_")[0] for sym in potcar.symbols]
-                        [get_el_sp(n) for n in names]  # ensure valid names
-                    except:
-                        names = None
+            potcars = glob.glob(os.path.join(dirname, "*POTCAR*"))
+            if potcars:
+                try:
+                    potcar = Potcar.from_file(sorted(potcars)[0])
+                    names = [sym.split("_")[0] for sym in potcar.symbols]
+                    [get_el_sp(n) for n in names]  # ensure valid names
+                except:
+                    names = None
         with zopen(filename, "rt") as f:
             return Poscar.from_string(f.read(), names,
                                       read_velocities=read_velocities)
@@ -1613,8 +1614,14 @@ class PotcarSingle(object):
         Attempt to return the atomic symbol based on the VRHFIN keyword.
         """
         element = self.keywords["VRHFIN"].split(":")[0].strip()
-        #VASP incorrectly gives the element symbol for Xe as "X"
-        return "Xe" if element == "X" else element
+        try:
+            return Element(element).symbol
+        except ValueError:
+            # VASP incorrectly gives the element symbol for Xe as "X"
+            # Some potentials, e.g., Zr_sv, gives the symbol as r.
+            if element == "X":
+                return "Xe"
+            return Element(self.symbol.split("_")[0]).symbol
 
     @property
     def atomic_no(self):
