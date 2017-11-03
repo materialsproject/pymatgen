@@ -16,7 +16,7 @@ from ruamel.yaml import YAML
 
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.core.structure import SiteCollection
-from pymatgen import Element
+from pymatgen import Molecule, Element
 
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
@@ -317,13 +317,16 @@ class Topology(MSONable):
 
     """
 
-    def __init__(self, sites, charges=None, velocities=None,
+    def __init__(self, sites, atom_type=None, charges=None, velocities=None,
                  topologies=None):
         """
 
         Args:
             sites ([Site] or SiteCollection): A group of sites in a
                 list or as a Molecule/Structure.
+            atom_type (str): Site property key for labeling atoms of
+                different types. Default to None, i.e., use
+                site.species_string.
             charges ([q, ...]): Charge of each site in a (n,)
                 array/list, where n is the No. of sites.
             velocities ([[vx, vy, vz], ...]): Velocity of each site in
@@ -338,34 +341,40 @@ class Topology(MSONable):
                 }
 
         """
-        if charges is None:
-            charges = sites.site_properties.get("charge") \
-                if isinstance(sites, SiteCollection) \
-                else [s.properties["charge"] for s in sites]
+        if not isinstance(sites, SiteCollection):
+            sites = Molecule.from_sites(sites)
+
+        if atom_type:
+            types = sites.site_properties.get(atom_type)
         else:
+            types = [site.species_string for site in sites]
+        # search for site property if not override
+        if charges is None:
+            charges = sites.site_properties.get("charge")
+        if velocities is None:
+            velocities = sites.site_properties.get("velocities")
+        # validate shape
+        if charges is not None:
             charge_arr = np.array(charges)
             assert charge_arr.shape == (len(sites),),\
                 "Wrong format for charges"
             charges = charge_arr.tolist()
-
-        if velocities is None:
-            velocities = sites.site_properties.get("velocities") \
-                if isinstance(sites, SiteCollection) \
-                else [s.properties["velocities"] for s in sites]
-        else:
+        if velocities is not None:
             velocities_arr = np.array(velocities)
-            assert velocities_arr.shape == (len(sites), 3),\
+            assert velocities_arr.shape == (len(sites), 3), \
                 "Wrong format for velocities"
             velocities = velocities_arr.tolist()
 
         self.sites = sites
+        self.atom_type = atom_type
+        self.types = types
         self.charges = charges
         self.velocities = velocities
         self.topologies = topologies
 
     @classmethod
-    def from_bonding(cls, molecule, bond=True, angle=True,
-                     dihedral=True, charges=None, velocities=None, tol=0.1):
+    def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True,
+                     atom_type=None, charges=None, velocities=None, tol=0.1):
         """
         Another constructor that creates an instance from a molecule.
         Covalent bonds and other bond-based topologies (angles and
@@ -378,6 +387,9 @@ class Topology(MSONable):
                 dihedral searching will be skipped. Default to True.
             angle (bool): Whether find angles. Default to True.
             dihedral (bool): Whether find dihedrals. Default to True.
+            atom_type (str): Site property key for labeling atoms of
+                different types. Default to None, i.e., use
+                site.species_string.
             charges ([q, ...]): Charge of each site in a (n,)
                 array/list, where n is the No. of atoms in molecule.
             velocities ([[vx, vy, vz], ...]): Velocity of each site in
@@ -391,7 +403,8 @@ class Topology(MSONable):
         bond_list = [list(map(molecule.index, [b.site1, b.site2]))
                      for b in real_bonds]
         if not all((bond, bond_list)):
-            return cls(sites=molecule, charges=charges, velocities=velocities)
+            return cls(sites=molecule, atom_type=atom_type, charges=charges,
+                       velocities=velocities)
         else:
             angle_list, dihedral_list = [], []
             dests, freq = np.unique(bond_list, return_counts=True)
@@ -426,8 +439,8 @@ class Topology(MSONable):
             topologies = {k: v for k, v
                           in zip(SECTION_KEYWORDS["molecule"][:3], topo_list)}
             topologies = None if not any(topologies.values()) else topologies
-            return cls(sites=molecule, charges=charges, velocities=velocities,
-                       topologies=topologies)
+            return cls(sites=molecule, atom_type=atom_type, charges=charges,
+                       velocities=velocities, topologies=topologies)
 
 
 class ForceField(MSONable):

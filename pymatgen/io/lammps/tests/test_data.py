@@ -108,29 +108,33 @@ class LammpsDataTest(unittest.TestCase):
 
 class TopologyTest(unittest.TestCase):
 
-    @staticmethod
-    def test_init():
-        nsites = random.randint(1, 10)
-        inner_charge = np.random.rand(nsites) - 0.5
-        outer_charge = np.random.rand(nsites) - 0.5
-        inner_velo = np.random.rand(nsites, 3) - 0.5
-        outer_velo = np.random.rand(nsites, 3) - 0.5
-        m = Molecule(["H"] * nsites, np.random.rand(nsites, 3) * 100,
-                     site_properties={"charge": inner_charge,
+    def test_init(self):
+        inner_charge = np.random.rand(10) - 0.5
+        outer_charge = np.random.rand(10) - 0.5
+        inner_velo = np.random.rand(10, 3) - 0.5
+        outer_velo = np.random.rand(10, 3) - 0.5
+        m = Molecule(["H"] * 10, np.random.rand(10, 3) * 100,
+                     site_properties={"ff_map": ["D"] * 10,
+                                      "charge": inner_charge,
                                       "velocities": inner_velo})
-        # test set charges and velocities from site properties
+        # q and v from site properties, while type from species_string
         topo = Topology(sites=m)
+        self.assertListEqual(topo.types, ["H"] * 10)
         np.testing.assert_array_equal(topo.charges, inner_charge)
         np.testing.assert_array_equal(topo.velocities, inner_velo)
-        # test using a list of sites instead of SiteCollection
-        topo_from_list = Topology(sites=m.sites)
-        np.testing.assert_array_equal(topo_from_list.charges, inner_charge)
-        np.testing.assert_array_equal(topo_from_list.velocities, inner_velo)
-        # test overriding charges and velocities
-        topo_override = Topology(sites=m, charges=outer_charge,
+        # q and v from overriding, while type from site property
+        topo_override = Topology(sites=m, atom_type="ff_map",
+                                 charges=outer_charge,
                                  velocities=outer_velo)
+        self.assertListEqual(topo_override.types, ["D"] * 10)
         np.testing.assert_array_equal(topo_override.charges, outer_charge)
         np.testing.assert_array_equal(topo_override.velocities, outer_velo)
+        # test using a list of sites instead of SiteCollection
+        topo_from_list = Topology(sites=m.sites)
+        self.assertListEqual(topo_from_list.types, topo.types)
+        np.testing.assert_array_equal(topo_from_list.charges, topo.charges)
+        np.testing.assert_array_equal(topo_from_list.velocities,
+                                      topo.velocities)
 
     def test_from_bonding(self):
         # He: no bonding topologies
