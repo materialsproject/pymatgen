@@ -35,12 +35,12 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(len(topology["Dihedrals"]), 207)
         self.assertEqual(len(topology["Impropers"]), 12)
         self.assertEqual(len(peptide.masses), 14)
-        ff_coeffs = peptide.ff_coeffs
-        self.assertEqual(len(ff_coeffs["Pair Coeffs"]), 14)
-        self.assertEqual(len(ff_coeffs["Bond Coeffs"]), 18)
-        self.assertEqual(len(ff_coeffs["Angle Coeffs"]), 31)
-        self.assertEqual(len(ff_coeffs["Dihedral Coeffs"]), 21)
-        self.assertEqual(len(ff_coeffs["Improper Coeffs"]), 2)
+        force_field = peptide.force_field
+        self.assertEqual(len(force_field["Pair Coeffs"]), 14)
+        self.assertEqual(len(force_field["Bond Coeffs"]), 18)
+        self.assertEqual(len(force_field["Angle Coeffs"]), 31)
+        self.assertEqual(len(force_field["Dihedral Coeffs"]), 21)
+        self.assertEqual(len(force_field["Improper Coeffs"]), 2)
         # header box
         np.testing.assert_array_equal(peptide.box_bounds,
                                       [[36.840194, 64.211560],
@@ -48,19 +48,19 @@ class LammpsDataTest(unittest.TestCase):
                                        [29.768095, 57.139462]])
         # body  last line of each section
         self.assertDictEqual(peptide.masses[-1], {"id": 14, "mass": 1.0100})
-        self.assertDictEqual(ff_coeffs["Pair Coeffs"][-1],
+        self.assertDictEqual(force_field["Pair Coeffs"][-1],
                              {"id": 14, "coeffs": [0.046000, 0.400014,
                                                    0.046000, 0.400014]})
-        self.assertDictEqual(ff_coeffs["Bond Coeffs"][-1],
+        self.assertDictEqual(force_field["Bond Coeffs"][-1],
                              {"id": 18, "coeffs": [450.000000, 0.957200]})
-        self.assertDictEqual(ff_coeffs["Angle Coeffs"][-1],
+        self.assertDictEqual(force_field["Angle Coeffs"][-1],
                              {"id": 31, "coeffs": [55.000000, 104.520000,
                                                    0.000000, 0.000000]})
-        self.assertDictEqual(ff_coeffs["Dihedral Coeffs"][-1],
+        self.assertDictEqual(force_field["Dihedral Coeffs"][-1],
                              {"id": 21, "coeffs": [0.010000, 3, 0, 1.000000]})
-        for c in ff_coeffs["Dihedral Coeffs"][-1]["coeffs"][1:2]:
+        for c in force_field["Dihedral Coeffs"][-1]["coeffs"][1:2]:
             self.assertIsInstance(c, int)
-        self.assertDictEqual(ff_coeffs["Improper Coeffs"][-1],
+        self.assertDictEqual(force_field["Improper Coeffs"][-1],
                              {"id": 2, "coeffs": [20.000000, 0.000000]})
         self.assertDictEqual(peptide.atoms[-1],
                              {"id": 2004, "molecule-ID": 641, "type": 14,
@@ -100,7 +100,7 @@ class LammpsDataTest(unittest.TestCase):
                                                            "virus.data"),
                                      atom_style="angle")
         n = len(virus.masses)
-        pairij = virus.ff_coeffs["PairIJ Coeffs"]
+        pairij = virus.force_field["PairIJ Coeffs"]
         self.assertEqual(len(pairij), n * (n + 1) / 2)
         self.assertDictEqual(pairij[-1],
                              {"id1": 4, "id2": 4, "coeffs": [1, 1, 1.1225]})
@@ -199,16 +199,16 @@ class TopologyTest(unittest.TestCase):
 class ForceFieldTest(unittest.TestCase):
 
     def test_init(self):
-        masses = {"H0": 1.00794, "O0": 15.9994}
-        masses_alt = {"H0": Element("H"), "O0": "O"}
-        ff = ForceField(masses=masses_alt)
-        self.assertDictEqual(ff.masses, masses)
-        self.assertListEqual(ff.masses_data, [{"mass": 1.00794, "id": 1},
-                                              {"mass": 15.9994, "id": 2}])
+        mass_dict = {"H0": 1.00794, "O0": 15.9994}
+        mass_dict_alt = {"H0": Element("H"), "O0": "O"}
+        ff = ForceField(mass_dict=mass_dict_alt)
+        self.assertDictEqual(ff.mass_dict, mass_dict)
+        self.assertListEqual(ff.masses, [{"mass": 1.00794, "id": 1},
+                                         {"mass": 15.9994, "id": 2}])
         self.assertDictEqual(ff._atom_map, {"H0": 1, "O0": 2})
 
     def test_get_coeffs_and_mapper(self):
-        masses = {"C": 12, "H": 1}
+        mass_dict = {"C": 12, "H": 1}
         bonds = ["C-C", "C-H"]
         angles = ["H-C-H", "C-C-H", "C-C-C"]
         dihedrals = ["H-C-C-H", "C-C-C-H", "C-C-C-C"]
@@ -223,7 +223,7 @@ class ForceFieldTest(unittest.TestCase):
             "Improper Coeffs":
                 {k: v for k, v in zip(impropers, np.random.rand(1, 2))}
         }
-        ff = ForceField(masses=masses, ff_coeffs=ff_coeffs)
+        ff = ForceField(mass_dict=mass_dict, ff_coeffs=ff_coeffs)
         masses_data, masses_map = ff.get_coeffs_and_mapper(section="Masses")
         self.assertListEqual(masses_data, [{"id": 1, "mass": 12},
                                            {"id": 2, "mass": 1}])
@@ -256,20 +256,20 @@ class ForceFieldTest(unittest.TestCase):
                                       ff_coeffs["Improper Coeffs"]["C-H-H-C"])
 
     def test_get_pair_coeffs(self):
-        masses = {"C": 12, "H": 1, "O": 16}
+        mass_dict = {"C": 12, "H": 1, "O": 16}
         pair_coeffs = np.random.rand(3, 2)
         pairij_coeffs = np.random.rand(6, 2)
-        pair_keys = masses.keys()
-        pairij_keys = ["-".join(k) for k in
-                       itertools.combinations_with_replacement(masses.keys(),
-                                                               2)]
+        pair_keys = mass_dict.keys()
+        pairij_keys = \
+            ["-".join(k) for k in
+             itertools.combinations_with_replacement(mass_dict.keys(), 2)]
         ff_coeffs = {
             "Pair Coeffs":
                 {k: v for k, v in zip(pair_keys, pair_coeffs)},
             "PairIJ Coeffs":
                 {k: v for k, v in zip(pairij_keys, pairij_coeffs)}
         }
-        ff = ForceField(masses=masses, ff_coeffs=ff_coeffs)
+        ff = ForceField(mass_dict=mass_dict, ff_coeffs=ff_coeffs)
         pair_data = ff.get_pair_coeffs(section="Pair Coeffs")
         p = random.randint(0, 2)
         self.assertEqual(pair_data[p]["id"], p + 1)
@@ -285,7 +285,7 @@ class ForceFieldTest(unittest.TestCase):
         random.shuffle(pairij)
         shuffled_coeffs = {"Pair Coeffs": {k: v for k, v in pair},
                            "PairIJ Coeffs": {k: v for k, v in pairij}}
-        ff_sort = ForceField(masses=masses, ff_coeffs=shuffled_coeffs)
+        ff_sort = ForceField(mass_dict=mass_dict, ff_coeffs=shuffled_coeffs)
         pair_data_sorted = ff_sort.get_pair_coeffs(section="Pair Coeffs",
                                                    sort_id=True)
         self.assertListEqual([d["id"] for d in pair_data_sorted], [1, 2, 3])

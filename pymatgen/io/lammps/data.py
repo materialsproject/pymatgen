@@ -48,14 +48,20 @@ ATOMS_FLOATS = ["q", "x", "y", "z"]
 class LammpsData(MSONable):
 
     def __init__(self, masses, atoms, box_bounds, box_tilt=None,
-                 velocities=None, ff_coeffs=None, topology=None,
+                 velocities=None, force_field=None, topology=None,
                  atom_style="full"):
+        if force_field:
+            force_field = {k: v for k, v in force_field.items()
+                           if k in SECTION_KEYWORDS["ff"]}
+        if topology:
+            topology = {k: v for k, v in topology.items()
+                        if k in SECTION_KEYWORDS["molecule"]}
         self.masses = masses
         self.atoms = atoms
         self.box_bounds = box_bounds
         self.box_tilt = box_tilt
         self.velocities = velocities
-        self.ff_coeffs = ff_coeffs
+        self.force_field = force_field
         self.topology = topology
         self.atom_style = atom_style
 
@@ -113,18 +119,16 @@ class LammpsData(MSONable):
 
         # ff_sections
         contents["ff_sections"] = ""
-        if self.ff_coeffs:
-            ff_kws = [k for k in SECTION_KEYWORDS["ff"]
-                      if k in self.ff_coeffs.keys()]
+        if self.force_field:
             ff_parts = []
-            for kw in ff_kws:
+            for kw in self.force_field.keys():
                 if kw is "PairIJ Coeffs":
                     ff_mat = [[str(i) for i in
                                [d["id1"], d["id2"]] + d["coeffs"]]
-                              for d in self.ff_coeffs[kw]]
+                              for d in self.force_field[kw]]
                 else:
                     ff_mat = [[str(i) for i in [d["id"]] + d["coeffs"]]
-                              for d in self.ff_coeffs[kw]]
+                              for d in self.force_field[kw]]
                 if not kw.startswith("Pair"):
                     types[kw.lower()[:-7]] = len(ff_mat)
                 ff_parts.append(_pretty_section(kw, ff_mat))
@@ -153,10 +157,8 @@ class LammpsData(MSONable):
         # topo_sections
         contents["topo_sections"] = ""
         if self.topology:
-            topo_kws = [k for k in SECTION_KEYWORDS["molecule"]
-                        if k in self.topology.keys()]
             topo_parts = []
-            for kw in topo_kws:
+            for kw in self.topology.keys():
                 skw = kw.lower()[:-1]
                 topo_mat = [["%d" % v for v in [d["id"], d["type"]] + d[skw]]
                             for d in self.topology[kw]]
@@ -299,7 +301,8 @@ class LammpsData(MSONable):
         items["box_tilt"] = header.get("tilt")
         items["velocities"] = body.get("Velocities")
         ff_kws = [k for k in body.keys() if k in SECTION_KEYWORDS["ff"]]
-        items["ff_coeffs"] = {k: body[k] for k in ff_kws} if ff_kws else None
+        items["force_field"] = {k: body[k] for k in ff_kws} if ff_kws \
+            else None
         topo_kws = [k for k in body.keys()
                     if k in SECTION_KEYWORDS["molecule"]]
         items["topology"] = {k: body[k] for k in topo_kws} \
@@ -364,6 +367,10 @@ class Topology(MSONable):
             assert velocities_arr.shape == (len(sites), 3), \
                 "Wrong format for velocities"
             velocities = velocities_arr.tolist()
+
+        if topologies:
+            topologies = {k: v for k, v in topologies.items()
+                          if k in SECTION_KEYWORDS["molecule"]}
 
         self.sites = sites
         self.atom_type = atom_type
@@ -445,16 +452,18 @@ class Topology(MSONable):
 
 class ForceField(MSONable):
 
-    def __init__(self, masses, ff_coeffs=None):
-        masses = {k: v.atomic_mass.real if isinstance(v, Element)
-                  else Element(v).atomic_mass.real if isinstance(v, str)
-                  else v for k, v in masses.items()}
+    def __init__(self, mass_dict, ff_coeffs=None):
+        mass_dict = {k: v.atomic_mass.real if isinstance(v, Element)
+                     else Element(v).atomic_mass.real if isinstance(v, str)
+                     else v for k, v in mass_dict.items()}
         if ff_coeffs:
+            ff_coeffs = {k: v for k, v in ff_coeffs.items()
+                         if k in SECTION_KEYWORDS["ff"]}
             keys_by_type = {k: v.keys() for k, v in ff_coeffs.items()}
             # check whether all labels defined in masses
             all_keys = itertools.chain(*keys_by_type.values())
             labels = itertools.chain(*[k.split('-') for k in all_keys])
-            assert set(labels).issubset(masses.keys()),\
+            assert set(labels).issubset(mass_dict.keys()),\
                 "Unknown atom type found in force field coeffs"
             # check whether reverse duplicated keys exist,
             # e.g., "C-H" and "H-C"
@@ -466,21 +475,20 @@ class ForceField(MSONable):
                     "Reverse duplicated key found in %s" % sec
             # validate No. of PairIJ Coeffs
             if "PairIJ Coeffs" in keys_by_type.keys():
-                n = len(masses)
+                n = len(mass_dict)
                 comb = n * (n + 1) / 2
                 nij = len(ff_coeffs["PairIJ Coeffs"])
                 assert nij == comb, \
                     "Expecting {} PairIJ Coeffs for {} atom types," \
                     " got {}".format(comb, n, nij)
 
-        self.masses = masses
+        self.mass_dict = mass_dict
         self.ff_coeffs = ff_coeffs
-        self.masses_data, \
-        self._atom_map = self.get_coeffs_and_mapper("Masses")
+        self.masses, self._atom_map = self.get_coeffs_and_mapper("Masses")
 
     def get_coeffs_and_mapper(self, section):
         if section == "Masses":
-            coeff_dict = self.masses
+            coeff_dict = self.mass_dict
             key = "mass"
         elif section in SECTION_KEYWORDS["ff"][2:]:
             coeff_dict = self.ff_coeffs[section]
@@ -519,6 +527,19 @@ class ForceField(MSONable):
                 if section.startswith("PairIJ") else d["id"]
             data = sorted(data, key=key)
         return data
+
+    # def get_all_data(self, topologies, atom_style="full"):
+    #     atom_types = set(itertools.chain(*[t.types for t in topologies]))
+    #     assert atom_types.issubset(self._atom_map.keys()),\
+    #         "Unknown atom type found in topologies"
+    #     atoms_data = []
+    #     velo = [] if topologies[0].velocities else None
+    #     masses_data = self.masses_data
+    #     lookup = {"Atoms": self._atom_map}
+    #     ff_coeffs = {} if self.ff_coeffs else None
+    #     if isinstance(ff_coeffs, dict):
+    #         ff_kws =
+
 
     def to_file(self, filename):
         yaml = YAML(typ="safe")
