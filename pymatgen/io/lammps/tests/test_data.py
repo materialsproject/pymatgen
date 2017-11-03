@@ -8,11 +8,12 @@ from __future__ import division, print_function, unicode_literals, \
 import unittest
 import os
 import random
+import itertools
 
 import numpy as np
-from pymatgen import Molecule
+from pymatgen import Molecule, Element
 
-from pymatgen.io.lammps.data import LammpsData, Topology
+from pymatgen.io.lammps.data import LammpsData, Topology, ForceField
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -185,12 +186,114 @@ class TopologyTest(unittest.TestCase):
                                            angle=True, dihedral=True)
         self.assertIsNone(topo_etoh0.topologies)
         # angle or dihedral flag to off
-        topo_etoh1 = Topology.from_bonding(molecule=etoh, angle=False,
-                                           dihedral=True)
+        topo_etoh1 = Topology.from_bonding(molecule=etoh, angle=False)
         self.assertIsNone(topo_etoh1.topologies["Angles"])
-        topo_etoh2 = Topology.from_bonding(molecule=etoh, angle=True,
-                                           dihedral=False)
+        topo_etoh2 = Topology.from_bonding(molecule=etoh, dihedral=False)
         self.assertIsNone(topo_etoh2.topologies["Dihedrals"])
+
+
+class ForceFieldTest(unittest.TestCase):
+
+    def test_init(self):
+        masses = {"H0": 1.00794, "O0": 15.9994}
+        masses_alt = {"H0": Element("H"), "O0": "O"}
+        ff = ForceField(masses=masses_alt)
+        self.assertDictEqual(ff.masses, masses)
+        self.assertListEqual(ff.masses_data, [{"mass": 1.00794, "id": 1},
+                                              {"mass": 15.9994, "id": 2}])
+        self.assertDictEqual(ff._atom_map, {"H0": 1, "O0": 2})
+
+    def test_get_coeffs_and_mapper(self):
+        masses = {"C": 12, "H": 1}
+        bonds = ["C-C", "C-H"]
+        angles = ["H-C-H", "C-C-H", "C-C-C"]
+        dihedrals = ["H-C-C-H", "C-C-C-H", "C-C-C-C"]
+        impropers = ["C-H-H-C"]
+        ff_coeffs = {
+            "Bond Coeffs":
+                {k: v for k, v in zip(bonds, np.random.rand(2, 2))},
+            "Angle Coeffs":
+                {k: v for k, v in zip(angles, np.random.rand(3, 4))},
+            "Dihedral Coeffs":
+                {k: v for k, v in zip(dihedrals, np.random.rand(3, 4))},
+            "Improper Coeffs":
+                {k: v for k, v in zip(impropers, np.random.rand(1, 2))}
+        }
+        ff = ForceField(masses=masses, ff_coeffs=ff_coeffs)
+        masses_data, masses_map = ff.get_coeffs_and_mapper(section="Masses")
+        self.assertListEqual(masses_data, [{"id": 1, "mass": 12},
+                                           {"id": 2, "mass": 1}])
+        self.assertDictEqual(masses_map, {"C": 1, "H": 2})
+        bonds_data, \
+            bonds_map = ff.get_coeffs_and_mapper(section="Bond Coeffs")
+        self.assertDictEqual(bonds_map, {"C-C": 1, "C-H": 2})
+        bond, i = random.sample(bonds_map.items(), 1)[0]
+        np.testing.assert_array_equal(bonds_data[i - 1]["coeffs"],
+                                      ff_coeffs["Bond Coeffs"][bond])
+        angles_data, \
+            angles_map = ff.get_coeffs_and_mapper(section="Angle Coeffs")
+        self.assertDictEqual(angles_map, {"H-C-H": 1, "C-C-H": 2, "C-C-C": 3})
+        angle, j = random.sample(angles_map.items(), 1)[0]
+        np.testing.assert_array_equal(angles_data[j - 1]["coeffs"],
+                                      ff_coeffs["Angle Coeffs"][angle])
+        dihedrals_data, \
+            dihedrals_map = ff.get_coeffs_and_mapper(section="Dihedral "
+                                                             "Coeffs")
+        self.assertDictEqual(dihedrals_map,
+                             {"H-C-C-H": 1, "C-C-C-H": 2, "C-C-C-C": 3})
+        dihedral, k = random.sample(dihedrals_map.items(), 1)[0]
+        np.testing.assert_array_equal(dihedrals_data[k - 1]["coeffs"],
+                                      ff_coeffs["Dihedral Coeffs"][dihedral])
+        impropers_data, \
+            impropers_map = ff.get_coeffs_and_mapper(section="Improper "
+                                                             "Coeffs")
+        self.assertDictEqual(impropers_map, {"C-H-H-C": 1})
+        np.testing.assert_array_equal(impropers_data[0]["coeffs"],
+                                      ff_coeffs["Improper Coeffs"]["C-H-H-C"])
+
+    def test_get_pair_coeffs(self):
+        masses = {"C": 12, "H": 1, "O": 16}
+        pair_coeffs = np.random.rand(3, 2)
+        pairij_coeffs = np.random.rand(6, 2)
+        pair_keys = masses.keys()
+        pairij_keys = ["-".join(k) for k in
+                       itertools.combinations_with_replacement(masses.keys(),
+                                                               2)]
+        ff_coeffs = {
+            "Pair Coeffs":
+                {k: v for k, v in zip(pair_keys, pair_coeffs)},
+            "PairIJ Coeffs":
+                {k: v for k, v in zip(pairij_keys, pairij_coeffs)}
+        }
+        ff = ForceField(masses=masses, ff_coeffs=ff_coeffs)
+        pair_data = ff.get_pair_coeffs(section="Pair Coeffs")
+        p = random.randint(0, 2)
+        self.assertEqual(pair_data[p]["id"], p + 1)
+        np.testing.assert_array_equal(pair_data[p]["coeffs"], pair_coeffs[p])
+        pairij_data = ff.get_pair_coeffs(section="PairIJ Coeffs")
+        pij = random.randint(0, 5)
+        np.testing.assert_array_equal(pairij_data[pij]["coeffs"],
+                                      pairij_coeffs[pij])
+        # sort id feature
+        pair = list(zip(pair_keys, pair_coeffs))
+        random.shuffle(pair)
+        pairij = list(zip(pairij_keys, pairij_coeffs))
+        random.shuffle(pairij)
+        shuffled_coeffs = {"Pair Coeffs": {k: v for k, v in pair},
+                           "PairIJ Coeffs": {k: v for k, v in pairij}}
+        ff_sort = ForceField(masses=masses, ff_coeffs=shuffled_coeffs)
+        pair_data_sorted = ff_sort.get_pair_coeffs(section="Pair Coeffs",
+                                                   sort_id=True)
+        self.assertListEqual([d["id"] for d in pair_data_sorted], [1, 2, 3])
+        np.testing.assert_array_equal([d["coeffs"] for d in pair_data_sorted],
+                                      pair_coeffs)
+        pairij_data_sorted = ff.get_pair_coeffs(section="PairIJ Coeffs",
+                                                sort_id=True)
+        np.testing.assert_array_equal([d["coeffs"] for d in
+                                       pairij_data_sorted], pairij_coeffs)
+
+
+        
 
 
 if __name__ == "__main__":

@@ -16,6 +16,7 @@ from ruamel.yaml import YAML
 
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.core.structure import SiteCollection
+from pymatgen import Element
 
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
@@ -432,8 +433,79 @@ class Topology(MSONable):
 class ForceField(MSONable):
 
     def __init__(self, masses, ff_coeffs=None):
+        masses = {k: v.atomic_mass.real if isinstance(v, Element)
+                  else Element(v).atomic_mass.real if isinstance(v, str)
+                  else v for k, v in masses.items()}
+        if ff_coeffs:
+            keys_by_type = {k: v.keys() for k, v in ff_coeffs.items()}
+            # check whether all labels defined in masses
+            all_keys = itertools.chain(*keys_by_type.values())
+            labels = itertools.chain(*[k.split('-') for k in all_keys])
+            assert set(labels).issubset(masses.keys()),\
+                "Unknown atom type found in force field coeffs"
+            # check whether reverse duplicated keys exist,
+            # e.g., "C-H" and "H-C"
+            # improper dihedral might need a looser rule
+            for sec, keys in keys_by_type.items():
+                reverse = lambda k: "-".join(k.split("-")[::-1])
+                asym_keys = set([reverse(k) for k in keys if reverse(k) != k])
+                assert not asym_keys.intersection(keys),\
+                    "Reverse duplicated key found in %s" % sec
+            # validate No. of PairIJ Coeffs
+            if "PairIJ Coeffs" in keys_by_type.keys():
+                n = len(masses)
+                comb = n * (n + 1) / 2
+                nij = len(ff_coeffs["PairIJ Coeffs"])
+                assert nij == comb, \
+                    "Expecting {} PairIJ Coeffs for {} atom types," \
+                    " got {}".format(comb, n, nij)
+
         self.masses = masses
         self.ff_coeffs = ff_coeffs
+        self.masses_data, \
+        self._atom_map = self.get_coeffs_and_mapper("Masses")
+
+    def get_coeffs_and_mapper(self, section):
+        if section == "Masses":
+            coeff_dict = self.masses
+            key = "mass"
+        elif section in SECTION_KEYWORDS["ff"][2:]:
+            coeff_dict = self.ff_coeffs[section]
+            key = "coeffs"
+        else:
+            raise RuntimeError("Invalid coefficient section keyword")
+
+        data = []
+        mapper = {}
+        for i, (k, v) in enumerate(coeff_dict.items()):
+            data.append({"id": i + 1, key: v})
+            mapper[k] = i + 1
+        return data, mapper
+
+    def get_pair_coeffs(self, section, sort_id=True):
+        if section not in SECTION_KEYWORDS["ff"][:2]:
+            raise RuntimeError("Invalid pair coefficient section keyword")
+        else:
+            coeff_dict = self.ff_coeffs[section]
+
+        def map_key_and_coeffs(key, coeffs):
+            if section.startswith("PairIJ"):
+                k1, k2 = key.split("-")
+                ids = sorted(map(self._atom_map.get, [k1, k2]))
+                d = {"id%d" % i: v for i, v in zip([1, 2], ids)}
+            else:
+                d = {"id": self._atom_map[key]}
+            d["coeffs"] = coeffs
+            return d
+
+        data = []
+        for k, v in coeff_dict.items():
+            data.append(map_key_and_coeffs(k, v))
+        if sort_id:
+            key = lambda d: (d["id1"], d["id2"]) \
+                if section.startswith("PairIJ") else d["id"]
+            data = sorted(data, key=key)
+        return data
 
     def to_file(self, filename):
         yaml = YAML(typ="safe")
