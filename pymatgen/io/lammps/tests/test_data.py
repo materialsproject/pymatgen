@@ -205,7 +205,7 @@ class ForceFieldTest(unittest.TestCase):
         self.assertDictEqual(ff.mass_dict, mass_dict)
         self.assertListEqual(ff.masses, [{"mass": 1.00794, "id": 1},
                                          {"mass": 15.9994, "id": 2}])
-        self.assertDictEqual(ff._atom_map, {"H0": 1, "O0": 2})
+        self.assertDictEqual(ff.atom_map, {"H0": 1, "O0": 2})
 
     def test_get_coeffs_and_mapper(self):
         mass_dict = {"C": 12, "H": 1}
@@ -230,24 +230,23 @@ class ForceFieldTest(unittest.TestCase):
         self.assertDictEqual(masses_map, {"C": 1, "H": 2})
         bonds_data, \
             bonds_map = ff.get_coeffs_and_mapper(section="Bond Coeffs")
-        self.assertDictEqual(bonds_map, {"C-C": 1, "C-H": 2})
-        bond, i = random.sample(bonds_map.items(), 1)[0]
-        np.testing.assert_array_equal(bonds_data[i - 1]["coeffs"],
-                                      ff_coeffs["Bond Coeffs"][bond])
+        self.assertDictEqual(bonds_map, {"C-C": 1, "C-H": 2, "H-C": 2})
+        np.testing.assert_array_equal(bonds_data[1]["coeffs"],
+                                      ff_coeffs["Bond Coeffs"]["C-H"])
         angles_data, \
             angles_map = ff.get_coeffs_and_mapper(section="Angle Coeffs")
-        self.assertDictEqual(angles_map, {"H-C-H": 1, "C-C-H": 2, "C-C-C": 3})
-        angle, j = random.sample(angles_map.items(), 1)[0]
-        np.testing.assert_array_equal(angles_data[j - 1]["coeffs"],
-                                      ff_coeffs["Angle Coeffs"][angle])
+        self.assertDictEqual(angles_map, {"H-C-H": 1, "C-C-H": 2, "C-C-C": 3,
+                                          "H-C-C": 2})
+        np.testing.assert_array_equal(angles_data[2]["coeffs"],
+                                      ff_coeffs["Angle Coeffs"]["C-C-C"])
         dihedrals_data, \
             dihedrals_map = ff.get_coeffs_and_mapper(section="Dihedral "
                                                              "Coeffs")
         self.assertDictEqual(dihedrals_map,
-                             {"H-C-C-H": 1, "C-C-C-H": 2, "C-C-C-C": 3})
-        dihedral, k = random.sample(dihedrals_map.items(), 1)[0]
-        np.testing.assert_array_equal(dihedrals_data[k - 1]["coeffs"],
-                                      ff_coeffs["Dihedral Coeffs"][dihedral])
+                             {"H-C-C-H": 1, "C-C-C-H": 2, "C-C-C-C": 3,
+                              "H-C-C-C": 2})
+        np.testing.assert_array_equal(dihedrals_data[0]["coeffs"],
+                                      ff_coeffs["Dihedral Coeffs"]["H-C-C-H"])
         impropers_data, \
             impropers_map = ff.get_coeffs_and_mapper(section="Improper "
                                                              "Coeffs")
@@ -295,9 +294,6 @@ class ForceFieldTest(unittest.TestCase):
                                                 sort_id=True)
         np.testing.assert_array_equal([d["coeffs"] for d in
                                        pairij_data_sorted], pairij_coeffs)
-
-
-        
 
 
 if __name__ == "__main__":

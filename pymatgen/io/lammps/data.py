@@ -122,7 +122,7 @@ class LammpsData(MSONable):
         if self.force_field:
             ff_parts = []
             for kw in self.force_field.keys():
-                if kw is "PairIJ Coeffs":
+                if kw == "PairIJ Coeffs":
                     ff_mat = [[str(i) for i in
                                [d["id1"], d["id2"]] + d["coeffs"]]
                               for d in self.force_field[kw]]
@@ -310,6 +310,71 @@ class LammpsData(MSONable):
         items["atom_style"] = atom_style
         return cls(**items)
 
+    @classmethod
+    def from_ff_and_topologies(cls, ff, topologies, box_bounds, box_tilt=None,
+                               atom_style="full"):
+        atom_types = set(itertools.chain(*[t.types for t in topologies]))
+        assert atom_types.issubset(ff.atom_map.keys()),\
+            "Unknown atom type found in topologies"
+        items = {"box_bounds": box_bounds, "box_tilt": box_tilt,
+                 "atom_style": atom_style}
+        items["masses"] = ff.masses
+        lookup = {"Atoms": ff.atom_map}
+        force_field = {} if ff.ff_coeffs else None
+        if isinstance(force_field, dict):
+            for kw in ff.ff_coeffs.keys():
+                if kw.startswith("Pair"):
+                    force_field[kw] = ff.get_pair_coeffs(kw)
+                else:
+                    coeffs, mapper = ff.get_coeffs_and_mapper(kw)
+                    force_field[kw] = coeffs
+                    lookup[kw[:-7] + "s"] = mapper
+        items["force_field"] = force_field
+        atoms = []
+        velocities = [] if topologies[0].velocities else None
+        topology = {k: [] for k in SECTION_KEYWORDS["molecule"]}
+        stack = {k: 0 for k in ["Atoms"] + SECTION_KEYWORDS["molecule"]}
+        atom_format = ATOMS_LINE_FORMAT[atom_style]
+        for mid, topo in enumerate(topologies):
+            topo_atoms = []
+            map_inds = lambda l: "-".join([topo.types[i] for i in l])
+            for aid, (s, t) in enumerate(zip(topo.sites, topo.types)):
+                d_atom = {"id": aid + 1 + stack["Atoms"],
+                          "type": lookup["Atoms"][t]}
+                d_atom.update({k: s.getattr(k) for k in "xyz"})
+                if "molecule-ID" in atom_format:
+                    d_atom["molecule-ID"] = mid + 1
+                topo_atoms.append(d_atom)
+            if "q" in atom_format:
+                charges = topo.getattr("charges", [0.0] * len(topo.sites))
+                for d_atom, q in zip(topo_atoms, charges):
+                    d_atom["q"] = q
+            atoms.extend(topo_atoms)
+            if isinstance(velocities, list):
+                velocities.extend({"id": aid + 1 + stack["Atoms"],
+                                   "velocity": v}
+                                  for aid, v in enumerate(topo.velocities))
+            if topo.getattr("topologies"):
+                for kw in topo.topologies.keys():
+                    ref_dict = lookup[kw]
+                    unfiltered_indices = np.array(topo.topologies[kw])
+                    topo_data = []
+                    tid = stack[kw]
+                    for inds in unfiltered_indices:
+                        topo_type = ref_dict.get(map_inds(inds))
+                        if topo_type:
+                            topo_inds = (inds + stack["Atoms"]).tolist()
+                            topo_data.append({"id": tid + 1,
+                                              "type": topo_type,
+                                              kw.lower()[:-1]: topo_inds})
+
+                    topology[kw].extend(topo_data)
+                    stack[kw] += len(topo_data)
+            stack["Atoms"] += len(topo_atoms)
+        items.update({"atoms": atoms, "velocities": velocities,
+                      "topology": topology})
+        return cls(**items)
+
 
 class Topology(MSONable):
     """
@@ -452,6 +517,8 @@ class Topology(MSONable):
 
 class ForceField(MSONable):
 
+    _reverse_key = lambda self, k: "-".join(k.split("-")[::-1])
+
     def __init__(self, mass_dict, ff_coeffs=None):
         mass_dict = {k: v.atomic_mass.real if isinstance(v, Element)
                      else Element(v).atomic_mass.real if isinstance(v, str)
@@ -469,8 +536,8 @@ class ForceField(MSONable):
             # e.g., "C-H" and "H-C"
             # improper dihedral might need a looser rule
             for sec, keys in keys_by_type.items():
-                reverse = lambda k: "-".join(k.split("-")[::-1])
-                asym_keys = set([reverse(k) for k in keys if reverse(k) != k])
+                asym_keys = set([self._reverse_key(k) for k in keys
+                                 if self._reverse_key(k) != k])
                 assert not asym_keys.intersection(keys),\
                     "Reverse duplicated key found in %s" % sec
             # validate No. of PairIJ Coeffs
@@ -484,7 +551,7 @@ class ForceField(MSONable):
 
         self.mass_dict = mass_dict
         self.ff_coeffs = ff_coeffs
-        self.masses, self._atom_map = self.get_coeffs_and_mapper("Masses")
+        self.masses, self.atom_map = self.get_coeffs_and_mapper("Masses")
 
     def get_coeffs_and_mapper(self, section):
         if section == "Masses":
@@ -501,6 +568,8 @@ class ForceField(MSONable):
         for i, (k, v) in enumerate(coeff_dict.items()):
             data.append({"id": i + 1, key: v})
             mapper[k] = i + 1
+        reversed_mapper = {self._reverse_key(k): v for k, v in mapper.items()}
+        mapper.update(reversed_mapper)
         return data, mapper
 
     def get_pair_coeffs(self, section, sort_id=True):
@@ -512,10 +581,10 @@ class ForceField(MSONable):
         def map_key_and_coeffs(key, coeffs):
             if section.startswith("PairIJ"):
                 k1, k2 = key.split("-")
-                ids = sorted(map(self._atom_map.get, [k1, k2]))
+                ids = sorted(map(self.atom_map.get, [k1, k2]))
                 d = {"id%d" % i: v for i, v in zip([1, 2], ids)}
             else:
-                d = {"id": self._atom_map[key]}
+                d = {"id": self.atom_map[key]}
             d["coeffs"] = coeffs
             return d
 
@@ -527,19 +596,6 @@ class ForceField(MSONable):
                 if section.startswith("PairIJ") else d["id"]
             data = sorted(data, key=key)
         return data
-
-    # def get_all_data(self, topologies, atom_style="full"):
-    #     atom_types = set(itertools.chain(*[t.types for t in topologies]))
-    #     assert atom_types.issubset(self._atom_map.keys()),\
-    #         "Unknown atom type found in topologies"
-    #     atoms_data = []
-    #     velo = [] if topologies[0].velocities else None
-    #     masses_data = self.masses_data
-    #     lookup = {"Atoms": self._atom_map}
-    #     ff_coeffs = {} if self.ff_coeffs else None
-    #     if isinstance(ff_coeffs, dict):
-    #         ff_kws =
-
 
     def to_file(self, filename):
         yaml = YAML(typ="safe")
