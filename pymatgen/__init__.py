@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import sys
 import os
 import warnings
 import ruamel.yaml as yaml
@@ -8,7 +9,7 @@ __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__version__ = "2017.9.23"
+__version__ = "2017.10.16"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
@@ -78,3 +79,9 @@ def get_structure_from_mp(formula):
                       "Project. The lowest energy structure will be returned." %
                       (len(entries), formula))
     return min(entries, key=lambda e: e.energy_per_atom).structure
+
+
+if sys.version_info < (3, 5):
+    warnings.warn("""
+Pymatgen will drop Py2k support from v2019.1.1. Pls consult the documentation
+at https://www.pymatgen.org for more details.""")

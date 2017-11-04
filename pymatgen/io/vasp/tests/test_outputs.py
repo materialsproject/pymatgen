@@ -687,6 +687,22 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'th'][0][0], -0.052)
         self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'dh'][0][0], 0.0)
 
+    def test_drift(self):
+        outcar = Outcar(os.path.join(test_dir, "OUTCAR"))
+        self.assertEqual(len(outcar.drift),5)
+        self.assertAlmostEqual(np.sum(outcar.drift),0)
+
+        outcar = Outcar(os.path.join(test_dir, "OUTCAR.CL"))
+        self.assertEqual(len(outcar.drift), 79)
+        self.assertAlmostEqual(np.sum(outcar.drift),  0.448010)
+
+    def test_electrostatic_potential(self):
+
+        outcar = Outcar(os.path.join(test_dir,"OUTCAR"))
+        self.assertEqual(outcar.ngf,[54,30,54])
+        self.assertTrue(np.allclose(outcar.sampling_radii,[0.9748, 0.9791, 0.7215]))
+        self.assertTrue(np.allclose(outcar.electrostatic_potential,
+          [-26.0704, -45.5046, -45.5046, -72.9539, -73.0621, -72.9539, -73.0621]))
 
 class BSVasprunTest(unittest.TestCase):
 

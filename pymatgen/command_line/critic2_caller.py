@@ -505,9 +505,6 @@ class Critic2Output(MSONable):
                 if l[2] == "n":
                     critic2_idx = int(l[0]) - 1
                     frac_coord = np.array([float(l[3]), float(l[4]), float(l[5])]) % 1
-                    if critic2_idx != kd.query(frac_coord)[1]:
-                        print(critic2_idx)
-                        print(frac_coord)
                     node_mapping[critic2_idx] = kd.query(frac_coord)[1]
 
         if len(node_mapping) != len(self.structure):
