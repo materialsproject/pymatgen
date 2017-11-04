@@ -396,11 +396,16 @@ class Topology(MSONable):
                 different types. Default to None, i.e., use
                 site.species_string.
             charges ([q, ...]): Charge of each site in a (n,)
-                array/list, where n is the No. of sites.
+                array/list, where n is the No. of sites. Default to
+                None, i.e., search site property for charges.
             velocities ([[vx, vy, vz], ...]): Velocity of each site in
                 a (n, 3) array/list, where n is the No. of sites.
+                Default to None, i.e., search site property for
+                velocities.
             topologies (dict): Bonds, angles, dihedrals and improper
-                dihedrals defined by site indices.
+                dihedrals defined by site indices. Default to None,
+                i.e., no additional topology. All four valid keys
+                listed below are optional.
                 {
                     "Bonds": [[i, j], ...],
                     "Angles": [[i, j, k], ...],
@@ -463,10 +468,12 @@ class Topology(MSONable):
                 different types. Default to None, i.e., use
                 site.species_string.
             charges ([q, ...]): Charge of each site in a (n,)
-                array/list, where n is the No. of atoms in molecule.
+                array/list, where n is the No. of sites. Default to
+                None, i.e., search site property for charges.
             velocities ([[vx, vy, vz], ...]): Velocity of each site in
-                a (n, 3) array/list, where n is the No. of sites in
-                molecule.
+                a (n, 3) array/list, where n is the No. of sites.
+                Default to None, i.e., search site property for
+                velocities.
             tol (float): Bond distance tolerance. Default to 0.1.
                 Not recommended to alter.
 
@@ -520,6 +527,25 @@ class ForceField(MSONable):
     _reverse_key = lambda self, k: "-".join(k.split("-")[::-1])
 
     def __init__(self, mass_dict, ff_coeffs=None):
+        """
+
+        Args:
+            mass_dict (dict): Dict with atomic mass (or Element or
+                elememt symbol) for each specie.
+                {"C": 12.01, "H": "H", "O": Element("O")}
+            ff_coeffs (dict): Dict with force field coefficients.
+                Default to None, i.e., no additional force field
+                coefficients. All six valid keys listed below are
+                optional.
+                {
+                    "Pair Coeffs": {"C": [coeffs], ...},
+                    "PairIJ Coeffs": {"C": [coeffs], ...},
+                    "Bond Coeffs": {"C-H": [coeffs], ...},
+                    "Angle Coeffs": {"H-C-H": [coeffs], ...},
+                    "Dihedral Coeffs": {"H-C-C-H": [coeffs], ...},
+                    "Improper Coeffs": {"C-H-H-C": [coeffs], ...}
+                }
+        """
         mass_dict = {k: v.atomic_mass.real if isinstance(v, Element)
                      else Element(v).atomic_mass.real if isinstance(v, str)
                      else v for k, v in mass_dict.items()}
@@ -554,6 +580,24 @@ class ForceField(MSONable):
         self.masses, self.atom_map = self.get_coeffs_and_mapper("Masses")
 
     def get_coeffs_and_mapper(self, section):
+        """
+        Returns data for Masses or a force field section (other than
+        Pair/PairIJ Coeffs), also returns a mapper dict
+        ({type: id, ...}) for labeling data in Atoms or the relative
+        topology section.
+
+        Args:
+            section (str): Section title. Choose among "Masses",
+                "Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs", and
+                "Improper Coeffs".
+
+        Returns:
+            List of dicts for the usage of LammpsData, and a mapper
+            dict for labeling
+            [{"id": 1, "mass or coeffs": coeffs}, ...],
+            {"type1": 1, ...}
+
+        """
         if section == "Masses":
             coeff_dict = self.mass_dict
             key = "mass"
@@ -573,6 +617,21 @@ class ForceField(MSONable):
         return data, mapper
 
     def get_pair_coeffs(self, section, sort_id=True):
+        """
+        Returns data for either Pair Coeffs or PairIJ Coeffs section.
+
+        Args:
+            section (str): Section title. Choose between "Pair Coeffs"
+                and "PairIJ Coeffs".
+            sort_id (bool): Whether sort the list by id defined in
+                masses. Default to True.
+
+        Returns:
+            List of dicts for the usage of LammpsData
+            [{"id": 1, "coeffs": coeffs}, ...] for Pair
+            [{"id1": 1, "id2": 1, "coeffs": coeffs}, ...] for PairIJ
+
+        """
         if section not in SECTION_KEYWORDS["ff"][:2]:
             raise RuntimeError("Invalid pair coefficient section keyword")
         else:
