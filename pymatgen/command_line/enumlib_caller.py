@@ -133,23 +133,16 @@ class EnumlibAdaptor(object):
         # Create a temporary directory for working.
         with ScratchDir(".") as d:
             logger.debug("Temp dir : {}".format(d))
-            try:
-                # Generate input files
-                self._gen_input_file()
-                # Perform the actual enumeration
-                num_structs = self._run_multienum()
-                # Read in the enumeration output as structures.
-                if num_structs > 0:
-                    self.structures = self._get_structures(num_structs)
-                else:
-                    raise ValueError("Unable to enumerate structure.")
-            except Exception:
-                import sys
-                import traceback
+            # Generate input files
+            self._gen_input_file()
+            # Perform the actual enumeration
+            num_structs = self._run_multienum()
+            # Read in the enumeration output as structures.
+            if num_structs > 0:
+                self.structures = self._get_structures(num_structs)
+            else:
+                raise EnumError("Unable to enumerate structure.")
 
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                          limit=10, file=sys.stdout)
 
     def _gen_input_file(self):
         """
@@ -377,10 +370,14 @@ class EnumlibAdaptor(object):
                             warnings.warn("Skipping sites that include species X.")
                     structs.append(Structure.from_sites(sorted(sites)))
 
-        except Exception as e:
-            logger.error(e)
-            logger.error("Failed to read structures, test your makeStr binary is working "
-                         "correctly.")
+        except FileNotFoundError as ex:
+            print("Failed to read structures, test your makeStr binary is "
+                  "working correctly.")
+            raise ex
 
         logger.debug("Read in a total of {} structures.".format(num_structs))
         return structs
+
+
+class EnumError(BaseException):
+    pass
