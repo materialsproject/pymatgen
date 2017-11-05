@@ -16,17 +16,15 @@ from warnings import warn
 import logging
 import math
 
-import six
 import warnings
 from monty.fractions import lcm
 from monty.json import MSONable
 
-from pymatgen.core.structure import Composition
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, OrderDisorderedStructureTransformation
-from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
+from pymatgen.command_line.enumlib_caller import EnumlibAdaptor, EnumError
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -423,7 +421,11 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 symm_prec=self.symm_prec, refine_structure=False,
                 enum_precision_parameter=self.enum_precision_parameter,
                 check_ordered_symmetry=self.check_ordered_symmetry)
-            adaptor.run()
+            try:
+                adaptor.run()
+            except EnumError:
+                warn("Unable to enumerate for max_cell_size = %d".format(
+                    max_cell_size))
             structures = adaptor.structures
             if structures:
                 break
