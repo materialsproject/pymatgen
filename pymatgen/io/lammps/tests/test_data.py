@@ -8,9 +8,9 @@ from __future__ import division, print_function, unicode_literals, \
 import unittest
 import os
 import random
-import itertools
 
 import numpy as np
+from ruamel.yaml import YAML
 from pymatgen import Molecule, Element
 
 from pymatgen.io.lammps.data import LammpsData, Topology, ForceField
@@ -198,6 +198,13 @@ class TopologyTest(unittest.TestCase):
 
 class ForceFieldTest(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.benzene = ForceField.from_file(os.path.join(test_dir,
+                                                        "ff_benzene.yaml"))
+        cls.virus = ForceField.from_file(os.path.join(test_dir,
+                                                      "ff_virus.yaml"))
+
     def test_init(self):
         mass_dict = {"H0": 1.00794, "O0": 15.9994}
         mass_dict_alt = {"H0": Element("H"), "O0": "O"}
@@ -208,92 +215,92 @@ class ForceFieldTest(unittest.TestCase):
         self.assertDictEqual(ff.atom_map, {"H0": 1, "O0": 2})
 
     def test_get_coeffs_and_mapper(self):
-        mass_dict = {"C": 12, "H": 1}
-        bonds = ["C-C", "C-H"]
-        angles = ["H-C-H", "C-C-H", "C-C-C"]
-        dihedrals = ["H-C-C-H", "C-C-C-H", "C-C-C-C"]
-        impropers = ["C-H-H-C"]
-        ff_coeffs = {
-            "Bond Coeffs":
-                {k: v for k, v in zip(bonds, np.random.rand(2, 2))},
-            "Angle Coeffs":
-                {k: v for k, v in zip(angles, np.random.rand(3, 4))},
-            "Dihedral Coeffs":
-                {k: v for k, v in zip(dihedrals, np.random.rand(3, 4))},
-            "Improper Coeffs":
-                {k: v for k, v in zip(impropers, np.random.rand(1, 2))}
-        }
-        ff = ForceField(mass_dict=mass_dict, ff_coeffs=ff_coeffs)
+        ff = self.benzene
         masses_data, masses_map = ff.get_coeffs_and_mapper(section="Masses")
-        self.assertListEqual(masses_data, [{"id": 1, "mass": 12},
-                                           {"id": 2, "mass": 1}])
+        self.assertListEqual(masses_data, [{"id": 1, "mass": 12.01115},
+                                           {"id": 2, "mass": 1.00797}])
         self.assertDictEqual(masses_map, {"C": 1, "H": 2})
         bonds_data, \
             bonds_map = ff.get_coeffs_and_mapper(section="Bond Coeffs")
-        self.assertDictEqual(bonds_map, {"C-C": 1, "C-H": 2, "H-C": 2})
-        np.testing.assert_array_equal(bonds_data[1]["coeffs"],
-                                      ff_coeffs["Bond Coeffs"]["C-H"])
+        self.assertDictEqual(bonds_map, {"C-C": 1, "H-C": 2, "C-H": 2})
+        self.assertListEqual(bonds_data[1]["coeffs"], [363.4164, 1.08])
         angles_data, \
             angles_map = ff.get_coeffs_and_mapper(section="Angle Coeffs")
-        self.assertDictEqual(angles_map, {"H-C-H": 1, "C-C-H": 2, "C-C-C": 3,
-                                          "H-C-C": 2})
-        np.testing.assert_array_equal(angles_data[2]["coeffs"],
-                                      ff_coeffs["Angle Coeffs"]["C-C-C"])
+        self.assertDictEqual(angles_map, {"C-C-C": 1, "H-C-C": 2, "C-C-H": 2})
+        self.assertListEqual(angles_data[1]["coeffs"], [37.0, 120.0])
         dihedrals_data, \
             dihedrals_map = ff.get_coeffs_and_mapper(section="Dihedral "
                                                              "Coeffs")
         self.assertDictEqual(dihedrals_map,
-                             {"H-C-C-H": 1, "C-C-C-H": 2, "C-C-C-C": 3,
-                              "H-C-C-C": 2})
-        np.testing.assert_array_equal(dihedrals_data[0]["coeffs"],
-                                      ff_coeffs["Dihedral Coeffs"]["H-C-C-H"])
+                             {"C-C-C-C": 1, "H-C-C-C": 2, "H-C-C-H": 3,
+                              "C-C-C-H": 2})
+        self.assertListEqual(dihedrals_data[2]["coeffs"], [3.0, -1, 2])
         impropers_data, \
             impropers_map = ff.get_coeffs_and_mapper(section="Improper "
                                                              "Coeffs")
-        self.assertDictEqual(impropers_map, {"C-H-H-C": 1})
-        np.testing.assert_array_equal(impropers_data[0]["coeffs"],
-                                      ff_coeffs["Improper Coeffs"]["C-H-H-C"])
+        self.assertDictEqual(impropers_map, {"H-C-C-C": 1, "C-C-C-H": 1})
+        self.assertListEqual(impropers_data[0]["coeffs"], [0.37, -1, 2])
 
     def test_get_pair_coeffs(self):
-        mass_dict = {"C": 12, "H": 1, "O": 16}
-        pair_coeffs = np.random.rand(3, 2)
-        pairij_coeffs = np.random.rand(6, 2)
-        pair_keys = mass_dict.keys()
-        pairij_keys = \
-            ["-".join(k) for k in
-             itertools.combinations_with_replacement(mass_dict.keys(), 2)]
-        ff_coeffs = {
-            "Pair Coeffs":
-                {k: v for k, v in zip(pair_keys, pair_coeffs)},
-            "PairIJ Coeffs":
-                {k: v for k, v in zip(pairij_keys, pairij_coeffs)}
-        }
-        ff = ForceField(mass_dict=mass_dict, ff_coeffs=ff_coeffs)
-        pair_data = ff.get_pair_coeffs(section="Pair Coeffs")
-        p = random.randint(0, 2)
-        self.assertEqual(pair_data[p]["id"], p + 1)
-        np.testing.assert_array_equal(pair_data[p]["coeffs"], pair_coeffs[p])
-        pairij_data = ff.get_pair_coeffs(section="PairIJ Coeffs")
-        pij = random.randint(0, 5)
-        np.testing.assert_array_equal(pairij_data[pij]["coeffs"],
-                                      pairij_coeffs[pij])
-        # sort id feature
-        pair = list(zip(pair_keys, pair_coeffs))
-        random.shuffle(pair)
-        pairij = list(zip(pairij_keys, pairij_coeffs))
-        random.shuffle(pairij)
-        shuffled_coeffs = {"Pair Coeffs": {k: v for k, v in pair},
-                           "PairIJ Coeffs": {k: v for k, v in pairij}}
-        ff_sort = ForceField(mass_dict=mass_dict, ff_coeffs=shuffled_coeffs)
-        pair_data_sorted = ff_sort.get_pair_coeffs(section="Pair Coeffs",
-                                                   sort_id=True)
-        self.assertListEqual([d["id"] for d in pair_data_sorted], [1, 2, 3])
-        np.testing.assert_array_equal([d["coeffs"] for d in pair_data_sorted],
-                                      pair_coeffs)
-        pairij_data_sorted = ff.get_pair_coeffs(section="PairIJ Coeffs",
-                                                sort_id=True)
-        np.testing.assert_array_equal([d["coeffs"] for d in
-                                       pairij_data_sorted], pairij_coeffs)
+        ff = self.virus
+        pair = ff.get_pair_coeffs(section="Pair Coeffs")
+        self.assertListEqual(pair, [{"id": 1, "coeffs": [1, 1, 1.1225]},
+                                    {"id": 2, "coeffs": [1, 1.35, 4]},
+                                    {"id": 3, "coeffs": [1, 2.1, 4]},
+                                    {"id": 4, "coeffs": [1, 1, 1.1225]}])
+        unsorted_pairij = ff.get_pair_coeffs(section="PairIJ Coeffs",
+                                             sort_id=False)
+        self.assertListEqual(
+            unsorted_pairij,
+            [{"id1": 1, "id2": 1, "coeffs": [1, 1, 1.1225]},
+             {"id1": 1, "id2": 2, "coeffs": [1, 1.175, 1.31894]},
+             {"id1": 1, "id2": 4, "coeffs": [1, 1, 1.1225]},
+             {"id1": 2, "id2": 2, "coeffs": [1, 1.35, 4]},
+             {"id1": 1, "id2": 3, "coeffs": [1, 1.55, 1.73988]},
+             {"id1": 2, "id2": 3, "coeffs": [1, 1.725, 1.93631]},
+             {"id1": 3, "id2": 3, "coeffs": [1, 2.1, 4]},
+             {"id1": 3, "id2": 4, "coeffs": [1, 1.55, 1.73988]},
+             {"id1": 2, "id2": 4, "coeffs": [1, 1.175, 1.31894]},
+             {"id1": 4, "id2": 4, "coeffs": [1, 1, 1.1225]}]
+        )
+        sorted_pairij = ff.get_pair_coeffs(section="PairIJ Coeffs",
+                                           sort_id=True)
+        self.assertListEqual(sorted_pairij,
+                             sorted(unsorted_pairij,
+                                    key=lambda d: (d["id1"], d["id2"])))
+
+    def test_to_file(self):
+        filename = "ff_test.yaml"
+        self.benzene.to_file(filename=filename)
+        yaml = YAML(typ="safe")
+        with open(filename, "r") as f:
+            d = yaml.load(f)
+        self.assertDictEqual(d["mass_dict"], self.benzene.mass_dict)
+        self.assertDictEqual(d["ff_coeffs"], self.benzene.ff_coeffs)
+
+    def test_from_file(self):
+        ff = self.virus  # from_file already called in setUpClass
+        self.assertDictEqual(ff.mass_dict,
+                             {"A": 1.0, "B": 1.728, "C": 2.744, "D": 1.0})
+        self.assertDictEqual(ff.ff_coeffs["Pair Coeffs"],
+                             {"A": [1, 1, 1.1225], "B": [1, 1.35, 4],
+                              "C": [1, 2.1, 4], "D": [1, 1, 1.1225]})
+        self.assertDictEqual(ff.ff_coeffs["PairIJ Coeffs"],
+                             {"A-A": [1, 1, 1.1225],
+                              "A-B": [1, 1.175, 1.31894],
+                              "A-D": [1, 1, 1.1225],
+                              "B-B": [1, 1.35, 4],
+                              "C-A": [1, 1.55, 1.73988],
+                              "C-B": [1, 1.725, 1.93631],
+                              "C-C": [1, 2.1, 4],
+                              "C-D": [1, 1.55, 1.73988],
+                              "D-B": [1, 1.175, 1.31894],
+                              "D-D": [1, 1, 1.1225]})
+
+    @classmethod
+    def tearDownClass(cls):
+        if os.path.exists("ff_test.yaml"):
+            os.remove("ff_test.yaml")
 
 
 if __name__ == "__main__":

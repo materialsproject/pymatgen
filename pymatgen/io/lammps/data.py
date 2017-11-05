@@ -379,9 +379,8 @@ class LammpsData(MSONable):
 class Topology(MSONable):
     """
     Class carrying most data in Atoms, Velocities and molecular
-    topology (Bonds, Angles, Dihedrals, and Impropers) sections for ONE
-    single SiteCollection or its subclasses (Molecule/Structure), or a
-    plain list of Sites.
+    topology sections for ONE single SiteCollection or its subclasses
+    (Molecule/Structure), or a plain list of Sites.
 
     """
 
@@ -523,6 +522,9 @@ class Topology(MSONable):
 
 
 class ForceField(MSONable):
+    """
+    Class carrying most data in Masses and force field sections.
+    """
 
     _reverse_key = lambda self, k: "-".join(k.split("-")[::-1])
 
@@ -657,13 +659,28 @@ class ForceField(MSONable):
         return data
 
     def to_file(self, filename):
+        """
+        Save object to a file in YAML format.
+
+        Args:
+            filename (str): File name.
+
+        """
+        d = {"mass_dict": self.mass_dict, "ff_coeffs": self.ff_coeffs}
         yaml = YAML(typ="safe")
         with open(filename, "w") as f:
-            yaml.dump(self.__dict__, f)
+            yaml.dump(d, f)
 
     @classmethod
     def from_file(cls, filename):
+        """
+        Constructor that reads in a file in YAML format.
+
+        Args:
+            filename (str): File name.
+
+        """
         yaml = YAML(typ="safe")
         with open(filename, "r") as f:
             d = yaml.load(f)
-        return cls(d["masses"], d["ff_coeffs"])
+        return cls(d["mass_dict"], d["ff_coeffs"])
