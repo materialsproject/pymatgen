@@ -339,17 +339,20 @@ class EnumerateStructureTransformation(AbstractTransformation):
             structures. But sometimes including ordered sites
             slows down enumeration to the point that it cannot be
             completed. Switch to False in those cases. Defaults to True.
-        max_disordered_sites:
+        max_disordered_sites (int):
             An alternate parameter to max_cell size. Will sequentially try
             larger and larger cell sizes until (i) getting a result or (ii)
             the number of disordered sites in the cell exceeds
             max_disordered_sites. Must set max_cell_size to None when using
             this parameter.
+        sort_criteria (str): Sort by Ewald energy ("ewald", must have oxidation
+            states and slow) or by number of sites ("nsites", much faster).
     """
 
     def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1,
                  refine_structure=False, enum_precision_parameter=0.001,
-                 check_ordered_symmetry=True, max_disordered_sites=None):
+                 check_ordered_symmetry=True, max_disordered_sites=None,
+                 sort_criteria="ewald"):
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
@@ -357,6 +360,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.enum_precision_parameter = enum_precision_parameter
         self.check_ordered_symmetry = check_ordered_symmetry
         self.max_disordered_sites = max_disordered_sites
+        self.sort_criteria = sort_criteria
 
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and "
@@ -397,6 +401,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
              structure.composition.elements]
         )
 
+        structures = None
+
         if structure.is_ordered:
             warn("Enumeration skipped for structure with composition {} "
                  "because it is ordered".format(structure.composition))
@@ -430,6 +436,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
             if structures:
                 break
 
+        if structures is None:
+            raise ValueError("Unable to enumerate")
+
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}
@@ -439,7 +448,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             transformation = np.dot(new_latt.matrix, inv_latt)
             transformation = tuple([tuple([int(round(cell)) for cell in row])
                                     for row in transformation])
-            if contains_oxidation_state:
+            if contains_oxidation_state and self.sort_criteria == "ewald":
                 if transformation not in ewald_matrices:
                     s_supercell = structure * transformation
                     ewald = EwaldSummation(s_supercell)
@@ -453,7 +462,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 all_structures.append({"num_sites": len(s), "structure": s})
 
         def sort_func(s):
-            return s["energy"] / s["num_sites"] if contains_oxidation_state \
+            return s["energy"] / s["num_sites"] \
+                if contains_oxidation_state and self.sort_criteria == "ewald" \
                 else s["num_sites"]
 
         self._all_structures = sorted(all_structures, key=sort_func)
