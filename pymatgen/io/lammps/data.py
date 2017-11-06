@@ -526,67 +526,84 @@ class ForceField(MSONable):
     Class carrying most data in Masses and force field sections.
     """
 
-    _reverse_key = lambda self, k: "-".join(k.split("-")[::-1])
-
-    def __init__(self, mass_dict, ff_coeffs=None):
+    def __init__(self, mass_dict, pair_coeffs=None, mol_coeffs=None):
         """
 
         Args:
             mass_dict (dict): Dict with atomic mass (or Element or
-                elememt symbol) for each specie.
-                {"C": 12.01, "H": "H", "O": Element("O")}
-            ff_coeffs (dict): Dict with force field coefficients.
-                Default to None, i.e., no additional force field
-                coefficients. All six valid keys listed below are
-                optional.
+                element symbol) for each specie.
+            pair_coeffs [coeffs]: List of pair or pairij coefficients,
+                of which the sequence must be sorted according to the
+                species in mass_dict. Pair or PairIJ determined by the
+                length of list.
+            mol_coeffs (dict): Dict with force field coefficients for
+                molecular topologies. Default to None, i.e., no
+                additional coefficients. All four valid keys listed
+                below are optional.
                 {
-                    "Pair Coeffs": {"C": [coeffs], ...},
-                    "PairIJ Coeffs": {"C": [coeffs], ...},
-                    "Bond Coeffs": {"C-H": [coeffs], ...},
-                    "Angle Coeffs": {"H-C-H": [coeffs], ...},
-                    "Dihedral Coeffs": {"H-C-C-H": [coeffs], ...},
-                    "Improper Coeffs": {"C-H-H-C": [coeffs], ...}
+                    "Bond Coeffs":
+                        [{"coeffs": [coeffs],
+                          "types": [("C", "C"), ...]}, ...],
+                    "Angle Coeffs":
+                        [{"coeffs": [coeffs],
+                          "types": [("H", "C", "H"), ...]}, ...],
+                    "Dihedral Coeffs":
+                        [{"coeffs": [coeffs],
+                          "types": [("H", "C", "C", "H"), ...]}, ...],
+                    "Improper Coeffs":
+                        [{"coeffs": [coeffs],
+                          "types": [("H", "C", "C", "H"), ...]}, ...],
                 }
         """
         mass_dict = {k: v.atomic_mass.real if isinstance(v, Element)
                      else Element(v).atomic_mass.real if isinstance(v, str)
                      else v for k, v in mass_dict.items()}
-        if ff_coeffs:
-            ff_coeffs = {k: v for k, v in ff_coeffs.items()
-                         if k in SECTION_KEYWORDS["ff"]}
-            keys_by_type = {k: v.keys() for k, v in ff_coeffs.items()}
-            # check whether all labels defined in masses
-            all_keys = itertools.chain(*keys_by_type.values())
-            labels = itertools.chain(*[k.split('-') for k in all_keys])
-            assert set(labels).issubset(mass_dict.keys()),\
-                "Unknown atom type found in force field coeffs"
-            # check whether reverse duplicated keys exist,
-            # e.g., "C-H" and "H-C"
-            # improper dihedral might need a looser rule
-            for sec, keys in keys_by_type.items():
-                asym_keys = set([self._reverse_key(k) for k in keys
-                                 if self._reverse_key(k) != k])
-                assert not asym_keys.intersection(keys),\
-                    "Reverse duplicated key found in %s" % sec
-            # validate No. of PairIJ Coeffs
-            if "PairIJ Coeffs" in keys_by_type.keys():
-                n = len(mass_dict)
-                comb = n * (n + 1) / 2
-                nij = len(ff_coeffs["PairIJ Coeffs"])
-                assert nij == comb, \
-                    "Expecting {} PairIJ Coeffs for {} atom types," \
-                    " got {}".format(comb, n, nij)
+
+        if pair_coeffs:
+            # validate No. of pair coeffs
+            npc = len(pair_coeffs)
+            nm = len(mass_dict)
+            ncomb = nm * (nm + 1) / 2
+            if npc == nm:
+                self.pair_type = "pair"
+            elif npc == ncomb:
+                self.pair_type = "pairij"
+            else:
+                raise ValueError("Expecting {} Pair Coeffs or "
+                                 "{} PairIJ Coeffs for {} atom types,"
+                                 " got {}".format(nm, ncomb, nm, npc))
+        else:
+            self.pair_type = None
+
+        if mol_coeffs:
+            mol_coeffs = {k: v for k, v in mol_coeffs.items()
+                          if k in SECTION_KEYWORDS["ff"][2:]}
+            complete_types = lambda l: l + [t[::-1] for t in l
+                                            if t[::-1] not in l]
+            for k, v in mol_coeffs.items():
+                for d in v:
+                    d["types"] = complete_types(d["types"])
+                # No duplicated items under different types allowed
+                distinct_types = [set(d["types"]) for d in v]
+                if len(distinct_types) > 1:
+                    assert set.intersection(*distinct_types) == set(),\
+                        "Duplicated items found " \
+                        "under different coefficients in %s" % k
+                # No undefined atom types allowed
+                atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
+                assert atoms.issubset(mass_dict.keys()), \
+                    "Undefined atom type found in %s" % k
 
         self.mass_dict = mass_dict
-        self.ff_coeffs = ff_coeffs
+        self.pair_coeffs = pair_coeffs
+        self.mol_coeffs = mol_coeffs
         self.masses, self.atom_map = self.get_coeffs_and_mapper("Masses")
 
     def get_coeffs_and_mapper(self, section):
         """
-        Returns data for Masses or a force field section (other than
-        Pair/PairIJ Coeffs), also returns a mapper dict
-        ({type: id, ...}) for labeling data in Atoms or the relative
-        topology section.
+        Returns data for Masses or a force field section for molecular
+        topology, also returns a mapper dict ({type: id, ...}) for
+        labeling data in Atoms or the relative topology section.
 
         Args:
             section (str): Section title. Choose among "Masses",
@@ -594,69 +611,46 @@ class ForceField(MSONable):
                 "Improper Coeffs".
 
         Returns:
-            List of dicts for the usage of LammpsData, and a mapper
-            dict for labeling
-            [{"id": 1, "mass or coeffs": coeffs}, ...],
+            Dict with section title as key for the usage of
+            LammpsData, and a mapper dict for labeling
+            {"XX Coeffs": [{"id": 1, "coeffs": coeffs}, ...]},
             {"type1": 1, ...}
 
         """
-        if section == "Masses":
-            coeff_dict = self.mass_dict
-            key = "mass"
-        elif section in SECTION_KEYWORDS["ff"][2:]:
-            coeff_dict = self.ff_coeffs[section]
-            key = "coeffs"
-        else:
-            raise RuntimeError("Invalid coefficient section keyword")
-
         data = []
         mapper = {}
-        for i, (k, v) in enumerate(coeff_dict.items()):
-            data.append({"id": i + 1, key: v})
-            mapper[k] = i + 1
-        reversed_mapper = {self._reverse_key(k): v for k, v in mapper.items()}
-        mapper.update(reversed_mapper)
-        return data, mapper
+        if section == "Masses":
+            for i, (k, v) in enumerate(self.mass_dict.items()):
+                data.append({"id": i + 1, "mass": v})
+                mapper[k] = i + 1
+        elif section in SECTION_KEYWORDS["ff"][2:]:
+            for i, d in enumerate(self.mol_coeffs[section]):
+                data.append({"id": i + 1, "coeffs": d["coeffs"]})
+                mapper.update({k: i + 1 for k in d["types"]})
+        else:
+            raise RuntimeError("Invalid coefficient section keyword")
+        return {section: data}, mapper
 
-    def get_pair_coeffs(self, section, sort_id=True):
+    def get_pair_coeffs(self):
         """
-        Returns data for either Pair Coeffs or PairIJ Coeffs section.
-
-        Args:
-            section (str): Section title. Choose between "Pair Coeffs"
-                and "PairIJ Coeffs".
-            sort_id (bool): Whether sort the list by id defined in
-                masses. Default to True.
+        Returns data for Pair(IJ) Coeffs section.
 
         Returns:
-            List of dicts for the usage of LammpsData
-            [{"id": 1, "coeffs": coeffs}, ...] for Pair
-            [{"id1": 1, "id2": 1, "coeffs": coeffs}, ...] for PairIJ
+            Dict with section title as key for the usage of
+            LammpsData
+            {"Pair Coeffs": [{"id": 1, "coeffs": coeffs}, ...]} or
+            {"PairIJ Coeffs": [{"id1": 1, "id2": 1,
+                                "coeffs": coeffs}, ...]}
 
         """
-        if section not in SECTION_KEYWORDS["ff"][:2]:
-            raise RuntimeError("Invalid pair coefficient section keyword")
-        else:
-            coeff_dict = self.ff_coeffs[section]
-
-        def map_key_and_coeffs(key, coeffs):
-            if section.startswith("PairIJ"):
-                k1, k2 = key.split("-")
-                ids = sorted(map(self.atom_map.get, [k1, k2]))
-                d = {"id%d" % i: v for i, v in zip([1, 2], ids)}
-            else:
-                d = {"id": self.atom_map[key]}
-            d["coeffs"] = coeffs
-            return d
-
-        data = []
-        for k, v in coeff_dict.items():
-            data.append(map_key_and_coeffs(k, v))
-        if sort_id:
-            key = lambda d: (d["id1"], d["id2"]) \
-                if section.startswith("PairIJ") else d["id"]
-            data = sorted(data, key=key)
-        return data
+        if self.pair_type == "pair":
+            return {"Pair Coeffs": [{"id": i + 1, "coeffs": c}
+                                    for i, c in enumerate(self.pair_coeffs)]}
+        elif self.pair_type == "pairij":
+            n = len(self.mass_dict)
+            ids = itertools.combinations_with_replacement(range(1, n + 1), 2)
+            return {"PairIJ Coeffs": [{"id1": i[0], "id2": i[1], "coeffs": c}
+                                      for i, c in zip(ids, self.pair_coeffs)]}
 
     def to_file(self, filename):
         """
@@ -666,7 +660,8 @@ class ForceField(MSONable):
             filename (str): File name.
 
         """
-        d = {"mass_dict": self.mass_dict, "ff_coeffs": self.ff_coeffs}
+        d = {"mass_dict": self.mass_dict, "pair_coeffs": self.pair_coeffs,
+             "mol_coeffs": self.mol_coeffs}
         yaml = YAML(typ="safe")
         with open(filename, "w") as f:
             yaml.dump(d, f)
@@ -683,4 +678,8 @@ class ForceField(MSONable):
         yaml = YAML(typ="safe")
         with open(filename, "r") as f:
             d = yaml.load(f)
-        return cls(d["mass_dict"], d["ff_coeffs"])
+        if d.get("mol_coeffs"):
+            for v in d["mol_coeffs"].values():
+                for c in v:
+                    c["types"] = [tuple(t) for t in c["types"]]
+        return cls(d["mass_dict"], d["pair_coeffs"], d["mol_coeffs"])
