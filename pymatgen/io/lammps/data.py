@@ -8,7 +8,8 @@ from __future__ import division, print_function, unicode_literals, \
 import itertools
 import warnings
 import re
-import ast
+from ast import literal_eval
+from collections import OrderedDict
 
 import numpy as np
 from monty.json import MSONable
@@ -226,11 +227,11 @@ class LammpsData(MSONable):
             kw = single_section_lines[0]
 
             if kw in SECTION_KEYWORDS["ff"] and kw != "PairIJ Coeffs":
-                parse_line = lambda l: {"coeffs": [ast.literal_eval(x)
+                parse_line = lambda l: {"coeffs": [literal_eval(x)
                                                    for x in l[1:]]}
             elif kw == "PairIJ Coeffs":
                 parse_line = lambda l: {"id1": int(l[0]), "id2": int(l[1]),
-                                        "coeffs": [ast.literal_eval(x)
+                                        "coeffs": [literal_eval(x)
                                                    for x in l[2:]]}
             elif kw in topo_sections:
                 n = {"Bonds": 2, "Angles": 3, "Dihedrals": 4, "Impropers": 4}
@@ -558,6 +559,7 @@ class ForceField(MSONable):
         mass_dict = {k: v.atomic_mass.real if isinstance(v, Element)
                      else Element(v).atomic_mass.real if isinstance(v, str)
                      else v for k, v in mass_dict.items()}
+        mass_dict = OrderedDict(mass_dict.items())
 
         if pair_coeffs:
             # validate No. of pair coeffs

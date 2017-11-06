@@ -201,9 +201,9 @@ class ForceFieldTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        mass_dict = {"C": "C", "H": Element("H")}
-        pair_coeffs = [[0.1479999981, 3.6170487995],
-                       [0.0380000011, 2.449971454]]
+        mass_dict = {"H": Element("H"), "C": "C"}
+        pair_coeffs = [[0.0380000011, 2.449971454],
+                       [0.1479999981, 3.6170487995]]
         mol_coeffs = {
             "Bond Coeffs":
                 [{"coeffs": [480.0, 1.34], "types": [("C", "C")]},
@@ -225,10 +225,11 @@ class ForceFieldTest(unittest.TestCase):
 
     def test_init(self):
         b = self.benzene
-        self.assertDictEqual(b.mass_dict, {"C": 12.0107, "H": 1.00794})
-        self.assertDictEqual(b.atom_map, {"C": 1, "H": 2})
-        self.assertListEqual(b.masses, [{"id": 1, "mass": 12.0107},
-                                        {"id": 2, "mass": 1.00794}])
+        self.assertListEqual(list(b.mass_dict.items()),
+                             [("H", 1.00794), ("C", 12.0107)])
+        self.assertDictEqual(b.atom_map, {"H": 1, "C": 2})
+        self.assertListEqual(b.masses, [{"id": 1, "mass": 1.00794},
+                                        {"id": 2, "mass": 12.0107}])
         self.assertEqual(b.pair_type, "pair")
         self.assertListEqual(b.mol_coeffs["Bond Coeffs"][1]["types"],
                              [("H", "C"), ("C", "H")])
@@ -240,14 +241,14 @@ class ForceFieldTest(unittest.TestCase):
         self.assertListEqual(b.mol_coeffs["Improper Coeffs"][0]["types"],
                              [("H", "C", "C", "C"), ("C", "C", "C", "H")])
         v = self.virus
-        self.assertDictEqual(v.atom_map, {"A": 1, "B": 2, "C": 3, "D": 4})
+        self.assertDictEqual(v.atom_map, {"D": 1, "C": 2, "B": 3, "A": 4})
         self.assertEqual(v.pair_type, "pairij")
 
     def test_get_coeffs_and_mapper(self):
         b = self.benzene
         masses, atom_map = b.get_coeffs_and_mapper(section="Masses")
-        self.assertListEqual(masses["Masses"], [{"id": 1, "mass": 12.0107},
-                                                {"id": 2, "mass": 1.00794}])
+        self.assertListEqual(masses["Masses"], [{"id": 1, "mass": 1.00794},
+                                                {"id": 2, "mass": 12.0107}])
         self.assertDictEqual(atom_map, b.atom_map)
         bond_sec = "Bond Coeffs"
         bonds, bond_map = b.get_coeffs_and_mapper(section=bond_sec)
@@ -298,22 +299,22 @@ class ForceFieldTest(unittest.TestCase):
         pairb = b.get_pair_coeffs()
         self.assertIn(p_sec, pairb)
         self.assertNotIn(pij_sec, pairb)
-        pairb_data = [{"id": 1, "coeffs": [0.1479999981, 3.6170487995]},
-                      {"id": 2, "coeffs": [0.0380000011, 2.449971454]}]
+        pairb_data = [{"id": 1, "coeffs": [0.0380000011, 2.449971454]},
+                      {"id": 2, "coeffs": [0.1479999981, 3.6170487995]}]
         self.assertListEqual(pairb[p_sec], pairb_data)
         v = self.virus
         pairv = v.get_pair_coeffs()
         self.assertIn(pij_sec, pairv)
         self.assertNotIn(p_sec, pairv)
         pairv_data = [{'id1': 1, 'id2': 1, 'coeffs': [1, 1, 1.1225]},
-                      {'id1': 1, 'id2': 2, 'coeffs': [1, 1.175, 1.31894]},
-                      {'id1': 1, 'id2': 3, 'coeffs': [1, 1.55, 1.73988]},
+                      {'id1': 1, 'id2': 2, 'coeffs': [1, 1.55, 1.73988]},
+                      {'id1': 1, 'id2': 3, 'coeffs': [1, 1.175, 1.31894]},
                       {'id1': 1, 'id2': 4, 'coeffs': [1, 1, 1.1225]},
-                      {'id1': 2, 'id2': 2, 'coeffs': [1, 1.35, 4]},
+                      {'id1': 2, 'id2': 2, 'coeffs': [1, 2.1, 4]},
                       {'id1': 2, 'id2': 3, 'coeffs': [1, 1.725, 1.93631]},
-                      {'id1': 2, 'id2': 4, 'coeffs': [1, 1.175, 1.31894]},
-                      {'id1': 3, 'id2': 3, 'coeffs': [1, 2.1, 4]},
-                      {'id1': 3, 'id2': 4, 'coeffs': [1, 1.55, 1.73988]},
+                      {'id1': 2, 'id2': 4, 'coeffs': [1, 1.55, 1.73988]},
+                      {'id1': 3, 'id2': 3, 'coeffs': [1, 1.35, 4]},
+                      {'id1': 3, 'id2': 4, 'coeffs': [1, 1.175, 1.31894]},
                       {'id1': 4, 'id2': 4, 'coeffs': [1, 1, 1.1225]}]
         self.assertListEqual(pairv[pij_sec], pairv_data)
 
@@ -324,19 +325,21 @@ class ForceFieldTest(unittest.TestCase):
         yaml = YAML(typ="safe")
         with open(filename, "r") as f:
             d = yaml.load(f)
-        self.assertDictEqual(d["mass_dict"], b.mass_dict)
+        self.assertListEqual(list(d["mass_dict"].items()),
+                             list(b.mass_dict.items()))
         self.assertListEqual(d["pair_coeffs"], b.pair_coeffs)
 
     def test_from_file(self):
         v = self.virus
-        self.assertDictEqual(v.mass_dict,
-                             {"A": 1.0, "B": 1.728, "C": 2.744, "D": 1.0})
+        self.assertListEqual(list(v.mass_dict.items()),
+                             [("D", 1.0), ("C", 2.744),
+                              ("B", 1.728), ("A", 1.0)])
         self.assertListEqual(v.pair_coeffs,
-                             [[1, 1, 1.1225], [1, 1.175, 1.31894],
-                              [1, 1.55, 1.73988], [1, 1, 1.1225],
-                              [1, 1.35, 4], [1, 1.725, 1.93631],
-                              [1, 1.175, 1.31894], [1, 2.1, 4],
-                              [1, 1.55, 1.73988], [1, 1, 1.1225]])
+                             [[1, 1, 1.1225], [1, 1.55, 1.73988],
+                              [1, 1.175, 1.31894], [1, 1, 1.1225],
+                              [1, 2.1, 4], [1, 1.725, 1.93631],
+                              [1, 1.55, 1.73988], [1, 1.35, 4],
+                              [1, 1.175, 1.31894], [1, 1, 1.1225]])
         self.assertListEqual(v.mol_coeffs["Bond Coeffs"],
                              [{"coeffs": [50, 0.659469],
                                "types": [("A", "B"), ("C", "D"),
@@ -348,7 +351,8 @@ class ForceFieldTest(unittest.TestCase):
         d = self.benzene.as_dict()
         json_str = json.dumps(d)
         decoded = ForceField.from_dict(json.loads(json_str))
-        self.assertDictEqual(decoded.mass_dict, self.benzene.mass_dict)
+        self.assertListEqual(list(decoded.mass_dict.items()),
+                             list(self.benzene.mass_dict.items()))
         self.assertListEqual(decoded.pair_coeffs, self.benzene.pair_coeffs)
         self.assertDictEqual(decoded.mol_coeffs, self.benzene.mol_coeffs)
 
