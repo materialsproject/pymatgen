@@ -491,7 +491,11 @@ class CifParser(object):
             correct_keys = ["_space_group_symop_magn_operation.xyz",
                             "_space_group_symop_magn_centering.xyz",
                             "_space_group_magn.name_BNS",
-                            "_space_group_magn.number_BNS"]
+                            "_space_group_magn.number_BNS",
+                            "_atom_site_moment.crystalaxis_x",
+                            "_atom_site_moment.crystalaxis_y",
+                            "_atom_site_moment.crystalaxis_z",
+                            "_atom_site_moment.label"]
 
             # cannot mutate OrderedDict during enumeration,
             # so store changes we want to make
