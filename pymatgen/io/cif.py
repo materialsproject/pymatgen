@@ -488,10 +488,16 @@ class CifParser(object):
             # CIF-1 style has all underscores, interim standard
             # had period before magn instead of before the final
             # component (e.g. xyz)
+            # we want to standardize on a specific key, to simplify
+            # parsing code
             correct_keys = ["_space_group_symop_magn_operation.xyz",
                             "_space_group_symop_magn_centering.xyz",
                             "_space_group_magn.name_BNS",
-                            "_space_group_magn.number_BNS"]
+                            "_space_group_magn.number_BNS",
+                            "_atom_site_moment_crystalaxis_x",
+                            "_atom_site_moment_crystalaxis_y",
+                            "_atom_site_moment_crystalaxis_z",
+                            "_atom_site_moment_label"]
 
             # cannot mutate OrderedDict during enumeration,
             # so store changes we want to make
@@ -523,7 +529,7 @@ class CifParser(object):
 
         return data
 
-    def _unique_coords(self, coords_in, magmoms_in=None):
+    def _unique_coords(self, coords_in, magmoms_in=None, lattice=None):
         """
         Generate unique coordinates using coord and symmetry positions
         and also their corresponding magnetic moments, if supplied.
@@ -531,7 +537,6 @@ class CifParser(object):
         coords = []
         if magmoms_in:
             magmoms = []
-            magmoms_in = [Magmom(magmom) for magmom in magmoms_in]
             if len(magmoms_in) != len(coords_in):
                 raise ValueError
             for tmp_coord, tmp_magmom in zip(coords_in, magmoms_in):
@@ -539,9 +544,15 @@ class CifParser(object):
                     coord = op.operate(tmp_coord)
                     coord = np.array([i - math.floor(i) for i in coord])
                     if isinstance(op, MagSymmOp):
-                        magmom = Magmom(op.operate_magmom(tmp_magmom.moment))
+                        # Up to this point, magmoms have been defined relative
+                        # to crystal axis. Now convert to Cartesian and into
+                        # a Magmom object.
+                        magmom = Magmom.from_moment_relative_to_crystal_axes(
+                            op.operate_magmom(tmp_magmom),
+                            lattice=lattice
+                        )
                     else:
-                        magmom = tmp_magmom
+                        magmom = Magmom(tmp_magmom)
                     if not in_coord_list_pbc(coords, coord,
                                              atol=self._site_tolerance):
                         coords.append(coord)
@@ -788,11 +799,11 @@ class CifParser(object):
         try:
             magmoms = {
                 data["_atom_site_moment_label"][i]:
-                    Magmom.from_moment_relative_to_crystal_axes(
+                    np.array(
                         [str2float(data["_atom_site_moment_crystalaxis_x"][i]),
                          str2float(data["_atom_site_moment_crystalaxis_y"][i]),
-                         str2float(data["_atom_site_moment_crystalaxis_z"][i])],
-                        lattice)
+                         str2float(data["_atom_site_moment_crystalaxis_z"][i])]
+                    )
                 for i in range(len(data["_atom_site_moment_label"]))
             }
         except (ValueError, KeyError):
@@ -884,7 +895,8 @@ class CifParser(object):
             x = str2float(data["_atom_site_fract_x"][i])
             y = str2float(data["_atom_site_fract_y"][i])
             z = str2float(data["_atom_site_fract_z"][i])
-            magmom = magmoms.get(data["_atom_site_label"][i], Magmom(0))
+            magmom = magmoms.get(data["_atom_site_label"][i],
+                                 np.array([0, 0, 0]))
 
             try:
                 occu = str2float(data["_atom_site_occupancy"][i])
@@ -940,7 +952,8 @@ class CifParser(object):
 
                 if self.feature_flags["magcif"]:
                     coords, magmoms = self._unique_coords(tmp_coords,
-                                                          tmp_magmom)
+                                                          magmoms_in=tmp_magmom,
+                                                          lattice=lattice)
                 else:
                     coords, magmoms = self._unique_coords(tmp_coords)
 

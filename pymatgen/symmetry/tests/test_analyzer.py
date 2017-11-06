@@ -102,6 +102,9 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(self.sg.get_point_group_symbol(), 'mmm')
         self.assertEqual(self.disordered_sg.get_point_group_symbol(), '4/mmm')
 
+    def test_get_symmetry_operations(self):
+        self.assertEqual(self.sg.get_symmetry_operations(), self.sg.symmops)
+ 
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
         self.assertEqual(ds['international'], 'Pnma')
