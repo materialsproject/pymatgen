@@ -2533,8 +2533,6 @@ class PhononFlow(Flow):
 
         # Call the method of the super class.
         retcode = super(PhononFlow, self).finalize()
-        #print("retcode", retcode)
-        #if retcode != 0: return retcode
         return retcode
 
 

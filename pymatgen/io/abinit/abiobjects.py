@@ -163,6 +163,12 @@ def structure_to_abivars(structure, **kwargs):
     """
     Receives a structure and returns a dictionary with the ABINIT variables.
     """
+    if not structure.is_ordered:
+        raise ValueError("""\
+Received disordered structure with partial occupancies that cannot be converted into an Abinit input
+Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation
+to build an appropriate supercell from partial occupancies or alternatively use the Virtual Crystal Approximation.""")
+
     types_of_specie = structure.types_of_specie
     natom = structure.num_sites
 

@@ -1386,6 +1386,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.mpiabort_file = File(os.path.join(self.workdir, "__ABI_MPIABORTFILE__"))
 
         # Directories with input|output|temporary data.
+        self.wdir = Directory(self.workdir)
         self.indir = Directory(os.path.join(self.workdir, "indata"))
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
@@ -1541,6 +1542,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         manager = self.manager if hasattr(self, "manager") else self.flow.manager
         self.manager = manager.new_with_fixed_mpi_omp(mpi_procs, omp_threads)
+
+    #def set_max_ncores(self, max_ncores):
+    #    """
+    #    """
+    #    manager = self.manager if hasattr(self, "manager") else self.flow.manager
+    #    self.manager = manager.new_with_max_ncores(mpi_procs, omp_threads)
 
     #@check_spectator
     def _on_done(self):
