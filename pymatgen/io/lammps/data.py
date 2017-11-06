@@ -52,11 +52,11 @@ class LammpsData(MSONable):
                  velocities=None, force_field=None, topology=None,
                  atom_style="full"):
         if force_field:
-            force_field = {k: v for k, v in force_field.items()
-                           if k in SECTION_KEYWORDS["ff"]}
+            force_field = {k: force_field[k] for k in SECTION_KEYWORDS["ff"]
+                           if k in force_field}
         if topology:
-            topology = {k: v for k, v in topology.items()
-                        if k in SECTION_KEYWORDS["molecule"]}
+            topology = {k: topology[k] for k in SECTION_KEYWORDS["molecule"]
+                        if k in topology}
         self.masses = masses
         self.atoms = atoms
         self.box_bounds = box_bounds
@@ -317,61 +317,72 @@ class LammpsData(MSONable):
         atom_types = set(itertools.chain(*[t.types for t in topologies]))
         assert atom_types.issubset(ff.atom_map.keys()),\
             "Unknown atom type found in topologies"
+
         items = {"box_bounds": box_bounds, "box_tilt": box_tilt,
                  "atom_style": atom_style}
         items["masses"] = ff.masses
         lookup = {"Atoms": ff.atom_map}
-        force_field = {} if ff.ff_coeffs else None
-        if isinstance(force_field, dict):
-            for kw in ff.ff_coeffs.keys():
-                if kw.startswith("Pair"):
-                    force_field[kw] = ff.get_pair_coeffs(kw)
-                else:
-                    coeffs, mapper = ff.get_coeffs_and_mapper(kw)
-                    force_field[kw] = coeffs
-                    lookup[kw[:-7] + "s"] = mapper
+
+        pair_coeffs = ff.get_pair_coeffs()
+        mol_coeffs = getattr(ff, "mol_coeffs")
+        force_field = {} if any((pair_coeffs, mol_coeffs)) else None
+        if pair_coeffs:
+            force_field.update(pair_coeffs)
+        if mol_coeffs:
+            for kw in mol_coeffs.keys():
+                coeffs, mapper = ff.get_coeffs_and_mapper(kw)
+                force_field.update(coeffs)
+                lookup[kw[:-7] + "s"] = mapper
         items["force_field"] = force_field
+
         atoms = []
         velocities = [] if topologies[0].velocities else None
         topology = {k: [] for k in SECTION_KEYWORDS["molecule"]}
         stack = {k: 0 for k in ["Atoms"] + SECTION_KEYWORDS["molecule"]}
         atom_format = ATOMS_LINE_FORMAT[atom_style]
+
         for mid, topo in enumerate(topologies):
+            map_inds = lambda inds: tuple([topo.types[i] for i in inds])
+
             topo_atoms = []
-            map_inds = lambda l: "-".join([topo.types[i] for i in l])
             for aid, (s, t) in enumerate(zip(topo.sites, topo.types)):
                 d_atom = {"id": aid + 1 + stack["Atoms"],
                           "type": lookup["Atoms"][t]}
-                d_atom.update({k: s.getattr(k) for k in "xyz"})
+                d_atom.update({k: getattr(s, k) for k in "xyz"})
                 if "molecule-ID" in atom_format:
                     d_atom["molecule-ID"] = mid + 1
                 topo_atoms.append(d_atom)
             if "q" in atom_format:
-                charges = topo.getattr("charges", [0.0] * len(topo.sites))
+                charges = getattr(topo, "charges", [0.0] * len(topo.sites))
                 for d_atom, q in zip(topo_atoms, charges):
                     d_atom["q"] = q
             atoms.extend(topo_atoms)
+
             if isinstance(velocities, list):
                 velocities.extend({"id": aid + 1 + stack["Atoms"],
                                    "velocity": v}
                                   for aid, v in enumerate(topo.velocities))
-            if topo.getattr("topologies"):
+
+            if getattr(topo, "topologies"):
                 for kw in topo.topologies.keys():
-                    ref_dict = lookup[kw]
+                    topo_lookup = lookup[kw]
                     unfiltered_indices = np.array(topo.topologies[kw])
-                    topo_data = []
+                    topo_topos = []
                     tid = stack[kw]
                     for inds in unfiltered_indices:
-                        topo_type = ref_dict.get(map_inds(inds))
+                        topo_type = topo_lookup.get(map_inds(inds))
                         if topo_type:
-                            topo_inds = (inds + stack["Atoms"]).tolist()
-                            topo_data.append({"id": tid + 1,
-                                              "type": topo_type,
-                                              kw.lower()[:-1]: topo_inds})
+                            topo_inds = list(inds + stack["Atoms"] + 1)
+                            topo_topos.append({"id": tid + 1,
+                                               "type": topo_type,
+                                               kw.lower()[:-1]: topo_inds})
+                            tid += 1
+                    topology[kw].extend(topo_topos)
+                    stack[kw] = tid
 
-                    topology[kw].extend(topo_data)
-                    stack[kw] += len(topo_data)
             stack["Atoms"] += len(topo_atoms)
+
+        topology = None if not any(topology.values()) else topology
         items.update({"atoms": atoms, "velocities": velocities,
                       "topology": topology})
         return cls(**items)
@@ -439,8 +450,8 @@ class Topology(MSONable):
             velocities = velocities_arr.tolist()
 
         if topologies:
-            topologies = {k: v for k, v in topologies.items()
-                          if k in SECTION_KEYWORDS["molecule"]}
+            topologies = {k: topologies[k] for k in
+                          SECTION_KEYWORDS["molecule"] if k in topologies}
 
         self.sites = sites
         self.atom_type = atom_type
@@ -493,7 +504,7 @@ class Topology(MSONable):
                 hub_spokes = {}
                 for hub in hubs:
                     ix = np.any(np.isin(bond_arr, hub), axis=1)
-                    bonds = np.unique(bond_arr[ix]).tolist()
+                    bonds = list(np.unique(bond_arr[ix]))
                     bonds.remove(hub)
                     hub_spokes[hub] = bonds
             dihedral = False if len(bond_list) < 3 or len(hubs) < 2 \
@@ -578,8 +589,8 @@ class ForceField(MSONable):
             self.pair_type = None
 
         if mol_coeffs:
-            mol_coeffs = {k: v for k, v in mol_coeffs.items()
-                          if k in SECTION_KEYWORDS["ff"][2:]}
+            mol_coeffs = {k: mol_coeffs[k] for k in SECTION_KEYWORDS["ff"][2:]
+                          if k in mol_coeffs}
             complete_types = lambda l: l + [t[::-1] for t in l
                                             if t[::-1] not in l]
             for k, v in mol_coeffs.items():
