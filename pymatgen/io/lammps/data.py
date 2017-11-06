@@ -597,7 +597,8 @@ class ForceField(MSONable):
         self.mass_dict = mass_dict
         self.pair_coeffs = pair_coeffs
         self.mol_coeffs = mol_coeffs
-        self.masses, self.atom_map = self.get_coeffs_and_mapper("Masses")
+        masses_sec, self.atom_map = self.get_coeffs_and_mapper("Masses")
+        self.masses = masses_sec["Masses"]
 
     def get_coeffs_and_mapper(self, section):
         """
@@ -678,6 +679,10 @@ class ForceField(MSONable):
         yaml = YAML(typ="safe")
         with open(filename, "r") as f:
             d = yaml.load(f)
+        return cls.from_dict(d)
+
+    @classmethod
+    def from_dict(cls, d):
         if d.get("mol_coeffs"):
             for v in d["mol_coeffs"].values():
                 for c in v:

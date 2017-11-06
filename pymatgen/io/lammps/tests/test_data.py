@@ -8,6 +8,7 @@ from __future__ import division, print_function, unicode_literals, \
 import unittest
 import os
 import random
+import json
 
 import numpy as np
 from ruamel.yaml import YAML
@@ -200,102 +201,156 @@ class ForceFieldTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.benzene = ForceField.from_file(os.path.join(test_dir,
-                                                        "ff_benzene.yaml"))
+        mass_dict = {"C": "C", "H": Element("H")}
+        pair_coeffs = [[0.1479999981, 3.6170487995],
+                       [0.0380000011, 2.449971454]]
+        mol_coeffs = {
+            "Bond Coeffs":
+                [{"coeffs": [480.0, 1.34], "types": [("C", "C")]},
+                 {"coeffs": [363.4164, 1.08], "types": [("H", "C")]}],
+            "Angle Coeffs":
+                [{"coeffs": [90.0, 120.0], "types": [("C", "C", "C")]},
+                 {"coeffs": [37.0, 120.0], "types": [("H", "C", "C")]}],
+            "Dihedral Coeffs":
+                [{"coeffs": [3.0, -1, 2], "types": [("C", "C", "C", "C"),
+                                                    ("H", "C", "C", "C"),
+                                                    ("H", "C", "C", "H")]}],
+            "Improper Coeffs": [{"coeffs": [0.37, -1, 2],
+                                 "types": [("H", "C", "C", "C")]}]
+        }
+        cls.benzene = ForceField(mass_dict=mass_dict, pair_coeffs=pair_coeffs,
+                                 mol_coeffs=mol_coeffs)
         cls.virus = ForceField.from_file(os.path.join(test_dir,
                                                       "ff_virus.yaml"))
 
     def test_init(self):
-        mass_dict = {"H0": 1.00794, "O0": 15.9994}
-        mass_dict_alt = {"H0": Element("H"), "O0": "O"}
-        ff = ForceField(mass_dict=mass_dict_alt)
-        self.assertDictEqual(ff.mass_dict, mass_dict)
-        self.assertListEqual(ff.masses, [{"mass": 1.00794, "id": 1},
-                                         {"mass": 15.9994, "id": 2}])
-        self.assertDictEqual(ff.atom_map, {"H0": 1, "O0": 2})
+        b = self.benzene
+        self.assertDictEqual(b.mass_dict, {"C": 12.0107, "H": 1.00794})
+        self.assertDictEqual(b.atom_map, {"C": 1, "H": 2})
+        self.assertListEqual(b.masses, [{"id": 1, "mass": 12.0107},
+                                        {"id": 2, "mass": 1.00794}])
+        self.assertEqual(b.pair_type, "pair")
+        self.assertListEqual(b.mol_coeffs["Bond Coeffs"][1]["types"],
+                             [("H", "C"), ("C", "H")])
+        self.assertListEqual(b.mol_coeffs["Angle Coeffs"][1]["types"],
+                             [("H", "C", "C"), ("C", "C", "H")])
+        self.assertListEqual(b.mol_coeffs["Dihedral Coeffs"][0]["types"],
+                             [("C", "C", "C", "C"), ("H", "C", "C", "C"),
+                              ("H", "C", "C", "H"), ("C", "C", "C", "H")])
+        self.assertListEqual(b.mol_coeffs["Improper Coeffs"][0]["types"],
+                             [("H", "C", "C", "C"), ("C", "C", "C", "H")])
+        v = self.virus
+        self.assertDictEqual(v.atom_map, {"A": 1, "B": 2, "C": 3, "D": 4})
+        self.assertEqual(v.pair_type, "pairij")
 
     def test_get_coeffs_and_mapper(self):
-        ff = self.benzene
-        masses_data, masses_map = ff.get_coeffs_and_mapper(section="Masses")
-        self.assertListEqual(masses_data, [{"id": 1, "mass": 12.01115},
-                                           {"id": 2, "mass": 1.00797}])
-        self.assertDictEqual(masses_map, {"C": 1, "H": 2})
-        bonds_data, \
-            bonds_map = ff.get_coeffs_and_mapper(section="Bond Coeffs")
-        self.assertDictEqual(bonds_map, {"C-C": 1, "H-C": 2, "C-H": 2})
-        self.assertListEqual(bonds_data[1]["coeffs"], [363.4164, 1.08])
-        angles_data, \
-            angles_map = ff.get_coeffs_and_mapper(section="Angle Coeffs")
-        self.assertDictEqual(angles_map, {"C-C-C": 1, "H-C-C": 2, "C-C-H": 2})
-        self.assertListEqual(angles_data[1]["coeffs"], [37.0, 120.0])
-        dihedrals_data, \
-            dihedrals_map = ff.get_coeffs_and_mapper(section="Dihedral "
-                                                             "Coeffs")
-        self.assertDictEqual(dihedrals_map,
-                             {"C-C-C-C": 1, "H-C-C-C": 2, "H-C-C-H": 3,
-                              "C-C-C-H": 2})
-        self.assertListEqual(dihedrals_data[2]["coeffs"], [3.0, -1, 2])
-        impropers_data, \
-            impropers_map = ff.get_coeffs_and_mapper(section="Improper "
-                                                             "Coeffs")
-        self.assertDictEqual(impropers_map, {"H-C-C-C": 1, "C-C-C-H": 1})
-        self.assertListEqual(impropers_data[0]["coeffs"], [0.37, -1, 2])
+        b = self.benzene
+        masses, atom_map = b.get_coeffs_and_mapper(section="Masses")
+        self.assertListEqual(masses["Masses"], [{"id": 1, "mass": 12.0107},
+                                                {"id": 2, "mass": 1.00794}])
+        self.assertDictEqual(atom_map, b.atom_map)
+        bond_sec = "Bond Coeffs"
+        bonds, bond_map = b.get_coeffs_and_mapper(section=bond_sec)
+        self.assertListEqual(bonds[bond_sec],
+                             [{"id": 1, "coeffs": [480.0, 1.34]},
+                              {"id": 2, "coeffs": [363.4164, 1.08]}])
+        self.assertDictEqual(bond_map,
+                             {("C", "C"): 1, ("H", "C"): 2, ("C", "H"): 2})
+        angle_sec = "Angle Coeffs"
+        angles, angle_map = b.get_coeffs_and_mapper(section=angle_sec)
+        self.assertListEqual(angles[angle_sec],
+                             [{"id": 1, "coeffs": [90.0, 120.0]},
+                              {"id": 2, "coeffs": [37.0, 120.0]}])
+        self.assertDictEqual(angle_map,
+                             {("C", "C", "C"): 1, ("H", "C", "C"): 2,
+                              ("C", "C", "H"): 2})
+        dihedral_sec = "Dihedral Coeffs"
+        dihedrals, \
+        dihedral_map = b.get_coeffs_and_mapper(section=dihedral_sec)
+        self.assertListEqual(dihedrals[dihedral_sec],
+                             [{"id": 1, "coeffs": [3.0, -1, 2]}])
+        self.assertDictEqual(dihedral_map,
+                             {("C", "C", "C", "C"): 1,
+                              ("H", "C", "C", "C"): 1,
+                              ("H", "C", "C", "H"): 1,
+                              ("C", "C", "C", "H"): 1})
+        improper_sec = "Improper Coeffs"
+        impropers, \
+        improper_map = b.get_coeffs_and_mapper(section=improper_sec)
+        self.assertListEqual(impropers[improper_sec],
+                             [{"id": 1, "coeffs": [0.37, -1, 2]}])
+        self.assertDictEqual(improper_map,
+                             {("H", "C", "C", "C"): 1,
+                              ("C", "C", "C", "H"): 1})
+        v = self.virus
+        vbonds, vbond_map = v.get_coeffs_and_mapper(section=bond_sec)
+        self.assertListEqual(vbonds[bond_sec],
+                             [{"id": 1, "coeffs": [50, 0.659469]},
+                              {"id": 2, "coeffs": [50, 0.855906]}])
+        self.assertDictEqual(vbond_map,
+                             {("A", "B"): 1, ("C", "D"): 1, ("B", "A"): 1,
+                              ("D", "C"): 1, ("B", "C"): 2, ("C", "B"): 2})
 
     def test_get_pair_coeffs(self):
-        ff = self.virus
-        pair = ff.get_pair_coeffs(section="Pair Coeffs")
-        self.assertListEqual(pair, [{"id": 1, "coeffs": [1, 1, 1.1225]},
-                                    {"id": 2, "coeffs": [1, 1.35, 4]},
-                                    {"id": 3, "coeffs": [1, 2.1, 4]},
-                                    {"id": 4, "coeffs": [1, 1, 1.1225]}])
-        unsorted_pairij = ff.get_pair_coeffs(section="PairIJ Coeffs",
-                                             sort_id=False)
-        self.assertListEqual(
-            unsorted_pairij,
-            [{"id1": 1, "id2": 1, "coeffs": [1, 1, 1.1225]},
-             {"id1": 1, "id2": 2, "coeffs": [1, 1.175, 1.31894]},
-             {"id1": 1, "id2": 4, "coeffs": [1, 1, 1.1225]},
-             {"id1": 2, "id2": 2, "coeffs": [1, 1.35, 4]},
-             {"id1": 1, "id2": 3, "coeffs": [1, 1.55, 1.73988]},
-             {"id1": 2, "id2": 3, "coeffs": [1, 1.725, 1.93631]},
-             {"id1": 3, "id2": 3, "coeffs": [1, 2.1, 4]},
-             {"id1": 3, "id2": 4, "coeffs": [1, 1.55, 1.73988]},
-             {"id1": 2, "id2": 4, "coeffs": [1, 1.175, 1.31894]},
-             {"id1": 4, "id2": 4, "coeffs": [1, 1, 1.1225]}]
-        )
-        sorted_pairij = ff.get_pair_coeffs(section="PairIJ Coeffs",
-                                           sort_id=True)
-        self.assertListEqual(sorted_pairij,
-                             sorted(unsorted_pairij,
-                                    key=lambda d: (d["id1"], d["id2"])))
+        p_sec = "Pair Coeffs"
+        pij_sec = "PairIJ Coeffs"
+        b = self.benzene
+        pairb = b.get_pair_coeffs()
+        self.assertIn(p_sec, pairb)
+        self.assertNotIn(pij_sec, pairb)
+        pairb_data = [{"id": 1, "coeffs": [0.1479999981, 3.6170487995]},
+                      {"id": 2, "coeffs": [0.0380000011, 2.449971454]}]
+        self.assertListEqual(pairb[p_sec], pairb_data)
+        v = self.virus
+        pairv = v.get_pair_coeffs()
+        self.assertIn(pij_sec, pairv)
+        self.assertNotIn(p_sec, pairv)
+        pairv_data = [{'id1': 1, 'id2': 1, 'coeffs': [1, 1, 1.1225]},
+                      {'id1': 1, 'id2': 2, 'coeffs': [1, 1.175, 1.31894]},
+                      {'id1': 1, 'id2': 3, 'coeffs': [1, 1.55, 1.73988]},
+                      {'id1': 1, 'id2': 4, 'coeffs': [1, 1, 1.1225]},
+                      {'id1': 2, 'id2': 2, 'coeffs': [1, 1.35, 4]},
+                      {'id1': 2, 'id2': 3, 'coeffs': [1, 1.725, 1.93631]},
+                      {'id1': 2, 'id2': 4, 'coeffs': [1, 1.175, 1.31894]},
+                      {'id1': 3, 'id2': 3, 'coeffs': [1, 2.1, 4]},
+                      {'id1': 3, 'id2': 4, 'coeffs': [1, 1.55, 1.73988]},
+                      {'id1': 4, 'id2': 4, 'coeffs': [1, 1, 1.1225]}]
+        self.assertListEqual(pairv[pij_sec], pairv_data)
 
     def test_to_file(self):
         filename = "ff_test.yaml"
-        self.benzene.to_file(filename=filename)
+        b = self.benzene
+        b.to_file(filename=filename)
         yaml = YAML(typ="safe")
         with open(filename, "r") as f:
             d = yaml.load(f)
-        self.assertDictEqual(d["mass_dict"], self.benzene.mass_dict)
-        self.assertDictEqual(d["ff_coeffs"], self.benzene.ff_coeffs)
+        self.assertDictEqual(d["mass_dict"], b.mass_dict)
+        self.assertListEqual(d["pair_coeffs"], b.pair_coeffs)
 
     def test_from_file(self):
-        ff = self.virus  # from_file already called in setUpClass
-        self.assertDictEqual(ff.mass_dict,
+        v = self.virus
+        self.assertDictEqual(v.mass_dict,
                              {"A": 1.0, "B": 1.728, "C": 2.744, "D": 1.0})
-        self.assertDictEqual(ff.ff_coeffs["Pair Coeffs"],
-                             {"A": [1, 1, 1.1225], "B": [1, 1.35, 4],
-                              "C": [1, 2.1, 4], "D": [1, 1, 1.1225]})
-        self.assertDictEqual(ff.ff_coeffs["PairIJ Coeffs"],
-                             {"A-A": [1, 1, 1.1225],
-                              "A-B": [1, 1.175, 1.31894],
-                              "A-D": [1, 1, 1.1225],
-                              "B-B": [1, 1.35, 4],
-                              "C-A": [1, 1.55, 1.73988],
-                              "C-B": [1, 1.725, 1.93631],
-                              "C-C": [1, 2.1, 4],
-                              "C-D": [1, 1.55, 1.73988],
-                              "D-B": [1, 1.175, 1.31894],
-                              "D-D": [1, 1, 1.1225]})
+        self.assertListEqual(v.pair_coeffs,
+                             [[1, 1, 1.1225], [1, 1.175, 1.31894],
+                              [1, 1.55, 1.73988], [1, 1, 1.1225],
+                              [1, 1.35, 4], [1, 1.725, 1.93631],
+                              [1, 1.175, 1.31894], [1, 2.1, 4],
+                              [1, 1.55, 1.73988], [1, 1, 1.1225]])
+        self.assertListEqual(v.mol_coeffs["Bond Coeffs"],
+                             [{"coeffs": [50, 0.659469],
+                               "types": [("A", "B"), ("C", "D"),
+                                         ("B", "A"), ("D", "C")]},
+                              {"coeffs": [50, 0.855906],
+                               "types": [("B", "C"), ("C", "B")]}])
+
+    def test_from_dict(self):
+        d = self.benzene.as_dict()
+        json_str = json.dumps(d)
+        decoded = ForceField.from_dict(json.loads(json_str))
+        self.assertDictEqual(decoded.mass_dict, self.benzene.mass_dict)
+        self.assertListEqual(decoded.pair_coeffs, self.benzene.pair_coeffs)
+        self.assertDictEqual(decoded.mol_coeffs, self.benzene.mol_coeffs)
 
     @classmethod
     def tearDownClass(cls):
