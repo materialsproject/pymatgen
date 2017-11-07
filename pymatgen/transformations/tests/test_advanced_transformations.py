@@ -18,7 +18,7 @@ from pymatgen.transformations.advanced_transformations import \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
     DopingTransformation, _find_codopant, SlabTransformation, \
-    MagOrderParameterConstraint, DiscretizeOccupanciesTransformation
+    MagOrderParameterConstraint
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
@@ -152,27 +152,13 @@ class ChargeBalanceTransformationTest(unittest.TestCase):
         self.assertAlmostEqual(s.charge, 0, 5)
 
 
-class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
-
-    def test_apply_transformation(self):
-        l = Lattice.cubic(4)
-        s_orig = Structure(l, [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
-                      [[0, 0, 0], [0.5, 0.5, 0.5]])
-        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.25)
-        s = dot.apply_transformation(s_orig)
-        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.2,
-                                                       Element("Na"): 0.2,
-                                                       Element("K"): 0.6})
-
-        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.1)
-        self.assertRaises(RuntimeError, dot.apply_transformation, s_orig)
-
-
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class EnumerateStructureTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
+        enum_trans2 = EnumerateStructureTransformation(refine_structure=True,
+                                                      sort_criteria="nsites")
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
                              check_for_POTCAR=False)
         struct = p.structure
@@ -186,10 +172,15 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
             alls = enum_trans.apply_transformation(s, 100)
             self.assertEqual(len(alls), expected_ans[i])
             self.assertIsInstance(trans.apply_transformation(s), Structure)
-            for s in alls:
-                self.assertIn("energy", s)
+            for ss in alls:
+                self.assertIn("energy", ss)
+            alls = enum_trans2.apply_transformation(s, 100)
+            self.assertEqual(len(alls), expected_ans[i])
+            self.assertIsInstance(trans.apply_transformation(s), Structure)
+            for ss in alls:
+                self.assertIn("num_sites", ss)
 
-        #make sure it works for non-oxidation state decorated structure
+        # make sure it works for non-oxidation state decorated structure
         trans = SubstitutionTransformation({'Fe': {'Fe': 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
