@@ -19,9 +19,23 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.core.structure import SiteCollection
 from pymatgen import Molecule, Element
 
-__author__ = 'Kiran Mathew'
-__email__ = "kmathew@lbl.gov"
-__credits__ = 'Brandon Wood'
+"""
+This module implements a core class LammpsData for generating/parsing 
+LAMMPS data file, and other bridging classes to build LammpsData from 
+molecules. 
+
+Only point particle styles are supported for now (atom_style in angle,
+atomic, bond, charge, full and molecular only). See the pages below for 
+more info.
+
+    http://lammps.sandia.gov/doc/atom_style.html
+    http://lammps.sandia.gov/doc/read_data.html
+
+"""
+
+__author__ = "Kiran Mathew, Zhi Deng"
+__email__ = "kmathew@lbl.gov, z4deng@eng.ucsd.edu"
+__credits__ = "Brandon Wood"
 
 
 SECTION_KEYWORDS = {"atom": ["Atoms", "Velocities", "Masses",
@@ -47,10 +61,84 @@ ATOMS_FLOATS = ["q", "x", "y", "z"]
 
 
 class LammpsData(MSONable):
+    """
+    Object for representing the data in a LAMMPS data file.
+    """
 
     def __init__(self, masses, atoms, box_bounds, box_tilt=None,
                  velocities=None, force_field=None, topology=None,
                  atom_style="full"):
+        """
+        This constructor is designed to work with parsed data from a
+        file. Not recommended to use directly.
+
+        Args:
+            masses ([dict]): Data for Masses section.
+                [{"id": 1, "mass": 1.008}, ...]
+            atoms ([dict]): Data for Atoms section. Keys in dicts
+                varies with atom_style.
+                [{"id": 1, "type": 1,
+                  "x": 0.0, "y": 0.0, "z": 0.0, ...}, ...]
+            box_bounds: A (3, 2) array/list of floats setting the
+                boundaries of simulation box.
+            box_tilt: A (3,) array/list of floats setting the tilt of
+                simulation box. Default to None, i.e., use an
+                orthogonal box.
+            velocities ([dict]): Data for Velocities section. Default
+                to None. If not None, its length and ids should be
+                consistent with atoms.
+                [{"id": 1, "velocity": [0.0, 0.0, 0.0]}, ...]
+            force_field (dict): Data for force field sections.
+                Default to None. All six valid keys listed below are
+                optional.
+                {
+                    "Pair Coeffs":
+                        [{"id": 1, "coeffs": [coeff]}, ...],
+                    "Pair IJ Coeffs":
+                        [{"id1": 1, "id2": 1, "coeffs": [coeff]}, ...],
+                    "Bond Coeffs":
+                        [{"id": 1, "coeffs": [coeff]}, ...],
+                    "Angle Coeffs":
+                        [{"id": 1, "coeffs": [coeff]}, ...],
+                    "Dihedral Coeffs":
+                        [{"id": 1, "coeffs": [coeff]}, ...],
+                    "Improper Coeffs":
+                        [{"id": 1, "coeffs": [coeff]}, ...],
+                }
+            topology (dict): Data for topology sections. Default to
+                None. All four valid keys listed below are optional.
+                {
+                    "Bonds":
+                        [{"id": 1, "bond": [1, 2]}, ...],
+                    "Angles":
+                        [{"id": 1, "angle": [2, 1, 3]}, ...],
+                    "Dihedrals":
+                        [{"id": 1, "dihedral": [3, 1, 2, 4]}, ...],
+                    "Impropes":
+                        [{"id": 1, "improper": [3, 1, 2, 4]}, ...],
+                }
+            atom_style (str): Output atom_style. Default to "full".
+
+        """
+        bounds_arr = np.array(box_bounds)
+        bounds_shape = bounds_arr.shape
+        assert bounds_shape == (3, 2), \
+            "Expecting a (3, 2) array for box_bounds," \
+            " got {}".format(bounds_shape)
+        box_bounds = bounds_arr.tolist()
+
+        if box_tilt is not None:
+            tilt_arr = np.array(box_tilt)
+            tilt_shape = tilt_arr.shape
+            assert tilt_shape == (3,),\
+                "Expecting a (3,) array for box_tilt," \
+                " got {}".format(tilt_shape)
+            box_tilt = tilt_arr.tolist()
+
+        if velocities:
+            assert len(velocities) == len(atoms),\
+                "Inconsistency found between atoms and velocities"
+
         if force_field:
             force_field = {k: force_field[k] for k in SECTION_KEYWORDS["ff"]
                            if k in force_field}
@@ -70,6 +158,22 @@ class LammpsData(MSONable):
         return self.get_string()
 
     def get_string(self, significant_figures=6):
+        """
+        Returns the string representation of LammpsData, equivalent to
+        the string that is to be written into a file.
+
+        Args:
+            significant_figures (int): No. of significant figures of
+                (changeable) quantities to output, default ot 6.
+                Quantities include box bounds and tilt, coordinates,
+                charges and velocities. While other stationary
+                quantities, like masses and force field coefficients,
+                are displayed as-is.
+
+        Returns:
+            String representation
+
+        """
         template = """Generated by pymatgen.io.lammps.data.LammpsData
 
 {stats}
@@ -178,12 +282,34 @@ class LammpsData(MSONable):
         return template.format(**contents)
 
     def write_file(self, filename, significant_figures=6):
+        """
+        Writes LammpsData to file.
+
+        Args:
+            filename (str): Filename to write to.
+            significant_figures (int): No. of significant figures of
+                (changeable) quantities to output, default ot 6.
+                Quantities include box bounds and tilt, coordinates,
+                charges and velocities. While other stationary
+                quantities, like masses and force field coefficients,
+                are displayed as-is.
+
+        """
         with open(filename, "w") as f:
             f.write(self.get_string(significant_figures=significant_figures))
 
     @classmethod
     def from_file(cls, filename, atom_style="full", sort_id=False):
+        """
+        Constructor from parsing a file.
 
+        Args:
+            filename (str): Filename to read.
+            atom_style (str): Associated atom_style. Default to "full".
+            sort_id (bool): Whether sort each section by id. Default to
+                True.
+
+        """
         with open(filename) as f:
             lines = f.readlines()
         clines = list(clean_lines(lines))
@@ -314,6 +440,23 @@ class LammpsData(MSONable):
     @classmethod
     def from_ff_and_topologies(cls, ff, topologies, box_bounds, box_tilt=None,
                                atom_style="full"):
+        """
+        Constructor building LammpsData from a ForceField object and a
+        list of Topology objects.
+
+        Args:
+            ff (ForceField): ForceField object with data for Masses and
+                force field sections.
+            topologies ([Topology]): List of Topology objects with data
+                for Atoms, Velocities and topology sections.
+            box_bounds: A (3, 2) array/list of floats setting the
+                boundaries of simulation box.
+            box_tilt: A (3,) array/list of floats setting the tilt of
+                simulation box. Default to None, i.e., use an
+                orthogonal box.
+            atom_style (str): Output atom_style. Default to "full".
+
+        """
         atom_types = set(itertools.chain(*[t.types for t in topologies]))
         assert atom_types.issubset(ff.atom_map.keys()),\
             "Unknown atom type found in topologies"
@@ -670,7 +813,7 @@ class ForceField(MSONable):
 
     def to_file(self, filename):
         """
-        Save object to a file in YAML format.
+        Saves object to a file in YAML format.
 
         Args:
             filename (str): File name.
