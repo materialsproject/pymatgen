@@ -85,7 +85,7 @@ class LammpsData(MSONable):
 {velocities}
 
 {topo_sections}
-        """
+"""
 
         contents = {}
 
@@ -383,7 +383,8 @@ class LammpsData(MSONable):
 
             stack["Atoms"] += len(topo_atoms)
 
-        topology = None if not any(topology.values()) else topology
+        topology = {k: v for k, v in topology.items() if len(v) > 0}
+        topology = None if len(topology) == 0 else topology
         items.update({"atoms": atoms, "velocities": velocities,
                       "topology": topology})
         return cls(**items)
