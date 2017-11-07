@@ -23,11 +23,46 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class LammpsDataTest(unittest.TestCase):
 
-    def test_from_file(self):
-        peptide = LammpsData.from_file(filename=os.path.join(test_dir,
-                                                             "data.peptide"),
-                                       atom_style="full")
+    @classmethod
+    def setUpClass(cls):
+        cls.peptide = LammpsData.\
+            from_file(filename=os.path.join(test_dir, "data.peptide"))
+        cls.quartz = LammpsData.\
+            from_file(filename=os.path.join(test_dir, "data.quartz"),
+                      atom_style="atomic")
+        mass_dict = {"h": 1.007970, "otip": 15.999400, "htip": 1.007970}
+        pair_coeffs = [[0.0380000011, 2.4499714540],
+                       [0.1520725945, 3.1506561105],
+                       [0.0000000000, 0.0000000000]]
+        mol_coeffs = {
+            "Bond Coeffs":
+                [{"coeffs": [398.7500, 0.7461], "types": [("h", "h")]},
+                 {"coeffs": [540.6336, 0.9570], "types": [("otip", "htip")]}],
+            "Angle Coeffs": [{"coeffs": [50.0000, 104.5200],
+                              "types": [("htip", "otip", "htip")]}]
+        }
+        ff = ForceField(mass_dict=mass_dict, pair_coeffs=pair_coeffs,
+                        mol_coeffs=mol_coeffs)
+        h2 = Molecule(["H", "H"], [[4.6, 5.0, 2.5], [5.4, 5.0, 2.5]],
+                      site_properties={"ff_map": ["h", "h"]})
+        water = Molecule(["O", "H", "H"],
+                         [[5.0, 5.0, 7.5], [4.0, 5.0, 7.5], [5.0, 4.0, 7.5]],
+                         site_properties={"ff_map": ["otip"] + ["htip"] * 2,
+                                          "charge": [-0.834, 0.417, 0.417]})
+        topologies = [Topology.from_bonding(m, atom_type="ff_map")
+                      for m in [h2, water]]
+        cls.h2_water = LammpsData.\
+            from_ff_and_topologies(ff=ff, topologies=topologies,
+                                   box_bounds=[[0, 10]] * 3)
 
+    def test_get_string(self):
+        pass
+
+    def test_write_file(self):
+        pass
+
+    def test_from_file(self):
+        peptide = self.peptide
         # header stats
         self.assertEqual(len(peptide.atoms), 2004)
         topology = peptide.topology
@@ -83,9 +118,7 @@ class LammpsDataTest(unittest.TestCase):
                              {"id": 12, "type": 2,
                               "improper": [79, 64, 80, 81]})
         # box_tilt and another atom_style
-        quartz = LammpsData.from_file(filename=os.path.join(test_dir,
-                                                            "data.quartz"),
-                                      atom_style="atomic")
+        quartz = self.quartz
         np.testing.assert_array_equal(quartz.box_tilt, [-2.456700, 0.0, 0.0])
         self.assertDictEqual(quartz.atoms[-1],
                              {"id": 9, "type": 2, "x": 1.375998,
@@ -105,6 +138,13 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(len(pairij), n * (n + 1) / 2)
         self.assertDictEqual(pairij[-1],
                              {"id1": 4, "id2": 4, "coeffs": [1, 1, 1.1225]})
+
+    def test_from_ff_and_topologies(self):
+        pass
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
 
 
 class TopologyTest(unittest.TestCase):
@@ -147,8 +187,8 @@ class TopologyTest(unittest.TestCase):
         topo_h = Topology.from_bonding(molecule=hydrogen)
         tp_h = topo_h.topologies
         self.assertListEqual(tp_h["Bonds"], [[0, 1]])
-        self.assertIsNone(tp_h["Angles"])
-        self.assertIsNone(tp_h["Dihedrals"])
+        self.assertNotIn("Angles", tp_h)
+        self.assertNotIn("Dihedrals", tp_h)
         # water: 2 bonds and 1 angle only
         water = Molecule(["O", "H", "H"], [[0.0000, 0.0000, 0.1173],
                                            [0.0000, 0.7572, -0.4692],
@@ -157,7 +197,7 @@ class TopologyTest(unittest.TestCase):
         tp_water = topo_water.topologies
         self.assertListEqual(tp_water["Bonds"], [[0, 1], [0, 2]])
         self.assertListEqual(tp_water["Angles"], [[1, 0, 2]])
-        self.assertIsNone(tp_water["Dihedrals"])
+        self.assertNotIn("Dihedrals", tp_water)
         # EtOH
         etoh = Molecule(["C", "C", "O", "H", "H", "H", "H", "H", "H"],
                         [[1.1879, -0.3829, 0.0000],
@@ -192,9 +232,9 @@ class TopologyTest(unittest.TestCase):
         self.assertIsNone(topo_etoh0.topologies)
         # angle or dihedral flag to off
         topo_etoh1 = Topology.from_bonding(molecule=etoh, angle=False)
-        self.assertIsNone(topo_etoh1.topologies["Angles"])
+        self.assertNotIn("Angles", topo_etoh1.topologies)
         topo_etoh2 = Topology.from_bonding(molecule=etoh, dihedral=False)
-        self.assertIsNone(topo_etoh2.topologies["Dihedrals"])
+        self.assertNotIn("Dihedrals", topo_etoh2.topologies)
 
 
 class ForceFieldTest(unittest.TestCase):

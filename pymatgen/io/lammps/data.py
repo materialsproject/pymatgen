@@ -353,7 +353,8 @@ class LammpsData(MSONable):
                     d_atom["molecule-ID"] = mid + 1
                 topo_atoms.append(d_atom)
             if "q" in atom_format:
-                charges = getattr(topo, "charges", [0.0] * len(topo.sites))
+                charges = [0.0] * len(topo.sites) if not topo.charges \
+                    else topo.charges
                 for d_atom, q in zip(topo_atoms, charges):
                     d_atom["q"] = q
             atoms.extend(topo_atoms)
@@ -363,7 +364,7 @@ class LammpsData(MSONable):
                                    "velocity": v}
                                   for aid, v in enumerate(topo.velocities))
 
-            if getattr(topo, "topologies"):
+            if topo.topologies:
                 for kw in topo.topologies.keys():
                     topo_lookup = lookup[kw]
                     unfiltered_indices = np.array(topo.topologies[kw])
@@ -524,11 +525,11 @@ class Topology(MSONable):
                                           itertools.product(ks, ls)
                                           if k != l])
 
-            topo_list = list(map(lambda l: None if len(l) == 0 else l,
-                                 [bond_list, angle_list, dihedral_list]))
             topologies = {k: v for k, v
-                          in zip(SECTION_KEYWORDS["molecule"][:3], topo_list)}
-            topologies = None if not any(topologies.values()) else topologies
+                          in zip(SECTION_KEYWORDS["molecule"][:3],
+                                 [bond_list, angle_list, dihedral_list])
+                          if len(v) > 0}
+            topologies = None if len(topologies) == 0 else topologies
             return cls(sites=molecule, atom_type=atom_type, charges=charges,
                        velocities=velocities, topologies=topologies)
 
