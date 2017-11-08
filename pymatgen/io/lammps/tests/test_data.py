@@ -5,365 +5,587 @@
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
-import os
 import unittest
-from collections import OrderedDict
+import os
+import random
+import json
 
 import numpy as np
-import pymatgen as mg
+from ruamel.yaml import YAML
+from pymatgen import Molecule, Element
 
-from pymatgen.io.lammps.data import LammpsData, parse_data_file
-from pymatgen.core.structure import Molecule
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.io.lammps.data import LammpsData, Topology, ForceField
 
-from pymatgen.io.lammps.data import LammpsForceFieldData
-from pymatgen.io.lammps.force_field import ForceField
-from pymatgen.io.lammps.topology import Topology
-
-from pymatgen.analysis.structure_matcher import StructureMatcher
-
-__author__ = 'Kiran Mathew'
-__email__ = 'kmathew@lbl.gov'
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
 
 
-class TestLammpsDataMolecule(unittest.TestCase):
+class LammpsDataTest(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
-        polymer_chain = Molecule.from_file(os.path.join(test_dir, "polymer_chain.xyz"))
-        box_size = [[0.0, 20.0], [0.0, 20.0], [0.0, 20.0]]
-        cls.lammps_data = LammpsData.from_structure(polymer_chain, box_size)
+        cls.peptide = LammpsData.\
+            from_file(filename=os.path.join(test_dir, "data.peptide"))
+        cls.quartz = LammpsData.\
+            from_file(filename=os.path.join(test_dir, "data.quartz"),
+                      atom_style="atomic")
+        mass_info = [("h", 1.007970), ("otip", 15.999400), ("htip", 1.007970)]
+        pair_coeffs = [[0.0380000011, 2.4499714540],
+                       [0.1520725945, 3.1506561105],
+                       [0.0000000000, 0.0000000000]]
+        mol_coeffs = {
+            "Bond Coeffs":
+                [{"coeffs": [398.7500, 0.7461], "types": [("h", "h")]},
+                 {"coeffs": [540.6336, 0.9570], "types": [("otip", "htip")]}],
+            "Angle Coeffs": [{"coeffs": [50.0000, 104.5200],
+                              "types": [("htip", "otip", "htip")]}]
+        }
+        ff = ForceField(mass_info=mass_info, pair_coeffs=pair_coeffs,
+                        mol_coeffs=mol_coeffs)
+        h2 = Molecule(["H", "H"], [[4.6, 5.0, 2.5], [5.4, 5.0, 2.5]],
+                      site_properties={"ff_map": ["h", "h"]})
+        water = Molecule(["O", "H", "H"],
+                         [[5.0, 5.0, 7.5], [4.0, 5.0, 7.5], [5.0, 4.0, 7.5]],
+                         site_properties={"ff_map": ["otip"] + ["htip"] * 2,
+                                          "charge": [-0.834, 0.417, 0.417]})
+        topologies = [Topology.from_bonding(m, atom_type="ff_map")
+                      for m in [h2, water]]
+        cls.h2_water = LammpsData.\
+            from_ff_and_topologies(ff=ff, topologies=topologies,
+                                   box_bounds=[[0, 10]] * 3)
+        cls.maxDiff = None
 
-    def test_system_info(self):
-        atomic_masses = [[1, 1.00794], [2, 12.0107], [3, 15.9994]]
-        atoms_data = [[1, 1, 2, 0.0, 10.216511872506619, 11.338023345800135, 12.744427580409154],
-                      [2, 1, 1, 0.0, 9.8598518725066189, 12.346833345800135, 12.744427580409154],
-                      [3, 1, 1, 0.0, 9.844392872506619, 10.820737345800135, 11.842773580409153],
-                      [4, 1, 1, 0.0, 9.844392872506619, 10.820737345800135, 13.646081580409154],
-                      [5, 1, 3, 0.0, 11.724011872506619, 11.338023345800135, 12.744427580409154],
-                      [6, 1, 2, 0.0, 12.161361872506619, 9.9959933458001355, 12.744427580409154],
-                      [7, 1, 1, 0.0, 11.789241872506619, 9.4787033458001346, 11.842773580409153],
-                      [8, 1, 1, 0.0, 11.789241872506619, 9.4787033458001346, 13.646081580409154],
-                      [9, 1, 2, 0.0, 12.161361872506619, 9.9959933458001355, 11.236927580409153],
-                      [10, 1, 1, 0.0, 11.057400872506619, 9.9837103458001355, 11.249412580409153],
-                      [11, 1, 1, 0.0, 12.54163787250662, 8.959522345800135, 11.249412580409153],
-                      [12, 1, 3, 0.0, 12.647630872506618, 10.700686345800134, 9.9961595804091541],
-                      [13, 1, 2, 0.0, 12.161361872506619, 9.9959933458001355, 8.8739875804091533],
-                      [14, 1, 1, 0.0, 11.057398872506619, 9.9837063458001349, 8.8864715804091539],
-                      [15, 1, 1, 0.0, 12.541635872506619, 8.9595193458001354, 8.8864715804091539],
-                      [16, 1, 2, 0.0, 12.161361872506619, 8.4884933458001353, 8.8739875804091533],
-                      [17, 1, 1, 0.0, 11.524257872506618, 8.5009783458001351, 7.9723335804091535],
-                      [18, 1, 1, 0.0, 11.524257872506618, 8.5009783458001351, 9.7756415804091539],
-                      [19, 1, 3, 0.0, 13.017544872506619, 7.2477253458001352, 8.8739875804091533],
-                      [20, 1, 2, 0.0, 12.161361872506619, 6.1255533458001352, 8.8739875804091533],
-                      [21, 1, 1, 0.0, 11.524253872506618, 6.1380373458001349, 7.9723335804091535],
-                      [22, 1, 1, 0.0, 11.524253872506618, 6.1380373458001349, 9.7756415804091539],
-                      [23, 1, 2, 0.0, 10.653861872506619, 6.1255533458001352, 8.8739875804091533],
-                      [24, 1, 1, 0.0, 10.666346872506619, 6.7626573458001351, 7.9723335804091535],
-                      [25, 1, 1, 0.0, 10.666346872506619, 6.7626573458001351, 9.7756415804091539],
-                      [26, 1, 3, 0.0, 9.413093872506618, 5.2693693458001345, 8.8739875804091533],
-                      [27, 1, 2, 0.0, 8.2909218725066189, 6.1255533458001352, 8.8739875804091533],
-                      [28, 1, 1, 0.0, 8.3034058725066195, 6.7626613458001348, 7.9723335804091535],
-                      [29, 1, 1, 0.0, 8.3034058725066195, 6.7626613458001348, 9.7756415804091539],
-                      [30, 1, 2, 0.0, 8.2909218725066189, 7.6330533458001355, 8.8739875804091533],
-                      [31, 1, 1, 0.0, 8.9280258725066179, 7.6205673458001346, 7.9723335804091535],
-                      [32, 1, 1, 0.0, 8.9280258725066179, 7.6205673458001346, 9.7756415804091539],
-                      [33, 1, 3, 0.0, 7.4347378725066182, 8.8738213458001347, 8.8739875804091533],
-                      [34, 1, 2, 0.0, 8.2909218725066189, 9.9959933458001355, 8.8739875804091533],
-                      [35, 1, 1, 0.0, 8.9280298725066185, 9.9835093458001349, 7.9723335804091535],
-                      [36, 1, 1, 0.0, 8.9280298725066185, 9.9835093458001349, 9.7756415804091539],
-                      [37, 1, 2, 0.0, 8.2909218725066189, 11.503493345800134, 8.8739875804091533],
-                      [38, 1, 1, 0.0, 8.9280258725066179, 11.491008345800134, 7.9723335804091535],
-                      [39, 1, 1, 0.0, 8.9280258725066179, 11.491008345800134, 9.7756415804091539],
-                      [40, 1, 3, 0.0, 7.4347378725066182, 12.744261345800135, 8.8739875804091533],
-                      [41, 1, 2, 0.0, 8.2909218725066189, 13.866433345800136, 8.8739875804091533],
-                      [42, 1, 1, 0.0, 8.9280298725066185, 13.853949345800135, 7.9723335804091535],
-                      [43, 1, 1, 0.0, 8.9280298725066185, 13.853949345800135, 9.7756415804091539],
-                      [44, 1, 2, 0.0, 8.2909218725066189, 13.866433345800136, 10.381487580409154],
-                      [45, 1, 1, 0.0, 8.6711978725066192, 12.829962345800135, 10.369001580409153],
-                      [46, 1, 1, 0.0, 7.186960872506619, 13.854150345800136, 10.369001580409153],
-                      [47, 1, 3, 0.0, 8.777190872506619, 14.571127345800136, 11.622255580409155],
-                      [48, 1, 2, 0.0, 8.2909218725066189, 13.866433345800136, 12.744427580409154],
-                      [49, 1, 1, 0.0, 8.6711958725066189, 12.829959345800134, 12.731943580409153],
-                      [50, 1, 1, 0.0, 7.1869578725066185, 13.854147345800135, 12.731943580409153],
-                      [51, 1, 1, 0.0, 8.7837588725066187, 14.580646345800135, 13.427099580409154]]
-        natom_types = 3
-        natoms = 51
-        np.testing.assert_almost_equal(self.lammps_data.atomic_masses,
-                                       atomic_masses, decimal=10)
-        np.testing.assert_almost_equal(self.lammps_data.atoms_data, atoms_data,
-                                       decimal=6)
-        self.assertEqual(self.lammps_data.natom_types, natom_types)
-        self.assertEqual(self.lammps_data.natoms, natoms)
+    def test_get_string(self):
+        quartz_5 = r"""Generated by pymatgen.io.lammps.data.LammpsData
+
+9 atoms
+
+2 atom types
+
+0.00000 4.91340 xlo xhi
+0.00000 4.25513 ylo yhi
+0.00000 5.40520 zlo zhi
+-2.45670 0.00000 0.00000 xy xz yz
+
+Masses
+
+1  28.0855
+2  15.9994
+
+
+
+Atoms
+
+1  1   2.30881   0.00000   3.60347
+2  1  -1.15440   1.99948   1.80173
+3  1  -1.15440  -1.99948   0.00000
+4  2   1.37600   1.14080   4.24524
+5  2  -1.67596   0.62125   7.84871
+6  2   0.29996  -1.76205   6.04698
+7  2   0.29996   1.76205  -4.24524
+8  2  -1.67596  -0.62125  -0.64177
+9  2   1.37600  -1.14080  -2.44351
+
+
+
+
+"""
+        self.assertEqual(self.quartz.get_string(significant_figures=5),
+                         quartz_5)
+
+        h2_water_3 = """Generated by pymatgen.io.lammps.data.LammpsData
+
+5 atoms
+3 bonds
+1 angles
+
+3 atom types
+2 bond types
+1 angle types
+
+0.000 10.000 xlo xhi
+0.000 10.000 ylo yhi
+0.000 10.000 zlo zhi
+
+Masses
+
+1   1.0080
+2  15.9994
+3   1.0080
+
+Pair Coeffs
+
+1  0.0380000011   2.449971454
+2  0.1520725945  3.1506561105
+3           0.0           0.0
+
+Bond Coeffs
+
+1    398.75  0.7461
+2  540.6336   0.957
+
+Angle Coeffs
+
+1  50.0  104.52
+
+Atoms
+
+1  1  1   0.000  4.600  5.000  2.500
+2  1  1   0.000  5.400  5.000  2.500
+3  2  2  -0.834  5.000  5.000  7.500
+4  2  3   0.417  4.000  5.000  7.500
+5  2  3   0.417  5.000  4.000  7.500
+
+
+
+Bonds
+
+1  1  1  2
+2  2  3  4
+3  2  3  5
+
+Angles
+
+1  1  4  3  5
+"""
+        self.assertEqual(self.h2_water.get_string(significant_figures=3),
+                         h2_water_3)
+
+    def test_write_file(self):
+        self.h2_water.write_file("data.test")
+        with open("data.test") as f:
+            string_written = f.read()
+        self.assertEqual(string_written, str(self.h2_water))
 
     def test_from_file(self):
-        self.lammps_data.write_file(
-            os.path.join(test_dir, "lammps_data.dat"))
-        lammps_data = LammpsData.from_file(
-            os.path.join(test_dir, "lammps_data.dat"))
-        self.assertEqual(str(lammps_data), str(self.lammps_data))
+        peptide = self.peptide
+        # header stats
+        self.assertEqual(len(peptide.atoms), 2004)
+        topology = peptide.topology
+        self.assertEqual(len(topology["Bonds"]), 1365)
+        self.assertEqual(len(topology["Angles"]), 786)
+        self.assertEqual(len(topology["Dihedrals"]), 207)
+        self.assertEqual(len(topology["Impropers"]), 12)
+        self.assertEqual(len(peptide.masses), 14)
+        force_field = peptide.force_field
+        self.assertEqual(len(force_field["Pair Coeffs"]), 14)
+        self.assertEqual(len(force_field["Bond Coeffs"]), 18)
+        self.assertEqual(len(force_field["Angle Coeffs"]), 31)
+        self.assertEqual(len(force_field["Dihedral Coeffs"]), 21)
+        self.assertEqual(len(force_field["Improper Coeffs"]), 2)
+        # header box
+        np.testing.assert_array_equal(peptide.box_bounds,
+                                      [[36.840194, 64.211560],
+                                       [41.013691, 68.385058],
+                                       [29.768095, 57.139462]])
+        # body  last line of each section
+        self.assertDictEqual(peptide.masses[-1], {"id": 14, "mass": 1.0100})
+        self.assertDictEqual(force_field["Pair Coeffs"][-1],
+                             {"id": 14, "coeffs": [0.046000, 0.400014,
+                                                   0.046000, 0.400014]})
+        self.assertDictEqual(force_field["Bond Coeffs"][-1],
+                             {"id": 18, "coeffs": [450.000000, 0.957200]})
+        self.assertDictEqual(force_field["Angle Coeffs"][-1],
+                             {"id": 31, "coeffs": [55.000000, 104.520000,
+                                                   0.000000, 0.000000]})
+        self.assertDictEqual(force_field["Dihedral Coeffs"][-1],
+                             {"id": 21, "coeffs": [0.010000, 3, 0, 1.000000]})
+        for c in force_field["Dihedral Coeffs"][-1]["coeffs"][1:2]:
+            self.assertIsInstance(c, int)
+        self.assertDictEqual(force_field["Improper Coeffs"][-1],
+                             {"id": 2, "coeffs": [20.000000, 0.000000]})
+        self.assertDictEqual(peptide.atoms[-1],
+                             {"id": 2004, "molecule-ID": 641, "type": 14,
+                              "q": 0.417, "x": 56.55074, "y": 49.75049,
+                              "z": 48.61854, "nx": 1, "ny": 1, "nz": 1})
+        self.assertDictEqual(peptide.velocities[-1],
+                             {"id": 2004, "velocity": [-0.010076,
+                                                       -0.005729,
+                                                       -0.026032]})
+        self.assertDictEqual(topology["Bonds"][-1],
+                             {"id": 1365, "type": 18, "bond": [2002, 2003]})
+        self.assertDictEqual(topology["Angles"][-1],
+                             {"id": 786, "type": 31,
+                              "angle": [2003, 2002, 2004]})
+        self.assertDictEqual(topology["Dihedrals"][-1],
+                             {"id": 207, "type": 3,
+                              "dihedral": [64, 79, 80, 82]})
+        self.assertDictEqual(topology["Impropers"][-1],
+                             {"id": 12, "type": 2,
+                              "improper": [79, 64, 80, 81]})
+        # box_tilt and another atom_style
+        quartz = self.quartz
+        np.testing.assert_array_equal(quartz.box_tilt, [-2.456700, 0.0, 0.0])
+        self.assertDictEqual(quartz.atoms[-1],
+                             {"id": 9, "type": 2, "x": 1.375998,
+                              "y": -1.140800, "z": -2.443511})
+        # sort_id
+        nvt = LammpsData.from_file(filename=os.path.join(test_dir,
+                                                         "nvt.data"),
+                                   sort_id=True)
+        atom_id = random.randint(1, 648)
+        self.assertEqual(nvt.atoms[atom_id - 1]["id"], atom_id)
+        # PairIJ Coeffs section
+        virus = LammpsData.from_file(filename=os.path.join(test_dir,
+                                                           "virus.data"),
+                                     atom_style="angle")
+        n = len(virus.masses)
+        pairij = virus.force_field["PairIJ Coeffs"]
+        self.assertEqual(len(pairij), n * (n + 1) / 2)
+        self.assertDictEqual(pairij[-1],
+                             {"id1": 4, "id2": 4, "coeffs": [1, 1, 1.1225]})
 
-    def tearDown(self):
-        for x in ["lammps_data.dat"]:
-            if os.path.exists(os.path.join(test_dir, x)):
-                os.remove(os.path.join(test_dir, x))
+    def test_from_ff_and_topologies(self):
+        ff = ForceField.from_file(os.path.join(test_dir, "ff_peptide.yaml"))
+        with open(os.path.join(test_dir, "topologies_peptide.json")) as f:
+            topo_dicts = json.load(f)
+        topologies = [Topology.from_dict(d) for d in topo_dicts]
+        peptide = LammpsData.\
+            from_ff_and_topologies(ff=ff, topologies=topologies,
+                                   box_bounds=[[-50, 150]] * 3)
+        self.assertListEqual(peptide.masses, ff.masses)
+        force_field = ff.get_pair_coeffs()
+        for kw in ff.mol_coeffs.keys():
+            sec, _ = ff.get_coeffs_and_mapper(kw)
+            force_field.update(sec)
+        self.assertDictEqual(peptide.force_field, force_field)
+        back_atom_map = {v: k for k, v in ff.atom_map.items()}
+        # test the 1st topology, the peptide
+        pep = topologies[0]
+        # atoms and velocities sections
+        i = random.randint(0, len(pep.sites) - 1)
+        site = pep.sites[i]
+        in_atoms = peptide.atoms[i]
+        self.assertEqual(in_atoms["molecule-ID"], 1)
+        self.assertEqual(in_atoms["id"], i + 1)
+        self.assertEqual(in_atoms["type"],
+                         ff.atom_map[site.properties["ff_map"]])
+        self.assertEqual(in_atoms["q"], pep.charges[i])
+        self.assertEqual(in_atoms["x"], site.x)
+        self.assertEqual(in_atoms["y"], site.y)
+        self.assertEqual(in_atoms["z"], site.z)
+        in_velos = peptide.velocities[i]
+        self.assertEqual(in_velos["id"], i + 1)
+        self.assertListEqual(in_velos["velocity"], pep.velocities[i])
+        # topology sections
+        for t in ["Bond", "Angle", "Dihedral", "Improper"]:
+            topo_sec = "%ss" % t
+            ff_sec = "%s Coeffs" % t
+            kw = t.lower()
+            i = random.randint(0, len(pep.topologies[topo_sec]) - 1)
+            sample = pep.topologies[topo_sec][i]
+            in_topos = peptide.topology[topo_sec][i]
+            self.assertEqual(in_topos["id"], i + 1, "%s" % t)
+            np.testing.assert_array_equal(in_topos[kw],
+                                          np.array(sample) + 1, "%s" % t)
+            topo_type_id = in_topos["type"]
+            types = ff.mol_coeffs[ff_sec][topo_type_id - 1]["types"]
+            sample_type = tuple([pep.sites[j].properties["ff_map"]
+                                 for j in sample])
+            self.assertIn(sample_type, types, "%s" % t)
+        # test a random solvent (water) molecule
+        i = random.randint(1, len(topologies) - 1)
+        solv = topologies[i]
+        stack = {"Atoms": 0, "Bonds": 0, "Angles": 0}
+        for topo in topologies[:i]:
+            stack["Atoms"] += len(topo.sites)
+            stack["Bonds"] += len(topo.topologies["Bonds"])
+            stack["Angles"] += len(topo.topologies["Angles"])
+        # atoms and velocities sections
+        in_atoms = [d for d in peptide.atoms if d["molecule-ID"] == i + 1]
+        self.assertEqual(len(in_atoms), len(solv.sites))
+        aids, types, charges, coords = [], [], [], []
+        for d in in_atoms:
+            aids.append(d["id"])
+            types.append(d["type"])
+            charges.append(d["q"])
+            coords.append([d["x"], d["y"], d["z"]])
+        np.testing.assert_array_equal(aids, np.arange(len(solv.sites))
+                                      + stack["Atoms"] + 1)
+        self.assertListEqual(types, [ff.atom_map[t] for t in solv.types])
+        self.assertListEqual(charges, solv.charges)
+        np.testing.assert_array_equal(coords, solv.sites.cart_coords)
+        in_velos = peptide.velocities[stack["Atoms"]: stack["Atoms"]
+                                                      + len(in_atoms)]
+        vids, velocities = [], []
+        for d in in_velos:
+            vids.append(d["id"])
+            velocities.append(d["velocity"])
+        self.assertListEqual(vids, aids)
+        np.testing.assert_array_equal(velocities, solv.velocities)
+        # topology sections
+        for t in ["Bond", "Angle"]:
+            topo_sec = "%ss" % t
+            ff_sec = "%s Coeffs" % t
+            kw = t.lower()
+            sample = solv.topologies[topo_sec][0]
+            i = stack[topo_sec]
+            in_topos = peptide.topology[topo_sec][i]
+            self.assertEqual(in_topos["id"], i + 1, "%s" % t)
+            np.testing.assert_array_equal(in_topos[kw], np.array(sample)
+                                          + stack["Atoms"] + 1, "%s" % t)
+            topo_type_id = in_topos["type"]
+            types = ff.mol_coeffs[ff_sec][topo_type_id - 1]["types"]
+            sample_type = tuple([solv.sites[j].properties["ff_map"]
+                                 for j in sample])
+            self.assertIn(sample_type, types, "%s" % t)
+
+    @classmethod
+    def tearDownClass(cls):
+        if os.path.exists("data.test"):
+            os.remove("data.test")
 
 
-class TestLammpsDataStructure(unittest.TestCase):
-    def setUp(self):
-        self.structure = PymatgenTest.get_structure("Li2O")
-        self.lammps_data = LammpsData.from_structure(self.structure)
-        neutral_structure = self.structure.copy()
-        neutral_structure.remove_oxidation_states()
-        self.lammps_data_neutral = LammpsData.from_structure(neutral_structure,
-                                                             set_charge=False)
+class TopologyTest(unittest.TestCase):
 
-    def test_system_info(self):
-        natom_types = 2
-        natoms = 3
-        atomic_masses = [[1, 6.941], [2, 15.9994]]
-        box_size = [[0., 3.291072],
-                    [0., 2.85387],
-                    [0., 2.691534]]
-        box_tilt = [1.63908, 1.639079, 0.948798]
-        atoms_data = [[1, 2, -2.0, 0.0, 0.0, 0.0],
-                      [2, 1, 1, 3.0121376101748445, 2.2136444099840591,
-                       4.7463233003201788],
-                      [3, 1, 1, 1.0030913698251558, 0.73718000001594119,
-                       1.5806037296798212]]
+    def test_init(self):
+        inner_charge = np.random.rand(10) - 0.5
+        outer_charge = np.random.rand(10) - 0.5
+        inner_velo = np.random.rand(10, 3) - 0.5
+        outer_velo = np.random.rand(10, 3) - 0.5
+        m = Molecule(["H"] * 10, np.random.rand(10, 3) * 100,
+                     site_properties={"ff_map": ["D"] * 10,
+                                      "charge": inner_charge,
+                                      "velocities": inner_velo})
+        # q and v from site properties, while type from species_string
+        topo = Topology(sites=m)
+        self.assertListEqual(topo.types, ["H"] * 10)
+        np.testing.assert_array_equal(topo.charges, inner_charge)
+        np.testing.assert_array_equal(topo.velocities, inner_velo)
+        # q and v from overriding, while type from site property
+        topo_override = Topology(sites=m, atom_type="ff_map",
+                                 charges=outer_charge,
+                                 velocities=outer_velo)
+        self.assertListEqual(topo_override.types, ["D"] * 10)
+        np.testing.assert_array_equal(topo_override.charges, outer_charge)
+        np.testing.assert_array_equal(topo_override.velocities, outer_velo)
+        # test using a list of sites instead of SiteCollection
+        topo_from_list = Topology(sites=m.sites)
+        self.assertListEqual(topo_from_list.types, topo.types)
+        np.testing.assert_array_equal(topo_from_list.charges, topo.charges)
+        np.testing.assert_array_equal(topo_from_list.velocities,
+                                      topo.velocities)
 
-        self.assertEqual(self.lammps_data.natom_types, natom_types)
-        self.assertEqual(self.lammps_data.natoms, natoms)
-
-        np.testing.assert_almost_equal(self.lammps_data.atomic_masses,
-                                       atomic_masses, decimal=6)
-        np.testing.assert_almost_equal(self.lammps_data.box_size, box_size,
-                                       decimal=6)
-        np.testing.assert_almost_equal(self.lammps_data.box_tilt, box_tilt,
-                                       decimal=6)
-
-    def test_from_file(self):
-        self.lammps_data.write_file(
-            os.path.join(test_dir, "lammps_data.dat"),significant_figures=15)
-        lammps_data = LammpsData.from_file(
-            os.path.join(test_dir, "lammps_data.dat"), atom_style="charge")
-        self.assertEqual(lammps_data.structure, self.lammps_data.structure)
-
-    def test_structure(self):
-        structure = self.lammps_data.structure
-        self.assertEqual(len(structure.composition.elements), 2)
-        self.assertEqual(structure.num_sites, 3)
-        self.assertEqual(structure.formula, "Li2 O1")
-
-        lammps_data = LammpsData.from_file(os.path.join(test_dir, "nvt.data"), 'full')
-        self.assertEqual(type(lammps_data.structure).__name__, 'Structure')
-        self.assertEqual(len(lammps_data.structure.composition.elements), 2)
-        self.assertEqual(lammps_data.structure.num_sites, 648)
-        self.assertEqual(lammps_data.structure.symbol_set[0], 'O')
-        self.assertEqual(lammps_data.structure.symbol_set[1], 'H')
-        self.assertEqual(lammps_data.structure.volume, 27000)
-
-        # test tilt structure
-        tilt_str = mg.Structure.from_file(os.path.join(test_dir, "POSCAR"))
-        lmp_tilt_data = LammpsData.from_structure(tilt_str)
-        s = StructureMatcher()
-        groups = s.group_structures([lmp_tilt_data.structure, tilt_str])
-        self.assertEqual(len(groups), 1)
-
-
-    def tearDown(self):
-        for x in ["lammps_data.dat"]:
-            if os.path.exists(os.path.join(test_dir, x)):
-                os.remove(os.path.join(test_dir, x))
-
-
-class TestLammpsDataParser(unittest.TestCase):
-    def setUp(self):
-        self.data = parse_data_file(os.path.join(test_dir, "const_pot.data"))
-
-    def test_keys(self):
-        ans = sorted(['natoms', 'nbonds', 'nangles', 'ndihedrals', 'nimpropers',
-                      'atom-types', 'bond-types', 'angle-types', 'dihedral-types',
-                      'improper-types', 'x', 'y', 'z', 'masses', 'bond-coeffs',
-                      'angle-coeffs', 'atoms', 'bonds', 'angles'])
-        self.assertEqual(ans, sorted(self.data.keys()))
-
-    def test_values(self):
-        self.assertEqual(self.data["natoms"], 432)
-        self.assertEqual(self.data["nbonds"], 160)
-        self.assertEqual(self.data["nangles"], 80)
-        self.assertEqual(self.data["ndihedrals"], 0)
-        self.assertEqual(self.data["nimpropers"], 0)
-        self.assertEqual(self.data["atom-types"], 4)
-        self.assertEqual(self.data["bond-types"], 2)
-        self.assertEqual(self.data["angle-types"], 1)
-        self.assertEqual(self.data["dihedral-types"], 0)
-        self.assertEqual(self.data["improper-types"], 0)
-        self.assertEqual(self.data["atom-types"], 4)
-
-        np.testing.assert_almost_equal(self.data["x"], [0, 9.83800], decimal=6)
-        np.testing.assert_almost_equal(self.data["y"], [0, 8.52000], decimal=6)
-        np.testing.assert_almost_equal(self.data["z"], [-40.20000, 40.20000], decimal=6)
-        np.testing.assert_almost_equal(self.data["masses"],
-                                       [[1, 12.01070000],
-                                        [2, 15.03450000],
-                                        [3, 12.01000000],
-                                        [4, 14.00670000]], decimal=6)
-        np.testing.assert_almost_equal(self.data["bond-coeffs"],
-                                       [[1, 380.0, 1.46],
-                                        [2, 600.0, 1.157]], decimal=6)
-        np.testing.assert_almost_equal(self.data["angle-coeffs"],
-                                       [[1, 20.0, 180.0]], decimal=6)
-
-        self.assertEqual(len(self.data["atoms"]), self.data["natoms"])
-        self.assertEqual(len(self.data["bonds"]), self.data["nbonds"])
-        self.assertEqual(len(self.data["angles"]), self.data["nangles"])
-
-        # test random line from the data block
-        np.testing.assert_almost_equal(
-            self.data["atoms"][110],
-            [111, 37, 1, 0.12900000, 4.869000, 5.574000, -13.992000],
-            decimal=10)
-        self.assertEqual(self.data["bonds"][76], [77, 2, 115, 117])
-        self.assertEqual(self.data["angles"][68], [69, 1, 205, 207, 206])
+    def test_from_bonding(self):
+        # He: no bonding topologies
+        helium = Molecule(["He"], [[0, 0, 0]])
+        topo_he = Topology.from_bonding(molecule=helium)
+        self.assertIsNone(topo_he.topologies)
+        # H2: 1 bond only
+        hydrogen = Molecule(["H"] * 2, [[0, 0, 0], [0, 0, 0.7414]])
+        topo_h = Topology.from_bonding(molecule=hydrogen)
+        tp_h = topo_h.topologies
+        self.assertListEqual(tp_h["Bonds"], [[0, 1]])
+        self.assertNotIn("Angles", tp_h)
+        self.assertNotIn("Dihedrals", tp_h)
+        # water: 2 bonds and 1 angle only
+        water = Molecule(["O", "H", "H"], [[0.0000, 0.0000, 0.1173],
+                                           [0.0000, 0.7572, -0.4692],
+                                           [0.0000, -0.7572, -0.4692]])
+        topo_water = Topology.from_bonding(molecule=water)
+        tp_water = topo_water.topologies
+        self.assertListEqual(tp_water["Bonds"], [[0, 1], [0, 2]])
+        self.assertListEqual(tp_water["Angles"], [[1, 0, 2]])
+        self.assertNotIn("Dihedrals", tp_water)
+        # EtOH
+        etoh = Molecule(["C", "C", "O", "H", "H", "H", "H", "H", "H"],
+                        [[1.1879, -0.3829, 0.0000],
+                         [0.0000, 0.5526, 0.0000],
+                         [-1.1867, -0.2472, 0.0000],
+                         [-1.9237, 0.3850, 0.0000],
+                         [2.0985, 0.2306, 0.0000],
+                         [1.1184, -1.0093, 0.8869],
+                         [1.1184, -1.0093, -0.8869],
+                         [-0.0227, 1.1812, 0.8852],
+                         [-0.0227, 1.1812, -0.8852]])
+        topo_etoh = Topology.from_bonding(molecule=etoh)
+        tp_etoh = topo_etoh.topologies
+        self.assertEqual(len(tp_etoh["Bonds"]), 8)
+        etoh_bonds = [[0, 1], [0, 4], [0, 5], [0, 6],
+                      [1, 2], [1, 7], [1, 8], [2, 3]]
+        np.testing.assert_array_equal(tp_etoh["Bonds"], etoh_bonds)
+        self.assertEqual(len(tp_etoh["Angles"]), 13)
+        etoh_angles = [[1, 0, 4], [1, 0, 5], [1, 0, 6], [4, 0, 5], [4, 0, 6],
+                       [5, 0, 6], [0, 1, 2], [0, 1, 7], [0, 1, 8], [2, 1, 7],
+                       [2, 1, 8], [7, 1, 8], [1, 2, 3]]
+        np.testing.assert_array_equal(tp_etoh["Angles"], etoh_angles)
+        self.assertEqual(len(tp_etoh["Dihedrals"]), 12)
+        etoh_dihedrals = [[4, 0, 1, 2], [4, 0, 1, 7], [4, 0, 1, 8],
+                          [5, 0, 1, 2], [5, 0, 1, 7], [5, 0, 1, 8],
+                          [6, 0, 1, 2], [6, 0, 1, 7], [6, 0, 1, 8],
+                          [0, 1, 2, 3], [7, 1, 2, 3], [8, 1, 2, 3]]
+        np.testing.assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
+        # bond flag to off
+        topo_etoh0 = Topology.from_bonding(molecule=etoh, bond=False,
+                                           angle=True, dihedral=True)
+        self.assertIsNone(topo_etoh0.topologies)
+        # angle or dihedral flag to off
+        topo_etoh1 = Topology.from_bonding(molecule=etoh, angle=False)
+        self.assertNotIn("Angles", topo_etoh1.topologies)
+        topo_etoh2 = Topology.from_bonding(molecule=etoh, dihedral=False)
+        self.assertNotIn("Dihedrals", topo_etoh2.topologies)
 
 
-class TestLammpsForceFieldData(unittest.TestCase):
+class ForceFieldTest(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
-        polymer_chain = Molecule.from_file(os.path.join(test_dir, "polymer_chain.xyz"))
-        polymer_linear = Molecule.from_file(os.path.join(test_dir, "polymer_linear.xyz"))
-        cls.polymer_matrix = Molecule.from_file(os.path.join(test_dir, "polymer_matrix.xyz"))
+        mass_info = [("H", Element("H")), ("C", "C")]
+        pair_coeffs = [[0.0380000011, 2.449971454],
+                       [0.1479999981, 3.6170487995]]
+        mol_coeffs = {
+            "Bond Coeffs":
+                [{"coeffs": [480.0, 1.34], "types": [("C", "C")]},
+                 {"coeffs": [363.4164, 1.08], "types": [("H", "C")]}],
+            "Angle Coeffs":
+                [{"coeffs": [90.0, 120.0], "types": [("C", "C", "C")]},
+                 {"coeffs": [37.0, 120.0], "types": [("H", "C", "C")]}],
+            "Dihedral Coeffs":
+                [{"coeffs": [3.0, -1, 2], "types": [("C", "C", "C", "C"),
+                                                    ("H", "C", "C", "C"),
+                                                    ("H", "C", "C", "H")]}],
+            "Improper Coeffs": [{"coeffs": [0.37, -1, 2],
+                                 "types": [("H", "C", "C", "C")]}]
+        }
+        cls.benzene = ForceField(mass_info=mass_info, pair_coeffs=pair_coeffs,
+                                 mol_coeffs=mol_coeffs)
+        cls.virus = ForceField.from_file(os.path.join(test_dir,
+                                                      "ff_virus.yaml"))
 
-        charges = [-0.1187, 0.0861, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861,
-                   0.0861, -0.0326, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861,
-                   0.0861, -0.0326, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861,
-                   0.0861, -0.0326, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861,
-                   0.0861, -0.0326, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861,
-                   0.0861, -0.0326, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861,
-                   0.0861, -0.0326, 0.0861, 0.0861, -0.2792, -0.1187, 0.0861,
-                   0.0861, 0.0861]
-        polymer_linear.add_site_property("charge", charges)
-        topology = Topology.from_molecule(polymer_linear)
+    def test_init(self):
+        b = self.benzene
+        self.assertListEqual(b.mass_info, [("H", 1.00794), ("C", 12.0107)])
+        self.assertDictEqual(b.atom_map, {"H": 1, "C": 2})
+        self.assertListEqual(b.masses, [{"id": 1, "mass": 1.00794},
+                                        {"id": 2, "mass": 12.0107}])
+        self.assertEqual(b.pair_type, "pair")
+        self.assertListEqual(b.mol_coeffs["Bond Coeffs"][1]["types"],
+                             [("H", "C"), ("C", "H")])
+        self.assertListEqual(b.mol_coeffs["Angle Coeffs"][1]["types"],
+                             [("H", "C", "C"), ("C", "C", "H")])
+        self.assertListEqual(b.mol_coeffs["Dihedral Coeffs"][0]["types"],
+                             [("C", "C", "C", "C"), ("H", "C", "C", "C"),
+                              ("H", "C", "C", "H"), ("C", "C", "C", "H")])
+        self.assertListEqual(b.mol_coeffs["Improper Coeffs"][0]["types"],
+                             [("H", "C", "C", "C"), ("C", "C", "C", "H")])
+        v = self.virus
+        self.assertDictEqual(v.atom_map, {"D": 1, "C": 2, "B": 3, "A": 4})
+        self.assertEqual(v.pair_type, "pairij")
 
-        cls.polymer_linear_ff_decorated = Molecule.from_file(
-            os.path.join(test_dir, "polymer_linear.xyz"))
-        ff_map = ['C2', 'H3', 'H2', 'H3', 'O', 'C3', 'H2', 'H3', 'C2', 'H3',
-                  'H2', 'O', 'C2', 'H3', 'H2', 'C3', 'H2', 'H3', 'O', 'C3',
-                  'H2', 'H3', 'C2', 'H3', 'H2', 'O', 'C2', 'H3', 'H2', 'C3',
-                  'H2', 'H3', 'O', 'C3', 'H2', 'H3', 'C2', 'H3', 'H2', 'O',
-                  'C2', 'H3', 'H2', 'C3', 'H2', 'H3', 'O', 'C3', 'H2', 'H3', 'H2']
-        cls.polymer_linear_ff_decorated.add_site_property("ff_map", ff_map)
+    def test_get_coeffs_and_mapper(self):
+        b = self.benzene
+        masses, atom_map = b.get_coeffs_and_mapper(section="Masses")
+        self.assertListEqual(masses["Masses"], [{"id": 1, "mass": 1.00794},
+                                                {"id": 2, "mass": 12.0107}])
+        self.assertDictEqual(atom_map, b.atom_map)
+        bond_sec = "Bond Coeffs"
+        bonds, bond_map = b.get_coeffs_and_mapper(section=bond_sec)
+        self.assertListEqual(bonds[bond_sec],
+                             [{"id": 1, "coeffs": [480.0, 1.34]},
+                              {"id": 2, "coeffs": [363.4164, 1.08]}])
+        self.assertDictEqual(bond_map,
+                             {("C", "C"): 1, ("H", "C"): 2, ("C", "H"): 2})
+        angle_sec = "Angle Coeffs"
+        angles, angle_map = b.get_coeffs_and_mapper(section=angle_sec)
+        self.assertListEqual(angles[angle_sec],
+                             [{"id": 1, "coeffs": [90.0, 120.0]},
+                              {"id": 2, "coeffs": [37.0, 120.0]}])
+        self.assertDictEqual(angle_map,
+                             {("C", "C", "C"): 1, ("H", "C", "C"): 2,
+                              ("C", "C", "H"): 2})
+        dihedral_sec = "Dihedral Coeffs"
+        dihedrals, \
+        dihedral_map = b.get_coeffs_and_mapper(section=dihedral_sec)
+        self.assertListEqual(dihedrals[dihedral_sec],
+                             [{"id": 1, "coeffs": [3.0, -1, 2]}])
+        self.assertDictEqual(dihedral_map,
+                             {("C", "C", "C", "C"): 1,
+                              ("H", "C", "C", "C"): 1,
+                              ("H", "C", "C", "H"): 1,
+                              ("C", "C", "C", "H"): 1})
+        improper_sec = "Improper Coeffs"
+        impropers, \
+        improper_map = b.get_coeffs_and_mapper(section=improper_sec)
+        self.assertListEqual(impropers[improper_sec],
+                             [{"id": 1, "coeffs": [0.37, -1, 2]}])
+        self.assertDictEqual(improper_map,
+                             {("H", "C", "C", "C"): 1,
+                              ("C", "C", "C", "H"): 1})
+        v = self.virus
+        vbonds, vbond_map = v.get_coeffs_and_mapper(section=bond_sec)
+        self.assertListEqual(vbonds[bond_sec],
+                             [{"id": 1, "coeffs": [50, 0.659469]},
+                              {"id": 2, "coeffs": [50, 0.855906]}])
+        self.assertDictEqual(vbond_map,
+                             {("A", "B"): 1, ("C", "D"): 1, ("B", "A"): 1,
+                              ("D", "C"): 1, ("B", "C"): 2, ("C", "B"): 2})
 
-        atoms = OrderedDict([("C", "C"), ("H", "H"), ("O", "O")])
-        bonds = OrderedDict([((u'C', u'O'), [1000, 1.4115]),
-                             ((u'C', u'H'), [1000, 1.1041]),
-                             ((u'C', u'C'), [1000, 1.5075])])
-        pairs = OrderedDict([((u'O', u'O'), [75844.8, 0.2461, 396.9]),
-                             ((u'H', u'H'), [2649.6, 0.2674, 27.22]),
-                             ((u'C', u'C'), [14976.0, 0.3236, 637.6])])
-        angles = OrderedDict([((u'C', u'C', u'H'), [42.9, 110.1]),
-                              ((u'H', u'C', u'H'), [38.5, 109.47]),
-                              ((u'H', u'C', u'O'), [56.0, 109.48]),
-                              ((u'C', u'C', u'O'), [86.0, 108.54]),
-                              ((u'C', u'O', u'C'), [74.5, 108.05])])
-        dihedrals = OrderedDict([((u'H', u'C', u'O', u'C'), [0.0, 0.0, -0.73, 0.0]),
-                                 ((u'H', u'C', u'C', u'H'), [0.0, 0.0, 0.28, 0.0]),
-                                 ((u'C', u'C', u'O', u'C'), [1.76, 0.67, 0.04, 0.0]),
-                                 ((u'H', u'C', u'C', u'O'), [0.0, 0.0, 0.28, 0.0]),
-                                 ((u'O', u'C', u'C', u'O'), [0.41, -2.1, -0.6, -0.82])])
-        forcefield = ForceField(atoms, bonds, angles, dihedrals=dihedrals, pairs=pairs)
+    def test_get_pair_coeffs(self):
+        p_sec = "Pair Coeffs"
+        pij_sec = "PairIJ Coeffs"
+        b = self.benzene
+        pairb = b.get_pair_coeffs()
+        self.assertIn(p_sec, pairb)
+        self.assertNotIn(pij_sec, pairb)
+        pairb_data = [{"id": 1, "coeffs": [0.0380000011, 2.449971454]},
+                      {"id": 2, "coeffs": [0.1479999981, 3.6170487995]}]
+        self.assertListEqual(pairb[p_sec], pairb_data)
+        v = self.virus
+        pairv = v.get_pair_coeffs()
+        self.assertIn(pij_sec, pairv)
+        self.assertNotIn(p_sec, pairv)
+        pairv_data = [{'id1': 1, 'id2': 1, 'coeffs': [1, 1, 1.1225]},
+                      {'id1': 1, 'id2': 2, 'coeffs': [1, 1.55, 1.73988]},
+                      {'id1': 1, 'id2': 3, 'coeffs': [1, 1.175, 1.31894]},
+                      {'id1': 1, 'id2': 4, 'coeffs': [1, 1, 1.1225]},
+                      {'id1': 2, 'id2': 2, 'coeffs': [1, 2.1, 4]},
+                      {'id1': 2, 'id2': 3, 'coeffs': [1, 1.725, 1.93631]},
+                      {'id1': 2, 'id2': 4, 'coeffs': [1, 1.55, 1.73988]},
+                      {'id1': 3, 'id2': 3, 'coeffs': [1, 1.35, 4]},
+                      {'id1': 3, 'id2': 4, 'coeffs': [1, 1.175, 1.31894]},
+                      {'id1': 4, 'id2': 4, 'coeffs': [1, 1, 1.1225]}]
+        self.assertListEqual(pairv[pij_sec], pairv_data)
 
-        cls.molecules = [polymer_chain] * 3
-        cls.mols_number = [7, 3, 1]
-        box_size = [[0.0, 50], [0.0, 50], [0.0, 50]]
-        cls.topologies = [topology] * len(cls.molecules)
+    def test_to_file(self):
+        filename = "ff_test.yaml"
+        b = self.benzene
+        b.to_file(filename=filename)
+        yaml = YAML(typ="safe")
+        with open(filename, "r") as f:
+            d = yaml.load(f)
+        self.assertListEqual(d["mass_info"], [list(m) for m in b.mass_info])
+        self.assertListEqual(d["pair_coeffs"], b.pair_coeffs)
 
-        cls.lammps_ff_data_1 = LammpsForceFieldData.from_forcefield_and_topology(
-            cls.molecules, cls.mols_number, box_size, cls.polymer_matrix,
-            forcefield, cls.topologies)
+    def test_from_file(self):
+        v = self.virus
+        self.assertListEqual(v.mass_info, [("D", 1.0), ("C", 2.744),
+                                           ("B", 1.728), ("A", 1.0)])
+        self.assertListEqual(v.pair_coeffs,
+                             [[1, 1, 1.1225], [1, 1.55, 1.73988],
+                              [1, 1.175, 1.31894], [1, 1, 1.1225],
+                              [1, 2.1, 4], [1, 1.725, 1.93631],
+                              [1, 1.55, 1.73988], [1, 1.35, 4],
+                              [1, 1.175, 1.31894], [1, 1, 1.1225]])
+        self.assertListEqual(v.mol_coeffs["Bond Coeffs"],
+                             [{"coeffs": [50, 0.659469],
+                               "types": [("A", "B"), ("C", "D"),
+                                         ("B", "A"), ("D", "C")]},
+                              {"coeffs": [50, 0.855906],
+                               "types": [("B", "C"), ("C", "B")]}])
 
-    def test_system_info(self):
-        # check te molecule ids
-        mol_ids = np.array(self.lammps_ff_data_1.atoms_data)[:, 1]
-        mol_ids_ans = [i + 1 for i in range(sum(self.mols_number))]
-        self.assertEqual(set(mol_ids.tolist()), set(mol_ids_ans))
-        # check the size consistency of the polymer matrix
-        self.assertEqual(len(self.polymer_matrix),
-                         sum([len(mol) * self.mols_number[i]
-                              for i, mol in enumerate(self.molecules)]))
-        for top in self.topologies:
-            self.assertEqual(len(self.lammps_ff_data_1.atoms_data),
-                             sum([len(top.atoms) * mol_number
-                                  for mol_number in self.mols_number]))
-            self.assertEqual(len(self.lammps_ff_data_1.bonds_data),
-                             sum([len(top.bonds) * mol_number
-                                  for mol_number in self.mols_number]))
-            self.assertEqual(len(self.lammps_ff_data_1.angles_data),
-                             sum([len(top.angles) * mol_number
-                                  for mol_number in self.mols_number]))
-            self.assertEqual(len(self.lammps_ff_data_1.dihedrals_data),
-                             sum([len(top.dihedrals) * mol_number
-                                  for mol_number in self.mols_number]))
+    def test_from_dict(self):
+        d = self.benzene.as_dict()
+        json_str = json.dumps(d)
+        decoded = ForceField.from_dict(json.loads(json_str))
+        self.assertListEqual(decoded.mass_info, self.benzene.mass_info)
+        self.assertListEqual(decoded.pair_coeffs, self.benzene.pair_coeffs)
+        self.assertDictEqual(decoded.mol_coeffs, self.benzene.mol_coeffs)
 
-    def test_system_info_with_ff_map(self):
-        natoms, natom_types, atomic_masses_dict = \
-            LammpsForceFieldData.get_basic_system_info(self.polymer_linear_ff_decorated)
-
-        ans_atom_masses_dict = OrderedDict([('H2', [1, 1.00794]),
-                                            ('H3', [2, 1.00794]),
-                                            ('C2', [3, 12.0107]),
-                                            ('C3', [4, 12.0107]),
-                                            ('O', [5, 15.9994])])
-
-        self.assertEqual(natoms, 51)
-        self.assertEqual(natom_types, 5)
-        self.assertEqual(atomic_masses_dict.keys(), ans_atom_masses_dict.keys())
-        for k, v in atomic_masses_dict.items():
-            self.assertEqual(ans_atom_masses_dict[k][1], v[1])
-
-    def test_atoms_data_with_ff_map(self):
-        natoms, natom_types, atomic_masses_dict = \
-            LammpsForceFieldData.get_basic_system_info(self.polymer_linear_ff_decorated)
-        topology = Topology.from_molecule(self.polymer_linear_ff_decorated,
-                                          ff_map="ff_map")
-        atoms_data, molid_to_atomid = LammpsForceFieldData.get_atoms_data(
-            [self.polymer_linear_ff_decorated], [1],
-            self.polymer_linear_ff_decorated, atomic_masses_dict,
-            [topology])
-
-        for i, atom in enumerate(atoms_data):
-            key = self.polymer_linear_ff_decorated[i].ff_map
-            self.assertEqual(atom[2], atomic_masses_dict[key][0])
-
-    def test_to_and_from_file(self):
-        self.lammps_ff_data_1.write_file(
-            os.path.join(test_dir, "lammps_ff_data.dat"))
-        lammps_ff_data_2 = LammpsForceFieldData.from_file(
-            os.path.join(test_dir, "lammps_ff_data.dat"))
-        np.testing.assert_almost_equal(self.lammps_ff_data_1.bond_coeffs,
-                                       lammps_ff_data_2.bond_coeffs)
-        np.testing.assert_almost_equal(self.lammps_ff_data_1.pair_coeffs,
-                                       lammps_ff_data_2.pair_coeffs)
-        np.testing.assert_almost_equal(self.lammps_ff_data_1.angle_coeffs,
-                                       lammps_ff_data_2.angle_coeffs)
-        np.testing.assert_almost_equal(self.lammps_ff_data_1.dihedral_coeffs,
-                                       lammps_ff_data_2.dihedral_coeffs)
-        np.testing.assert_almost_equal(self.lammps_ff_data_1.atoms_data,
-                                       lammps_ff_data_2.atoms_data, decimal=10)
-        self.assertEqual(self.lammps_ff_data_1.bonds_data,
-                         lammps_ff_data_2.bonds_data)
-        self.assertEqual(self.lammps_ff_data_1.angles_data,
-                         lammps_ff_data_2.angles_data)
-        self.assertEqual(self.lammps_ff_data_1.dihedrals_data,
-                         lammps_ff_data_2.dihedrals_data)
-
-    def tearDown(self):
-        for x in ["lammps_ff_data.dat"]:
-            if os.path.exists(os.path.join(test_dir, x)):
-                os.remove(os.path.join(test_dir, x))
+    @classmethod
+    def tearDownClass(cls):
+        if os.path.exists("ff_test.yaml"):
+            os.remove("ff_test.yaml")
 
 
 if __name__ == "__main__":

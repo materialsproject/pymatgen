@@ -1197,6 +1197,16 @@ class PointGroupAnalyzer(object):
         return PointGroupOperations(self.sch_symbol, self.symmops,
                                     self.mat_tol)
 
+    def get_symmetry_operations(self):
+        """
+        Return symmetry operations as a list of SymmOp objects.
+        Returns Cartesian coord symmops.
+
+        Returns:
+            ([SymmOp]): List of symmetry operations.
+        """
+        return generate_full_symmops(self.symmops, self.tol)
+ 
     def is_valid_op(self, symmop):
         """
         Check if a particular symmetry operation is a valid symmetry operation

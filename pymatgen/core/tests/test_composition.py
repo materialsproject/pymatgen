@@ -435,6 +435,7 @@ class CompositionTest(PymatgenTest):
         self.assertRaises(ValueError, Composition("V2O3").
                           oxi_state_guesses, max_sites=1)
 
+
 class ChemicalPotentialTest(unittest.TestCase):
 
     def test_init(self):

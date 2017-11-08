@@ -10,6 +10,7 @@ import os
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.operations import SymmOp
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
@@ -102,6 +103,18 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(self.sg.get_point_group_symbol(), 'mmm')
         self.assertEqual(self.disordered_sg.get_point_group_symbol(), '4/mmm')
 
+    def test_get_symmetry_operations(self):
+        coordinates = np.array([[0.5, 0.0, 0.0],
+                                [0.0, 0.5, 0.0],
+                                [0.5, 1.0, 0.0],
+                                [1.0, 0.5, 0.0]])
+        species = ['H'] * len(coordinates)
+        molecule = Molecule(species,coordinates)
+        so = PointGroupAnalyzer(molecule, 0.3).get_symmetry_operations()
+        self.assertEqual(len(so), 16) # D4h contains 16 symmetry elements
+        for o in so:
+            self.assertEqual(isinstance(o,SymmOp), True)
+ 
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
         self.assertEqual(ds['international'], 'Pnma')
