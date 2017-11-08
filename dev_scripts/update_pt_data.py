@@ -18,8 +18,6 @@ __email__ = "shyue@mit.edu"
 __date__ = "Nov 15, 2011"
 
 
-
-
 def test_yaml():
     with open('periodic_table.yaml', 'r') as f:
         data = yaml.load(f)
@@ -173,6 +171,7 @@ def gen_periodic_table():
 
     with open('periodic_table.json', 'w') as f:
         json.dump(data, f)
+
 
 if __name__ == "__main__":
     gen_periodic_table()

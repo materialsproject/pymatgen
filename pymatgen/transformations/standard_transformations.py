@@ -3,7 +3,10 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+
 import logging
+
+from fractions import Fraction
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
@@ -405,7 +408,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     tolerance. currently this is .1
 
     For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites
-    4, 5, 6, 7 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
+    4, 5, 6, 7 then 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
     will be filled, even though a lower energy combination might be found by
     putting all lithium in sites [4,5,6,7].
 
@@ -666,6 +669,70 @@ class DeformStructureTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return DeformStructureTransformation(self.deformation.inv())
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
+class DiscretizeOccupanciesTransformation(AbstractTransformation):
+    """
+    Discretizes the site occupancies in a disordered structure; useful for
+    grouping similar structures or as a pre-processing step for order-disorder
+    transformations.
+
+    Args:
+        max_denominator:
+            An integer maximum denominator for discretization. A higher
+            denominator allows for finer resolution in the site occupancies.
+        tol:
+            A float that sets the maximum difference between the original and
+            discretized occupancies before throwing an error. The maximum
+            allowed difference is calculated as 1/max_denominator * 0.5 * tol.
+            A tol of 1.0 indicates to try to accept all discretizations.
+    """
+
+    def __init__(self, max_denominator=5, tol=0.25):
+        self.max_denominator = max_denominator
+        self.tol = tol
+
+    def apply_transformation(self, structure):
+        """
+        Discretizes the site occupancies in the structure.
+
+        Args:
+            structure: disordered Structure to discretize occupancies
+
+        Returns:
+            A new disordered Structure with occupancies discretized
+        """
+        if structure.is_ordered:
+            return structure
+
+        species = [dict(sp) for sp in structure.species_and_occu]
+
+        for sp in species:
+            for k, v in sp.items():
+                old_occ = sp[k]
+                new_occ = float(
+                    Fraction(old_occ).limit_denominator(self.max_denominator))
+                if round(abs(old_occ - new_occ), 6) > (
+                        1 / self.max_denominator / 2) * self.tol:
+                    raise RuntimeError(
+                        "Cannot discretize structure within tolerance!")
+                sp[k] = new_occ
+
+        return Structure(structure.lattice, species, structure.frac_coords)
+
+    def __str__(self):
+        return "DiscretizeOccupanciesTransformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
 
     @property
     def is_one_to_many(self):
