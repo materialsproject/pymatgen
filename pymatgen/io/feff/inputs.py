@@ -627,6 +627,10 @@ class Tags(dict):
                 return int(numstr)
 
         try:
+            if key.lower() == 'cif':
+                m = re.search(r"\w+.cif", val)
+                return m.group(0)
+
             if key in list_type_keys:
                 output = list()
                 toks = re.split(r"\s+", val)
