@@ -5,14 +5,15 @@
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
+from collections import OrderedDict
 import itertools
 import warnings
 import re
 from ast import literal_eval
-from collections import OrderedDict
 
 import numpy as np
 from monty.json import MSONable
+from six import string_types
 from ruamel.yaml import YAML
 
 from pymatgen.util.io_utils import clean_lines
@@ -203,8 +204,8 @@ class LammpsData(MSONable):
             sec = "\n".join(rows)
             return sec
 
-        counts = {"atoms": len(self.atoms)}
-        types = {"atom": len(self.masses)}
+        counts = OrderedDict([("atoms", len(self.atoms))])
+        types = OrderedDict([("atom", len(self.masses))])
 
         # box
         box_lines = []
@@ -263,7 +264,9 @@ class LammpsData(MSONable):
         contents["topo_sections"] = ""
         if self.topology:
             topo_parts = []
-            for kw in self.topology.keys():
+            topo_keys = [k for k in SECTION_KEYWORDS["molecule"]
+                         if k in self.topology]
+            for kw in topo_keys:
                 skw = kw.lower()[:-1]
                 topo_mat = [["%d" % v for v in [d["id"], d["type"]] + d[skw]]
                             for d in self.topology[kw]]
@@ -364,7 +367,7 @@ class LammpsData(MSONable):
                 parse_line = lambda l: {"type": int(l[1]), kw[:-1].lower():
                     [int(x) for x in l[2:n[kw] + 2]]}
             elif kw == "Atoms":
-                keys = ATOMS_LINE_FORMAT[atom_style].copy()
+                keys = ATOMS_LINE_FORMAT[atom_style][:]
                 sample_l = single_section_lines[1].split()
                 if len(sample_l) == len(keys) + 1:
                     pass
@@ -683,12 +686,16 @@ class ForceField(MSONable):
     Class carrying most data in Masses and force field sections.
     """
 
-    def __init__(self, mass_dict, pair_coeffs=None, mol_coeffs=None):
+    def __init__(self, mass_info, pair_coeffs=None, mol_coeffs=None):
         """
 
         Args:
-            mass_dict (dict): Dict with atomic mass (or Element or
-                element symbol) for each specie.
+            mass_into (list): List of atomic mass info. Each item looks
+                like a key, value pair in an OrderedDict. Elements,
+                strings (symbols) and floats are all acceptable for the
+                values, with the first two converted to the atomic mass
+                of an element.
+                [("C": 12.01), ("H": Element("H")), ("O": "O"), ...]
             pair_coeffs [coeffs]: List of pair or pairij coefficients,
                 of which the sequence must be sorted according to the
                 species in mass_dict. Pair or PairIJ determined by the
@@ -712,15 +719,15 @@ class ForceField(MSONable):
                           "types": [("H", "C", "C", "H"), ...]}, ...],
                 }
         """
-        mass_dict = {k: v.atomic_mass.real if isinstance(v, Element)
-                     else Element(v).atomic_mass.real if isinstance(v, str)
-                     else v for k, v in mass_dict.items()}
-        mass_dict = OrderedDict(mass_dict.items())
+        map_mass = lambda v: v.atomic_mass.real if isinstance(v, Element) \
+            else Element(v).atomic_mass.real if isinstance(v, string_types) \
+            else v
+        mass_info = [(k, map_mass(v)) for k, v in mass_info]
 
         if pair_coeffs:
             # validate No. of pair coeffs
             npc = len(pair_coeffs)
-            nm = len(mass_dict)
+            nm = len(mass_info)
             ncomb = nm * (nm + 1) / 2
             if npc == nm:
                 self.pair_type = "pair"
@@ -749,10 +756,10 @@ class ForceField(MSONable):
                         "under different coefficients in %s" % k
                 # No undefined atom types allowed
                 atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
-                assert atoms.issubset(mass_dict.keys()), \
+                assert atoms.issubset([m[0] for m in mass_info]), \
                     "Undefined atom type found in %s" % k
 
-        self.mass_dict = mass_dict
+        self.mass_info = mass_info
         self.pair_coeffs = pair_coeffs
         self.mol_coeffs = mol_coeffs
         masses_sec, self.atom_map = self.get_coeffs_and_mapper("Masses")
@@ -779,7 +786,7 @@ class ForceField(MSONable):
         data = []
         mapper = {}
         if section == "Masses":
-            for i, (k, v) in enumerate(self.mass_dict.items()):
+            for i, (k, v) in enumerate(self.mass_info):
                 data.append({"id": i + 1, "mass": v})
                 mapper[k] = i + 1
         elif section in SECTION_KEYWORDS["ff"][2:]:
@@ -806,7 +813,7 @@ class ForceField(MSONable):
             return {"Pair Coeffs": [{"id": i + 1, "coeffs": c}
                                     for i, c in enumerate(self.pair_coeffs)]}
         elif self.pair_type == "pairij":
-            n = len(self.mass_dict)
+            n = len(self.mass_info)
             ids = itertools.combinations_with_replacement(range(1, n + 1), 2)
             return {"PairIJ Coeffs": [{"id1": i[0], "id2": i[1], "coeffs": c}
                                       for i, c in zip(ids, self.pair_coeffs)]}
@@ -819,7 +826,7 @@ class ForceField(MSONable):
             filename (str): File name.
 
         """
-        d = {"mass_dict": self.mass_dict, "pair_coeffs": self.pair_coeffs,
+        d = {"mass_info": self.mass_info, "pair_coeffs": self.pair_coeffs,
              "mol_coeffs": self.mol_coeffs}
         yaml = YAML(typ="safe")
         with open(filename, "w") as f:
@@ -841,8 +848,9 @@ class ForceField(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        d["mass_info"] = [tuple(m) for m in d["mass_info"]]
         if d.get("mol_coeffs"):
             for v in d["mol_coeffs"].values():
                 for c in v:
                     c["types"] = [tuple(t) for t in c["types"]]
-        return cls(d["mass_dict"], d["pair_coeffs"], d["mol_coeffs"])
+        return cls(d["mass_info"], d["pair_coeffs"], d["mol_coeffs"])

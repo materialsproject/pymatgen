@@ -1,4 +1,8 @@
-mass_dict: !!omap [{D: 1.0}, {C: 2.744}, {B: 1.728}, {A: 1.0}]
+mass_info:
+- [D, 1.0]
+- [C, 2.744]
+- [B, 1.728]
+- [A, 1.0]
 mol_coeffs:
   Bond Coeffs:
   - coeffs: [50, 0.659469]
