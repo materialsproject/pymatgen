@@ -8,55 +8,13 @@ from __future__ import division, print_function, unicode_literals, \
 import os
 import unittest
 
-from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.sets import LammpsInputSet
-from pymatgen.util.testing import PymatgenTest
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
-
-
-class TestLammpsInputSetFromStrcuture(unittest.TestCase):
-
-    def setUp(self):
-        self.structure = PymatgenTest.get_structure("Si")
-        template_file = os.path.join(test_dir, "basic.in.template")
-        self.data_filename = "test_basic.data"
-        self.input_filename = "test_basic.in"
-        atom_style = "atomic"
-        self.settings = {"log_file": "log.lammps",
-                         "dump_file": "dump.lammps",
-                         "atom_style": atom_style,
-                         "run": 0}
-        self.lammps_input_set = LammpsInputSet.from_structure(
-            self.structure, template_file, self.settings,
-            data_filename=self.data_filename)
-
-    def test_input(self):
-        self.assertEqual(self.lammps_input_set.lammps_input.settings["data_file"],
-                         self.data_filename)
-        for k, v in self.settings.items():
-            self.assertEqual(self.lammps_input_set.lammps_input.settings[k], v)
-
-    def test_data(self):
-        lmp_data = LammpsData.from_structure(self.structure)
-        self.assertEqual(str(lmp_data), str(self.lammps_input_set.lammps_data))
-
-    def test_write_input_set(self):
-        self.lammps_input_set.write_input(self.input_filename)
-        self.assertTrue(os.path.exists(self.input_filename))
-        self.assertTrue(os.path.exists(self.data_filename))
-        os.remove(self.input_filename)
-        os.remove(self.data_filename)
-        # now change both input and data filenames
-        self.lammps_input_set.write_input("xxxx.input", "yyy.data")
-        self.assertTrue(os.path.exists("xxxx.input"))
-        self.assertTrue(os.path.exists("yyy.data"))
-        os.remove("xxxx.input")
-        os.remove("yyy.data")
 
 
 class TestLammpsInputSet(unittest.TestCase):
@@ -74,7 +32,7 @@ class TestLammpsInputSet(unittest.TestCase):
         }
         self.lammps_input_set = LammpsInputSet.from_file(
             "test", template_file, self.settings, lammps_data=data_file,
-            data_filename=self.data_filename, is_forcefield=True)
+            data_filename=self.data_filename)
 
     def test_input(self):
         self.assertEqual(self.lammps_input_set.lammps_input.settings["data_file"],

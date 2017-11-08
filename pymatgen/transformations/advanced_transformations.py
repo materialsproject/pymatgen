@@ -16,17 +16,15 @@ from warnings import warn
 import logging
 import math
 
-import six
 import warnings
 from monty.fractions import lcm
 from monty.json import MSONable
 
-from pymatgen.core.structure import Composition
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, OrderDisorderedStructureTransformation
-from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
+from pymatgen.command_line.enumlib_caller import EnumlibAdaptor, EnumError
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -242,70 +240,6 @@ class MultipleSubstitutionTransformation(object):
         return True
 
 
-class DiscretizeOccupanciesTransformation(AbstractTransformation):
-    """
-    Discretizes the site occupancies in a disordered structure; useful for
-    grouping similar structures or as a pre-processing step for order-disorder
-    transformations.
-
-    Args:
-        max_denominator:
-            An integer maximum denominator for discretization. A higher
-            denominator allows for finer resolution in the site occupancies.
-        tol:
-            A float that sets the maximum difference between the original and
-            discretized occupancies before throwing an error. The maximum
-            allowed difference is calculated as 1/max_denominator * 0.5 * tol.
-            A tol of 1.0 indicates to try to accept all discretizations.
-    """
-
-    def __init__(self, max_denominator=5, tol=0.25):
-        self.max_denominator = max_denominator
-        self.tol = tol
-
-    def apply_transformation(self, structure):
-        """
-        Discretizes the site occupancies in the structure.
-
-        Args:
-            structure: disordered Structure to discretize occupancies
-
-        Returns:
-            A new disordered Structure with occupancies discretized
-        """
-        if structure.is_ordered:
-            return structure
-
-        species = [dict(sp) for sp in structure.species_and_occu]
-
-        for sp in species:
-            for k, v in sp.items():
-                old_occ = sp[k]
-                new_occ = float(
-                    Fraction(old_occ).limit_denominator(self.max_denominator))
-                if round(abs(old_occ - new_occ), 6) > (
-                        1 / self.max_denominator / 2) * self.tol:
-                    raise RuntimeError(
-                        "Cannot discretize structure within tolerance!")
-                sp[k] = new_occ
-
-        return Structure(structure.lattice, species, structure.frac_coords)
-
-    def __str__(self):
-        return "DiscretizeOccupanciesTransformation"
-
-    def __repr__(self):
-        return self.__str__()
-
-    @property
-    def inverse(self):
-        return None
-
-    @property
-    def is_one_to_many(self):
-        return False
-
-
 class EnumerateStructureTransformation(AbstractTransformation):
     """
     Order a disordered structure using enumlib. For complete orderings, this
@@ -341,17 +275,20 @@ class EnumerateStructureTransformation(AbstractTransformation):
             structures. But sometimes including ordered sites
             slows down enumeration to the point that it cannot be
             completed. Switch to False in those cases. Defaults to True.
-        max_disordered_sites:
+        max_disordered_sites (int):
             An alternate parameter to max_cell size. Will sequentially try
             larger and larger cell sizes until (i) getting a result or (ii)
             the number of disordered sites in the cell exceeds
             max_disordered_sites. Must set max_cell_size to None when using
             this parameter.
+        sort_criteria (str): Sort by Ewald energy ("ewald", must have oxidation
+            states and slow) or by number of sites ("nsites", much faster).
     """
 
     def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1,
                  refine_structure=False, enum_precision_parameter=0.001,
-                 check_ordered_symmetry=True, max_disordered_sites=None):
+                 check_ordered_symmetry=True, max_disordered_sites=None,
+                 sort_criteria="ewald"):
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
@@ -359,6 +296,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.enum_precision_parameter = enum_precision_parameter
         self.check_ordered_symmetry = check_ordered_symmetry
         self.max_disordered_sites = max_disordered_sites
+        self.sort_criteria = sort_criteria
 
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and "
@@ -399,6 +337,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
              structure.composition.elements]
         )
 
+        structures = None
+
         if structure.is_ordered:
             warn("Enumeration skipped for structure with composition {} "
                  "because it is ordered".format(structure.composition))
@@ -423,10 +363,17 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 symm_prec=self.symm_prec, refine_structure=False,
                 enum_precision_parameter=self.enum_precision_parameter,
                 check_ordered_symmetry=self.check_ordered_symmetry)
-            adaptor.run()
+            try:
+                adaptor.run()
+            except EnumError:
+                warn("Unable to enumerate for max_cell_size = %d".format(
+                    max_cell_size))
             structures = adaptor.structures
             if structures:
                 break
+
+        if structures is None:
+            raise ValueError("Unable to enumerate")
 
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
@@ -437,7 +384,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             transformation = np.dot(new_latt.matrix, inv_latt)
             transformation = tuple([tuple([int(round(cell)) for cell in row])
                                     for row in transformation])
-            if contains_oxidation_state:
+            if contains_oxidation_state and self.sort_criteria == "ewald":
                 if transformation not in ewald_matrices:
                     s_supercell = structure * transformation
                     ewald = EwaldSummation(s_supercell)
@@ -451,7 +398,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 all_structures.append({"num_sites": len(s), "structure": s})
 
         def sort_func(s):
-            return s["energy"] / s["num_sites"] if contains_oxidation_state \
+            return s["energy"] / s["num_sites"] \
+                if contains_oxidation_state and self.sort_criteria == "ewald" \
                 else s["num_sites"]
 
         self._all_structures = sorted(all_structures, key=sort_func)

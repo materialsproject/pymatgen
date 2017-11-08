@@ -69,6 +69,10 @@ class ComputedEntryTest(unittest.TestCase):
         self.entry.correction = 1.0
         self.assertAlmostEqual(self.entry.energy, -9.21249155)
 
+    def test_is_element(self):
+        entry = ComputedEntry("Fe3",2.3)
+        self.assertTrue(entry.is_element)
+
 class ComputedStructureEntryTest(unittest.TestCase):
 
     def setUp(self):

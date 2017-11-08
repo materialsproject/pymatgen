@@ -133,23 +133,16 @@ class EnumlibAdaptor(object):
         # Create a temporary directory for working.
         with ScratchDir(".") as d:
             logger.debug("Temp dir : {}".format(d))
-            try:
-                # Generate input files
-                self._gen_input_file()
-                # Perform the actual enumeration
-                num_structs = self._run_multienum()
-                # Read in the enumeration output as structures.
-                if num_structs > 0:
-                    self.structures = self._get_structures(num_structs)
-                else:
-                    raise ValueError("Unable to enumerate structure.")
-            except Exception:
-                import sys
-                import traceback
+            # Generate input files
+            self._gen_input_file()
+            # Perform the actual enumeration
+            num_structs = self._run_multienum()
+            # Read in the enumeration output as structures.
+            if num_structs > 0:
+                self.structures = self._get_structures(num_structs)
+            else:
+                raise EnumError("Unable to enumerate structure.")
 
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                          limit=10, file=sys.stdout)
 
     def _gen_input_file(self):
         """
@@ -342,45 +335,43 @@ class EnumlibAdaptor(object):
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
 
-        try:
-            for file in glob.glob('vasp.*'):
-                with open(file) as f:
-                    data = f.read()
-                    data = re.sub(r'scale factor', "1", data)
-                    data = re.sub(r'(\d+)-(\d+)', r'\1 -\2', data)
-                    poscar = Poscar.from_string(data, self.index_species)
-                    sub_structure = poscar.structure
-                    # Enumeration may have resulted in a super lattice. We need to
-                    # find the mapping from the new lattice to the old lattice, and
-                    # perform supercell construction if necessary.
-                    new_latt = sub_structure.lattice
+        for file in glob.glob('vasp.*'):
+            with open(file) as f:
+                data = f.read()
+                data = re.sub(r'scale factor', "1", data)
+                data = re.sub(r'(\d+)-(\d+)', r'\1 -\2', data)
+                poscar = Poscar.from_string(data, self.index_species)
+                sub_structure = poscar.structure
+                # Enumeration may have resulted in a super lattice. We need to
+                # find the mapping from the new lattice to the old lattice, and
+                # perform supercell construction if necessary.
+                new_latt = sub_structure.lattice
 
-                    sites = []
+                sites = []
 
-                    if len(self.ordered_sites) > 0:
-                        transformation = np.dot(new_latt.matrix, inv_org_latt)
-                        transformation = [[int(round(cell)) for cell in row]
-                                          for row in transformation]
-                        logger.debug("Supercell matrix: {}".format(transformation))
-                        s = ordered_structure * transformation
-                        sites.extend([site.to_unit_cell for site in s])
-                        super_latt = sites[-1].lattice
+                if len(self.ordered_sites) > 0:
+                    transformation = np.dot(new_latt.matrix, inv_org_latt)
+                    transformation = [[int(round(cell)) for cell in row]
+                                      for row in transformation]
+                    logger.debug("Supercell matrix: {}".format(transformation))
+                    s = ordered_structure * transformation
+                    sites.extend([site.to_unit_cell for site in s])
+                    super_latt = sites[-1].lattice
+                else:
+                    super_latt = new_latt
+
+                for site in sub_structure:
+                    if site.specie.symbol != "X":  # We exclude vacancies.
+                        sites.append(PeriodicSite(site.species_and_occu,
+                                                  site.frac_coords,
+                                                  super_latt).to_unit_cell)
                     else:
-                        super_latt = new_latt
-
-                    for site in sub_structure:
-                        if site.specie.symbol != "X":  # We exclude vacancies.
-                            sites.append(PeriodicSite(site.species_and_occu,
-                                                      site.frac_coords,
-                                                      super_latt).to_unit_cell)
-                        else:
-                            warnings.warn("Skipping sites that include species X.")
-                    structs.append(Structure.from_sites(sorted(sites)))
-
-        except Exception as e:
-            logger.error(e)
-            logger.error("Failed to read structures, test your makeStr binary is working "
-                         "correctly.")
+                        warnings.warn("Skipping sites that include species X.")
+                structs.append(Structure.from_sites(sorted(sites)))
 
         logger.debug("Read in a total of {} structures.".format(num_structs))
         return structs
+
+
+class EnumError(BaseException):
+    pass
