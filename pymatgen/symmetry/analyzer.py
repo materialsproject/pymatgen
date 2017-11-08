@@ -1205,7 +1205,7 @@ class PointGroupAnalyzer(object):
         Returns:
             ([SymmOp]): List of symmetry operations.
         """
-        return self.symmops
+        return generate_full_symmops(self.symmops, self.tol)
  
     def is_valid_op(self, symmop):
         """
