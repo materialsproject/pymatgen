@@ -64,8 +64,7 @@ class TestLammpsRun(unittest.TestCase):
         traj_file = os.path.join(test_dir, "nvt.dump")
         log_file = os.path.join(test_dir, "nvt.log")
         cls.lmps_log = LammpsLog(log_file=log_file)
-        cls.lammpsrun = LammpsRun(data_file, traj_file, log_file,
-                                  is_forcefield=True)
+        cls.lammpsrun = LammpsRun(data_file, traj_file, log_file)
 
     def test_lammps_log(self):
         fields = "step vol temp press ke pe etotal enthalpy evdwl ecoul epair " \
