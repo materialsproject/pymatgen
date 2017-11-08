@@ -21,6 +21,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
+
 """
 This module defines classes for reading/manipulating/writing the main sections
 of FEFF input file(feff.inp), namely HEADER, ATOMS, POTENTIAL and the program
@@ -37,7 +38,6 @@ __maintainer__ = "Alan Dozier"
 __email__ = "adozier@uky.edu"
 __status__ = "Beta"
 __date__ = "April 7, 2013"
-
 
 # **Non-exhaustive** list of valid Feff.inp tags
 VALID_FEFF_TAGS = ("CONTROL", "PRINT", "ATOMS", "POTENTIALS", "RECIPROCAL",
@@ -237,7 +237,7 @@ class Header(MSONable):
                 coords.append([float(s) for s in toks[3:]])
 
             struct = Structure(lattice, atomic_symbols, coords, False,
-                                        False, False)
+                               False, False)
 
             h = Header(struct, source, comment2)
 
@@ -254,11 +254,11 @@ class Header(MSONable):
                   ''.join(["TITLE comment: ", self.comment]),
                   ''.join(["TITLE Source:  ", self.source]),
                   "TITLE Structure Summary:  {}"
-                  .format(self.struct.composition.formula),
+                      .format(self.struct.composition.formula),
                   "TITLE Reduced formula:  {}"
-                  .format(self.struct.composition.reduced_formula),
+                      .format(self.struct.composition.reduced_formula),
                   "TITLE space group: ({}), space number:  ({})"
-                  .format(self.space_group, self.space_number),
+                      .format(self.space_group, self.space_number),
                   "TITLE abc:{}".format(" ".join(
                       [to_s(i).rjust(10) for i in self.struct.lattice.abc])),
                   "TITLE angles:{}".format(" ".join(
@@ -307,7 +307,7 @@ class Atoms(MSONable):
 
     def _set_cluster(self):
         """
-        Compute and set the cluster of atoms as a Molecule object. The site
+        Compute and set the cluster of atoms as a Molecule object. The siteato
         coordinates are translated such that the absorbing atom(aka central
         atom) is at the origin.
 
@@ -397,15 +397,15 @@ class Atoms(MSONable):
                 atom.
         """
         lines = [["{:f}".format(self._cluster[0].x),
-                "{:f}".format(self._cluster[0].y),
-                "{:f}".format(self._cluster[0].z),
+                  "{:f}".format(self._cluster[0].y),
+                  "{:f}".format(self._cluster[0].z),
                   0, self.absorbing_atom, "0.0", 0]]
         for i, site in enumerate(self._cluster[1:]):
             site_symbol = re.sub(r"[^aA-zZ]+", "", site.species_string)
             ipot = self.pot_dict[site_symbol]
             lines.append(["{:f}".format(site.x), "{:f}".format(site.y),
-                        "{:f}".format(site.z), ipot, site_symbol,
-                        "{:f}".format(self._cluster.get_distance(0, i+1)), i+1])
+                          "{:f}".format(site.z), ipot, site_symbol,
+                          "{:f}".format(self._cluster.get_distance(0, i + 1)), i + 1])
 
         return sorted(lines, key=itemgetter(5))
 
@@ -530,7 +530,7 @@ class Tags(dict):
         if pretty:
             return tabulate(lines)
         else:
-            return  str_delimited(lines, None, " ")
+            return str_delimited(lines, None, " ")
 
     @staticmethod
     def _stringify_val(val):
@@ -586,7 +586,7 @@ class Tags(dict):
                         params[key] = val
             if ieels >= 0:
                 if i >= ieels and i <= ieels_max:
-                    if i == ieels+1:
+                    if i == ieels + 1:
                         if int(line.split()[1]) == 1:
                             ieels_max -= 1
                     eels_params.append(line)
@@ -627,6 +627,10 @@ class Tags(dict):
                 return int(numstr)
 
         try:
+            if key.lower() == 'cif':
+                m = re.search(r"\w+.cif", val)
+                return m.group(0)
+
             if key in list_type_keys:
                 output = list()
                 toks = re.split(r"\s+", val)
@@ -745,6 +749,9 @@ class Potential(MSONable):
             pot_data = 0
             pot_data_over = 1
 
+            sep_line_pattern = [re.compile('ipot.*Z.*tag.*lmax1.*lmax2.*spinph'),
+                                re.compile('^[*]+.*[*]+$')]
+
             for line in f:
                 if pot_data_over == 1:
                     ln += 1
@@ -753,13 +760,17 @@ class Potential(MSONable):
                         ln = 0
                     if pot_tag >= 0 and ln > 0 and pot_data_over > 0:
                         try:
-                            if int(line.split()[0]) == pot_data:
+                            if len(sep_line_pattern[0].findall(line)) > 0 or \
+                                            len(sep_line_pattern[1].findall(line)) > 0:
+                                pot_str.append(line)
+                            elif int(line.split()[0]) == pot_data:
                                 pot_data += 1
                                 pot_str.append(line.replace("\r", ""))
                         except (ValueError, IndexError):
                             if pot_data > 0:
                                 pot_data_over = 0
-        return ''.join(pot_str)
+
+        return ''.join(pot_str).rstrip('\n')
 
     @staticmethod
     def pot_dict_from_string(pot_data):
@@ -838,6 +849,7 @@ class Paths(MSONable):
     """
     Set FEFF scattering paths('paths.dat' file used by the 'genfmt' module).
     """
+
     def __init__(self, atoms, paths, degeneracies=None):
         """
         Args:
@@ -849,7 +861,7 @@ class Paths(MSONable):
         """
         self.atoms = atoms
         self.paths = paths
-        self.degeneracies = degeneracies or [1]*len(paths)
+        self.degeneracies = degeneracies or [1] * len(paths)
         assert len(self.degeneracies) == len(self.paths)
 
     def __str__(self):
@@ -883,6 +895,7 @@ class FeffParserError(Exception):
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
     """
+
     def __init__(self, msg):
         self.msg = msg
 
