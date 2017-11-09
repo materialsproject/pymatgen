@@ -1092,11 +1092,14 @@ class AbinitBuild(object):
             fh.write(script)
         qjob, process = manager.qadapter.submit_to_queue(script_file)
         process.wait()
-        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
-        process.stderr.close()
 
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
+            print("stderr:", process.stderr.read())
+            print("stdout:", process.stdout.read())
+
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         with open(stdout, "rt") as fh:
             self.info = fh.read()
