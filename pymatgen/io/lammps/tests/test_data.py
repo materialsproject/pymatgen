@@ -160,81 +160,100 @@ Angles
 
     def test_from_file(self):
         peptide = self.peptide
-        # header stats
-        self.assertEqual(len(peptide.atoms), 2004)
-        topology = peptide.topology
-        self.assertEqual(len(topology["Bonds"]), 1365)
-        self.assertEqual(len(topology["Angles"]), 786)
-        self.assertEqual(len(topology["Dihedrals"]), 207)
-        self.assertEqual(len(topology["Impropers"]), 12)
-        self.assertEqual(len(peptide.masses), 14)
-        force_field = peptide.force_field
-        self.assertEqual(len(force_field["Pair Coeffs"]), 14)
-        self.assertEqual(len(force_field["Bond Coeffs"]), 18)
-        self.assertEqual(len(force_field["Angle Coeffs"]), 31)
-        self.assertEqual(len(force_field["Dihedral Coeffs"]), 21)
-        self.assertEqual(len(force_field["Improper Coeffs"]), 2)
+        # header stats and Nos. of columns
+        self.assertEqual(peptide.masses.shape, (14, 1))
+        self.assertEqual(peptide.atoms.shape, (2004, 9))
+        self.assertListEqual(list(peptide.atoms.columns),
+                             ["molecule-ID", "type", "q", "x", "y", "z",
+                              "nx", "ny", "nz"])
+        topo = peptide.topology
+        self.assertEqual(topo["Bonds"].shape, (1365, 3))
+        self.assertEqual(topo["Angles"].shape, (786, 4))
+        self.assertEqual(topo["Dihedrals"].shape, (207, 5))
+        self.assertEqual(topo["Impropers"].shape, (12, 5))
+        ff = peptide.force_field
+        self.assertEqual(ff["Pair Coeffs"].shape, (14, 4))
+        self.assertEqual(ff["Bond Coeffs"].shape, (18, 2))
+        self.assertEqual(ff["Angle Coeffs"].shape, (31, 4))
+        self.assertEqual(ff["Dihedral Coeffs"].shape, (21, 4))
+        self.assertEqual(ff["Improper Coeffs"].shape, (2, 2))
         # header box
         np.testing.assert_array_equal(peptide.box_bounds,
                                       [[36.840194, 64.211560],
                                        [41.013691, 68.385058],
                                        [29.768095, 57.139462]])
-        # body  last line of each section
-        self.assertDictEqual(peptide.masses[-1], {"id": 14, "mass": 1.0100})
-        self.assertDictEqual(force_field["Pair Coeffs"][-1],
-                             {"id": 14, "coeffs": [0.046000, 0.400014,
-                                                   0.046000, 0.400014]})
-        self.assertDictEqual(force_field["Bond Coeffs"][-1],
-                             {"id": 18, "coeffs": [450.000000, 0.957200]})
-        self.assertDictEqual(force_field["Angle Coeffs"][-1],
-                             {"id": 31, "coeffs": [55.000000, 104.520000,
-                                                   0.000000, 0.000000]})
-        self.assertDictEqual(force_field["Dihedral Coeffs"][-1],
-                             {"id": 21, "coeffs": [0.010000, 3, 0, 1.000000]})
-        for c in force_field["Dihedral Coeffs"][-1]["coeffs"][1:2]:
-            self.assertIsInstance(c, int)
-        self.assertDictEqual(force_field["Improper Coeffs"][-1],
-                             {"id": 2, "coeffs": [20.000000, 0.000000]})
-        self.assertDictEqual(peptide.atoms[-1],
-                             {"id": 2004, "molecule-ID": 641, "type": 14,
-                              "q": 0.417, "x": 56.55074, "y": 49.75049,
-                              "z": 48.61854, "nx": 1, "ny": 1, "nz": 1})
-        self.assertDictEqual(peptide.velocities[-1],
-                             {"id": 2004, "velocity": [-0.010076,
-                                                       -0.005729,
-                                                       -0.026032]})
-        self.assertDictEqual(topology["Bonds"][-1],
-                             {"id": 1365, "type": 18, "bond": [2002, 2003]})
-        self.assertDictEqual(topology["Angles"][-1],
-                             {"id": 786, "type": 31,
-                              "angle": [2003, 2002, 2004]})
-        self.assertDictEqual(topology["Dihedrals"][-1],
-                             {"id": 207, "type": 3,
-                              "dihedral": [64, 79, 80, 82]})
-        self.assertDictEqual(topology["Impropers"][-1],
-                             {"id": 12, "type": 2,
-                              "improper": [79, 64, 80, 81]})
+        # body
+        self.assertEqual(peptide.masses.at[7, "mass"], 12.0110)
+        self.assertEqual(ff["Pair Coeffs"].at[9, "coeff3"], 0.152100)
+        self.assertEqual(ff["Bond Coeffs"].at[5, "coeff2"], 1.430000)
+        self.assertEqual(ff["Angle Coeffs"].at[21, "coeff2"], 120.000000)
+        self.assertEqual(ff["Dihedral Coeffs"].at[10, "coeff1"], 0.040000)
+        self.assertEqual(ff["Improper Coeffs"].at[2, "coeff1"], 20.000000)
+        self.assertEqual(peptide.atoms.at[29, "molecule-ID"], 1)
+        self.assertEqual(peptide.atoms.at[29, "type"], 7)
+        self.assertEqual(peptide.atoms.at[29, "q"], -0.020)
+        self.assertAlmostEqual(peptide.atoms.at[29, "x"], 42.96709)
+        self.assertEqual(peptide.atoms.at[1808, "molecule-ID"], 576)
+        self.assertEqual(peptide.atoms.at[1808, "type"], 14)
+        self.assertAlmostEqual(peptide.atoms.at[1808, "y"], 58.64352)
+        self.assertEqual(peptide.atoms.at[1808, "nx"], -1)
+        self.assertAlmostEqual(peptide.velocities.at[527, "vz"], -0.010889)
+        self.assertEqual(topo["Bonds"].at[47, "type"], 8)
+        self.assertEqual(topo["Bonds"].at[47, "atom2"], 54)
+        self.assertEqual(topo["Bonds"].at[953, "atom1"], 1384)
+        self.assertEqual(topo["Angles"].at[105, "type"], 19)
+        self.assertEqual(topo["Angles"].at[105, "atom3"], 51)
+        self.assertEqual(topo["Angles"].at[376, "atom2"], 772)
+        self.assertEqual(topo["Dihedrals"].at[151, "type"], 14)
+        self.assertEqual(topo["Dihedrals"].at[151, "atom4"], 51)
+        self.assertEqual(topo["Impropers"].at[4, "atom4"], 32)
         # box_tilt and another atom_style
         quartz = self.quartz
         np.testing.assert_array_equal(quartz.box_tilt, [-2.456700, 0.0, 0.0])
-        self.assertDictEqual(quartz.atoms[-1],
-                             {"id": 9, "type": 2, "x": 1.375998,
-                              "y": -1.140800, "z": -2.443511})
+        self.assertListEqual(list(quartz.atoms.columns),
+                             ["type", "x", "y", "z"])
+        self.assertAlmostEqual(quartz.atoms.at[7, "x"], 0.299963)
         # sort_id
         nvt = LammpsData.from_file(filename=os.path.join(test_dir,
                                                          "nvt.data"),
                                    sort_id=True)
         atom_id = random.randint(1, 648)
-        self.assertEqual(nvt.atoms[atom_id - 1]["id"], atom_id)
+        self.assertEqual(nvt.atoms.loc[atom_id].name, atom_id)
         # PairIJ Coeffs section
         virus = LammpsData.from_file(filename=os.path.join(test_dir,
                                                            "virus.data"),
                                      atom_style="angle")
         n = len(virus.masses)
         pairij = virus.force_field["PairIJ Coeffs"]
-        self.assertEqual(len(pairij), n * (n + 1) / 2)
-        self.assertDictEqual(pairij[-1],
-                             {"id1": 4, "id2": 4, "coeffs": [1, 1, 1.1225]})
+        self.assertEqual(pairij.at[7, "id1"], 3)
+        self.assertEqual(pairij.at[7, "id2"], 3)
+        self.assertEqual(pairij.at[7, "coeff2"], 2.1)
+        # class 2 and comments
+        ethane = LammpsData.from_file(filename=os.path.join(test_dir,
+                                                            "ethane.data"))
+        self.assertEqual(ethane.masses.shape, (2, 1))
+        self.assertEqual(ethane.atoms.shape, (8, 9))
+        class2 = ethane.force_field
+        self.assertEqual(class2["Pair Coeffs"].shape, (2, 2))
+        self.assertEqual(class2["Bond Coeffs"].shape, (2, 4))
+        self.assertEqual(class2["Angle Coeffs"].shape, (2, 4))
+        self.assertEqual(class2["Dihedral Coeffs"].shape, (1, 6))
+        self.assertEqual(class2["Improper Coeffs"].shape, (2, 2))
+        self.assertEqual(class2["BondBond Coeffs"].at[2, "coeff3"], 1.1010)
+        self.assertEqual(class2["BondAngle Coeffs"].at[2, "coeff4"], 1.1010)
+        self.assertEqual(class2["AngleAngle Coeffs"].at[2, "coeff6"],
+                         107.6600)
+        self.assertEqual(class2["AngleAngle Coeffs"].at[2, "coeff6"],
+                         107.6600)
+        self.assertEqual(class2["AngleAngleTorsion Coeffs"].at[1, "coeff3"],
+                         110.7700)
+        self.assertEqual(class2["EndBondTorsion Coeffs"].at[1, "coeff8"],
+                         1.1010)
+        self.assertEqual(class2["MiddleBondTorsion Coeffs"].at[1, "coeff4"],
+                         1.5300)
+        self.assertEqual(class2["BondBond13 Coeffs"].at[1, "coeff3"], 1.1010)
+        self.assertEqual(class2["AngleTorsion Coeffs"].at[1, "coeff8"],
+                         110.7700)
 
     def test_from_ff_and_topologies(self):
         ff = ForceField.from_file(os.path.join(test_dir, "ff_peptide.yaml"))

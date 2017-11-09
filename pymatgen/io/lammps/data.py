@@ -6,15 +6,15 @@ from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
 from collections import OrderedDict
+from io import StringIO
 import itertools
-import warnings
 import re
-from ast import literal_eval
 
 import numpy as np
+import pandas as pd
 from monty.json import MSONable
-from six import string_types
 from ruamel.yaml import YAML
+from six import string_types
 
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.core.structure import SiteCollection
@@ -51,12 +51,19 @@ SECTION_KEYWORDS = {"atom": ["Atoms", "Velocities", "Masses",
                                "AngleAngleTorsion Coeffs",
                                "BondBond13 Coeffs", "AngleAngle Coeffs"]}
 
-ATOMS_LINE_FORMAT = {"angle": ["molecule-ID", "type", "x", "y", "z"],
-                     "atomic": ["type", "x", "y", "z"],
-                     "bond": ["molecule-ID", "type", "x", "y", "z"],
-                     "charge": ["type", "q", "x", "y", "z"],
-                     "full": ["molecule-ID", "type", "q", "x", "y", "z"],
-                     "molecular": ["molecule-ID", "type", "x", "y", "z"]}
+SECTION_HEADERS = {"Masses": ["mass"],
+                   "Velocities": ["vx", "vy", "vz"],
+                   "Bonds": ["type", "atom1", "atom2"],
+                   "Angles": ["type", "atom1", "atom2", "atom3"],
+                   "Dihedrals": ["type", "atom1", "atom2", "atom3", "atom4"],
+                   "Impropers": ["type", "atom1", "atom2", "atom3", "atom4"]}
+
+ATOMS_HEADERS = {"angle": ["molecule-ID", "type", "x", "y", "z"],
+                 "atomic": ["type", "x", "y", "z"],
+                 "bond": ["molecule-ID", "type", "x", "y", "z"],
+                 "charge": ["type", "q", "x", "y", "z"],
+                 "full": ["molecule-ID", "type", "q", "x", "y", "z"],
+                 "molecular": ["molecule-ID", "type", "x", "y", "z"]}
 
 ATOMS_FLOATS = ["q", "x", "y", "z"]
 
@@ -136,16 +143,19 @@ class LammpsData(MSONable):
                 " got {}".format(tilt_shape)
             box_tilt = tilt_arr.tolist()
 
-        if velocities:
+        if velocities is not None:
             assert len(velocities) == len(atoms),\
                 "Inconsistency found between atoms and velocities"
 
         if force_field:
-            force_field = {k: force_field[k] for k in SECTION_KEYWORDS["ff"]
-                           if k in force_field}
+            ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
+            force_field = {k: v for k, v in force_field.items()
+                           if k in ff_kws}
+
         if topology:
-            topology = {k: topology[k] for k in SECTION_KEYWORDS["molecule"]
-                        if k in topology}
+            topology = {k: v for k, v in topology.items()
+                        if k in SECTION_KEYWORDS["molecule"]}
+
         self.masses = masses
         self.atoms = atoms
         self.box_bounds = box_bounds
@@ -241,7 +251,7 @@ class LammpsData(MSONable):
             contents["ff_sections"] = "\n\n".join(ff_parts)
 
         # atoms
-        atom_format = ["id"] + ATOMS_LINE_FORMAT[self.atom_style]
+        atom_format = ["id"] + ATOMS_HEADERS[self.atom_style]
         if "nx" in self.atoms[0].keys():
             atom_format.extend(["nx", "ny", "nz"])
         map_str = lambda t: float_ph if t in ATOMS_FLOATS else "{}"
@@ -315,10 +325,10 @@ class LammpsData(MSONable):
         """
         with open(filename) as f:
             lines = f.readlines()
-        clines = list(clean_lines(lines))
-        section_marks = [i for i, l in enumerate(clines) if l
-                         in itertools.chain(*SECTION_KEYWORDS.values())]
-        parts = np.split(clines, section_marks)
+        kw_pattern = r'|'.join(itertools.chain(*SECTION_KEYWORDS.values()))
+        section_marks = [i for i, l in enumerate(lines)
+                         if re.match(kw_pattern, l)]
+        parts = np.split(lines, section_marks)
 
         # First, parse header
         float_group = r'([0-9eE.+-]+)'
@@ -332,7 +342,7 @@ class LammpsData(MSONable):
 
         header = {"counts": {}, "types": {}}
         bounds = {}
-        for l in parts[0]:
+        for l in parts[0][1:]:  # skip the 1st line
             match = None
             for k, v in header_pattern.items():
                 match = re.match(v, l)
@@ -350,56 +360,40 @@ class LammpsData(MSONable):
         header["bounds"] = [bounds.get(i, [-0.5, 0.5]) for i in "xyz"]
 
         # Then, parse each section
-        topo_sections = SECTION_KEYWORDS["molecule"]
-
-        def parse_section(single_section_lines):
-            kw = single_section_lines[0]
-
-            if kw in SECTION_KEYWORDS["ff"] and kw != "PairIJ Coeffs":
-                parse_line = lambda l: {"coeffs": [literal_eval(x)
-                                                   for x in l[1:]]}
+        def parse_section(lines):
+            title_info = lines[0].split('#', 1)
+            kw = title_info[0].strip()
+            sio = StringIO("".join(lines[2:])) # skip the 2nd line
+            df = pd.read_csv(sio, header=None, comment="#",
+                             delim_whitespace=True)
+            if kw.endswith("Coeffs") and not kw.startswith("PairIJ"):
+                names = ["id"] + ["coeff%d" % i
+                                  for i in range(1, df.shape[1])]
             elif kw == "PairIJ Coeffs":
-                parse_line = lambda l: {"id1": int(l[0]), "id2": int(l[1]),
-                                        "coeffs": [literal_eval(x)
-                                                   for x in l[2:]]}
-            elif kw in topo_sections:
-                n = {"Bonds": 2, "Angles": 3, "Dihedrals": 4, "Impropers": 4}
-                parse_line = lambda l: {"type": int(l[1]), kw[:-1].lower():
-                    [int(x) for x in l[2:n[kw] + 2]]}
+                names = ["id1", "id2"] + ["coeff%d" % i
+                                          for i in range(1, df.shape[1] - 1)]
+                df.index.name = None
+            elif kw in SECTION_HEADERS:
+                names = ["id"] + SECTION_HEADERS[kw]
             elif kw == "Atoms":
-                keys = ATOMS_LINE_FORMAT[atom_style][:]
-                sample_l = single_section_lines[1].split()
-                if len(sample_l) == len(keys) + 1:
+                names = ["id"] + ATOMS_HEADERS[atom_style]
+                if df.shape[1] == len(names):
                     pass
-                elif len(sample_l) == len(keys) + 4:
-                    keys += ["nx", "ny", "nz"]
+                elif df.shape[1] == len(names) + 3:
+                    names += ["nx", "ny", "nz"]
                 else:
-                    warnings.warn("Atoms section format might be imcompatible"
-                                  " with atom_style %s." % atom_style)
-                float_keys = [k for k in keys if k in ATOMS_FLOATS]
-                parse_line = lambda l: {k: float(v) if k in float_keys
-                else int(v) for (k, v) in zip(keys, l[1:len(keys) + 1])}
-            elif kw == "Velocities":
-                parse_line = lambda l: {"velocity": [float(x)
-                                                     for x in l[1:4]]}
-            elif kw == "Masses":
-                parse_line = lambda l: {"mass": float(l[1])}
+                    raise ValueError("Format in Atoms section inconsistent"
+                                     " with atom_style" % atom_style)
             else:
-                warnings.warn("%s section parser has not been implemented. "
-                              "Skipping..." % kw)
-                return kw, []
-
-            section = []
-            splitted_lines = [l.split() for l in single_section_lines[1:]]
-            if sort_id and kw != "PairIJ Coeffs":
-                splitted_lines = sorted(splitted_lines,
-                                        key=lambda l: int(l[0]))
-            for l in splitted_lines:
-                line_data = parse_line(l)
-                if kw != "PairIJ Coeffs":
-                    line_data["id"] = int(l[0])
-                section.append(line_data)
-            return kw, section
+                raise NotImplementedError("Parser for %s section"
+                                          " not implemented" % kw)
+            df.columns = names
+            if sort_id:
+                sort_by = "id" if kw != "PairIJ Coeffs" else ["id1", "id2"]
+                df.sort_values(sort_by, inplace=True)
+            if "id" in df.columns:
+                df.set_index("id", drop=True, inplace=True)
+            return kw, df
 
         err_msg = "Bad LAMMPS data format where "
         body = {}
@@ -408,7 +402,8 @@ class LammpsData(MSONable):
             name, section = parse_section(part)
             if name == "Atoms":
                 seen_atoms = True
-            if name in ["Velocities"] + topo_sections and not seen_atoms:
+            if name in ["Velocities"] + SECTION_KEYWORDS["molecule"] and \
+                    not seen_atoms:
                 raise RuntimeError(err_msg + "%s section appears before"
                                              " Atoms section" % name)
             body.update({name: section})
@@ -417,11 +412,11 @@ class LammpsData(MSONable):
         assert len(body["Masses"]) == header["types"]["atom"], \
             err_msg.format("atom types", "Masses")
         atom_sections = ["Atoms", "Velocities"] \
-            if body.get("Velocities") else ["Atoms"]
+            if "Velocities" in body else ["Atoms"]
         for s in atom_sections:
             assert len(body[s]) == header["counts"]["atoms"], \
                 err_msg.format("atoms", s)
-        for s in topo_sections:
+        for s in SECTION_KEYWORDS["molecule"]:
             if header["counts"].get(s.lower(), 0) > 0:
                 assert len(body[s]) == header["counts"][s.lower()], \
                     err_msg.format(s.lower(), s)
@@ -430,11 +425,11 @@ class LammpsData(MSONable):
         items["box_bounds"] = header["bounds"]
         items["box_tilt"] = header.get("tilt")
         items["velocities"] = body.get("Velocities")
-        ff_kws = [k for k in body.keys() if k in SECTION_KEYWORDS["ff"]]
+        ff_kws = [k for k in body if k
+                  in SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]]
         items["force_field"] = {k: body[k] for k in ff_kws} if ff_kws \
             else None
-        topo_kws = [k for k in body.keys()
-                    if k in SECTION_KEYWORDS["molecule"]]
+        topo_kws = [k for k in body if k in SECTION_KEYWORDS["molecule"]]
         items["topology"] = {k: body[k] for k in topo_kws} \
             if topo_kws else None
         items["atom_style"] = atom_style
@@ -485,7 +480,7 @@ class LammpsData(MSONable):
         velocities = [] if topologies[0].velocities else None
         topology = {k: [] for k in SECTION_KEYWORDS["molecule"]}
         stack = {k: 0 for k in ["Atoms"] + SECTION_KEYWORDS["molecule"]}
-        atom_format = ATOMS_LINE_FORMAT[atom_style]
+        atom_format = ATOMS_HEADERS[atom_style]
 
         for mid, topo in enumerate(topologies):
             map_inds = lambda inds: tuple([topo.types[i] for i in inds])
@@ -794,7 +789,7 @@ class ForceField(MSONable):
                 data.append({"id": i + 1, "coeffs": d["coeffs"]})
                 mapper.update({k: i + 1 for k in d["types"]})
         else:
-            raise RuntimeError("Invalid coefficient section keyword")
+            raise ValueError("Invalid coefficient section keyword")
         return {section: data}, mapper
 
     def get_pair_coeffs(self):
