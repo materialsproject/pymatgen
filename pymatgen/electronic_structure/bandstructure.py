@@ -495,6 +495,47 @@ class BandStructure(object):
         dg = self.get_direct_band_gap_dict()
         return min(v['value'] for v in dg.values())
 
+    def get_sym_eq_kpoints(self, kpoint, cartesian=False, tol=1e-2):
+        """
+        Returns a list of unique symmetrically equivalent k-points.
+
+        Args:
+            kpoint (1x3 array): coordinate of the k-point
+            cartesian (bool): kpoint is in cartesian or fractional coordinates
+            tol (float): tolerance below which coordinates are considered equal
+
+        Returns:
+            ([1x3 array] or None): if structure is not available returns None
+        """
+        if not self.structure:
+            return None
+        sg = SpacegroupAnalyzer(self.structure)
+        symmops = sg.get_point_group_operations(cartesian=cartesian)
+        points = np.dot(kpoint, [m.rotation_matrix for m in symmops])
+        rm_list = []
+        # identify and remove duplicates from the list of equivalent k-points:
+        for i in range(len(points) - 1):
+            for j in range(i + 1, len(points)):
+                if np.allclose(pbc_diff(points[i], points[j]), [0, 0, 0], tol):
+                    rm_list.append(i)
+                    break
+        return np.delete(points, rm_list, axis=0)
+
+    def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol=1e-2):
+        """
+        Returns degeneracy of a given k-point based on structure symmetry
+        Args:
+            kpoint (1x3 array): coordinate of the k-point
+            cartesian (bool): kpoint is in cartesian or fractional coordinates
+            tol (float): tolerance below which coordinates are considered equal
+
+        Returns:
+            (int or None): degeneracy or None if structure is not available
+        """
+        all_kpts = self.get_sym_eq_kpoints(kpoint, cartesian, tol=tol)
+        if all_kpts is not None:
+            return len(all_kpts)
+
     def as_dict(self):
         """
         Json-serializable dict representation of BandStructureSymmLine.
@@ -841,47 +882,6 @@ class BandStructureSymmLine(BandStructure, MSONable):
             d['projections'] = {str(int(spin)): v.tolist()
                                 for spin, v in self.projections.items()}
         return d
-
-    def get_sym_eq_kpoints(self, kpoint, cartesian=False, tol=1e-2):
-        """
-        Returns a list of unique symmetrically equivalent k-points.
-
-        Args:
-            kpoint (1x3 array): coordinate of the k-point
-            cartesian (bool): kpoint is in cartesian or fractional coordinates
-            tol (float): tolerance below which coordinates are considered equal
-
-        Returns:
-            ([1x3 array] or None): if structure is not available returns None
-        """
-        if not self.structure:
-            return None
-        sg = SpacegroupAnalyzer(self.structure)
-        symmops = sg.get_point_group_operations(cartesian=cartesian)
-        points = np.dot(kpoint, [m.rotation_matrix for m in symmops])
-        rm_list = []
-        # identify and remove duplicates from the list of equivalent k-points:
-        for i in range(len(points) - 1):
-            for j in range(i + 1, len(points)):
-                if np.allclose(pbc_diff(points[i], points[j]), [0, 0, 0], tol):
-                    rm_list.append(i)
-                    break
-        return np.delete(points, rm_list, axis=0)
-
-    def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol=1e-2):
-        """
-        Returns degeneracy of a given k-point based on structure symmetry
-        Args:
-            kpoint (1x3 array): coordinate of the k-point
-            cartesian (bool): kpoint is in cartesian or fractional coordinates
-            tol (float): tolerance below which coordinates are considered equal
-
-        Returns:
-            (int or None): degeneracy or None if structure is not available
-        """
-        all_kpts = self.get_sym_eq_kpoints(kpoint, cartesian, tol=tol)
-        if all_kpts is not None:
-            return len(all_kpts)
 
     @classmethod
     def from_dict(cls, d):
