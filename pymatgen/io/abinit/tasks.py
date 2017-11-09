@@ -1102,6 +1102,7 @@ class AbinitBuild(object):
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
             print("stderr:", process.stderr.read())
+            #print("stdout:", process.stdout.read())
 
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
         process.stderr.close()
