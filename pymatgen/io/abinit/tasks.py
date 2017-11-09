@@ -1148,6 +1148,7 @@ class AbinitBuild(object):
          Revision  : 1226
          Committed : 0
         """
+        self.version = "0.0.0"
         self.has_netcdf = False
         self.has_omp = False
         self.has_mpi, self.has_mpiio = False, False
