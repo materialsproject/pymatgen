@@ -41,7 +41,7 @@ __credits__ = "Brandon Wood"
 
 SECTION_KEYWORDS = {"atom": ["Atoms", "Velocities", "Masses",
                              "Ellipsoids", "Lines", "Triangles", "Bodies"],
-                    "molecule": ["Bonds", "Angles", "Dihedrals", "Impropers"],
+                    "topology": ["Bonds", "Angles", "Dihedrals", "Impropers"],
                     "ff": ["Pair Coeffs", "PairIJ Coeffs", "Bond Coeffs",
                            "Angle Coeffs", "Dihedral Coeffs",
                            "Improper Coeffs"],
@@ -65,66 +65,42 @@ ATOMS_HEADERS = {"angle": ["molecule-ID", "type", "x", "y", "z"],
                  "full": ["molecule-ID", "type", "q", "x", "y", "z"],
                  "molecular": ["molecule-ID", "type", "x", "y", "z"]}
 
-ATOMS_FLOATS = ["q", "x", "y", "z"]
-
 
 class LammpsData(MSONable):
     """
     Object for representing the data in a LAMMPS data file.
+
     """
 
     def __init__(self, masses, atoms, box_bounds, box_tilt=None,
                  velocities=None, force_field=None, topology=None,
                  atom_style="full"):
         """
-        This constructor is designed to work with parsed data from a
-        file. Not recommended to use directly.
+        This is a low level constructor designed to work with parsed
+        data or other bridging objects (ForceField and Topology). Not
+        recommended to use directly.
 
         Args:
-            masses ([dict]): Data for Masses section.
-                [{"id": 1, "mass": 1.008}, ...]
-            atoms ([dict]): Data for Atoms section. Keys in dicts
-                varies with atom_style.
-                [{"id": 1, "type": 1,
-                  "x": 0.0, "y": 0.0, "z": 0.0, ...}, ...]
+            masses (pandas.DataFrame): DataFrame with one column
+                ["mass"] for Masses section.
+            atoms (pandas.DataFrame): DataFrame with multiple columns
+                for Atoms section. Column names
             box_bounds: A (3, 2) array/list of floats setting the
                 boundaries of simulation box.
             box_tilt: A (3,) array/list of floats setting the tilt of
                 simulation box. Default to None, i.e., use an
                 orthogonal box.
-            velocities ([dict]): Data for Velocities section. Default
-                to None. If not None, its length and ids should be
+            velocities (pandas.DataFrame): DataFrame with three columns
+                ["vx", "vy", "vz"] for Velocities section. Optional
+                with default to None. If not None, its index should be
                 consistent with atoms.
-                [{"id": 1, "velocity": [0.0, 0.0, 0.0]}, ...]
-            force_field (dict): Data for force field sections.
-                Default to None. All six valid keys listed below are
-                optional.
-                {
-                    "Pair Coeffs":
-                        [{"id": 1, "coeffs": [coeff]}, ...],
-                    "Pair IJ Coeffs":
-                        [{"id1": 1, "id2": 1, "coeffs": [coeff]}, ...],
-                    "Bond Coeffs":
-                        [{"id": 1, "coeffs": [coeff]}, ...],
-                    "Angle Coeffs":
-                        [{"id": 1, "coeffs": [coeff]}, ...],
-                    "Dihedral Coeffs":
-                        [{"id": 1, "coeffs": [coeff]}, ...],
-                    "Improper Coeffs":
-                        [{"id": 1, "coeffs": [coeff]}, ...],
-                }
-            topology (dict): Data for topology sections. Default to
-                None. All four valid keys listed below are optional.
-                {
-                    "Bonds":
-                        [{"id": 1, "bond": [1, 2]}, ...],
-                    "Angles":
-                        [{"id": 1, "angle": [2, 1, 3]}, ...],
-                    "Dihedrals":
-                        [{"id": 1, "dihedral": [3, 1, 2, 4]}, ...],
-                    "Impropes":
-                        [{"id": 1, "improper": [3, 1, 2, 4]}, ...],
-                }
+            force_field (dict): Data for force field sections. Optional
+                with default to None. Only keywords in force field and
+                class 2 force field are valid keys, and each value is a
+                DataFrame.
+            topology (dict): Data for topology sections. Optional with
+                default to None. Only keywords in topology are valid
+                keys, and each value is a DataFrame.
             atom_style (str): Output atom_style. Default to "full".
 
         """
@@ -148,13 +124,13 @@ class LammpsData(MSONable):
                 "Inconsistency found between atoms and velocities"
 
         if force_field:
-            ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
+            all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
             force_field = {k: v for k, v in force_field.items()
-                           if k in ff_kws}
+                           if k in all_ff_kws}
 
         if topology:
             topology = {k: v for k, v in topology.items()
-                        if k in SECTION_KEYWORDS["molecule"]}
+                        if k in SECTION_KEYWORDS["topology"]}
 
         self.masses = masses
         self.atoms = atoms
@@ -168,148 +144,111 @@ class LammpsData(MSONable):
     def __str__(self):
         return self.get_string()
 
-    def get_string(self, significant_figures=6):
+    def get_string(self, distance=6, velocity=8, charge=3):
         """
-        Returns the string representation of LammpsData, equivalent to
-        the string that is to be written into a file.
+        Returns the string representation of LammpsData, essentially
+        the string to be written to a file.
 
         Args:
-            significant_figures (int): No. of significant figures of
-                (changeable) quantities to output, default ot 6.
-                Quantities include box bounds and tilt, coordinates,
-                charges and velocities. While other stationary
-                quantities, like masses and force field coefficients,
-                are displayed as-is.
+            distance (int): No. of significant figures to output for
+                box settings (bounds and tilt) and atomic coordinates.
+                Default to 6.
+            velocity (int): No. of significant figures to output for
+                velocities. Default to 8.
+            charge (int): No. of significant figures to output for
+                charges. Default to 3.
 
         Returns:
             String representation
 
         """
-        template = """Generated by pymatgen.io.lammps.data.LammpsData
+        file_template = """Generated by pymatgen.io.lammps.data.LammpsData
 
 {stats}
 
 {box}
 
-{masses}
-
-{ff_sections}
-
-{atoms}
-
-{velocities}
-
-{topo_sections}
+{body}
 """
-
-        contents = {}
-
-        float_ph = "{:.%df}" % significant_figures \
-            if significant_figures else "{}"
-
-        def _pretty_section(title, str_mat):
-            lens = [max(map(len, col)) for col in zip(*str_mat)]
-            fmt = "  ".join("{:>%d}" % x for x in lens)
-            rows = [title, ""] + [fmt.format(*row) for row in str_mat]
-            sec = "\n".join(rows)
-            return sec
-
-        counts = OrderedDict([("atoms", len(self.atoms))])
-        types = OrderedDict([("atom", len(self.masses))])
-
         # box
+        box_ph = "{:.%df}" % distance
         box_lines = []
         for bound, d in zip(self.box_bounds, "xyz"):
             fillers = bound + [d] * 2
-            bound_format = " ".join([float_ph] * 2 + ["{}lo {}hi"])
+            bound_format = " ".join([box_ph] * 2 + ["{}lo {}hi"])
             box_lines.append(bound_format.format(*fillers))
         if self.box_tilt:
-            tilt_format = " ".join([float_ph] * 3 + ["xy xz yz"])
+            tilt_format = " ".join([box_ph] * 3 + ["xy xz yz"])
             box_lines.append(tilt_format.format(*self.box_tilt))
-        contents["box"] = "\n".join(box_lines)
-
-        # masses
-        masses_mat = [["%d" % m["id"], "{:.4f}".format(m["mass"])]
-                      for m in self.masses]
-        contents["masses"] = _pretty_section("Masses", masses_mat)
-
-        # ff_sections
-        contents["ff_sections"] = ""
-        if self.force_field:
-            ff_parts = []
-            for kw in self.force_field.keys():
-                if kw == "PairIJ Coeffs":
-                    ff_mat = [[str(i) for i in
-                               [d["id1"], d["id2"]] + d["coeffs"]]
-                              for d in self.force_field[kw]]
-                else:
-                    ff_mat = [[str(i) for i in [d["id"]] + d["coeffs"]]
-                              for d in self.force_field[kw]]
-                if not kw.startswith("Pair"):
-                    types[kw.lower()[:-7]] = len(ff_mat)
-                ff_parts.append(_pretty_section(kw, ff_mat))
-            contents["ff_sections"] = "\n\n".join(ff_parts)
-
-        # atoms
-        atom_format = ["id"] + ATOMS_HEADERS[self.atom_style]
-        if "nx" in self.atoms[0].keys():
-            atom_format.extend(["nx", "ny", "nz"])
-        map_str = lambda t: float_ph if t in ATOMS_FLOATS else "{}"
-        atoms_mat = []
-        for a in self.atoms:
-            atoms_mat.append([map_str(k).format(a[k]) for k in atom_format])
-        contents["atoms"] = _pretty_section("Atoms", atoms_mat)
-
-        # velocities
-        contents["velocities"] = ""
-        if self.velocities:
-            velocities_mat = []
-            for v in self.velocities:
-                vs = [float_ph.format(i) for i in v["velocity"]]
-                velocities_mat.append(["%d" % v["id"]] + vs)
-            contents["velocities"] = _pretty_section("Velocities",
-                                                     velocities_mat)
-
-        # topo_sections
-        contents["topo_sections"] = ""
-        if self.topology:
-            topo_parts = []
-            topo_keys = [k for k in SECTION_KEYWORDS["molecule"]
-                         if k in self.topology]
-            for kw in topo_keys:
-                skw = kw.lower()[:-1]
-                topo_mat = [["%d" % v for v in [d["id"], d["type"]] + d[skw]]
-                            for d in self.topology[kw]]
-                counts[kw.lower()] = len(topo_mat)
-                topo_parts.append(_pretty_section(kw, topo_mat))
-            contents["topo_sections"] = "\n\n".join(topo_parts)
+        box = "\n".join(box_lines)
 
         # stats
+        body_dict = OrderedDict()
+        body_dict["Masses"] = self.masses
+        types = OrderedDict()
+        types["atom"] = len(self.masses)
+        if self.force_field:
+            all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
+            ff_kws = [k for k in all_ff_kws if k in self.force_field]
+            for kw in ff_kws:
+                body_dict[kw] = self.force_field[kw]
+                if kw in SECTION_KEYWORDS["ff"][2:]:
+                    types[kw.lower()[:-7]] = len(self.force_field[kw])
+
+        body_dict["Atoms"] = self.atoms
+        counts = OrderedDict()
+        counts["atoms"] = len(self.atoms)
+        if self.velocities is not None:
+            body_dict["Velocities"] = self.velocities
+        if self.topology:
+            for kw in SECTION_KEYWORDS["topology"]:
+                if kw in self.topology:
+                    body_dict[kw] = self.topology[kw]
+                    counts[kw.lower()] = len(self.topology[kw])
+
         all_stats = list(counts.values()) + list(types.values())
         line_fmt = "{:>%d} {}" % len(str(max(all_stats)))
         count_lines = [line_fmt.format(v, k) for k, v in counts.items()]
         type_lines = [line_fmt.format(v, k + " types")
                       for k, v in types.items()]
-        contents["stats"] = "\n".join(count_lines + [""] + type_lines)
+        stats = "\n".join(count_lines + [""] + type_lines)
 
-        return template.format(**contents)
+        # body sections
+        map_coords = lambda q: ("{:.%df}" % distance).format(q)
+        map_velos = lambda q: ("{:.%df}" % velocity).format(q)
+        map_charges = lambda q: ("{:.%df}" % charge).format(q)
+        formatters = {"x": map_coords, "y": map_coords, "z": map_coords,
+                      "vx": map_velos, "vy": map_velos, "vz": map_velos,
+                      "q": map_charges}
+        section_template = "{kw}\n\n{df}\n"
+        parts = []
+        for k, v in body_dict.items():
+            index = True if k != "PairIJ Coeffs" else False
+            df_string = v.to_string(header=False, formatters=formatters,
+                                    index_names=False, index=index)
+            parts.append(section_template.format(kw=k, df=df_string))
+        body = "\n".join(parts)
 
-    def write_file(self, filename, significant_figures=6):
+        return file_template.format(stats=stats, box=box, body=body)
+
+    def write_file(self, filename, distance=6, velocity=8, charge=3):
         """
         Writes LammpsData to file.
 
         Args:
-            filename (str): Filename to write to.
-            significant_figures (int): No. of significant figures of
-                (changeable) quantities to output, default ot 6.
-                Quantities include box bounds and tilt, coordinates,
-                charges and velocities. While other stationary
-                quantities, like masses and force field coefficients,
-                are displayed as-is.
+            filename (str): Filename write.
+            distance (int): No. of significant figures to output for
+                box settings (bounds and tilt) and atomic coordinates.
+                Default to 6.
+            velocity (int): No. of significant figures to output for
+                velocities. Default to 8.
+            charge (int): No. of significant figures to output for
+                charges. Default to 3.
 
         """
         with open(filename, "w") as f:
-            f.write(self.get_string(significant_figures=significant_figures))
+            f.write(self.get_string(distance=distance, velocity=velocity,
+                                    charge=charge))
 
     @classmethod
     def from_file(cls, filename, atom_style="full", sort_id=False):
@@ -342,7 +281,7 @@ class LammpsData(MSONable):
 
         header = {"counts": {}, "types": {}}
         bounds = {}
-        for l in parts[0][1:]:  # skip the 1st line
+        for l in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
             for k, v in header_pattern.items():
                 match = re.match(v, l)
@@ -363,7 +302,7 @@ class LammpsData(MSONable):
         def parse_section(lines):
             title_info = lines[0].split('#', 1)
             kw = title_info[0].strip()
-            sio = StringIO("".join(lines[2:])) # skip the 2nd line
+            sio = StringIO("".join(lines[2:]))  # skip the 2nd line
             df = pd.read_csv(sio, header=None, comment="#",
                              delim_whitespace=True)
             if kw.endswith("Coeffs") and not kw.startswith("PairIJ"):
@@ -383,7 +322,7 @@ class LammpsData(MSONable):
                     names += ["nx", "ny", "nz"]
                 else:
                     raise ValueError("Format in Atoms section inconsistent"
-                                     " with atom_style" % atom_style)
+                                     " with atom_style %s" % atom_style)
             else:
                 raise NotImplementedError("Parser for %s section"
                                           " not implemented" % kw)
@@ -402,7 +341,7 @@ class LammpsData(MSONable):
             name, section = parse_section(part)
             if name == "Atoms":
                 seen_atoms = True
-            if name in ["Velocities"] + SECTION_KEYWORDS["molecule"] and \
+            if name in ["Velocities"] + SECTION_KEYWORDS["topology"] and \
                     not seen_atoms:
                 raise RuntimeError(err_msg + "%s section appears before"
                                              " Atoms section" % name)
@@ -416,7 +355,7 @@ class LammpsData(MSONable):
         for s in atom_sections:
             assert len(body[s]) == header["counts"]["atoms"], \
                 err_msg.format("atoms", s)
-        for s in SECTION_KEYWORDS["molecule"]:
+        for s in SECTION_KEYWORDS["topology"]:
             if header["counts"].get(s.lower(), 0) > 0:
                 assert len(body[s]) == header["counts"][s.lower()], \
                     err_msg.format(s.lower(), s)
@@ -429,7 +368,7 @@ class LammpsData(MSONable):
                   in SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]]
         items["force_field"] = {k: body[k] for k in ff_kws} if ff_kws \
             else None
-        topo_kws = [k for k in body if k in SECTION_KEYWORDS["molecule"]]
+        topo_kws = [k for k in body if k in SECTION_KEYWORDS["topology"]]
         items["topology"] = {k: body[k] for k in topo_kws} \
             if topo_kws else None
         items["atom_style"] = atom_style
@@ -478,8 +417,8 @@ class LammpsData(MSONable):
 
         atoms = []
         velocities = [] if topologies[0].velocities else None
-        topology = {k: [] for k in SECTION_KEYWORDS["molecule"]}
-        stack = {k: 0 for k in ["Atoms"] + SECTION_KEYWORDS["molecule"]}
+        topology = {k: [] for k in SECTION_KEYWORDS["topology"]}
+        stack = {k: 0 for k in ["Atoms"] + SECTION_KEYWORDS["topology"]}
         atom_format = ATOMS_HEADERS[atom_style]
 
         for mid, topo in enumerate(topologies):
@@ -594,7 +533,7 @@ class Topology(MSONable):
 
         if topologies:
             topologies = {k: topologies[k] for k in
-                          SECTION_KEYWORDS["molecule"] if k in topologies}
+                          SECTION_KEYWORDS["topology"] if k in topologies}
 
         self.sites = sites
         self.atom_type = atom_type
@@ -668,7 +607,7 @@ class Topology(MSONable):
                                           if k != l])
 
             topologies = {k: v for k, v
-                          in zip(SECTION_KEYWORDS["molecule"][:3],
+                          in zip(SECTION_KEYWORDS["topology"][:3],
                                  [bond_list, angle_list, dihedral_list])
                           if len(v) > 0}
             topologies = None if len(topologies) == 0 else topologies
@@ -679,6 +618,7 @@ class Topology(MSONable):
 class ForceField(MSONable):
     """
     Class carrying most data in Masses and force field sections.
+
     """
 
     def __init__(self, mass_info, pair_coeffs=None, mol_coeffs=None):
