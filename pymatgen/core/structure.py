@@ -1473,7 +1473,9 @@ class IStructure(SiteCollection, MSONable):
                 or fnmatch(fname, "*bestsqs*"):
             if filename:
                 with zopen(fname, "wt", encoding='ascii') as f:
-                    return Mcsqs(self).to_string()
+                    s = Mcsqs(self).to_string()
+                    f.write(s)
+                    return
             else:
                 return Mcsqs(self).to_string()
         else:
