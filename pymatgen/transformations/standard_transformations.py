@@ -696,13 +696,18 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
         self.max_denominator = max_denominator
         self.tol = tol
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure,fix_denominator=False):
         """
         Discretizes the site occupancies in the structure.
 
         Args:
             structure: disordered Structure to discretize occupancies
 
+            to_max(bool): 
+              if True, will enforce a common denominator for all species. 
+              This prevents a mix of denominators (for example, 1/3, 1/4) 
+              that might require large cell sizes to perform an enumeration.
+            
         Returns:
             A new disordered Structure with occupancies discretized
         """
@@ -716,7 +721,9 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
                 old_occ = sp[k]
                 new_occ = float(
                     Fraction(old_occ).limit_denominator(self.max_denominator))
-                if round(abs(old_occ - new_occ), 6) > (
+                if fix_denominator: 
+                        new_occ = round(old_occ*self.max_denominator)/self.max_denominator
+                elif round(abs(old_occ - new_occ), 6) > (
                         1 / self.max_denominator / 2) * self.tol:
                     raise RuntimeError(
                         "Cannot discretize structure within tolerance!")
