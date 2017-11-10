@@ -170,19 +170,20 @@ class LammpsData(MSONable):
 
 {body}
 """
-        # box
+        # format box
         box_ph = "{:.%df}" % distance
         box_lines = []
         for bound, d in zip(self.box_bounds, "xyz"):
             fillers = bound + [d] * 2
-            bound_format = " ".join([box_ph] * 2 + ["{}lo {}hi"])
+            bound_format = " ".join([box_ph] * 2 + [" {}lo {}hi"])
             box_lines.append(bound_format.format(*fillers))
         if self.box_tilt:
-            tilt_format = " ".join([box_ph] * 3 + ["xy xz yz"])
+            tilt_format = " ".join([box_ph] * 3 + [" xy xz yz"])
             box_lines.append(tilt_format.format(*self.box_tilt))
         box = "\n".join(box_lines)
 
-        # stats
+        # collect stats and sections
+        # force field
         body_dict = OrderedDict()
         body_dict["Masses"] = self.masses
         types = OrderedDict()
@@ -195,6 +196,7 @@ class LammpsData(MSONable):
                 if kw in SECTION_KEYWORDS["ff"][2:]:
                     types[kw.lower()[:-7]] = len(self.force_field[kw])
 
+        # topology
         body_dict["Atoms"] = self.atoms
         counts = OrderedDict()
         counts["atoms"] = len(self.atoms)
@@ -206,14 +208,15 @@ class LammpsData(MSONable):
                     body_dict[kw] = self.topology[kw]
                     counts[kw.lower()] = len(self.topology[kw])
 
+        # format stats
         all_stats = list(counts.values()) + list(types.values())
-        line_fmt = "{:>%d} {}" % len(str(max(all_stats)))
-        count_lines = [line_fmt.format(v, k) for k, v in counts.items()]
-        type_lines = [line_fmt.format(v, k + " types")
+        stats_template = "{:>%d}  {}" % len(str(max(all_stats)))
+        count_lines = [stats_template.format(v, k) for k, v in counts.items()]
+        type_lines = [stats_template.format(v, k + " types")
                       for k, v in types.items()]
         stats = "\n".join(count_lines + [""] + type_lines)
 
-        # body sections
+        # format sections
         map_coords = lambda q: ("{:.%df}" % distance).format(q)
         map_velos = lambda q: ("{:.%df}" % velocity).format(q)
         map_charges = lambda q: ("{:.%df}" % charge).format(q)
@@ -253,7 +256,7 @@ class LammpsData(MSONable):
     @classmethod
     def from_file(cls, filename, atom_style="full", sort_id=False):
         """
-        Constructor from parsing a file.
+        Constructor that parses a file.
 
         Args:
             filename (str): Filename to read.
