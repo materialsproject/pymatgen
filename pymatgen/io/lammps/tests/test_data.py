@@ -358,6 +358,26 @@ class LammpsDataTest(unittest.TestCase):
                                  for j in sample])
             self.assertIn(sample_type, types, "%s" % t)
 
+    def test_json_dict(self):
+        encoded = json.dumps(self.ethane.as_dict())
+        decoded = json.loads(encoded)
+        c2h6 = LammpsData.from_dict(decoded)
+        pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
+        pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
+        ff = self.ethane.force_field
+        key, target_df = random.sample(ff.items(), 1)[0]
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(c2h6.force_field[key], target_df,
+                                          check_dtype=False),
+            key
+        )
+        topo = self.ethane.topology
+        key, target_df = random.sample(topo.items(), 1)[0]
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(c2h6.topology[key], target_df),
+            key
+        )
+
     @classmethod
     def tearDownClass(cls):
         tmpfiles = ["test1.data", "test2.data"]

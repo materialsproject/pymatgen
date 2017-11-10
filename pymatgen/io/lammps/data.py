@@ -335,6 +335,7 @@ class LammpsData(MSONable):
                 df.sort_values(sort_by, inplace=True)
             if "id" in df.columns:
                 df.set_index("id", drop=True, inplace=True)
+                df.index.name = None
             return kw, df
 
         err_msg = "Bad LAMMPS data format where "
@@ -471,6 +472,49 @@ class LammpsData(MSONable):
         items.update({"atoms": atoms, "velocities": velocities,
                       "topology": topology})
         return cls(**items)
+
+    @classmethod
+    def from_dict(cls, d):
+        decode_df = lambda s: pd.read_json(s, orient="split")
+        items = dict()
+        items["masses"] = decode_df(d["masses"])
+        items["atoms"] = decode_df(d["atoms"])
+        items["box_bounds"] = d["box_bounds"]
+        items["box_tilt"] = d["box_tilt"]
+        items["atom_style"] = d["atom_style"]
+
+        velocities = d["velocities"]
+        if velocities:
+            velocities = decode_df(velocities)
+        items["velocities"] = velocities
+        force_field = d["force_field"]
+        if force_field:
+            force_field = {k: decode_df(v) for k, v in force_field.items()}
+        items["force_field"] = force_field
+        topology = d["topology"]
+        if topology:
+            topology = {k: decode_df(v) for k, v in topology.items()}
+        items["topology"] = topology
+        return cls(**items)
+
+    def as_dict(self):
+        encode_df = lambda df: df.to_json(orient="split")
+        d = dict()
+        d["@module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
+        d["masses"] = encode_df(self.masses)
+        d["atoms"] = encode_df(self.atoms)
+        d["box_bounds"] = self.box_bounds
+        d["box_tilt"] = self.box_tilt
+        d["atom_style"] = self.atom_style
+
+        d["velocities"] = None if self.velocities is None \
+            else encode_df(self.velocities)
+        d["force_field"] = None if not self.force_field \
+            else {k: encode_df(v) for k, v in self.force_field.items()}
+        d["topology"] = None if not self.topology \
+            else {k: encode_df(v) for k, v in self.topology.items()}
+        return d
 
 
 class Topology(MSONable):
