@@ -50,6 +50,8 @@ class StrategyWeightsTest(PymatgenTest):
         aw = angle_weight.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(aw, 0.98154747307613843, delta=1e-8)
 
+        self.assertNotEqual(AngleNbSetWeight(1.0), AngleNbSetWeight(2.0))
+
         # nb_set with no neighbor
         fake_nb_set.angles = []
         angle_weight = AngleNbSetWeight(aa=1.0)
@@ -98,6 +100,9 @@ class StrategyWeightsTest(PymatgenTest):
         nadw8 = NormalizedAngleDistanceNbSetWeight(average_type='arithmetic', aa=2, bb=0)
         nadw9 = NormalizedAngleDistanceNbSetWeight(average_type='arithmetic', aa=0, bb=2)
         nadw10 = NormalizedAngleDistanceNbSetWeight(average_type='arithmetic', aa=2, bb=2)
+        nadw11 = NormalizedAngleDistanceNbSetWeight(average_type='geometric', aa=1, bb=2)
+        nadw12 = NormalizedAngleDistanceNbSetWeight(average_type='geometric', aa=2, bb=1)
+        self.assertNotEqual(nadw11, nadw12)
         with self.assertRaisesRegexp(ValueError, 'Both exponents are 0.'):
             NormalizedAngleDistanceNbSetWeight(average_type='arithmetic', aa=0, bb=0)
         with self.assertRaisesRegexp(ValueError, 'Average type is "arithmetix" '
@@ -128,6 +133,10 @@ class StrategyWeightsTest(PymatgenTest):
         self.assertAlmostEqual(w9, 0.7668954450583646, delta=1e-8)
         w10 = nadw10.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w10, 0.51313920014833292, delta=1e-8)
+        w11 = nadw11.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
+        self.assertAlmostEqual(w11, 0.585668617459, delta=1e-8)
+        w12 = nadw12.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
+        self.assertAlmostEqual(w12, 0.520719679281, delta=1e-8)
 
     def test_CN_bias_weight(self):
         fake_nb_set = FakeNbSet()
@@ -163,6 +172,30 @@ class StrategyWeightsTest(PymatgenTest):
         w3 = bias_weight3.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w3, 4.8, delta=1e-8)
 
+        bias_weight4 = CNBiasNbSetWeight.from_description({'type': 'linearly_equidistant',
+                                                           'weight_cn1': 2.0,
+                                                           'weight_cn13': 26.0})
+        for cn in range(1, 14):
+            self.assertAlmostEqual(bias_weight4.cn_weights[cn], 2.0*cn)
+
+        bias_weight5 = CNBiasNbSetWeight.from_description({'type': 'geometrically_equidistant',
+                                                           'weight_cn1': 1.0,
+                                                           'weight_cn13': 13.0})
+        self.assertAlmostEqual(bias_weight5.cn_weights[1], 1.0)
+        self.assertAlmostEqual(bias_weight5.cn_weights[3], 1.5334062370163877)
+        self.assertAlmostEqual(bias_weight5.cn_weights[9], 5.5287748136788739)
+        self.assertAlmostEqual(bias_weight5.cn_weights[12], 10.498197520079623)
+
+        cn_weights = {cn: 0.0 for cn in range(1, 14)}
+        cn_weights[6] = 2.0
+        cn_weights[4] = 1.0
+        bias_weight6 = CNBiasNbSetWeight.from_description({'type': 'explicit',
+                                                           'cn_weights': cn_weights})
+
+        self.assertAlmostEqual(bias_weight6.cn_weights[1], 0.0)
+        self.assertAlmostEqual(bias_weight6.cn_weights[4], 1.0)
+        self.assertAlmostEqual(bias_weight6.cn_weights[6], 2.0)
+
     def test_self_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
         f = open(os.path.join(se_files_dir, 'se_mp-743972.json'), 'r')
@@ -179,10 +212,17 @@ class StrategyWeightsTest(PymatgenTest):
         weight_estimator = {'function': 'power2_decreasing_exp',
                             'options': {'max_csm': 8.0,
                                         'alpha': 1.0}}
+        weight_estimator2 = {'function': 'power2_decreasing_exp',
+                             'options': {'max_csm': 8.1,
+                                         'alpha': 1.0}}
         symmetry_measure_type = 'csm_wcs_ctwcc'
         self_weight = SelfCSMNbSetWeight(effective_csm_estimator=effective_csm_estimator,
                                          weight_estimator=weight_estimator,
                                          symmetry_measure_type=symmetry_measure_type)
+        self_weight2 = SelfCSMNbSetWeight(effective_csm_estimator=effective_csm_estimator,
+                                          weight_estimator=weight_estimator2,
+                                          symmetry_measure_type=symmetry_measure_type)
+        self.assertNotEqual(self_weight, self_weight2)
 
         additional_info = {}
         cn_map = (12, 3)

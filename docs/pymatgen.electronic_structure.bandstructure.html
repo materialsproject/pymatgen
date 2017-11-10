@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.bandstructure module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.electronic_structure.bandstructure module &#8212; pymatgen 2017.11.6 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2017.11.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.6 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -241,6 +241,22 @@ BandStructure: {spin:{‘Orbital’: [proj]}} where the array
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the value of the direct band gap</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap_dict">
+<code class="descname">get_direct_band_gap_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_direct_band_gap_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary of information about the direct
+band gap</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary of the band gaps indexed by spin
+along with their band indices and k-point index</td>
 </tr>
 </tbody>
 </table>
@@ -468,6 +484,53 @@ same frac coords) to the given one.</p>
 (in case there was a mislabel)</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_kpoint_degeneracy">
+<code class="descname">get_kpoint_degeneracy</code><span class="sig-paren">(</span><em>kpoint</em>, <em>cartesian=False</em>, <em>tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.get_kpoint_degeneracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_kpoint_degeneracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns degeneracy of a given k-point based on structure symmetry
+:param kpoint: coordinate of the k-point
+:type kpoint: 1x3 array
+:param cartesian: kpoint is in cartesian or fractional coordinates
+:type cartesian: bool
+:param tol: tolerance below which coordinates are considered equal
+:type tol: float</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">degeneracy or None if structure is not available</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(int or None)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_sym_eq_kpoints">
+<code class="descname">get_sym_eq_kpoints</code><span class="sig-paren">(</span><em>kpoint</em>, <em>cartesian=False</em>, <em>tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.get_sym_eq_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_sym_eq_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of unique symmetrically equivalent k-points.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>kpoint</strong> (<em>1x3 array</em>) – coordinate of the k-point</li>
+<li><strong>cartesian</strong> (<em>bool</em>) – kpoint is in cartesian or fractional coordinates</li>
+<li><strong>tol</strong> (<em>float</em>) – tolerance below which coordinates are considered equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">if structure is not available returns None</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">([1x3 array] or None)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -613,13 +676,13 @@ the type of the list_bs objects)</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.6 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

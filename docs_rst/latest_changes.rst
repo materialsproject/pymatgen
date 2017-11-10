@@ -1,7 +1,7 @@
 Change log
 ==========
 
-v2017.9.29
+v2017.11.9
 ----------
-* critic2 command line caller for topological analysis (M. Horton)
-* Refactor coord_util -> coord.
+* Massive rewrite of LAMMPSData to support more functionality (Zhi Deng)
+* Misc bug fixes.

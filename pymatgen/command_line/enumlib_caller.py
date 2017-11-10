@@ -9,6 +9,8 @@ import math
 import subprocess
 import itertools
 import logging
+import glob
+import warnings
 
 import numpy as np
 from monty.fractions import lcm
@@ -29,7 +31,7 @@ from monty.tempfile import ScratchDir
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
 
-This module depends on a compiled enumlib with the executables multienum.x and
+This module depends on a compiled enumlib with the executables enum.x and
 makestr.x available in the path. Please download the library at
 http://enum.sourceforge.net/ and follow the instructions in the README to
 compile these two executables accordingly.
@@ -61,12 +63,14 @@ logger = logging.getLogger(__name__)
 # Favor the use of the newer "enum.x" by Gus Hart instead of the older
 # "multienum.x"
 enum_cmd = which('enum.x') or which('multienum.x')
-makestr_cmd = which('makestr.x') or which('makeStr.x')
+# prefer makestr.x at present
+makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
+
 
 @requires(enum_cmd and makestr_cmd,
           "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
-          "and 'makestr.x' to be in the path. Please download the library at"
-          "http://enum.sourceforge.net/ and follow the instructions in "
+          "and 'makestr.x' or 'makeStr.py' to be in the path. Please download the "
+          "library at http://enum.sourceforge.net/ and follow the instructions in "
           "the README to compile these two executables accordingly.")
 class EnumlibAdaptor(object):
     """
@@ -129,23 +133,16 @@ class EnumlibAdaptor(object):
         # Create a temporary directory for working.
         with ScratchDir(".") as d:
             logger.debug("Temp dir : {}".format(d))
-            try:
-                # Generate input files
-                self._gen_input_file()
-                # Perform the actual enumeration
-                num_structs = self._run_multienum()
-                # Read in the enumeration output as structures.
-                if num_structs > 0:
-                    self.structures = self._get_structures(num_structs)
-                else:
-                    raise ValueError("Unable to enumerate structure.")
-            except Exception:
-                import sys
-                import traceback
+            # Generate input files
+            self._gen_input_file()
+            # Perform the actual enumeration
+            num_structs = self._run_multienum()
+            # Read in the enumeration output as structures.
+            if num_structs > 0:
+                self.structures = self._get_structures(num_structs)
+            else:
+                raise EnumError("Unable to enumerate structure.")
 
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                          limit=10, file=sys.stdout)
 
     def _gen_input_file(self):
         """
@@ -213,7 +210,7 @@ class EnumlibAdaptor(object):
 
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         min_sgnum = get_sg_info(curr_sites)
-        logger.debug("Disorderd sites has sgnum %d" % (
+        logger.debug("Disordered sites has sgnum %d" % (
             min_sgnum))
         # It could be that some of the ordered sites has a lower symmetry than
         # the disordered sites.  So we consider the lowest symmetry sites as
@@ -306,25 +303,40 @@ class EnumlibAdaptor(object):
 
     def _get_structures(self, num_structs):
         structs = []
-        rs = subprocess.Popen([makestr_cmd,
-                               "struct_enum.out", str(0),
-                               str(num_structs - 1)],
+
+        if ".py" in makestr_cmd:
+            options = ["-input", "struct_enum.out", str(1), str(num_structs)]
+        else:
+            options = ["struct_enum.out", str(0), str(num_structs - 1)]
+
+        rs = subprocess.Popen([makestr_cmd] + options,
                               stdout=subprocess.PIPE,
                               stdin=subprocess.PIPE, close_fds=True)
-        rs.communicate()
+        stdout, stderr = rs.communicate()
+        if stderr:
+            logger.warning(stderr.decode())
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
             # Need to strip sites of site_properties, which would otherwise
             # result in an index error. Hence Structure is reconstructed in
             # the next step.
+            site_properties = {}
+            for site in self.ordered_sites:
+                for k, v in site.properties.items():
+                    if k in site_properties:
+                        site_properties[k].append(v)
+                    else:
+                        site_properties[k] = [v]
             ordered_structure = Structure(
                 original_latt,
                 [site.species_and_occu for site in self.ordered_sites],
-                [site.frac_coords for site in self.ordered_sites])
+                [site.frac_coords for site in self.ordered_sites],
+                site_properties=site_properties
+            )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
 
-        for n in range(1, num_structs + 1):
-            with open("vasp.{:06d}".format(n)) as f:
+        for file in glob.glob('vasp.*'):
+            with open(file) as f:
                 data = f.read()
                 data = re.sub(r'scale factor', "1", data)
                 data = re.sub(r'(\d+)-(\d+)', r'\1 -\2', data)
@@ -353,7 +365,13 @@ class EnumlibAdaptor(object):
                         sites.append(PeriodicSite(site.species_and_occu,
                                                   site.frac_coords,
                                                   super_latt).to_unit_cell)
+                    else:
+                        warnings.warn("Skipping sites that include species X.")
                 structs.append(Structure.from_sites(sorted(sites)))
 
         logger.debug("Read in a total of {} structures.".format(num_structs))
         return structs
+
+
+class EnumError(BaseException):
+    pass

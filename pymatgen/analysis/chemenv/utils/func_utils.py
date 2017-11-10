@@ -22,7 +22,7 @@ from pymatgen.analysis.chemenv.utils.math_utils import power2_inverse_decreasing
 from pymatgen.analysis.chemenv.utils.math_utils import power2_inverse_power2_decreasing
 
 
-class RatioFunction(object):
+class AbstractRatioFunction(object):
 
     ALLOWED_FUNCTIONS = {}
 
@@ -79,8 +79,45 @@ class RatioFunction(object):
     def evaluate(self, value):
         return self.eval(value)
 
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(function=dd['function'], options_dict=dd['options'])
 
-class CSMFiniteRatioFunction(RatioFunction):
+
+class RatioFunction(AbstractRatioFunction):
+    ALLOWED_FUNCTIONS = {'power2_decreasing_exp': ['max', 'alpha'],
+                         'smoothstep': ['lower', 'upper'],
+                         'smootherstep': ['lower', 'upper'],
+                         'inverse_smoothstep': ['lower', 'upper'],
+                         'inverse_smootherstep': ['lower', 'upper'],
+                         'power2_inverse_decreasing': ['max'],
+                         'power2_inverse_power2_decreasing': ['max']
+                         }
+
+    def power2_decreasing_exp(self, vals):
+        return power2_decreasing_exp(vals, edges=[0.0, self.__dict__['max']], alpha=self.__dict__['alpha'])
+
+    def smootherstep(self, vals):
+        return smootherstep(vals, edges=[self.__dict__['lower'], self.__dict__['upper']])
+
+    def smoothstep(self, vals):
+        return smootherstep(vals, edges=[self.__dict__['lower'], self.__dict__['upper']])
+
+    def inverse_smootherstep(self, vals):
+        return smootherstep(vals, edges=[self.__dict__['lower'], self.__dict__['upper']], inverse=True)
+
+    def inverse_smoothstep(self, vals):
+        return smootherstep(vals, edges=[self.__dict__['lower'], self.__dict__['upper']], inverse=True)
+
+    def power2_inverse_decreasing(self, vals):
+        return power2_inverse_decreasing(vals, edges=[0.0, self.__dict__['max']])
+
+    def power2_inverse_power2_decreasing(self, vals):
+        return power2_inverse_power2_decreasing(vals, edges=[0.0, self.__dict__['max']])
+
+
+
+class CSMFiniteRatioFunction(AbstractRatioFunction):
 
     ALLOWED_FUNCTIONS = {'power2_decreasing_exp': ['max_csm', 'alpha'],
                          'smoothstep': ['lower_csm', 'upper_csm'],
@@ -116,14 +153,10 @@ class CSMFiniteRatioFunction(RatioFunction):
                 return None
             return np.sum(np.array(fractions) * np.array(data))
 
-    @classmethod
-    def from_dict(cls, dd):
-        return cls(function=dd['function'], options_dict=dd['options'])
-
     ratios = fractions
 
 
-class CSMInfiniteRatioFunction(RatioFunction):
+class CSMInfiniteRatioFunction(AbstractRatioFunction):
 
     ALLOWED_FUNCTIONS = {'power2_inverse_decreasing': ['max_csm'],
                          'power2_inverse_power2_decreasing': ['max_csm']}
@@ -164,20 +197,13 @@ class CSMInfiniteRatioFunction(RatioFunction):
                 return None
             return np.sum(np.array(fractions) * np.array(data))
 
-    @classmethod
-    def from_dict(cls, dd):
-        return cls(function=dd['function'], options_dict=dd['options'])
-
     ratios = fractions
 
 
-class DeltaCSMRatioFunction(RatioFunction):
+class DeltaCSMRatioFunction(AbstractRatioFunction):
 
     ALLOWED_FUNCTIONS = {'smootherstep': ['delta_csm_min', 'delta_csm_max']}
 
     def smootherstep(self, vals):
         return smootherstep(vals, edges=[self.__dict__['delta_csm_min'], self.__dict__['delta_csm_max']])
 
-    @classmethod
-    def from_dict(cls, dd):
-        return cls(function=dd['function'], options_dict=dd['options'])

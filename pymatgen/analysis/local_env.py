@@ -832,7 +832,7 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, \
             struct, n, approach=approach, delta=delta, cutoff=cutoff)
     neighs_cent.append(struct.sites[n])
     opvals = ops.get_order_parameters(
-            neighs_cent, len(neighs_cent)-1, indeces_neighs=[
+            neighs_cent, len(neighs_cent)-1, indices_neighs=[
             i for i in range(len(neighs_cent)-1)])
     cn = int(opvals[0] + 0.5)
     motif_type = "unrecognized"
