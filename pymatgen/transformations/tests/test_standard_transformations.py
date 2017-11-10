@@ -459,16 +459,17 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
         s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
                       [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-        dot_2 = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
+        dot_2 = DiscretizeOccupanciesTransformation(max_denominator=9, tol=1)
+
         s_2 = dot_2.apply_transformation(s_orig_2,fix_denominator=False)
-        self.assertEqual(dict(s_2[0].species_and_occu), {Element("Li"): 0.5,
-                                                       Element("Na"): 0.25,
-                                                       Element("K"): 0.25})
+        self.assertEqual(dict(s_2[0].species_and_occu), {Element("Li"): Fraction(1/2),
+                                                       Element("Na"): Fraction(1/4),
+                                                       Element("K"): Fraction(1/4)})
 
         s_3 = dot_2.apply_transformation(s_orig_2,fix_denominator=True)
-        self.assertEqual(dict(s_3[0].species_and_occu), {Element("Li"): 0.4,
-                                                       Element("Na"): 0.2,
-                                                       Element("K"): 0.2})
+        self.assertEqual(dict(s_3[0].species_and_occu), {Element("Li"): Fraction(4/9),
+                                                       Element("Na"): Fraction(2/9),
+                                                       Element("K"): Fraction(2/9)})
 
 if __name__ == "__main__":
     unittest.main()
