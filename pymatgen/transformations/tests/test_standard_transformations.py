@@ -456,14 +456,18 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
         dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.1)
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig)
 
-        s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.3, "K": 0.2}, {"O": 1}],
+        s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
                       [[0, 0, 0], [0.5, 0.5, 0.5]])
-        dot_2 = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
-        self.assertRaises(ValueError, dot_2.apply_transformation, s_orig_2)
 
-        s_2 = dot.apply_transformation(s_orig_2,fix_denominator=True)
-        self.assertEqual(dict(s_2[0].species_and_occu), {Element("Li"): 0.4,
-                                                       Element("Na"): 0.4,
+        dot_2 = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
+        s_2 = dot_2.apply_transformation(s_orig_2,fix_denominator=False)
+        self.assertEqual(dict(s_2[0].species_and_occu), {Element("Li"): 0.5,
+                                                       Element("Na"): 0.25,
+                                                       Element("K"): 0.25})
+
+        s_3 = dot_2.apply_transformation(s_orig_2,fix_denominator=True)
+        self.assertEqual(dict(s_3[0].species_and_occu), {Element("Li"): 0.4,
+                                                       Element("Na"): 0.2,
                                                        Element("K"): 0.2})
 
 if __name__ == "__main__":
