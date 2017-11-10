@@ -690,24 +690,27 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
             discretized occupancies before throwing an error. The maximum
             allowed difference is calculated as 1/max_denominator * 0.5 * tol.
             A tol of 1.0 indicates to try to accept all discretizations.
+
+        fix_denominator(bool): 
+            If True, will enforce a common denominator for all species. 
+            This prevents a mix of denominators (for example, 1/3, 1/4) 
+            that might require large cell sizes to perform an enumeration.
+            'tol' needs to be > 1.0 in some cases.
+            
     """
 
-    def __init__(self, max_denominator=5, tol=0.25):
+    def __init__(self, max_denominator=5, tol=0.25, fix_denominator=False):
         self.max_denominator = max_denominator
         self.tol = tol
+        self.fix_denominator = fix_denominator
 
-    def apply_transformation(self, structure,fix_denominator=False):
+    def apply_transformation(self, structure):
         """
         Discretizes the site occupancies in the structure.
 
         Args:
             structure: disordered Structure to discretize occupancies
 
-            to_max(bool): 
-              if True, will enforce a common denominator for all species. 
-              This prevents a mix of denominators (for example, 1/3, 1/4) 
-              that might require large cell sizes to perform an enumeration.
-            
         Returns:
             A new disordered Structure with occupancies discretized
         """
@@ -721,9 +724,9 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
                 old_occ = sp[k]
                 new_occ = float(
                     Fraction(old_occ).limit_denominator(self.max_denominator))
-                if fix_denominator: 
+                if self.fix_denominator: 
                         new_occ = round(old_occ*self.max_denominator)/self.max_denominator
-                elif round(abs(old_occ - new_occ), 6) > (
+                if round(abs(old_occ - new_occ), 6) > (
                         1 / self.max_denominator / 2) * self.tol:
                     raise RuntimeError(
                         "Cannot discretize structure within tolerance!")
