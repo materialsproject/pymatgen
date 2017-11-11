@@ -480,156 +480,107 @@ class ForceFieldTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        mass_info = [("H", Element("H")), ("C", "C")]
-        pair_coeffs = [[0.0380000011, 2.449971454],
-                       [0.1479999981, 3.6170487995]]
-        mol_coeffs = {
-            "Bond Coeffs":
-                [{"coeffs": [480.0, 1.34], "types": [("C", "C")]},
-                 {"coeffs": [363.4164, 1.08], "types": [("H", "C")]}],
-            "Angle Coeffs":
-                [{"coeffs": [90.0, 120.0], "types": [("C", "C", "C")]},
-                 {"coeffs": [37.0, 120.0], "types": [("H", "C", "C")]}],
-            "Dihedral Coeffs":
-                [{"coeffs": [3.0, -1, 2], "types": [("C", "C", "C", "C"),
-                                                    ("H", "C", "C", "C"),
-                                                    ("H", "C", "C", "H")]}],
-            "Improper Coeffs": [{"coeffs": [0.37, -1, 2],
-                                 "types": [("H", "C", "C", "C")]}]
-        }
-        cls.benzene = ForceField(mass_info=mass_info, pair_coeffs=pair_coeffs,
-                                 mol_coeffs=mol_coeffs)
-        cls.virus = ForceField.from_file(os.path.join(test_dir,
-                                                      "ff_virus.yaml"))
+        mass_info = [("A", "H"), ("B", Element("C")),
+                     ("C", Element("O")), ("D", 1.00794)]
+        nonbond_coeffs = [[1, 1, 1.1225], [1, 1.175, 1.31894],
+                          [1, 1.55, 1.73988], [1, 1, 1.1225 ],
+                          [1, 1.35, 4], [1, 1.725, 1.93631],
+                          [1, 1.175, 1.31894], [1, 2.1, 4],
+                          [1, 1.55, 1.73988], [1, 1,  1.1225 ]]
+        topo_coeffs = {"Bond Coeffs": [{"coeffs": [50, 0.659469],
+                                        "types": [("A", "B"), ("C", "D")]},
+                                       {"coeffs": [50, 0.855906],
+                                        "types": [("B", "C")]}]}
+        cls.virus = ForceField(mass_info=mass_info,
+                               nonbond_coeffs=nonbond_coeffs,
+                               topo_coeffs=topo_coeffs)
+        cls.ethane = ForceField.from_file(os.path.join(test_dir,
+                                                       "ff_ethane.yaml"))
 
     def test_init(self):
-        b = self.benzene
-        self.assertListEqual(b.mass_info, [("H", 1.00794), ("C", 12.0107)])
-        self.assertDictEqual(b.atom_map, {"H": 1, "C": 2})
-        self.assertListEqual(b.masses, [{"id": 1, "mass": 1.00794},
-                                        {"id": 2, "mass": 12.0107}])
-        self.assertEqual(b.pair_type, "pair")
-        self.assertListEqual(b.mol_coeffs["Bond Coeffs"][1]["types"],
-                             [("H", "C"), ("C", "H")])
-        self.assertListEqual(b.mol_coeffs["Angle Coeffs"][1]["types"],
-                             [("H", "C", "C"), ("C", "C", "H")])
-        self.assertListEqual(b.mol_coeffs["Dihedral Coeffs"][0]["types"],
-                             [("C", "C", "C", "C"), ("H", "C", "C", "C"),
-                              ("H", "C", "C", "H"), ("C", "C", "C", "H")])
-        self.assertListEqual(b.mol_coeffs["Improper Coeffs"][0]["types"],
-                             [("H", "C", "C", "C"), ("C", "C", "C", "H")])
         v = self.virus
-        self.assertDictEqual(v.atom_map, {"D": 1, "C": 2, "B": 3, "A": 4})
-        self.assertEqual(v.pair_type, "pairij")
-
-    def test_get_coeffs_and_mapper(self):
-        b = self.benzene
-        masses, atom_map = b.get_coeffs_and_mapper(section="Masses")
-        self.assertListEqual(masses["Masses"], [{"id": 1, "mass": 1.00794},
-                                                {"id": 2, "mass": 12.0107}])
-        self.assertDictEqual(atom_map, b.atom_map)
-        bond_sec = "Bond Coeffs"
-        bonds, bond_map = b.get_coeffs_and_mapper(section=bond_sec)
-        self.assertListEqual(bonds[bond_sec],
-                             [{"id": 1, "coeffs": [480.0, 1.34]},
-                              {"id": 2, "coeffs": [363.4164, 1.08]}])
-        self.assertDictEqual(bond_map,
-                             {("C", "C"): 1, ("H", "C"): 2, ("C", "H"): 2})
-        angle_sec = "Angle Coeffs"
-        angles, angle_map = b.get_coeffs_and_mapper(section=angle_sec)
-        self.assertListEqual(angles[angle_sec],
-                             [{"id": 1, "coeffs": [90.0, 120.0]},
-                              {"id": 2, "coeffs": [37.0, 120.0]}])
-        self.assertDictEqual(angle_map,
-                             {("C", "C", "C"): 1, ("H", "C", "C"): 2,
-                              ("C", "C", "H"): 2})
-        dihedral_sec = "Dihedral Coeffs"
-        dihedrals, \
-        dihedral_map = b.get_coeffs_and_mapper(section=dihedral_sec)
-        self.assertListEqual(dihedrals[dihedral_sec],
-                             [{"id": 1, "coeffs": [3.0, -1, 2]}])
-        self.assertDictEqual(dihedral_map,
-                             {("C", "C", "C", "C"): 1,
-                              ("H", "C", "C", "C"): 1,
-                              ("H", "C", "C", "H"): 1,
-                              ("C", "C", "C", "H"): 1})
-        improper_sec = "Improper Coeffs"
-        impropers, \
-        improper_map = b.get_coeffs_and_mapper(section=improper_sec)
-        self.assertListEqual(impropers[improper_sec],
-                             [{"id": 1, "coeffs": [0.37, -1, 2]}])
-        self.assertDictEqual(improper_map,
-                             {("H", "C", "C", "C"): 1,
-                              ("C", "C", "C", "H"): 1})
-        v = self.virus
-        vbonds, vbond_map = v.get_coeffs_and_mapper(section=bond_sec)
-        self.assertListEqual(vbonds[bond_sec],
-                             [{"id": 1, "coeffs": [50, 0.659469]},
-                              {"id": 2, "coeffs": [50, 0.855906]}])
-        self.assertDictEqual(vbond_map,
-                             {("A", "B"): 1, ("C", "D"): 1, ("B", "A"): 1,
-                              ("D", "C"): 1, ("B", "C"): 2, ("C", "B"): 2})
-
-    def test_get_pair_coeffs(self):
-        p_sec = "Pair Coeffs"
-        pij_sec = "PairIJ Coeffs"
-        b = self.benzene
-        pairb = b.get_pair_coeffs()
-        self.assertIn(p_sec, pairb)
-        self.assertNotIn(pij_sec, pairb)
-        pairb_data = [{"id": 1, "coeffs": [0.0380000011, 2.449971454]},
-                      {"id": 2, "coeffs": [0.1479999981, 3.6170487995]}]
-        self.assertListEqual(pairb[p_sec], pairb_data)
-        v = self.virus
-        pairv = v.get_pair_coeffs()
-        self.assertIn(pij_sec, pairv)
-        self.assertNotIn(p_sec, pairv)
-        pairv_data = [{"id1": 1, "id2": 1, "coeffs": [1, 1, 1.1225]},
-                      {"id1": 1, "id2": 2, "coeffs": [1, 1.55, 1.73988]},
-                      {"id1": 1, "id2": 3, "coeffs": [1, 1.175, 1.31894]},
-                      {"id1": 1, "id2": 4, "coeffs": [1, 1, 1.1225]},
-                      {"id1": 2, "id2": 2, "coeffs": [1, 2.1, 4]},
-                      {"id1": 2, "id2": 3, "coeffs": [1, 1.725, 1.93631]},
-                      {"id1": 2, "id2": 4, "coeffs": [1, 1.55, 1.73988]},
-                      {"id1": 3, "id2": 3, "coeffs": [1, 1.35, 4]},
-                      {"id1": 3, "id2": 4, "coeffs": [1, 1.175, 1.31894]},
-                      {"id1": 4, "id2": 4, "coeffs": [1, 1, 1.1225]}]
-        self.assertListEqual(pairv[pij_sec], pairv_data)
+        self.assertListEqual(v.mass_info, [("A", 1.00794), ("B", 12.0107),
+                                           ("C", 15.9994), ("D", 1.00794)])
+        self.assertEqual(v.masses.at[3, "mass"], 15.9994)
+        v_ff = v.force_field
+        self.assertNotIn("Pair Coeffs", v_ff)
+        self.assertEqual(v_ff["PairIJ Coeffs"].iat[5, 4], 1.93631)
+        self.assertEqual(v_ff["Bond Coeffs"].at[2, "coeff2"], 0.855906)
+        v_maps = v.maps
+        self.assertDictEqual(v_maps["Atoms"],
+                             {"A": 1, "B": 2, "C": 3, "D": 4})
+        self.assertDictEqual(v_maps["Bonds"],
+                             {("A", "B"): 1, ("C", "D"): 1,
+                              ("B", "A"): 1, ("D", "C"): 1,
+                              ("B", "C"): 2, ("C", "B"): 2})
+        e = self.ethane
+        self.assertEqual(e.masses.at[1, "mass"], 12.01115)
+        e_ff = e.force_field
+        self.assertNotIn("PairIJ Coeffs", e_ff)
+        self.assertEqual(e_ff["Pair Coeffs"].at[1, "coeff2"], 3.854)
+        self.assertEqual(e_ff["Bond Coeffs"].at[2, "coeff4"], 844.6)
+        self.assertEqual(e_ff["Angle Coeffs"].at[2, "coeff4"], -2.4318)
+        self.assertEqual(e_ff["Dihedral Coeffs"].at[1, "coeff1"], -0.1432)
+        self.assertEqual(e_ff["Improper Coeffs"].at[2, "coeff2"], 0.0)
+        self.assertEqual(e_ff["BondBond Coeffs"].at[2, "coeff1"], 5.3316)
+        self.assertEqual(e_ff["BondAngle Coeffs"].at[1, "coeff3"], 1.53)
+        self.assertEqual(e_ff["MiddleBondTorsion Coeffs"].at[1, "coeff1"],
+                         -14.261)
+        self.assertEqual(e_ff["EndBondTorsion Coeffs"].at[1, "coeff1"], 0.213)
+        self.assertEqual(e_ff["AngleTorsion Coeffs"].at[1, "coeff3"], -0.2466)
+        self.assertEqual(e_ff["AngleAngleTorsion Coeffs"].at[1, "coeff1"],
+                         -12.564)
+        self.assertEqual(e_ff["BondBond13 Coeffs"].at[1, "coeff1"], 0.0)
+        self.assertEqual(e_ff["AngleAngle Coeffs"].at[1, "coeff2"], -0.4825)
+        e_maps = e.maps
+        self.assertDictEqual(e_maps["Atoms"], {"c4": 1, "h1": 2})
+        self.assertDictEqual(e_maps["Bonds"],{("c4", "c4"): 1,
+                                              ("c4", "h1"): 2,
+                                              ("h1", "c4"): 2})
+        self.assertDictEqual(e_maps["Angles"], {("c4", "c4", "h1"): 1,
+                                                ("h1", "c4", "c4"): 1,
+                                                ("h1", "c4", "h1"): 2})
+        self.assertEqual(e_maps["Impropers"], {("c4", "c4", "h1", "h1"): 1,
+                                               ("c4", "h1", "c4", "h1"): 1,
+                                               ("h1", "h1", "c4", "c4"): 1,
+                                               ("h1", "c4", "h1", "c4"): 1,
+                                               ("h1", "c4", "h1", "h1"): 2,
+                                               ("h1", "h1", "c4", "h1"): 2})
 
     def test_to_file(self):
         filename = "ff_test.yaml"
-        b = self.benzene
-        b.to_file(filename=filename)
+        v = self.virus
+        v.to_file(filename=filename)
         yaml = YAML(typ="safe")
         with open(filename, "r") as f:
             d = yaml.load(f)
-        self.assertListEqual(d["mass_info"], [list(m) for m in b.mass_info])
-        self.assertListEqual(d["pair_coeffs"], b.pair_coeffs)
+        self.assertListEqual(d["mass_info"], [list(m) for m in v.mass_info])
+        self.assertListEqual(d["nonbond_coeffs"], v.nonbond_coeffs)
 
     def test_from_file(self):
-        v = self.virus
-        self.assertListEqual(v.mass_info, [("D", 1.0), ("C", 2.744),
-                                           ("B", 1.728), ("A", 1.0)])
-        self.assertListEqual(v.pair_coeffs,
-                             [[1, 1, 1.1225], [1, 1.55, 1.73988],
-                              [1, 1.175, 1.31894], [1, 1, 1.1225],
-                              [1, 2.1, 4], [1, 1.725, 1.93631],
-                              [1, 1.55, 1.73988], [1, 1.35, 4],
-                              [1, 1.175, 1.31894], [1, 1, 1.1225]])
-        self.assertListEqual(v.mol_coeffs["Bond Coeffs"],
-                             [{"coeffs": [50, 0.659469],
-                               "types": [("A", "B"), ("C", "D"),
-                                         ("B", "A"), ("D", "C")]},
-                              {"coeffs": [50, 0.855906],
-                               "types": [("B", "C"), ("C", "B")]}])
+        e = self.ethane
+        self.assertListEqual(e.mass_info, [("c4", 12.01115), ("h1", 1.00797)])
+        np.testing.assert_array_equal(e.nonbond_coeffs, [[0.062, 3.854],
+                                                         [0.023, 2.878]])
+        e_tc = e.topo_coeffs
+        self.assertIn("Bond Coeffs", e_tc)
+        self.assertIn("BondAngle Coeffs", e_tc["Angle Coeffs"][0])
+        self.assertIn("BondBond Coeffs", e_tc["Angle Coeffs"][0])
+        self.assertIn("AngleAngleTorsion Coeffs", e_tc["Dihedral Coeffs"][0])
+        self.assertIn("AngleTorsion Coeffs", e_tc["Dihedral Coeffs"][0])
+        self.assertIn("BondBond13 Coeffs", e_tc["Dihedral Coeffs"][0])
+        self.assertIn("EndBondTorsion Coeffs", e_tc["Dihedral Coeffs"][0])
+        self.assertIn("MiddleBondTorsion Coeffs", e_tc["Dihedral Coeffs"][0])
+        self.assertIn("AngleAngle Coeffs", e_tc["Improper Coeffs"][0])
 
     def test_from_dict(self):
-        d = self.benzene.as_dict()
+        d = self.ethane.as_dict()
         json_str = json.dumps(d)
         decoded = ForceField.from_dict(json.loads(json_str))
-        self.assertListEqual(decoded.mass_info, self.benzene.mass_info)
-        self.assertListEqual(decoded.pair_coeffs, self.benzene.pair_coeffs)
-        self.assertDictEqual(decoded.mol_coeffs, self.benzene.mol_coeffs)
+        self.assertListEqual(decoded.mass_info, self.ethane.mass_info)
+        self.assertListEqual(decoded.nonbond_coeffs,
+                             self.ethane.nonbond_coeffs)
+        self.assertDictEqual(decoded.topo_coeffs, self.ethane.topo_coeffs)
 
     @classmethod
     def tearDownClass(cls):

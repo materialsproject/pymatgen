@@ -815,9 +815,9 @@ class ForceField(MSONable):
             df = pd.DataFrame(data)
             assert self._is_valid(df),\
                 "Invalid coefficients with rows varying in length"
-            i, c = df.shape
+            n, c = df.shape
             df.columns = ["coeff%d" % i for i in range(1, c + 1)]
-            df.index = range(1, i + 1)
+            df.index = range(1, n + 1)
             return df
 
         all_data = {kw: process_data(main_data)}
