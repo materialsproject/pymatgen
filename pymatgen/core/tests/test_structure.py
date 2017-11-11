@@ -588,6 +588,9 @@ class StructureTest(PymatgenTest):
         coords = [[0, 0, 0],
                   [0.5, 0.5, 0.5]]
         nio = Structure.from_spacegroup(225, latt, species, coords)
+        
+        # should do nothing, but not fail
+        nio.remove_spin()
 
         spins = {"Ni": 5}
         nio.add_spin_by_element(spins)
