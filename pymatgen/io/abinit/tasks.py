@@ -1096,7 +1096,6 @@ class AbinitBuild(object):
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
             print("stderr:", process.stderr.read())
-            print("stdout:", process.stdout.read())
 
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
         process.stderr.close()
@@ -2552,6 +2551,29 @@ class AbinitTask(Task):
     def ispaw(self):
         """True if PAW calculation"""
         return self.input.ispaw
+
+    @property
+    def is_gs_task(self):
+        """True if task is GsTask subclass."""
+        return isinstance(self, GsTask)
+
+    @property
+    def is_dfpt_task(self):
+        """True if task is a DftpTask subclass."""
+        return isinstance(self, DfptTask)
+
+    @lazy_property
+    def cycle_class(self):
+        """
+        Return the subclass of ScfCycle associated to the task or
+        None if no SCF algorithm if associated to the task.
+        """
+        if isinstance(self, GsTask):
+            return abiinspect.GroundStateScfCycle
+        elif self.is_dfpt_task:
+            return abiinspect.D2DEScfCycle
+
+        return None
 
     @property
     def filesfile_string(self):

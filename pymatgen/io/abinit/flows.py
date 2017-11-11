@@ -1142,6 +1142,64 @@ class Flow(Node, NodeContainer, MSONable):
 
         return tasks
 
+    def get_task_cycles(self, nids=None, wslice=None, include_ok_tasks=True):
+        """
+        Return list of (taks, scfcycle) tuples for all the tasks in the flow with a SCF algorithm
+
+        Args:
+            nids: List of node identifiers.
+            wslice: Slice object used to select works.
+            include_ok_tasks: False if only running tasks should be considered.
+
+        Returns:
+            List of `ScfCycle` subclass instances.
+        """
+        select_status = [self.S_RUN, self.S_OK] if include_ok_tasks else [self.S_RUN]
+        tasks_cycles = []
+
+        for task in self.select_tasks(nids=nids, wslice=wslice):
+            if task.status not in select_status or task.cycle_class is None:
+                continue
+            try:
+                cycle = task.cycle_class.from_file(task.output_file.path)
+                if cycle is not None:
+                    tasks_cycles.append((task, cycle))
+            except Exception:
+                # This is intentionally ignored because from_file can fail for several reasons.
+                pass
+
+        return tasks_cycles
+
+    def show_tricky_tasks(self, verbose=0):
+        """
+        Print list of tricky tasks i.e. tasks that have been restarted or
+        launched more than once or tasks with corrections.
+
+        Args:
+            verbose: Verbosity level. If > 0, task history and corrections (if any) are printed.
+        """
+        nids, tasks = [], []
+        for task in self.iflat_tasks():
+            if task.num_launches > 1 or any(n > 0 for n in (task.num_restarts, task.num_corrections)):
+                nids.append(task.node_id)
+                tasks.append(task)
+
+        if not nids:
+            cprint("Everything's fine, no tricky tasks found", color="green")
+        else:
+            self.show_status(nids=nids)
+            if not verbose:
+                print("Use --verbose to print task history.")
+                return
+
+            for nid, task in zip(nids, tasks):
+                cprint(repr(task), **task.status.color_opts)
+                self.show_history(nids=[nid], full_history=False, metadata=False)
+                #if task.num_restarts:
+                #    self.show_restarts(nids=[nid])
+                if task.num_corrections:
+                    self.show_corrections(nids=[nid])
+
     def inspect(self, nids=None, wslice=None, **kwargs):
         """
         Inspect the tasks (SCF iterations, Structural relaxation ...) and
@@ -1347,10 +1405,8 @@ class Flow(Node, NodeContainer, MSONable):
             if report is not None:
                 app("num_errors: %s, num_warnings: %s, num_comments: %s" % (
                     report.num_errors, report.num_warnings, report.num_comments))
-
                 app("*** ERRORS ***")
                 app("\n".join(str(e) for e in report.errors))
-
                 app("*** BUGS ***")
                 app("\n".join(str(b) for b in report.bugs))
 
@@ -1491,7 +1547,7 @@ class Flow(Node, NodeContainer, MSONable):
             cprint("Found scheduler attached to this flow.", "yellow")
             cprint("Sending SIGKILL to the scheduler before cancelling the tasks!", "yellow")
 
-            with open(self.pid_file, "r") as fh:
+            with open(self.pid_file, "rt") as fh:
                 pid = int(fh.readline())
 
             retcode = os.system("kill -9 %d" % pid)
