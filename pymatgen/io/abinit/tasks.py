@@ -3252,6 +3252,29 @@ class NscfTask(GsTask):
 
         super(NscfTask, self).setup()
 
+    def setup(self):
+        """
+        NSCF calculations should use the same FFT mesh as the one employed in the GS task
+        (in principle, it's possible to interpolate inside Abinit but tests revealed some numerical noise
+        Here we change the input file of the NSCF task to have the same FFT mesh.
+        """
+        assert len(self.deps) == 1
+        dep = self.deps[0]
+        parent_task = dep.node
+        # TODO: This won't work if parent_node is a file
+        with parent_task.open_gsr() as gsr:
+            den_mesh = 3 * [None]
+            den_mesh[0] = gsr.reader.read_dimvalue("number_of_grid_points_vector1")
+            den_mesh[1] = gsr.reader.read_dimvalue("number_of_grid_points_vector2")
+            den_mesh[2] = gsr.reader.read_dimvalue("number_of_grid_points_vector3")
+            #print("den_mesh", den_mesh)
+            if self.ispaw:
+                self.set_vars(ngfftdg=den_mesh)
+            else:
+                self.set_vars(ngfft=den_mesh)
+
+        super(NscfTask, self).setup()
+
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
         ext = "WFK"
