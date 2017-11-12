@@ -2568,7 +2568,9 @@ class AbinitTask(Task):
         Return the subclass of ScfCycle associated to the task or
         None if no SCF algorithm if associated to the task.
         """
-        if isinstance(self, GsTask):
+        if isinstance(self, RelaxTask):
+            return abiinspect.Relaxation
+        elif isinstance(self, GsTask):
             return abiinspect.GroundStateScfCycle
         elif self.is_dfpt_task:
             return abiinspect.D2DEScfCycle

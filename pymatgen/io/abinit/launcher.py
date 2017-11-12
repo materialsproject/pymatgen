@@ -914,10 +914,15 @@ def sendmail(subject, text, mailto, sender=None):
     # sendmail works much better than the python interface.
     # Note that sendmail is available only on Unix-like OS.
     from subprocess import Popen, PIPE
+    import sys
 
     sendmail = which("sendmail")
     if sendmail is None: return -1
-    p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE)
+    if sys.version_info[0] < 3:
+        p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE)
+    else:
+        # msg is string not bytes so must use universal_newlines
+        p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE, universal_newlines=True)
 
     outdata, errdata = p.communicate(msg)
     return len(errdata)
