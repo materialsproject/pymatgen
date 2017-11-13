@@ -269,7 +269,7 @@ class LammpsData(MSONable):
             lines = f.readlines()
         kw_pattern = r'|'.join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [i for i, l in enumerate(lines)
-                         if re.match(kw_pattern, l)]
+                         if re.search(kw_pattern, l)]
         parts = np.split(lines, section_marks)
 
         # First, parse header
@@ -690,22 +690,23 @@ class ForceField(MSONable):
         """
 
         Args:
-            mass_into (list): List of atomic mass info. Each item looks
-                like a key, value pair in an OrderedDict. Elements,
+            mass_into (list): List of atomic mass info. Elements,
                 strings (symbols) and floats are all acceptable for the
                 values, with the first two converted to the atomic mass
-                of an element.
-                [("C": 12.01), ("H": Element("H")), ("O": "O"), ...]
+                of an element. It is recommended to use
+                OrderedDict.items() to prevent key duplications.
+                [("C", 12.01), ("H", Element("H")), ("O", "O"), ...]
             nonbond_coeffs [coeffs]: List of pair or pairij
                 coefficients, of which the sequence must be sorted
                 according to the species in mass_dict. Pair or PairIJ
-                determined by the length of list.
+                determined by the length of list. Optional with default
+                to None.
             topo_coeffs (dict): Dict with force field coefficients for
-                molecular topologies. Default to None, i.e., no
-                additional coefficients. All four valid keys listed
-                below are optional. Each value is a list of dicts with
-                non optional keys "coeffs" and "types", and related
-                class2 force field keywords as optional keys.
+                molecular topologies. Optional with default
+                to None. All four valid keys listed below are optional.
+                Each value is a list of dicts with non optional keys
+                "coeffs" and "types", and related class2 force field
+                keywords as optional keys.
                 {
                     "Bond Coeffs":
                         [{"coeffs": [coeff],
