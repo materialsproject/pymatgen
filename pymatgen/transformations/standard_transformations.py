@@ -727,7 +727,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
                     new_occ = round(old_occ*self.max_denominator)\
                         / self.max_denominator
                 if round(abs(old_occ - new_occ), 6) > (
-                        1 / self.max_denominator / 2) * self.tol:
+                        1 / self.max_denominator / 4) * self.tol:
                     raise RuntimeError(
                         "Cannot discretize structure within tolerance!")
                 sp[k] = new_occ
