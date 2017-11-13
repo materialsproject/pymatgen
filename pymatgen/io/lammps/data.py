@@ -274,7 +274,7 @@ class LammpsData(MSONable):
 
         # First, parse header
         float_group = r'([0-9eE.+-]+)'
-        header_pattern = {}
+        header_pattern = dict()
         header_pattern["counts"] = r'^\s*(\d+)\s+([a-zA-Z]+)$'
         header_pattern["types"] = r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$'
         header_pattern["bounds"] = r'^\s*{}$'.format(r'\s+'.join(
@@ -398,77 +398,58 @@ class LammpsData(MSONable):
             atom_style (str): Output atom_style. Default to "full".
 
         """
-        atom_types = set(itertools.chain(*[t.types for t in topologies]))
-        assert atom_types.issubset(ff.atom_map.keys()),\
+        atom_types = set.union(*[t.species for t in topologies])
+        assert atom_types.issubset(ff.maps["Atoms"].keys()),\
             "Unknown atom type found in topologies"
 
-        items = {"box_bounds": box_bounds, "box_tilt": box_tilt,
-                 "atom_style": atom_style}
-        items["masses"] = ff.masses
-        lookup = {"Atoms": ff.atom_map}
+        items = dict(box_bounds=box_bounds, box_tilt=box_tilt,
+                     atom_style=atom_style, masses=ff.masses,
+                     force_field=ff.force_field)
 
-        pair_coeffs = ff.get_pair_coeffs()
-        mol_coeffs = getattr(ff, "mol_coeffs")
-        force_field = {} if any((pair_coeffs, mol_coeffs)) else None
-        if pair_coeffs:
-            force_field.update(pair_coeffs)
-        if mol_coeffs:
-            for kw in mol_coeffs.keys():
-                coeffs, mapper = ff.get_coeffs_and_mapper(kw)
-                force_field.update(coeffs)
-                lookup[kw[:-7] + "s"] = mapper
-        items["force_field"] = force_field
+        atom_collector, velo_collector = [], []
+        topo_collector = {k: [] for k in SECTION_KEYWORDS["topology"]}
+        for i, topo in enumerate(topologies):
+            atoms_df = topo.atoms
+            atoms_df["molecule-ID"] = i + 1
+            atom_collector.append(atoms_df)
+            velo_collector.append(topo.velocities)
+            if topo.topology:
+                for k in SECTION_KEYWORDS["topology"]:
+                    topo_collector[k].append(topo.topology.get(k))
 
-        atoms = []
-        velocities = [] if topologies[0].velocities else None
-        topology = {k: [] for k in SECTION_KEYWORDS["topology"]}
-        stack = {k: 0 for k in ["Atoms"] + SECTION_KEYWORDS["topology"]}
-        atom_format = ATOMS_HEADERS[atom_style]
+        atoms = pd.concat(atom_collector, ignore_index=True)
+        atoms.index += 1
+        atoms["type"] = atoms["label"].map(ff.maps["Atoms"])
+        atoms = atoms[ATOMS_HEADERS[atom_style]]
 
-        for mid, topo in enumerate(topologies):
-            map_inds = lambda inds: tuple([topo.types[i] for i in inds])
+        if all([v is None for v in velo_collector]):
+            velocities = None
+        elif all([v is not None for v in velo_collector]):
+            velocities = pd.concat(velo_collector, ignore_index=True)
+            velocities.index += 1
+        else:
+            raise ValueError("Not all topologies have velocities assigned")
 
-            topo_atoms = []
-            for aid, (s, t) in enumerate(zip(topo.sites, topo.types)):
-                d_atom = {"id": aid + 1 + stack["Atoms"],
-                          "type": lookup["Atoms"][t]}
-                d_atom.update({k: getattr(s, k) for k in "xyz"})
-                if "molecule-ID" in atom_format:
-                    d_atom["molecule-ID"] = mid + 1
-                topo_atoms.append(d_atom)
-            if "q" in atom_format:
-                charges = [0.0] * len(topo.sites) if not topo.charges \
-                    else topo.charges
-                for d_atom, q in zip(topo_atoms, charges):
-                    d_atom["q"] = q
-            atoms.extend(topo_atoms)
+        natoms = {"Bonds": 2, "Angles": 3, "Dihedrals": 4, "Impropers": 4}
+        for mid in range(len(topologies)):
+            atoms_mol = atoms[atoms["molecule-ID"] == mid + 1]
+            stack = atoms_mol.index[0]
+            for k, v in topo_collector.items():
+                if v[mid] is not None:
+                    v[mid][["atom%d" % i for i
+                            in range(1, natoms[k] + 1)]] += stack
+        topology = {}
+        for k, v in topo_collector.items():
+            try:
+                topo_df = pd.concat(v, ignore_index=True)
+            except ValueError:
+                continue
+            type_series = topo_df["label"].map(ff.maps[k])
+            topo_df.insert(loc=0, column="type", value=type_series)
+            topo_df.drop("label", axis=1, inplace=True)
+            topo_df.index += 1
+            topology[k] = topo_df
 
-            if isinstance(velocities, list):
-                velocities.extend({"id": aid + 1 + stack["Atoms"],
-                                   "velocity": v}
-                                  for aid, v in enumerate(topo.velocities))
-
-            if topo.topologies:
-                for kw in topo.topologies.keys():
-                    topo_lookup = lookup[kw]
-                    unfiltered_indices = np.array(topo.topologies[kw])
-                    topo_topos = []
-                    tid = stack[kw]
-                    for inds in unfiltered_indices:
-                        topo_type = topo_lookup.get(map_inds(inds))
-                        if topo_type:
-                            topo_inds = list(inds + stack["Atoms"] + 1)
-                            topo_topos.append({"id": tid + 1,
-                                               "type": topo_type,
-                                               kw.lower()[:-1]: topo_inds})
-                            tid += 1
-                    topology[kw].extend(topo_topos)
-                    stack[kw] = tid
-
-            stack["Atoms"] += len(topo_atoms)
-
-        topology = {k: v for k, v in topology.items() if len(v) > 0}
-        topology = None if len(topology) == 0 else topology
         items.update({"atoms": atoms, "velocities": velocities,
                       "topology": topology})
         return cls(**items)
@@ -558,9 +539,9 @@ class Topology(MSONable):
             sites = Molecule.from_sites(sites)
 
         if atom_type:
-            types = sites.site_properties.get(atom_type)
+            type_by_sites = sites.site_properties.get(atom_type)
         else:
-            types = [site.species_string for site in sites]
+            type_by_sites = [site.species_string for site in sites]
         # search for site property if not override
         if charges is None:
             charges = sites.site_properties.get("charge")
@@ -582,12 +563,41 @@ class Topology(MSONable):
             topologies = {k: v for k, v in topologies.items()
                           if k in SECTION_KEYWORDS["topology"]}
 
-        self.sites = sites
+        self._sites = sites
         self.atom_type = atom_type
-        self.types = types
-        self.charges = charges
-        self.velocities = velocities
-        self.topologies = topologies
+        self._charges = charges
+        self._velocities = velocities
+        self._topologies = topologies
+        self.type_by_sites = type_by_sites
+        self.species = set(type_by_sites)
+
+    @property
+    def atoms(self):
+        charges = [0.0] * len(self._sites) if not self._charges \
+            else self._charges
+        dfs = []
+        for t, s, q in zip(self.type_by_sites, self._sites, charges):
+            dfs.append(pd.DataFrame([[q, s.x, s.y, s.z, t]],
+                                    columns=["q", "x", "y", "z", "label"]))
+        return pd.concat(dfs, ignore_index=True)
+
+    @property
+    def velocities(self):
+        if self._velocities:
+            return pd.DataFrame(self._velocities, columns=["vx", "vy", "vz"])
+
+    @property
+    def topology(self):
+        if self._topologies:
+            topology = {}
+            for k, v in self._topologies.items():
+                n = len(v[0])
+                columns = ["atom%d" % i for i in range(1, n + 1)]
+                df = pd.DataFrame(v, columns=columns)
+                label = [tuple([self.type_by_sites[j] for j in i]) for i in v]
+                df["label"] = label
+                topology[k] = df
+            return topology
 
     @classmethod
     def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True,
@@ -799,10 +809,10 @@ class ForceField(MSONable):
         distinct_types = [set(itertools.
                               chain(*[find_eq_types(t, kw)
                                       for t in dt])) for dt in distinct_types]
-        if len(distinct_types) > 1:
-            assert set.intersection(*distinct_types) == set(), \
-                "Duplicated items found " \
-                "under different coefficients in %s" % kw
+        type_counts = sum([len(dt) for dt in distinct_types])
+        type_union = set.union(*distinct_types)
+        assert len(type_union) == type_counts, "Duplicated items found " \
+            "under different coefficients in %s" % kw
         atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
         assert atoms.issubset(self.maps["Atoms"].keys()), \
             "Undefined atom type found in %s" % kw
