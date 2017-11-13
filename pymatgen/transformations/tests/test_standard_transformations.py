@@ -459,22 +459,27 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
         s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
                       [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.25,fix_denominator=False)
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.25,
+                                                  fix_denominator=False)
 
         s = dot.apply_transformation(s_orig_2)
         self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(1/2),
                                                        Element("Na"): Fraction(1/4),
                                                        Element("K"): Fraction(1/4)})
 
-        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=2,fix_denominator=True)
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=2,
+                                                  fix_denominator=True)
 
         s = dot.apply_transformation(s_orig_2)
-        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(4/9),
-                                                       Element("Na"): Fraction(2/9),
-                                                       Element("K"): Fraction(2/9)})
+        self.assertEqual(dict(s[0].species_and_occu),
+                         {Element("Li"): 4/9,
+                          Element("Na"): 2/9,
+                          Element("K"): 2/9})
 
-        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.5,fix_denominator=True)
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.5,
+                                                  fix_denominator=True)
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
+
 
 if __name__ == "__main__":
     unittest.main()

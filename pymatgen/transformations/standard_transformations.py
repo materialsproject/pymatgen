@@ -690,7 +690,6 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
             discretized occupancies before throwing an error. The maximum
             allowed difference is calculated as 1/max_denominator * 0.5 * tol.
             A tol of 1.0 indicates to try to accept all discretizations.
-
         fix_denominator(bool): 
             If True, will enforce a common denominator for all species. 
             This prevents a mix of denominators (for example, 1/3, 1/4) 
@@ -724,8 +723,9 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
                 old_occ = sp[k]
                 new_occ = float(
                     Fraction(old_occ).limit_denominator(self.max_denominator))
-                if self.fix_denominator: 
-                        new_occ = round(old_occ*self.max_denominator)/self.max_denominator
+                if self.fix_denominator:
+                    new_occ = round(old_occ*self.max_denominator)\
+                        / self.max_denominator
                 if round(abs(old_occ - new_occ), 6) > (
                         1 / self.max_denominator / 2) * self.tol:
                     raise RuntimeError(
