@@ -516,7 +516,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         try:
             return "<%s, node_id=%s, workdir=%s>" % (
                 self.__class__.__name__, self.node_id, self.relworkdir)
-
         except AttributeError:
             # this usually happens when workdir has not been initialized
             return "<%s, node_id=%s, workdir=None>" % (self.__class__.__name__, self.node_id)

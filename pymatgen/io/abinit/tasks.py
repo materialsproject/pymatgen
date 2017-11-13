@@ -3425,6 +3425,22 @@ class DfptTask(AbinitTask):
 
         This class should not be instantiated directly.
     """
+    def __repr__(self):
+        # Get info about DFT perturbation from input file.
+        qpt = self.input.get("qpt", [0, 0, 0])
+        rfphon = self.input.get("rfphon", 0)
+        rfdir = self.input.get("rfdir", [0, 0, 0])
+        rfatpol = self.input.get("rfatpol", [1, 1])
+        dfpt_info = "rfphon: {}, qpt: {}, rfatpol: {}, rfdir: {}".format(
+                rfphon, qpt, rfatpol, rfdir)
+        try:
+            return "<%s, node_id=%s, workdir=%s, %s>" % (
+                self.__class__.__name__, self.node_id, self.relworkdir, dfpt_info)
+        except AttributeError:
+            # this usually happens when workdir has not been initialized
+            return "<%s, node_id=%s, workdir=None, %s>" % (
+                self.__class__.__name__, self.node_id, dfpt_info)
+
     @property
     def ddb_path(self):
         """Absolute path of the DDB file. Empty string if file is not present."""
