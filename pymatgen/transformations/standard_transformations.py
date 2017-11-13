@@ -687,9 +687,8 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
             denominator allows for finer resolution in the site occupancies.
         tol:
             A float that sets the maximum difference between the original and
-            discretized occupancies before throwing an error. The maximum
-            allowed difference is calculated as 1/max_denominator * 0.5 * tol.
-            A tol of 1.0 indicates to try to accept all discretizations.
+            discretized occupancies before throwing an error. If None, it is
+            set to 1 / (4 * max_denominator).
         fix_denominator(bool): 
             If True, will enforce a common denominator for all species. 
             This prevents a mix of denominators (for example, 1/3, 1/4) 
@@ -698,9 +697,9 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
             
     """
 
-    def __init__(self, max_denominator=5, tol=0.25, fix_denominator=False):
+    def __init__(self, max_denominator=5, tol=None, fix_denominator=False):
         self.max_denominator = max_denominator
-        self.tol = tol
+        self.tol = tol if tol is not None else 1 / (4 * max_denominator)
         self.fix_denominator = fix_denominator
 
     def apply_transformation(self, structure):
@@ -726,8 +725,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
                 if self.fix_denominator:
                     new_occ = round(old_occ*self.max_denominator)\
                         / self.max_denominator
-                if round(abs(old_occ - new_occ), 6) > (
-                        1 / self.max_denominator / 4) * self.tol:
+                if round(abs(old_occ - new_occ), 6) > self.tol:
                     raise RuntimeError(
                         "Cannot discretize structure within tolerance!")
                 sp[k] = new_occ

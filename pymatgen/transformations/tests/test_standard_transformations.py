@@ -453,7 +453,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
                                                        Element("Na"): 0.2,
                                                        Element("K"): 0.6})
 
-        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.1)
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.01)
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig)
 
         s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
@@ -467,7 +467,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
                                                        Element("Na"): Fraction(1/4),
                                                        Element("K"): Fraction(1/4)})
 
-        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.5,
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.05,
                                                   fix_denominator=True)
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
 
