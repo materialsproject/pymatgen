@@ -501,8 +501,8 @@ class LammpsData(MSONable):
 class Topology(MSONable):
     """
     Class carrying most data in Atoms, Velocities and molecular
-    topology sections for ONE single SiteCollection or its subclasses
-    (Molecule/Structure), or a plain list of Sites.
+    topology sections for ONE SINGLE Molecule or Structure
+    object, or a plain list of Sites.
 
     """
 
@@ -723,6 +723,10 @@ class ForceField(MSONable):
                           "AngleAngle Coeffs": [coeff],
                           "types": [("H", "C", "C", "H"), ...]}, ...],
                 }
+                Topology of same type or equivalent types (e.g.,
+                ('C', 'H') and ('H', 'C') bonds) are NOT ALLOWED to
+                be defined MORE THAN ONCE with DIFFERENT coefficients.
+
         """
         map_mass = lambda v: v.atomic_mass.real if isinstance(v, Element) \
             else Element(v).atomic_mass.real if isinstance(v, string_types) \
