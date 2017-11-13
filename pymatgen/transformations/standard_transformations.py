@@ -7,6 +7,7 @@ from __future__ import division, unicode_literals
 import logging
 
 from fractions import Fraction
+from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
@@ -723,7 +724,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
                 new_occ = float(
                     Fraction(old_occ).limit_denominator(self.max_denominator))
                 if self.fix_denominator:
-                    new_occ = round(old_occ*self.max_denominator)\
+                    new_occ = around(old_occ*self.max_denominator)\
                         / self.max_denominator
                 if round(abs(old_occ - new_occ), 6) > self.tol:
                     raise RuntimeError(
