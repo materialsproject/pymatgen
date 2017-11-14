@@ -9,6 +9,7 @@ from collections import OrderedDict
 from io import StringIO
 import itertools
 import re
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -267,19 +268,19 @@ class LammpsData(MSONable):
         """
         with open(filename) as f:
             lines = f.readlines()
-        kw_pattern = r'|'.join(itertools.chain(*SECTION_KEYWORDS.values()))
+        kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [i for i, l in enumerate(lines)
                          if re.search(kw_pattern, l)]
         parts = np.split(lines, section_marks)
 
         # First, parse header
-        float_group = r'([0-9eE.+-]+)'
+        float_group = r"([0-9eE.+-]+)"
         header_pattern = dict()
-        header_pattern["counts"] = r'^\s*(\d+)\s+([a-zA-Z]+)$'
-        header_pattern["types"] = r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$'
-        header_pattern["bounds"] = r'^\s*{}$'.format(r'\s+'.join(
+        header_pattern["counts"] = r"^\s*(\d+)\s+([a-zA-Z]+)$"
+        header_pattern["types"] = r"^\s*(\d+)\s+([a-zA-Z]+)\s+types$"
+        header_pattern["bounds"] = r"^\s*{}$".format(r"\s+".join(
             [float_group] * 2 + [r"([xyz])lo \3hi"]))
-        header_pattern["tilt"] = r'^\s*{}$'.format(r'\s+'.join(
+        header_pattern["tilt"] = r"^\s*{}$".format(r"\s+".join(
             [float_group] * 3 + ["xy xz yz"]))
 
         header = {"counts": {}, "types": {}}
@@ -303,7 +304,7 @@ class LammpsData(MSONable):
 
         # Then, parse each section
         def parse_section(sec_lines):
-            title_info = sec_lines[0].split('#', 1)
+            title_info = sec_lines[0].split("#", 1)
             kw = title_info[0].strip()
             sio = StringIO("".join(sec_lines[2:]))  # skip the 2nd line
             df = pd.read_csv(sio, header=None, comment="#",
@@ -406,49 +407,50 @@ class LammpsData(MSONable):
                      atom_style=atom_style, masses=ff.masses,
                      force_field=ff.force_field)
 
-        atom_collector, velo_collector = [], []
-        topo_collector = {k: [] for k in SECTION_KEYWORDS["topology"]}
+        mol_ids, charges, coords, labels = [], [], [], []
+        v_collector = [] if topologies[0].velocities else None
+        topo_collector = {"Bonds": [], "Angles": [], "Dihedrals": [],
+                          "Impropers": []}
+        topo_labels = {"Bonds": [], "Angles": [], "Dihedrals": [],
+                       "Impropers": []}
         for i, topo in enumerate(topologies):
-            atoms_df = topo.atoms
-            atoms_df["molecule-ID"] = i + 1
-            atom_collector.append(atoms_df)
-            velo_collector.append(topo.velocities)
-            if topo.topology:
-                for k in SECTION_KEYWORDS["topology"]:
-                    topo_collector[k].append(topo.topology.get(k))
+            if topo.topologies:
+                shift = len(labels)
+                for k, v in topo.topologies.items():
+                    topo_collector[k].append(np.array(v) + shift + 1)
+                    topo_labels[k].extend([tuple([topo.type_by_sites[i]
+                                                  for i in t]) for t in v])
+            if isinstance(v_collector, list):
+                v_collector.append(topo.velocities)
+            mol_ids.extend([i + 1] * len(topo.sites))
+            labels.extend(topo.type_by_sites)
+            coords.append(topo.sites.cart_coords)
+            q = [0.0] * len(topo.sites) if not topo.charges else topo.charges
+            charges.extend(q)
 
-        atoms = pd.concat(atom_collector, ignore_index=True)
+        atoms = pd.DataFrame(np.concatenate(coords), columns=["x", "y", "z"])
+        atoms["molecule-ID"] = mol_ids
+        atoms["q"] = charges
+        atoms["type"] = list(map(ff.maps["Atoms"].get, labels))
         atoms.index += 1
-        atoms["type"] = atoms["label"].map(ff.maps["Atoms"])
         atoms = atoms[ATOMS_HEADERS[atom_style]]
 
-        if all([v is None for v in velo_collector]):
-            velocities = None
-        elif all([v is not None for v in velo_collector]):
-            velocities = pd.concat(velo_collector, ignore_index=True)
-            velocities.index += 1
-        else:
-            raise ValueError("Not all topologies have velocities assigned")
+        velocities = None
+        if v_collector:
+            velocities = pd.DataFrame(np.concatenate(v_collector),
+                                      columns=SECTION_HEADERS["Velocities"])
 
-        natoms = {"Bonds": 2, "Angles": 3, "Dihedrals": 4, "Impropers": 4}
-        for mid in range(len(topologies)):
-            atoms_mol = atoms[atoms["molecule-ID"] == mid + 1]
-            stack = atoms_mol.index[0]
-            for k, v in topo_collector.items():
-                if v[mid] is not None:
-                    v[mid][["atom%d" % i for i
-                            in range(1, natoms[k] + 1)]] += stack
-        topology = {}
-        for k, v in topo_collector.items():
-            try:
-                topo_df = pd.concat(v, ignore_index=True)
-            except ValueError:
-                continue
-            type_series = topo_df["label"].map(ff.maps[k])
-            topo_df.insert(loc=0, column="type", value=type_series)
-            topo_df.drop("label", axis=1, inplace=True)
-            topo_df.index += 1
-            topology[k] = topo_df
+        topology = {k: None for k, v in topo_labels.items() if len(v) > 0}
+        for k in topology:
+            df = pd.DataFrame(np.concatenate(topo_collector[k]),
+                              columns=SECTION_HEADERS[k][1:])
+            df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
+            if any(pd.isnull(df["type"])):
+                warnings.warn("Undefined %s removed" % k.lower())
+                df.dropna(subset=["type"], inplace=True)
+                df.reset_index(drop=True, inplace=True)
+            df.index += 1
+            topology[k] = df[SECTION_HEADERS[k]]
 
         items.update({"atoms": atoms, "velocities": velocities,
                       "topology": topology})
@@ -563,41 +565,13 @@ class Topology(MSONable):
             topologies = {k: v for k, v in topologies.items()
                           if k in SECTION_KEYWORDS["topology"]}
 
-        self._sites = sites
+        self.sites = sites
         self.atom_type = atom_type
-        self._charges = charges
-        self._velocities = velocities
-        self._topologies = topologies
+        self.charges = charges
+        self.velocities = velocities
+        self.topologies = topologies
         self.type_by_sites = type_by_sites
         self.species = set(type_by_sites)
-
-    @property
-    def atoms(self):
-        charges = [0.0] * len(self._sites) if not self._charges \
-            else self._charges
-        dfs = []
-        for t, s, q in zip(self.type_by_sites, self._sites, charges):
-            dfs.append(pd.DataFrame([[q, s.x, s.y, s.z, t]],
-                                    columns=["q", "x", "y", "z", "label"]))
-        return pd.concat(dfs, ignore_index=True)
-
-    @property
-    def velocities(self):
-        if self._velocities:
-            return pd.DataFrame(self._velocities, columns=["vx", "vy", "vz"])
-
-    @property
-    def topology(self):
-        if self._topologies:
-            topology = {}
-            for k, v in self._topologies.items():
-                n = len(v[0])
-                columns = ["atom%d" % i for i in range(1, n + 1)]
-                df = pd.DataFrame(v, columns=columns)
-                label = [tuple([self.type_by_sites[j] for j in i]) for i in v]
-                df["label"] = label
-                topology[k] = df
-            return topology
 
     @classmethod
     def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True,
@@ -725,7 +699,7 @@ class ForceField(MSONable):
                           "types": [("H", "C", "C", "H"), ...]}, ...],
                 }
                 Topology of same type or equivalent types (e.g.,
-                ('C', 'H') and ('H', 'C') bonds) are NOT ALLOWED to
+                ("C", "H") and ("H", "C") bonds) are NOT ALLOWED to
                 be defined MORE THAN ONCE with DIFFERENT coefficients.
 
         """
