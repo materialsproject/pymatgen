@@ -65,12 +65,24 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
         self.assertAlmostEqual(self.bs.get_branch(10)[0]['name'], "Gamma-X")
 
     def test_dict_methods(self):
-        s = json.dumps(self.bs.as_dict())
+        s = self.bs.as_dict()
         self.assertIsNotNone(s)
-        s = json.dumps(self.bs2.as_dict())
+        self.assertIsNotNone(json.dumps(s))
+        s = self.bs2.as_dict()
         self.assertIsNotNone(s)
+        self.assertIsNotNone(json.dumps(s))
+        s = self.bs2.as_phononwebsite()
+        self.assertIsNotNone(s)
+        self.assertIsNotNone(json.dumps(s))
         self.assertMSONable(self.bs)
         self.assertMSONable(self.bs2)
+
+    def test_write_methods(self):
+        self.bs2.write_phononwebsite('test.json')
+
+    def tearDown(self):
+        if os.path.isfile('test.json'):
+            os.remove('test.json')
 
 if __name__ == '__main__':
     unittest.main()
