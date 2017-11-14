@@ -192,94 +192,6 @@ class PhononBandStructure(MSONable):
 
         return None
 
-    def write_phononwebsite(self,filename):
-        """
-        Write a json file for the phononwebsite:
-        http://henriquemiranda.github.io/phononwebsite
-        """
-        import json
-        with open(filename,'w') as f:
-            phononwebsite_json = json.dump(self.as_phononwebsite(),f)
-
-    def as_phononwebsite(self):
-        """
-        Return a dictionary with the phononwebsite format:
-        http://henriquemiranda.github.io/phononwebsite
-        """
-        d = {}
-
-        #default for now
-        d["repetitions"] = [3,3,3]
-    
-        #define the lattice
-        d["lattice"] = self.structure.lattice._matrix.tolist()
-      
-        #define atoms
-        atom_pos_car = []
-        atom_pos_red = []
-        atom_types = []
-        for site in self.structure.sites:
-            atom_pos_car.append(site._coords.tolist())
-            atom_pos_red.append(site._fcoords)
-            atom_types.append(site.species_string)
-   
-        d["natoms"] = len(atom_pos_car)
-        d["atom_pos_car"] = atom_pos_car
-        d["atom_pos_red"] = atom_pos_red
-        d["atom_types"] = atom_types
-        d["atom_numbers"] = self.structure.atomic_numbers
-        d["formula"] = self.structure.formula
-        d["name"] = self.structure.formula
-
-        #get qpoints
-        qpoints = []
-        for q in self.qpoints:
-            qpoints.append(q.as_dict()["ccoords"])
-        d["qpoints"] = qpoints
-
-        # get labels
-        high_sym_qpoints = []
-        hsq_dict = {}
-        for nq,q in enumerate(self.qpoints):
-            if q.label is not None:
-                high_sym_qpoints.append((nq,q.label))
-                hsq_dict[nq] = q.label
-        d["highsym_qpts"] = high_sym_qpoints
-
-        #get line_breaks
-        line_breaks = []
-        for nq in range(1,len(high_sym_qpoints)):
-            nq1 = high_sym_qpoints[nq-1][0]
-            nq2 = high_sym_qpoints[nq][0]
-            if nq2 != nq1+1:
-                line_breaks.append((nq1,nq2+1))
-        d["line_breaks"] = line_breaks
-
-        #get distances
-        dist = 0
-        distances = [dist]
-        for nq in range(1,len(qpoints)):
-            q1 = np.array(qpoints[nq])
-            q2 = np.array(qpoints[nq-1])
-            #detect jumps
-            if ((nq in hsq_dict) and (nq-1 in hsq_dict)):
-                dist += 0
-            else:
-                dist += np.linalg.norm(q1-q2)
-            distances.append(dist)
-        d["distances"] = distances
-
-        #eigenvalues
-        d["eigenvalues"] = self.bands.T.tolist()
-
-        #eigenvectors
-        eigenvectors = self.eigendisplacements.swapaxes(0,1)
-        eigenvectors = np.array([eigenvectors.real, eigenvectors.imag])
-        eigenvectors = np.rollaxis(eigenvectors,0,5)
-        d["vectors"] = eigenvectors.tolist()
- 
-        return d
-
     def as_dict(self):
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
@@ -464,6 +376,94 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                                           "end_index": b["end_index"],
                                           "index": i})
         return to_return
+
+    def write_phononwebsite(self,filename):
+        """
+        Write a json file for the phononwebsite:
+        http://henriquemiranda.github.io/phononwebsite
+        """
+        import json
+        with open(filename,'w') as f:
+            phononwebsite_json = json.dump(self.as_phononwebsite(),f)
+
+    def as_phononwebsite(self):
+        """
+        Return a dictionary with the phononwebsite format:
+        http://henriquemiranda.github.io/phononwebsite
+        """
+        d = {}
+
+        #default for now
+        d["repetitions"] = [3,3,3]
+    
+        #define the lattice
+        d["lattice"] = self.structure.lattice._matrix.tolist()
+      
+        #define atoms
+        atom_pos_car = []
+        atom_pos_red = []
+        atom_types = []
+        for site in self.structure.sites:
+            atom_pos_car.append(site._coords.tolist())
+            atom_pos_red.append(site._fcoords)
+            atom_types.append(site.species_string)
+   
+        d["natoms"] = len(atom_pos_car)
+        d["atom_pos_car"] = atom_pos_car
+        d["atom_pos_red"] = atom_pos_red
+        d["atom_types"] = atom_types
+        d["atom_numbers"] = self.structure.atomic_numbers
+        d["formula"] = self.structure.formula
+        d["name"] = self.structure.formula
+
+        #get qpoints
+        qpoints = []
+        for q in self.qpoints:
+            qpoints.append(q.as_dict()["ccoords"])
+        d["qpoints"] = qpoints
+
+        # get labels
+        high_sym_qpoints = []
+        hsq_dict = {}
+        for nq,q in enumerate(self.qpoints):
+            if q.label is not None:
+                high_sym_qpoints.append((nq,q.label))
+                hsq_dict[nq] = q.label
+        d["highsym_qpts"] = high_sym_qpoints
+
+        #get line_breaks
+        line_breaks = []
+        for nq in range(1,len(high_sym_qpoints)):
+            nq1 = high_sym_qpoints[nq-1][0]
+            nq2 = high_sym_qpoints[nq][0]
+            if nq2 != nq1+1:
+                line_breaks.append((nq1,nq2+1))
+        d["line_breaks"] = line_breaks
+
+        #get distances
+        dist = 0
+        distances = [dist]
+        for nq in range(1,len(qpoints)):
+            q1 = np.array(qpoints[nq])
+            q2 = np.array(qpoints[nq-1])
+            #detect jumps
+            if ((nq in hsq_dict) and (nq-1 in hsq_dict)):
+                dist += 0
+            else:
+                dist += np.linalg.norm(q1-q2)
+            distances.append(dist)
+        d["distances"] = distances
+
+        #eigenvalues
+        d["eigenvalues"] = self.bands.T.tolist()
+
+        #eigenvectors
+        eigenvectors = self.eigendisplacements.swapaxes(0,1)
+        eigenvectors = np.array([eigenvectors.real, eigenvectors.imag])
+        eigenvectors = np.rollaxis(eigenvectors,0,5)
+        d["vectors"] = eigenvectors.tolist()
+ 
+        return d
 
     def as_dict(self):
         d = super(PhononBandStructureSymmLine, self).as_dict()
