@@ -326,8 +326,10 @@ class MPRester(object):
                 criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
             else:
                 criteria = chemsys_formula_id_criteria
-
-            data = self.query(criteria, props)
+            try:
+                data = self.query(criteria, props)
+            except MPRestError:
+                return []
 
             entries = []
             for d in data:
