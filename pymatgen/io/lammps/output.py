@@ -276,12 +276,10 @@ class LammpsRun(MSONable):
         mol_config = []  # [ [atom id1, atom id2, ...], ... ]
         mol_masses = []  # [ [atom mass1, atom mass2, ...], ... ]
         # mol_charges = []
-        unique_atomic_masses = np.array([d["mass"] for d in self.lammps_data.masses])
-        mol_ids, atom_ids, atomic_types = [], [], []
-        for d in self.lammps_data.atoms:
-            mol_ids.append(d["molecule-ID"])
-            atom_ids.append(d["id"])
-            atomic_types.append(d["type"])
+        unique_atomic_masses = self.lammps_data.masses["mass"].values
+        mol_ids = self.lammps_data.atoms["molecule-ID"]
+        atom_ids = self.lammps_data.atoms.index
+        atomic_types = self.lammps_data.atoms["type"]
         unique_mol_ids = np.unique(mol_ids)
         atomic_masses = unique_atomic_masses[np.array(atomic_types) - 1]
         self.nmols = unique_mol_ids.size
