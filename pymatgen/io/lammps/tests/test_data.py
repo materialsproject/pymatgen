@@ -15,9 +15,10 @@ import json
 import numpy as np
 import pandas as pd
 from ruamel.yaml import YAML
-from pymatgen import Molecule, Element
+from pymatgen import Molecule, Element, Lattice, Structure
 
-from pymatgen.io.lammps.data import LammpsData, Topology, ForceField
+from pymatgen.io.lammps.data import LammpsData, Topology, ForceField,\
+    structure_2_lmpdata
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -542,6 +543,34 @@ class ForceFieldTest(unittest.TestCase):
         if os.path.exists("ff_test.yaml"):
             os.remove("ff_test.yaml")
 
+
+class FuncTest(unittest.TestCase):
+
+    def test_structure_2_lmpdata(self):
+        matrix = np.diag(np.random.randint(5, 14, size=(3,))) \
+                 + np.random.rand(3, 3) * 0.2 - 0.1
+        latt = Lattice(matrix)
+        frac_coords = np.random.rand(10, 3)
+        random_structure = Structure(latt, ["H"] * 10, frac_coords)
+        oxi_states = np.random.rand(10) - 0.5
+        random_structure.add_oxidation_state_by_site(oxi_states)
+        ld = structure_2_lmpdata(random_structure)
+        box_tilt = [0.0, 0.0, 0.0] if not ld.box_tilt else ld.box_tilt
+        box_bounds = np.array(ld.box_bounds)
+        np.testing.assert_array_equal(box_bounds[:, 0], np.zeros(3))
+        new_matrix = np.diag(box_bounds[:, 1])
+        new_matrix[1, 0] = box_tilt[0]
+        new_matrix[2, 0] = box_tilt[1]
+        new_matrix[2, 1] = box_tilt[2]
+        new_latt = Lattice(new_matrix)
+        np.testing.assert_array_almost_equal(new_latt.abc, latt.abc)
+        np.testing.assert_array_almost_equal(new_latt.angles, latt.angles)
+        coords = ld.atoms[["x", "y", "z"]].values
+        new_structure = Structure(new_latt, ['H'] * 10, coords,
+                                  coords_are_cartesian=True)
+        np.testing.assert_array_almost_equal(new_structure.frac_coords,
+                                             frac_coords)
+        self.assertEqual(len(ld.masses), 1)
 
 if __name__ == "__main__":
     unittest.main()

@@ -19,7 +19,7 @@ from six import string_types
 
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.core.structure import SiteCollection
-from pymatgen import Molecule, Element
+from pymatgen import Molecule, Element, Lattice
 
 """
 This module implements a core class LammpsData for generating/parsing 
@@ -856,3 +856,44 @@ class ForceField(MSONable):
                 for c in v:
                     c["types"] = [tuple(t) for t in c["types"]]
         return cls(d["mass_info"], d["nonbond_coeffs"], d["topo_coeffs"])
+
+
+def structure_2_lmpdata(structure, atom_style="charge"):
+    """
+    Convert a structure to a LammpsData object with no force field
+    parameters and topologies.
+
+    Args:
+        structure (Structure): Input structure.
+        atom_style (str): Choose between "atomic" (neutral) and
+            "charge" (charged). Default to "charge".
+
+    Returns:
+        LammpsData
+
+    """
+    assert structure.is_ordered, "Cannot convert disordered structure"
+    s = structure.copy()
+    s.remove_oxidation_states()
+
+    a, b, c = s.lattice.abc
+    m = s.lattice.matrix
+    xhi = a
+    xy = np.dot(m[1], m[0] / xhi)
+    yhi = np.sqrt(b ** 2 - xy ** 2)
+    xz = np.dot(m[2], m[0] / xhi)
+    yz = (np.dot(m[1], m[2]) - xy * xz) / yhi
+    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2)
+    box_bounds = [[0.0, xhi], [0.0, yhi], [0.0, zhi]]
+    box_tilt = [xy, xz, yz]
+    box_tilt = None if not any(box_tilt) else box_tilt
+    new_latt = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
+    s.modify_lattice(new_latt)
+
+    mass_info = [(i, i) for i in s.symbol_set]
+    ff = ForceField(mass_info)
+    topo = Topology(s)
+    return LammpsData.from_ff_and_topologies(ff=ff, topologies=[topo],
+                                             box_bounds=box_bounds,
+                                             box_tilt=box_tilt,
+                                             atom_style=atom_style)
