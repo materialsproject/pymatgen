@@ -445,36 +445,89 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
         l = Lattice.cubic(4)
+
+        # basic functionality
         s_orig = Structure(l, [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
                       [[0, 0, 0], [0.5, 0.5, 0.5]])
-        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.25)
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.05)
         s = dot.apply_transformation(s_orig)
         self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.2,
                                                        Element("Na"): 0.2,
                                                        Element("K"): 0.6})
 
-        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.1)
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.01)
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig)
 
         s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
-                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+                        [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.25,fix_denominator=False)
+        # fix_denominator
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.05,fix_denominator=False)
 
         s = dot.apply_transformation(s_orig_2)
         self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(1/2),
                                                        Element("Na"): Fraction(1/4),
                                                        Element("K"): Fraction(1/4)})
 
-        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=2,fix_denominator=True)
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.10,fix_denominator=True)
 
         s = dot.apply_transformation(s_orig_2)
-        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(4/9),
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(5/9),
                                                        Element("Na"): Fraction(2/9),
                                                        Element("K"): Fraction(2/9)})
 
-        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.5,fix_denominator=True)
+        # raise errors due to too low tolerance or too low max_denominator
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.01,fix_denominator=True)
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=3, tol=0.10,fix_denominator=True)
+        self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
+
+        # allow occupancies of zero (=> species removed in discretized structure)
+        s_orig_3 = Structure(l, [{"Li": 0.02, "Na": 0.48, "K": 0.50}, {"O": 1}],
+                        [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.10,fix_denominator=False,zerocc=True)
+
+        s = dot.apply_transformation(s_orig_3)
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Na"): Fraction(1/2),
+                                                       Element("K"): Fraction(1/2)})
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.10,fix_denominator=False,zerocc=False)
+
+        s = dot.apply_transformation(s_orig_3)
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(1/9),
+                                                       Element("Na"): Fraction(4/9),
+                                                       Element("K"): Fraction(4/9)})
+
+
+        # structures with two elements in equal occupancy in one site, which is not equal after discretization
+        s_orig_4 = Structure(l, [{"Li": 0.44, "Na": 0.28, "K": 0.28}, {"O": 1}],
+                        [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+        # gives always the same result (one element always gets the higher occupancy, may lead to systematic errors)
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.20,fix_denominator=True,rnd=False)
+       
+        s = dot.apply_transformation(s_orig_4)
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.4,
+                                                       Element("Na"): 0.2,
+                                                       Element("K"): 0.4})
+
+        # randomly gives either of the two equally accurate discretizations
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.20,fix_denominator=True,rnd=True)
+
+        s = dot.apply_transformation(s_orig_4)
+
+        try:
+            self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.4,
+                                                           Element("Na"): 0.2,
+                                                           Element("K"): 0.4})
+
+        except:
+            self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.4,
+                                                           Element("Na"): 0.4,
+                                                           Element("K"): 0.2})
+
 
 if __name__ == "__main__":
     unittest.main()
