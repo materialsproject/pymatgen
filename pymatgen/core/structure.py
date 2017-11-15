@@ -2798,7 +2798,8 @@ class Structure(IStructure, collections.MutableSequence):
         for i, site in enumerate(self._sites):
             new_sp = collections.defaultdict(float)
             for sp, occu in site.species_and_occu.items():
-                new_sp[Specie(sp.symbol, oxidation_state=sp.oxi_state)] += occu
+                oxi_state = getattr(sp, "oxi_state", None)
+                new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
             new_site = PeriodicSite(new_sp, site.frac_coords,
                                     self._lattice,
                                     coords_are_cartesian=False,
