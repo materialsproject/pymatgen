@@ -447,14 +447,30 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
         l = Lattice.cubic(4)
         s_orig = Structure(l, [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
                       [[0, 0, 0], [0.5, 0.5, 0.5]])
-        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.25)
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
         s = dot.apply_transformation(s_orig)
         self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.2,
                                                        Element("Na"): 0.2,
                                                        Element("K"): 0.6})
 
-        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.1)
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.01)
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig)
+
+        s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
+                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.25,
+                                                  fix_denominator=False)
+
+        s = dot.apply_transformation(s_orig_2)
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(1/2),
+                                                       Element("Na"): Fraction(1/4),
+                                                       Element("K"): Fraction(1/4)})
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.05,
+                                                  fix_denominator=True)
+        self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
+
 
 if __name__ == "__main__":
     unittest.main()

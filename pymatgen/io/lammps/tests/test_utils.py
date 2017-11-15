@@ -10,7 +10,7 @@ import unittest
 
 from pymatgen import Molecule
 from pymatgen.io.lammps.utils import Polymer
-from pymatgen.io.lammps.topology import Topology
+from pymatgen.io.lammps.data import Topology
 
 
 __author__ = 'Kiran Mathew'
@@ -68,11 +68,14 @@ class TestPolymer(unittest.TestCase):
                          len(self.peo_polymer_linear.molecule))
 
     def test_polymer_chain_topologies(self):
-        topology_random = Topology.from_molecule(self.peo_polymer.molecule, tol=0.1)
-        topology_linear = Topology.from_molecule(self.peo_polymer_linear.molecule, tol=0.1)
-        self.assertNotEqual(topology_linear.bonds, topology_random.bonds)
-        self.assertNotEqual(topology_linear.angles, topology_random.angles)
-        self.assertNotEqual(topology_linear.dihedrals, topology_random.dihedrals)
+        topology_random = Topology.from_bonding(self.peo_polymer.molecule)
+        topology_linear = Topology.from_bonding(self.peo_polymer_linear.molecule)
+        self.assertNotEqual(topology_linear.topologies["Bonds"],
+                            topology_random.topologies["Bonds"])
+        self.assertNotEqual(topology_linear.topologies["Angles"],
+                            topology_random.topologies["Angles"])
+        self.assertNotEqual(topology_linear.topologies["Dihedrals"],
+                            topology_random.topologies["Dihedrals"])
 
 
 class TestPackmolOutput(unittest.TestCase):
