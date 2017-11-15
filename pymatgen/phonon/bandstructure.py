@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 
+import collections
 import numpy as np
 
 from pymatgen.core.structure import Structure
@@ -404,8 +405,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         atom_pos_red = []
         atom_types = []
         for site in self.structure.sites:
-            atom_pos_car.append(site._coords.tolist())
-            atom_pos_red.append(site._fcoords)
+            atom_pos_car.append(site.coords.tolist())
+            atom_pos_red.append(site.frac_coords.tolist())
             atom_types.append(site.species_string)
    
         d["natoms"] = len(atom_pos_car)
@@ -423,42 +424,42 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         d["qpoints"] = qpoints
 
         # get labels
-        high_sym_qpoints = []
-        hsq_dict = {}
+        hsq_dict = collections.OrderedDict()
         for nq,q in enumerate(self.qpoints):
             if q.label is not None:
-                high_sym_qpoints.append((nq,q.label))
                 hsq_dict[nq] = q.label
-        d["highsym_qpts"] = high_sym_qpoints
-
-        #get line_breaks
-        line_breaks = []
-        for nq in range(1,len(high_sym_qpoints)):
-            nq1 = high_sym_qpoints[nq-1][0]
-            nq2 = high_sym_qpoints[nq][0]
-            if nq2 != nq1+1:
-                line_breaks.append((nq1,nq2+1))
-        d["line_breaks"] = line_breaks
 
         #get distances
         dist = 0
+        nqstart = 0
         distances = [dist]
+        line_breaks = []
         for nq in range(1,len(qpoints)):
             q1 = np.array(qpoints[nq])
             q2 = np.array(qpoints[nq-1])
             #detect jumps
-            if ((nq in hsq_dict) and (nq-1 in hsq_dict)):
+            if ((nq in hsq_dict) and (nq-1 in hsq_dict) and 
+                (hsq_dict[nq] != hsq_dict[nq-1]) ):
                 dist += 0
+                hsq_dict[nq-1] += "|"+hsq_dict[nq]
+                del hsq_dict[nq]
+                line_breaks.append((nqstart,nq))
+                nqstart = nq
             else:
                 dist += np.linalg.norm(q1-q2)
             distances.append(dist)
+        line_breaks.append((nqstart,len(qpoints)))
         d["distances"] = distances
+        d["line_breaks"] = line_breaks
+        d["highsym_qpts"] = list(hsq_dict.items())
 
         #eigenvalues
         d["eigenvalues"] = self.bands.T.tolist()
 
         #eigenvectors
-        eigenvectors = self.eigendisplacements.swapaxes(0,1)
+        eigenvectors = self.eigendisplacements.copy()
+        eigenvectors /= np.linalg.norm(eigenvectors[0,0,0])
+        eigenvectors = eigenvectors.swapaxes(0,1)
         eigenvectors = np.array([eigenvectors.real, eigenvectors.imag])
         eigenvectors = np.rollaxis(eigenvectors,0,5)
         d["vectors"] = eigenvectors.tolist()
