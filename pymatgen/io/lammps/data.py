@@ -384,7 +384,9 @@ class LammpsData(MSONable):
                                atom_style="full"):
         """
         Constructor building LammpsData from a ForceField object and a
-        list of Topology objects.
+        list of Topology objects. Do not support intermolecular
+        topologies since a Topology object includes data for ONE
+        molecule or structure only.
 
         Args:
             ff (ForceField): ForceField object with data for Masses and
@@ -418,8 +420,8 @@ class LammpsData(MSONable):
                 shift = len(labels)
                 for k, v in topo.topologies.items():
                     topo_collector[k].append(np.array(v) + shift + 1)
-                    topo_labels[k].extend([tuple([topo.type_by_sites[i]
-                                                  for i in t]) for t in v])
+                    topo_labels[k].extend([tuple([topo.type_by_sites[j]
+                                                  for j in t]) for t in v])
             if isinstance(v_collector, list):
                 v_collector.append(topo.velocities)
             mol_ids.extend([i + 1] * len(topo.sites))
@@ -439,6 +441,7 @@ class LammpsData(MSONable):
         if v_collector:
             velocities = pd.DataFrame(np.concatenate(v_collector),
                                       columns=SECTION_HEADERS["Velocities"])
+            velocities.index += 1
 
         topology = {k: None for k, v in topo_labels.items() if len(v) > 0}
         for k in topology:
@@ -446,11 +449,12 @@ class LammpsData(MSONable):
                               columns=SECTION_HEADERS[k][1:])
             df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
             if any(pd.isnull(df["type"])):
-                warnings.warn("Undefined %s removed" % k.lower())
+                warnings.warn("Undefined %s detected and removed" % k.lower())
                 df.dropna(subset=["type"], inplace=True)
                 df.reset_index(drop=True, inplace=True)
             df.index += 1
             topology[k] = df[SECTION_HEADERS[k]]
+        topology = {k: v for k, v in topology.items() if not v.empty}
 
         items.update({"atoms": atoms, "velocities": velocities,
                       "topology": topology})

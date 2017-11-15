@@ -8,6 +8,8 @@ from __future__ import division, print_function, unicode_literals, \
 import unittest
 import os
 import random
+from collections import OrderedDict
+import gzip
 import json
 
 import numpy as np
@@ -264,7 +266,52 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(nvt.atoms.loc[atom_id].name, atom_id)
 
     def test_from_ff_and_topologies(self):
-        pass
+        mass = OrderedDict()
+        mass["H"] = 1.0079401
+        mass["O"] = 15.999400
+        nonbond_coeffs = [[0.00774378, 0.98], [0.1502629, 3.1169]]
+        topo_coeffs = {"Bond Coeffs": [{"coeffs": [176.864, 0.9611],
+                                        "types": [("H", "O")]}],
+                       "Angle Coeffs": [{"coeffs": [42.1845, 109.4712],
+                                         "types": [("H", "O", "H")]}]}
+        ff = ForceField(mass.items(), nonbond_coeffs, topo_coeffs)
+        with gzip.open(os.path.join(test_dir, "topologies_ice.json.gz")) as f:
+            topo_dicts = json.load(f)
+        topologies = [Topology.from_dict(d) for d in topo_dicts]
+        box_bounds = [[-0.75694412, 44.165558],
+                      [0.38127473, 47.066074],
+                      [0.17900842, 44.193867]]
+        ice = LammpsData.from_ff_and_topologies(ff=ff, topologies=topologies,
+                                                box_bounds=box_bounds)
+        atoms = ice.atoms
+        bonds = ice.topology["Bonds"]
+        angles = ice.topology["Angles"]
+        np.testing.assert_array_equal(atoms.index.values,
+                                      np.arange(1, len(atoms) + 1))
+        np.testing.assert_array_equal(bonds.index.values,
+                                      np.arange(1, len(bonds) + 1))
+        np.testing.assert_array_equal(angles.index.values,
+                                      np.arange(1, len(angles) + 1))
+
+        i = random.randint(0, len(topologies) - 1)
+        sample = topologies[i]
+        in_atoms = ice.atoms[ice.atoms["molecule-ID"] == i + 1]
+        np.testing.assert_array_equal(in_atoms.index.values,
+                                      np.arange(3 * i + 1, 3 * i + 4))
+        np.testing.assert_array_equal(in_atoms["type"].values, [2, 1, 1])
+        np.testing.assert_array_equal(in_atoms["q"].values, sample.charges)
+        np.testing.assert_array_equal(in_atoms[["x", "y", "z"]].values,
+                                      sample.sites.cart_coords)
+        broken_topo_coeffs = {"Bond Coeffs": [{"coeffs": [176.864, 0.9611],
+                                               "types": [("H", "O")]}],
+                              "Angle Coeffs": [{"coeffs": [42.1845, 109.4712],
+                                                "types": [("H", "H", "H")]}]}
+        broken_ff = ForceField(mass.items(), nonbond_coeffs,
+                               broken_topo_coeffs)
+        ld_woangles = LammpsData.from_ff_and_topologies(ff=broken_ff,
+                                                        topologies=[sample],
+                                                        box_bounds=box_bounds)
+        self.assertNotIn("Angles", ld_woangles.topology)
 
     def test_json_dict(self):
         encoded = json.dumps(self.ethane.as_dict())
@@ -307,19 +354,19 @@ class TopologyTest(unittest.TestCase):
                                       "velocities": inner_velo})
         # q and v from site properties, while type from species_string
         topo = Topology(sites=m)
-        self.assertListEqual(topo.types, ["H"] * 10)
+        self.assertListEqual(topo.type_by_sites, ["H"] * 10)
         np.testing.assert_array_equal(topo.charges, inner_charge)
         np.testing.assert_array_equal(topo.velocities, inner_velo)
         # q and v from overriding, while type from site property
         topo_override = Topology(sites=m, atom_type="ff_map",
                                  charges=outer_charge,
                                  velocities=outer_velo)
-        self.assertListEqual(topo_override.types, ["D"] * 10)
+        self.assertListEqual(topo_override.type_by_sites, ["D"] * 10)
         np.testing.assert_array_equal(topo_override.charges, outer_charge)
         np.testing.assert_array_equal(topo_override.velocities, outer_velo)
         # test using a list of sites instead of SiteCollection
         topo_from_list = Topology(sites=m.sites)
-        self.assertListEqual(topo_from_list.types, topo.types)
+        self.assertListEqual(topo_from_list.type_by_sites, topo.type_by_sites)
         np.testing.assert_array_equal(topo_from_list.charges, topo.charges)
         np.testing.assert_array_equal(topo_from_list.velocities,
                                       topo.velocities)
