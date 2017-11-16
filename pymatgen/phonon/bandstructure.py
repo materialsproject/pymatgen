@@ -16,6 +16,28 @@ from monty.json import MSONable
 This module provides classes to define a phonon band structure.
 """
 
+def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order):
+    """
+    A function to order the phonon eigenvectors taken from phonopy
+    """
+    metric = np.abs(np.dot(prev_eigvecs.conjugate().T, eigvecs))
+    connection_order = []
+    indices = list(range(len(metric)))
+    indices.reverse()
+    for overlaps in metric:
+        maxval = 0
+        for i in indices:
+            val = overlaps[i]
+            if i in connection_order:
+                continue
+            if val > maxval:
+                maxval = val
+                maxindex = i
+        connection_order.append(maxindex)
+
+    band_order = [connection_order[x] for x in prev_band_order]
+    return band_order
+
 
 class PhononBandStructure(MSONable):
     """
@@ -467,6 +489,28 @@ class PhononBandStructureSymmLine(PhononBandStructure):
  
         return d
 
+    def band_reorder(self):
+        """
+        Re-order the eigenvalues according to the similarity of the eigenvectors
+        """
+        nphonons,nqpoints = self.bands.shape
+        eiv = self.eigendisplacements
+        eig = self.bands
+
+        for nq in range(1,nqpoints):
+            #get qpoint
+            eigq = eig[:,nq]
+            eivq = eiv[:,nq]
+
+            #get order
+            order = estimate_band_connection(eiv[:,nq-1].reshape([nphonons,nphonons]).T,
+                                             eiv[:,nq].reshape([nphonons,nphonons]).T,
+                                             range(nphonons))
+
+            #set order
+            eig[:,nq] = eigq[order]
+            eiv[:,nq] = eivq[order]
+ 
     def as_dict(self):
         d = super(PhononBandStructureSymmLine, self).as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
