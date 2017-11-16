@@ -459,7 +459,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
         #eigenvectors
         eigenvectors = self.eigendisplacements.copy()
-        eigenvectors /= np.linalg.norm(eigenvectors[0,0,0])
+        eigenvectors /= np.linalg.norm(eigenvectors[0,0])
         eigenvectors = eigenvectors.swapaxes(0,1)
         eigenvectors = np.array([eigenvectors.real, eigenvectors.imag])
         eigenvectors = np.rollaxis(eigenvectors,0,5)
