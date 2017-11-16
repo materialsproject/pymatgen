@@ -453,7 +453,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         d["highsym_qpts"] = list(hsq_dict.items())
 
         #eigenvalues
-        thz2cm = 33.35641
+        thz2cm1 = 33.35641
         bands = self.bands.copy()*thz2cm1
         d["eigenvalues"] = self.bands.T.tolist()
 
