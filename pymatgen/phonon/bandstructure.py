@@ -440,7 +440,6 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             #detect jumps
             if ((nq in hsq_dict) and (nq-1 in hsq_dict) and 
                 (hsq_dict[nq] != hsq_dict[nq-1]) ):
-                dist += 0
                 hsq_dict[nq-1] += "|"+hsq_dict[nq]
                 del hsq_dict[nq]
                 line_breaks.append((nqstart,nq))
@@ -454,6 +453,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         d["highsym_qpts"] = list(hsq_dict.items())
 
         #eigenvalues
+        thz2cm = 33.35641
+        bands = self.bands.copy()*thz2cm1
         d["eigenvalues"] = self.bands.T.tolist()
 
         #eigenvectors
