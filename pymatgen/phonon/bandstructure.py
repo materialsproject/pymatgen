@@ -477,7 +477,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         #eigenvalues
         thz2cm1 = 33.35641
         bands = self.bands.copy()*thz2cm1
-        d["eigenvalues"] = self.bands.T.tolist()
+        d["eigenvalues"] = bands.T.tolist()
 
         #eigenvectors
         eigenvectors = self.eigendisplacements.copy()
