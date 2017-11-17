@@ -238,7 +238,7 @@ class NearNeighbors(object):
 
         return [e['site'] for e in self.get_nn_info(structure, n)]
 
-    def get_weights_of_nn_sites(self, n):
+    def get_weights_of_nn_sites(self, structure, n):
         """
         Get weight associated with each near neighbor of site with
         index n in structure.
