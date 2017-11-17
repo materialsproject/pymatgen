@@ -16,17 +16,23 @@ from monty.json import MSONable
 This module provides classes to define a phonon band structure.
 """
 
+def eigenvectors_from_displacements(disp,masses):
+    """
+    Calculate the eigenvectors from the atomic displacements
+    """
+    nphonons,natoms,ndirections = disp.shape
+    sqrt_masses = np.sqrt(masses)
+    return np.einsum("nax,a->nax",disp,sqrt_masses) 
+
 def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order):
     """
     A function to order the phonon eigenvectors taken from phonopy
     """
     metric = np.abs(np.dot(prev_eigvecs.conjugate().T, eigvecs))
     connection_order = []
-    indices = list(range(len(metric)))
-    indices.reverse()
     for overlaps in metric:
         maxval = 0
-        for i in indices:
+        for i in reversed(range(len(metric))):
             val = overlaps[i]
             if i in connection_order:
                 continue
@@ -36,8 +42,8 @@ def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order):
         connection_order.append(maxindex)
 
     band_order = [connection_order[x] for x in prev_band_order]
-    return band_order
 
+    return band_order
 
 class PhononBandStructure(MSONable):
     """
@@ -499,16 +505,22 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         nphonons,nqpoints = self.bands.shape
         order = np.zeros([nqpoints,nphonons],dtype=int)
         order[0] = np.array(range(nphonons))
-                
+        
+        #get the atomic masses
+        atomic_masses = [ site.specie.atomic_mass for site in self.structure.sites ]
+ 
         #get order
         for nq in range(1,nqpoints):
-            order[nq] = estimate_band_connection(eiv[:,nq-1].reshape([nphonons,nphonons]).T,
-                                                 eiv[:,nq].reshape([nphonons,nphonons]).T,
+            old_eiv = eigenvectors_from_displacements(eiv[:,nq-1],atomic_masses)
+            new_eiv = eigenvectors_from_displacements(eiv[:,nq],  atomic_masses)
+            order[nq] = estimate_band_connection(old_eiv.reshape([nphonons,nphonons]).T,
+                                                 new_eiv.reshape([nphonons,nphonons]).T,
                                                  order[nq-1])
+
         #reorder
         for nq in range(1,nqpoints):
             eivq=eiv[:,nq]
-            eigq=eig[:,nq] 
+            eigq=eig[:,nq]
             eiv[:,nq] = eivq[order[nq]]
             eig[:,nq] = eigq[order[nq]]
     
