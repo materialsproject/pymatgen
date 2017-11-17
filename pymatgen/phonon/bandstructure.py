@@ -493,23 +493,25 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         """
         Re-order the eigenvalues according to the similarity of the eigenvectors
         """
-        nphonons,nqpoints = self.bands.shape
         eiv = self.eigendisplacements
         eig = self.bands
-
+    
+        nphonons,nqpoints = self.bands.shape
+        order = np.zeros([nqpoints,nphonons],dtype=int)
+        order[0] = np.array(range(nphonons))
+                
+        #get order
         for nq in range(1,nqpoints):
-            #get qpoint
-            eigq = eig[:,nq]
-            eivq = eiv[:,nq]
-
-            #get order
-            order = estimate_band_connection(eiv[:,nq-1].reshape([nphonons,nphonons]).T,
-                                             eiv[:,nq].reshape([nphonons,nphonons]).T,
-                                             range(nphonons))
-
-            #set order
-            eig[:,nq] = eigq[order]
-            eiv[:,nq] = eivq[order]
+            order[nq] = estimate_band_connection(eiv[:,nq-1].reshape([nphonons,nphonons]).T,
+                                                 eiv[:,nq].reshape([nphonons,nphonons]).T,
+                                                 order[nq-1])
+        #reorder
+        for nq in range(1,nqpoints):
+            eivq=eiv[:,nq]
+            eigq=eig[:,nq] 
+            eiv[:,nq] = eivq[order[nq]]
+            eig[:,nq] = eigq[order[nq]]
+    
  
     def as_dict(self):
         d = super(PhononBandStructureSymmLine, self).as_dict()
