@@ -262,9 +262,9 @@ class LammpsData(MSONable):
             f.write(self.get_string(distance=distance, velocity=velocity,
                                     charge=charge))
 
-    def tear_down(self, atom_labels=None, guess_element=True,
-                  ff_label="ff_map"):
-        atoms_df = self.atoms
+    def disassemble(self, atom_labels=None, guess_element=True,
+                    ff_label="ff_map"):
+        atoms_df = self.atoms.copy()
         if "nx" in atoms_df.columns:
             box_dim = np.ptp(self.box_bounds, axis=1)
             atoms_df[["x", "y", "z"]] += atoms_df[["nx", "ny", "nz"]].values \
@@ -282,7 +282,7 @@ class LammpsData(MSONable):
                 df = atoms_df[atoms_df["molecule-ID"] == k]
                 data_by_mols[k] = {"Atoms": df}
 
-        masses = self.masses
+        masses = self.masses.copy()
         masses["label"] = atom_labels
         unique_masses = np.unique(masses["mass"])
         if guess_element:
@@ -294,8 +294,8 @@ class LammpsData(MSONable):
                 else:
                     break
             ref_masses = np.array(ref_masses)
-            atomic_numbers = [(np.abs(ref_masses - um)).argmin() + 1
-                              for um in unique_masses]
+            atomic_numbers = np.argmin(
+                np.abs(ref_masses - unique_masses[:, None]), axis=1) + 1
             symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
         else:
             symbols = ["Q%s" % a for a in
@@ -311,17 +311,16 @@ class LammpsData(MSONable):
         mass_info = [tuple([r["label"], r["mass"]])
                      for _, r in masses.iterrows()]
 
-        nonbond_coeffs = None
-        if "PairIJ Coeffs" in self.force_field:
-            nbc = self.force_field["PairIJ Coeffs"]
-            nbc = nbc.sort_values(["id1", "id2"]).drop(["id1", "id2"], axis=1)
-            nonbond_coeffs = [list(t) for t in nbc.itertuples(False, None)]
-        elif "Pair Coeffs" in self.force_field:
-            nbc = self.force_field["Pair Coeffs"].sort_index()
-            nonbond_coeffs = [list(t) for t in nbc.itertuples(False, None)]
-
-        topo_coeffs = None
+        nonbond_coeffs, topo_coeffs = None, None
         if self.force_field:
+            if "PairIJ Coeffs" in self.force_field:
+                nbc = self.force_field["PairIJ Coeffs"]
+                nbc = nbc.sort_values(["id1", "id2"]).drop(["id1", "id2"], axis=1)
+                nonbond_coeffs = [list(t) for t in nbc.itertuples(False, None)]
+            elif "Pair Coeffs" in self.force_field:
+                nbc = self.force_field["Pair Coeffs"].sort_index()
+                nonbond_coeffs = [list(t) for t in nbc.itertuples(False, None)]
+
             topo_coeffs = {k: [] for k in SECTION_KEYWORDS["ff"][2:]
                            if k in self.force_field}
             for kw in topo_coeffs.keys():
