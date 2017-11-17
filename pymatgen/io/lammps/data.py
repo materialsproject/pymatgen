@@ -264,6 +264,35 @@ class LammpsData(MSONable):
 
     def disassemble(self, atom_labels=None, guess_element=True,
                     ff_label="ff_map"):
+        """
+        Break down LammpsData to ForceField and a series of Topology.
+        Do not support complex force field defined not just on atom
+        types, where the same type or equivalent types of topology may
+        have more than one set of coefficients. Also do not support
+        intermolecular topologies (with atoms from different
+        molecule-ID) since a Topology object includes data for ONE
+        molecule or structure only.
+
+
+        Args:
+            atom_labels ([str]): List of strings (must be different
+                from one another) for labelling each atom type found in
+                Masses section. Default to None, where the labels are
+                automaticaly added based on either element guess or
+                dummy specie assignment.
+            guess_element (bool): Whether to guess the element based on
+                its atomic mass. Default to True, otherwise dummy
+                species "Qa", "Qb", ... will be assigned to various
+                atom types. The guessed or assigned elements will be
+                reflected on atom labels if atom_labels is None, as
+                well as on the species of molecule in each Topology.
+            ff_label (str): Site property key for labeling atoms of
+                different types. Default to "ff_map".
+
+        Returns:
+            ForceField, [Topology]
+
+        """
         atoms_df = self.atoms.copy()
         if "nx" in atoms_df.columns:
             box_dim = np.ptp(self.box_bounds, axis=1)
