@@ -359,7 +359,7 @@ class TopologyTest(unittest.TestCase):
         np.testing.assert_array_equal(topo.charges, inner_charge)
         np.testing.assert_array_equal(topo.velocities, inner_velo)
         # q and v from overriding, while type from site property
-        topo_override = Topology(sites=m, atom_type="ff_map",
+        topo_override = Topology(sites=m, ff_label="ff_map",
                                  charges=outer_charge,
                                  velocities=outer_velo)
         self.assertListEqual(topo_override.type_by_sites, ["D"] * 10)

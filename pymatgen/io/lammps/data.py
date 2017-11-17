@@ -52,6 +52,14 @@ SECTION_KEYWORDS = {"atom": ["Atoms", "Velocities", "Masses",
                                "AngleAngleTorsion Coeffs",
                                "BondBond13 Coeffs", "AngleAngle Coeffs"]}
 
+CLASS2_KEYWORDS = {"Angle Coeffs": ["BondBond Coeffs", "BondAngle Coeffs"],
+                   "Dihedral Coeffs": ["MiddleBondTorsion Coeffs",
+                                       "EndBondTorsion Coeffs",
+                                       "AngleTorsion Coeffs",
+                                       "AngleAngleTorsion Coeffs",
+                                       "BondBond13 Coeffs"],
+                   "Improper Coeffs": ["AngleAngle Coeffs"]}
+
 SECTION_HEADERS = {"Masses": ["mass"],
                    "Velocities": ["vx", "vy", "vz"],
                    "Bonds": ["type", "atom1", "atom2"],
@@ -253,6 +261,132 @@ class LammpsData(MSONable):
         with open(filename, "w") as f:
             f.write(self.get_string(distance=distance, velocity=velocity,
                                     charge=charge))
+
+    def tear_down(self, atom_labels=None, guess_element=True,
+                  ff_label="ff_map"):
+        atoms_df = self.atoms
+        if "nx" in atoms_df.columns:
+            box_dim = np.ptp(self.box_bounds, axis=1)
+            atoms_df[["x", "y", "z"]] += atoms_df[["nx", "ny", "nz"]].values \
+                                         * box_dim
+        atoms_df = pd.concat([atoms_df, self.velocities], axis=1)
+
+        mids = atoms_df.get("molecule-ID")
+        if mids is None:
+            unique_mids = [1]
+            data_by_mols = {1: {"Atoms": atoms_df}}
+        else:
+            unique_mids = np.unique(mids)
+            data_by_mols = {}
+            for k in unique_mids:
+                df = atoms_df[atoms_df["molecule-ID"] == k]
+                data_by_mols[k] = {"Atoms": df}
+
+        masses = self.masses
+        masses["label"] = atom_labels
+        unique_masses = np.unique(masses["mass"])
+        if guess_element:
+            ref_masses = []
+            for el in Element:
+                mass = el.atomic_mass.real
+                if mass < unique_masses[-1] + 1:
+                    ref_masses.append(mass)
+                else:
+                    break
+            ref_masses = np.array(ref_masses)
+            atomic_numbers = [(np.abs(ref_masses - um)).argmin() + 1
+                              for um in unique_masses]
+            symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
+        else:
+            symbols = ["Q%s" % a for a in
+                       map(chr, range(97, 97 + len(unique_masses)))]
+        for um, s in zip(unique_masses, symbols):
+            masses.loc[masses["mass"] == um, "element"] = s
+        if atom_labels is None:
+            for el, vc in masses["element"].value_counts().iteritems():
+                masses.loc[masses["element"] == el, "label"] = \
+                    ["%s%d" % (el, c) for c in range(1, vc + 1)]
+        assert masses["label"].nunique(dropna=False) == len(masses), \
+            "Expecting unique atom label for each type"
+        mass_info = [tuple([r["label"], r["mass"]])
+                     for _, r in masses.iterrows()]
+
+        nonbond_coeffs = None
+        if "PairIJ Coeffs" in self.force_field:
+            nbc = self.force_field["PairIJ Coeffs"]
+            nbc = nbc.sort_values(["id1", "id2"]).drop(["id1", "id2"], axis=1)
+            nonbond_coeffs = [list(t) for t in nbc.itertuples(False, None)]
+        elif "Pair Coeffs" in self.force_field:
+            nbc = self.force_field["Pair Coeffs"].sort_index()
+            nonbond_coeffs = [list(t) for t in nbc.itertuples(False, None)]
+
+        topo_coeffs = None
+        if self.force_field:
+            topo_coeffs = {k: [] for k in SECTION_KEYWORDS["ff"][2:]
+                           if k in self.force_field}
+            for kw in topo_coeffs.keys():
+                class2_coeffs = {k: list(v.itertuples(False, None))
+                                 for k, v in self.force_field.items()
+                                 if k in CLASS2_KEYWORDS.get(kw, [])}
+                ff_df = self.force_field[kw]
+                for t in ff_df.itertuples(True, None):
+                    d = {"coeffs": list(t[1:]), "types": []}
+                    if class2_coeffs:
+                        d.update({k: list(v[t[0] - 1])
+                                  for k, v in class2_coeffs.items()})
+                    topo_coeffs[kw].append(d)
+
+        if self.topology:
+            label_topo = lambda t: tuple(masses.loc[atoms_df.loc[t, "type"],
+                                                    "label"])
+            for k, v in self.topology.items():
+                ff_kw = k[:-1] + " Coeffs"
+                for topo in v.itertuples(False, None):
+                    topo_idx = topo[0] - 1
+                    indices = topo[1:]
+                    mids = atoms_df.loc[indices, "molecule-ID"].unique()
+                    assert len(mids) == 1, \
+                        "Do not support intermolecular topology formed " \
+                        "by atoms with different molecule-IDs"
+                    label = label_topo(indices)
+                    topo_coeffs[ff_kw][topo_idx]["types"].append(label)
+                    if data_by_mols[mids[0]].get(k):
+                        data_by_mols[mids[0]][k].append(indices)
+                    else:
+                        data_by_mols[mids[0]][k] = [indices]
+
+        if topo_coeffs:
+            for v in topo_coeffs.values():
+                for d in v:
+                    d["types"] = list(set(d["types"]))
+
+        ff = ForceField(mass_info=mass_info, nonbond_coeffs=nonbond_coeffs,
+                        topo_coeffs=topo_coeffs)
+
+        topo_list = []
+        for mid in unique_mids:
+            data = data_by_mols[mid]
+            atoms = data["Atoms"]
+            shift = min(atoms.index)
+            type_ids = atoms["type"]
+            species = masses.loc[type_ids, "element"]
+            labels = masses.loc[type_ids, "label"]
+            coords = atoms[["x", "y", "z"]]
+            m = Molecule(species.values, coords.values,
+                         site_properties={ff_label: labels.values})
+            charges = atoms.get("q")
+            velocities = atoms[["vx", "vy", "vz"]] if "vx" in atoms.columns \
+                else None
+            topologies = {}
+            for kw in SECTION_KEYWORDS["topology"]:
+                if data.get(kw):
+                    topologies[kw] = (np.array(data[kw]) - shift).tolist()
+            topologies = None if not topologies else topologies
+            topo_list.append(Topology(sites=m, ff_label=ff_label,
+                                      charges=charges, velocities=velocities,
+                                      topologies=topologies))
+
+        return ff, topo_list
 
     @classmethod
     def from_file(cls, filename, atom_style="full", sort_id=False):
@@ -512,14 +646,14 @@ class Topology(MSONable):
 
     """
 
-    def __init__(self, sites, atom_type=None, charges=None, velocities=None,
+    def __init__(self, sites, ff_label=None, charges=None, velocities=None,
                  topologies=None):
         """
 
         Args:
             sites ([Site] or SiteCollection): A group of sites in a
                 list or as a Molecule/Structure.
-            atom_type (str): Site property key for labeling atoms of
+            ff_label (str): Site property key for labeling atoms of
                 different types. Default to None, i.e., use
                 site.species_string.
             charges ([q, ...]): Charge of each site in a (n,)
@@ -544,8 +678,8 @@ class Topology(MSONable):
         if not isinstance(sites, SiteCollection):
             sites = Molecule.from_sites(sites)
 
-        if atom_type:
-            type_by_sites = sites.site_properties.get(atom_type)
+        if ff_label:
+            type_by_sites = sites.site_properties.get(ff_label)
         else:
             type_by_sites = [site.species_string for site in sites]
         # search for site property if not override
@@ -570,7 +704,7 @@ class Topology(MSONable):
                           if k in SECTION_KEYWORDS["topology"]}
 
         self.sites = sites
-        self.atom_type = atom_type
+        self.ff_label = ff_label
         self.charges = charges
         self.velocities = velocities
         self.topologies = topologies
@@ -579,7 +713,7 @@ class Topology(MSONable):
 
     @classmethod
     def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True,
-                     atom_type=None, charges=None, velocities=None, tol=0.1):
+                     ff_label=None, charges=None, velocities=None, tol=0.1):
         """
         Another constructor that creates an instance from a molecule.
         Covalent bonds and other bond-based topologies (angles and
@@ -592,7 +726,7 @@ class Topology(MSONable):
                 dihedral searching will be skipped. Default to True.
             angle (bool): Whether find angles. Default to True.
             dihedral (bool): Whether find dihedrals. Default to True.
-            atom_type (str): Site property key for labeling atoms of
+            ff_label (str): Site property key for labeling atoms of
                 different types. Default to None, i.e., use
                 site.species_string.
             charges ([q, ...]): Charge of each site in a (n,)
@@ -610,7 +744,7 @@ class Topology(MSONable):
         bond_list = [list(map(molecule.index, [b.site1, b.site2]))
                      for b in real_bonds]
         if not all((bond, bond_list)):
-            return cls(sites=molecule, atom_type=atom_type, charges=charges,
+            return cls(sites=molecule, ff_label=ff_label, charges=charges,
                        velocities=velocities)
         else:
             angle_list, dihedral_list = [], []
@@ -646,7 +780,7 @@ class Topology(MSONable):
                                  [bond_list, angle_list, dihedral_list])
                           if len(v) > 0}
             topologies = None if len(topologies) == 0 else topologies
-            return cls(sites=molecule, atom_type=atom_type, charges=charges,
+            return cls(sites=molecule, ff_label=ff_label, charges=charges,
                        velocities=velocities, topologies=topologies)
 
 
@@ -761,16 +895,6 @@ class ForceField(MSONable):
         return {kw: pair_df}
 
     def _process_topo(self, kw):
-        class2_kws = {
-            "Bond Coeffs": [],
-            "Angle Coeffs": ["BondBond Coeffs", "BondAngle Coeffs"],
-            "Dihedral Coeffs": ["MiddleBondTorsion Coeffs",
-                                "EndBondTorsion Coeffs",
-                                "AngleTorsion Coeffs",
-                                "AngleAngleTorsion Coeffs",
-                                "BondBond13 Coeffs"],
-            "Improper Coeffs": ["AngleAngle Coeffs"]
-        }
 
         def find_eq_types(label, section):
             if section.startswith("Improper"):
@@ -783,7 +907,7 @@ class ForceField(MSONable):
 
         main_data, distinct_types = [], []
         class2_data = {k: [] for k in self.topo_coeffs[kw][0].keys()
-                       if k in class2_kws[kw]}
+                       if k in CLASS2_KEYWORDS.get(kw, [])}
         for i, d in enumerate(self.topo_coeffs[kw]):
             main_data.append(d["coeffs"])
             distinct_types.append(d["types"])
