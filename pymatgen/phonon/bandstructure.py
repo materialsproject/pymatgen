@@ -16,6 +16,16 @@ from monty.json import MSONable
 This module provides classes to define a phonon band structure.
 """
 
+def get_reasonable_repetitions(natoms):
+    """
+    Choose the number of repetitions
+    according to the number of atoms in the system
+    """
+    if (natoms < 4):        return [3,3,3]
+    if (4 < natoms < 15):   return [2,2,2]
+    if (15 < natoms < 50):  return [2,2,1]
+    if (50 < natoms):       return [1,1,1]
+
 def eigenvectors_from_displacements(disp,masses):
     """
     Calculate the eigenvectors from the atomic displacements
@@ -422,9 +432,6 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         """
         d = {}
 
-        #default for now
-        d["repetitions"] = [3,3,3]
-    
         #define the lattice
         d["lattice"] = self.structure.lattice._matrix.tolist()
       
@@ -436,7 +443,10 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             atom_pos_car.append(site.coords.tolist())
             atom_pos_red.append(site.frac_coords.tolist())
             atom_types.append(site.species_string)
-   
+
+        #default for now
+        d["repetitions"] = get_reasonable_repetitions(len(atom_pos_car))
+    
         d["natoms"] = len(atom_pos_car)
         d["atom_pos_car"] = atom_pos_car
         d["atom_pos_red"] = atom_pos_red
@@ -466,9 +476,9 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             q1 = np.array(qpoints[nq])
             q2 = np.array(qpoints[nq-1])
             #detect jumps
-            if ((nq in hsq_dict) and (nq-1 in hsq_dict) and 
-                (hsq_dict[nq] != hsq_dict[nq-1]) ):
-                hsq_dict[nq-1] += "|"+hsq_dict[nq]
+            if ((nq in hsq_dict) and (nq-1 in hsq_dict)):
+                if (hsq_dict[nq] != hsq_dict[nq-1]):
+                    hsq_dict[nq-1] += "|"+hsq_dict[nq]
                 del hsq_dict[nq]
                 line_breaks.append((nqstart,nq))
                 nqstart = nq
