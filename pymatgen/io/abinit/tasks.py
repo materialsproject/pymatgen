@@ -26,7 +26,7 @@ from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MSONable
 from monty.fnmatch import WildCard
 from pymatgen.core.units import Memory
-from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
+from pymatgen.util.serialization import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
 from . import qutils as qu
@@ -55,7 +55,6 @@ __all__ = [
     "SigmaTask",
     "OpticTask",
     "AnaddbTask",
-    "EphTask",
 ]
 
 import logging
@@ -688,6 +687,11 @@ batch_adapter:
         if kwargs:
             raise ValueError("Found invalid keywords in the taskmanager file:\n %s" % str(list(kwargs.keys())))
 
+    @lazy_property
+    def abinit_build(self):
+        """:class:`AbinitBuild` object with Abinit version and options used to build the code"""
+        return AbinitBuild(manager=self)
+
     def to_shell_manager(self, mpi_procs=1):
         """
         Returns a new `TaskManager` with the same parameters as self but replace the :class:`QueueAdapter`
@@ -1170,6 +1174,18 @@ class AbinitBuild(object):
         app("    Netcdf: %s" % self.has_netcdf)
         return "\n".join(lines)
 
+    def version_ge(self, version_string):
+        """True is Abinit version is >= version_string"""
+        return self.compare_version(version_string, ">=")
+
+    def compare_version(self, version_string, op):
+        """Compare Abinit version to `version_string` with operator `op`"""
+        from pkg_resources import parse_version
+        from monty.operator import operator_from_str
+        op = operator_from_str(op)
+        return op(parse_version(self.version), parse_version(version_string))
+
+
 
 class FakeProcess(object):
     """
@@ -1473,7 +1489,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def executable(self):
         """
         Path to the executable associated to the task (internally stored in self._executable).
@@ -3643,44 +3660,6 @@ class EphTask(AbinitTask):
     Class for electron-phonon calculations.
     """
     color_rgb = np.array((255, 128, 0)) / 255
-
-    def make_links(self):
-        """Replace the default behaviour of make_links"""
-
-        for dep in self.deps:
-            if dep.exts == ["1DEN"]:
-                phonon_task = dep.node
-
-                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
-                rfdir   = list(phonon_task.input["rfdir"])
-                rfatpol = list(phonon_task.input["rfatpol"])
-
-                if rfatpol[0] != rfatpol[1]:
-                    raise RuntimeError("Only one atom should be specifned in rfdir but rfatpol is %d %d" % tuple(rfatpol) )
-                rfatpol = rfatpol[0]-1
-
-                if rfdir.count(1) != 1:
-                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
-
-                idir = rfdir.index(1) + 1
-                natoms = len(phonon_task.input.structure)
-                den_case = idir +  3 * rfatpol
-
-                #TODO: make this a bit nicer (only for testing ATM)
-                out_den = dep.node.outdir.path_in("out_DEN%d.nc" % den_case)
-                infile = self.indir.path_in("in_DEN.nc")
-                os.symlink(out_den, infile)
-
-            elif dep.exts == ["WFK"]:
-                gs_task = dep.node
-                out_wfk = gs_task.outdir.has_abiext("WFK")
-                if not out_wfk:
-                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
-
-                os.symlink(out_wfk, self.indir.path_in("in_WFK.nc"))
-
-            else:
-                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
 
 
 class ManyBodyTask(AbinitTask):
