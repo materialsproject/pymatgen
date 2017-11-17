@@ -93,7 +93,7 @@ class LammpsData(MSONable):
             masses (pandas.DataFrame): DataFrame with one column
                 ["mass"] for Masses section.
             atoms (pandas.DataFrame): DataFrame with multiple columns
-                for Atoms section. Column names
+                for Atoms section. Column names vary with atom_style.
             box_bounds: A (3, 2) array/list of floats setting the
                 boundaries of simulation box.
             box_tilt: A (3,) array/list of floats setting the tilt of
@@ -179,7 +179,6 @@ class LammpsData(MSONable):
 
 {body}
 """
-        # format box
         box_ph = "{:.%df}" % distance
         box_lines = []
         for bound, d in zip(self.box_bounds, "xyz"):
@@ -191,8 +190,6 @@ class LammpsData(MSONable):
             box_lines.append(tilt_format.format(*self.box_tilt))
         box = "\n".join(box_lines)
 
-        # collect stats and sections
-        # force field
         body_dict = OrderedDict()
         body_dict["Masses"] = self.masses
         types = OrderedDict()
@@ -205,7 +202,6 @@ class LammpsData(MSONable):
                 if kw in SECTION_KEYWORDS["ff"][2:]:
                     types[kw.lower()[:-7]] = len(self.force_field[kw])
 
-        # topology
         body_dict["Atoms"] = self.atoms
         counts = OrderedDict()
         counts["atoms"] = len(self.atoms)
@@ -217,7 +213,6 @@ class LammpsData(MSONable):
                     body_dict[kw] = self.topology[kw]
                     counts[kw.lower()] = len(self.topology[kw])
 
-        # format stats
         all_stats = list(counts.values()) + list(types.values())
         stats_template = "{:>%d}  {}" % len(str(max(all_stats)))
         count_lines = [stats_template.format(v, k) for k, v in counts.items()]
@@ -225,7 +220,6 @@ class LammpsData(MSONable):
                       for k, v in types.items()]
         stats = "\n".join(count_lines + [""] + type_lines)
 
-        # format sections
         map_coords = lambda q: ("{:.%df}" % distance).format(q)
         map_velos = lambda q: ("{:.%df}" % velocity).format(q)
         map_charges = lambda q: ("{:.%df}" % charge).format(q)
@@ -248,7 +242,7 @@ class LammpsData(MSONable):
         Writes LammpsData to file.
 
         Args:
-            filename (str): Filename write.
+            filename (str): Filename.
             distance (int): No. of significant figures to output for
                 box settings (bounds and tilt) and atomic coordinates.
                 Default to 6.
@@ -265,14 +259,14 @@ class LammpsData(MSONable):
     def disassemble(self, atom_labels=None, guess_element=True,
                     ff_label="ff_map"):
         """
-        Break down LammpsData to ForceField and a series of Topology.
-        Do not support complex force field defined not just on atom
-        types, where the same type or equivalent types of topology may
-        have more than one set of coefficients. Also do not support
-        intermolecular topologies (with atoms from different
-        molecule-ID) since a Topology object includes data for ONE
-        molecule or structure only.
-
+        Breaks down LammpsData to ForceField and a series of Topology.
+        RESTRICTIONS APPLIED:
+        1. No complex force field defined not just on atom
+            types, where the same type or equivalent types of topology
+            may have more than one set of coefficients.
+        2. No intermolecular topologies (with atoms from different
+            molecule-ID) since a Topology object includes data for ONE
+            molecule or structure only.
 
         Args:
             atom_labels ([str]): List of strings (must be different
@@ -324,7 +318,7 @@ class LammpsData(MSONable):
                        map(chr, range(97, 97 + len(unique_masses)))]
         for um, s in zip(unique_masses, symbols):
             masses.loc[masses["mass"] == um, "element"] = s
-        if atom_labels is None:
+        if atom_labels is None:  # add unique labels based on elements
             for el, vc in masses["element"].value_counts().iteritems():
                 masses.loc[masses["element"] == el, "label"] = \
                     ["%s%d" % (el, c) for c in range(1, vc + 1)]
@@ -428,7 +422,6 @@ class LammpsData(MSONable):
                          if re.search(kw_pattern, l)]
         parts = np.split(lines, section_marks)
 
-        # First, parse header
         float_group = r"([0-9eE.+-]+)"
         header_pattern = dict()
         header_pattern["counts"] = r"^\s*(\d+)\s+([a-zA-Z]+)$"
@@ -457,7 +450,6 @@ class LammpsData(MSONable):
                 header["tilt"] = [float(i) for i in match.groups()]
         header["bounds"] = [bounds.get(i, [-0.5, 0.5]) for i in "xyz"]
 
-        # Then, parse each section
         def parse_section(sec_lines):
             title_info = sec_lines[0].split("#", 1)
             kw = title_info[0].strip()
@@ -502,7 +494,7 @@ class LammpsData(MSONable):
             if name == "Atoms":
                 seen_atoms = True
             if name in ["Velocities"] + SECTION_KEYWORDS["topology"] and \
-                    not seen_atoms:
+                    not seen_atoms:  # Atoms must appear earlier than these
                 raise RuntimeError(err_msg + "%s section appears before"
                                              " Atoms section" % name)
             body.update({name: section})
@@ -603,7 +595,7 @@ class LammpsData(MSONable):
             df = pd.DataFrame(np.concatenate(topo_collector[k]),
                               columns=SECTION_HEADERS[k][1:])
             df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
-            if any(pd.isnull(df["type"])):
+            if any(pd.isnull(df["type"])):  # Throw away undefined topologies
                 warnings.warn("Undefined %s detected and removed" % k.lower())
                 df.dropna(subset=["type"], inplace=True)
                 df.reset_index(drop=True, inplace=True)
@@ -765,6 +757,7 @@ class Topology(MSONable):
         bond_list = [list(map(molecule.index, [b.site1, b.site2]))
                      for b in real_bonds]
         if not all((bond, bond_list)):
+            # do not search for others if not searching for bonds or no bonds
             return cls(sites=molecule, ff_label=ff_label, charges=charges,
                        velocities=velocities)
         else:
@@ -779,6 +772,7 @@ class Topology(MSONable):
                     bonds = list(np.unique(bond_arr[ix]))
                     bonds.remove(hub)
                     hub_spokes[hub] = bonds
+            # skip angle or dihedral searching if too few bonds or hubs
             dihedral = False if len(bond_list) < 3 or len(hubs) < 2 \
                 else dihedral
             angle = False if len(bond_list) < 2 or len(hubs) < 1 else angle
@@ -969,7 +963,7 @@ class ForceField(MSONable):
         Saves object to a file in YAML format.
 
         Args:
-            filename (str): File name.
+            filename (str): Filename.
 
         """
         d = {"mass_info": self.mass_info,
@@ -985,7 +979,7 @@ class ForceField(MSONable):
         Constructor that reads in a file in YAML format.
 
         Args:
-            filename (str): File name.
+            filename (str): Filename.
 
         """
         yaml = YAML(typ="safe")
@@ -1005,7 +999,7 @@ class ForceField(MSONable):
 
 def structure_2_lmpdata(structure, atom_style="charge"):
     """
-    Convert a structure to a LammpsData object with no force field
+    Converts a structure to a LammpsData object with no force field
     parameters and topologies.
 
     Args:
