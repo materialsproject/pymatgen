@@ -87,7 +87,6 @@ class AdsorbateSiteFinder(object):
         else:
             self.mvec = get_mi_vec(slab)
         slab = self.assign_site_properties(slab, height)
-        self.selective_dynamics_dict = selective_dynamics_dict
         if selective_dynamics:
             slab = self.assign_selective_dynamics(slab)
         self.slab = slab
@@ -424,15 +423,13 @@ class AdsorbateSiteFinder(object):
         Args:
             slab (Slab): slab for which to assign selective dynamics
         """
-
-        sd_list = [self.selective_dynamics_dict[site.properties['surface_properties']] if
-                   site.properties['surface_properties'] in self.selective_dynamics_dict.keys()
+        sd_list = []
+        sd_list = [[False, False, False] if site.properties['surface_properties'] == 'subsurface'
                    else [True, True, True] for site in slab.sites]
-
         new_sp = slab.site_properties
         new_sp['selective_dynamics'] = sd_list
         return slab.copy(site_properties=new_sp)
-
+    
     def generate_adsorption_structures(self, molecule, repeat=None, min_lw=5.0,
                                        reorient=True, find_args={}):
         """
