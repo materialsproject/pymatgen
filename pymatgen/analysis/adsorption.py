@@ -495,35 +495,16 @@ class AdsorbateSiteFinder(object):
             # Start with the clean slab
             adslab.remove_sites(indices)
             slab = adslab.copy()
-            sg = SpacegroupAnalyzer(slab)
-            ops = sg.get_symmetry_operations()
 
             # For each site, we add it back to the slab along with a
             # symmetrically equivalent position on the other side of
             # the slab using symmetry operations
             for adsorbate in adsorbates:
-                site = adsorbate.frac_coords
-                slab.append(adsorbate.specie, site,
+                p2 = adslab.get_symmetric_site(adsorbate.frac_coords)
+                slab.append(adsorbate.specie, p2,
                             properties={"surface_properties": "adsorbate"})
-
-                for op in ops:
-                    site2 = op.operate(site)
-                    if "%.6f" % (site2[2]) == "%.6f" % (site[2]):
-                        continue
-
-                    slab.append(adsorbate.specie, site2,
-                                properties={"surface_properties": "adsorbate"})
-                    sg = SpacegroupAnalyzer(slab)
-                    if sg.is_laue():
-                        break
-                    else:
-                        slab.remove_sites([len(slab) - 1])
-
-            # Only return symmetrically equivalent slabs because
-            # when working with molecules, we do not know if the op
-            # corresponds to the molecule, only to the given site.
-            if sg.is_laue():
-                new_adslabs.append(slab)
+                slab.append(adsorbate.specie, adsorbate.frac_coords,
+                            properties={"surface_properties": "adsorbate"})
 
         return new_adslabs
 
