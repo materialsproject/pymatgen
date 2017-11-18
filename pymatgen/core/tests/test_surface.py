@@ -174,6 +174,30 @@ class SlabTest(PymatgenTest):
             self.assertEqual(assymetric_count, 0)
             self.assertEqual(symmetric_count, len(slabs))
 
+    def test_get_symmetric_sites(self):
+
+        # Check to see if we get an equivalent site on one
+        # surface if we add a new site to the other surface
+
+        all_Ti_slabs = generate_all_slabs(self.ti, 2, 10, 10, bonds=None,
+                                          tol=1e-3, max_broken_bonds=0,
+                                          lll_reduce=False, center_slab=False,
+                                          primitive=True, max_normal_search=2,
+                                          symmetrize=True)
+
+        for slab in all_Ti_slabs:
+            sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
+            site = sorted_sites[-1]
+            point = site.frac_coords
+            point[2] = point[2]+0.1
+            point2 = slab.get_symmetric_site(point)
+            slab.append("O", point)
+            slab.append("O", point2)
+
+            # Check if slab is all symmetric
+            sg = SpacegroupAnalyzer(slab)
+            self.assertTrue(sg.is_laue())
+
 
 class SlabGeneratorTest(PymatgenTest):
 
