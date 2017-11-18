@@ -62,7 +62,6 @@ class AdsorbateSiteFinder(object):
     """
 
     def __init__(self, slab, selective_dynamics=False,
-                 selective_dynamics_dict={},
                  height=0.9, mi_vec=None):
         """
         Create an AdsorbateSiteFinder object.
@@ -429,7 +428,7 @@ class AdsorbateSiteFinder(object):
         new_sp = slab.site_properties
         new_sp['selective_dynamics'] = sd_list
         return slab.copy(site_properties=new_sp)
-    
+
     def generate_adsorption_structures(self, molecule, repeat=None, min_lw=5.0,
                                        reorient=True, find_args={}):
         """
