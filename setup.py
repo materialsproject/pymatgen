@@ -36,14 +36,6 @@ if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
 
 long_desc = """
-.. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
-
-.. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
-
-.. image:: https://anaconda.org/matsci/pymatgen/badges/downloads.svg
-
-.. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
-
 Official docs: `http://pymatgen.org <http://pymatgen.org/>`_
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
