@@ -16,6 +16,7 @@ from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.analysis.wulff import WulffShape
 from pymatgen.io.cif import CifParser
 
 """
@@ -233,6 +234,22 @@ class MPResterTest(unittest.TestCase):
         substrate_data = self.rester.get_substrates('mp-123', 5, [1, 0, 0])
         substrates = [sub_dict['sub_id'] for sub_dict in substrate_data]
         self.assertIn("mp-2534", substrates)
+
+    def test_get_surface_data(self):
+        data = self.rester.get_surface_data("mp-126") # Pt
+        self.assertIn("surfaces", data)
+        surfaces = data["surfaces"]
+        self.assertTrue(len(surfaces) > 0)
+        surface = surfaces.pop()
+        self.assertIn("miller_index", surface)
+        self.assertIn("surface_energy", surface)
+        self.assertIn("is_reconstructed", surface)
+        data_inc = self.rester.get_surface_data("mp-126", inc_structures=True)
+        self.assertIn("structure", data_inc["surfaces"][0])
+
+    def test_get_wulff_shape(self):
+        ws = self.rester.get_wulff_shape("mp-126")
+        self.assertTrue(isinstance(ws, WulffShape))
 
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")
