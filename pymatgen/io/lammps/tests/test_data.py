@@ -172,6 +172,75 @@ class LammpsDataTest(unittest.TestCase):
         pd.testing.assert_frame_equal(v.force_field["PairIJ Coeffs"],
                                       self.virus.force_field["PairIJ Coeffs"])
 
+    def test_disassemble(self):
+        # general tests
+        c = LammpsData.from_file(os.path.join(test_dir, "crambin.data"))
+        c_ff, topos = c.disassemble()
+        mass_info = [('N1', 14.0067), ('H1', 1.00797), ('C1', 12.01115),
+                     ('H2', 1.00797), ('C2', 12.01115), ('O1', 15.9994),
+                     ('C3', 12.01115), ('O2', 15.9994), ('H3', 1.00797),
+                     ('C4', 12.01115), ('N2', 14.0067), ('C5', 12.01115),
+                     ('S1', 32.064), ('C6', 12.01115), ('N3', 14.0067),
+                     ('C7', 12.01115), ('C8', 12.01115), ('C9', 12.01115),
+                     ('O3', 15.9994)]
+        self.assertListEqual(c_ff.mass_info, mass_info)
+        np.testing.assert_array_equal(c_ff.nonbond_coeffs,
+                                      c.force_field["Pair Coeffs"].values)
+        base_kws = ["Bond", "Angle", "Dihedral", "Improper"]
+        for kw in base_kws:
+            ff_kw = kw + " Coeffs"
+            i = random.randint(0, len(c_ff.topo_coeffs[ff_kw]) - 1)
+            sample_coeff = c_ff.topo_coeffs[ff_kw][i]
+            np.testing.\
+                assert_array_equal(sample_coeff["coeffs"],
+                                   c.force_field[ff_kw].iloc[i].values,
+                                   ff_kw)
+        topo = topos[-1]
+        atoms = c.atoms[c.atoms["molecule-ID"] == 46]
+        np.testing.assert_array_equal(topo.sites.cart_coords,
+                                      atoms[["x", "y", "z"]])
+        np.testing.assert_array_equal(topo.charges, atoms["q"])
+        atom_labels = [m[0] for m in mass_info]
+        self.assertListEqual(topo.sites.site_properties["ff_map"],
+                             [atom_labels[i - 1] for i in atoms["type"]])
+        shift = min(atoms.index)
+        for kw in base_kws:
+            ff_kw = kw + " Coeffs"
+            ff_coeffs = c_ff.topo_coeffs[ff_kw]
+            topo_kw = kw + "s"
+            topos_df = c.topology[topo_kw]
+            topo_df = topos_df[topos_df["atom1"] >= shift]
+            topo_arr = topo_df.drop("type", axis=1).values
+            np.testing.assert_array_equal(topo.topologies[topo_kw],
+                                          topo_arr - shift, topo_kw)
+            sample_topo = random.sample(list(topo_df.itertuples(False, None)),
+                                        1)[0]
+            topo_type_idx = sample_topo[0] - 1
+            topo_type = tuple([atom_labels[i - 1] for i in
+                               atoms.loc[sample_topo[1:], "type"]])
+
+            self.assertIn(topo_type, ff_coeffs[topo_type_idx]["types"], ff_kw)
+        # test no guessing element and pairij as nonbond coeffs
+        v = self.virus
+        v_ff, _ = v.disassemble(guess_element=False)
+        self.assertDictEqual(v_ff.maps["Atoms"],
+                             dict(Qa1=1, Qb1=2, Qc1=3, Qa2=4))
+        pairij_coeffs = v.force_field["PairIJ Coeffs"].drop(["id1", "id2"],
+                                                            axis=1)
+        np.testing.assert_array_equal(v_ff.nonbond_coeffs,
+                                      pairij_coeffs.values)
+        # test class2 ff
+        e_ff, _ = self.ethane.disassemble()
+        e_topo_coeffs = e_ff.topo_coeffs
+        for k in ["BondBond Coeffs", "BondAngle Coeffs"]:
+            self.assertIn(k, e_topo_coeffs["Angle Coeffs"][0], k)
+        for k in ["MiddleBondTorsion Coeffs", "EndBondTorsion Coeffs",
+                  "AngleTorsion Coeffs", "AngleAngleTorsion Coeffs",
+                  "BondBond13 Coeffs"]:
+            self.assertIn(k, e_topo_coeffs["Dihedral Coeffs"][0], k)
+        self.assertIn("AngleAngle Coeffs",
+                      e_topo_coeffs["Improper Coeffs"][0])
+
     def test_from_file(self):
         # general tests
         pep = self.peptide
@@ -359,7 +428,7 @@ class TopologyTest(unittest.TestCase):
         np.testing.assert_array_equal(topo.charges, inner_charge)
         np.testing.assert_array_equal(topo.velocities, inner_velo)
         # q and v from overriding, while type from site property
-        topo_override = Topology(sites=m, atom_type="ff_map",
+        topo_override = Topology(sites=m, ff_label="ff_map",
                                  charges=outer_charge,
                                  velocities=outer_velo)
         self.assertListEqual(topo_override.type_by_sites, ["D"] * 10)

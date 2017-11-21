@@ -565,6 +565,47 @@ class Slab(Structure):
 
         return all(equal_surf_sites)
 
+    def get_symmetric_site(self, point):
+        """
+        This method uses symmetry operations to find equivalent sites on
+            both sides of the slab. Works mainly for slabs with Laue
+            symmetry. This is useful for retaining the non-polar and
+            symmetric properties of a slab when creating adsorbed
+            structures or symmetric reconstructions.
+
+        Arg:
+            point: Fractional coordinate.
+
+        Returns:
+            point: Fractional coordinate. A point equivalent to the
+                parameter point, but on the other side of the slab
+        """
+
+        sg = SpacegroupAnalyzer(self)
+        ops = sg.get_symmetry_operations()
+
+        # Each operation on a point will return an equivalent point.
+        # We want to find the point on the other side of the slab.
+        for op in ops:
+            slab = self.copy()
+            site2 = op.operate(point)
+            if "%.6f" % (site2[2]) == "%.6f" % (point[2]):
+                continue
+
+            # Add dummy site to check the overall structure is symmetric
+            slab.append("O", point)
+            slab.append("O", site2)
+            sg = SpacegroupAnalyzer(slab)
+            if sg.is_laue():
+                break
+            else:
+                # If not symmetric, remove the two added
+                # sites and try another symmetry operator
+                slab.remove_sites([len(slab) - 1])
+                slab.remove_sites([len(slab) - 1])
+
+        return site2
+
 
 class SlabGenerator(object):
 
