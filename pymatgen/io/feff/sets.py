@@ -4,14 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module defines the FeffInputSet abstract base class and a concrete
-implementation for the Materials Project.  The basic concept behind an input
-set is to specify a scheme to generate a consistent set of Feff inputs from a
-structure without further user intervention. This ensures comparability across
-runs.
-"""
-
 import sys
 import os
 import abc
@@ -24,6 +16,13 @@ from monty.json import MSONable
 
 from pymatgen.io.feff.inputs import Atoms, Tags, Potential, Header
 
+"""
+This module defines the FeffInputSet abstract base class and a concrete
+implementation for the Materials Project.  The basic concept behind an input
+set is to specify a scheme to generate a consistent set of Feff inputs from a
+structure without further user intervention. This ensures comparability across
+runs.
+"""
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
@@ -135,7 +134,8 @@ class FEFFDictSet(AbstractFeffInputSet):
     """
 
     def __init__(self, absorbing_atom, structure, radius, config_dict,
-                 edge="K", spectrum="EXAFS", nkpts=1000, user_tag_settings=None):
+                 edge="K", spectrum="EXAFS", nkpts=1000,
+                 user_tag_settings=None):
         """
 
         Args:

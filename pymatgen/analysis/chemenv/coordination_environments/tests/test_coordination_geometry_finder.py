@@ -64,7 +64,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.assertAlmostEqual(envs[0][0]['csm'], 1.5309987846957258)
         self.assertAlmostEqual(envs[0][0]['ce_fraction'], 1.0)
         self.assertEqual(envs[0][0]['ce_symbol'], 'O:6')
-        self.assertEqual(envs[0][0]['permutation'], [0, 4, 1, 5, 2, 3])
+        self.assertEqual(sorted(envs[0][0]['permutation']), sorted([0, 4, 1, 5, 2, 3]))
 
         self.lgf.setup_random_structure(coordination=5)
         self.assertEqual(len(self.lgf.structure), 6)
