@@ -29,7 +29,14 @@ __status__ = "Development"
 __date__ = "Feb 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_MAGMOMS = loadfn(os.path.join(MODULE_DIR, "default_magmoms.yaml"))
+
+try:
+    DEFAULT_MAGMOMS = loadfn(os.path.join(MODULE_DIR, "default_magmoms.yaml"))
+except:
+    warnings.warn("Could not load default_magmoms.yaml, "
+                  "falling back to VASPIncarBase.yaml")
+    DEFAULT_MAGMOMS = loadfn(os.path.join(MODULE_DIR, "../../io/vasp/VASPIncarBase.yaml"))
+    DEFAULT_MAGMOMS = DEFAULT_MAGMOMS['MAGMOM']
 
 @unique
 class Ordering(Enum):
@@ -58,14 +65,20 @@ class CollinearMagneticStructureAnalyzer:
         kwarg.
 
         Input magmoms can be replaced using the 'overwrite_magmom_mode'
-        kwarg. This can be "none" to do nothing, "respect_sign" which will
-        overwrite existing magmoms with those from default_magmoms but will
-        keep positive magmoms positive, negative magmoms negative and zero
-        magmoms zero, "respect_zeros", which will give a ferromagnetic structure
-        (all positive magmoms from default_magmoms) but still keep zero magmoms
-        as zero, or "replace_all" which will try to guess initial magmoms for
-        all species in the structure irrespective of input structure.
-        This is most suitable for an initial DFT calculation.
+        kwarg. This can be:
+        * "none" to do nothing,
+        * "respect_sign" which will overwrite existing magmoms with
+          those from default_magmoms but will keep sites with positive magmoms
+          positive, negative magmoms negative and zero magmoms zero,
+        * "respect_zeros", which will give a ferromagnetic structure
+          (all positive magmoms from default_magmoms) but still keep sites with
+          zero magmoms as zero,
+        * "replace_all" which will try to guess initial magmoms for
+          all sites in the structure irrespective of input structure
+          (this is most suitable for an initial DFT calculation),
+        * "replace_all_if_undefined" is the same as "replace_all" but only if
+          no magmoms are defined in input structure, otherwise it will respect
+          existing magmoms.
 
         :param structure: Structure object
         :param overwrite_magmom_mode (str): default "none"
@@ -140,7 +153,7 @@ class CollinearMagneticStructureAnalyzer:
             # no magmoms present, add zero magmoms for now
             magmoms = [0]*len(structure)
             # and overwrite magmoms with default magmoms later unless otherwise stated
-            if overwrite_magmom_mode == "none":
+            if overwrite_magmom_mode == "replace_all_if_undefined":
                 overwrite_magmom_mode = "replace_all"
 
         # test to see if input structure has collinear magmoms
@@ -165,7 +178,8 @@ class CollinearMagneticStructureAnalyzer:
 
         # overwrite existing magmoms with default_magmoms
         if overwrite_magmom_mode not in ("none", "respect_sign",
-                                         "respect_zeros", "replace_all"):
+                                         "respect_zeros", "replace_all",
+                                         "replace_all_if_undefined"):
             raise ValueError("Unsupported mode.")
 
         for idx, site in enumerate(structure):
@@ -283,6 +297,14 @@ class CollinearMagneticStructureAnalyzer:
             structure = structure.get_primitive_structure(use_site_props=True)
 
         return structure
+
+    @property
+    def is_magnetic(self):
+        """
+        Convenience property, returns True if any non-zero magmoms present.
+        :return:
+        """
+        return any(map(abs, self.structure.site_properties['magmom']))
 
     @property
     def magmoms(self):
@@ -413,11 +435,24 @@ class CollinearMagneticStructureAnalyzer:
                                                overwrite_magmom_mode="respect_sign")\
             .get_structure_with_spin()
 
-        b = CollinearMagneticStructureAnalyzer(other,
-                                               overwrite_magmom_mode="respect_sign") \
-            .get_structure_with_spin()
+        # sign of spins doesn't matter, so we're comparing both
+        # positive and negative versions of the structure
+        # this code is possibly redundant, but is included out of
+        # an abundance of caution
+        b_positive = CollinearMagneticStructureAnalyzer(other,
+                                                        overwrite_magmom_mode="respect_sign")
 
-        if a.matches(b):  # sometimes returns None (bug?)
+        b_negative = b_positive.structure.copy()
+        b_negative.add_site_property('magmom',
+                                     np.multiply(-1, b_negative.site_properties['magmom']))
+
+        b_negative = CollinearMagneticStructureAnalyzer(b_negative,
+                                                        overwrite_magmom_mode="respect_sign")
+
+        b_positive = b_positive.get_structure_with_spin()
+        b_negative = b_negative.get_structure_with_spin()
+
+        if a.matches(b_positive) or a.matches(b_negative):  # sometimes returns None (bug?)
             return True
         else:
             return False
