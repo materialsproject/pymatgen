@@ -45,7 +45,8 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
                   [0, 0, 0],
                   [0.25, 0.5, 0.25],
                   [0.75, 0.5, 0.75]]
-        self.NiO_AFM_111 = Structure(latt, species, coords, site_properties={'magmom': [-5, 5, 0, 0]})
+        self.NiO_AFM_111 = Structure(latt, species, coords,
+                                     site_properties={'magmom': [-5, 5, 0, 0]})
 
         latt = Lattice([[2.085, 2.085, 0],
                         [0, 0, -4.17],
@@ -55,7 +56,30 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
                   [0, 0, 0],
                   [0, 0.5, 0],
                   [0.5, 0, 0.5]]
-        self.NiO_AFM_001 = Structure(latt, species, coords, site_properties={'magmom': [-5, 5, 0, 0]})
+        self.NiO_AFM_001 = Structure(latt, species, coords,
+                                     site_properties={'magmom': [-5, 5, 0, 0]})
+
+        latt = Lattice([[2.085, 2.085, 0],
+                        [0, 0, -4.17],
+                        [-2.085, 2.085, 0]])
+        species = ["Ni", "Ni", "O", "O"]
+        coords = [[0.5, 0.5, 0.5],
+                  [0, 0, 0],
+                  [0, 0.5, 0],
+                  [0.5, 0, 0.5]]
+        self.NiO_AFM_001_opposite = Structure(latt, species, coords,
+                                              site_properties={'magmom': [5, -5, 0, 0]})
+
+        latt = Lattice([[2.085, 2.085, 0],
+                        [0, 0, -4.17],
+                        [-2.085, 2.085, 0]])
+        species = ["Ni", "Ni", "O", "O"]
+        coords = [[0.5, 0.5, 0.5],
+                  [0, 0, 0],
+                  [0, 0.5, 0],
+                  [0.5, 0, 0.5]]
+        self.NiO_unphysical = Structure(latt, species, coords,
+                                        site_properties={'magmom': [-3, 0, 0, 0]})
 
     def test_get_representations(self):
 
@@ -86,30 +110,70 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         self.assertTrue(self.NiO.matches(self.NiO_AFM_001))
 
         # MSA adds magmoms to Structure, so not equal
-        msa = CollinearMagneticStructureAnalyzer(self.NiO, overwrite_magmom_mode="replace_all")
+        msa = CollinearMagneticStructureAnalyzer(self.NiO,
+                                                 overwrite_magmom_mode="replace_all")
         self.assertFalse(msa.matches_ordering(self.NiO))
         self.assertFalse(msa.matches_ordering(self.NiO_AFM_111))
         self.assertFalse(msa.matches_ordering(self.NiO_AFM_001))
 
-        msa = CollinearMagneticStructureAnalyzer(self.NiO_AFM_001, overwrite_magmom_mode="respect_sign")
+        msa = CollinearMagneticStructureAnalyzer(self.NiO_AFM_001,
+                                                 overwrite_magmom_mode="respect_sign")
         self.assertFalse(msa.matches_ordering(self.NiO))
         self.assertFalse(msa.matches_ordering(self.NiO_AFM_111))
         self.assertTrue(msa.matches_ordering(self.NiO_AFM_001))
+        self.assertTrue(msa.matches_ordering(self.NiO_AFM_001_opposite))
 
-        msa = CollinearMagneticStructureAnalyzer(self.NiO_AFM_111, overwrite_magmom_mode="respect_sign")
+        msa = CollinearMagneticStructureAnalyzer(self.NiO_AFM_111,
+                                                 overwrite_magmom_mode="respect_sign")
         self.assertFalse(msa.matches_ordering(self.NiO))
         self.assertTrue(msa.matches_ordering(self.NiO_AFM_111))
         self.assertFalse(msa.matches_ordering(self.NiO_AFM_001))
+        self.assertFalse(msa.matches_ordering(self.NiO_AFM_001_opposite))
+
+    def test_modes(self):
+
+        mode = "none"
+        msa = CollinearMagneticStructureAnalyzer(self.NiO,
+                                                 overwrite_magmom_mode=mode)
+        magmoms = msa.structure.site_properties['magmom']
+        self.assertEqual(magmoms, [0, 0])
+
+        mode = "respect_sign"
+        msa = CollinearMagneticStructureAnalyzer(self.NiO_unphysical,
+                                                 overwrite_magmom_mode=mode)
+        magmoms = msa.structure.site_properties['magmom']
+        self.assertEqual(magmoms, [-5, 0, 0, 0])
+
+        mode = "respect_zeros"
+        msa = CollinearMagneticStructureAnalyzer(self.NiO_unphysical,
+                                                 overwrite_magmom_mode=mode)
+        magmoms = msa.structure.site_properties['magmom']
+        self.assertEqual(magmoms, [5, 0, 0, 0])
+
+        mode = "replace_all"
+        msa = CollinearMagneticStructureAnalyzer(self.NiO_unphysical,
+                                                 overwrite_magmom_mode=mode,
+                                                 make_primitive=False)
+        magmoms = msa.structure.site_properties['magmom']
+        self.assertEqual(magmoms, [5, 5, 0, 0])
+
+        mode = "replace_all_if_undefined"
+        msa = CollinearMagneticStructureAnalyzer(self.NiO,
+                                                 overwrite_magmom_mode=mode)
+        magmoms = msa.structure.site_properties['magmom']
+        self.assertEqual(magmoms, [5, 0])
 
     def test_get_ferromagnetic_structure(self):
 
-        msa = CollinearMagneticStructureAnalyzer(self.NiO)
+        msa = CollinearMagneticStructureAnalyzer(self.NiO,
+                                                 overwrite_magmom_mode="replace_all_if_undefined")
         s1 = msa.get_ferromagnetic_structure()
         s1_magmoms = [float(m) for m in s1.site_properties['magmom']]
         s1_magmoms_ref = [5.0, 0.0]
         self.assertListEqual(s1_magmoms, s1_magmoms_ref)
 
-        msa2 = CollinearMagneticStructureAnalyzer(self.NiO_AFM_111)
+        msa2 = CollinearMagneticStructureAnalyzer(self.NiO_AFM_111,
+                                                 overwrite_magmom_mode="replace_all_if_undefined")
         s2 = msa.get_ferromagnetic_structure(make_primitive=False)
         s2_magmoms = [float(m) for m in s2.site_properties['magmom']]
         s2_magmoms_ref = [5.0, 0.0]
@@ -123,14 +187,18 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         msa = CollinearMagneticStructureAnalyzer(self.GdB4)
         self.assertFalse(msa.is_collinear)
 
+        msa = CollinearMagneticStructureAnalyzer(self.Fe)
+        self.assertFalse(msa.is_magnetic)
+
         self.Fe.add_site_property('magmom', [5])
 
         msa = CollinearMagneticStructureAnalyzer(self.Fe)
-
+        self.assertTrue(msa.is_magnetic)
         self.assertTrue(msa.is_collinear)
         self.assertEqual(msa.ordering, Ordering.FM)
 
-        msa = CollinearMagneticStructureAnalyzer(self.NiO, make_primitive=False)
+        msa = CollinearMagneticStructureAnalyzer(self.NiO, make_primitive=False,
+                                                 overwrite_magmom_mode="replace_all_if_undefined")
         self.assertEqual(msa.number_of_magnetic_sites, 4)
         self.assertEqual(msa.number_of_unique_magnetic_sites(), 1)
         self.assertEqual(msa.types_of_magnetic_specie, [Element('Ni')])
