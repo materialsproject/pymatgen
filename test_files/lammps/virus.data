@@ -46,6 +46,10 @@ Bond Coeffs # harmonic
 2 50 0.855906
 3 50 0.659469
 
+Angle Coeffs # harmonic
+
+1 250.0 180.0
+
 Atoms
 
 1  1 1 -0.701084 3.93343 0.19124
