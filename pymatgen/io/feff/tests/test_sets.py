@@ -9,10 +9,11 @@ import unittest
 import os
 
 from pymatgen import Structure
-from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet, PostFEFFSet
+from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet, FEFFDictSet
 from pymatgen.io.feff.inputs import Potential, Tags, Atoms, Header
 from pymatgen.io.cif import CifParser, CifFile
 import shutil
+import numpy as np
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -146,20 +147,31 @@ TITLE sites: 4
         self.assertNotIn("TARGET", elnes.tags)
 
     def test_postfeffset(self):
-        self.mp_xanes.write_input(os.path.join('.','xanes_3'))
-        feff_dict_input = PostFEFFSet.from_prev_input(os.path.join('.','xanes_3'))
-        self.assertTrue(feff_dict_input.tags == Tags.from_file(os.path.join('.','xanes_3/feff.inp')))
-        self.assertTrue(str(feff_dict_input.header) == str(Header.from_file(os.path.join('.','xanes_3/HEADER'))))
-        self.assertTrue(feff_dict_input.atoms == Atoms.atoms_string_from_file(os.path.join('.', 'xanes_3/feff.inp')))
-        self.assertTrue(feff_dict_input.potential == Potential.pot_string_from_file(os.path.join('.', 'xanes_3/feff.inp')))
+        self.mp_xanes.write_input(os.path.join('.', 'xanes_3'))
+        feff_dict_input = FEFFDictSet.from_directory(os.path.join('.', 'xanes_3'))
+        self.assertTrue(feff_dict_input.tags == Tags.from_file(os.path.join('.', 'xanes_3/feff.inp')))
+        self.assertTrue(str(feff_dict_input.header()) == str(Header.from_file(os.path.join('.', 'xanes_3/HEADER'))))
+        feff_dict_input.write_input('xanes_3_regen')
+        origin_tags = Tags.from_file(os.path.join('.', 'xanes_3/PARAMETERS'))
+        output_tags = Tags.from_file(os.path.join('.', 'xanes_3_regen/PARAMETERS'))
+        origin_mole = Atoms.cluster_from_file(os.path.join('.', 'xanes_3/feff.inp'))
+        output_mole = Atoms.cluster_from_file(os.path.join('.', 'xanes_3_regen/feff.inp'))
+        original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
+        output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
+        original_mole_shell = [x.species_string for x in origin_mole]
+        output_mole_shell = [x.species_string for x in output_mole]
+
+        self.assertTrue(np.allclose(original_mole_dist, output_mole_dist))
+        self.assertTrue(origin_tags == output_tags)
+        self.assertTrue(original_mole_shell == output_mole_shell)
+
         shutil.rmtree(os.path.join('.', 'xanes_3'))
+        shutil.rmtree(os.path.join('.', 'xanes_3_regen'))
 
         reci_mp_xanes = MPXANESSet(self.absorbing_atom, self.structure,
                                    user_tag_settings={"RECIPROCAL": ""})
         reci_mp_xanes.write_input('xanes_reci')
-        feff_reci_input = PostFEFFSet.from_prev_input(os.path.join('.','xanes_reci'))
-        self.assertTrue(feff_reci_input.tags == Tags.from_file(os.path.join('.','xanes_reci/feff.inp')))
-        self.assertTrue(str(feff_reci_input.header) == str(Header.from_file(os.path.join('.','xanes_reci/HEADER'))))
+        feff_reci_input = FEFFDictSet.from_directory(os.path.join('.', 'xanes_reci'))
         self.assertTrue("RECIPROCAL" in feff_reci_input.tags)
 
         feff_reci_input.write_input('Dup_reci')
@@ -169,11 +181,17 @@ TITLE sites: 4
         self.assertFalse(os.path.exists(os.path.join('.', 'Dup_reci', 'ATOMS')))
         self.assertFalse(os.path.exists(os.path.join('.', 'Dup_reci', 'POTENTIALS')))
 
-        cif_orig = CifFile.from_file(os.path.join('.', 'xanes_reci/Co2O2.cif'))
-        cif_reci = CifFile.from_file(os.path.join('.', 'Dup_reci/Co2O2.cif'))
-        self.assertTrue(cif_orig.orig_string == cif_reci.orig_string)
+        tags_original = Tags.from_file(os.path.join('.', 'xanes_reci/feff.inp'))
+        tags_output = Tags.from_file(os.path.join('.', 'Dup_reci/feff.inp'))
+        self.assertTrue(tags_original == tags_output)
+
+        stru_orig = Structure.from_file(os.path.join('.', 'xanes_reci/Co2O2.cif'))
+        stru_reci = Structure.from_file(os.path.join('.', 'Dup_reci/Co2O2.cif'))
+        self.assertTrue(stru_orig.__eq__(stru_reci))
+
         shutil.rmtree(os.path.join('.', 'Dup_reci'))
         shutil.rmtree(os.path.join('.', 'xanes_reci'))
+
 
 if __name__ == '__main__':
     unittest.main()

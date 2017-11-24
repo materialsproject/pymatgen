@@ -26,6 +26,8 @@ from monty.os.path import zpath
 from pymatgen.io.feff.inputs import Atoms, Tags, Potential, Header
 from pymatgen import Structure
 from pymatgen.io.cif import CifFile
+import numpy as np
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
@@ -244,140 +246,62 @@ class FEFFDictSet(AbstractFeffInputSet):
         output.append("")
         return "\n".join(output)
 
-
-class PostFEFFSet(dict, AbstractFeffInputSet):
-    """
-    Post-processing FEFF input from a directory contains FEFF inputfiles, which is
-    useful when existing FEFF input needs some adjustment. Typically, you would use the classmethod
-    from_prev_input to initialize from a directory contains FEFF input files.
-    """
-
-    def __init__(self, header, parameters, atoms, potentials, optional_files=None):
-        """
-
-        Args:
-            header: Header object of FEFF input file
-            parameters: Parameter object used for FEFF to control parameters
-            atoms: Atom object
-            potentials: Potentials object
-            optional_files: Other input files supplied as a dict of {
-                filename: object}. The object should follow standard pymatgen
-                conventions in implementing a as_dict() and from_dict() method.
-        """
-        self.update({'HEADER': header, 'PARAMETERS': parameters,
-                     'ATOMS': atoms, 'POTENTIALS': potentials})
-
-        if optional_files is not None:
-            self.update(optional_files)
-
-    def all_input(self):
-        """
-        Returns all input files as a dict of {filename: feffio object/str}
-        """
-        d = {"HEADER": self.header, "PARAMETERS": self.tags}
-
-        if "RECIPROCAL" not in self.tags:
-            d.update({"POTENTIALS": self.potential, "ATOMS": self.atoms})
-
-        return d
-
-    @property
-    def header(self):
-        """
-        Returns headers to be used in feff.inp file generation
-        """
-        return self['HEADER']
-
-    @property
-    def tags(self):
-        """
-        Returns standard calculation parameters,
-        """
-        return self['PARAMETERS']
-
-    @property
-    def atoms(self):
-        """
-        Returns Atoms string to be used in feff.inp file generation
-        """
-        return self['ATOMS']
-
-    @property
-    def potential(self):
-        """
-        Returns POTENTIAL string used in feff.inp file
-        """
-        return self['POTENTIALS']
-
     @staticmethod
-    def from_prev_input(input_dir, optional_files=None):
+    def from_directory(input_dir):
         """
-        Generate a set of FEFF input files from a directory contains inputs of FEFF runs.
-        Note that only the standard HEADER, ATOMS, PARAMETERS, POTENTIALS files are read unless
-        optional_filenames if specified
-
-        Args:
-            input_dir (str): The directory contains the input files of FEFF runs.
-            optional_files (dict) : Other input files supplied as a dict of {
-                filename: object}. The object should follow standard pymatgen
-                conventions in implementing a as_dict() and from_dict() method.
+        Read in a set of FEFF input files from a directory, which is
+        useful when existing FEFF input needs some adjustment.
         """
         sub_d = {}
         for fname, ftype in [("HEADER", Header), ("PARAMETERS", Tags)]:
             fullzpath = zpath(os.path.join(input_dir, fname))
-
             sub_d[fname.lower()] = ftype.from_file(fullzpath)
 
-        # For Atom and Potential existed in the FEFF.inp, need to load as string
-        # Parsed strings are directly used for inputfile generation
+        # Generation of FEFFDict set requires absorbing atom, need to search
+        # the index of absorption atom in the structure according to the
+        # distance matrix and shell species information contained in feff.inp
+
+        absorber_index = []
+        radius = None
         feffinp = zpath(os.path.join(input_dir, 'feff.inp'))
 
         if "RECIPROCAL" not in sub_d["parameters"]:
-            sub_d['atoms'] = Atoms.atoms_string_from_file(feffinp)
-            sub_d['potentials'] = Potential.pot_string_from_file(feffinp)
+            input_atoms = Atoms.cluster_from_file(feffinp)
+            shell_species = np.array([x.species_string for x in input_atoms])
 
-        # No ATOMS file, structure information is in CIF file
-        # Need to keep the ordering of atoms the same while parsing the cif file
+            # First row of distance matrix represents the distance from the absorber to
+            # the rest atoms
+            distance_matrix = input_atoms.distance_matrix[0, :]
+
+            # Get radius value
+            from math import ceil
+            radius = int(ceil(input_atoms.get_distance(input_atoms.index(input_atoms[0]),
+                                                       input_atoms.index(input_atoms[-1]))))
+
+            for site_index, site in enumerate(sub_d['header'].struct):
+
+                if site.specie == input_atoms[0].specie:
+                    site_atoms = Atoms(sub_d['header'].struct, absorbing_atom=site_index,
+                                       radius=radius)
+                    site_distance = np.array(site_atoms.get_lines())[:, 5].astype(np.float64)
+                    site_shell_species = np.array(site_atoms.get_lines())[:, 4]
+
+                    if np.allclose(distance_matrix, site_distance) and \
+                            np.all(site_shell_species == shell_species):
+                        absorber_index.append(site_index)
+
         if "RECIPROCAL" in sub_d["parameters"]:
-            sub_d['atoms'] = CifFile.from_file(os.path.join(input_dir, sub_d["parameters"]["CIF"]))
-            sub_d['potentials'] = {}
+            absorber_index = sub_d["parameters"]["TARGET"]
+            absorber_index[0] = int(absorber_index[0]) - 1
 
-        sub_d["optional_files"] = {}
-        if optional_files is not None:
-            for fname, ftype in optional_files.items():
-                sub_d["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
-
-        return PostFEFFSet(**sub_d)
-
-    def write_input(self, output_dir=".", make_dir_if_not_present=True):
-        """
-        Writes a set of FEFF input to a directory.
-
-        Args:
-            output_dir: Directory to output the FEFF input files
-            make_dir_if_not_present: Set to True if you want the directory (and the whole path)
-                        to be created if it is not present
-        """
-        if make_dir_if_not_present and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-        feff = self.all_input()
-
-        feff_input = "\n\n".join(str(feff[k]) for k in ["HEADER", "PARAMETERS",
-                                                        "POTENTIALS", "ATOMS"]
-                                 if k in feff)
-
-        for k, v in six.iteritems(feff):
-            with open(os.path.join(output_dir, k), "w") as f:
-                f.write(str(v))
-
-        with open(os.path.join(output_dir, "feff.inp"), "w") as f:
-            f.write(feff_input)
-
-        # write the structure to cif file
-        if "ATOMS" not in feff:
-            with open(os.path.join(output_dir, feff["PARAMETERS"]["CIF"]), "w") as f:
-                f.write(self.atoms.orig_string)
+        # Generate the input set
+        if 'XANES' in sub_d["parameters"]:
+            CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
+            if radius is None:
+                radius = 10
+            return FEFFDictSet(absorber_index[0], sub_d['header'].struct, radius=radius,
+                               config_dict=CONFIG, edge=sub_d["parameters"]["EDGE"],
+                               nkpts=1000, user_tag_settings=sub_d["parameters"])
 
 
 class MPXANESSet(FEFFDictSet):
