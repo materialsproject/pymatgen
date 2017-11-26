@@ -1820,8 +1820,8 @@ class Flow(Node, NodeContainer, MSONable):
             self
         """
         if not self.allocated:
-            #raise RuntimeError("You must call flow.allocate before invoking flow.use_smartio")
-            return self.allocate()
+            #raise RuntimeError("You must call flow.allocate() before invoking flow.use_smartio()")
+            self.allocate()
 
         for task in self.iflat_tasks():
             children = task.get_children()
@@ -2033,19 +2033,25 @@ class Flow(Node, NodeContainer, MSONable):
 
     #def get_results(self, **kwargs)
 
-    def rapidfire(self, check_status=True, **kwargs):
+    def rapidfire(self, check_status=True, max_nlaunch=-1, max_loops=1, sleep_time=5, **kwargs):
         """
         Use :class:`PyLauncher` to submits tasks in rapidfire mode.
         kwargs contains the options passed to the launcher.
 
+        Args:
+            check_status:
+            max_nlaunch: Maximum number of launches. default: no limit.
+            max_loops: Maximum number of loops
+            sleep_time: seconds to sleep between rapidfire loop iterations
+
         Return:
-            number of tasks submitted.
+            Number of tasks submitted.
         """
         self.check_pid_file()
         self.set_spectator_mode(False)
         if check_status: self.check_status()
         from .launcher import PyLauncher
-        return PyLauncher(self, **kwargs).rapidfire()
+        return PyLauncher(self, **kwargs).rapidfire(max_nlaunch=max_nlaunch, max_loops=max_loops, sleep_time=sleep_time)
 
     def single_shot(self, check_status=True, **kwargs):
         """

@@ -3303,7 +3303,7 @@ class RelaxTask(GsTask, ProduceHist):
         # Fallback to DEN file. Note that here we look for out_DEN instead of out_TIM?_DEN
         # This happens when the previous run completed and task.on_done has been performed.
         # ********************************************************************************
-        # Note that it's possible to have an undected error if we have multiple restarts
+        # Note that it's possible to have an undetected error if we have multiple restarts
         # and the last relax died badly. In this case indeed out_DEN is the file produced
         # by the last run that has executed on_done.
         # ********************************************************************************
@@ -3578,9 +3578,8 @@ class DteTask(DfptTask):
                     if not os.path.exists(dest):
                         os.symlink(out_wfk, dest)
 
-
                 else:
-                    raise ValueError("Don't know how to handle extension: %s" % dep.exts)
+                    raise ValueError("Don't know how to handle extension: %s" % str(dep.exts))
 
     def get_results(self, **kwargs):
         results = super(DdeTask, self).get_results(**kwargs)
