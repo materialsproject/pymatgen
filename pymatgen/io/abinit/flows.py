@@ -1838,8 +1838,8 @@ class Flow(Node, NodeContainer, MSONable):
             self
         """
         if not self.allocated:
-            #raise RuntimeError("You must call flow.allocate before invoking flow.use_smartio")
-            return self.allocate()
+            #raise RuntimeError("You must call flow.allocate() before invoking flow.use_smartio()")
+            self.allocate()
 
         for task in self.iflat_tasks():
             children = task.get_children()
