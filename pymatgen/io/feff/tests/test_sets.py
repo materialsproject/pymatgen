@@ -9,7 +9,7 @@ import unittest
 import os
 
 from pymatgen import Structure
-from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet, FEFFDictSet
+from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet, FEFFDictSet, MPEXAFSSet
 from pymatgen.io.feff.inputs import Potential, Tags, Atoms, Header
 from pymatgen.io.cif import CifParser, CifFile
 import shutil
@@ -130,6 +130,18 @@ TITLE sites: 4
         os.remove("PARAMETERS")
         os.remove("feff.inp")
         os.remove("Co2O2.cif")
+
+    def test_small_system_EXAFS(self):
+        exafs_settings = MPEXAFSSet(self.absorbing_atom, self.structure)
+        self.assertFalse(exafs_settings.small_system)
+        self.assertTrue('RECIPROCAL' not in exafs_settings.tags)
+
+        user_tag_settings = {"RECIPROCAL": ""}
+        exafs_settings_2 = MPEXAFSSet(self.absorbing_atom, self.structure, nkpts=1000,
+                                      user_tag_settings=user_tag_settings)
+        self.assertFalse(exafs_settings_2.small_system)
+        self.assertTrue('RECIPROCAL' not in exafs_settings_2.tags)
+
 
     def test_number_of_kpoints(self):
         user_tag_settings = {"RECIPROCAL": ""}
