@@ -2215,6 +2215,29 @@ class IMolecule(SiteCollection, MSONable):
 
         raise ValueError("Unrecognized file extension!")
 
+    def extract_cluster(self, target_sites, **kwargs):
+        """
+        Extracts a cluster of atoms from a molecule based on bond lengths
+
+        Args:
+            target_sites ([Site]): List of initial sites to nucleate cluster.
+            \*\*kwargs: kwargs passed through to CovalentBond.is_bonded.
+
+        Returns:
+            (Molecule) Cluster of atoms.
+        """
+        cluster = list(target_sites)
+        size = 0
+        while len(cluster) > size:
+            for site in self:
+                if site not in cluster:
+                    for site2 in cluster:
+                        if CovalentBond.is_bonded(site, site2, **kwargs):
+                            cluster.append(site)
+                            break
+            size = len(cluster)
+        return Molecule.from_sites(cluster)
+
 
 class Structure(IStructure, collections.MutableSequence):
     """
