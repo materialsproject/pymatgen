@@ -42,8 +42,8 @@
    ]
   ]
  },
- "fcc_100_missing_row_1x2": {
-  "name": "fcc_100_missing_row_1x2",
+ "fcc_100_missing_row_1x1": {
+  "name": "fcc_100_missing_row_1x1",
   "description": "This is the (2x1) reconstruction for the fcc (100)                     slab, also known as the missing-row reconstruction.",
   "reference": "Zhang, J. M., Zhang, M. Y., & Xu, K. W. (2009). Missing row reconstruction on                     three low index surfaces of ten FCC metals. Crystal Research and Technology, 44(3), 275\u2013280.",
   "spacegroup": {
