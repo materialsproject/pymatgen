@@ -2229,13 +2229,13 @@ class IMolecule(SiteCollection, MSONable):
         cluster = list(target_sites)
         size = 0
         while len(cluster) > size:
+            size = len(cluster)
             for site in self:
                 if site not in cluster:
                     for site2 in cluster:
                         if CovalentBond.is_bonded(site, site2, **kwargs):
                             cluster.append(site)
                             break
-            size = len(cluster)
         return Molecule.from_sites(cluster)
 
 
