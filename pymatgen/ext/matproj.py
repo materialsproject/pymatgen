@@ -326,8 +326,10 @@ class MPRester(object):
                 criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
             else:
                 criteria = chemsys_formula_id_criteria
-
-            data = self.query(criteria, props)
+            try:
+                data = self.query(criteria, props)
+            except MPRestError:
+                return []
 
             entries = []
             for d in data:
@@ -875,6 +877,54 @@ class MPRester(object):
         """
 
         return self._make_request("/materials/all_substrate_ids")
+
+    def get_surface_data(self, material_id, inc_structures=False):
+        """
+        Gets surface data for a material. Useful for Wulff shapes.
+
+        Reference for surface data:
+
+        Tran, R., Xu, Z., Radhakrishnan, B., Winston, D., Sun, W., Persson, K.
+        A., & Ong, S. P. (2016). Data Descripter: Surface energies of elemental
+        crystals. Scientific Data, 3(160080), 1–13.
+        http://dx.doi.org/10.1038/sdata.2016.80
+
+        Args:
+            material_id (str): Materials Project material_id, e.g. 'mp-123'.
+            inc_structures (bool): Include final surface slab structures.
+                These are unnecessary for Wulff shape construction.
+        Returns:
+            Surface data for material. Energies are given in SI units (J/m^2).
+        """
+        req = "/materials/{}/surfaces".format(material_id)
+        if inc_structures:
+            req += "?include_structures=true"
+        return self._make_request(req)
+
+    def get_wulff_shape(self, material_id):
+        """
+        Constructs a Wulff shape for a material.
+
+        Args:
+            material_id (str): Materials Project material_id, e.g. 'mp-123'.
+        Returns:
+            pymatgen.analysis.wulff.WulffShape
+        """
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+        from pymatgen.analysis.wulff import WulffShape, hkl_tuple_to_str
+
+        structure = self.get_structure_by_material_id(material_id)
+        surfaces = self.get_surface_data(material_id)["surfaces"]
+        lattice = (SpacegroupAnalyzer(structure)
+                   .get_conventional_standard_structure().lattice)
+        miller_energy_map = {}
+        for surf in surfaces:
+            miller = tuple(surf["miller_index"])
+             # Prefer reconstructed surfaces, which have lower surface energies.
+            if (miller not in miller_energy_map) or surf["is_reconstructed"]:
+                miller_energy_map[miller] = surf["surface_energy"]
+        millers, energies = zip(*miller_energy_map.items())
+        return WulffShape(lattice, millers, energies)
 
     @staticmethod
     def parse_criteria(criteria_string):

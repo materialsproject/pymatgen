@@ -238,7 +238,7 @@ class NearNeighbors(object):
 
         return [e['site'] for e in self.get_nn_info(structure, n)]
 
-    def get_weights_of_nn_sites(self, n):
+    def get_weights_of_nn_sites(self, structure, n):
         """
         Get weight associated with each near neighbor of site with
         index n in structure.
@@ -284,11 +284,27 @@ class NearNeighbors(object):
                 access to the corresponding Site object, 'image' gives
                 the image location, and 'weight' provides the weight
                 that a given near-neighbor site contributes
-                to the coordination number (1 or smaller).
+                to the coordination number (1 or smaller), 'site_index'
+                gives index of the corresponding site in
+                the original structure.
         """
 
         raise NotImplementedError("get_nn_info(structure, n)"
                 " is not defined!")
+
+    @staticmethod
+    def _get_image(frac_coords):
+        """Private convenience method for get_nn_info,
+        gives lattice image from provided PeriodicSite."""
+        return [int(f) if f >= 0 else int(f - 1)
+                for f in frac_coords]
+
+    @staticmethod
+    def _get_original_site(structure, site):
+        """Private convenience method for get_nn_info,
+        gives original site index from ProvidedPeriodicSite."""
+        is_periodic_image = [site.is_periodic_image(s) for s in structure]
+        return is_periodic_image.index(True)
 
 class VoronoiNN(NearNeighbors):
     """
@@ -396,10 +412,10 @@ class VoronoiNN(NearNeighbors):
         for site, weight in self.get_voronoi_polyhedra(
                 structure, n).items():
             if weight > self.tol and site.specie in targets:
-                siw.append({'site': site, 'image': [
-                        int(f) if f >= 0 else int(f-1) \
-                        for f in site.frac_coords],
-                        'weight': weight})
+                siw.append({'site': site,
+                            'image': self._get_image(site.frac_coords),
+                            'weight': weight,
+                            'site_index': self._get_original_site(structure, site)})
         return siw
 
 
@@ -479,10 +495,10 @@ class JMolNN(NearNeighbors):
             # Confirm neighbor based on bond length specific to atom pair
             if dist <= bonds[(site.specie, neighb.specie)] + self.tol:
                 weight = min_rad / dist
-                siw.append({'site': neighb, 'image': [
-                        int(f) if f >= 0 else int(f-1) \
-                        for f in neighb.frac_coords],
-                        'weight': weight})
+                siw.append({'site': neighb,
+                            'image': self._get_image(neighb.frac_coords),
+                            'weight': weight,
+                            'site_index': self._get_original_site(structure, neighb)})
         return siw
 
 
@@ -530,9 +546,10 @@ class MinimumDistanceNN(NearNeighbors):
         for s, dist in neighs_dists:
             if dist < (1.0 + self.tol) * min_dist:
                 w = min_dist / dist
-                siw.append({'site': s, 'image': [
-                        int(f) if f >= 0 else int(f-1) for f in s.frac_coords],
-                        'weight': w})
+                siw.append({'site': s,
+                            'image': self._get_image(s.frac_coords),
+                            'weight': w,
+                            'site_index': self._get_original_site(structure, s)})
         return siw
 
 
@@ -594,9 +611,10 @@ class MinimumOKeeffeNN(NearNeighbors):
         for reldist, s in reldists_neighs:
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
-                siw.append({'site': s, 'image': [
-                        int(f) if f >= 0 else int(f-1) \
-                        for f in s.frac_coords], 'weight': w})
+                siw.append({'site': s,
+                            'image': self._get_image(s.frac_coords),
+                            'weight': w,
+                            'site_index': self._get_original_site(structure, s)})
 
         return siw
 
@@ -653,10 +671,10 @@ class MinimumVIRENN(NearNeighbors):
         for reldist, s in reldists_neighs:
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
-                siw.append({'site': s, 'image': [
-                        int(f) if f >= 0 else int(f-1) \
-                        for f in s.frac_coords],
-                        'weight': w})
+                siw.append({'site': s,
+                            'image': self._get_image(s.frac_coords),
+                            'weight': w,
+                            'site_index': self._get_original_site(structure, s)})
 
         return siw
 
@@ -814,7 +832,7 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, \
             struct, n, approach=approach, delta=delta, cutoff=cutoff)
     neighs_cent.append(struct.sites[n])
     opvals = ops.get_order_parameters(
-            neighs_cent, len(neighs_cent)-1, indeces_neighs=[
+            neighs_cent, len(neighs_cent)-1, indices_neighs=[
             i for i in range(len(neighs_cent)-1)])
     cn = int(opvals[0] + 0.5)
     motif_type = "unrecognized"
@@ -844,4 +862,3 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, \
         motif_type = "multiple assignments"
 
     return motif_type
-

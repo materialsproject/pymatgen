@@ -24,7 +24,7 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.coord_utils import find_in_coord_list, pbc_diff
+from pymatgen.util.coord import find_in_coord_list, pbc_diff
 
 """
 An interface to the excellent spglib library by Atsushi Togo
@@ -1197,6 +1197,16 @@ class PointGroupAnalyzer(object):
         return PointGroupOperations(self.sch_symbol, self.symmops,
                                     self.mat_tol)
 
+    def get_symmetry_operations(self):
+        """
+        Return symmetry operations as a list of SymmOp objects.
+        Returns Cartesian coord symmops.
+
+        Returns:
+            ([SymmOp]): List of symmetry operations.
+        """
+        return generate_full_symmops(self.symmops, self.tol)
+ 
     def is_valid_op(self, symmop):
         """
         Check if a particular symmetry operation is a valid symmetry operation

@@ -172,7 +172,7 @@ Another example, creating a Structure from a VASP POSCAR/CONTCAR file::
 
     from pymatgen.io.vasp import Poscar
     poscar = Poscar.from_file("POSCAR")
-    struct = poscar.struct
+    structure = poscar.structure
 
 Many of these io packages also provide the means to write a Structure to
 various output formats, e.g. the CifWriter in :mod:`pymatgen.io.cif`. In

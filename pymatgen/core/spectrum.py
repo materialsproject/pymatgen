@@ -6,7 +6,7 @@ from monty.json import MSONable
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter1d
 
-from pymatgen.util.coord_utils import get_linear_interpolated_value
+from pymatgen.util.coord import get_linear_interpolated_value
 
 """
 This module defines classes to represent any type of spectrum, essentially any

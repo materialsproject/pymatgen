@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.ext.matproj &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.ext.matproj &#8212; pymatgen 2017.11.27 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.11.27',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.11.27 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -383,8 +383,10 @@
                 <span class="n">criteria</span> <span class="o">=</span> <span class="n">MPRester</span><span class="o">.</span><span class="n">parse_criteria</span><span class="p">(</span><span class="n">chemsys_formula_id_criteria</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">criteria</span> <span class="o">=</span> <span class="n">chemsys_formula_id_criteria</span>
-
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">criteria</span><span class="p">,</span> <span class="n">props</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">criteria</span><span class="p">,</span> <span class="n">props</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">MPRestError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
 
             <span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
@@ -674,7 +676,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of inserted submission ids.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.matproj.snl</span> <span class="k">import</span> <span class="n">StructureNL</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.util.provenance</span> <span class="k">import</span> <span class="n">StructureNL</span>
         <span class="n">snl_list</span> <span class="o">=</span> <span class="n">StructureNL</span><span class="o">.</span><span class="n">from_structures</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">authors</span><span class="p">,</span> <span class="n">projects</span><span class="p">,</span>
                                                <span class="n">references</span><span class="p">,</span> <span class="n">remarks</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
                                                <span class="n">histories</span><span class="p">,</span> <span class="n">created_at</span><span class="p">)</span>
@@ -933,6 +935,54 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/materials/all_substrate_ids&quot;</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MPRester.get_surface_data"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_surface_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_surface_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">,</span> <span class="n">inc_structures</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets surface data for a material. Useful for Wulff shapes.</span>
+
+<span class="sd">        Reference for surface data:</span>
+
+<span class="sd">        Tran, R., Xu, Z., Radhakrishnan, B., Winston, D., Sun, W., Persson, K.</span>
+<span class="sd">        A., &amp; Ong, S. P. (2016). Data Descripter: Surface energies of elemental</span>
+<span class="sd">        crystals. Scientific Data, 3(160080), 1–13.</span>
+<span class="sd">        http://dx.doi.org/10.1038/sdata.2016.80</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            material_id (str): Materials Project material_id, e.g. &#39;mp-123&#39;.</span>
+<span class="sd">            inc_structures (bool): Include final surface slab structures.</span>
+<span class="sd">                These are unnecessary for Wulff shape construction.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Surface data for material. Energies are given in SI units (J/m^2).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="s2">&quot;/materials/</span><span class="si">{}</span><span class="s2">/surfaces&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">material_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inc_structures</span><span class="p">:</span>
+            <span class="n">req</span> <span class="o">+=</span> <span class="s2">&quot;?include_structures=true&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MPRester.get_wulff_shape"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_wulff_shape">[docs]</a>    <span class="k">def</span> <span class="nf">get_wulff_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a Wulff shape for a material.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            material_id (str): Materials Project material_id, e.g. &#39;mp-123&#39;.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            pymatgen.analysis.wulff.WulffShape</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.wulff</span> <span class="k">import</span> <span class="n">WulffShape</span><span class="p">,</span> <span class="n">hkl_tuple_to_str</span>
+
+        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_structure_by_material_id</span><span class="p">(</span><span class="n">material_id</span><span class="p">)</span>
+        <span class="n">surfaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_surface_data</span><span class="p">(</span><span class="n">material_id</span><span class="p">)[</span><span class="s2">&quot;surfaces&quot;</span><span class="p">]</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="p">(</span><span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+                   <span class="o">.</span><span class="n">get_conventional_standard_structure</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
+        <span class="n">miller_energy_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">surf</span> <span class="ow">in</span> <span class="n">surfaces</span><span class="p">:</span>
+            <span class="n">miller</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">surf</span><span class="p">[</span><span class="s2">&quot;miller_index&quot;</span><span class="p">])</span>
+             <span class="c1"># Prefer reconstructed surfaces, which have lower surface energies.</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">miller</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">miller_energy_map</span><span class="p">)</span> <span class="ow">or</span> <span class="n">surf</span><span class="p">[</span><span class="s2">&quot;is_reconstructed&quot;</span><span class="p">]:</span>
+                <span class="n">miller_energy_map</span><span class="p">[</span><span class="n">miller</span><span class="p">]</span> <span class="o">=</span> <span class="n">surf</span><span class="p">[</span><span class="s2">&quot;surface_energy&quot;</span><span class="p">]</span>
+        <span class="n">millers</span><span class="p">,</span> <span class="n">energies</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">miller_energy_map</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">WulffShape</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">millers</span><span class="p">,</span> <span class="n">energies</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="MPRester.parse_criteria"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.parse_criteria">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">parse_criteria</span><span class="p">(</span><span class="n">criteria_string</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1046,7 +1096,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.11.27 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1054,7 +1104,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

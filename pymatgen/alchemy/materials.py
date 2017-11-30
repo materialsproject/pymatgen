@@ -212,7 +212,8 @@ class TransformedStructure(MSONable):
                 pymatgen.io.vaspio_set.VaspInputSet like object that creates
                 vasp input files from structures
             output_dir: Directory to output files
-            create_directory: Create the directory if not present. Defaults to True.
+            create_directory: Create the directory if not present. Defaults to
+                True.
             \\*\\*kwargs: All keyword args supported by the VASP input set.
         """
         vasp_input_set(self.final_structure, **kwargs).write_input(
@@ -271,8 +272,8 @@ class TransformedStructure(MSONable):
             primitive (bool): Option to set if the primitive cell should be
                 extracted. Defaults to True. However, there are certain
                 instances where you might want to use a non-primitive cell,
-                e.g., if you are trying to generate all possible orderings of partial removals
-                or order a disordered structure.
+                e.g., if you are trying to generate all possible orderings of
+                partial removals or order a disordered structure.
             occupancy_tolerance (float): If total occupancy of a site is
                 between 1 and occupancy_tolerance, the occupancies will be
                 scaled down to 1.
@@ -348,8 +349,8 @@ class TransformedStructure(MSONable):
         for h in self.history:
             snl_metadata = h.pop('_snl', {})
             hist.append({'name': snl_metadata.pop('name', 'pymatgen'),
-                         'url': snl_metadata.pop('url',
-                                                 'http://pypi.python.org/pypi/pymatgen'),
+                         'url': snl_metadata.pop(
+                             'url', 'http://pypi.python.org/pypi/pymatgen'),
                          'description': h})
         from pymatgen.util.provenance import StructureNL
         return StructureNL(self.final_structure, authors, projects, references,

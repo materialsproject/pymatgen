@@ -6,7 +6,7 @@ import os
 
 import numpy as np
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.util.coord_utils import in_coord_list, in_coord_list_pbc
+from pymatgen.util.coord import in_coord_list, in_coord_list_pbc
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.analysis.adsorption import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -21,18 +21,18 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class AdsorbateSiteFinderTest(PymatgenTest):
     def setUp(self):
         self.structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5),
-                                                ["Ni"], [[0, 0, 0]])
+                                                   ["Ni"], [[0, 0, 0]])
         slabs = generate_all_slabs(self.structure, max_index=2,
                                    min_slab_size=6.0, min_vacuum_size=15.0,
                                    max_normal_search=1, center_slab=True)
         self.slab_dict = {''.join([str(i) for i in slab.miller_index]):
-                          slab for slab in slabs}
+                              slab for slab in slabs}
         self.asf_211 = AdsorbateSiteFinder(self.slab_dict["211"])
         self.asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
         self.asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
-        self.asf_111_bottom = AdsorbateSiteFinder(self.slab_dict["111"],
-                                                  top_surface=False)
         self.asf_110 = AdsorbateSiteFinder(self.slab_dict["110"])
+        self.asf_struct = AdsorbateSiteFinder(
+            Structure.from_sites(self.slab_dict["111"].sites))
 
     def test_init(self):
         asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
@@ -70,6 +70,8 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         sites = self.asf_110.find_adsorption_sites()
         self.assertEqual(len(sites['all']), 4)
         sites = self.asf_211.find_adsorption_sites()
+        # Test on structure
+        sites = self.asf_struct.find_adsorption_sites()
 
     def test_generate_adsorption_structures(self):
         co = Molecule("CO", [[0, 0, 0], [0, 0, 1.23]])
@@ -77,45 +79,49 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         self.assertEqual(len(structures), 4)
         sites = self.asf_111.find_adsorption_sites()
         # Check repeat functionality
-        self.assertEqual(len([site for site in structures[0] if 
+        self.assertEqual(len([site for site in structures[0] if
                               site.properties['surface_properties'] != 'adsorbate']),
-                         4*len(self.asf_111.slab))
+                         4 * len(self.asf_111.slab))
         for n, structure in enumerate(structures):
             self.assertArrayAlmostEqual(structure[-2].coords, sites['all'][n])
-        find_args = {"positions":["hollow"]}
-        structures_hollow = self.asf_111.\
-                generate_adsorption_structures(co, find_args=find_args)
+        find_args = {"positions": ["hollow"]}
+        structures_hollow = self.asf_111. \
+            generate_adsorption_structures(co, find_args=find_args)
         self.assertEqual(len(structures_hollow), len(sites['hollow']))
         for n, structure in enumerate(structures_hollow):
             self.assertTrue(in_coord_list(sites['hollow'], structure[-2].coords))
 
-        # checks if top_surface boolean will properly
-        # adsorb at the bottom surface when False
-        o = Molecule("O", [[0, 0, 0]])
-        adslabs = self.asf_111_bottom.generate_adsorption_structures(o)
-        for adslab in adslabs:
-            sites = sorted(adslab, key=lambda site: site.frac_coords[2])
-            self.assertTrue(sites[0].species_string == "O")
-
     def test_adsorb_both_surfaces(self):
+
+        # Test out for monatomic adsorption
         o = Molecule("O", [[0, 0, 0]])
-        adslabs = adsorb_both_surfaces(self.slab_dict["111"], o)
+        adslabs = self.asf_100.adsorb_both_surfaces(o)
+        adslabs_one = self.asf_100.generate_adsorption_structures(o)
+        self.assertEqual(len(adslabs), len(adslabs_one))
         for adslab in adslabs:
+            sg = SpacegroupAnalyzer(adslab)
             sites = sorted(adslab, key=lambda site: site.frac_coords[2])
             self.assertTrue(sites[0].species_string == "O")
             self.assertTrue(sites[-1].species_string == "O")
-            self.assertTrue(adslab.is_symmetric())
+            self.assertTrue(sg.is_laue())
+
+        # Test out for molecular adsorption
+        oh = Molecule(["O", "H"], [[0, 0, 0], [0, 0, 1]])
+        adslabs = self.asf_100.adsorb_both_surfaces(oh)
+        adslabs_one = self.asf_100.generate_adsorption_structures(oh)
+        self.assertEqual(len(adslabs), len(adslabs_one))
+        for adslab in adslabs:
+            sg = SpacegroupAnalyzer(adslab)
+            sites = sorted(adslab, key=lambda site: site.frac_coords[2])
+            self.assertTrue(sites[0].species_string in ["O", "H"])
+            self.assertTrue(sites[-1].species_string in ["O", "H"])
+            self.assertTrue(sg.is_laue())
 
     def test_functions(self):
         slab = self.slab_dict["111"]
         rot = get_rot(slab)
         reoriented = reorient_z(slab)
-        self.assertArrayAlmostEqual(slab.frac_coords[0],
-                                    cart_to_frac(slab.lattice, 
-                                                 slab.cart_coords[0]))
-        self.assertArrayAlmostEqual(slab.cart_coords[0],
-                                    frac_to_cart(slab.lattice,
-                                                 slab.frac_coords[0]))
+
 
 if __name__ == '__main__':
     unittest.main()

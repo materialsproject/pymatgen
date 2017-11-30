@@ -33,7 +33,7 @@ from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_angle, all_distances, \
+from pymatgen.util.coord import get_angle, all_distances, \
     lattice_points_in_supercell
 from pymatgen.core.units import Mass, Length
 
@@ -1439,6 +1439,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Poscar
         from pymatgen.io.cssr import Cssr
         from pymatgen.io.xcrysden import XSF
+        from pymatgen.io.atat import Mcsqs
         filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
@@ -1467,6 +1468,16 @@ class IStructure(SiteCollection, MSONable):
                     return s
             else:
                 return XSF(self).to_string()
+        elif fmt == 'mcsqs' or fnmatch(fname, "*rndstr.in*") \
+                or fnmatch(fname, "*lat.in*") \
+                or fnmatch(fname, "*bestsqs*"):
+            if filename:
+                with zopen(fname, "wt", encoding='ascii') as f:
+                    s = Mcsqs(self).to_string()
+                    f.write(s)
+                    return
+            else:
+                return Mcsqs(self).to_string()
         else:
             import ruamel.yaml as yaml
             if filename:
@@ -1505,6 +1516,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Poscar
         from pymatgen.io.cssr import Cssr
         from pymatgen.io.xcrysden import XSF
+        from pymatgen.io.atat import Mcsqs
         fmt = fmt.lower()
         if fmt == "cif":
             parser = CifParser.from_string(input_string)
@@ -1523,6 +1535,8 @@ class IStructure(SiteCollection, MSONable):
             s = Structure.from_dict(d)
         elif fmt == "xsf":
             s = XSF.from_string(input_string).structure
+        elif fmt == "mcsqs":
+            s = Mcsqs.structure_from_string(input_string)
         else:
             raise ValueError("Unrecognized format `%s`!" % fmt)
 
@@ -1597,6 +1611,12 @@ class IStructure(SiteCollection, MSONable):
                                 merge_tol=merge_tol)
         elif fnmatch(fname, "input*.xml"):
             return ExcitingInput.from_file(fname).structure
+        elif fnmatch(fname, "*rndstr.in*") \
+                or fnmatch(fname, "*lat.in*") \
+                or fnmatch(fname, "*bestsqs*"):
+            return cls.from_str(contents, fmt="mcsqs",
+                                primitive=primitive, sort=sort,
+                                merge_tol=merge_tol)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
@@ -2195,6 +2215,29 @@ class IMolecule(SiteCollection, MSONable):
 
         raise ValueError("Unrecognized file extension!")
 
+    def extract_cluster(self, target_sites, **kwargs):
+        """
+        Extracts a cluster of atoms from a molecule based on bond lengths
+
+        Args:
+            target_sites ([Site]): List of initial sites to nucleate cluster.
+            \*\*kwargs: kwargs passed through to CovalentBond.is_bonded.
+
+        Returns:
+            (Molecule) Cluster of atoms.
+        """
+        cluster = list(target_sites)
+        size = 0
+        while len(cluster) > size:
+            size = len(cluster)
+            for site in self:
+                if site not in cluster:
+                    for site2 in cluster:
+                        if CovalentBond.is_bonded(site, site2, **kwargs):
+                            cluster.append(site)
+                            break
+        return Molecule.from_sites(cluster)
+
 
 class Structure(IStructure, collections.MutableSequence):
     """
@@ -2778,7 +2821,8 @@ class Structure(IStructure, collections.MutableSequence):
         for i, site in enumerate(self._sites):
             new_sp = collections.defaultdict(float)
             for sp, occu in site.species_and_occu.items():
-                new_sp[Specie(sp.symbol, oxidation_state=sp.oxi_state)] += occu
+                oxi_state = getattr(sp, "oxi_state", None)
+                new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
             new_site = PeriodicSite(new_sp, site.frac_coords,
                                     self._lattice,
                                     coords_are_cartesian=False,
@@ -2993,6 +3037,28 @@ class Molecule(IMolecule, collections.MutableSequence):
             self._spin_multiplicity = spin_multiplicity
         else:
             self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+
+    def add_oxidation_state_by_element(self, oxidation_states):
+        """
+        Add oxidation states to a structure.
+
+        Args:
+            oxidation_states (dict): Dict of oxidation states.
+                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for el, occu in site.species_and_occu.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[sym])] = occu
+                new_site = Site(new_sp, site.coords,
+                                properties=site.properties)
+                self._sites[i] = new_site
+
+        except KeyError:
+            raise ValueError("Oxidation state of all elements must be "
+                             "specified in the dictionary.")
 
     def insert(self, i, species, coords, validate_proximity=False,
                properties=None):

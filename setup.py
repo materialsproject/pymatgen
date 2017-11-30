@@ -36,14 +36,6 @@ if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
 
 long_desc = """
-.. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
-
-.. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
-
-.. image:: https://anaconda.org/matsci/pymatgen/badges/downloads.svg
-
-.. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
-
 Official docs: `http://pymatgen.org <http://pymatgen.org/>`_
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
@@ -105,7 +97,7 @@ as Python 3.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2017.9.3",
+    version="2017.11.27",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",
@@ -116,11 +108,12 @@ setup(
         ':python_version == "2.7"': [
             'enum34',
         ],
-        "matproj.snl": ["pybtex"],
-        "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
-        "ase_adaptor": ["ase>=3.3"],
+        "provenance": ["pybtex"],
+        "pourbaix": ["pyhull>=1.5.3"],
+        "bandstructure": ["pyhull>=1.5.3"],
+        "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["pydispatcher>=2.0.5", "apscheduler==2.1.0"]},
+        "abinit": ["apscheduler==2.1.0"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml", "*.json"],
                   "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
@@ -168,8 +161,8 @@ setup(
     ext_modules=[Extension("pymatgen.optimization.linear_assignment",
                            ["pymatgen/optimization/linear_assignment.c"],
                            extra_link_args=extra_link_args),
-                 Extension("pymatgen.util.coord_utils_cython",
-                           ["pymatgen/util/coord_utils_cython.c"],
+                 Extension("pymatgen.util.coord_cython",
+                           ["pymatgen/util/coord_cython.c"],
                            extra_link_args=extra_link_args)],
     entry_points={
           'console_scripts': [

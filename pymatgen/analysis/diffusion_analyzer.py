@@ -14,7 +14,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, \
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.coord_utils import pbc_diff
+from pymatgen.util.coord import pbc_diff
 
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
