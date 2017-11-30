@@ -411,6 +411,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
                                         "fcc_110_missing_row_1x2")
         slab = recon.get_unreconstructed_slab()
         recon_slab = recon.build_slab()
+        self.assertTrue(recon_slab.is_reconstructed)
         self.assertEqual(len(slab), len(recon_slab)+2)
         self.assertTrue(recon_slab.is_symmetric())
 
@@ -430,6 +431,13 @@ class ReconstructionGeneratorTests(PymatgenTest):
         recon_slab = recon.build_slab()
         self.assertEqual(len(slab), len(recon_slab)-8)
         self.assertTrue(recon_slab.is_symmetric())
+
+        # If a slab references another slab,
+        # make sure it is properly generated
+        recon = ReconstructionGenerator(self.Ni, 10, 10,
+                                        "fcc_111_adatom_ft_1x1")
+        slab = recon.build_slab()
+        self.assertTrue(slab.is_symmetric)
 
         # Test a reconstruction where terminations give
         # different reconstructions with a non-elemental system
@@ -452,6 +460,10 @@ class MillerIndexFinderTests(PymatgenTest):
         self.cscl = Structure.from_spacegroup(
             "Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"],
             [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+        self.Fe = Structure.from_spacegroup(
+            "Im-3m", Lattice.cubic(2.82), ["Fe"],
+            [[0,0,0]])
 
         self.lifepo4 = self.get_structure("LiFePO4")
         self.tei = Structure.from_file(get_path("icsd_TeI.cif"),
@@ -493,6 +505,14 @@ class MillerIndexFinderTests(PymatgenTest):
 
         # Only three possible slabs, one each in (100), (110) and (111).
         self.assertEqual(len(slabs), 3)
+
+        # make sure it generates reconstructions
+        slabs = generate_all_slabs(self.Fe, 1, 10, 10,
+                                   include_reconstructions=True)
+        # Four possible slabs, (100), (110), (111) and the zigzag (100).
+        for slab in slabs:
+            print(slab.is_reconstructed)
+        self.assertEqual(len(slabs), 4)
 
         slabs = generate_all_slabs(self.cscl, 1, 10, 10,
                                    bonds={("Cs", "Cl"): 4})
