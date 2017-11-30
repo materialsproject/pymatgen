@@ -238,7 +238,7 @@ class Xmu(MSONable):
             absorbing_atom = parameters["TARGET"]
         # species symbol
         else:
-            absorbing_atom = pots.splitlines()[1].split()[2]
+            absorbing_atom = pots.splitlines()[3].split()[2]
         return Xmu(header, parameters, absorbing_atom, data)
 
     @property

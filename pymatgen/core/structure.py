@@ -2215,6 +2215,29 @@ class IMolecule(SiteCollection, MSONable):
 
         raise ValueError("Unrecognized file extension!")
 
+    def extract_cluster(self, target_sites, **kwargs):
+        """
+        Extracts a cluster of atoms from a molecule based on bond lengths
+
+        Args:
+            target_sites ([Site]): List of initial sites to nucleate cluster.
+            \*\*kwargs: kwargs passed through to CovalentBond.is_bonded.
+
+        Returns:
+            (Molecule) Cluster of atoms.
+        """
+        cluster = list(target_sites)
+        size = 0
+        while len(cluster) > size:
+            size = len(cluster)
+            for site in self:
+                if site not in cluster:
+                    for site2 in cluster:
+                        if CovalentBond.is_bonded(site, site2, **kwargs):
+                            cluster.append(site)
+                            break
+        return Molecule.from_sites(cluster)
+
 
 class Structure(IStructure, collections.MutableSequence):
     """
@@ -3014,6 +3037,28 @@ class Molecule(IMolecule, collections.MutableSequence):
             self._spin_multiplicity = spin_multiplicity
         else:
             self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+
+    def add_oxidation_state_by_element(self, oxidation_states):
+        """
+        Add oxidation states to a structure.
+
+        Args:
+            oxidation_states (dict): Dict of oxidation states.
+                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for el, occu in site.species_and_occu.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[sym])] = occu
+                new_site = Site(new_sp, site.coords,
+                                properties=site.properties)
+                self._sites[i] = new_site
+
+        except KeyError:
+            raise ValueError("Oxidation state of all elements must be "
+                             "specified in the dictionary.")
 
     def insert(self, i, species, coords, validate_proximity=False,
                properties=None):
