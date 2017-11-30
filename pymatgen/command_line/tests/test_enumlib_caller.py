@@ -107,6 +107,8 @@ class EnumlibAdaptorTest(PymatgenTest):
         adaptor.run()
         structures = adaptor.structures
         self.assertEqual(len(structures), 7)
+        for s in structures:
+            self.assertEqual(s.formula, 'Ca12 Al4 Ga4 Si12 O48')
 
 
 if __name__ == '__main__':
