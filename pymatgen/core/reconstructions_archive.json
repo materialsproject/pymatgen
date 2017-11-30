@@ -2,7 +2,7 @@
  "fcc_110_missing_row_1x2": {
   "name": "fcc_110_missing_row_1x2",
   "description": "This is the (2x1) reconstruction for the fcc (110)                     slab, also known as the missing-row reconstruction.",
-  "reference": "Schlier-Farnsworth model of the Fd-3m(100)(2x1) dimer                     reconstruction: Schlier, R. E., & Farnsworth, H. E. (1959). Structure                     and Adsorption Characteristics of Clean Surfaces of Germanium and                     Silicon. The Journal of Chemical Physics, 30(4), 917.",
+  "reference": "Zhang, J. M., Zhang, M. Y., & Xu, K. W. (2009). Missing row reconstruction on                     three low index surfaces of ten FCC metals. Crystal Research and Technology, 44(3), 275\u2013280.",
   "spacegroup": {
    "symbol": "Fm-3m",
    "number": 225
@@ -12,7 +12,94 @@
    1,
    0
   ],
-  "Woods_notation": "p(2x1)",
+  "Woods_notation": "p(1x2)",
+  "transformation_matrix": [
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "SlabGenerator_parameters": {
+   "center_slab": true,
+   "max_normal_search": 1
+  },
+  "points_to_remove": [
+   [
+    0.5,
+    0.25,
+    0
+   ]
+  ]
+ },
+ "fcc_100_missing_row_1x1": {
+  "name": "fcc_100_missing_row_1x1",
+  "description": "This is the (2x1) reconstruction for the fcc (100)                     slab, also known as the missing-row reconstruction.",
+  "reference": "Zhang, J. M., Zhang, M. Y., & Xu, K. W. (2009). Missing row reconstruction on                     three low index surfaces of ten FCC metals. Crystal Research and Technology, 44(3), 275\u2013280.",
+  "spacegroup": {
+   "symbol": "Fm-3m",
+   "number": 225
+  },
+  "miller_index": [
+   1,
+   0,
+   0
+  ],
+  "Woods_notation": "c(1x1)",
+  "transformation_matrix": [
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "SlabGenerator_parameters": {
+   "center_slab": true,
+   "max_normal_search": 1,
+   "primitive": false
+  },
+  "points_to_remove": [
+   [
+    0.5,
+    0.25,
+    0
+   ]
+  ]
+ },
+ "fcc_111_missing_row_1x2": {
+  "name": "fcc_111_missing_row_1x2",
+  "description": "This is the (2x1) reconstruction for the fcc (111)                     slab, also known as the missing-row reconstruction.",
+  "reference": "Zhang, J. M., Zhang, M. Y., & Xu, K. W. (2009). Missing row reconstruction on                     three low index surfaces of ten FCC metals. Crystal Research and Technology, 44(3), 275\u2013280.",
+  "spacegroup": {
+   "symbol": "Fm-3m",
+   "number": 225
+  },
+  "miller_index": [
+   1,
+   1,
+   1
+  ],
+  "Woods_notation": "p(1x2)",
   "transformation_matrix": [
    [
     1,
