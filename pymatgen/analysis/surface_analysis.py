@@ -22,21 +22,24 @@ import numpy as np
 import itertools
 import warnings
 import random, copy
-
+from sympy import Symbol
 
 from pymatgen.core.composition import Composition
+from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction
 
+from monty.json import MSONable
+
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2017, The Materials Virtual Lab"
-__version__ = "0.1"
+__version__ = "0.2"
 __maintainer__ = "Richard Tran"
-__credits__ = "Joseph Montoya"
+__credits__ = "Joseph Montoya, Xianguo Li"
 __email__ = "rit001@eng.ucsd.edu"
 __date__ = "8/24/17"
 
@@ -47,13 +50,72 @@ quantities as well as related plots. If you use this module, please
 consider citing the following works::
 
     R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
-    S. P. Ong, "Surface Energies of Elemental Crystals", Scientific Data,
-    2016, 3:160080, doi: 10.1038/sdata.2016.80.
+        S. P. Ong, "Surface Energies of Elemental Crystals", Scientific
+        Data, 2016, 3:160080, doi: 10.1038/sdata.2016.80.
+
     and
+
     Montoya, J. H., & Persson, K. A. (2017). A high-throughput framework
-    for determining adsorption energies on solid surfaces. Npj Computational
-    Materials, 3(1), 14. https://doi.org/10.1038/s41524-017-0017-z
+        for determining adsorption energies on solid surfaces. Npj
+        Computational Materials, 3(1), 14.
+        https://doi.org/10.1038/s41524-017-0017-z
 """
+
+
+class SlabEntry(ComputedStructureEntry):
+    """
+    An object encompassing all data relevant to slab for surface calculations.
+
+    Args:
+        entry (ComputedEntry/ComputedStructureEntry): An
+            entry object
+    """
+
+    def __init__(self, entry, miller_index, name=None,
+                 coverage=None, adsorbate=None):
+        self.entry = entry
+        self.miller_index = miller_index
+        self.name = name
+        self.coverage = coverage
+        self.adsorbate = adsorbate
+
+        super(SlabEntry, self).__init__(
+            entry.structure, entry.energy, correction=0.0,
+            parameters=None, data=None, entry_id=None)
+
+    def as_dict(self):
+        """
+        Returns dict which contains Slab Entry data.
+        """
+
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+        d["entry"] = self.entry.as_dict()
+        d["miller_index"] = miller_index
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Returns a SlabEntry by reading in an slab
+        """
+
+        entry = SlabEntry.from_dict(d["entry"])
+        miller_index = d["miller_index"]
+        name = d["name"]
+        coverage = d["coverage"]
+        adsorbate = d["adsorbate"]
+
+        return SlabEntry(entry, miller_index, name=name,
+                         coverage=coverage, adsorbate=adsorbate)
+
+    @property
+    def surface_area(self):
+        """
+        Calculates the surface area of the slab
+        """
+        m = self.structure.lattice.matrix
+        return np.linalg.norm(np.cross(m[0], m[1]))
 
 
 class SurfaceEnergyCalculator(object):
@@ -114,8 +176,7 @@ class SurfaceEnergyCalculator(object):
         Adsorbate formula as a string (see adsorbate_entry).
     """
 
-    def __init__(self, ucell_entry, ref_el_entry=None,
-                 adsorbate_entry=None):
+    def __init__(self, ucell_entry, ref_entries=[]):
         """
         Analyzes surface energies and Wulff shape of a particular
             material using the chemical potential.
@@ -132,92 +193,85 @@ class SurfaceEnergyCalculator(object):
         """
 
         # Set up basic attributes
-        self.ref_el_entry = ref_el_entry
-        self.ref_el_as_str = ref_el_entry.composition.elements[0].name \
-            if ref_el_entry else None
         self.ucell_entry = ucell_entry
-        ucell_comp = self.ucell_entry.composition
+        self.ref_entries = ref_entries
+        self.ucell_comp = self.ucell_entry.composition
 
-        # Get x and y, the number of compositions in a formula unit of the bulk
-        if self.ref_el_entry:
-            ref_el_comp = Composition(self.ref_el_as_str)
-            reactant_formula = ""
-            for el in ucell_comp.as_dict().keys():
-                if el != self.ref_el_as_str:
-                    reactant_formula += \
-                        el + str(ucell_comp.reduced_composition.as_dict()[el])
-            reactant_comp = Composition(reactant_formula)
-            self.reactants = [reactant_comp, ref_el_comp]
-            rxn = Reaction(self.reactants,
-                           [self.ucell_entry.composition.reduced_composition])
-            x = abs(rxn.get_coeff(reactant_comp))
-            y = abs(rxn.get_coeff(ref_el_comp))
-        else:
-            x = y = 1
-
-        self.x = x
-        self.y = y
         # Calculate Gibbs free energy of the bulk per unit formula
         self.gbulk = self.ucell_entry.energy / \
                      ucell_comp.get_integer_formula_and_factor()[1]
-        self.adsorbate_entry = adsorbate_entry
-        self.adsorbate_as_str = self.adsorbate_entry.composition.elements[0].name \
-            if self.adsorbate_entry else None
 
-    def surface_energy_coefficients(self, clean_slab_entry, ads_slab_entry=None):
+    def surface_energy_coefficients(self, slab_entry,
+                                    ref_adsorbate_entry=None):
         """
-        Calculates the coefficients of the surface energy for a single slab
-            in the form of gamma=b1x1+b2x2+b3 where x1 is the chemical
-            potential of ref_el_comp and x2 is the chemical potential of
-            the adsorbate.
+        Calculates the surface energy for a single slab.
         Args:
             clean_slab_entry (entry): An entry object for the clean slab
-            ads_slab_entry (entry): An optional entry object for the
-                adsorbed slab, defaults to None.
+            bulk_entry (entry): An entry object for the bulk
+            ref_entries (list: [entry]): A list of entries for each type
+                of element to be used as a reservoir for nonstoichiometric
+                systems. The length of this list MUST be n-1 where n is the
+                number of different elements in the bulk entry. The chempot
+                of the element ref_entry that is not in the list will be
+                treated as a variable.
+            ref_adsorbate_entry (entry): Entry for the adsorbate to be used
+                as a reservoir during adsorption.
+            chempot (dict): A dictionary with the key being an element
+                existing in the slab system. All elements will have a
+                chempot variable, however most of these variables will cancel
+                out, so the chempot will have no effect. By default, if a
+                chempot is not set for an element, we set it to 0. This only
+                effects the surface energy if a reservoir (either for an
+                adsorbate or an element in the bulk) is needed.
 
-        Returns (list): List of the coefficients for surface energy [b1, b2, b3]
+        Returns (float): Surface energy
         """
 
-        slab = clean_slab_entry.structure
-        # Calculate surface area
-        m = slab.lattice.matrix
-        Aclean = np.linalg.norm(np.cross(m[0], m[1]))
-        # For the adsorbed surface area, just set to 1 if no entry given
-        if ads_slab_entry:
-            adslab = ads_slab_entry.structure
-            m = adslab.lattice.matrix
-            Aads = np.linalg.norm(np.cross(m[0], m[1]))
-        else:
-            Aads = 1
+        # Add missing chemical potentials for elements
+        # not present in chempot, defaults to 0.
+        chempot_vars = {el: Symbol(el) for el in \
+                        slab_entry.composition.as_dict().keys()}
 
-        # Get the compositions in the slab
-        if self.ref_el_entry:
-            rxn = Reaction(self.reactants, [clean_slab_entry.composition])
-            Nx = abs(rxn.get_coeff(self.reactants[0]))
-            Ny = abs(rxn.get_coeff(self.reactants[1]))
-        else:
-            Nx = Ny = slab.composition.get_integer_formula_and_factor()[1]
+        # Calculate Gibbs free energy of the bulk per unit formula
+        ref_entries_dict = {list(entry.composition.as_dict().keys())[0]: \
+                                entry for entry in self.ref_entries}
+        bulk_energy = 0
+        # First we get the contribution to the bulk energy
+        # from each element with an existing ref_entry.
+        for el in ref_entries_dict.keys():
+            entry = ref_entries_dict[el]
+            N = slab_entry.composition.as_dict()[el]
+            bulk_energy += N * (chempot_vars[el] + entry.energy_per_atom)
 
-        # get number of adsorbates in slab
-        Nads = self.Nads_in_slab(ads_slab_entry) if ads_slab_entry else 0
-        # get number of adsorbed surfaces, set to 1 for clean to avoid division by 0
-        Nsurfs = 1 if not ads_slab_entry else self.Nsurfs_ads_in_slab(ads_slab_entry)
+        # Add the reservoir from the adsorbate to the bulk energy
+        if ref_adsorbate_entry:
+            el = list(ref_adsorbate_entry.composition.as_dict().keys())[0]
+            N = slab_entry.composition.as_dict()[el]
+            bulk_energy += N * (chempot_vars[el] - ref_adsorbate_entry.energy_per_atom)
 
-        # return the coefficients of the surface energy
-        # b1 is the coefficient for chempot of reference atom
-        b1 = (-1 / (2 * Aclean))*(Ny - (self.y / self.x) * Nx)
+        # Next, we add the contribution to the bulk energy from
+        # the variable element (the element without a ref_entry),
+        # as a function of the other elements
+        for el in self.ucell_entry.as_dict().keys():
+            if el not in ref_entries_dict.keys():
+                ref_el = el
 
-        # b2 is the coefficient for chempot of adsorbate
-        b2 = (-1*Nads) / (Nsurfs * Aads)
-        gibbs_binding = self.gibbs_binding_energy(ads_slab_entry,
-                                                  clean_slab_entry) if ads_slab_entry else 0
-        # b3 is the intercept (clean surface energy for a clean, stoichiometric system)
-        g_y = self.ref_el_entry.energy_per_atom if self.ref_el_entry else 0
-        b3 = (1 / (2 * Aclean)) * (clean_slab_entry.energy - (Nx/self.x)*self.gbulk - \
-                              (Ny - (self.y / self.x) * Nx) * g_y) + \
-             gibbs_binding*(Nads/(Nsurfs*Aads))
+        N = slab_entry.composition.as_dict()[ref_el]
+        n = self.ucell_comp.reduced_composition.as_dict()[ref_el]
+        bulk_energy += (N / n) * (self.gbulk - \
+                                  sum([self.ucell_comp.reduced_composition \
+                                           [el] * (chempot_vars[el] - \
+                                                   ref_entries_dict[el].energy_per_atom) \
+                                       for el in ref_entries_dict.keys()]))
 
-        return [b1, b2, b3]
+        # Full equation of the surface energy (constant if stoichiometric)
+        se = (slab_entry.energy - bulk_energy) / (2 * slab_entry.surface_area)
+
+        # Remove any variables with coefficient of 0
+        # (Sympy doesn't handle cancellation very well)
+        coefficients = {el: coeff for el, coeff in \
+                        se.as_coefficients_dict().items() if coeff > 1e-6}
+        return coefficients
 
     def calculate_gamma_at_u(self, clean_slab_entry, ads_slab_entry=None, u_ref=0, u_ads=0):
         """
@@ -268,10 +322,9 @@ class SurfaceEnergyCalculator(object):
         unit_a = self.get_unit_primitive_area(ads_slab_entry, clean_slab_entry)
         Nsurfs = self.Nsurfs_ads_in_slab(ads_slab_entry)
         Nads = self.Nads_in_slab(ads_slab_entry)
-        return Nads/(unit_a*Nsurfs)
+        return Nads / (unit_a * Nsurfs)
 
-
-    def gibbs_binding_energy(self, ads_slab_entry,
+    def gibbs_binding_energy(self, ads_slab_entry, ref_adsorbate_entry,
                              clean_slab_entry, eads=False):
         """
         Returns the adsorption energy or Gibb's binding energy
@@ -288,18 +341,18 @@ class SurfaceEnergyCalculator(object):
         Nads = self.Nads_in_slab(ads_slab_entry)
 
         BE = (ads_slab_entry.energy - n * clean_slab_entry.energy) / Nads \
-             - self.adsorbate_entry.energy_per_atom
-        return BE*Nads if eads else BE
+             - ref_adsorbate_entry.energy_per_atom
+        return BE * Nads if eads else BE
 
-    def Nads_in_slab(self, ads_slab_entry):
+    def Nads_in_slab(self, ads_slab_entry, ref_adsorbate_entry):
         """
         Returns the TOTAL number of adsorbates in the slab on BOTH sides
         Args:
             ads_slab_entry (entry): The entry of the adsorbed slab
         """
 
-        return ads_slab_entry.composition.as_dict()\
-            [str(self.adsorbate_entry.composition.\
+        return ads_slab_entry.composition.as_dict() \
+            [str(ref_adsorbate_entry.composition. \
                  reduced_composition.elements[0])]
 
     def Nsurfs_ads_in_slab(self, ads_slab_entry):
@@ -350,7 +403,7 @@ class SurfaceEnergyCalculator(object):
             return [None, None]
         # Now solve the two eqns, return [del_u, gamma]
         return np.linalg.solve([[c1[i], -1], [c2[i], -1]],
-                               [-1*b11, -1*b12])
+                               [-1 * b11, -1 * b12])
 
 
 class SurfaceEnergyPlotter(object):
