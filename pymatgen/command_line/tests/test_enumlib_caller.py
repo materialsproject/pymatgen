@@ -102,13 +102,31 @@ class EnumlibAdaptorTest(PymatgenTest):
         s = Structure.from_file(filename=os.path.join(test_dir, "garnet.cif"))
         a = SpacegroupAnalyzer(s, 0.1)
         prim = a.find_primitive()
-        prim["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(prim, 1, 1, enum_precision_parameter=0.01)
+        s = prim.copy()
+        s["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
+        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         self.assertEqual(len(structures), 7)
         for s in structures:
             self.assertEqual(s.formula, 'Ca12 Al4 Ga4 Si12 O48')
+        s = prim.copy()
+        s["Ca2+"] = {"Ca2+": 1/3, "Mg2+": 2/3}
+        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01)
+        adaptor.run()
+        structures = adaptor.structures
+        self.assertEqual(len(structures), 20)
+        for s in structures:
+            self.assertEqual(s.formula, 'Ca4 Mg8 Al8 Si12 O48')
+
+        s = prim.copy()
+        s["Si4+"] = {"Si4+": 1/3, "Ge4+": 2/3}
+        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01)
+        adaptor.run()
+        structures = adaptor.structures
+        self.assertEqual(len(structures), 18)
+        for s in structures:
+            self.assertEqual(s.formula, 'Ca12 Al8 Si4 Ge8 O48')
 
 
 if __name__ == '__main__':
