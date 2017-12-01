@@ -2227,15 +2227,19 @@ class IMolecule(SiteCollection, MSONable):
             (Molecule) Cluster of atoms.
         """
         cluster = list(target_sites)
+        others = [site for site in self if site not in cluster]
         size = 0
         while len(cluster) > size:
             size = len(cluster)
-            for site in self:
-                if site not in cluster:
-                    for site2 in cluster:
-                        if CovalentBond.is_bonded(site, site2, **kwargs):
-                            cluster.append(site)
-                            break
+            new_others = []
+            for site in others:
+                for site2 in cluster:
+                    if CovalentBond.is_bonded(site, site2, **kwargs):
+                        cluster.append(site)
+                        break
+                else:
+                    new_others.append(site)
+            others = new_others
         return Molecule.from_sites(cluster)
 
 
