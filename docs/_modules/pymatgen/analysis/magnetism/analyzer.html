@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.magnetism.analyzer &#8212; pymatgen 2017.11.6 documentation</title>
+    <title>pymatgen.analysis.magnetism.analyzer &#8212; pymatgen 2017.11.30 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.11.6',
+        VERSION:     '2017.11.30',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.11.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.11.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -86,7 +86,14 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 2017&quot;</span>
 
 <span class="n">MODULE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-<span class="n">DEFAULT_MAGMOMS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;default_magmoms.yaml&quot;</span><span class="p">))</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">DEFAULT_MAGMOMS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;default_magmoms.yaml&quot;</span><span class="p">))</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Could not load default_magmoms.yaml, &quot;</span>
+                  <span class="s2">&quot;falling back to VASPIncarBase.yaml&quot;</span><span class="p">)</span>
+    <span class="n">DEFAULT_MAGMOMS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;../../io/vasp/VASPIncarBase.yaml&quot;</span><span class="p">))</span>
+    <span class="n">DEFAULT_MAGMOMS</span> <span class="o">=</span> <span class="n">DEFAULT_MAGMOMS</span><span class="p">[</span><span class="s1">&#39;MAGMOM&#39;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Ordering"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.Ordering">[docs]</a><span class="nd">@unique</span>
 <span class="k">class</span> <span class="nc">Ordering</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -115,14 +122,20 @@
 <span class="sd">        kwarg.</span>
 
 <span class="sd">        Input magmoms can be replaced using the &#39;overwrite_magmom_mode&#39;</span>
-<span class="sd">        kwarg. This can be &quot;none&quot; to do nothing, &quot;respect_sign&quot; which will</span>
-<span class="sd">        overwrite existing magmoms with those from default_magmoms but will</span>
-<span class="sd">        keep positive magmoms positive, negative magmoms negative and zero</span>
-<span class="sd">        magmoms zero, &quot;respect_zeros&quot;, which will give a ferromagnetic structure</span>
-<span class="sd">        (all positive magmoms from default_magmoms) but still keep zero magmoms</span>
-<span class="sd">        as zero, or &quot;replace_all&quot; which will try to guess initial magmoms for</span>
-<span class="sd">        all species in the structure irrespective of input structure.</span>
-<span class="sd">        This is most suitable for an initial DFT calculation.</span>
+<span class="sd">        kwarg. This can be:</span>
+<span class="sd">        * &quot;none&quot; to do nothing,</span>
+<span class="sd">        * &quot;respect_sign&quot; which will overwrite existing magmoms with</span>
+<span class="sd">          those from default_magmoms but will keep sites with positive magmoms</span>
+<span class="sd">          positive, negative magmoms negative and zero magmoms zero,</span>
+<span class="sd">        * &quot;respect_zeros&quot;, which will give a ferromagnetic structure</span>
+<span class="sd">          (all positive magmoms from default_magmoms) but still keep sites with</span>
+<span class="sd">          zero magmoms as zero,</span>
+<span class="sd">        * &quot;replace_all&quot; which will try to guess initial magmoms for</span>
+<span class="sd">          all sites in the structure irrespective of input structure</span>
+<span class="sd">          (this is most suitable for an initial DFT calculation),</span>
+<span class="sd">        * &quot;replace_all_if_undefined&quot; is the same as &quot;replace_all&quot; but only if</span>
+<span class="sd">          no magmoms are defined in input structure, otherwise it will respect</span>
+<span class="sd">          existing magmoms.</span>
 
 <span class="sd">        :param structure: Structure object</span>
 <span class="sd">        :param overwrite_magmom_mode (str): default &quot;none&quot;</span>
@@ -197,7 +210,7 @@
             <span class="c1"># no magmoms present, add zero magmoms for now</span>
             <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
             <span class="c1"># and overwrite magmoms with default magmoms later unless otherwise stated</span>
-            <span class="k">if</span> <span class="n">overwrite_magmom_mode</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">overwrite_magmom_mode</span> <span class="o">==</span> <span class="s2">&quot;replace_all_if_undefined&quot;</span><span class="p">:</span>
                 <span class="n">overwrite_magmom_mode</span> <span class="o">=</span> <span class="s2">&quot;replace_all&quot;</span>
 
         <span class="c1"># test to see if input structure has collinear magmoms</span>
@@ -222,7 +235,8 @@
 
         <span class="c1"># overwrite existing magmoms with default_magmoms</span>
         <span class="k">if</span> <span class="n">overwrite_magmom_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;respect_sign&quot;</span><span class="p">,</span>
-                                         <span class="s2">&quot;respect_zeros&quot;</span><span class="p">,</span> <span class="s2">&quot;replace_all&quot;</span><span class="p">):</span>
+                                         <span class="s2">&quot;respect_zeros&quot;</span><span class="p">,</span> <span class="s2">&quot;replace_all&quot;</span><span class="p">,</span>
+                                         <span class="s2">&quot;replace_all_if_undefined&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported mode.&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
@@ -340,6 +354,14 @@
             <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">(</span><span class="n">use_site_props</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">structure</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_magnetic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience property, returns True if any non-zero magmoms present.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">abs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s1">&#39;magmom&#39;</span><span class="p">]))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">magmoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -470,11 +492,24 @@
                                                <span class="n">overwrite_magmom_mode</span><span class="o">=</span><span class="s2">&quot;respect_sign&quot;</span><span class="p">)</span>\
             <span class="o">.</span><span class="n">get_structure_with_spin</span><span class="p">()</span>
 
-        <span class="n">b</span> <span class="o">=</span> <span class="n">CollinearMagneticStructureAnalyzer</span><span class="p">(</span><span class="n">other</span><span class="p">,</span>
-                                               <span class="n">overwrite_magmom_mode</span><span class="o">=</span><span class="s2">&quot;respect_sign&quot;</span><span class="p">)</span> \
-            <span class="o">.</span><span class="n">get_structure_with_spin</span><span class="p">()</span>
+        <span class="c1"># sign of spins doesn&#39;t matter, so we&#39;re comparing both</span>
+        <span class="c1"># positive and negative versions of the structure</span>
+        <span class="c1"># this code is possibly redundant, but is included out of</span>
+        <span class="c1"># an abundance of caution</span>
+        <span class="n">b_positive</span> <span class="o">=</span> <span class="n">CollinearMagneticStructureAnalyzer</span><span class="p">(</span><span class="n">other</span><span class="p">,</span>
+                                                        <span class="n">overwrite_magmom_mode</span><span class="o">=</span><span class="s2">&quot;respect_sign&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>  <span class="c1"># sometimes returns None (bug?)</span>
+        <span class="n">b_negative</span> <span class="o">=</span> <span class="n">b_positive</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">b_negative</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s1">&#39;magmom&#39;</span><span class="p">,</span>
+                                     <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">b_negative</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s1">&#39;magmom&#39;</span><span class="p">]))</span>
+
+        <span class="n">b_negative</span> <span class="o">=</span> <span class="n">CollinearMagneticStructureAnalyzer</span><span class="p">(</span><span class="n">b_negative</span><span class="p">,</span>
+                                                        <span class="n">overwrite_magmom_mode</span><span class="o">=</span><span class="s2">&quot;respect_sign&quot;</span><span class="p">)</span>
+
+        <span class="n">b_positive</span> <span class="o">=</span> <span class="n">b_positive</span><span class="o">.</span><span class="n">get_structure_with_spin</span><span class="p">()</span>
+        <span class="n">b_negative</span> <span class="o">=</span> <span class="n">b_negative</span><span class="o">.</span><span class="n">get_structure_with_spin</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">b_positive</span><span class="p">)</span> <span class="ow">or</span> <span class="n">a</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">b_negative</span><span class="p">):</span>  <span class="c1"># sometimes returns None (bug?)</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span></div>
@@ -540,7 +575,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.11.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.11.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

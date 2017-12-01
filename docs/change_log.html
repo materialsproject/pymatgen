@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Change log &#8212; pymatgen 2017.11.6 documentation</title>
+    <title>Change log &#8212; pymatgen 2017.11.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.11.6',
+        VERSION:     '2017.11.30',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,6 +54,30 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2017-11-30">
+<h2>v2017.11.30<a class="headerlink" href="#v2017-11-30" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fix for severe enumlib_caller bug. This causes enumerations not to be carried
+out properly due to bad accounting of symmetry of ordered sites. It results
+in too few orderings.</li>
+<li>New method to extract clusters of atoms from a Molecule based on bonds.</li>
+</ul>
+</div>
+<div class="section" id="v2017-11-27">
+<h2>v2017.11.27<a class="headerlink" href="#v2017-11-27" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Improvements to FEFF</li>
+<li>MPRester now supports surface data.</li>
+<li>Improvement to DiscretizeOccupanciesTransformation.</li>
+</ul>
+</div>
+<div class="section" id="v2017-11-9">
+<h2>v2017.11.9<a class="headerlink" href="#v2017-11-9" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Massive rewrite of LAMMPSData to support more functionality (Zhi Deng)</li>
+<li>Misc bug fixes.</li>
+</ul>
+</div>
 <div class="section" id="v2017-11-6">
 <h2>v2017.11.6<a class="headerlink" href="#v2017-11-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -1768,6 +1792,9 @@ environment variable.</li>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
+<li><a class="reference internal" href="#v2017-11-30">v2017.11.30</a></li>
+<li><a class="reference internal" href="#v2017-11-27">v2017.11.27</a></li>
+<li><a class="reference internal" href="#v2017-11-9">v2017.11.9</a></li>
 <li><a class="reference internal" href="#v2017-11-6">v2017.11.6</a></li>
 <li><a class="reference internal" href="#v2017-10-16">v2017.10.16</a></li>
 <li><a class="reference internal" href="#v2017-9-29">v2017.9.29</a></li>
@@ -1982,7 +2009,7 @@ environment variable.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 

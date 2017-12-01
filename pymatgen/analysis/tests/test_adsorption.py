@@ -96,6 +96,8 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         # Test out for monatomic adsorption
         o = Molecule("O", [[0, 0, 0]])
         adslabs = self.asf_100.adsorb_both_surfaces(o)
+        adslabs_one = self.asf_100.generate_adsorption_structures(o)
+        self.assertEqual(len(adslabs), len(adslabs_one))
         for adslab in adslabs:
             sg = SpacegroupAnalyzer(adslab)
             sites = sorted(adslab, key=lambda site: site.frac_coords[2])
@@ -106,6 +108,8 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         # Test out for molecular adsorption
         oh = Molecule(["O", "H"], [[0, 0, 0], [0, 0, 1]])
         adslabs = self.asf_100.adsorb_both_surfaces(oh)
+        adslabs_one = self.asf_100.generate_adsorption_structures(oh)
+        self.assertEqual(len(adslabs), len(adslabs_one))
         for adslab in adslabs:
             sg = SpacegroupAnalyzer(adslab)
             sites = sorted(adslab, key=lambda site: site.frac_coords[2])
