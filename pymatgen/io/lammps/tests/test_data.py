@@ -20,6 +20,7 @@ from pymatgen import Molecule, Element, Lattice, Structure
 from pymatgen.io.lammps.data import LammpsData, Topology, ForceField,\
     structure_2_lmpdata
 
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
@@ -39,6 +40,36 @@ class LammpsDataTest(unittest.TestCase):
         cls.virus = LammpsData.\
             from_file(filename=os.path.join(test_dir, "virus.data"),
                       atom_style="angle")
+
+    def test_structure(self):
+        pep = self.peptide
+        structure = pep.structure
+        self.assertEqual(type(structure).__name__, 'Structure')
+        self.assertEqual(len(structure.composition.elements), 21)
+        self.assertEqual(structure.num_sites, 2004)
+        self.assertEqual(structure.formula, "H1320 C30 S1 N6 O647")
+        structure.remove_oxidation_states()
+        self.assertEqual(len(structure.composition.elements), 5)
+
+        ethane = self.ethane
+        structure = ethane.structure
+        self.assertEqual(len(structure.composition.elements), 2)
+        self.assertEqual(structure.num_sites, 8)
+        self.assertEqual(structure.formula, "H6 C2")
+
+        quartz = self.quartz
+        structure = quartz.structure
+        self.assertEqual(len(structure.composition.elements), 2)
+        self.assertEqual(structure.num_sites, 9)
+        self.assertEqual(structure.formula, "Si3 O6")
+
+        # test tilt structure
+        tilt_str = Structure.from_file(os.path.join(test_dir, "POSCAR_tilt"))
+        lmp_tilt_data = structure_2_lmpdata(tilt_str)
+        s = StructureMatcher()
+        groups = s.group_structures([lmp_tilt_data.structure, tilt_str])
+        self.assertEqual(len(groups), 1)
+
 
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
