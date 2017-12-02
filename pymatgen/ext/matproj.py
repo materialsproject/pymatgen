@@ -358,24 +358,6 @@ class MPRester(object):
             from pymatgen.entries.compatibility import \
                 MaterialsProjectCompatibility
             entries = MaterialsProjectCompatibility().process_entries(entries)
-        # TODO: check this to see if it works
-        '''
-        else:
-            entries = []
-            for d in self.get_data(chemsys_formula_id_criteria,
-                                   prop="task_ids"):
-                for i in d["task_ids"]:
-                    e = self.get_task_data(i, prop="entry")
-                    e = e[0]["entry"]
-                    if inc_structure:
-                        s = self.get_task_data(i,
-                                               prop="structure")[0]["structure"]
-                        e = ComputedStructureEntry(
-                            s, e.energy, e.correction, e.parameters, e.data,
-                            e.entry_id)
-                    entries.append(e)
-        '''
-        # from nose.tools import set_trace; set_trace()
         return entries
 
     def get_pourbaix_entries(self, chemsys):
@@ -384,28 +366,21 @@ class MPRester(object):
         a pourbaix diagram from the rest interface.
 
         Args:
-            chemsys_formula_id_criteria (str/dict): A chemical system
-                (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or materials_id
-                (e.g., mp-1234) or full Mongo-style dict criteria.
+            chemsys ([str]): A list of elements comprising the chemical
+                system, e.g. ['Li', 'Fe']
         """
-
-        #TODO: fix docstring
-
         from pymatgen.analysis.pourbaix.entry import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import\
             MaterialsProjectAqueousCompatibility
 
-        #TODO: Get correction for aqueous
         chemsys = list(set(chemsys + ['O', 'H']))
-        #TODO: this is super slow.
         entries = self.get_entries_in_chemsys(
             chemsys, property_data=['e_above_hull'], compatible_only=False)
         compat = MaterialsProjectAqueousCompatibility("Advanced")
         entries = compat.process_entries(entries)
         solid_pd = PhaseDiagram(entries) # Need this to get ion formation energy
-        # chemsys = list(set(sum([e.composition.elements for e in entries])))
         url = '/pourbaix_diagram/reference_data/' + '-'.join(chemsys)
         ion_data = self._make_request(url)
 
@@ -421,21 +396,12 @@ class MPRester(object):
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
             solid_diff = solid_pd.get_form_energy(stable_ref)\
                          - i_d['Reference solid energy'] * rf
-
             elt = i_d['Major_Elements'][0]
             correction_factor = ion_entry.ion.composition[elt]\
                                 / stable_ref.composition[elt]
-            correction = solid_diff * correction_factor # TODO: SOMETHING GOES HERE
+            correction = solid_diff * correction_factor
             pbx_entries.append(PourbaixEntry(ion_entry, correction,
                                              'ion-{}'.format(n)))
-            """
-            refs = self.query({"pretty_formula": i_d['Reference Solid']},
-                              ['e_above_hull', 'material_id'])
-            if not refs:
-                raise ValueError("Reference solid not contained in entry list")
-            stable_ref = sorted(refs, key=lambda x: x['e_above_hull'])[0]
-            """
-        blargh
         return pbx_entries
 
     def get_structure_by_material_id(self, material_id, final=True):
