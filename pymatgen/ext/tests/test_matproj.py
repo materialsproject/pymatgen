@@ -16,6 +16,7 @@ from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.analysis.pourbaix.entry import PourbaixEntry
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.io.cif import CifParser
 
@@ -184,7 +185,9 @@ class MPResterTest(unittest.TestCase):
             self.assertIsNotNone(e.data["oxide_type"])
 
     def test_get_pourbaix_entries(self):
-        pb_entries = self.rester.get_pourbaix_entries(["Fe"])
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
+        for pbx_entry in pbx_entries:
+            self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
