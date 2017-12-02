@@ -247,7 +247,7 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(3.381, vasprun_optical.optical_transition[56][0])
         self.assertAlmostEqual(10554.9860, vasprun_optical.optical_transition[54][1])
         self.assertAlmostEqual(0.0, vasprun_optical.optical_transition[55][1])
-        self.assertAlmostEqual(0.001,vasprun_optical.optical_transition[56][1])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[56][1])
 
 
 

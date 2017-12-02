@@ -448,7 +448,7 @@ class Vasprun(MSONable):
                     else:
                         comment = elem.attrib["comment"]
                         self.other_dielectric[comment] = self._parse_diel(elem)
-                elif tag == 'varray' and elem.attrib.get("name") == 'opticaltransitions':
+                elif tag == "varray" and elem.attrib.get("name") == 'opticaltransitions':
                     self.optical_transition = np.array(_parse_varray(elem))
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
