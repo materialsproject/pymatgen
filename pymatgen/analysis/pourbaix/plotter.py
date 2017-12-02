@@ -202,6 +202,22 @@ class PourbaixPlotter(object):
             f.set_size_inches((11.5, 9))
             plt.tight_layout(pad=1.09)
 
+    def plot_entry_stability(self, entry, resolution=100, **kwargs):
+        # plot the Pourbaix diagram
+        plt = self.get_pourbaix_plot(**kwargs)
+        ax = plt.gca()
+        ph_min, ph_max, v_min, v_max = ax.get_xlim() + ax.get_ylim()
+        # Get meshgrid
+        phs, vs = np.mgrid[ph_min:ph_max:resolution*1j, 
+                         v_min:v_max:resolution*1j]
+        stability = [self._analyzer.get_entry_stability(entry, ph, v)
+                     for ph, v in zip(phs.ravel(), vs.ravel())]
+        stability = np.array(stability).reshape(phs.shape)
+        plt.contourf(phs, vs, stability) # TODO: pick a more benign colormap
+        cbar = plt.colorbar()
+        cbar.set_label("Stability of {} (eV)".format(self.print_name(entry)))
+        return plt
+
     def pourbaix_plot_data(self, limits=None):
         """
         Get data required to plot Pourbaix diagram.
