@@ -312,51 +312,54 @@ class MPRester(object):
         # on the REST end.
         params = ["run_type", "is_hubbard", "pseudo_potential", "hubbards",
                   "potcar_symbols", "oxide_type"]
-        if compatible_only:
-            props = ["energy", "unit_cell_formula", "task_id"] + params
-            if property_data:
-                props += property_data
-            if inc_structure:
-                if inc_structure == "final":
-                    props.append("structure")
-                else:
-                    props.append("initial_structure")
-
-            if not isinstance(chemsys_formula_id_criteria, dict):
-                criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
+        # if compatible_only:
+        props = ["energy", "unit_cell_formula", "task_id"] + params
+        if property_data:
+            props += property_data
+        if inc_structure:
+            if inc_structure == "final":
+                props.append("structure")
             else:
-                criteria = chemsys_formula_id_criteria
-            try:
-                data = self.query(criteria, props)
-            except MPRestError:
-                return []
+                props.append("initial_structure")
 
-            entries = []
-            for d in data:
-                d["potcar_symbols"] = [
-                    "%s %s" % (d["pseudo_potential"]["functional"], l)
-                    for l in d["pseudo_potential"]["labels"]]
-                data = {"oxide_type": d["oxide_type"]}
-                if property_data:
-                    data.update({k: d[k] for k in property_data})
-                if not inc_structure:
-                    e = ComputedEntry(d["unit_cell_formula"], d["energy"],
-                                      parameters={k: d[k] for k in params},
-                                      data=data,
-                                      entry_id=d["task_id"])
+        if not isinstance(chemsys_formula_id_criteria, dict):
+            criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
+        else:
+            criteria = chemsys_formula_id_criteria
+        try:
+            data = self.query(criteria, props)
+        except MPRestError:
+            return []
 
-                else:
-                    s = d["structure"] if inc_structure == "final" else d[
-                        "initial_structure"]
-                    e = ComputedStructureEntry(
-                        s, d["energy"],
-                        parameters={k: d[k] for k in params},
-                        data=data,
-                        entry_id=d["task_id"])
-                entries.append(e)
+        entries = []
+        for d in data:
+            d["potcar_symbols"] = [
+                "%s %s" % (d["pseudo_potential"]["functional"], l)
+                for l in d["pseudo_potential"]["labels"]]
+            data = {"oxide_type": d["oxide_type"]}
+            if property_data:
+                data.update({k: d[k] for k in property_data})
+            if not inc_structure:
+                e = ComputedEntry(d["unit_cell_formula"], d["energy"],
+                                  parameters={k: d[k] for k in params},
+                                  data=data,
+                                  entry_id=d["task_id"])
+
+            else:
+                s = d["structure"] if inc_structure == "final" else d[
+                    "initial_structure"]
+                e = ComputedStructureEntry(
+                    s, d["energy"],
+                    parameters={k: d[k] for k in params},
+                    data=data,
+                    entry_id=d["task_id"])
+            entries.append(e)
+        if compatible_only:
             from pymatgen.entries.compatibility import \
                 MaterialsProjectCompatibility
             entries = MaterialsProjectCompatibility().process_entries(entries)
+        # TODO: check this to see if it works
+        '''
         else:
             entries = []
             for d in self.get_data(chemsys_formula_id_criteria,
@@ -371,7 +374,8 @@ class MPRester(object):
                             s, e.energy, e.correction, e.parameters, e.data,
                             e.entry_id)
                     entries.append(e)
-
+        '''
+        # from nose.tools import set_trace; set_trace()
         return entries
 
     def get_pourbaix_entries(self, chemsys):
@@ -388,17 +392,24 @@ class MPRester(object):
         #TODO: fix docstring
 
         from pymatgen.analysis.pourbaix.entry import PourbaixEntry, IonEntry
+        from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
+        from pymatgen.entries.compatibility import\
+            MaterialsProjectAqueousCompatibility
 
         #TODO: Get correction for aqueous
         chemsys = list(set(chemsys + ['O', 'H']))
+        #TODO: this is super slow.
         entries = self.get_entries_in_chemsys(
-            chemsys, property_data=['e_above_hull'])
+            chemsys, property_data=['e_above_hull'], compatible_only=False)
+        compat = MaterialsProjectAqueousCompatibility("Advanced")
+        entries = compat.process_entries(entries)
+        solid_pd = PhaseDiagram(entries) # Need this to get ion formation energy
         # chemsys = list(set(sum([e.composition.elements for e in entries])))
         url = '/pourbaix_diagram/reference_data/' + '-'.join(chemsys)
         ion_data = self._make_request(url)
 
-        pbx_entries = []
+        pbx_entries = [PourbaixEntry(e) for e in entries]
         # position the ion energies relative to most stable reference state
         for n, i_d in enumerate(ion_data):
             ion_entry = IonEntry(Ion.from_formula(i_d['Name']), i_d['Energy'])
@@ -408,12 +419,15 @@ class MPRester(object):
                 raise ValueError("Reference solid not contained in entry list")
             stable_ref = sorted(refs, key=lambda x: x.data['e_above_hull'])[0]
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
-            solid_diff = stable_ref.energy - i_d['Reference solid energy'] * rf
-            correction = solid_diff * ion_entry.ion.composition.\
-                get_reduced_composition_and_factor()[1]# TODO: SOMETHING GOES HERE
-            pbx_entries.append(PourbaixEntry(ion_entry, correction, 
-                                             'ion-{}'.format(n)))
+            solid_diff = solid_pd.get_form_energy(stable_ref)\
+                         - i_d['Reference solid energy'] * rf
 
+            elt = i_d['Major_Elements'][0]
+            correction_factor = ion_entry.ion.composition[elt]\
+                                / stable_ref.composition[elt]
+            correction = solid_diff * correction_factor # TODO: SOMETHING GOES HERE
+            pbx_entries.append(PourbaixEntry(ion_entry, correction,
+                                             'ion-{}'.format(n)))
             """
             refs = self.query({"pretty_formula": i_d['Reference Solid']},
                               ['e_above_hull', 'material_id'])
@@ -421,7 +435,8 @@ class MPRester(object):
                 raise ValueError("Reference solid not contained in entry list")
             stable_ref = sorted(refs, key=lambda x: x['e_above_hull'])[0]
             """
-
+        blargh
+        return pbx_entries
 
     def get_structure_by_material_id(self, material_id, final=True):
         """
