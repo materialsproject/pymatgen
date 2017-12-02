@@ -5,8 +5,6 @@
 """
 TODO:
     -Only works for monatomic adsorbates
-    -Only works for 1 reference element if we are dealing
-        with non-stoichiometric slabs.
     -Need a method to automatically get chempot range when
         dealing with non-stoichiometric slabs
     -Simplify or clean the stable_u_range_dict() method
@@ -30,8 +28,6 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction
-
-from monty.json import MSONable
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -176,7 +172,7 @@ class SurfaceEnergyCalculator(object):
         Adsorbate formula as a string (see adsorbate_entry).
     """
 
-    def __init__(self, ucell_entry, ref_entries=[]):
+    def __init__(self, ucell_entry, ref_entries=[], adsorbate_entries=[]):
         """
         Analyzes surface energies and Wulff shape of a particular
             material using the chemical potential.
@@ -186,7 +182,7 @@ class SurfaceEnergyCalculator(object):
             ref_el_entry (ComputedStructureEntry): Entry to be considered as
                 independent variable. E.g., if you want to show the stability
                 ranges of all Li-Co-O phases wrt to uLi
-            adsorbate_entry (ComputedStructureEntry): Computed entry of adsorbate,
+            adsorbate_entries (ComputedStructureEntry): Computed entry of adsorbate,
                 defaults to None. Could be an isolated H2 or O2 molecule for gaseous
                     adsorption or just the bulk ground state structure for metals.
                     Either way, the extracted term is going to be in energy per atom.
@@ -196,13 +192,14 @@ class SurfaceEnergyCalculator(object):
         self.ucell_entry = ucell_entry
         self.ref_entries = ref_entries
         self.ucell_comp = self.ucell_entry.composition
+        self.adsorbate_entries_dict = {list(ads_entry.composition.as_dict().keys())[0]: \
+                                           ads_entry for ads_entry in adsorbate_entries}
 
         # Calculate Gibbs free energy of the bulk per unit formula
         self.gbulk = self.ucell_entry.energy / \
                      ucell_comp.get_integer_formula_and_factor()[1]
 
-    def surface_energy_coefficients(self, slab_entry,
-                                    ref_adsorbate_entry=None):
+    def surface_energy_coefficients(self, slab_entry):
         """
         Calculates the surface energy for a single slab.
         Args:
@@ -244,10 +241,11 @@ class SurfaceEnergyCalculator(object):
             bulk_energy += N * (chempot_vars[el] + entry.energy_per_atom)
 
         # Add the reservoir from the adsorbate to the bulk energy
-        if ref_adsorbate_entry:
-            el = list(ref_adsorbate_entry.composition.as_dict().keys())[0]
-            N = slab_entry.composition.as_dict()[el]
-            bulk_energy += N * (chempot_vars[el] - ref_adsorbate_entry.energy_per_atom)
+        if slab_entry.adsorbate:
+            N = slab_entry.composition.as_dict()[slab_entry.adsorbate]
+            bulk_energy += N * (chempot_vars[slab_entry.adsorbate] - \
+                                self.adsorbate_entries_dict[slab_entry.adsorbate]\
+                                .energy_per_atom)
 
         # Next, we add the contribution to the bulk energy from
         # the variable element (the element without a ref_entry),
@@ -273,7 +271,7 @@ class SurfaceEnergyCalculator(object):
                         se.as_coefficients_dict().items() if coeff > 1e-6}
         return coefficients
 
-    def calculate_gamma_at_u(self, clean_slab_entry, ads_slab_entry=None, u_ref=0, u_ads=0):
+    def calculate_gamma_at_u(self, slab_entry, u_dict={}, u_default=0):
         """
         Quickly calculates the surface energy for the slab of the vasprun file
             at a specific chemical potential for the reference and adsorbate.
@@ -290,9 +288,10 @@ class SurfaceEnergyCalculator(object):
         Returns (float): surface energy
         """
 
-        coeffs = self.surface_energy_coefficients(clean_slab_entry,
-                                                  ads_slab_entry=ads_slab_entry)
-        return np.dot([u_ref, u_ads, 1], coeffs)
+        coeffs = self.surface_energy_coefficients(slab_entry)
+        coeff_vals = [coeffs[el] for el in coeffs.keys()]
+        u_vals = [u_dict[el] if el in u_dict.keys() else u_default for el in coeffs.keys()]
+        return np.dot(u_vals, coeff_vals)
 
     def get_unit_primitive_area(self, ads_slab_entry, clean_slab_entry):
         """
@@ -303,10 +302,8 @@ class SurfaceEnergyCalculator(object):
             clean_slab_entry (entry): The entry of the clean slab
         """
 
-        m = ads_slab_entry.structure.lattice.matrix
-        A_ads = np.linalg.norm(np.cross(m[0], m[1]))
-        m = clean_slab_entry.structure.lattice.matrix
-        A_clean = np.linalg.norm(np.cross(m[0], m[1]))
+        A_ads = ads_slab_entry.surface_area
+        A_clean = clean_slab_entry.surface_area
         n = (A_ads / A_clean)
         return n
 
@@ -324,7 +321,7 @@ class SurfaceEnergyCalculator(object):
         Nads = self.Nads_in_slab(ads_slab_entry)
         return Nads / (unit_a * Nsurfs)
 
-    def gibbs_binding_energy(self, ads_slab_entry, ref_adsorbate_entry,
+    def gibbs_binding_energy(self, ads_slab_entry,
                              clean_slab_entry, eads=False):
         """
         Returns the adsorption energy or Gibb's binding energy
@@ -341,19 +338,17 @@ class SurfaceEnergyCalculator(object):
         Nads = self.Nads_in_slab(ads_slab_entry)
 
         BE = (ads_slab_entry.energy - n * clean_slab_entry.energy) / Nads \
-             - ref_adsorbate_entry.energy_per_atom
+             - self.adsorbate_entries_dict[ads_slab_entry.adsorbate].energy_per_atom
         return BE * Nads if eads else BE
 
-    def Nads_in_slab(self, ads_slab_entry, ref_adsorbate_entry):
+    def Nads_in_slab(self, ads_slab_entry):
         """
         Returns the TOTAL number of adsorbates in the slab on BOTH sides
         Args:
             ads_slab_entry (entry): The entry of the adsorbed slab
         """
 
-        return ads_slab_entry.composition.as_dict() \
-            [str(ref_adsorbate_entry.composition. \
-                 reduced_composition.elements[0])]
+        return ads_slab_entry.composition.as_dict()[ads_slab_entry.adsorbate]
 
     def Nsurfs_ads_in_slab(self, ads_slab_entry):
         """
@@ -377,33 +372,68 @@ class SurfaceEnergyCalculator(object):
 
         return Nsurfs
 
-    def solve_2_linear_eqns(self, c1, c2, x_is_u_ads=False, const_u=0):
+    def get_surface_equilibrium(self, slab_entries, u_dict={}):
 
         """
-        Helper method returns the solution to one variable for
-            two linear equations.
+        Takes in a list of SlabEntries and calculates the chemical potentials
+            at which all slabs in the list coexists simultaneously. Useful for
+            building surface phase diagrams. Note that to solve for x equations
+            (x slab_entries), there must be x free variables (chemical potentials).
+            Adjust u_dict as need be to get the correct number of free variables.
         Args:
-            c1 (array): The coefficients of the first equation
-            c2 (array): The coefficients of the second equation
+            slab_entries (array): The coefficients of the first equation
+            u_dict (dict): Dictionary of chemical potentials to keep constant.
+                The key is the element and the value is the chemical potential.
 
         Returns:
-            (array): Array containing a solution to two equations with
-            two variables (chemical potential and surface energy)
+            (array): Array containing a solution to x equations with x
+                variables (x-1 chemical potential and 1 surface energy)
         """
 
-        # set one of the terms as a constant (either the adsorption
-        # or clean term) to get 2 linear eqns of 1 variable
-        i = 0 if x_is_u_ads else 1
-        b11 = np.dot([c1[i], c1[2]], [const_u, 1])
-        b12 = np.dot([c2[i], c2[2]], [const_u, 1])
-        i = 1 if x_is_u_ads else 0
+        # Generate all possible coefficients
+        all_parameters = []
+        all_coeffs = []
+        for slab_entry in slab_entries:
+            coeffs = self.surface_energy_coefficients(slab_entry)
 
-        # If the slopes are equal, i.e. lines are parallel
-        if c1[i] == c2[i]:
-            return [None, None]
-        # Now solve the two eqns, return [del_u, gamma]
-        return np.linalg.solve([[c1[i], -1], [c2[i], -1]],
-                               [-1 * b11, -1 * b12])
+            # remove the free chempots we wish to keep constant
+            for el in u_dict.keys():
+                if el in coeffs.keys():
+                    coeffs[1] += coeffs[el]*u_dict[el]
+                    del coeffs[el]
+            all_coeffs.append(coeffs)
+
+        # Find all possible free variables
+        for coeffs in all_coeffs:
+            for el in coeffs.keys():
+                if el not in all_parameters and el != 1:
+                    all_parameters.append(el)
+
+        # Check if its even possible for the system
+        # of equations to even have a solution
+        if len(slab_entries) != len(all_parameters)+1:
+            raise LinAlgError('Number of equations (slab_entries) is not \
+            equal to number of free variables (chempot and surface energy)')
+
+        # Set up the matrix
+        coeffs_matrix, const_vector = [], []
+        for coeffs in all_coeffs:
+            coeff_vector = []
+            for el in all_parameters:
+                if el in coeffs.keys():
+                    coeff_vector.append(coeffs[el])
+                else:
+                    coeff_vector.append(0)
+            coeff_vector.append(-1)
+            coeffs_matrix.append(coeff_vector)
+            const_vector.append(coeffs[1])
+
+        # Solve for the chempots and surface energy
+        solution = np.linalg.solve(coeffs_matrix, const_vector)
+        soln = {el: solution[i] for i, el in numerate(all_parameters)}
+        soln["gamma"] = solution[-1]
+
+        return soln
 
 
 class SurfaceEnergyPlotter(object):
