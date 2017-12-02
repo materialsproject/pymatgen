@@ -183,6 +183,9 @@ class MPResterTest(unittest.TestCase):
         for e in self.rester.get_entries("CdO2", inc_structure=False):
             self.assertIsNotNone(e.data["oxide_type"])
 
+    def test_get_pourbaix_entries(self):
+        pb_entries = self.rester.get_pourbaix_entries(["Fe"])
+
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
