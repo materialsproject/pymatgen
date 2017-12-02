@@ -374,6 +374,55 @@ class MPRester(object):
 
         return entries
 
+    def get_pourbaix_entries(self, chemsys):
+        """
+        A helper function to get all entries necessary to generate
+        a pourbaix diagram from the rest interface.
+
+        Args:
+            chemsys_formula_id_criteria (str/dict): A chemical system
+                (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or materials_id
+                (e.g., mp-1234) or full Mongo-style dict criteria.
+        """
+
+        #TODO: fix docstring
+
+        from pymatgen.analysis.pourbaix.entry import PourbaixEntry, IonEntry
+        from pymatgen.core.ion import Ion
+
+        #TODO: Get correction for aqueous
+        chemsys = list(set(chemsys + ['O', 'H']))
+        entries = self.get_entries_in_chemsys(
+            chemsys, property_data=['e_above_hull'])
+        # chemsys = list(set(sum([e.composition.elements for e in entries])))
+        url = '/pourbaix_diagram/reference_data/' + '-'.join(chemsys)
+        ion_data = self._make_request(url)
+
+        pbx_entries = []
+        # position the ion energies relative to most stable reference state
+        for n, i_d in enumerate(ion_data):
+            ion_entry = IonEntry(Ion.from_formula(i_d['Name']), i_d['Energy'])
+            refs = [e for e in entries
+                    if e.composition.reduced_formula == i_d['Reference Solid']]
+            if not refs:
+                raise ValueError("Reference solid not contained in entry list")
+            stable_ref = sorted(refs, key=lambda x: x.data['e_above_hull'])[0]
+            rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
+            solid_diff = stable_ref.energy - i_d['Reference solid energy'] * rf
+            correction = solid_diff * ion_entry.ion.composition.\
+                get_reduced_composition_and_factor()[1]# TODO: SOMETHING GOES HERE
+            pbx_entries.append(PourbaixEntry(ion_entry, correction, 
+                                             'ion-{}'.format(n)))
+
+            """
+            refs = self.query({"pretty_formula": i_d['Reference Solid']},
+                              ['e_above_hull', 'material_id'])
+            if not refs:
+                raise ValueError("Reference solid not contained in entry list")
+            stable_ref = sorted(refs, key=lambda x: x['e_above_hull'])[0]
+            """
+
+
     def get_structure_by_material_id(self, material_id, final=True):
         """
         Get a Structure corresponding to a material_id.
