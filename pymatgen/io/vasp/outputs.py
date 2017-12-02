@@ -448,6 +448,8 @@ class Vasprun(MSONable):
                     else:
                         comment = elem.attrib["comment"]
                         self.other_dielectric[comment] = self._parse_diel(elem)
+                elif tag == 'varray' and elem.attrib.get("name") == 'opticaltransitions':
+                    self.optical_transition = np.array(_parse_varray(elem))
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
                     self.final_structure = self._parse_structure(elem)
@@ -1015,6 +1017,15 @@ class Vasprun(MSONable):
         elem.clear()
         return [e[0] for e in imag], \
                [e[1:] for e in real], [e[1:] for e in imag]
+
+    def _parse_optical_transition(self, elem):
+        for va in elem.findall("varray"):
+            if va.attrib.get("name") == "opticaltransitions":
+                # opticaltransitions array contains oscillator strength and probability of transition
+                oscillator_strength = np.array(_parse_varray(va))[0:,]
+                probability_transition = np.array(_parse_varray(va))[0:,1]
+        return oscillator_strength, probability_transition
+
 
     def _parse_chemical_shift_calculation(self, elem):
         calculation = []
