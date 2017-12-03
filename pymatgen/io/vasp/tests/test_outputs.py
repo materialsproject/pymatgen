@@ -234,6 +234,24 @@ class VasprunTest(unittest.TestCase):
         (gap, cbm, vbm, direct) = v.eigenvalue_band_properties
         self.assertFalse(direct)
 
+        vasprun_optical = Vasprun(os.path.join(test_dir, "vasprun.xml.opticaltransitions"),
+                                  parse_potcar_file=False)
+        self.assertAlmostEqual(3.084, vasprun_optical.optical_transition[0][0])
+        self.assertAlmostEqual(3.087, vasprun_optical.optical_transition[3][0])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[0][1])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[1][1])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[7][1])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[19][1])
+        self.assertAlmostEqual(3.3799999999, vasprun_optical.optical_transition[54][0])
+        self.assertAlmostEqual(3.381, vasprun_optical.optical_transition[55][0])
+        self.assertAlmostEqual(3.381, vasprun_optical.optical_transition[56][0])
+        self.assertAlmostEqual(10554.9860, vasprun_optical.optical_transition[54][1])
+        self.assertAlmostEqual(0.0, vasprun_optical.optical_transition[55][1])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[56][1])
+
+
+
+
     def test_force_constants(self):
         vasprun_fc = Vasprun(os.path.join(test_dir, "vasprun.xml.dfpt.phonon"),
                              parse_potcar_file=False)
