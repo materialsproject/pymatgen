@@ -384,7 +384,15 @@ class MPRester(object):
         url = '/pourbaix_diagram/reference_data/' + '-'.join(chemsys)
         ion_data = self._make_request(url)
 
-        pbx_entries = [PourbaixEntry(e) for e in entries]
+        pbx_entries = []
+        for entry in entries: 
+            if not set(entry.composition.elements)\
+                    <= {Element('H'), Element('O')}:
+                pbx_entry = PourbaixEntry(entry)
+                pbx_entry.g0_replace(solid_pd.get_form_energy(entry))
+                pbx_entry.reduced_entry()
+                pbx_entries.append(pbx_entry)
+
         # position the ion energies relative to most stable reference state
         for n, i_d in enumerate(ion_data):
             ion_entry = IonEntry(Ion.from_formula(i_d['Name']), i_d['Energy'])

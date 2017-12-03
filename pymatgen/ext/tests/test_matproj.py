@@ -17,6 +17,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix.entry import PourbaixEntry
+from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.io.cif import CifParser
 
@@ -188,6 +189,11 @@ class MPResterTest(unittest.TestCase):
         pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
         for pbx_entry in pbx_entries:
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
+        # Ensure entries are pourbaix compatible
+        pbx = PourbaixDiagram(pbx_entries)
+        # Try binary system
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        pbx = PourbaixDiagram(pbx_entries)
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
