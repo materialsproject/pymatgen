@@ -385,7 +385,7 @@ class MPRester(object):
         ion_data = self._make_request(url)
 
         pbx_entries = []
-        for entry in entries: 
+        for entry in entries:
             if not set(entry.composition.elements)\
                     <= {Element('H'), Element('O')}:
                 pbx_entry = PourbaixEntry(entry)
