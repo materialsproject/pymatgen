@@ -982,7 +982,6 @@ class SlabGenerator(object):
                              scale=False)
 
         new_slabs = []
-        original_formula = str(self.parent.composition.reduced_formula)
         for g in m.group_structures(slabs):
             # For each unique termination, symmetrize the
             # surfaces by removing sites from the bottom.
@@ -992,7 +991,8 @@ class SlabGenerator(object):
             else:
                 new_slabs.append(g[0])
 
-        match = StructureMatcher()
+        match = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
+                                 scale=False)
         new_slabs = [g[0] for g in match.group_structures(new_slabs)]
 
         return sorted(new_slabs, key=lambda s: s.energy)
