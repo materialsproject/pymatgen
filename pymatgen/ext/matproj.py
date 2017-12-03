@@ -312,7 +312,6 @@ class MPRester(object):
         # on the REST end.
         params = ["run_type", "is_hubbard", "pseudo_potential", "hubbards",
                   "potcar_symbols", "oxide_type"]
-        # if compatible_only:
         props = ["energy", "unit_cell_formula", "task_id"] + params
         if property_data:
             props += property_data
