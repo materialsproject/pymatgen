@@ -992,6 +992,9 @@ class SlabGenerator(object):
             else:
                 new_slabs.append(g[0])
 
+        match = StructureMatcher()
+        new_slabs = [g[0] for g in match.group_structures(new_slabs)]
+
         return sorted(new_slabs, key=lambda s: s.energy)
 
     def repair_broken_bonds(self, slab, bonds):
@@ -1130,6 +1133,7 @@ class SlabGenerator(object):
             return [init_slab]
 
         nonstoich_slabs = []
+        # Build an equivalent surface slab for each of the different surfaces
         for top in [True, False]:
             asym = True
             slab = init_slab.copy()
