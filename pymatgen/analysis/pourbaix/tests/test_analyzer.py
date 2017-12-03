@@ -82,6 +82,9 @@ class TestPourbaixAnalyzer(unittest.TestCase):
         self.assertAlmostEqual(entries[1].energy, -110.77582628499995)
         self.assertAlmostEqual(entries[100].energy, -20.685496454465955)
 
+    def test_get_entry_stability(self):
+        stab = self.analyzer.get_entry_stability(self.pd.all_entries[0], pH=0, V=1)
+        self.assertAlmostEqual(stab, 3.88159999)
 
 if __name__ == '__main__':
     unittest.main()

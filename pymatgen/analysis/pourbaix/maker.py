@@ -90,9 +90,10 @@ class PourbaixDiagram(object):
 
         else:
             self._multielement = False
-            self.pourbaix_elements = [el.symbol
-                                      for el in entries[0].composition.elements
-                                      if el.symbol not in ["H", "O"]]
+            pb_els = set(itertools.chain.from_iterable(
+                            [e.composition for e in entries]))
+            pb_els -= {Element('H'), Element('O')}
+            self.pourbaix_elements = [e.name for e in list(pb_els)]
             # TODO: document the physical meaning
             # of ternary oxide of pbx diagrams in both modes
             self._elt_comp = {self.pourbaix_elements[0]: 1.0}
