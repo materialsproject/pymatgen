@@ -1,6 +1,6 @@
-{  "Mg": {
+{   "Mg": {
   "@module": "pymatgen.entries.computed_entries",
-  "@class": "ComputedEntry",
+  "@class": "ComputedStructureEntry",
   "energy": -3.18719007,
   "composition": {
    "Mg": 2.0
@@ -26,10 +26,81 @@
    "oxide_type": "None"
   },
   "entry_id": "mp-153",
-  "attribute": null
+  "attribute": null,
+  "structure": {
+   "@module": "pymatgen.core.structure",
+   "@class": "Structure",
+   "lattice": {
+    "matrix": [
+     [
+      3.1751,
+      0.0,
+      0.0
+     ],
+     [
+      -1.58755,
+      2.74971726,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      5.1504
+     ]
+    ],
+    "a": 3.1751,
+    "b": 3.1751000003845404,
+    "c": 5.1504,
+    "alpha": 90.0,
+    "beta": 90.0,
+    "gamma": 119.99999999599366,
+    "volume": 44.96622270287279
+   },
+   "sites": [
+    {
+     "species": [
+      {
+       "element": "Mg",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.33333333,
+      0.66666667,
+      0.25
+     ],
+     "xyz": [
+      -1.587550002568605e-08,
+      1.8331448491657243,
+      1.2876
+     ],
+     "label": "Mg"
+    },
+    {
+     "species": [
+      {
+       "element": "Mg",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.66666667,
+      0.33333333,
+      0.75
+     ],
+     "xyz": [
+      1.5875500158755003,
+      0.9165724108342758,
+      3.8628
+     ],
+     "label": "Mg"
+    }
+   ]
+  }
  }
+,
 
-  “MgO”: {
+  "MgO": {
   "@module": "pymatgen.entries.computed_entries",
   "@class": "ComputedStructureEntry",
   "energy": -11.96804153,

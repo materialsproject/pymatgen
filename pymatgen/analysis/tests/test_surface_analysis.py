@@ -7,7 +7,7 @@ import json
 import numpy as np
 
 from pymatgen.analysis.surface_analysis import SurfaceEnergyCalculator, \
-    SurfaceEnergyPlotter, Composition, SlabEntry
+    Composition, SlabEntry#, SurfaceEnergyPlotter
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen import Structure, Lattice
@@ -31,44 +31,48 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
 
     def setUp(self):
 
-        self.entry_dict = get_SlabEntry_list(os.path.join(get_path(""),
-                                                          "Cu_entries.txt"))
+        self.Cu_slab_entry_list = get_SlabEntry_list(os.path.join(get_path(""),
+                                                                  "Cu_entries.txt"))
+        self.assertEqual(len(self.Cu_slab_entry_list), 13)
+
         with open(os.path.join(get_path(""), 'ucell_entries.txt')) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
         self.ucell_entries = ucell_entries
         Cu_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Cu"])
-        self.Cu_analyzer = SurfaceEnergyCalculator(Cu_ucell_entry)
+        self.Cu_calc = SurfaceEnergyCalculator(Cu_ucell_entry)
         self.metals_O_entry_dict = load_O_adsorption()
-        with open(os.path.join(get_path(""), 'isolated_O_entry.txt')) as isolated_O_entry:
+        with open(os.path.join(get_path(""),
+                               'isolated_O_entry.txt')) as isolated_O_entry:
             isolated_O_entry = json.loads(isolated_O_entry.read())
         self.O = ComputedStructureEntry.from_dict(isolated_O_entry)
 
-        # Make fake nonstoichiometric MgO slab entries along
-        # with a MgO slab substituted with another element
+        # Load dummy MgO slab entries
         MgO_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["MgO"])
         Mg_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Mg"])
-        self.Mg_analyzer = SurfaceEnergyCalculator(MgO_ucell_entry, ref_entries=[Mg_ucell_entry])
+        self.MgO_calc = SurfaceEnergyCalculator(MgO_ucell_entry,
+                                                ref_entries=[Mg_ucell_entry])
+        self.MgO_slab_entry_list = get_SlabEntry_list(os.path.join(get_path(""),
+                                                                  "MgO_slab_entries.txt"))
 
-    # def test_stoichiometry_and_chempot(self):
-    #
-    #     # If we wanted to calculate surface energy of LiFePO4 wrt to uLi,
-    #     # x=1, y=1 for a decomposition into Li (the reference) and FePO4
-    #     s = self.get_structure("LiFePO4")
-    #     Li = Structure.from_spacegroup("Im-3m", Lattice.cubic(3.478),
-    #                                    ["Li", "Li"], [(1,0,0),
-    #                                                   (0.5,0.5,0.5)])
-    #     LiFePO4 = ComputedStructureEntry(s, 0)
-    #     LiFePO4_se = SurfaceEnergyCalculator(LiFePO4,
-    #                                          ref_el_entry=ComputedStructureEntry(Li, 0))
-    #     self.assertAlmostEqual(LiFePO4_se.x, 1)
-    #     self.assertAlmostEqual(LiFePO4_se.y, 1)
-    #
+    def test_surface_energy_coefficients(self):
+        # For a nonstoichiometric case, the cheimcal potentials do not
+        # cancel out, they serve as a reservoir for any missing element
+        for slab_entry in self.MgO_slab_entry_list:
+            coeffs = self.MgO_calc.surface_energy_coefficients(slab_entry)
+            coeff_keys = [str(k) for k in coeffs.keys()]
+            self.assertEqual(tuple(coeff_keys), ("1", "Mg"))
+
+        # For the case of a clean, nonstoichiometric slab, the the key to
+        # the coefficient should be 1 (i.e. surface energy is a constant).
+        for slab_entry in self.Cu_slab_entry_list:
+            coeffs = self.Cu_calc.surface_energy_coefficients(slab_entry)
+            self.assertEqual(len(coeffs.keys()), 1)
+            self.assertEqual(list(coeffs.keys())[0], 1)
+
     # def test_gamma_calculator(self):
     #
     #     # Test case for clean Cu surface
     #
-    #     # make sure we've loaded all our files correctly
-    #     self.assertEqual(len(self.entry_dict.keys()), 13)
     #     all_se = []
     #     for hkl, entries in self.entry_dict.items():
     #         u1, u2 = -1, 0
@@ -365,44 +369,39 @@ def get_SlabEntry_list(filename):
             entry = ComputedStructureEntry.from_dict(entries[k])
             entry_list.append(SlabEntry(entry, hkl, name=k))
     return entry_list
-#
-# def load_O_adsorption():
-#
-#     # Loads the dictionary for clean and O adsorbed Rh, Pt, and Ni entries
-#
-#     # entry_dict for the adsorption case, O adsorption on Ni, Rh and Pt
-#     metals_O_entry_dict = {"Ni": {(1, 1, 1): {}, (1, 0, 0): {}},
-#                            "Pt": {(1, 1, 1): {}},
-#                            "Rh": {(1, 0, 0): {}}
-#                            }
-#
-#     with open(os.path.join(get_path(""), "csentries_slabs.json")) as entries:
-#         entries = json.loads(entries.read())
-#     for k in entries.keys():
-#         entry = ComputedStructureEntry.from_dict(entries[k])
-#         for el in metals_O_entry_dict.keys():
-#             if el in k:
-#                 if "111" in k:
-#                     metals_O_entry_dict[el][(1, 1, 1)][entry] = []
-#                 if "110" in k:
-#                     metals_O_entry_dict[el][(1, 1, 0)][entry] = []
-#                 if "100" in k:
-#                     metals_O_entry_dict[el][(1, 0, 0)][entry] = []
-#
-#     with open(os.path.join(get_path(""), "csentries_o_ads.json")) as entries:
-#         entries = json.loads(entries.read())
-#     for k in entries.keys():
-#         entry = ComputedStructureEntry.from_dict(entries[k])
-#         for el in metals_O_entry_dict.keys():
-#             if el in k:
-#                 if "111" in k:
-#                     clean = list(metals_O_entry_dict[el][(1, 1, 1)].keys())[0]
-#                     metals_O_entry_dict[el][(1, 1, 1)][clean] = [entry]
-#                 if "110" in k:
-#                     clean = list(metals_O_entry_dict[el][(1, 1, 0)].keys())[0]
-#                     metals_O_entry_dict[el][(1, 1, 0)][clean] = [entry]
-#                 if "100" in k:
-#                     clean = list(metals_O_entry_dict[el][(1, 0, 0)].keys())[0]
-#                     metals_O_entry_dict[el][(1, 0, 0)][clean] = [entry]
-#
-#     return metals_O_entry_dict
+
+def load_O_adsorption():
+
+    # Loads the list for clean and O adsorbed Rh, Pt, and Ni entries
+
+    # list for the adsorption case, O adsorption on Ni, Rh and Pt
+    metals_O_entry_list = {"Ni": [], "Rh": [], "Pt": []}
+
+    with open(os.path.join(get_path(""), "csentries_slabs.json")) as entries:
+        entries = json.loads(entries.read())
+    for k in entries.keys():
+        entry = ComputedStructureEntry.from_dict(entries[k])
+
+        for el in metals_O_entry_list.keys():
+            if el in k:
+                if "111" in k:
+                    metals_O_entry_list[el].append(SlabEntry(entry, (1,1,1), name=k))
+                if "110" in k:
+                    metals_O_entry_list[el].append(SlabEntry(entry, (1,1,0), name=k))
+                if "100" in k:
+                    metals_O_entry_list[el].append(SlabEntry(entry, (1,0,0), name=k))
+
+    with open(os.path.join(get_path(""), "csentries_o_ads.json")) as entries:
+        entries = json.loads(entries.read())
+    for k in entries.keys():
+        entry = ComputedStructureEntry.from_dict(entries[k])
+        for el in metals_O_entry_list.keys():
+            if el in k:
+                if "111" in k:
+                    metals_O_entry_list[el].append(SlabEntry(entry, (1,1,1), name=k))
+                if "110" in k:
+                    metals_O_entry_list[el].append(SlabEntry(entry, (1,1,1), name=k))
+                if "100" in k:
+                    metals_O_entry_list[el].append(SlabEntry(entry, (1,1,1), name=k))
+
+    return metals_O_entry_list

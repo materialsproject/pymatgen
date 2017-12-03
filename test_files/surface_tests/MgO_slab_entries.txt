@@ -1,5 +1,5 @@
 {
- "MgO_111_O": {
+ "MgO_slab_o_ter_nonstoich_111": {
   "@module": "pymatgen.entries.computed_entries",
   "@class": "ComputedStructureEntry",
   "energy": -77.55542892000001,
@@ -254,7 +254,7 @@
    ]
   }
  },
- "MgO_111_Mg": {
+ "MgO_slab_m_ter_nonstoich_111": {
   "@module": "pymatgen.entries.computed_entries",
   "@class": "ComputedStructureEntry",
   "energy": -77.55542892000001,

@@ -20,7 +20,7 @@ import numpy as np
 import itertools
 import warnings
 import random, copy
-from sympy import Symbol
+from sympy import Symbol, Number
 
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedStructureEntry
@@ -265,6 +265,13 @@ class SurfaceEnergyCalculator(object):
 
         # Full equation of the surface energy (constant if stoichiometric)
         se = (slab_entry.energy - bulk_energy) / (2 * slab_entry.surface_area)
+        # For se=constant (i.e. clean nonstoichiometric), set the dictionary key to 1
+        print(type(se), se)
+        if type(se).__name__ == "Float":
+            se = se*Number(1)
+        # Because for some reason sympy reverses the key and value when equation is constant
+        elif type(list(se.as_coefficients_dict().keys())[0]).__name__ == "Float":
+            se = list(se.keys())[0]*Number(1)
 
         # Remove any variables with coefficient of 0
         # (Sympy doesn't handle cancellation very well)
