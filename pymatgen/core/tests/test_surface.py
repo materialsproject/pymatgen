@@ -202,6 +202,21 @@ class SlabTest(PymatgenTest):
 
 class SlabGeneratorTest(PymatgenTest):
 
+    def setUp(self):
+
+        lattice = Lattice.cubic(3.010)
+        frac_coords = [[0.00000, 0.00000, 0.00000],
+                       [0.00000, 0.50000, 0.50000],
+                       [0.50000, 0.00000, 0.50000],
+                       [0.50000, 0.50000, 0.00000],
+                       [0.50000, 0.00000, 0.00000],
+                       [0.50000, 0.50000, 0.50000],
+                       [0.00000, 0.00000, 0.50000],
+                       [0.00000, 0.50000, 0.00000]]
+        species = ['Mg', 'Mg', 'Mg', 'Mg', 'O', 'O', 'O', 'O']
+        MgO = Structure(lattice, species, frac_coords)
+        self.MgO = MgO.add_oxidation_state_by_element({"Mg": 2, "O": -6})
+
     def test_get_slab(self):
         s = self.get_structure("LiFePO4")
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
@@ -343,19 +358,7 @@ class SlabGeneratorTest(PymatgenTest):
         # The uneven distribution of ions on the (111) facets of Halite
         # type slabs are typical examples of Tasker 3 structures. We
         # will test this algo to generate a Tasker 2 structure instead
-        lattice = Lattice.cubic(3.010)
-        frac_coords = [[0.00000, 0.00000, 0.00000],
-                       [0.00000, 0.50000, 0.50000],
-                       [0.50000, 0.00000, 0.50000],
-                       [0.50000, 0.50000, 0.00000],
-                       [0.50000, 0.00000, 0.00000],
-                       [0.50000, 0.50000, 0.50000],
-                       [0.00000, 0.00000, 0.50000],
-                       [0.00000, 0.50000, 0.00000]]
-        species = ['Mg', 'Mg', 'Mg', 'Mg', 'O', 'O', 'O', 'O']
-        MgO = Structure(lattice, species, frac_coords)
-        MgO.add_oxidation_state_by_element({"Mg": 2, "O": -6})
-        slabgen = SlabGenerator(MgO, (1,1,1), 10, 10,
+        slabgen = SlabGenerator(self.MgO, (1,1,1), 10, 10,
                                 max_normal_search=1)
         # We generate the Tasker 3 structure first
         slab = slabgen.get_slabs()[0]
@@ -369,6 +372,19 @@ class SlabGeneratorTest(PymatgenTest):
         for slab in slabs:
             self.assertTrue(slab.is_symmetric())
             self.assertFalse(slab.is_polar())
+
+    def nonstoichiometric_symmetrized_slab(self):
+        # For the (111) halite slab, sometimes a nonstoichiometric
+        # system is preferred over the stoichiometric Tasker 2.
+        slabgen = SlabGenerator(self.MgO, (1,1,1), 10, 10,
+                                max_normal_search=1)
+        slabs = slabgen.get_slabs(symmetrize=True)
+
+        # We should end up with two terminations, one with
+        # an Mg rich surface and another O rich surface
+        self.assertEqual(len(slabs), 2)
+        for slab in slabs:
+            self.assertTrue(slab.is_symmetric())
 
     def test_move_to_other_side(self):
 

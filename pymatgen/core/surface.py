@@ -987,11 +987,8 @@ class SlabGenerator(object):
             # For each unique termination, symmetrize the
             # surfaces by removing sites from the bottom.
             if symmetrize:
-                slab = self.nonstoichiometric_symmetrized_slab(g[0])
-                if original_formula != str(slab.composition.reduced_formula):
-                    warnings.warn("WARNING: Stoichiometry is no longer the "
-                                  "same due to symmetrization")
-                new_slabs.append(slab)
+                slabs = self.nonstoichiometric_symmetrized_slab(g[0])
+                new_slabs.extend(slabs)
             else:
                 new_slabs.append(g[0])
 
@@ -1108,7 +1105,7 @@ class SlabGenerator(object):
                     init_slab.shift, init_slab.scale_factor,
                     energy=init_slab.energy)
 
-    def nonstoichiometric_symmetrized_slab(self, slab, tol=1e-3):
+    def nonstoichiometric_symmetrized_slab(self, init_slab, tol=1e-3):
 
         """
         This method checks whether or not the two surfaces of the slab are
@@ -1120,42 +1117,48 @@ class SlabGenerator(object):
         structures, the chemical potential will be needed to calculate surface energy.
 
         Arg:
-            slab (Structure): A single slab structure
+            init_slab (Structure): A single slab structure
             tol (float): Tolerance for SpaceGroupanalyzer.
 
         Returns:
             Slab (structure): A symmetrized Slab object.
         """
 
-        sg = SpacegroupAnalyzer(slab, symprec=tol)
+        sg = SpacegroupAnalyzer(init_slab, symprec=tol)
 
         if sg.is_laue():
-            return slab
-        else:
+            return [init_slab]
+
+        nonstoich_slabs = []
+        for top in [True, False]:
             asym = True
+            slab = init_slab.copy()
+            slab.energy = init_slab.energy
 
             while asym or (len(slab) < len(self.parent)):
-
                 # Keep removing sites from the bottom one by one until both
                 # surfaces are symmetric or the number of sites removed has
                 # exceeded 10 percent of the original slab
 
                 c_dir = [site[2] for i, site in enumerate(slab.frac_coords)]
 
-                slab.remove_sites([c_dir.index(min(c_dir))])
+                if top:
+                    slab.remove_sites([c_dir.index(max(c_dir))])
+                else:
+                    slab.remove_sites([c_dir.index(min(c_dir))])
 
                 # Check if the altered surface is symmetric
                 sg = SpacegroupAnalyzer(slab, symprec=tol)
-
                 if sg.is_laue():
                     asym = False
+
+                    nonstoich_slabs.append(slab)
 
         if len(slab) < len(self.parent):
             warnings.warn("Too many sites removed, please use a larger slab "
                           "size.")
 
-        return slab
-
+        return nonstoich_slabs
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(module_dir,
