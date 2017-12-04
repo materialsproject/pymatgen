@@ -34,7 +34,7 @@ __date__ = "December 10, 2012"
 
 PREFAC = 0.0591
 
-
+# TODO: revise pbxentry to include multientries
 class PourbaixEntry(MSONable):
     """
     An object encompassing all data relevant to an ion in a pourbaix diagram.
@@ -44,15 +44,14 @@ class PourbaixEntry(MSONable):
 
     Args:
         entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An
-            entry object
-        energy: Energy of entry
+            entry object 
     """
     def __init__(self, entry, correction=0.0, entry_id=None):
         if isinstance(entry, IonEntry):
             self.entry = entry
             self.conc = 1.0e-6
             self.phase_type = "Ion"
-            self.charge = entry.composition.charge
+            self.charge = entry.ion.charge
         else:
             self.entry = entry
             self.conc = 1.0
@@ -60,23 +59,19 @@ class PourbaixEntry(MSONable):
             self.charge = 0.0
         self.uncorrected_energy = entry.energy
         self.correction = correction
-        nH = 0
-        nO = 0
-        nM = 0
-        for elt in self.entry.composition.elements:
-            if elt == Element("H"):
-                nH = self.entry.composition[elt]
-            elif elt == Element("O"):
-                nO = self.entry.composition[elt]
-            else:
-                nM += self.entry.composition[elt]
+        nH = self.entry.composition.get("H", 0.) 
+        nO = self.entry.composition.get("O", 0.)
+        nM = sum(self.entry.composition.values()) - nH - nO
+ 
         self.nM = nM
         self.npH = (nH - 2 * nO)
         self.nH2O = nO
         self.nPhi = (nH - 2 * nO - self.charge)
-        self.name = self.entry.composition.reduced_formula
         if self.phase_type == "Solid":
+            self.name = self.entry.composition.reduced_formula
             self.name += "(s)"
+        elif self.phase_type == "Ion":
+            self.name = self.entry.name 
         try:
             self.entry_id = entry.entry_id
         except AttributeError:
@@ -205,9 +200,10 @@ class PourbaixEntry(MSONable):
             / self.entry.composition.get_reduced_composition_and_factor()[1]
 
     def __repr__(self):
-        return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, nPhi = {},\
-             nH2O = {}".format(self.entry.composition, self.g0, self.npH,
-                               self.nPhi, self.nH2O)
+        return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, "\
+               "nPhi = {}, nH2O = {}, entry_id = {} ".format(
+                       self.entry.composition, self.g0, self.npH,
+                       self.nPhi, self.nH2O, self.entry_id)
 
     def __str__(self):
         return self.__repr__()
@@ -239,6 +235,7 @@ class MultiEntry(PourbaixEntry):
         self.nM = 0.0
         self.name = ""
         self.entry_id = list()
+        self.total_composition = Composition()
         for w, e in zip(self.weights, entry_list):
             self.uncorrected_energy += w * \
                 e.uncorrected_energy
@@ -249,6 +246,7 @@ class MultiEntry(PourbaixEntry):
             self.nM += w * e.nM
             self.name += e.name + " + "
             self.entry_id.append(e.entry_id)
+            self.total_composition += w * e.composition
         self.name = self.name[:-3]
 
     @property
@@ -271,13 +269,17 @@ class MultiEntry(PourbaixEntry):
         return fact
 
     def __repr__(self):
-        str = "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, "\
-            "nPhi = {}, nH2O = {}".format(
-            self.g0, self.npH, self.nPhi, self.nH2O)
-        str += ", species: "
-        for entry in self.entrylist:
-            str += entry.name + " + "
-        return str[:-3]
+        return "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, "\
+               "nPhi = {}, nH2O = {}, entry_id = {}, species: {}".format(
+            self.g0, self.npH, self.nPhi, self.nH2O, self.entry_id, self.name)
+
+    @property
+    def phases(self):
+        return [e.phase_type for e in self.entrylist]
+
+    @property
+    def composition(self):
+        return self.total_composition
 
     def __str__(self):
         return self.__repr__()
@@ -309,21 +311,23 @@ class IonEntry(PDEntry):
     """
     def __init__(self, ion, energy, name=None):
         self.energy = energy
-        self.composition = ion
-        self.name = name if name else self.composition.reduced_formula
+        self.ion = ion
+        self.composition = ion.composition
+        self.name = name if name else self.ion.reduced_formula
 
     @classmethod
     def from_dict(cls, d):
         """
         Returns an IonEntry object from a dict.
         """
-        return IonEntry(Ion.from_dict(d["composition"]), d["energy"])
+        return IonEntry(Ion.from_dict(d["ion"]), d["energy"], d.get("name", None))
 
     def as_dict(self):
         """
         Creates a dict of composition, energy, and ion name
         """
-        d = {"composition": self.composition.as_dict(), "energy": self.energy}
+        d = {"ion": self.ion.as_dict(), "energy": self.energy, 
+             "name": self.name}
         return d
 
     @property

@@ -234,6 +234,24 @@ class VasprunTest(unittest.TestCase):
         (gap, cbm, vbm, direct) = v.eigenvalue_band_properties
         self.assertFalse(direct)
 
+        vasprun_optical = Vasprun(os.path.join(test_dir, "vasprun.xml.opticaltransitions"),
+                                  parse_potcar_file=False)
+        self.assertAlmostEqual(3.084, vasprun_optical.optical_transition[0][0])
+        self.assertAlmostEqual(3.087, vasprun_optical.optical_transition[3][0])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[0][1])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[1][1])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[7][1])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[19][1])
+        self.assertAlmostEqual(3.3799999999, vasprun_optical.optical_transition[54][0])
+        self.assertAlmostEqual(3.381, vasprun_optical.optical_transition[55][0])
+        self.assertAlmostEqual(3.381, vasprun_optical.optical_transition[56][0])
+        self.assertAlmostEqual(10554.9860, vasprun_optical.optical_transition[54][1])
+        self.assertAlmostEqual(0.0, vasprun_optical.optical_transition[55][1])
+        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[56][1])
+
+
+
+
     def test_force_constants(self):
         vasprun_fc = Vasprun(os.path.join(test_dir, "vasprun.xml.dfpt.phonon"),
                              parse_potcar_file=False)
@@ -687,6 +705,22 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'th'][0][0], -0.052)
         self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'dh'][0][0], 0.0)
 
+    def test_drift(self):
+        outcar = Outcar(os.path.join(test_dir, "OUTCAR"))
+        self.assertEqual(len(outcar.drift),5)
+        self.assertAlmostEqual(np.sum(outcar.drift),0)
+
+        outcar = Outcar(os.path.join(test_dir, "OUTCAR.CL"))
+        self.assertEqual(len(outcar.drift), 79)
+        self.assertAlmostEqual(np.sum(outcar.drift),  0.448010)
+
+    def test_electrostatic_potential(self):
+
+        outcar = Outcar(os.path.join(test_dir,"OUTCAR"))
+        self.assertEqual(outcar.ngf,[54,30,54])
+        self.assertTrue(np.allclose(outcar.sampling_radii,[0.9748, 0.9791, 0.7215]))
+        self.assertTrue(np.allclose(outcar.electrostatic_potential,
+          [-26.0704, -45.5046, -45.5046, -72.9539, -73.0621, -72.9539, -73.0621]))
 
 class BSVasprunTest(unittest.TestCase):
 

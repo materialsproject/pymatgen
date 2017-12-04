@@ -10,6 +10,7 @@ import os
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.operations import SymmOp
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
@@ -102,6 +103,18 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(self.sg.get_point_group_symbol(), 'mmm')
         self.assertEqual(self.disordered_sg.get_point_group_symbol(), '4/mmm')
 
+    def test_get_symmetry_operations(self):
+        coordinates = np.array([[0.5, 0.0, 0.0],
+                                [0.0, 0.5, 0.0],
+                                [0.5, 1.0, 0.0],
+                                [1.0, 0.5, 0.0]])
+        species = ['H'] * len(coordinates)
+        molecule = Molecule(species,coordinates)
+        so = PointGroupAnalyzer(molecule, 0.3).get_symmetry_operations()
+        self.assertEqual(len(so), 16) # D4h contains 16 symmetry elements
+        for o in so:
+            self.assertEqual(isinstance(o,SymmOp), True)
+ 
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
         self.assertEqual(ds['international'], 'Pnma')
@@ -246,6 +259,17 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(conv.lattice.b, 31.437979757624728)
         self.assertAlmostEqual(conv.lattice.c, 3.99648651)
 
+        parser = CifParser(os.path.join(test_dir, 'orac_632475.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure()
+        self.assertAlmostEqual(conv.lattice.alpha, 90)
+        self.assertAlmostEqual(conv.lattice.beta, 90)
+        self.assertAlmostEqual(conv.lattice.gamma, 90)
+        self.assertAlmostEqual(conv.lattice.a, 3.1790663399999999)
+        self.assertAlmostEqual(conv.lattice.b, 9.9032878699999998)
+        self.assertAlmostEqual(conv.lattice.c, 3.5372412099999999)
+
         parser = CifParser(os.path.join(test_dir, 'monoc_1028.cif'))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
@@ -312,6 +336,17 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(prim.lattice.a, 15.854897098324196)
         self.assertAlmostEqual(prim.lattice.b, 15.854897098324196)
         self.assertAlmostEqual(prim.lattice.c, 3.99648651)
+
+        parser = CifParser(os.path.join(test_dir, 'orac_632475.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure()
+        self.assertAlmostEqual(prim.lattice.alpha, 90)
+        self.assertAlmostEqual(prim.lattice.beta, 90)
+        self.assertAlmostEqual(prim.lattice.gamma, 144.40557588533386)
+        self.assertAlmostEqual(prim.lattice.a, 5.2005185662155391)
+        self.assertAlmostEqual(prim.lattice.b, 5.2005185662155391)
+        self.assertAlmostEqual(prim.lattice.c, 3.5372412099999999)
 
         parser = CifParser(os.path.join(test_dir, 'monoc_1028.cif'))
         structure = parser.get_structures(False)[0]

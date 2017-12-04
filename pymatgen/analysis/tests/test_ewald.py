@@ -20,7 +20,7 @@ class EwaldSummationTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        p = Poscar.from_file(filepath)
+        p = Poscar.from_file(filepath, check_for_POTCAR=False)
         original_s = p.structure
         s = original_s.copy()
         s.add_oxidation_state_by_element({"Li": 1, "Fe": 2,

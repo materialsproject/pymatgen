@@ -5,10 +5,55 @@
 from __future__ import division, unicode_literals, print_function
 
 import numpy as np
-from pymatgen import Structure, Lattice
+from pymatgen.core import Structure, Lattice
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import PhononDos, CompletePhononDos
 from monty.serialization import loadfn
+from monty.dev import requires
+try:
+    from phonopy import Phonopy
+    from phonopy.structure.atoms import PhonopyAtoms
+    from phonopy.file_IO import write_disp_yaml
+except ImportError:
+    Phonopy = None
+
+
+@requires(Phonopy, "phonopy not installed!")
+def get_pmg_structure(phonopy_structure):
+    """
+    Convert a PhonopyAtoms object to pymatgen Structure object.
+
+    Args:
+        phonopy_structure (PhonopyAtoms): A phonopy structure object.
+
+    """
+
+    lattice = phonopy_structure.get_cell()
+    frac_coords = phonopy_structure.get_scaled_positions()
+    symbols = phonopy_structure.get_chemical_symbols()
+    masses = phonopy_structure.get_masses()
+    mms = phonopy_structure.get_magnetic_moments()
+    mms = mms or [0] * len(symbols)
+
+    return Structure(lattice, symbols, frac_coords,
+                     site_properties={"phonopy_masses": masses,
+                                      "magnetic_moments": mms})
+
+
+@requires(Phonopy, "phonopy not installed!")
+def get_phonopy_structure(pmg_structure):
+    """
+    Convert a pymatgen Structure object to a PhonopyAtoms object.
+
+    Args:
+        pmg_structure (pymatgen Structure): A Pymatgen structure object.
+
+    """
+
+    symbols = [site.specie.symbol for site in pmg_structure]
+
+    return PhonopyAtoms(symbols=symbols, cell=pmg_structure.lattice.matrix,
+                        scaled_positions=pmg_structure.frac_coords)
 
 
 def get_structure_from_dict(d):
@@ -33,9 +78,10 @@ def get_structure_from_dict(d):
             frac_coords.append(p['position'])
             masses.append(p['mass'])
     else:
-        raise ValueError('The dictionary does not contain structural information')
+        raise ValueError('The dict does not contain structural information')
 
-    return Structure(d['lattice'], species, frac_coords, site_properties={"phonopy_masses": masses})
+    return Structure(d['lattice'], species, frac_coords,
+                     site_properties={"phonopy_masses": masses})
 
 
 def eigvec_to_eigdispl(v, q, frac_coords, mass):
@@ -99,8 +145,9 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
                     v = np.zeros(3, np.complex)
                     for x in range(3):
                         v[x] = eig_a[x][0] + eig_a[x][1]*1j
-                    eig_b.append(eigvec_to_eigdispl(v, q, structure[i].frac_coords,
-                                                    structure.site_properties['phonopy_masses'][i]))
+                    eig_b.append(eigvec_to_eigdispl(
+                        v, q, structure[i].frac_coords,
+                        structure.site_properties['phonopy_masses'][i]))
                 eig_q.append(eig_b)
         frequencies.append(bands)
         if 'label' in p:
@@ -118,8 +165,9 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
 
     labels_dict = labels_dict or phonopy_labels_dict
 
-    ph_bs = PhononBandStructureSymmLine(qpts, frequencies, rec_latt, has_nac=has_nac, labels_dict=labels_dict,
-                                        structure=structure, eigendisplacements=eigendisplacements)
+    ph_bs = PhononBandStructureSymmLine(
+        qpts, frequencies, rec_latt, has_nac=has_nac, labels_dict=labels_dict,
+        structure=structure, eigendisplacements=eigendisplacements)
 
     return ph_bs
 
@@ -139,7 +187,8 @@ def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
             --nac option. Default False.
         labels_dict: dict that links a qpoint in frac coords to a label.
     """
-    return get_ph_bs_symm_line_from_dict(loadfn(bands_path), has_nac, labels_dict)
+    return get_ph_bs_symm_line_from_dict(loadfn(bands_path), has_nac,
+                                         labels_dict)
 
 
 def get_ph_dos(total_dos_path):
@@ -155,7 +204,8 @@ def get_ph_dos(total_dos_path):
 
 def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
     """
-    Creates a pymatgen CompletePhononDos from a partial_dos.dat and phonopy.yaml files.
+    Creates a pymatgen CompletePhononDos from a partial_dos.dat and
+    phonopy.yaml files.
     The second is produced when generating a Dos and is needed to extract
     the structure.
 
@@ -175,3 +225,59 @@ def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
         pdoss[site] = pdos.tolist()
 
     return CompletePhononDos(structure, total_dos, pdoss)
+
+
+@requires(Phonopy, "phonopy not installed!")
+def get_displaced_structures(pmg_structure, atom_disp=0.01,
+                             supercell_matrix=None, yaml_fname=None, **kwargs):
+    """
+    Generate a set of symmetrically inequivalent displaced structures for
+    phonon calculations.
+
+    Args:
+        pmg_structure (Structure): A pymatgen structure object.
+        atom_disp (float): Atomic displacement. Default is 0.01 $\AA$.
+        supercell_matrix (3x3 array): Scaling matrix for supercell.
+        yaml_fname (string): If not None, it represents the full path to
+            the outputting displacement yaml file, e.g. disp.yaml.
+        **kwargs: Parameters used in Phonopy.generate_displacement method.
+
+    Return:
+        A list of symmetrically inequivalent structures with displacements, in
+        which the first element is the perfect supercell structure.
+    """
+
+    is_plusminus = kwargs.get("is_plusminus", "auto")
+    is_diagonal = kwargs.get("is_diagonal", True)
+    is_trigonal = kwargs.get("is_trigonal", False)
+
+    ph_structure = get_phonopy_structure(pmg_structure)
+
+    if supercell_matrix is None:
+        supercell_matrix = np.eye(3) * np.array((1, 1, 1))
+
+    phonon = Phonopy(unitcell=ph_structure, supercell_matrix=supercell_matrix)
+    phonon.generate_displacements(distance=atom_disp,
+                                  is_plusminus=is_plusminus,
+                                  is_diagonal=is_diagonal,
+                                  is_trigonal=is_trigonal)
+
+    if yaml_fname is not None:
+        displacements = phonon.get_displacements()
+        directions = phonon.get_displacement_directions()
+        write_disp_yaml(displacements=displacements,
+                        supercell=phonon.get_supercell(),
+                        directions=directions, filename=yaml_fname)
+
+    # Supercell structures with displacement
+    disp_supercells = phonon.get_supercells_with_displacements()
+    # Perfect supercell structure
+    init_supercell = phonon.get_supercell()
+    # Structure list to be returned
+    structure_list = [get_pmg_structure(init_supercell)]
+
+    for c in disp_supercells:
+        if c is not None:
+            structure_list.append(get_pmg_structure(c))
+
+    return structure_list

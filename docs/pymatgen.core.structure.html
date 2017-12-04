@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2017.11.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.11.30',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -135,6 +135,27 @@ breaking the bond.</p>
 <dt id="pymatgen.core.structure.IMolecule.charge">
 <code class="descname">charge</code><a class="headerlink" href="#pymatgen.core.structure.IMolecule.charge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Charge of molecule</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.extract_cluster">
+<code class="descname">extract_cluster</code><span class="sig-paren">(</span><em>target_sites</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IMolecule.extract_cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.extract_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts a cluster of atoms from a molecule based on bond lengths</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>target_sites</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em>]</em>) – List of initial sites to nucleate cluster.</li>
+<li><strong>**kwargs</strong> – kwargs passed through to CovalentBond.is_bonded.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(Molecule) Cluster of atoms.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="classmethod">
@@ -1147,6 +1168,21 @@ and fractional_coords. Defaults to None for no properties.</li>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.add_oxidation_state_by_element">
+<code class="descname">add_oxidation_state_by_element</code><span class="sig-paren">(</span><em>oxidation_states</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Molecule.add_oxidation_state_by_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.add_oxidation_state_by_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add oxidation states to a structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>oxidation_states</strong> (<em>dict</em>) – Dict of oxidation states.
+E.g., {“Li”:1, “Fe”:2, “P”:5, “O”:-2}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.core.structure.Molecule.add_site_property">
 <code class="descname">add_site_property</code><span class="sig-paren">(</span><em>property_name</em>, <em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Molecule.add_site_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.add_site_property" title="Permalink to this definition">¶</a></dt>
@@ -2197,13 +2233,13 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

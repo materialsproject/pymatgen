@@ -448,6 +448,8 @@ class Vasprun(MSONable):
                     else:
                         comment = elem.attrib["comment"]
                         self.other_dielectric[comment] = self._parse_diel(elem)
+                elif tag == "varray" and elem.attrib.get("name") == 'opticaltransitions':
+                    self.optical_transition = np.array(_parse_varray(elem))
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
                     self.final_structure = self._parse_structure(elem)
@@ -1016,6 +1018,15 @@ class Vasprun(MSONable):
         return [e[0] for e in imag], \
                [e[1:] for e in real], [e[1:] for e in imag]
 
+    def _parse_optical_transition(self, elem):
+        for va in elem.findall("varray"):
+            if va.attrib.get("name") == "opticaltransitions":
+                # opticaltransitions array contains oscillator strength and probability of transition
+                oscillator_strength = np.array(_parse_varray(va))[0:,]
+                probability_transition = np.array(_parse_varray(va))[0:,1]
+        return oscillator_strength, probability_transition
+
+
     def _parse_chemical_shift_calculation(self, elem):
         calculation = []
         istep = {}
@@ -1345,6 +1356,21 @@ class Outcar(MSONable):
     .. attribute:: elastic_tensor
         Total elastic moduli (Kbar) is given in a 6x6 array matrix.
 
+    .. attribute:: drift
+        Total drift for each step in eV/Atom
+
+    .. attribute:: ngf
+        Dimensions for the Augementation grid
+
+    .. attribute: sampling_radii
+        Size of the sampling radii in VASP for the test charges for 
+        the electrostatic potential at each atom. Total array size is the number
+        of elements present in the calculation
+
+    .. attribute: electrostatic_potential
+        Average electrostatic potential at each atomic position in order
+        of the atoms in POSCAR.
+
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
     read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().
@@ -1491,6 +1517,13 @@ class Outcar(MSONable):
         self.final_energy = total_energy
         self.data = {}
 
+        # Read the drift:
+        self.read_pattern({"drift":"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
+                          terminate_on_match=False,
+                          postprocess=float)        
+        self.drift = self.data.get('drift',[])
+           
+
         # Check if calculation is spin polarized
         self.spin = False
         self.read_pattern({'spin': 'ISPIN  =      2'})
@@ -1518,6 +1551,11 @@ class Outcar(MSONable):
             self.lcalcpol = True
             self.read_lcalcpol()
             self.read_pseudo_zval()
+
+        # Read electrostatic potential
+        self.read_pattern({'electrostatic': "average \(electrostatic\) potential at core"})
+        if self.data.get('electrostatic', []):
+            self.read_electrostatic_potential()
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -1611,6 +1649,30 @@ class Outcar(MSONable):
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
+
+    def read_electrostatic_potential(self):
+        """
+        Parses the eletrostatic potential for the last ionic step
+        """
+        pattern = {"ngf": r"\s+dimension x,y,z NGXF=\s+([\.\-\d]+)\sNGYF=\s+([\.\-\d]+)\sNGZF=\s+([\.\-\d]+)"}
+        self.read_pattern(pattern, postprocess=int)
+        self.ngf = self.data.get("ngf",[[]])[0]
+
+        pattern = {"radii": r"the test charge radii are((?:\s+[\.\-\d]+)+)"}
+        self.read_pattern(pattern, reverse=True,terminate_on_match=True, postprocess=str)
+        self.sampling_radii = [float(f) for f in self.data["radii"][0][0].split()]
+
+        header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
+        table_pattern = r"((?:\s+\d+\s?[\.\-\d]+)+)"
+        footer_pattern = r"\s+E-fermi :"
+
+        pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
+        pots = "".join(itertools.chain.from_iterable(pots))
+
+        pots = re.findall("\s+\d+\s?([\.\-\d]+)+", pots)
+        pots = [float(f) for f in pots]
+
+        self.electrostatic_potential = pots
 
     def read_freq_dielectric(self):
         """
@@ -2367,7 +2429,10 @@ class Outcar(MSONable):
              "@class": self.__class__.__name__, "efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
-             "nelect": self.nelect, "is_stopped": self.is_stopped}
+             "nelect": self.nelect, "is_stopped": self.is_stopped,
+             "drift": self.drift, "ngf": self.ngf, 
+             "sampling_radii": self.sampling_radii,
+             "electrostatic_potential": self.electrostatic_potential}
 
         if self.lepsilon:
             d.update({'piezo_tensor': self.piezo_tensor,

@@ -10,11 +10,13 @@ import itertools
 import collections
 import warnings
 
+from monty.json import MSONable
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
-from monty.json import MSONable
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.coord import pbc_diff
 
 """
 This module provides classes to define everything related to band structures.
@@ -454,6 +456,33 @@ class BandStructure(object):
 
         return result
 
+    def get_direct_band_gap_dict(self):
+        """
+        Returns a dictionary of information about the direct
+        band gap
+
+        Returns:
+            a dictionary of the band gaps indexed by spin
+            along with their band indices and k-point index
+        """
+        if self.is_metal():
+            raise ValueError("get_direct_band_gap_dict should"
+                             "only be used with non-metals")
+        direct_gap_dict = {}
+        for spin, v in self.bands.items():
+            above = v[np.all(v > self.efermi, axis=1)]
+            min_above = np.min(above, axis=0)
+            below = v[np.all(v < self.efermi, axis=1)]
+            max_below = np.max(below, axis=0)
+            diff = min_above - max_below
+            kpoint_index = np.argmin(diff)
+            band_indices = [np.argmax(below[:, kpoint_index]),
+                            np.argmin(above[:, kpoint_index]) + len(below)]
+            direct_gap_dict[spin] = {"value": diff[kpoint_index],
+                                     "kpoint_index": kpoint_index,
+                                     "band_indices": band_indices}
+        return direct_gap_dict
+
     def get_direct_band_gap(self):
         """
         Returns the direct band gap.
@@ -463,21 +492,49 @@ class BandStructure(object):
         """
         if self.is_metal():
             return 0.0
-        cb = collections.defaultdict(list)
-        vb = collections.defaultdict(list)
-        for spin, v in self.bands.items():
-            for i in range(len(v)):
-                for j in range(len(self.kpoints)):
-                    if self.bands[Spin.up][i][j] > self.efermi:
-                        cb[spin].append(v[i][j])
-                        vb[spin].append(v[i - 1][j])
-        diff = []
-        for i in range(len(self.kpoints)):
-            diff.append(min(
-                [cb[Spin.up][i], cb.get(Spin.down, cb[Spin.up])[i]])
-                        - max(
-                [vb[Spin.up][i], vb.get(Spin.down, vb[Spin.up])[i]]))
-        return min(diff)
+        dg = self.get_direct_band_gap_dict()
+        return min(v['value'] for v in dg.values())
+
+    def get_sym_eq_kpoints(self, kpoint, cartesian=False, tol=1e-2):
+        """
+        Returns a list of unique symmetrically equivalent k-points.
+
+        Args:
+            kpoint (1x3 array): coordinate of the k-point
+            cartesian (bool): kpoint is in cartesian or fractional coordinates
+            tol (float): tolerance below which coordinates are considered equal
+
+        Returns:
+            ([1x3 array] or None): if structure is not available returns None
+        """
+        if not self.structure:
+            return None
+        sg = SpacegroupAnalyzer(self.structure)
+        symmops = sg.get_point_group_operations(cartesian=cartesian)
+        points = np.dot(kpoint, [m.rotation_matrix for m in symmops])
+        rm_list = []
+        # identify and remove duplicates from the list of equivalent k-points:
+        for i in range(len(points) - 1):
+            for j in range(i + 1, len(points)):
+                if np.allclose(pbc_diff(points[i], points[j]), [0, 0, 0], tol):
+                    rm_list.append(i)
+                    break
+        return np.delete(points, rm_list, axis=0)
+
+    def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol=1e-2):
+        """
+        Returns degeneracy of a given k-point based on structure symmetry
+        Args:
+            kpoint (1x3 array): coordinate of the k-point
+            cartesian (bool): kpoint is in cartesian or fractional coordinates
+            tol (float): tolerance below which coordinates are considered equal
+
+        Returns:
+            (int or None): degeneracy or None if structure is not available
+        """
+        all_kpts = self.get_sym_eq_kpoints(kpoint, cartesian, tol=tol)
+        if all_kpts is not None:
+            return len(all_kpts)
 
     def as_dict(self):
         """

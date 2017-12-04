@@ -588,6 +588,9 @@ class StructureTest(PymatgenTest):
         coords = [[0, 0, 0],
                   [0.5, 0.5, 0.5]]
         nio = Structure.from_spacegroup(225, latt, species, coords)
+        
+        # should do nothing, but not fail
+        nio.remove_spin()
 
         spins = {"Ni": 5}
         nio.add_spin_by_element(spins)
@@ -1207,6 +1210,15 @@ class MoleculeTest(PymatgenTest):
         self.mol.to(filename="CH4_testing.xyz")
         self.assertTrue(os.path.exists("CH4_testing.xyz"))
         os.remove("CH4_testing.xyz")
+
+    def test_extract_cluster(self):
+        species = self.mol.species * 2
+        coords = list(self.mol.cart_coords) + list(self.mol.cart_coords
+                                                   + [10, 0, 0])
+        mol = Molecule(species, coords)
+        cluster = mol.extract_cluster([mol[0]])
+        self.assertEqual(mol.formula, "H8 C2")
+        self.assertEqual(cluster.formula, "H4 C1")
 
 
 if __name__ == '__main__':

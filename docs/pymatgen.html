@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen package &#8212; pymatgen 2017.9.3 documentation</title>
+    <title>pymatgen package &#8212; pymatgen 2017.11.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.3',
+        VERSION:     '2017.11.30',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -185,6 +185,14 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.hhi.html#module-pymatgen.analysis.hhi">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.html">pymatgen.analysis.magnetism package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.magnetism.html#submodules">Submodules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html">pymatgen.analysis.magnetism.analyzer module</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.magnetism.html#module-pymatgen.analysis.magnetism">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.pourbaix.html">pymatgen.analysis.pourbaix package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.pourbaix.html#subpackages">Subpackages</a><ul class="simple">
 </ul>
@@ -231,6 +239,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.energy_models.html">pymatgen.analysis.energy_models module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.eos.html">pymatgen.analysis.eos module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.ewald.html">pymatgen.analysis.ewald module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.graphs.html">pymatgen.analysis.graphs module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.interface_reactions.html">pymatgen.analysis.interface_reactions module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.local_env.html">pymatgen.analysis.local_env module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.molecule_matcher.html">pymatgen.analysis.molecule_matcher module</a></li>
@@ -314,6 +323,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.aconvasp_caller.html">pymatgen.command_line.aconvasp_caller module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.bader_caller.html">pymatgen.command_line.bader_caller module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html">pymatgen.command_line.critic2_caller module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.enumlib_caller.html">pymatgen.command_line.enumlib_caller module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html">pymatgen.command_line.gulp_caller module</a></li>
 </ul>
@@ -331,6 +341,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.ion.html">pymatgen.core.ion module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.lattice.html">pymatgen.core.lattice module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.libxcfunc.html">pymatgen.core.libxcfunc module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.core.molecular_orbitals.html">pymatgen.core.molecular_orbitals module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.operations.html">pymatgen.core.operations module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.periodic_table.html">pymatgen.core.periodic_table module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.sites.html">pymatgen.core.sites module</a></li>
@@ -447,11 +458,9 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.lammps.html#submodules">Submodules</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lammps.data.html">pymatgen.io.lammps.data module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lammps.force_field.html">pymatgen.io.lammps.force_field module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lammps.input.html">pymatgen.io.lammps.input module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lammps.output.html">pymatgen.io.lammps.output module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lammps.sets.html">pymatgen.io.lammps.sets module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lammps.topology.html">pymatgen.io.lammps.topology module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lammps.utils.html">pymatgen.io.lammps.utils module</a></li>
 </ul>
 </li>
@@ -477,6 +486,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.adf.html">pymatgen.io.adf module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.aiida.html">pymatgen.io.aiida module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.ase.html">pymatgen.io.ase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.atat.html">pymatgen.io.atat module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.babel.html">pymatgen.io.babel module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cif.html">pymatgen.io.cif module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cssr.html">pymatgen.io.cssr module</a></li>
@@ -550,9 +560,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.structure_prediction.html">pymatgen.structure_prediction package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.structure_prediction.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.structure_prediction.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.structure_prediction.substitution_probability.html">pymatgen.structure_prediction.substitution_probability module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.structure_prediction.substitutor.html">pymatgen.structure_prediction.substitutor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.structure_prediction.volume_predictor.html">pymatgen.structure_prediction.volume_predictor module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.structure_prediction.html#module-pymatgen.structure_prediction">Module contents</a></li>
@@ -595,8 +609,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.convergence.html">pymatgen.util.convergence module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.coord.html">pymatgen.util.coord module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.coord_cython.html">pymatgen.util.coord_cython module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.coord_utils.html">pymatgen.util.coord_utils module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.coord_utils_cython.html">pymatgen.util.coord_utils_cython module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.io_utils.html">pymatgen.util.io_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.num.html">pymatgen.util.num module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.num_utils.html">pymatgen.util.num_utils module</a></li>
@@ -708,13 +723,13 @@ the API. Requires PMG_MAPI_KEY to be set.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

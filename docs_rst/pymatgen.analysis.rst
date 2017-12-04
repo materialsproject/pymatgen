@@ -13,6 +13,7 @@ Subpackages
     pymatgen.analysis.elasticity
     pymatgen.analysis.ferroelectricity
     pymatgen.analysis.hhi
+    pymatgen.analysis.magnetism
     pymatgen.analysis.pourbaix
     pymatgen.analysis.structure_prediction
     pymatgen.analysis.xas
@@ -28,6 +29,7 @@ Submodules
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
    pymatgen.analysis.ewald
+   pymatgen.analysis.graphs
    pymatgen.analysis.interface_reactions
    pymatgen.analysis.local_env
    pymatgen.analysis.molecule_matcher

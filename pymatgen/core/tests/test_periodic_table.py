@@ -75,7 +75,7 @@ class ElementTestCase(PymatgenTest):
                 "superconduction_temperature",
                 "bulk_modulus", "youngs_modulus", "brinell_hardness",
                 "rigidity_modulus", "mineral_hardness",
-                "vickers_hardness", "density_of_solid",
+                "vickers_hardness", "density_of_solid", "atomic_orbitals"
                 "coefficient_of_linear_thermal_expansion", "oxidation_states",
                 "common_oxidation_states", "average_ionic_radius",
                 "ionic_radii"]
@@ -295,6 +295,9 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(get_el_sp("U"), Element.U)
         self.assertEqual(get_el_sp("X2+"), DummySpecie("X", 2))
         self.assertEqual(get_el_sp("Mn3+"), Specie("Mn", 3))
+        self.assertEqual(get_el_sp(["Li+", "Mn3+"]),
+                         [Specie("Li", 1), Specie("Mn", 3)])
+
 
 if __name__ == "__main__":
     unittest.main()

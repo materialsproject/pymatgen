@@ -10,6 +10,8 @@ import six
 from six.moves import zip
 
 from monty.json import MSONable
+
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.analysis.structure_prediction.substitution_probability \
     import SubstitutionProbability
 from pymatgen.transformations.standard_transformations \
@@ -105,6 +107,7 @@ class Substitutor(MSONable):
         Returns:
             a list of TransformedStructure objects.
         """
+        target_species = get_el_sp(target_species)
         result = []
         transmuter = StandardTransmuter([])
         if len(list(set(target_species) & set(self.get_allowed_species()))) \
@@ -208,6 +211,7 @@ class Substitutor(MSONable):
             list of dictionaries, each including a substitutions
             dictionary, and a probability value
         """
+        species_list = get_el_sp(species_list)
         # calculate the highest probabilities to help us stop the recursion
         max_probabilities = []
         for s2 in species_list:

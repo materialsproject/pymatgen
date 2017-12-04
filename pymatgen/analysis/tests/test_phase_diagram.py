@@ -7,12 +7,13 @@ from __future__ import unicode_literals
 import unittest
 import os
 from numbers import Number
+import matplotlib
+matplotlib.use("pdf")
+
 from pymatgen.analysis.phase_diagram import *
 from pymatgen.core.periodic_table import Element, DummySpecie
 from pymatgen.core.composition import Composition
 
-import matplotlib
-matplotlib.use("pdf")
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -451,13 +452,13 @@ class PDPlotterTest(unittest.TestCase):
         self.pd = PhaseDiagram(entries)
         self.plotter = PDPlotter(self.pd, show_unstable=True)
         entrieslio = [e for e in entries
-                   if len(e.composition) < 3 and ("Fe" not in e.composition)]
+                      if "Fe" not in e.composition]
 
         self.pd_formation = PhaseDiagram(entrieslio)
-        self.plotter_formation = PDPlotter(self.pd_formation, show_unstable=True)
+        self.plotter_formation = PDPlotter(self.pd_formation, show_unstable=0.1)
         entries.append(PDEntry("C", 0))
         self.pd3d = PhaseDiagram(entries)
-        self.plotter3d = PDPlotter(self.pd3d, show_unstable=True)
+        self.plotter3d = PDPlotter(self.pd3d, show_unstable=0.1)
 
     def test_pd_plot_data(self):
         (lines, labels, unstable_entries) = self.plotter.pd_plot_data
@@ -481,7 +482,8 @@ class PDPlotterTest(unittest.TestCase):
         self.plotter.get_plot()
         self.plotter3d.get_plot()
         # self.plotter.get_plot(energy_colormap="Reds", process_attributes=True)
-        # plt = self.plotter3d.get_plot(energy_colormap="Reds", process_attributes=True)
+        # plt = self.plotter3d.get_plot(energy_colormap="Reds",
+        #                               process_attributes=True)
         # self.plotter.get_plot(energy_colormap="Reds", process_attributes=False)
         # plt = self.plotter3d.get_plot(energy_colormap="Reds",
         #                               process_attributes=False)
