@@ -32,9 +32,9 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
 
     def setUp(self):
 
-        self.Cu_slab_entry_list = get_SlabEntry_list(os.path.join(get_path(""),
-                                                                  "Cu_entries.txt"))
-        self.assertEqual(len(self.Cu_slab_entry_list), 13)
+        self.Cu_entry_dict = get_entry_dict(os.path.join(get_path(""),
+                                                         "Cu_entries.txt"))
+        self.assertEqual(len(self.Cu_entry_dict.keys()), 13)
 
         with open(os.path.join(get_path(""), 'ucell_entries.txt')) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
@@ -52,121 +52,107 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
         Mg_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Mg"])
         self.MgO_calc = SurfaceEnergyCalculator(MgO_ucell_entry,
                                                 ref_entries=[Mg_ucell_entry])
-        self.MgO_slab_entry_list = get_SlabEntry_list(os.path.join(get_path(""),
-                                                                  "MgO_slab_entries.txt"))
+        self.MgO_slab_entry_dict = get_entry_dict(os.path.join(get_path(""),
+                                                               "MgO_slab_entries.txt"))
 
     def test_surface_energy_coefficients(self):
         # For a nonstoichiometric case, the cheimcal potentials do not
         # cancel out, they serve as a reservoir for any missing element
-        for slab_entry in self.MgO_slab_entry_list:
+        for slab_entry in self.MgO_slab_entry_dict[(1,1,1)].keys():
             coeffs = self.MgO_calc.surface_energy_coefficients(slab_entry)
             coeff_keys = [str(k) for k in coeffs.keys()]
             self.assertEqual(tuple(coeff_keys), ("1", "Mg"))
 
-        # For the case of a clean, nonstoichiometric slab, the the key to
+        # For the case of a clean, stoichiometric slab, the the key to
         # the coefficient should be 1 (i.e. surface energy is a constant).
-        for slab_entry in self.Cu_slab_entry_list:
+        for hkl in self.Cu_entry_dict.keys():
+            slab_entry = list(self.Cu_entry_dict[hkl].keys())[0]
             coeffs = self.Cu_calc.surface_energy_coefficients(slab_entry)
-            self.assertEqual(len(coeffs.keys()), Number(1))
+            self.assertEqual(len(coeffs.keys()), 1)
             self.assertEqual(list(coeffs.keys())[0], Number(1))
 
-    # def test_gamma_calculator(self):
-    #
-    #     # Test case for clean Cu surface
-    #
-    #     all_se = []
-    #     for hkl, entries in self.entry_dict.items():
-    #         u1, u2 = -1, 0
-    #         se1 = self.Cu_analyzer.calculate_gamma_at_u(list(entries.keys())[0], u_ref=u1)
-    #         se2 = self.Cu_analyzer.calculate_gamma_at_u(list(entries.keys())[0], u_ref=u2)
-    #         # For a stoichiometric system, we expect surface
-    #         # energy to be independent of chemical potential
-    #         self.assertEqual(se1, se2)
-    #         all_se.append(se1)
-    #
-    #     clean111_entry = list(self.entry_dict[(1,1,1)].keys())[0]
-    #     # The (111) facet should be the most stable
-    #     self.assertEqual(min(all_se),
-    #                      self.Cu_analyzer.calculate_gamma_at_u( \
-    #                          clean111_entry, 0))
-    #
-    #     # Get the coefficients for surfacce energy. For a clean
-    #     # stoichiometric system, the third term should be the surface energy
-    #     # and the adsorption and nonstoichiometric terms should be 0
-    #     b1, b2, b3 = self.Cu_analyzer.surface_energy_coefficients(clean111_entry)
-    #     self.assertEqual(b1, b2)
-    #     self.assertEqual(b1, 0)
-    #     self.assertEqual(b3, min(all_se))
-    #
-    #     Cu_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Cu"])
-    #     # Surface energy should be equal to the intercept (111)
-    #     slab = clean111_entry.structure
-    #     m = slab.lattice.matrix
-    #     sa = np.linalg.norm(np.cross(m[0], m[1]))
-    #     se111 = (clean111_entry.energy - len(slab)*Cu_entry.energy_per_atom)/(2*sa)
-    #     self.assertEqual(se111, b3)
-    #
-    # def test_adsorption_quantities(self):
-    #
-    #     # Test cases for getting adsorption related quantities for a 1/4
-    #     # monolalyer adsorption of O on the low MMI surfaces of Pt, Ni and Rh
-    #
-    #     for el in self.metals_O_entry_dict.keys():
-    #         el_ucell = ComputedStructureEntry.from_dict(self.ucell_entries[el])
-    #         se_calc = SurfaceEnergyCalculator(el_ucell, adsorbate_entry=self.O)
-    #         for hkl in self.metals_O_entry_dict[el].keys():
-    #             for clean in self.metals_O_entry_dict[el][hkl]:
-    #                 for ads in self.metals_O_entry_dict[el][hkl][clean]:
-    #                     # Determine the correct number of monolayers.
-    #                     ml = se_calc.get_unit_primitive_area(ads, clean)
-    #                     self.assertEqual(int(round(ml)), 4)
-    #                     # Determine the correct number of adsorbates
-    #                     Nads = se_calc.Nads_in_slab(ads)
-    #                     self.assertEqual(Nads, 1)
-    #                     # Determine the correct number of surfaces with an adsorbate
-    #                     Nsurf = se_calc.Nsurfs_ads_in_slab(ads)
-    #                     self.assertEqual(Nsurf, 1)
-    #                     # Determine the correct binding energy
-    #                     gbind = (ads.energy - ml*clean.energy)/Nads - self.O.energy_per_atom
-    #                     self.assertEqual(gbind, se_calc.gibbs_binding_energy(ads, clean))
-    #                     # Determine the correction Gibbs adsorption energy
-    #                     eads = Nads * gbind
-    #                     self.assertEqual(eads, se_calc.gibbs_binding_energy(ads, clean, eads=True))
-    #
-    # def test_solve_2_linear_eqns(self):
-    #
-    #     # For clean stoichiometric system, the two equations should
-    #     # be parallel because the surface energy is a constant
-    #     clean111_entry = list(self.entry_dict[(1, 1, 1)].keys())[0]
-    #     clean100_entry = list(self.entry_dict[(1, 0, 0)].keys())[0]
-    #     c111 = self.Cu_analyzer.surface_energy_coefficients(clean111_entry)
-    #     c100 = self.Cu_analyzer.surface_energy_coefficients(clean100_entry)
-    #     soln = self.Cu_analyzer.solve_2_linear_eqns(c111, c100)
-    #     self.assertFalse(soln[0])
-    #     self.assertEqual(soln[1], soln[0])
-    #
-    #     # For adsorbed system, we should find one intercept
-    #     Pt_entries = self.metals_O_entry_dict["Pt"]
-    #     clean = list(Pt_entries[(1,1,1)].keys())[0]
-    #     ads = Pt_entries[(1,1,1)][clean][0]
-    #     Pt_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Pt"])
-    #     Pt_analyzer = SurfaceEnergyCalculator(Pt_ucell_entry, adsorbate_entry=self.O)
-    #     cclean = Pt_analyzer.surface_energy_coefficients(clean)
-    #     cads = Pt_analyzer.surface_energy_coefficients(clean, ads_slab_entry=ads)
-    #     soln = Pt_analyzer.solve_2_linear_eqns(cclean, cads, x_is_u_ads=True)
-    #     self.assertNotEqual(soln[0], soln[1])
-    #
-    #     # Check if the coefficients for adsorption are correct
-    #     # Stoichiometric systems have a b1=1
-    #     self.assertEqual(cads[0], 0)
-    #     # Adsorbed systems have a b2=(-1*Nads) / (Nsurfs * Aads)
-    #     m = ads.structure.lattice.matrix
-    #     sa = np.linalg.norm(np.cross(m[0], m[1]))
-    #     self.assertEqual(cads[1], -1/sa)
-    #     # Check the intercept
-    #     gbind = Pt_analyzer.gibbs_binding_energy(ads, clean)
-    #     b3 = cclean[2] + gbind*(1/(sa))
-    #     self.assertEqual(cads[2], b3)
+    def test_gamma_calculator(self):
+
+        # Test case for clean Cu surface
+
+        all_se = []
+        u1, u2 = -1, 0
+        for hkl in self.Cu_entry_dict.keys():
+            entry = list(self.Cu_entry_dict[hkl].keys())[0]
+            se1 = self.Cu_calc.calculate_gamma(entry, u_default=u1)
+            se2 = self.Cu_calc.calculate_gamma(entry, u_default=u2)
+            # For a stoichiometric system, we expect surface
+            # energy to be independent of chemical potential
+            self.assertEqual(se1, se2)
+            all_se.append(se1)
+
+        # The (111) facet should be the most stable
+        clean111_entry = list(self.Cu_entry_dict[(1,1,1)].keys())[0]
+        se_Cu111 = self.Cu_calc.calculate_gamma(clean111_entry)
+        self.assertEqual(min(all_se), se_Cu111)
+
+        # Check surface eenrgy properly calculated
+        Cu_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Cu"])
+        slab = clean111_entry.structure
+        sa = clean111_entry.surface_area
+        se111 = (clean111_entry.energy - len(slab)*Cu_entry.energy_per_atom)/(2*sa)
+        self.assertEqual(se111, se_Cu111)
+
+    def test_adsorption_quantities(self):
+
+        # Test cases for getting adsorption related quantities for a 1/4
+        # monolalyer adsorption of O on the low MMI surfaces of Pt, Ni and Rh
+
+        for el in self.metals_O_entry_dict.keys():
+            el_ucell = ComputedStructureEntry.from_dict(self.ucell_entries[el])
+            se_calc = SurfaceEnergyCalculator(el_ucell, adsorbate_entries=[self.O])
+            for hkl in self.metals_O_entry_dict[el].keys():
+                for clean in self.metals_O_entry_dict[el][hkl]:
+                    for ads in self.metals_O_entry_dict[el][hkl][clean]:
+                        # Determine the correct number of monolayers.
+                        ml = se_calc.get_unit_primitive_area(ads, clean)
+                        self.assertEqual(int(round(ml)), 4)
+                        # Determine the correct number of adsorbates
+                        Nads = se_calc.Nads_in_slab(ads)
+                        self.assertEqual(Nads, 1)
+                        # Determine the correct number of surfaces with an adsorbate
+                        Nsurf = se_calc.Nsurfs_ads_in_slab(ads)
+                        self.assertEqual(Nsurf, 1)
+                        # Determine the correct binding energy
+                        gbind = (ads.energy - ml*clean.energy)/Nads - self.O.energy_per_atom
+                        self.assertEqual(gbind, se_calc.gibbs_binding_energy(ads, clean))
+                        # Determine the correction Gibbs adsorption energy
+                        eads = Nads * gbind
+                        self.assertEqual(eads, se_calc.gibbs_binding_energy(ads, clean, eads=True))
+
+    def test_get_surface_equilibrium(self):
+
+        # For clean stoichiometric system, the two equations should
+        # be parallel because the surface energy is a constant. Then
+        # get_surface_equilibrium should return None
+        clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)].keys())[0]
+        clean100_entry = list(self.Cu_entry_dict[(1, 0, 0)].keys())[0]
+        soln = self.Cu_calc.get_surface_equilibrium([clean111_entry, clean100_entry])
+        self.assertFalse(soln)
+
+        # For adsorbed system, we should find one intercept
+        Pt_entries = self.metals_O_entry_dict["Pt"]
+        clean = list(Pt_entries[(1,1,1)].keys())[0]
+        ads = Pt_entries[(1,1,1)][clean][0]
+        Pt_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Pt"])
+        Pt_analyzer = SurfaceEnergyCalculator(Pt_ucell_entry, adsorbate_entries=[self.O])
+        soln = Pt_analyzer.get_surface_equilibrium([clean, ads])
+
+        self.assertNotEqual(list(soln.values())[0], list(soln.values())[1])
+
+        # Check if the number of parameters for adsorption are correct
+        self.assertEqual(("O", "gamma"), tuple(soln.keys()))
+        # Adsorbed systems have a b2=(-1*Nads) / (Nsurfs * Aads)
+        self.assertEqual(soln["O"], -1/ads.surface_area)
+        # Check the intercept
+        gbind = Pt_analyzer.gibbs_binding_energy(ads, clean)
+        b3 = cclean[2] + gbind*(1/(sa))
+        self.assertEqual(cads[2], b3)
 
 
 # class SurfaceEnergyPlotterTest(PymatgenTest):
@@ -334,75 +320,65 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
 #     unittest.main()
 #
 #
-# def get_entry_dict(filename):
-#     # helper to generate an entry_dict
-#
-#     entry_dict = {}
-#     with open(filename) as entries:
-#         entries = json.loads(entries.read())
-#     for k in entries.keys():
-#         n = k[25:]
-#         miller_index = []
-#         for i, s in enumerate(n):
-#             if i > 2:
-#                 break
-#             miller_index.append(int(s))
-#         hkl = tuple(miller_index)
-#         if hkl not in entry_dict.keys():
-#             entry_dict[hkl] = {}
-#         entry_dict[hkl][ComputedStructureEntry.from_dict(entries[k])] = []
-#
-#     return entry_dict
+def get_entry_dict(filename):
+    # helper to generate an entry_dict
 
-def get_SlabEntry_list(filename):
-    # helper to generate a list of SlabEntries
-    entry_list = []
+    entry_dict = {}
     with open(filename) as entries:
         entries = json.loads(entries.read())
-        for k in entries.keys():
-            n = k[25:]
-            miller_index = []
-            for i, s in enumerate(n):
-                if i > 2:
-                    break
-                miller_index.append(int(s))
-            hkl = tuple(miller_index)
-            entry = ComputedStructureEntry.from_dict(entries[k])
-            entry_list.append(SlabEntry(entry, hkl, name=k))
-    return entry_list
+    for k in entries.keys():
+        n = k[25:]
+        miller_index = []
+        for i, s in enumerate(n):
+            if i > 2:
+                break
+            miller_index.append(int(s))
+        hkl = tuple(miller_index)
+        if hkl not in entry_dict.keys():
+            entry_dict[hkl] = {}
+        entry = ComputedStructureEntry.from_dict(entries[k])
+        entry_dict[hkl][SlabEntry(entry, hkl, name=k)] = []
+
+    return entry_dict
+
 
 def load_O_adsorption():
 
-    # Loads the list for clean and O adsorbed Rh, Pt, and Ni entries
+    # Loads the dictionary for clean and O adsorbed Rh, Pt, and Ni entries
 
-    # list for the adsorption case, O adsorption on Ni, Rh and Pt
-    metals_O_entry_list = {"Ni": [], "Rh": [], "Pt": []}
+    # entry_dict for the adsorption case, O adsorption on Ni, Rh and Pt
+    metals_O_entry_dict = {"Ni": {(1, 1, 1): {}, (1, 0, 0): {}},
+                           "Pt": {(1, 1, 1): {}},
+                           "Rh": {(1, 0, 0): {}}
+                           }
 
     with open(os.path.join(get_path(""), "csentries_slabs.json")) as entries:
         entries = json.loads(entries.read())
     for k in entries.keys():
         entry = ComputedStructureEntry.from_dict(entries[k])
-
-        for el in metals_O_entry_list.keys():
+        for el in metals_O_entry_dict.keys():
             if el in k:
                 if "111" in k:
-                    metals_O_entry_list[el].append(SlabEntry(entry, (1,1,1), name=k))
+                    metals_O_entry_dict[el][(1, 1, 1)][SlabEntry(entry, (1,1,1), name=k)] = []
                 if "110" in k:
-                    metals_O_entry_list[el].append(SlabEntry(entry, (1,1,0), name=k))
+                    metals_O_entry_dict[el][(1, 1, 0)][SlabEntry(entry, (1,1,0), name=k)] = []
                 if "100" in k:
-                    metals_O_entry_list[el].append(SlabEntry(entry, (1,0,0), name=k))
+                    metals_O_entry_dict[el][(1, 0, 0)][SlabEntry(entry, (1,0,0), name=k)] = []
 
     with open(os.path.join(get_path(""), "csentries_o_ads.json")) as entries:
         entries = json.loads(entries.read())
     for k in entries.keys():
         entry = ComputedStructureEntry.from_dict(entries[k])
-        for el in metals_O_entry_list.keys():
+        for el in metals_O_entry_dict.keys():
             if el in k:
                 if "111" in k:
-                    metals_O_entry_list[el].append(SlabEntry(entry, (1,1,1), name=k))
+                    clean = list(metals_O_entry_dict[el][(1, 1, 1)].keys())[0]
+                    metals_O_entry_dict[el][(1, 1, 1)][clean] = [SlabEntry(entry, (1,1,1), name=k, adsorbate="O")]
                 if "110" in k:
-                    metals_O_entry_list[el].append(SlabEntry(entry, (1,1,1), name=k))
+                    clean = list(metals_O_entry_dict[el][(1, 1, 0)].keys())[0]
+                    metals_O_entry_dict[el][(1, 1, 0)][clean] = [SlabEntry(entry, (1,1,0), name=k, adsorbate="O")]
                 if "100" in k:
-                    metals_O_entry_list[el].append(SlabEntry(entry, (1,1,1), name=k))
+                    clean = list(metals_O_entry_dict[el][(1, 0, 0)].keys())[0]
+                    metals_O_entry_dict[el][(1, 0, 0)][clean] = [SlabEntry(entry, (1,0,0), name=k, adsorbate="O")]
 
-    return metals_O_entry_list
+    return metals_O_entry_dict

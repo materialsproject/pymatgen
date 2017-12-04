@@ -57,6 +57,11 @@ consider citing the following works::
         https://doi.org/10.1038/s41524-017-0017-z
 """
 
+class MatrixError(Exception):
+    def __init__(self):
+        print('Number of equations (slab_entries) is not \
+        equal to number of free variables (chempot and surface energy)')
+
 
 class SlabEntry(ComputedStructureEntry):
     """
@@ -276,7 +281,7 @@ class SurfaceEnergyCalculator(object):
                             se.as_coefficients_dict().items() if abs(coeff) > 1e-6}
             return coefficients
 
-    def calculate_gamma_at_u(self, slab_entry, u_dict={}, u_default=0):
+    def calculate_gamma(self, slab_entry, u_dict={}, u_default=0):
         """
         Quickly calculates the surface energy for the slab of the vasprun file
             at a specific chemical potential for the reference and adsorbate.
@@ -295,8 +300,14 @@ class SurfaceEnergyCalculator(object):
 
         coeffs = self.surface_energy_coefficients(slab_entry)
         coeff_vals = [coeffs[el] for el in coeffs.keys()]
-        u_vals = [u_dict[el] if el in u_dict.keys() \
-                      else u_default for el in coeffs.keys()]
+        u_vals = []
+        for el in coeffs.keys():
+            if el in u_dict.keys():
+                u_vals.append(u_dict[el])
+            elif el == Number(1):
+                u_vals.append(1)
+            else:
+                u_vals.append(u_default)
         return np.dot(u_vals, coeff_vals)
 
     def get_unit_primitive_area(self, ads_slab_entry, clean_slab_entry):
@@ -353,7 +364,7 @@ class SurfaceEnergyCalculator(object):
         Args:
             ads_slab_entry (entry): The entry of the adsorbed slab
         """
-
+        print(ads_slab_entry.adsorbate, ads_slab_entry.composition.as_dict())
         return ads_slab_entry.composition.as_dict()[ads_slab_entry.adsorbate]
 
     def Nsurfs_ads_in_slab(self, ads_slab_entry):
@@ -369,10 +380,10 @@ class SurfaceEnergyCalculator(object):
                                     weights=weights, axis=0)
 
         Nsurfs = 0
-        if any([site.species_string == self.adsorbate_as_str for site in
+        if any([site.species_string == ads_slab_entry.adsorbate for site in
                 struct if site.frac_coords[2] > center_of_mass[2]]):
             Nsurfs += 1
-        if any([site.species_string == self.adsorbate_as_str for site in
+        if any([site.species_string == ads_slab_entry.adsorbate for site in
                 struct if site.frac_coords[2] < center_of_mass[2]]):
             Nsurfs += 1
 
@@ -412,14 +423,20 @@ class SurfaceEnergyCalculator(object):
         # Find all possible free variables
         for coeffs in all_coeffs:
             for el in coeffs.keys():
-                if el not in all_parameters and el != 1:
+                if el not in all_parameters and el != Number(1):
                     all_parameters.append(el)
 
+        # if there are no variables in the parameter list, then
+        # it means the equations are constant (i.e. parallel)
+        if not all_parameters:
+            print("lines are parallel", all_parameters)
+            return None
+
+        print(all_parameters, "all_parameters")
         # Check if its even possible for the system
         # of equations to even have a solution
         if len(slab_entries) != len(all_parameters) + 1:
-            raise LinAlgError('Number of equations (slab_entries) is not \
-            equal to number of free variables (chempot and surface energy)')
+            raise MatrixError()
 
         # Set up the matrix
         coeffs_matrix, const_vector = [], []
@@ -427,22 +444,25 @@ class SurfaceEnergyCalculator(object):
             coeff_vector = []
             for el in all_parameters:
                 if el in coeffs.keys():
-                    coeff_vector.append(coeffs[el])
+                    coeff_vector.append(float(coeffs[el]))
                 else:
-                    coeff_vector.append(0)
-            coeff_vector.append(-1)
+                    coeff_vector.append(float(0))
+            coeff_vector.append(float(-1))
             coeffs_matrix.append(coeff_vector)
-            const_vector.append(coeffs[1])
+            const_vector.append(float(coeffs[1]))
 
         # Solve for the chempots and surface energy
+        print(coeffs_matrix, const_vector, "A, B")
         solution = np.linalg.solve(coeffs_matrix, const_vector)
-        soln = {el: solution[i] for i, el in numerate(all_parameters)}
-        soln["gamma"] = solution[-1]
 
+        soln = {str(el): solution[i] for i, el in enumerate(all_parameters) \
+                if i < len(solution)-1}
+        soln["gamma"] = solution[-1]
+        print("solution", soln, solution, all_parameters)
         return soln
 
 
-        # class SurfaceEnergyPlotter(object):
+# class SurfaceEnergyPlotter(object):
 #     """
 #     A class used for generating plots to analyze the thermodynamics of surfaces
 #         of a material by taking in a SurfaceEnergyCalculator object. Produces
@@ -540,7 +560,7 @@ class SurfaceEnergyCalculator(object):
 #         # Make sure upper limit of u doesn't lead to negative or 0 values.
 #         # Substract a value approaching 0 to avoid surface energies of 0
 #         umax = (1*10e-5-const_u_ref*c2[0]-c2[2])/c2[1] if \
-#             0 > self.se_calculator.calculate_gamma_at_u(clean_slab_entry,
+#             0 > self.se_calculator.calculate_gamma(clean_slab_entry,
 #                                           ads_slab_entry=ads_slab_entry,
 #                                           u_ref=const_u_ref, u_ads=0) else 0
 #         return [umin-abs(umin)*buffer, umax]
@@ -627,11 +647,11 @@ class SurfaceEnergyCalculator(object):
 #
 #         all_entries, all_gamma = [], []
 #         for entry in self.entry_dict[miller_index].keys():
-#             gamma = self.se_calculator.calculate_gamma_at_u(entry, u_ref=u_ref)
+#             gamma = self.se_calculator.calculate_gamma(entry, u_ref=u_ref)
 #             all_entries.append(entry)
 #             all_gamma.append(gamma)
 #             for ads_entry in self.entry_dict[miller_index][entry]:
-#                 gamma = self.se_calculator.calculate_gamma_at_u(entry, u_ref=u_ref, u_ads=u_ads,
+#                 gamma = self.se_calculator.calculate_gamma(entry, u_ref=u_ref, u_ads=u_ads,
 #                                                                 ads_slab_entry=ads_entry)
 #                 all_entries.append(ads_entry)
 #                 all_gamma.append(gamma)
@@ -740,11 +760,11 @@ class SurfaceEnergyCalculator(object):
 #                        self.se_calculator.ucell_entry. \
 #                            composition.reduced_composition else '-'
 #
-#         gamma_range = [self.se_calculator.calculate_gamma_at_u(clean_entry,
+#         gamma_range = [self.se_calculator.calculate_gamma(clean_entry,
 #                                                                ads_slab_entry=ads_entry,
 #                                                                u_ref=u_ref_range[0],
 #                                                                u_ads=u_ads_range[0]),
-#                        self.se_calculator.calculate_gamma_at_u(clean_entry,
+#                        self.se_calculator.calculate_gamma(clean_entry,
 #                                                                ads_slab_entry=ads_entry,
 #                                                                u_ref=u_ref_range[1],
 #                                                                u_ads=u_ads_range[1])]
@@ -1198,7 +1218,7 @@ class SurfaceEnergyCalculator(object):
 #             for clean_entry in self.entry_dict[hkl].keys():
 #                 if self.entry_dict[hkl][clean_entry]:
 #
-#                     clean_se = self.se_calculator.calculate_gamma_at_u(clean_entry,
+#                     clean_se = self.se_calculator.calculate_gamma(clean_entry,
 #                                                                        u_ref=const_u)
 #                     for ads_entry in self.entry_dict[hkl][clean_entry]:
 #                         ml = self.se_calculator.get_monolayer(ads_entry, clean_entry)
