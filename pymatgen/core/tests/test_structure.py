@@ -864,6 +864,21 @@ class StructureTest(PymatgenTest):
         self.assertNotEqual(s, self.structure)
         self.assertNotEqual(self.structure * 2, self.structure)
 
+    def test_charge(self):
+        s = Structure.from_sites(self.structure)
+        self.assertEqual(s.charge,0,"Initial Structure not defaulting to behavior in SiteCollection")
+        s.add_oxidation_state_by_site([1,1])
+        self.assertEqual(s.charge,2,"Initial Structure not defaulting to behavior in SiteCollection")
+        s = Structure.from_sites(s,charge=1)
+        self.assertEqual(s.charge,1,"Overall charge not being stored in seperate property")
+        s = s.copy()
+        self.assertEqual(s.charge,1,"Overall charge not being copied properly with no sanitization")
+        s = s.copy(sanitize=True)
+        self.assertEqual(s.charge,1,"Overall charge not being copied properly with sanitization")
+        super_cell = s*3
+        self.assertEqual(super_cell.charge,27,"Overall charge is not being properly multiplied in IStructure __mul__")
+        self.assertIn("Overall Charge: +1", str(s),"String representation not adding charge")
+
 
 class IMoleculeTest(PymatgenTest):
 
