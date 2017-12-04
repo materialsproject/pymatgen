@@ -33,7 +33,7 @@ class IStructureTest(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])
         self.assertRaises(StructureError, IStructure, self.lattice,
-                          ["Si"] * 2, coords, True)
+                          ["Si"] * 2, coords, validate_proximity=True)
         self.propertied_structure = IStructure(
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
