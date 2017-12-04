@@ -425,7 +425,7 @@ class IStructure(SiteCollection, MSONable):
             for s in sites[1:]:
                 if s.lattice != lattice:
                     raise ValueError("Sites must belong to the same lattice")
-            s_copy = cls(lattice=lattice,charge=charge, species=[], coords=[])
+            s_copy = cls(lattice=lattice, charge=charge, species=[], coords=[])
             s_copy._sites = list(sites)
             return s_copy
         prop_keys = []
@@ -648,7 +648,7 @@ class IStructure(SiteCollection, MSONable):
         Overall charge of the structure
         """
         if self._charge is None:
-            return super(IStructure,self).charge
+            return super(IStructure, self).charge
         else:
             return self._charge
 
@@ -1443,8 +1443,8 @@ class IStructure(SiteCollection, MSONable):
 
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        charge = d.get("charge",None)
-        return cls.from_sites(sites,charge=charge)
+        charge = d.get("charge", None)
+        return cls.from_sites(sites, charge=charge)
 
     def to(self, fmt=None, filename=None, **kwargs):
         """
