@@ -878,6 +878,8 @@ class StructureTest(PymatgenTest):
         super_cell = s*3
         self.assertEqual(super_cell.charge,27,"Overall charge is not being properly multiplied in IStructure __mul__")
         self.assertIn("Overall Charge: +1", str(s),"String representation not adding charge")
+        sorted_s = s.get_sorted_structure()
+        self.assertEqual(sorted_s.charge,27,"Overall charge is not properly copied during structure sorting")
 
 
 class IMoleculeTest(PymatgenTest):

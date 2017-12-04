@@ -980,7 +980,7 @@ class IStructure(SiteCollection, MSONable):
                 as if each comparison were reversed.
         """
         sites = sorted(self, key=key, reverse=reverse)
-        return self.__class__.from_sites(sites)
+        return self.__class__.from_sites(sites, charge=self._charge)
 
     def get_reduced_structure(self, reduction_algo="niggli"):
         """
@@ -1002,7 +1002,7 @@ class IStructure(SiteCollection, MSONable):
             return self.__class__(reduced_latt, self.species_and_occu,
                                   self.cart_coords,
                                   coords_are_cartesian=True, to_unit_cell=True,
-                                  site_properties=self.site_properties)
+                                  site_properties=self.site_properties, charge=self._charge)
         else:
             return self.copy()
 
