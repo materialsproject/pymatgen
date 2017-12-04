@@ -127,7 +127,9 @@ class SurfaceEnergyCalculator(object):
         energy. Ideally, to get the most accurate surface energy, the user should
         compare their slab energy to the energy of the oriented unit cell with
         both calculations containing consistent k-points to avoid convergence
-        problems as the slab size is varied. See:
+        problems as the slab size is varied. Note that this is for symmetric
+        surfaces, i.e. for the case of adsorption, it is assumed both sides are
+        adsorbed. See:
 
             Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
                 Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
@@ -432,7 +434,7 @@ class SurfaceEnergyCalculator(object):
             print("lines are parallel", all_parameters)
             return None
 
-        print(all_parameters, "all_parameters")
+        print(all_parameters, "all_parameters", slab_entries[0].composition)
         # Check if its even possible for the system
         # of equations to even have a solution
         if len(slab_entries) != len(all_parameters) + 1:

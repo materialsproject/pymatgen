@@ -5,7 +5,7 @@ import glob
 import json
 
 import numpy as np
-from sympy import Number
+from sympy import Number, Symbol
 
 from pymatgen.analysis.surface_analysis import SurfaceEnergyCalculator, \
     Composition, SlabEntry#, SurfaceEnergyPlotter
@@ -148,11 +148,9 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
         # Check if the number of parameters for adsorption are correct
         self.assertEqual(("O", "gamma"), tuple(soln.keys()))
         # Adsorbed systems have a b2=(-1*Nads) / (Nsurfs * Aads)
-        self.assertEqual(soln["O"], -1/ads.surface_area)
-        # Check the intercept
-        gbind = Pt_analyzer.gibbs_binding_energy(ads, clean)
-        b3 = cclean[2] + gbind*(1/(sa))
-        self.assertEqual(cads[2], b3)
+        coeffs = Pt_analyzer.surface_energy_coefficients(ads)
+        print(coeffs, "Pt")
+        self.assertAlmostEqual(coeffs[Symbol("O")], -1/(2*ads.surface_area))
 
 
 # class SurfaceEnergyPlotterTest(PymatgenTest):
