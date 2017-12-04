@@ -5,6 +5,7 @@ import glob
 import json
 
 import numpy as np
+from sympy import Number
 
 from pymatgen.analysis.surface_analysis import SurfaceEnergyCalculator, \
     Composition, SlabEntry#, SurfaceEnergyPlotter
@@ -66,8 +67,8 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
         # the coefficient should be 1 (i.e. surface energy is a constant).
         for slab_entry in self.Cu_slab_entry_list:
             coeffs = self.Cu_calc.surface_energy_coefficients(slab_entry)
-            self.assertEqual(len(coeffs.keys()), 1)
-            self.assertEqual(list(coeffs.keys())[0], 1)
+            self.assertEqual(len(coeffs.keys()), Number(1))
+            self.assertEqual(list(coeffs.keys())[0], Number(1))
 
     # def test_gamma_calculator(self):
     #

@@ -265,19 +265,16 @@ class SurfaceEnergyCalculator(object):
 
         # Full equation of the surface energy (constant if stoichiometric)
         se = (slab_entry.energy - bulk_energy) / (2 * slab_entry.surface_area)
-        # For se=constant (i.e. clean nonstoichiometric), set the dictionary key to 1
-        print(type(se), se)
-        if type(se).__name__ == "Float":
-            se = se*Number(1)
-        # Because for some reason sympy reverses the key and value when equation is constant
-        elif type(list(se.as_coefficients_dict().keys())[0]).__name__ == "Float":
-            se = list(se.keys())[0]*Number(1)
 
-        # Remove any variables with coefficient of 0
-        # (Sympy doesn't handle cancellation very well)
-        coefficients = {el: coeff for el, coeff in \
-                        se.as_coefficients_dict().items() if abs(coeff) > 1e-6}
-        return coefficients
+        # Return dict of a constant if the equation is constant
+        if type(se).__name__ != "Add":
+            return {Number(1): se}
+        else:
+            # Remove any variables with coefficient of 0
+            # (Sympy doesn't handle cancellation very well)
+            coefficients = {el: coeff for el, coeff in \
+                            se.as_coefficients_dict().items() if abs(coeff) > 1e-6}
+            return coefficients
 
     def calculate_gamma_at_u(self, slab_entry, u_dict={}, u_default=0):
         """
