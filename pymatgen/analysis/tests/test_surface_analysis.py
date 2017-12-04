@@ -153,38 +153,38 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
         self.assertAlmostEqual(coeffs[Symbol("O")], -1/(2*ads.surface_area))
 
 
-# class SurfaceEnergyPlotterTest(PymatgenTest):
-#
-#     def setUp(self):
-#
-#         entry_dict = get_entry_dict(os.path.join(get_path(""),
-#                                                  "Cu_entries.txt"))
-#         with open(os.path.join(get_path(""), 'ucell_entries.txt')) as ucell_entries:
-#             ucell_entries = json.loads(ucell_entries.read())
-#
-#         Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
-#         calculator = SurfaceEnergyCalculator(Cu_ucell_entry)
-#         self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, calculator, [-1, 0])
-#
-#         with open(os.path.join(get_path(""), 'isolated_O_entry.txt')) as isolated_O_entry:
-#             isolated_O_entry = json.loads(isolated_O_entry.read())
-#         self.O = ComputedStructureEntry.from_dict(isolated_O_entry)
-#         self.metals_O_entry_dict = load_O_adsorption()
-#         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Pt"])
-#         self.Pt_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entry=self.O)
-#         self.Pt_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Pt"],
-#                                                 self.Pt_calculator, [-1, 0])
-#         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Ni"])
-#         self.Ni_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entry=self.O)
-#         self.Ni_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Ni"],
-#                                                 self.Ni_calculator, [-1, 0])
-#         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Rh"])
-#         self.Rh_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entry=self.O)
-#         self.Rh_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Rh"],
-#                                                 self.Rh_calculator, [-1, 0])
-#         self.Oads_analyzer_dict = {"Pt": self.Pt_analyzer,
-#                                    "Ni": self.Ni_analyzer,
-#                                    "Rh": self.Rh_analyzer}
+class SurfaceEnergyPlotterTest(PymatgenTest):
+
+    def setUp(self):
+
+        entry_dict = get_entry_dict(os.path.join(get_path(""),
+                                                 "Cu_entries.txt"))
+        with open(os.path.join(get_path(""), 'ucell_entries.txt')) as ucell_entries:
+            ucell_entries = json.loads(ucell_entries.read())
+
+        Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
+        calculator = SurfaceEnergyCalculator(Cu_ucell_entry)
+        self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, calculator, [-1, 0])
+
+        with open(os.path.join(get_path(""), 'isolated_O_entry.txt')) as isolated_O_entry:
+            isolated_O_entry = json.loads(isolated_O_entry.read())
+        self.O = ComputedStructureEntry.from_dict(isolated_O_entry)
+        self.metals_O_entry_dict = load_O_adsorption()
+        ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Pt"])
+        self.Pt_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entry=self.O)
+        self.Pt_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Pt"],
+                                                self.Pt_calculator, [-1, 0])
+        ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Ni"])
+        self.Ni_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entry=self.O)
+        self.Ni_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Ni"],
+                                                self.Ni_calculator, [-1, 0])
+        ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Rh"])
+        self.Rh_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entry=self.O)
+        self.Rh_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Rh"],
+                                                self.Rh_calculator, [-1, 0])
+        self.Oads_analyzer_dict = {"Pt": self.Pt_analyzer,
+                                   "Ni": self.Ni_analyzer,
+                                   "Rh": self.Rh_analyzer}
 #
 #     def test_max_adsorption_chempot_range(self):
 #
