@@ -84,9 +84,9 @@ class Cohpcar(object):
                          for row in contents[num_bonds+3:]]).transpose()
         self.energies = data[0]
 
-        cohp_data = {"average": {"COHP": {spin: data[3+2*s*num_bonds]
+        cohp_data = {"average": {"COHP": {spin: data[1+2*s*(num_bonds+1)]
                                           for s, spin in enumerate(spins)},
-                                 "ICOHP": {spin: data[4+2*s*num_bonds]
+                                 "ICOHP": {spin: data[2+2*s*(num_bonds+1)]
                                            for s, spin in enumerate(spins)}}}
         for bond in range(num_bonds):
             label, length, sites = self._get_bond_data(contents[3+bond])
