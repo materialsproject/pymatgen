@@ -821,8 +821,7 @@ class Vasprun(MSONable):
                         cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-
-    def get_potcars(self,path):
+    def get_potcars(self, path):
         def get_potcar_in_path(p):
             for fn in os.listdir(os.path.abspath(p)):
                 if fn.startswith('POTCAR'):
@@ -856,12 +855,13 @@ class Vasprun(MSONable):
                                 for ps in potcar if
                                 ps.symbol == sym.split()[1]]
 
-    def update_charge_from_potcar(self,path):
+    def update_charge_from_potcar(self, path):
         potcar = self.get_potcars(path)
 
         if potcar:
             nelect = self.parameters["NELECT"]
-            potcar_nelect = int(round(sum([self.structures[0].composition.element_composition[ps.element]* ps.ZVAL for ps in potcar])))
+            potcar_nelect = int(round(sum([self.structures[0].composition.element_composition[
+                                ps.element] * ps.ZVAL for ps in potcar])))
             charge = nelect - potcar_nelect
 
             if charge:

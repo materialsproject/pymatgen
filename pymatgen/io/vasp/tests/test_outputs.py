@@ -424,12 +424,13 @@ class VasprunTest(unittest.TestCase):
             self.assertTrue(vasprun.converged)
 
     def test_charged_structure(self):
-      vpath = os.path.join(test_dir, 'vasprun.charged.xml')
-      potcar_path = os.path.join(test_dir, 'POT_GGA_PAW_PBE','POTCAR.Si.gz')
-      vasprun = Vasprun(vpath, parse_potcar_file=False)
-      vasprun.update_charge_from_potcar(potcar_path)
-      self.assertEqual(vasprun.parameters.get("NELECT",8),9)
-      self.assertEqual(vasprun.structures[0].charge,1)
+        vpath = os.path.join(test_dir, 'vasprun.charged.xml')
+        potcar_path = os.path.join(test_dir, 'POT_GGA_PAW_PBE', 'POTCAR.Si.gz')
+        vasprun = Vasprun(vpath, parse_potcar_file=False)
+        vasprun.update_charge_from_potcar(potcar_path)
+        self.assertEqual(vasprun.parameters.get("NELECT", 8), 9)
+        self.assertEqual(vasprun.structures[0].charge, 1)
+
 
 class OutcarTest(unittest.TestCase):
 
