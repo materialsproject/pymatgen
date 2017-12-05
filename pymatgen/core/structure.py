@@ -1574,6 +1574,7 @@ class IStructure(SiteCollection, MSONable):
                 s = s.get_sorted_structure()
             return s
 
+        from pymatgen.io.lmto import LMTOCtrl
         from pymatgen.io.vasp import Vasprun, Chgcar
         from pymatgen.io.exciting import ExcitingInput
         from monty.io import zopen
@@ -1617,6 +1618,8 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="mcsqs",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
+        elif fnmatch(fname, "CTRL*"):
+            return LMTOCtrl.from_file(filename=filename).structure
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
