@@ -385,6 +385,7 @@ class Vasprun(MSONable):
 
             if parse_potcar_file:
                 self.update_potcar_spec(parse_potcar_file)
+                self.update_charge_from_potcar(parse_potcar_file)
 
         if self.incar.get("ALGO", "") != "BSE" and (not self.converged):
             msg = "%s is an unconverged VASP run.\n" % filename
@@ -820,7 +821,7 @@ class Vasprun(MSONable):
                         cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    def update_potcar_spec(self, path):
+    def get_potcars(self, path):
         def get_potcar_in_path(p):
             for fn in os.listdir(os.path.abspath(p)):
                 if fn.startswith('POTCAR'):
@@ -844,11 +845,28 @@ class Vasprun(MSONable):
         else:
             potcar = None
 
+        return potcar
+
+    def update_potcar_spec(self, path):
+        potcar = self.get_potcars(path)
         if potcar:
             self.potcar_spec = [{"titel": sym, "hash": ps.get_potcar_hash()}
                                 for sym in self.potcar_symbols
                                 for ps in potcar if
                                 ps.symbol == sym.split()[1]]
+
+    def update_charge_from_potcar(self, path):
+        potcar = self.get_potcars(path)
+
+        if potcar:
+            nelect = self.parameters["NELECT"]
+            potcar_nelect = int(round(sum([self.structures[0].composition.element_composition[
+                                ps.element] * ps.ZVAL for ps in potcar])))
+            charge = nelect - potcar_nelect
+
+            if charge:
+                for s in self.structures:
+                    s._charge = charge
 
     def as_dict(self):
         """

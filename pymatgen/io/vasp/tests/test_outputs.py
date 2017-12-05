@@ -406,7 +406,7 @@ class VasprunTest(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             vasprun = Vasprun(filepath, parse_potcar_file='.')
-            self.assertEqual(len(w), 1)
+            self.assertEqual(len(w), 2)
         self.assertEqual(vasprun.potcar_spec, [{"titel": "PAW_PBE Li 17Jan2003", "hash": None},
                                                {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
                                                {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
@@ -422,6 +422,14 @@ class VasprunTest(unittest.TestCase):
             nestep = len(vasprun.ionic_steps[-1]['electronic_steps'])
             self.assertEqual(nestep, 10)
             self.assertTrue(vasprun.converged)
+
+    def test_charged_structure(self):
+        vpath = os.path.join(test_dir, 'vasprun.charged.xml')
+        potcar_path = os.path.join(test_dir, 'POT_GGA_PAW_PBE', 'POTCAR.Si.gz')
+        vasprun = Vasprun(vpath, parse_potcar_file=False)
+        vasprun.update_charge_from_potcar(potcar_path)
+        self.assertEqual(vasprun.parameters.get("NELECT", 8), 9)
+        self.assertEqual(vasprun.structures[0].charge, 1)
 
 
 class OutcarTest(unittest.TestCase):
