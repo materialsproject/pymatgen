@@ -3524,7 +3524,7 @@ class CohpPlotter(object):
         """
         return jsanitize(self._cohps)
 
-   def get_plot(self, xlim=None, ylim=None, plot_negative=None,
+    def get_plot(self, xlim=None, ylim=None, plot_negative=None,
                  integrated=False, invert_axes=True):
         """
         Get a matplotlib plot showing the COHP.
@@ -3590,7 +3590,7 @@ class CohpPlotter(object):
                         x = -populations[spin] if plot_negative \
                             else populations[spin]
                         y = energies
-                   else:
+                    else:
                         x = energies
                         y = -populations[spin] if plot_negative \
                             else populations[spin]
