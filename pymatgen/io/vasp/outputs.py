@@ -4,6 +4,7 @@
 
 from __future__ import division, unicode_literals, print_function
 
+import json
 import glob
 import itertools
 import logging
@@ -2738,7 +2739,6 @@ class VolumetricData(object):
             else:
                 return "-."+s[1]+s[3:13]+'E'+"{:+03}".format(int(s[14:])+1)
 
-
         with zopen(file_name, "wt") as f:
             p = Poscar(self.structure)
 
@@ -2862,6 +2862,40 @@ class VolumetricData(object):
         else:
             total = np.sum(np.sum(m, axis=0), 0)
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
+
+    def to_hdf5(self, filename):
+        """
+        Writes the VolumetricData to a HDF5 format, which is a highly optimized
+        format for reading storing large data. The mapping of the VolumetricData
+        to this file format is as follows:
+
+        VolumetricData.data -> f["vdata"]
+        VolumetricData.structure ->
+            f["Z"]: Sequence of atomic numbers
+            f["fcoords"]: Fractional coords
+            f["lattice"]: Lattice in the pymatgen.core.lattice.Lattice matrix
+                format
+            f.attrs["structure_json"]: String of json representation
+
+        Args:
+            filename (str): Filename to output to.
+        """
+        import h5py
+        with h5py.File(filename, "w") as f:
+            dset = f.create_dataset("lattice", (3, 3), dtype='float')
+            dset[...] = self.structure.lattice.matrix
+            dset = f.create_dataset("Z", (len(self.structure.species), ),
+                                    dtype="i")
+            dset[...] = np.array([sp.Z for sp in self.structure.species])
+            dset = f.create_dataset("fcoords", self.structure.frac_coords.shape,
+                                    dtype='float')
+            dset[...] = self.structure.frac_coords
+            grp = f.create_group("vdata")
+            for k, v in self.data.items():
+                dset = grp.create_dataset(k, self.data[k].shape, dtype='float')
+                dset[...] = self.data[k]
+            f.attrs["name"] = self.name
+            f.attrs["structure_json"] = json.dumps(self.structure.as_dict())
 
 
 class Locpot(VolumetricData):
