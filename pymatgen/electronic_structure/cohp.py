@@ -301,10 +301,10 @@ class CompleteCohp(Cohp):
                                                for spin, pops in
                                                self.all_cohps[label].icohp.items()}})
         if False in [bond_dict == {} for bond_dict in self.bonds.values()]:
-            d["bonds"] = self.bonds
-            for bond in d["bonds"]:
-                d["bonds"][bond]["sites"] = [site.as_dict() for site
-                                             in d["bonds"][bond]["sites"]]
+            d["bonds"] = {bond: {"length": self.bonds[bond]["length"],
+                                 "sites": [site.as_dict() for site
+                                           in self.bonds[bond]["sites"]]}
+                                 for bond in self.bonds}
         return d
 
     def get_cohp(self, label, spin=None, integrated=False):
@@ -452,8 +452,8 @@ class CompleteCohp(Cohp):
                      for label in cohp_data}
 
         bond_dict = {label: {"length": cohp_data[label]["length"],
-                             "sites": tuple(structure.sites[site] for site
-                                            in cohp_data[label]["sites"])}
+                             "sites": [structure.sites[site]
+                                       for site in cohp_data[label]["sites"]]}
                      for label in cohp_data}
 
         return CompleteCohp(structure, avg_cohp, cohp_dict, bonds=bond_dict,
