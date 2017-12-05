@@ -2743,14 +2743,14 @@ class VolumetricData(object):
         """
 
         def _print_fortran_float(f):
-            '''
+            """
             Fortran codes print floats with a leading zero in scientific
             notation. When writing CHGCAR files, we adopt this convention
             to ensure written CHGCAR files are byte-to-byte identical to
             their input files as far as possible.
             :param f: float
             :return: str
-            '''
+            """
             s = "{:.10E}".format(f)
             if f > 0:
                 return "0."+s[0]+s[2:12]+'E'+"{:+03}".format(int(s[13:])+1)
@@ -2900,20 +2900,32 @@ class VolumetricData(object):
         """
         import h5py
         with h5py.File(filename, "w") as f:
-            dset = f.create_dataset("lattice", (3, 3), dtype='float')
-            dset[...] = self.structure.lattice.matrix
-            dset = f.create_dataset("Z", (len(self.structure.species), ),
+            ds = f.create_dataset("lattice", (3, 3), dtype='float')
+            ds[...] = self.structure.lattice.matrix
+            ds = f.create_dataset("Z", (len(self.structure.species), ),
                                     dtype="i")
-            dset[...] = np.array([sp.Z for sp in self.structure.species])
-            dset = f.create_dataset("fcoords", self.structure.frac_coords.shape,
+            ds[...] = np.array([sp.Z for sp in self.structure.species])
+            ds = f.create_dataset("fcoords", self.structure.frac_coords.shape,
                                     dtype='float')
-            dset[...] = self.structure.frac_coords
+            ds[...] = self.structure.frac_coords
+            dt = h5py.special_dtype(vlen=str)
+            ds = f.create_dataset("species", (len(self.structure.species), ),
+                                  dtype=dt)
+            ds[...] = [str(sp) for sp in self.structure.species]
             grp = f.create_group("vdata")
             for k, v in self.data.items():
-                dset = grp.create_dataset(k, self.data[k].shape, dtype='float')
-                dset[...] = self.data[k]
+                ds = grp.create_dataset(k, self.data[k].shape, dtype='float')
+                ds[...] = self.data[k]
             f.attrs["name"] = self.name
             f.attrs["structure_json"] = json.dumps(self.structure.as_dict())
+
+    @classmethod
+    def from_hdf5(cls, filename):
+        import h5py
+        with h5py.File(filename, "r") as f:
+            data = {k: np.array(v) for k, v in f["vdata"].items()}
+            structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
+            return VolumetricData(structure, data)
 
 
 class Locpot(VolumetricData):
