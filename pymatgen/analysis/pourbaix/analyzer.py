@@ -10,6 +10,7 @@ from pymatgen.util.coord import Simplex
 from functools import cmp_to_key
 from pyhull.halfspace import Halfspace, HalfspaceIntersection
 from pyhull.convex_hull import ConvexHull
+from scipy.spatial import HalfspaceIntersection, ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry
 from six.moves import zip
 
@@ -90,15 +91,29 @@ class PourbaixAnalyzer(object):
             chempots["1"] = chempots["1"]
             all_chempots.append([chempots[el] for el in self._keys])
 
-        basis_vecs = []
-        on_plane_points = []
+        halfspaces = []
+        qhull_data = np.array(self._pd._qhull_data)
         # Create basis vectors
+        stable_indices = [self._pd.qhull_entries.index(e)
+                          for e in self._pd.stable_entries]
+        qhull_data = np.array(self._pd.qhull_data)[stable_indices]
+        hyperplanes = np.vstack([-0.0591 * qhull_data[:, 0], -qhull_data[:, 1],
+                                 np.ones(len(qhull_data)), qhull_data[:, 2]])
+        hyperplanes = np.transpose(hyperplanes)
+        g_max = -max(np.dot(hyperplanes, [limits[0][1], limits[1][1], 0, 1]))
+        hs_int = HalfspaceIntersection(hyperplanes, np.array([7, 0, g_max]))
+        blargh
+
         for entry in self._pd.stable_entries:
             ie = self._pd.qhull_entries.index(entry)
-            row = self._pd._qhull_data[ie]
-            on_plane_points.append([0, 0, row[2]])
-            this_basis_vecs = []
+            row = qhull_data[ie]
+            # on_plane_points.append([0, 0, row[2]])
+            # this_basis_vecs = []
             norm_vec = [-0.0591 * row[0], -1 * row[1], 1]
+            b = -np.dot(norm_vec, [0, 0, row[2]])
+            halfspaces.append(norm_vec + [b])
+
+            """
             if abs(norm_vec[0]) > tol:
                 this_basis_vecs.append([-norm_vec[2]/norm_vec[0], 0, 1])
             if abs(norm_vec[1]) > tol:
@@ -113,10 +128,11 @@ class PourbaixAnalyzer(object):
                 basis_vecs.append(this_basis_vecs)
             else:
                 basis_vecs.append(this_basis_vecs)
+            """
 
         # Find point in half-space in which optimization is desired
-        ph_max_contrib = -1 * max([abs(0.0591 * row[0])
-                                    for row in self._pd._qhull_data]) * limits[0][1]
+        ph_max_contrib = -1 * np.max(np.abs(0.0591 * 1))
+                                   # for row in self._pd._qhull_data]) * limits[0][1]
         V_max_contrib = -1 * max([abs(row[1]) for row in self._pd._qhull_data]) * limits[1][1]
         g_max = (-1 * max([abs(pt[2]) for pt in on_plane_points])
                   + ph_max_contrib + V_max_contrib) - 10
@@ -139,11 +155,13 @@ class PourbaixAnalyzer(object):
                 on_plane_points.append(point)
 
         # Hyperplane enclosing the very bottom
-        basis_vecs.append([[1, 0, 0], [0, 1, 0]])
-        on_plane_points.append([0, 0, 2 * g_max])
-        hyperplane_list = [Halfspace.from_hyperplane(basis_vecs[i], on_plane_points[i], point_in_region)
-                            for i in range(len(basis_vecs))]
-        hs_int = HalfspaceIntersection(hyperplane_list, point_in_region)
+        hyperplanes.append([0, 0, 1, -2 * g_max])
+        # basis_vecs.append([[1, 0, 0], [0, 1, 0]])
+        # on_plane_points.append([0, 0, 2 * g_max])
+        # hyperplane_list = [Halfspace.from_hyperplane(basis_vecs[i], on_plane_points[i], point_in_region)
+        #                    for i in range(len(basis_vecs))]
+        # from nose.tools import set_trace; set_trace()
+        hs_int = HalfspaceIntersection(hyperplanes, np.array([7., 0., g_max]))
         int_points = hs_int.vertices
         pourbaix_domains = {}
         self.pourbaix_domain_vertices = {}
