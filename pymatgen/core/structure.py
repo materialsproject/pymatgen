@@ -1549,7 +1549,8 @@ class IStructure(SiteCollection, MSONable):
             parser = CifParser.from_string(input_string)
             s = parser.get_structures(primitive=primitive)[0]
         elif fmt == "poscar":
-            s = Poscar.from_string(input_string, False).structure
+            s = Poscar.from_string(input_string, False, 
+                                   read_velocities=False).structure
         elif fmt == "cssr":
             cssr = Cssr.from_string(input_string)
             s = cssr.structure
