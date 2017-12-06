@@ -96,7 +96,7 @@ class PourbaixAnalyzer(object):
             chempots["1"] = chempots["1"]
             all_chempots.append([chempots[el] for el in self._keys])
 
-        # This works by 
+        # Get hyperplanes corresponding to G as function of pH and V
         halfspaces = []
         qhull_data = np.array(self._pd._qhull_data)
         stable_entries = self._pd.stable_entries
@@ -108,6 +108,8 @@ class PourbaixAnalyzer(object):
         hyperplanes = np.transpose(hyperplanes)
         max_contribs = np.max(np.abs(hyperplanes), axis=0)
         g_max = np.dot(-max_contribs, [limits[0][1], limits[1][1], 0, 1])
+
+        # Add border hyperplanes and generate HalfspaceIntersection
         border_hyperplanes = [[-1, 0, 0, limits[0][0]],
                               [1, 0, 0, -limits[0][1]],
                               [0, -1, 0, limits[1][0]],
@@ -117,6 +119,7 @@ class PourbaixAnalyzer(object):
                                     border_hyperplanes])
         interior_point = np.average(limits, axis=1).tolist() + [g_max]
         hs_int = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
+
         # organize the boundary points by entry
         pourbaix_domains = {entry: [] for entry in stable_entries}
         for intersection, facet in zip(hs_int.intersections, 
