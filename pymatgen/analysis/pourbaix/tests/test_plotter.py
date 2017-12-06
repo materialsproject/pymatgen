@@ -9,12 +9,8 @@ import os
 
 from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
 from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO
-
-try:
-    from pymatgen.analysis.pourbaix.plotter import PourbaixPlotter
-    from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
-except ImportError:
-    PourbaixAnalyzer = None
+from pymatgen.analysis.pourbaix.plotter import PourbaixPlotter
+from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
 
 test_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'test_files')
 
