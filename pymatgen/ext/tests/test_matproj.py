@@ -19,6 +19,7 @@ from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix.entry import PourbaixEntry
 from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
 from pymatgen.analysis.wulff import WulffShape
+from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
 
 """
@@ -262,6 +263,18 @@ class MPResterTest(unittest.TestCase):
     def test_get_wulff_shape(self):
         ws = self.rester.get_wulff_shape("mp-126")
         self.assertTrue(isinstance(ws, WulffShape))
+
+    def test_get_interface_reactions(self):
+        kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
+        self.assertTrue(len(kinks) > 0)
+        kink = kinks[0]
+        self.assertIn("energy", kink)
+        self.assertIn("ratio", kink)
+        self.assertIn("rxn", kink)
+        self.assertTrue(isinstance(kink['rxn'], Reaction))
+        kinks_open_O = self.rester.get_interface_reactions(
+            "LiCoO2", "Li3PS4", open_el="O", relative_mu=-1)
+        self.assertTrue(len(kinks_open_O) > 0)
 
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")
