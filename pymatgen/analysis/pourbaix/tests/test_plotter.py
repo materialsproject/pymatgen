@@ -8,11 +8,10 @@ import unittest
 import os
 
 from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
-from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO, PourbaixEntry
-from pymatgen.analysis.pourbaix.plotter import PourbaixPlotter
-from monty.serialization import loadfn
+from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO
 
 try:
+    from pymatgen.analysis.pourbaix.plotter import PourbaixPlotter
     from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
 except ImportError:
     PourbaixAnalyzer = None
