@@ -8,7 +8,7 @@ import numpy as np
 
 from pymatgen.util.coord import Simplex
 from functools import cmp_to_key
-from scipy.spatial import HalfspaceIntersection
+from scipy.spatial import HalfspaceIntersection, ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry
 from six.moves import zip
 
@@ -68,6 +68,15 @@ class PourbaixAnalyzer(object):
         """
         Returns a chemical potential range map for each stable entry.
 
+        This function works by using scipy's HalfspaceIntersection
+        function to construct all of the 2-D polygons that form the
+        boundaries of the planes corresponding to individual entry
+        gibbs free energies as a function of pH and V. Hyperplanes
+        of the form a*pH + b*V + 1 - g(0, 0) are constructed and
+        supplied to HalfspaceIntersection, which then finds the
+        boundaries of each pourbaix region using the intersection
+        points.
+
         Args:
             limits ([[float]]): limits in which to do the pourbaix
                 analysis
@@ -98,7 +107,7 @@ class PourbaixAnalyzer(object):
                                  np.ones(len(qhull_data)), -qhull_data[:, 2]])
         hyperplanes = np.transpose(hyperplanes)
         max_contribs = np.max(np.abs(hyperplanes), axis=0)
-        g_max = np.dot(-max_contribs, [limits[0][1], limits[1][1], 0, 1]) - 10
+        g_max = np.dot(-max_contribs, [limits[0][1], limits[1][1], 0, 1])
         border_hyperplanes = [[-1, 0, 0, limits[0][0]],
                               [1, 0, 0, -limits[0][1]],
                               [0, -1, 0, limits[1][0]],
@@ -106,8 +115,9 @@ class PourbaixAnalyzer(object):
                               [0, 0, -1, 2 * g_max]]
         hs_hyperplanes = np.vstack([hyperplanes[stable_indices],
                                     border_hyperplanes])
-        hs_int = HalfspaceIntersection(hs_hyperplanes, np.array([7, 0, g_max]))
-        # organize the boundary points by entry and convert to array
+        interior_point = np.average(limits, axis=1).tolist() + [g_max]
+        hs_int = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
+        # organize the boundary points by entry
         pourbaix_domains = {entry: [] for entry in stable_entries}
         for intersection, facet in zip(hs_int.intersections, 
                                        hs_int.dual_facets):
@@ -115,21 +125,33 @@ class PourbaixAnalyzer(object):
                 if v < len(stable_entries):
                     pourbaix_domains[stable_entries[v]].append(intersection)
 
-        # Post-process boundary points, isn't strictly necessary
+        # Remove entries with no pourbaix region
+        pourbaix_domains = {k: v for k, v in pourbaix_domains.items() if v}
+
+        # Post-process boundary points, sorting isn't strictly necessary
         # but useful for some plotting tools (e.g. highcharts)
         for entry, points in pourbaix_domains.items():
-            points = np.array(points)[:, :2]
-            center = np.average(points, axis=0)
-            points_centered = points - center
+            if points:
+                points = np.array(points)[:, :2]
+                center = np.average(points, axis=0)
+                points_centered = points - center
 
-            # Sort points by cross product of centered points
-            point_comparator = lambda x, y: x[0]*y[1] - x[1]*y[0]
-            points_centered = sorted(points_centered.tolist(),
-                                     key=cmp_to_key(point_comparator))
-            pourbaix_domains[entry] = np.array(points_centered) + center
+                # Sort points by cross product of centered points
+                point_comparator = lambda x, y: x[0]*y[1] - x[1]*y[0]
+                points_centered = sorted(points_centered,
+                                         key=cmp_to_key(point_comparator))
+                points = points_centered + center
 
-        self.pourbaix_domains = pourbaix_domains 
-        return pourbaix_domains 
+                # Create simplices corresponding to pourbaix boundary
+                simplices = [Simplex(points[indices]) 
+                             for indices in ConvexHull(points).simplices]
+                pourbaix_domains[entry] = simplices
+            else:
+                pourbaix_domains.pop(entry)
+
+
+        self.pourbaix_domains = pourbaix_domains
+        return pourbaix_domains
 
     def _in_facet(self, facet, entry):
         """
