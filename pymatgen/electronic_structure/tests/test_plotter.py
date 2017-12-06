@@ -207,6 +207,7 @@ class CohpPlotterTest(PymatgenTest):
         self.assertAlmostEqual(coop_energies[-1], 6.02510)
 
     def test_add_cohp_dict(self):
+        self.maxDiff = None
         # Sorts the populations by z-coordinates of the sites
         def sortkeys(sites):
             return sites[0].z, sites[1].z
@@ -222,7 +223,7 @@ class CohpPlotterTest(PymatgenTest):
                                          sortkeys(bonds[x]["sites"]))
         d_coop = self.coop_plot.get_cohp_dict()
         self.assertEqual(len(d_coop), 11)
-        self.assertEqual(self.coop_plot._cohps.keys(), sorted_keys)
+        self.assertEqual(list(self.coop_plot._cohps.keys()), sorted_keys)
 
     def test_get_cohp_dict(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
