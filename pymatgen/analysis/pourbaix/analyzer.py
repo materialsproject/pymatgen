@@ -69,15 +69,13 @@ class PourbaixAnalyzer(object):
         Returns a chemical potential range map for each stable entry.
 
         Args:
-            elements: Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges of
-                all Li-Co-O phases wrt to uLi and uO, you will supply
-                [Element("Li"), Element("O")]
+            limits ([[float]]): limits in which to do the pourbaix
+                analysis
 
         Returns:
-            Returns a dict of the form {entry: [simplices]}. The list of
-            simplices are the sides of the N-1 dim polytope bounding the
-            allowable chemical potential range of each entry.
+            Returns a dict of the form {entry: [boundary_points]}. 
+            The list of boundary points are the sides of the N-1 
+            dim polytope bounding the allowable ph-V range of each entry.
         """
         tol = PourbaixAnalyzer.numerical_tol
         all_chempots = []
@@ -89,6 +87,7 @@ class PourbaixAnalyzer(object):
             chempots["1"] = chempots["1"]
             all_chempots.append([chempots[el] for el in self._keys])
 
+        # This works by 
         halfspaces = []
         qhull_data = np.array(self._pd._qhull_data)
         stable_entries = self._pd.stable_entries
