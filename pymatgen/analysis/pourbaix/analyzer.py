@@ -8,9 +8,7 @@ import numpy as np
 
 from pymatgen.util.coord import Simplex
 from functools import cmp_to_key
-from pyhull.halfspace import Halfspace, HalfspaceIntersection
-from pyhull.convex_hull import ConvexHull
-from scipy.spatial import HalfspaceIntersection, ConvexHull
+from scipy.spatial import HalfspaceIntersection
 from pymatgen.analysis.pourbaix.entry import MultiEntry
 from six.moves import zip
 
@@ -93,97 +91,46 @@ class PourbaixAnalyzer(object):
 
         halfspaces = []
         qhull_data = np.array(self._pd._qhull_data)
-        # Create basis vectors
+        stable_entries = self._pd.stable_entries
         stable_indices = [self._pd.qhull_entries.index(e)
-                          for e in self._pd.stable_entries]
-        qhull_data = np.array(self._pd.qhull_data)[stable_indices]
+                          for e in stable_entries]
+        qhull_data = np.array(self._pd._qhull_data)
         hyperplanes = np.vstack([-0.0591 * qhull_data[:, 0], -qhull_data[:, 1],
-                                 np.ones(len(qhull_data)), qhull_data[:, 2]])
+                                 np.ones(len(qhull_data)), -qhull_data[:, 2]])
         hyperplanes = np.transpose(hyperplanes)
-        g_max = -max(np.dot(hyperplanes, [limits[0][1], limits[1][1], 0, 1]))
-        hs_int = HalfspaceIntersection(hyperplanes, np.array([7, 0, g_max]))
-        blargh
+        max_contribs = np.max(np.abs(hyperplanes), axis=0)
+        g_max = np.dot(-max_contribs, [limits[0][1], limits[1][1], 0, 1]) - 10
+        border_hyperplanes = [[-1, 0, 0, limits[0][0]],
+                              [1, 0, 0, -limits[0][1]],
+                              [0, -1, 0, limits[1][0]],
+                              [0, 1, 0, -limits[1][1]],
+                              [0, 0, -1, 2 * g_max]]
+        hs_hyperplanes = np.vstack([hyperplanes[stable_indices],
+                                    border_hyperplanes])
+        hs_int = HalfspaceIntersection(hs_hyperplanes, np.array([7, 0, g_max]))
+        # organize the boundary points by entry and convert to array
+        pourbaix_domains = {entry: [] for entry in stable_entries}
+        for intersection, facet in zip(hs_int.intersections, 
+                                       hs_int.dual_facets):
+            for v in facet:
+                if v < len(stable_entries):
+                    pourbaix_domains[stable_entries[v]].append(intersection)
 
-        for entry in self._pd.stable_entries:
-            ie = self._pd.qhull_entries.index(entry)
-            row = qhull_data[ie]
-            # on_plane_points.append([0, 0, row[2]])
-            # this_basis_vecs = []
-            norm_vec = [-0.0591 * row[0], -1 * row[1], 1]
-            b = -np.dot(norm_vec, [0, 0, row[2]])
-            halfspaces.append(norm_vec + [b])
+        # Post-process boundary points, isn't strictly necessary
+        # but useful for some plotting tools (e.g. highcharts)
+        for entry, points in pourbaix_domains.items():
+            points = np.array(points)[:, :2]
+            center = np.average(points, axis=0)
+            points_centered = points - center
 
-            """
-            if abs(norm_vec[0]) > tol:
-                this_basis_vecs.append([-norm_vec[2]/norm_vec[0], 0, 1])
-            if abs(norm_vec[1]) > tol:
-                this_basis_vecs.append([0, -norm_vec[2]/norm_vec[1], 1])
-            if len(this_basis_vecs) == 0:
-                basis_vecs.append([[1, 0, 0], [0, 1, 0]])
-            elif len(this_basis_vecs) == 1:
-                if abs(this_basis_vecs[0][0]) < tol:
-                    this_basis_vecs.append([1, 0, 0])
-                else:
-                    this_basis_vecs.append([0, 1, 0])
-                basis_vecs.append(this_basis_vecs)
-            else:
-                basis_vecs.append(this_basis_vecs)
-            """
+            # Sort points by cross product of centered points
+            point_comparator = lambda x, y: x[0]*y[1] - x[1]*y[0]
+            points_centered = sorted(points_centered.tolist(),
+                                     key=cmp_to_key(point_comparator))
+            pourbaix_domains[entry] = np.array(points_centered) + center
 
-        # Find point in half-space in which optimization is desired
-        ph_max_contrib = -1 * np.max(np.abs(0.0591 * 1))
-                                   # for row in self._pd._qhull_data]) * limits[0][1]
-        V_max_contrib = -1 * max([abs(row[1]) for row in self._pd._qhull_data]) * limits[1][1]
-        g_max = (-1 * max([abs(pt[2]) for pt in on_plane_points])
-                  + ph_max_contrib + V_max_contrib) - 10
-        point_in_region = [7, 0, g_max]
-
-        # Append border hyperplanes along limits
-        for i in range(len(limits)):
-            for j in range(len(limits[i])):
-                basis_vec_1 = [0.0] * 3
-                basis_vec_2 = [0.0] * 3
-                point = [0.0] * 3
-                basis_vec_1[2] = 1.0
-                basis_vec_2[2] = 0.0
-                for axis in range(len(limits)):
-                    if axis is not i:
-                        basis_vec_1[axis] = 0.0
-                        basis_vec_2[axis] = 1.0
-                basis_vecs.append([basis_vec_1, basis_vec_2])
-                point[i] = limits[i][j]
-                on_plane_points.append(point)
-
-        # Hyperplane enclosing the very bottom
-        hyperplanes.append([0, 0, 1, -2 * g_max])
-        # basis_vecs.append([[1, 0, 0], [0, 1, 0]])
-        # on_plane_points.append([0, 0, 2 * g_max])
-        # hyperplane_list = [Halfspace.from_hyperplane(basis_vecs[i], on_plane_points[i], point_in_region)
-        #                    for i in range(len(basis_vecs))]
-        # from nose.tools import set_trace; set_trace()
-        hs_int = HalfspaceIntersection(hyperplanes, np.array([7., 0., g_max]))
-        int_points = hs_int.vertices
-        pourbaix_domains = {}
-        self.pourbaix_domain_vertices = {}
-
-        for i in range(len(self._pd.stable_entries)):
-            vertices = [[int_points[vert][0], int_points[vert][1]] for vert in
-                         hs_int.facets_by_halfspace[i]]
-            if len(vertices) < 1:
-                continue
-            pourbaix_domains[self._pd.stable_entries[i]] = ConvexHull(vertices).simplices
-
-            # Need to order vertices for highcharts area plot
-            cx = sum([vert[0] for vert in vertices]) / len(vertices)
-            cy = sum([vert[1] for vert in vertices]) / len(vertices)
-            point_comp = lambda x, y: x[0]*y[1] - x[1]*y[0]
-            vert_center = [[v[0] - cx, v[1] - cy] for v in vertices]
-            vert_center.sort(key=cmp_to_key(point_comp))
-            self.pourbaix_domain_vertices[self._pd.stable_entries[i]] =\
-             [[v[0] + cx, v[1] + cy] for v in vert_center]
-
-        self.pourbaix_domains = pourbaix_domains
-        return pourbaix_domains
+        self.pourbaix_domains = pourbaix_domains 
+        return pourbaix_domains 
 
     def _in_facet(self, facet, entry):
         """
