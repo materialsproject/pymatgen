@@ -599,7 +599,9 @@ class DiffusionAnalyzer(MSONable):
         dp = p[:, 1:] - p[:, :-1]
         dp = dp - np.round(dp)
         f_disp = np.cumsum(dp, axis=1)
-        c_disp = [np.dot(d, m) for d, m in zip(f_disp, l)]
+        c_disp = []
+        for i in f_disp:
+            c_disp.append( [ np.dot(d, m) for d, m in zip(i, l[1:]) ] )
         disp = np.array(c_disp)
 
         # If is NVT-AIMD, clear lattice data.
