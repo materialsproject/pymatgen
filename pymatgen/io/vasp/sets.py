@@ -360,6 +360,9 @@ class DictSet(VaspInputSet):
                            for mag in incar['MAGMOM']])
             incar['NUPDOWN'] = nupdown
 
+        if self.structure._charge:
+            incar["NELECT"] = self.nelect + self.structure._charge
+
         return incar
 
     @property

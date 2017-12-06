@@ -1,6 +1,28 @@
 Change log
 ==========
 
+v2017.12.6
+----------
+* Support for HDF5 output for VolumetricData (CHGCAR, LOCPOT, etc.).
+* Support for Crystal Orbital Hamilton Populations (COHPs) (@marcoesters)
+* REST interface for Pourbaix data
+* Support for optical property parsing in Vasprun.
+* Improvements to LammpsData
+* Misc bug fixes.
+
+v2017.11.30
+-----------
+* Fix for severe enumlib_caller bug. This causes enumerations not to be carried
+  out properly due to bad accounting of symmetry of ordered sites. It results
+  in too few orderings.
+* New method to extract clusters of atoms from a Molecule based on bonds.
+
+v2017.11.27
+-----------
+* Improvements to FEFF
+* MPRester now supports surface data.
+* Improvement to DiscretizeOccupanciesTransformation.
+
 v2017.11.9
 ----------
 * Massive rewrite of LAMMPSData to support more functionality (Zhi Deng)

@@ -33,7 +33,7 @@ class IStructureTest(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])
         self.assertRaises(StructureError, IStructure, self.lattice,
-                          ["Si"] * 2, coords, True)
+                          ["Si"] * 2, coords, validate_proximity=True)
         self.propertied_structure = IStructure(
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
@@ -864,6 +864,23 @@ class StructureTest(PymatgenTest):
         self.assertNotEqual(s, self.structure)
         self.assertNotEqual(self.structure * 2, self.structure)
 
+    def test_charge(self):
+        s = Structure.from_sites(self.structure)
+        self.assertEqual(s.charge,0,"Initial Structure not defaulting to behavior in SiteCollection")
+        s.add_oxidation_state_by_site([1,1])
+        self.assertEqual(s.charge,2,"Initial Structure not defaulting to behavior in SiteCollection")
+        s = Structure.from_sites(s,charge=1)
+        self.assertEqual(s.charge,1,"Overall charge not being stored in seperate property")
+        s = s.copy()
+        self.assertEqual(s.charge,1,"Overall charge not being copied properly with no sanitization")
+        s = s.copy(sanitize=True)
+        self.assertEqual(s.charge,1,"Overall charge not being copied properly with sanitization")
+        super_cell = s*3
+        self.assertEqual(super_cell.charge,27,"Overall charge is not being properly multiplied in IStructure __mul__")
+        self.assertIn("Overall Charge: +1", str(s),"String representation not adding charge")
+        sorted_s = super_cell.get_sorted_structure()
+        self.assertEqual(sorted_s.charge,27,"Overall charge is not properly copied during structure sorting")
+
 
 class IMoleculeTest(PymatgenTest):
 
@@ -1210,6 +1227,15 @@ class MoleculeTest(PymatgenTest):
         self.mol.to(filename="CH4_testing.xyz")
         self.assertTrue(os.path.exists("CH4_testing.xyz"))
         os.remove("CH4_testing.xyz")
+
+    def test_extract_cluster(self):
+        species = self.mol.species * 2
+        coords = list(self.mol.cart_coords) + list(self.mol.cart_coords
+                                                   + [10, 0, 0])
+        mol = Molecule(species, coords)
+        cluster = mol.extract_cluster([mol[0]])
+        self.assertEqual(mol.formula, "H8 C2")
+        self.assertEqual(cluster.formula, "H4 C1")
 
 
 if __name__ == '__main__':

@@ -188,6 +188,20 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(incar['LUSE_VDW'], True)
         self.assertEqual(incar['PARAM1'], 0.1234)
 
+        # Test that NELECT is updated when a charge is present
+        si = 14
+        coords = list()
+        coords.append(np.array([0, 0, 0]))
+        coords.append(np.array([0.75, 0.5, 0.75]))
+
+        # Silicon structure for testing.
+        latt = Lattice(np.array([[3.8401979337, 0.00, 0.00],
+                                 [1.9200989668, 3.3257101909, 0.00],
+                                 [0.00, -2.2171384943, 3.1355090603]]))
+        struct = Structure(latt, [si, si], coords,charge=1)
+        mpr = MPRelaxSet(struct)
+        self.assertEqual(mpr.incar["NELECT"],mpr.nelect+1,"NELECT not properly set for nonzero charge")
+
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 5]])

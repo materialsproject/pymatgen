@@ -334,6 +334,7 @@ class PourbaixAnalyzer(object):
         """
         return self.get_decomp_and_e_above_hull(entry)[1]
 
+    # TODO: we might want to rename this, still a bit ambiguous
     def get_gibbs_free_energy(self, pH, V):
         """
         Provides the gibbs free energy of the Pourbaix stable entry
@@ -352,6 +353,18 @@ class PourbaixAnalyzer(object):
             data.update({entry.name: self.g(entry, pH, V)})
         gibbs_energy = min(data.values())
         stable_entry = [k for k, v in data.items() if v == gibbs_energy]
-
         return (gibbs_energy, stable_entry)
 
+    def get_entry_stability(self, entry, pH, V):
+        """
+        Get the energy difference between an entry and the
+        most stable decomposition product (i.e. the pourbaix-stable
+        entry) at a given pH and voltage.
+
+        Args:
+            entry (PourbaixEntry): Pourbaix entry corresponding to the
+                stability to be calculated
+            pH (float): pH at which to calculate stability of entry
+            V (float): voltage at which to calculate stability of entry
+        """
+        return self.g(entry, pH, V) - self.get_gibbs_free_energy(pH, V)[0]

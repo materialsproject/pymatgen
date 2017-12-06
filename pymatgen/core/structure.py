@@ -335,7 +335,7 @@ class IStructure(SiteCollection, MSONable):
     structure is equivalent to going through the sites in sequence.
     """
 
-    def __init__(self, lattice, species, coords, validate_proximity=False,
+    def __init__(self, lattice, species, coords, charge=None, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False,
                  site_properties=None):
         """
@@ -359,6 +359,7 @@ class IStructure(SiteCollection, MSONable):
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of
                 each species.
+            charge (int): overall charge of the structure. Defaults to behavior in SiteCollection where total charge is the sum of the oxidation states
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
@@ -394,9 +395,10 @@ class IStructure(SiteCollection, MSONable):
         if validate_proximity and not self.is_valid():
             raise StructureError(("Structure contains sites that are ",
                                   "less than 0.01 Angstrom apart!"))
+        self._charge = charge
 
     @classmethod
-    def from_sites(cls, sites, validate_proximity=False,
+    def from_sites(cls, sites, charge=None, validate_proximity=False,
                    to_unit_cell=False):
         """
         Convenience constructor to make a Structure from a list of sites.
@@ -423,7 +425,7 @@ class IStructure(SiteCollection, MSONable):
             for s in sites[1:]:
                 if s.lattice != lattice:
                     raise ValueError("Sites must belong to the same lattice")
-            s_copy = cls(lattice=lattice, species=[], coords=[])
+            s_copy = cls(lattice=lattice, charge=charge, species=[], coords=[])
             s_copy._sites = list(sites)
             return s_copy
         prop_keys = []
@@ -445,6 +447,7 @@ class IStructure(SiteCollection, MSONable):
                               "are set to None." % k)
         return cls(lattice, [site.species_and_occu for site in sites],
                    [site.frac_coords for site in sites],
+                   charge=charge,
                    site_properties=props,
                    validate_proximity=validate_proximity,
                    to_unit_cell=to_unit_cell)
@@ -640,6 +643,16 @@ class IStructure(SiteCollection, MSONable):
                     site_properties=all_site_properties)
 
     @property
+    def charge(self):
+        """
+        Overall charge of the structure
+        """
+        if self._charge is None:
+            return super(IStructure, self).charge
+        else:
+            return self._charge
+
+    @property
     def distance_matrix(self):
         """
         Returns the distance matrix between all sites in the structure. For
@@ -768,7 +781,8 @@ class IStructure(SiteCollection, MSONable):
                                  coords_are_cartesian=True, to_unit_cell=False)
                 new_sites.append(s)
 
-        return Structure.from_sites(new_sites)
+        new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
+        return Structure.from_sites(new_sites,charge=new_charge)
 
     def __rmul__(self, scaling_matrix):
         """
@@ -966,7 +980,7 @@ class IStructure(SiteCollection, MSONable):
                 as if each comparison were reversed.
         """
         sites = sorted(self, key=key, reverse=reverse)
-        return self.__class__.from_sites(sites)
+        return self.__class__.from_sites(sites, charge=self._charge)
 
     def get_reduced_structure(self, reduction_algo="niggli"):
         """
@@ -988,7 +1002,7 @@ class IStructure(SiteCollection, MSONable):
             return self.__class__(reduced_latt, self.species_and_occu,
                                   self.cart_coords,
                                   coords_are_cartesian=True, to_unit_cell=True,
-                                  site_properties=self.site_properties)
+                                  site_properties=self.site_properties, charge=self._charge)
         else:
             return self.copy()
 
@@ -1019,7 +1033,7 @@ class IStructure(SiteCollection, MSONable):
             # the site_properties or sanitizing, initializing an empty
             # structure and setting _sites to be sites is much faster (~100x)
             # than doing the full initialization.
-            s_copy = self.__class__(lattice=self._lattice, species=[],
+            s_copy = self.__class__(lattice=self._lattice, species=[], charge=self._charge,
                                     coords=[])
             s_copy._sites = list(self._sites)
             return s_copy
@@ -1030,6 +1044,7 @@ class IStructure(SiteCollection, MSONable):
             return self.__class__(self._lattice,
                                   self.species_and_occu,
                                   self.frac_coords,
+                                  charge=self._charge,
                                   site_properties=props)
         else:
             reduced_latt = self._lattice.get_lll_reduced_lattice()
@@ -1044,7 +1059,7 @@ class IStructure(SiteCollection, MSONable):
                                               to_unit_cell=True,
                                               properties=site_props))
             new_sites = sorted(new_sites)
-            return self.__class__.from_sites(new_sites)
+            return self.__class__.from_sites(new_sites, charge=self._charge)
 
     def interpolate(self, end_structure, nimages=10,
                     interpolate_lattices=False, pbc=True, autosort_tol=0):
@@ -1331,6 +1346,11 @@ class IStructure(SiteCollection, MSONable):
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]
+        if self._charge:
+            if self._charge >= 0:
+                outs.append("Overall Charge: +{}".format(self._charge))
+            else:
+                outs.append("Overall Charge: -{}".format(self._charge))
         for s in self:
             outs.append(repr(s))
         return "\n".join(outs)
@@ -1344,6 +1364,11 @@ class IStructure(SiteCollection, MSONable):
                                            for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10)
                                            for i in self.lattice.angles]))
+        if self._charge:
+            if self._charge >= 0:
+                outs.append("Overall Charge: +{}".format(self._charge))
+            else:
+                outs.append("Overall Charge: -{}".format(self._charge))
         outs.append("Sites ({i})".format(i=len(self)))
         data = []
         props = self.site_properties
@@ -1390,6 +1415,7 @@ class IStructure(SiteCollection, MSONable):
 
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
+             "charge": self._charge,
              "lattice": latt_dict, "sites": []}
         for site in self:
             site_dict = site.as_dict(verbosity=verbosity)
@@ -1417,7 +1443,8 @@ class IStructure(SiteCollection, MSONable):
 
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        return cls.from_sites(sites)
+        charge = d.get("charge", None)
+        return cls.from_sites(sites, charge=charge)
 
     def to(self, fmt=None, filename=None, **kwargs):
         """
@@ -1522,7 +1549,8 @@ class IStructure(SiteCollection, MSONable):
             parser = CifParser.from_string(input_string)
             s = parser.get_structures(primitive=primitive)[0]
         elif fmt == "poscar":
-            s = Poscar.from_string(input_string, False).structure
+            s = Poscar.from_string(input_string, False, 
+                                   read_velocities=False).structure
         elif fmt == "cssr":
             cssr = Cssr.from_string(input_string)
             s = cssr.structure
@@ -1574,6 +1602,7 @@ class IStructure(SiteCollection, MSONable):
                 s = s.get_sorted_structure()
             return s
 
+        from pymatgen.io.lmto import LMTOCtrl
         from pymatgen.io.vasp import Vasprun, Chgcar
         from pymatgen.io.exciting import ExcitingInput
         from monty.io import zopen
@@ -1617,6 +1646,8 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="mcsqs",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
+        elif fnmatch(fname, "CTRL*"):
+            return LMTOCtrl.from_file(filename=filename).structure
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
@@ -2215,6 +2246,33 @@ class IMolecule(SiteCollection, MSONable):
 
         raise ValueError("Unrecognized file extension!")
 
+    def extract_cluster(self, target_sites, **kwargs):
+        """
+        Extracts a cluster of atoms from a molecule based on bond lengths
+
+        Args:
+            target_sites ([Site]): List of initial sites to nucleate cluster.
+            \*\*kwargs: kwargs passed through to CovalentBond.is_bonded.
+
+        Returns:
+            (Molecule) Cluster of atoms.
+        """
+        cluster = list(target_sites)
+        others = [site for site in self if site not in cluster]
+        size = 0
+        while len(cluster) > size:
+            size = len(cluster)
+            new_others = []
+            for site in others:
+                for site2 in cluster:
+                    if CovalentBond.is_bonded(site, site2, **kwargs):
+                        cluster.append(site)
+                        break
+                else:
+                    new_others.append(site)
+            others = new_others
+        return Molecule.from_sites(cluster)
+
 
 class Structure(IStructure, collections.MutableSequence):
     """
@@ -2222,7 +2280,7 @@ class Structure(IStructure, collections.MutableSequence):
     """
     __hash__ = None
 
-    def __init__(self, lattice, species, coords, validate_proximity=False,
+    def __init__(self, lattice, species, coords, charge=None, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False,
                  site_properties=None):
         """
@@ -2254,6 +2312,7 @@ class Structure(IStructure, collections.MutableSequence):
                 fractional_coords. Defaults to None for no properties.
         """
         super(Structure, self).__init__(lattice, species, coords,
+                                        charge=charge,
                                         validate_proximity=validate_proximity,
                                         to_unit_cell=to_unit_cell,
                                         coords_are_cartesian=coords_are_cartesian,
@@ -3014,6 +3073,28 @@ class Molecule(IMolecule, collections.MutableSequence):
             self._spin_multiplicity = spin_multiplicity
         else:
             self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+
+    def add_oxidation_state_by_element(self, oxidation_states):
+        """
+        Add oxidation states to a structure.
+
+        Args:
+            oxidation_states (dict): Dict of oxidation states.
+                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for el, occu in site.species_and_occu.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[sym])] = occu
+                new_site = Site(new_sp, site.coords,
+                                properties=site.properties)
+                self._sites[i] = new_site
+
+        except KeyError:
+            raise ValueError("Oxidation state of all elements must be "
+                             "specified in the dictionary.")
 
     def insert(self, i, species, coords, validate_proximity=False,
                properties=None):
