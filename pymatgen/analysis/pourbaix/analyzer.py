@@ -134,23 +134,20 @@ class PourbaixAnalyzer(object):
         # Post-process boundary points, sorting isn't strictly necessary
         # but useful for some plotting tools (e.g. highcharts)
         for entry, points in pourbaix_domains.items():
-            if points:
-                points = np.array(points)[:, :2]
-                center = np.average(points, axis=0)
-                points_centered = points - center
+            points = np.array(points)[:, :2]
+            center = np.average(points, axis=0)
+            points_centered = points - center
 
-                # Sort points by cross product of centered points
-                point_comparator = lambda x, y: x[0]*y[1] - x[1]*y[0]
-                points_centered = sorted(points_centered,
-                                         key=cmp_to_key(point_comparator))
-                points = points_centered + center
+            # Sort points by cross product of centered points
+            point_comparator = lambda x, y: x[0]*y[1] - x[1]*y[0]
+            points_centered = sorted(points_centered,
+                                     key=cmp_to_key(point_comparator))
+            points = points_centered + center
 
-                # Create simplices corresponding to pourbaix boundary
-                simplices = [Simplex(points[indices]) 
-                             for indices in ConvexHull(points).simplices]
-                pourbaix_domains[entry] = simplices
-            else:
-                pourbaix_domains.pop(entry)
+            # Create simplices corresponding to pourbaix boundary
+            simplices = [Simplex(points[indices]) 
+                         for indices in ConvexHull(points).simplices]
+            pourbaix_domains[entry] = simplices
 
 
         self.pourbaix_domains = pourbaix_domains
