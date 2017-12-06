@@ -18,7 +18,6 @@ except ImportError:
 
 test_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'test_files')
 
-@unittest.skipIf(PourbaixAnalyzer is None, "ImportError while importing PourbaixAnalyzer")
 class TestPourbaixAnalyzer(unittest.TestCase):
 
     def setUp(self):
