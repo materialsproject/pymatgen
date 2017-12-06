@@ -261,18 +261,26 @@ def symmetry_measure(points_distorted, points_perfect):
     rot = find_rotation(points_distorted=points_distorted,
                         points_perfect=points_perfect)
     # Find the scaling factor between the distorted points and the perfect points in a least-square sense.
-    scaling_factor, rotated_coords = find_scaling_factor(
+    scaling_factor, frotated_coords, fpoints_perfect = find_scaling_factor(
         points_distorted=points_distorted,
         points_perfect=points_perfect,
         rot=rot)
+    # scaling_factor, rotated_coords = find_scaling_factor(
+    #     points_distorted=points_distorted,
+    #     points_perfect=points_perfect,
+    #     rot=rot)
     # Compute the continuous symmetry measure [see Eq. 1 in Pinsky et al., Inorganic Chemistry 37, 5575 (1998)]
-    num = 0.0
-    denom = 0.0
-    for ip, pp in enumerate(points_perfect):
-        rotated_coords[ip] = scaling_factor * rotated_coords[ip]
-        diff = (pp - rotated_coords[ip])
-        num += np.sum(diff * diff)
-        denom += np.sum(pp * pp)
+    frotated_coords = scaling_factor * frotated_coords
+    diff = fpoints_perfect - frotated_coords
+    num = np.dot(diff, diff)
+    denom = np.dot(fpoints_perfect, fpoints_perfect)
+    # num = 0.0
+    # denom = 0.0
+    # for ip, pp in enumerate(points_perfect):
+    #     rotated_coords[ip] = scaling_factor * rotated_coords[ip]
+    #     diff = (pp - rotated_coords[ip])
+    #     num += np.sum(diff * diff)
+    #     denom += np.sum(pp * pp)
     return {'symmetry_measure': num / denom * 100.0, 'scaling_factor': scaling_factor, 'rotation_matrix': rot}
 
 
@@ -312,10 +320,15 @@ def find_scaling_factor(points_distorted, points_perfect, rot):
     :return: The scaling factor between the two structures and the rotated set of (distorted) points.
     """
     rotated_coords = rotateCoords(points_distorted, rot)
-    num = np.sum([np.dot(rc, points_perfect[ii]) for ii, rc in
-                  enumerate(rotated_coords)])
-    denom = np.sum([np.dot(rc, rc) for rc in rotated_coords])
-    return num / denom, rotated_coords
+    frc = np.array(rotated_coords).flatten()
+    fpp = np.array(points_perfect).flatten()
+    num = np.dot(frc, fpp)
+    denom = np.dot(frc, frc)
+    # num = np.sum([np.dot(rc, points_perfect[ii]) for ii, rc in
+    #               enumerate(rotated_coords)])
+    # denom = np.sum([np.dot(rc, rc) for rc in rotated_coords])
+    return num / denom, frc, fpp
+    # return num / denom, rotated_coords
 
 
 class LocalGeometryFinder(object):

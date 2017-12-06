@@ -675,7 +675,7 @@ class StructureEnvironments(MSONable):
         mymax = 10.0
         norm = Normalize(vmin=mymin, vmax=mymax)
         scalarmap = cm.ScalarMappable(norm=norm, cmap=mycm)
-        dist_limits = [1.0, self.voronoi.maximum_distance_factor]
+        dist_limits = [1.0, max_dist]
         ang_limits = [0.0, 1.0]
         if plot_type['distance_parameter'][0] == 'one_minus_inverse_alpha_power_n':
             if plot_type['distance_parameter'][1] is None:
@@ -736,10 +736,18 @@ class StructureEnvironments(MSONable):
                 ipt = int(myipt)
                 if myipt != ipt:
                     raise RuntimeError('Number of surface points not even')
-                if (np.abs(nb_set_surface_pts[ipt][1] - nb_set_surface_pts[0][1]) > 0.1 and
-                            np.abs(nb_set_surface_pts[ipt][0] - nb_set_surface_pts[0][0]) > 0.125):
-                    xytext = ((nb_set_surface_pts[0][0]+nb_set_surface_pts[ipt][0])/2,
-                              (nb_set_surface_pts[0][1] + nb_set_surface_pts[ipt][1]) / 2)
+                patch_center = ((nb_set_surface_pts[0][0] + min(nb_set_surface_pts[ipt][0], dist_limits[1])) / 2,
+                                (nb_set_surface_pts[0][1] + nb_set_surface_pts[ipt][1]) / 2)
+
+                if (np.abs(nb_set_surface_pts[-1][1] - nb_set_surface_pts[-2][1]) > 0.06 and
+                      np.abs(min(nb_set_surface_pts[-1][0], dist_limits[1]) - nb_set_surface_pts[0][0]) > 0.125):
+                    xytext = ((min(nb_set_surface_pts[-1][0], dist_limits[1]) + nb_set_surface_pts[0][0]) / 2,
+                              (nb_set_surface_pts[-1][1] + nb_set_surface_pts[-2][1]) / 2)
+                    subplot.annotate(mytext, xy=xytext,
+                                     ha='center', va='center', color=myinvcolor, fontsize='x-small')
+                elif (np.abs(nb_set_surface_pts[ipt][1] - nb_set_surface_pts[0][1]) > 0.1 and
+                    np.abs(min(nb_set_surface_pts[ipt][0], dist_limits[1]) - nb_set_surface_pts[0][0]) > 0.125):
+                    xytext = patch_center
                     subplot.annotate(mytext, xy=xytext,
                                      ha='center', va='center', color=myinvcolor, fontsize='x-small')
 

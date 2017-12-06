@@ -1949,6 +1949,53 @@ class IMolecule(SiteCollection, MSONable):
         nn = self.get_sites_in_sphere(site.coords, r)
         return [(s, dist) for (s, dist) in nn if site != s]
 
+
+    # def get_all_neighbors(self, r, include_index=False):
+    #     recp_len = np.array(self.lattice.reciprocal_lattice.abc)
+    #     maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
+    #     nmin = np.floor(np.min(self.frac_coords, axis=0)) - maxr
+    #     nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
+    #
+    #     all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
+    #
+    #     latt = self._lattice
+    #     neighbors = [list() for i in range(len(self._sites))]
+    #     all_fcoords = np.mod(self.frac_coords, 1)
+    #     coords_in_cell = latt.get_cartesian_coords(all_fcoords)
+    #     site_coords = self.cart_coords
+    #
+    #     indices = np.arange(len(self))
+    #     for image in itertools.product(*all_ranges):
+    #         coords = latt.get_cartesian_coords(image) + coords_in_cell
+    #         all_dists = all_distances(coords, site_coords)
+    #         all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
+    #
+    #         for (j, d, within_r) in zip(indices, all_dists, all_within_r):
+    #             nnsite = PeriodicSite(self[j].species_and_occu, coords[j],
+    #                                   latt, properties=self[j].properties,
+    #                                   coords_are_cartesian=True)
+    #             for i in indices[within_r]:
+    #                 item = (nnsite, d[i], j) if include_index else (
+    #                     nnsite, d[i])
+    #                 neighbors[i].append(item)
+    #     return neighbors
+
+
+    def get_all_neighbors(self, r, include_index=False):
+        neighbors = [list() for i in range(len(self._sites))]
+        for isite, site in enumerate(self._sites):
+            nbs = []
+            for jsite, site_nb in enumerate(self._sites):
+                if isite == jsite:
+                    continue
+                dd = self.get_distance(isite, jsite)
+                if dd <= r:
+                    item = (site_nb, dd, jsite) if include_index else (site_nb, dd)
+                    nbs.append(item)
+            nbs.sort(key=lambda x: x[1])
+            neighbors[isite] = nbs
+        return neighbors
+
     def get_neighbors_in_shell(self, origin, r, dr):
         """
         Returns all sites in a shell centered on origin (coords) between radii
