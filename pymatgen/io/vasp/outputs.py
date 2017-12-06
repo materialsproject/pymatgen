@@ -2700,8 +2700,10 @@ class VolumetricData(object):
                     read_dataset = True
                     dataset = np.zeros(dim)
                 else:
-                    # store any extra lines that were not part of the volumetric data
-                    key = len(all_dataset)-1  # so we know which set of data the extra lines are associated with
+                    # store any extra lines that were not part of the
+                    # volumetric data so we know which set of data the extra
+                    # lines are associated with
+                    key = len(all_dataset) - 1
                     if key not in all_dataset_aug:
                         all_dataset_aug[key] = []
                     all_dataset_aug[key].append(original_line)
@@ -2709,16 +2711,20 @@ class VolumetricData(object):
 
                 data = {"total": all_dataset[0], "diff_x": all_dataset[1],
                         "diff_y": all_dataset[2], "diff_z": all_dataset[3]}
-                data_aug = {"total": all_dataset_aug.get(0, None), "diff_x": all_dataset_aug.get(1, None),
-                            "diff_y": all_dataset_aug.get(2, None), "diff_z": all_dataset_aug.get(3, None)}
+                data_aug = {"total": all_dataset_aug.get(0, None),
+                            "diff_x": all_dataset_aug.get(1, None),
+                            "diff_y": all_dataset_aug.get(2, None),
+                            "diff_z": all_dataset_aug.get(3, None)}
 
                 # construct a "diff" dict for scalar-like magnetization density,
                 # referenced to an arbitrary direction (using same method as
                 # pymatgen.electronic_structure.core.Magmom, see
                 # Magmom documentation for justification for this)
-                # TODO: re-examine this, and also similar behavior in Magmom - @mkhorton
+                # TODO: re-examine this, and also similar behavior in
+                # Magmom - @mkhorton
                 # TODO: does CHGCAR change with different SAXIS?
-                diff_xyz = np.array([data["diff_x"], data["diff_y"], data["diff_z"]])
+                diff_xyz = np.array([data["diff_x"], data["diff_y"],
+                                     data["diff_z"]])
                 diff_xyz = diff_xyz.reshape((3, dim[0]*dim[1]*dim[2]))
                 ref_direction = np.array([1.01, 1.02, 1.03])
                 ref_sign = np.sign(np.dot(ref_direction, diff_xyz))
@@ -2727,7 +2733,8 @@ class VolumetricData(object):
 
             elif len(all_dataset) == 2:
                 data = {"total": all_dataset[0], "diff": all_dataset[1]}
-                data_aug = {"total": all_dataset_aug.get(0, None), "diff": all_dataset_aug.get(1, None)}
+                data_aug = {"total": all_dataset_aug.get(0, None),
+                            "diff": all_dataset_aug.get(1, None)}
             else:
                 data = {"total": all_dataset[0]}
                 data_aug = {"total": all_dataset_aug.get(0, None)}
@@ -2783,7 +2790,8 @@ class VolumetricData(object):
                 lines = []
                 count = 0
                 f.write("   {}   {}   {}\n".format(a[0], a[1], a[2]))
-                for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])),
+                for (k, j, i) in itertools.product(list(range(a[2])),
+                                                   list(range(a[1])),
                                                    list(range(a[0]))):
                     lines.append(_print_fortran_float(self.data[data_type][i, j, k]))
                     count += 1
@@ -2903,10 +2911,10 @@ class VolumetricData(object):
             ds = f.create_dataset("lattice", (3, 3), dtype='float')
             ds[...] = self.structure.lattice.matrix
             ds = f.create_dataset("Z", (len(self.structure.species), ),
-                                    dtype="i")
+                                  dtype="i")
             ds[...] = np.array([sp.Z for sp in self.structure.species])
             ds = f.create_dataset("fcoords", self.structure.frac_coords.shape,
-                                    dtype='float')
+                                  dtype='float')
             ds[...] = self.structure.frac_coords
             dt = h5py.special_dtype(vlen=str)
             ds = f.create_dataset("species", (len(self.structure.species), ),
@@ -2987,7 +2995,8 @@ class Procar(object):
         but all indices are converted to 0-based here.::
 
             {
-                spin: nd.array accessed with (k-point index, band index, ion index, orbital index)
+                spin: nd.array accessed with (k-point index, band index,
+                                              ion index, orbital index)
             }
 
     .. attribute:: weights
@@ -2999,7 +3008,8 @@ class Procar(object):
 
         Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
         {
-            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
+            spin: complex nd.array accessed with (k-point index, band index,
+                                                  ion index, orbital index)
         }
 
     ..attribute:: nbands
