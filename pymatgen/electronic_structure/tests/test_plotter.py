@@ -207,7 +207,6 @@ class CohpPlotterTest(PymatgenTest):
         self.assertAlmostEqual(coop_energies[-1], 6.02510)
 
     def test_add_cohp_dict(self):
-        self.maxDiff = None
         # Sorts the populations by z-coordinates of the sites
         def sortkeys(sites):
             return sites[0].z, sites[1].z
