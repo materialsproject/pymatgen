@@ -8,6 +8,7 @@ import json
 import os
 from pymatgen.electronic_structure.cohp import CompleteCohp, Cohp
 from pymatgen.electronic_structure.core import Spin
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         "test_files", "cohp")
@@ -63,7 +64,7 @@ class CohpTest(unittest.TestCase):
         self.assertEqual(self.coop.__str__(), str_coop)
 
 
-class CompleteCohpTest(unittest.TestCase):
+class CompleteCohpTest(PymatgenTest):
     def setUp(self):
         filepath = os.path.join(test_dir, "complete_cohp_lobster.json")
         with open(filepath, "r") as f:
@@ -108,10 +109,27 @@ class CompleteCohpTest(unittest.TestCase):
     def test_dict(self):
         # The json files are dict representations of the COHPs from the LMTO
         # and LOBSTER calculations and should thus be the same.
-        self.assertEqual(self.cohp_lmto.as_dict(),
-                         self.cohp_lmto_dict.as_dict())
+
         self.assertEqual(self.cohp_lobster.as_dict(),
                          self.cohp_lobster_dict.as_dict())
+
+        # Testing the LMTO dicts will be more involved. Since the average
+        # is calculated and not read, there may be differences in rounding
+        # with a very small number of matrix elements, which would cause the
+        # test to fail
+        for key in ["COHP", "ICOHP"]:
+            self.assertArrayAlmostEqual(
+                self.cohp_lmto.as_dict()[key]["average"]["1"],
+                self.cohp_lmto_dict.as_dict()[key]["average"]["1"], 5)
+        for key in self.cohp_lmto.as_dict():
+            if key not in ["COHP", "ICOHP"]:
+                self.assertEqual(self.cohp_lmto.as_dict()[key],
+                                 self.cohp_lmto_dict.as_dict()[key])
+            else:
+                for bond in self.cohp_lmto.as_dict()[key]:
+                    if bond != "average":
+                        self.assertEqual(self.cohp_lmto.as_dict()[key][bond],
+                                         self.cohp_lmto_dict.as_dict()[key][bond])
 
     def test_icohp_values(self):
         # icohp_ef are the ICHOP(Ef) values taken from

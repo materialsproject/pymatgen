@@ -118,11 +118,11 @@ class Cohp(MSONable):
              "@class": self.__class__.__name__,
              "are_coops": self.are_coops,
              "efermi": self.efermi,
-             "energies": list(self.energies),
-             "COHP": {str(spin): list(pops)
+             "energies": self.energies.tolist(),
+             "COHP": {str(spin): pops.tolist()
                       for spin, pops in self.cohp.items()}}
         if self.icohp:
-            d["ICOHP"] = {str(spin): list(pops)
+            d["ICOHP"] = {str(spin): pops.tolist()
                           for spin, pops in self.icohp.items()}
         return d
 
@@ -277,27 +277,27 @@ class CompleteCohp(Cohp):
              "are_coops": self.are_coops,
              "efermi": self.efermi,
              "structure": self.structure.as_dict(),
-             "energies": list(self.energies),
-             "COHP": {"average": {str(spin): list(pops)
+             "energies": self.energies.tolist(),
+             "COHP": {"average": {str(spin): pops.tolist()
                                   for spin, pops in
                                   self.cohp.items()}}}
 
         if self.icohp is not None:
-            d["ICOHP"] = {"average": {str(spin): list(pops)
+            d["ICOHP"] = {"average": {str(spin): pops.tolist()
                                       for spin, pops in
                                       self.icohp.items()}}
 
         for label in self.all_cohps.keys():
-            d["COHP"].update({label: {str(spin): list(pops)
+            d["COHP"].update({label: {str(spin): pops.tolist()
                                       for spin, pops in
                                       self.all_cohps[label].cohp.items()}})
             if self.all_cohps[label].icohp is not None:
                 if "ICOHP" not in d.keys():
-                    d["ICOHP"] = {label: {str(spin): list(pops)
+                    d["ICOHP"] = {label: {str(spin): pops.tolist()
                                           for spin, pops in
                                           self.all_cohps[label].icohp.items()}}
                 else:
-                    d["ICOHP"].update({label: {str(spin): list(pops)
+                    d["ICOHP"].update({label: {str(spin): pops.tolist()
                                                for spin, pops in
                                                self.all_cohps[label].icohp.items()}})
         if False in [bond_dict == {} for bond_dict in self.bonds.values()]:
@@ -333,16 +333,15 @@ class CompleteCohp(Cohp):
         energies = d["energies"]
         structure = Structure.from_dict(d["structure"])
         if "bonds" in d.keys():
-            bonds = d["bonds"]
-            for bond in bonds:
-                bonds[bond]["sites"] = tuple(PeriodicSite.from_dict(site)
-                                             for site in bonds[bond]["sites"])
+            bonds = {bond: {"length": d["bonds"][bond]["length"],
+                            "sites": tuple(PeriodicSite.from_dict(site)
+                                           for site in d["bonds"][bond]["sites"])}
+                     for bond in d["bonds"]}
         else:
             bonds = None
-        for label, cohp in d["COHP"].items():
-            for spin in cohp:
-                cohp = {Spin(int(spin)): np.array(d["COHP"][label][spin])
-                        for spin in d["ICOHP"][label]}
+        for label in d["COHP"]:
+            cohp = {Spin(int(spin)): np.array(d["COHP"][label][spin])
+                    for spin in d["COHP"][label]}
             try:
                 icohp = {Spin(int(spin)): np.array(d["ICOHP"][label][spin])
                          for spin in d["ICOHP"][label]}
@@ -356,7 +355,6 @@ class CompleteCohp(Cohp):
             # calculate average
             cohp = np.array([np.array(c)
                              for c in d["COHP"].values()]).mean(axis=0)
-
             try:
                 icohp = np.array([np.array(c)
                                   for c in d["ICOHP"].values()]).mean(axis=0)
@@ -432,9 +430,12 @@ class CompleteCohp(Cohp):
             avg_data = {"COHP": {}, "ICOHP": {}}
             for i in avg_data:
                 for spin in spins:
-                        row = np.array([cohp_data[label][i][spin]
-                                       for label in cohp_data])
-                        avg_data[i].update({spin: np.average(row, axis=0)})
+                        rows = np.array([cohp_data[label][i][spin]
+                                         for label in cohp_data])
+                        avg = np.average(rows, axis=0)
+                        # LMTO COHPs have 5 significant figures
+                        avg_data[i].update({spin: np.array(["{:.5g}".format(a)
+                                            for a in avg], dtype=float)})
             avg_cohp = Cohp(efermi, energies,
                             avg_data["COHP"],
                             icohp=avg_data["ICOHP"])
