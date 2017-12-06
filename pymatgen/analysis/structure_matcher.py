@@ -23,8 +23,8 @@ from pymatgen.core.composition import Composition
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc
-from pymatgen.util.coord_utils import lattice_points_in_supercell
+from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc
+from pymatgen.util.coord import lattice_points_in_supercell
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -150,15 +150,13 @@ class SpinComparator(AbstractComparator):
         for s1 in sp1.keys():
             spin1 = getattr(s1, "spin", 0)
             oxi1 = getattr(s1, "oxi_state", 0)
-            found = False
             for s2 in sp2.keys():
                 spin2 = getattr(s2, "spin", 0)
                 oxi2 = getattr(s2, "oxi_state", 0)
                 if (s1.symbol == s2.symbol and oxi1 == oxi2 and
                         spin2 == -spin1):
-                    found = True
                     break
-            if not found:
+            else:
                 return False
         return True
 
@@ -259,6 +257,33 @@ class OrderDisorderElementComparator(AbstractComparator):
         """
         return 1
 
+class OccupancyComparator(AbstractComparator):
+    """
+    A Comparator that matches occupancies on sites,
+    irrespective of the species of those sites.
+    """
+
+    def are_equal(self, sp1, sp2):
+        """
+        Args:
+            sp1: First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+            sp2: Second species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+
+        Returns:
+            True if sets of occupancies (amt) are equal on both sites.
+        """
+        set1 = set(sp1.element_composition.values())
+        set2 = set(sp2.element_composition.values())
+        if set1 == set2:
+            return True
+        else:
+            return False
+
+    def get_hash(self, composition):
+        # Difficult to define sensible hash
+        return 1
 
 class StructureMatcher(MSONable):
     """
@@ -475,8 +500,9 @@ class StructureMatcher(MSONable):
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
-        #vectors are from s2 to s1
-        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True,
+        # vectors are from s2 to s1
+        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask,
+                                         return_d2=True,
                                          lll_frac_tol=lll_frac_tol)
         lin = LinearAssignment(d_2)
         s = lin.solution
@@ -663,7 +689,7 @@ class StructureMatcher(MSONable):
                              'have more sites than struct2')
 
         # check that a valid mapping exists
-        if not self._subset and mask.shape[1] != mask.shape[0]:
+        if (not self._subset) and mask.shape[1] != mask.shape[0]:
             return None
 
         if LinearAssignment(mask).min_cost > 0:
@@ -794,11 +820,12 @@ class StructureMatcher(MSONable):
         for perm in itertools.permutations(sp2):
             sp_mapping = dict(zip(sp1, perm))
 
-            #do quick check that compositions are compatible
+            # do quick check that compositions are compatible
             mapped_comp = Composition({sp_mapping[k]: v
                                        for k, v in s1_comp.items()})
-            if (not self._subset) and self._comparator.get_hash(mapped_comp) != \
-                                      self._comparator.get_hash(s2_comp):
+            if (not self._subset) and (
+                    self._comparator.get_hash(mapped_comp) !=
+                    self._comparator.get_hash(s2_comp)):
                 continue
 
             mapped_struct = struct1.copy()

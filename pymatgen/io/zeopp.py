@@ -29,14 +29,51 @@ except ImportError:
 
 """
 Module implementing classes and functions to use Zeo++.
-Zeo++ can be obtained from http://www.maciejharanczyk.info/Zeopp/
+
+Zeo++ Installation Steps:
+========================
+1) Zeo++ requires Voro++. Download Voro++ from code.lbl.gov using
+   subversion:
+   "svn checkout --username anonsvn https://code.lbl.gov/svn/voro/trunk
+   Password is anonsvn.
+2) Stable version of Zeo++ can be obtained from
+   http://www.maciejharanczyk.info/Zeopp/
+   Alternatively it can be obtained from code.lbl.gov. Replace voro
+   with zeo.
+3) (Optional) Install cython from pip
+Mac OS X:
+4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment
+   (compiler, linker).
+   (b) Run make command
+5) (a) Edit the Zeo++/trunk/cython_wrapper/setup.py to correctly point to
+   Voro++ directory.
+   (b) Run "python setup.py develop" to install Zeo++ python bindings.
+   Be patient, it will take a while.
+Linux:
+4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment.
+   (b) Also add -fPIC option to CFLAGS variable in config.mk file.
+   (c) Run make command
+5) (a) Go to Zeo++/zeo/trunk folder and compile zeo++ library using the
+   command "make dylib".
+   (b) Edit the Zeo++/trunk/cython_wrapper/setup_alt.py to correctly
+   point to Voro++ directory.
+   (c) Run "python setup_alt.py develop" to install Zeo++ python bindings.
+
+Zeo++ Post-Installation Checking:
+==============================
+1) Go to pymatgen/io/tests and run "python test_zeoio.py"
+   If Zeo++ python bindings are properly installed, the tests should
+   pass. One or two tests will be skipped.
+b) Go to pymatgen/analysis/defects/tests and run
+   "python test_point_defects.py". Lots of tests will be skipped if GULP
+   is not installed. But there should be no errors.
 """
 
 __author__ = "Bharat Medasani"
 __copyright = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Bharat Medasani"
-__email__ = "bkmedasani@lbl.gov"
+__email__ = "mbkumar@gmail.com"
 __data__ = "Aug 2, 2013"
 
 
@@ -119,8 +156,8 @@ class ZeoCssr(Cssr):
         coords = []
         chrg = []
         for l in lines[4:]:
-            m = re.match("\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" +
-                         "([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)", l.strip())
+            m = re.match(r'\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+' +
+                         r'([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)', l.strip())
             if m:
                 sp.append(m.group(1))
                 # coords.append([float(m.group(i)) for i in xrange(2, 5)])
@@ -177,8 +214,8 @@ class ZeoVoronoiXYZ(XYZ):
         sp = []
         prop = []
         coord_patt = re.compile(
-            "(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" +
-            "([0-9\-\.]+)"
+            r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" +
+            r"([0-9\-\.]+)"
         )
         for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])

@@ -6,6 +6,9 @@ Created on Nov 15, 2011
 '''
 
 from __future__ import division
+import json
+import ruamel.yaml as yaml
+import re
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -14,21 +17,17 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Nov 15, 2011"
 
-import json
-import yaml
-import re
-
 
 def test_yaml():
     with open('periodic_table.yaml', 'r') as f:
         data = yaml.load(f)
-        print data
+        print(data)
 
 
 def test_json():
     with open('periodic_table.json', 'r') as f:
         data = json.load(f)
-        print data
+        print(data)
 
 
 def parse_oxi_state():
@@ -66,7 +65,7 @@ def parse_oxi_state():
             data[el]['Oxidation states'] = oxistates
             data[el]['Common oxidation states'] = common_oxi
         else:
-            print el
+            print(el)
     with open('periodic_table2.yaml', 'w') as f:
         yaml.dump(data, f)
 
@@ -79,7 +78,7 @@ def parse_ionic_radii():
     f.close()
     radiidata = radiidata.split("\r")
     header = radiidata[0].split(",")
-    for i in xrange(1, len(radiidata)):
+    for i in range(1, len(radiidata)):
         line = radiidata[i]
         toks = line.strip().split(",")
         suffix = ""
@@ -89,7 +88,7 @@ def parse_ionic_radii():
         el = toks[2]
 
         ionic_radii = {}
-        for j in xrange(3, len(toks)):
+        for j in range(3, len(toks)):
             m = re.match("^\s*([0-9\.]+)", toks[j])
             if m:
                 ionic_radii[int(header[j])] = float(m.group(1))
@@ -99,7 +98,7 @@ def parse_ionic_radii():
             if suffix == '_hs':
                 data[el]['Ionic_radii'] = ionic_radii
         else:
-            print el
+            print(el)
     with open('periodic_table2.yaml', 'w') as f:
         yaml.dump(data, f)
 
@@ -112,7 +111,7 @@ def parse_radii():
     f.close()
     radiidata = radiidata.split("\r")
     header = radiidata[0].split(",")
-    for i in xrange(1, len(radiidata)):
+    for i in range(1, len(radiidata)):
         line = radiidata[i]
         toks = line.strip().split(",")
         el = toks[1]
@@ -136,7 +135,7 @@ def parse_radii():
             data[el]['Atomic radius calculated'] = atomic_radii_calc
             data[el]['Van der waals radius'] = vdw_radii
         else:
-            print el
+            print(el)
     with open('periodic_table2.yaml', 'w') as f:
         yaml.dump(data, f)
     with open('periodic_table.json', 'w') as f:
@@ -172,6 +171,7 @@ def gen_periodic_table():
 
     with open('periodic_table.json', 'w') as f:
         json.dump(data, f)
+
 
 if __name__ == "__main__":
     gen_periodic_table()

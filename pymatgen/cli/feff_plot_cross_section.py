@@ -20,7 +20,7 @@ __date__ = "April 7, 2013"
 import argparse
 
 from pymatgen.io.feff.outputs import Xmu
-from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.plotting import pretty_plot
 
 
 def main():
@@ -35,7 +35,7 @@ def main():
     parser.add_argument('filename1', metavar='filename1', type=str, nargs=1,
                         help='feff.inp filename to import')
 
-    plt = get_publication_quality_plot(12, 8)
+    plt = pretty_plot(12, 8)
     color_order = ['r', 'b', 'g', 'c', 'k', 'm', 'y']
 
     args = parser.parse_args()

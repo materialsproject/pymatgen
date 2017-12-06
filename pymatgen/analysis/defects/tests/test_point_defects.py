@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-#import unittest2 as unittest
+#import unittest
 import unittest
 import sys
 import numpy as np
@@ -574,10 +574,41 @@ class StructureMotifInterstitialTest(PymatgenTest):
                 validate_proximity=False, to_unit_cell=False,
                 coords_are_cartesian=False, site_properties=None)
         self.smi = StructureMotifInterstitial(self.silicon, "Si",
-                motif_types=["tet", "oct", "tetoct"],
-                op_targets=[1.0, 1.0, 1.0], op_threshs=[0.5, 0.5, 0.5],
-                dl=0.4, fac_max_radius=2.5, drel_overlap=0.5,
-                write_timings=False)
+                motif_types=["tet", "oct"],
+                op_threshs=[0.3, 0.5],
+                dl=0.4, doverlap=1.0, facmaxdl=1.01)
+        self.diamond = Structure(
+            Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264],
+                     [0, 0, 2.528]]), ["C0+", "C0+"], [[2.554, 1.806, 4.423],
+                                                       [0.365, 0.258, 0.632]],
+            validate_proximity=False,
+            to_unit_cell=False, coords_are_cartesian=True,
+            site_properties=None)
+        self.nacl = Structure(
+            Lattice([[3.485, 0, 2.012], [1.162, 3.286, 2.012],
+                     [0, 0, 4.025]]), ["Na1+", "Cl1-"], [[0, 0, 0],
+                                                         [2.324, 1.643, 4.025]],
+            validate_proximity=False,
+            to_unit_cell=False, coords_are_cartesian=True,
+            site_properties=None)
+        self.cscl = Structure(
+            Lattice([[4.209, 0, 0], [0, 4.209, 0], [0, 0, 4.209]]),
+            ["Cl1-", "Cs1+"], [[2.105, 2.105, 2.105], [0, 0, 0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        self.square_pyramid = Structure(
+            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
+            ["C", "C", "C", "C", "C", "C"], [
+            [0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], \
+            [0, 0, 1]], validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        self.trigonal_bipyramid = Structure(
+            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
+            ["P", "Cl", "Cl", "Cl", "Cl", "Cl"], [
+            [0, 0, 0], [0, 0, 2.14], [0, 2.02, 0], [1.74937, -1.01, 0], \
+            [-1.74937, -1.01, 0], [0, 0, -2.14]], validate_proximity=False,
+            to_unit_cell=False, coords_are_cartesian=True,
+            site_properties=None)
 
     def test_all(self):
         self.assertIsInstance(self.smi, StructureMotifInterstitial)
@@ -600,6 +631,9 @@ class StructureMotifInterstitialTest(PymatgenTest):
     def tearDown(self):
         del self.smi
         del self.silicon
+        del self.diamond
+        del self.nacl
+        del self.cscl
 
 
 if __name__ == "__main__":

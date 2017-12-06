@@ -11,11 +11,11 @@ __maintainer__ = 'Shyue Ping Ong'
 __email__ = 'ongsp@ucsd.edu'
 __date__ = '9/25/14'
 
-import unittest2 as unittest
+import unittest
 
 import random
 
-from pymatgen.util.num_utils import abs_cap, min_max_indexes
+from pymatgen.util.num import abs_cap, min_max_indexes
 
 
 class FuncTestCase(unittest.TestCase):

@@ -104,7 +104,7 @@ def main():
     groups.add_argument("-a", "--add", dest="var_spec", nargs="+",
                         help="Variables to add in the form of space "
                              "separated key value pairs. E.g., "
-                             "VASP_PSP_DIR ~/psps")
+                             "PMG_VASP_PSP_DIR ~/psps")
     parser_config.set_defaults(func=configure_pmg)
 
     parser_analyze = subparsers.add_parser(
@@ -261,7 +261,7 @@ def main():
     parser_potcar.add_argument("-f", "--functional", dest="functional",
                                type=str,
                                choices=sorted(Potcar.FUNCTIONAL_CHOICES),
-                               default=SETTINGS.get("DEFAULT_FUNCTIONAL",
+                               default=SETTINGS.get("PMG_DEFAULT_FUNCTIONAL",
                                                     "PBE"),
                                help="Functional to use. Unless otherwise "
                                     "stated (e.g., US), "
@@ -276,6 +276,14 @@ def main():
                        type=str, nargs="+",
                        help="Dirname to find and generate from POTCAR.spec.")
     parser_potcar.set_defaults(func=generate_potcar)
+
+
+    try:
+        import argcomplete
+        argcomplete.autocomplete(parser)
+    except ImportError:
+        # argcomplete not present.
+        pass
 
     args = parser.parse_args()
 

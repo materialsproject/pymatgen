@@ -35,7 +35,7 @@ except ImportError:
 from monty.serialization import loadfn
 from monty.dev import requires
 
-from pymatgen.util.coord_utils import in_coord_list
+from pymatgen.util.coord import in_coord_list
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
@@ -881,7 +881,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
         bitrate (str): Video bitate.  Defaults to "10000k" (fairly high
             quality).
         quality (int): A quality scale. Defaults to 1.
-        \*\*kwargs: Any kwargs supported by StructureVis to modify the images
+        \\*\\*kwargs: Any kwargs supported by StructureVis to modify the images
             generated.
     """
     vis = StructureVis(**kwargs)

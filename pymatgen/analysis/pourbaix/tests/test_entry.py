@@ -4,12 +4,12 @@
 
 from __future__ import unicode_literals
 
-import unittest2 as unittest
+import unittest
 import os
 
 from pymatgen.analysis.pourbaix.entry import PourbaixEntry, IonEntry, MultiEntry
 from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO
-from pymatgen.phasediagram.entries import PDEntry
+from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.core.ion import Ion
 
 from pymatgen.core.structure import Composition
@@ -156,7 +156,6 @@ class TestPourbaixEntryIO(unittest.TestCase):
             ion_entry.append(PoE)
         entries = solid_entry + ion_entry
         PourbaixEntryIO.to_csv("pourbaix_test_entries.csv", entries)
-
         (elements, entries) = PourbaixEntryIO.from_csv(
             "pourbaix_test_entries.csv")
         self.assertEqual(elements,

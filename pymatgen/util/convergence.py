@@ -2,7 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals, division, print_function
+from __future__ import unicode_literals, division, print_function, \
+    absolute_import
+import string
+import random
+import numpy as np
 
 """
 function for calculating the convergence of an x, y data set
@@ -26,10 +30,6 @@ __version__ = "0.9"
 __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
 __date__ = "June 2014"
-
-import string
-import random
-import numpy as np
 
 
 def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
@@ -290,13 +290,17 @@ def measure(function, xs, ys, popt, weights):
     m = 0
     n = 0
     for x in xs:
-        if len(popt) == 2:
-            m += (ys[n] - function(x, popt[0], popt[1]))**2 * weights[n]
-        elif len(popt) == 3:
-            m += (ys[n] - function(x, popt[0], popt[1], popt[2]))**2 * weights[n]
-        else:
-            raise NotImplementedError
-        n += 1
+        try:
+            if len(popt) == 2:
+                m += (ys[n] - function(x, popt[0], popt[1]))**2 * weights[n]
+            elif len(popt) == 3:
+                m += (ys[n] - function(x, popt[0], popt[1], popt[2]))**2 * weights[n]
+            else:
+                raise NotImplementedError
+            n += 1
+        except IndexError:
+            raise RuntimeError('y does not exist for x = ', x, ' this should not happen')
+
     return m
 
 
@@ -416,6 +420,8 @@ def determine_convergence(xs, ys, name, tol=0.0001, extra='', verbose=False, mod
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
+    if len(xs) != len(ys):
+        raise RuntimeError('the range of x and y are not equal')
     conv = False
     x_value = float('inf')
     y_value = None
@@ -428,11 +434,16 @@ def determine_convergence(xs, ys, name, tol=0.0001, extra='', verbose=False, mod
                 if mode == 'fit':
                     popt, pcov, func = multi_curve_fit(xs, ys, verbose)
                 elif mode == 'extra':
-                    popt, pcov, func = multi_reciprocal_extra(xs, ys)
+                    res = multi_reciprocal_extra(xs, ys)
+                    if res is not None:
+                        popt, pcov, func = multi_reciprocal_extra(xs, ys)
+                    else:
+                        print(xs, ys)
+                        popt, pcov = None, None
                 elif mode == 'extra_noise':
                     popt, pcov, func = multi_reciprocal_extra(xs, ys, noise=True)
                 else:
-                    raise NotImplementedError('nknown mode for test conv')
+                    raise NotImplementedError('unknown mode for test conv')
                 if func[1] > abs(tol):
                     print('warning function ', func[0], ' as the best fit but not a good fit: ', func[1])
                 # todo print this to file via a method in helper, as dict

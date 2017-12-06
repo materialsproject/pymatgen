@@ -8,7 +8,7 @@ from __future__ import division, unicode_literals, print_function
 #TODO: Replace with proper module doc.
 """
 
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 import json
 from monty.serialization import dumpfn
 import re
@@ -25,7 +25,7 @@ def do_query(args):
         count = 0
         for d in m.query(criteria, properties=["structure", "task_id"]):
             s = d["structure"]
-            formula = re.sub("\s+", "", s.formula)
+            formula = re.sub(r"\s+", "", s.formula)
             if args.structure == "poscar":
                 fname = "POSCAR.%s_%s" % (d["task_id"], formula)
             else:

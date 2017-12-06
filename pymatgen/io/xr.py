@@ -124,8 +124,8 @@ class Xr(object):
         sp = []
         coords = []
         for j in range(nsites):
-            m = re.match("\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" +
-                         "([0-9\-\.]+)", lines[4+j].strip())
+            m = re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" +
+                         r"([0-9\-\.]+)", lines[4+j].strip())
             if m:
                 tmp_sp = m.group(1)
                 if use_cores and tmp_sp[len(tmp_sp)-2:] == "_s":

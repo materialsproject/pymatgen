@@ -28,9 +28,9 @@ __email__ = "gmatteo@gmail.com"
 __status__ = "Production"
 __date__ = "May 16, 2016"
 
-
 # Loads libxc info from json file
-with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as fh:
+with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"),
+          "rt") as fh:
     _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
 
 
@@ -42,7 +42,7 @@ class LibxcFunc(Enum):
     This is a low level object, client code should not interact with LibxcFunc directly
     but use the API provided by Xcfunc.
     """
-#begin_include_dont_touch
+    # begin_include_dont_touch
     LDA_C_1D_CSC = 18
     LDA_C_1D_LOOS = 26
     LDA_C_2D_AMGB = 15
@@ -405,7 +405,8 @@ class LibxcFunc(Enum):
     HYB_MGGA_X_MS2H = 224
     HYB_MGGA_X_SCAN0 = 264
     HYB_MGGA_XC_WB97M_V = 531
-#end_include_dont_touch
+
+    # end_include_dont_touch
 
     def __init__(self, num):
         info = _all_xcfuncs[self.value]
@@ -413,7 +414,8 @@ class LibxcFunc(Enum):
         self.family = info["Family"]
 
     def __str__(self):
-        return "name=%s, kind=%s, family=%s" % (self.name, self.kind, self.family)
+        return "name=%s, kind=%s, family=%s" % (
+        self.name, self.kind, self.family)
 
     @staticmethod
     def all_families():

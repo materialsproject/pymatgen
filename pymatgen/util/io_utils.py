@@ -3,6 +3,13 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
+import re
+import six
+import errno
+import os
+import tempfile
+import codecs
+from monty.io import zopen
 
 """
 This module provides utility classes for io operations.
@@ -16,24 +23,10 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import re
-from monty.io import zopen
-
-
-def prompt(question):
-    import six
-    # Fix python 2.x.
-    if six.PY2:
-        my_input = raw_input
-    else:
-        my_input = input
-    
-    return my_input(question)
-
 
 def ask_yesno(question, default=True):
     try:
-        answer = prompt(question)
+        answer = six.moves.input(question)
         return answer.lower().strip() in ["y", "yes"]
     except EOFError:
         return default
@@ -76,7 +69,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     Regex. test and run are callable objects.
 
     This function goes through each line in filename, and if regex matches that
-    line *and* test(results,line)==True (or test == None) we execute
+    line *and* test(results,line)==True (or test is None) we execute
     run(results,match),where match is the match object from running
     Regex.match.
 
@@ -109,12 +102,6 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
                         postdebug(results, match)
 
     return results
-
-
-import errno
-import os
-import tempfile
-import codecs
 
 
 umask = os.umask(0)
@@ -184,6 +171,12 @@ class AtomicFile(object):
     def close(self):
         if not self._fp.closed:
             self._fp.close()
+            # This to avoid:
+            #   FileExistsError: [WinError 183] Cannot create a file when that file already exists:
+            # On Windows, if dst already exists, OSError will be raised even if it is a file;
+            # there may be no way to implement an atomic rename when dst names an existing file.
+            if os.name == 'nt' and os.path.exists(self.__name):
+                os.remove(self.__name)
             os.rename(self._tempname, self.__name)
 
     def discard(self):

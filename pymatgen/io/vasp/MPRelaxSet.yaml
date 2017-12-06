@@ -1,3 +1,6 @@
+# Default VASP settings for calculations in the Materials Project.
+# Reasonably robust. Use this if you intend to combine your calculated data
+# with Materials Project data for analysis.
 INCAR:
   ALGO: FAST
   EDIFF_PER_ATOM: 5.0e-05
@@ -70,27 +73,12 @@ INCAR:
   LORBIT: 11
   LREAL: AUTO
   LWAVE: false
-  MAGMOM:
-    Co: 5
-    Co3+: 0.6
-    Co4+: 1
-    Cr: 5
-    Fe: 5
-    Mn: 5
-    Mn3+: 4
-    Mn4+: 3
-    Mo: 5
-    Ni: 5
-    V: 5
-    W: 5
-    Ce: 5
-    Eu: 10
   NELM: 100
   NSW: 99
   PREC: Accurate
   SIGMA: 0.05
 KPOINTS:
-  reciprocal_density: 50
+  reciprocal_density: 64
 POTCAR:
   Ac: Ac
   Ag: Ag

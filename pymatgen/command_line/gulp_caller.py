@@ -89,7 +89,7 @@ class GulpIO(object):
         generates the 1st line of gulp input. Full keywords are expected.
 
         Args:
-            \*args: 1st line keywords
+            \\*args: 1st line keywords
         """
         #if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
         #    raise GulpError("Wrong keywords given")
@@ -163,7 +163,7 @@ class GulpIO(object):
         Args:
             structure: pymatgen.core.structure.Structure object
             potential: String specifying the type of potential used
-            \*\*kwargs: Additional parameters related to potential. For
+            \\*\\*kwargs: Additional parameters related to potential. For
                 potential == "buckingham",
                 anion_shell_flg (default = False):
                 If True, anions are considered polarizable.
@@ -290,7 +290,7 @@ class GulpIO(object):
         gin = ""
         for key in val_dict.keys():
             use_bush = True
-            el = re.sub('[1-9,+,\-]', '', key)
+            el = re.sub(r'[1-9,+,\-]', '', key)
             if el not in bpb.species_dict.keys():
                 use_bush = False
             elif val_dict[key] != bpb.species_dict[el]['oxi']:

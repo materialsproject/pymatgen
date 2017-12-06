@@ -4,6 +4,13 @@
 
 from __future__ import unicode_literals
 from __future__ import division
+import math
+import copy
+import numpy as np
+from six.moves import zip
+
+from monty.fractions import gcd
+from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve, Eq
 
 """
 Evaluate the defect concentration based on composition, temperature,
@@ -22,23 +29,9 @@ __email__ = "mbkumar@gmail.com"
 __status__ = "Alpha"
 __date__ = "6/4/14"
 
-import math
-import copy
-import numpy as np
-from six.moves import zip
-
-from monty.dev import requires
-from monty.fractions import gcd
-
-
-try:
-    from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve, Eq
-    sympy_found = True
-except ImportError:
-    sympy_found = False
 
 # physical consts
-k_B=8.6173324e-5                # eV/K
+k_B = 8.6173324e-5                # eV/K
 
 # Check the inputs
 def check_input(def_list):
@@ -49,8 +42,7 @@ def check_input(def_list):
             break
     return flag
 
-@requires(sympy_found,
-            "dilute_solution_model requires Sympy module. Please install it.")
+
 def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         trial_chem_pot = None, generate='plot'):
 
@@ -687,8 +679,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
 
     return conc_data, en_data, mu_data
 
-@requires(sympy_found,
-          "comute_defect_density requires Sympy module. Please install it.")
+
 def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
         trial_chem_pot=None, plot_style="highcharts"):
     """
@@ -772,8 +763,6 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
 #solute_site_preference_finder is based on dilute_solution_model and so most
 #of the code is same. However differences exist in setting up and processing
 #hence new function
-@requires(sympy_found, "solute_site_preference_finder requires Sympy module. "\
-        "Please install it.")
 def solute_site_preference_finder(
         structure, e0, T, vac_defs, antisite_defs,  solute_defs,
         solute_concen=0.01, trial_chem_pot = None):
@@ -1306,8 +1295,7 @@ def solute_site_preference_finder(
     #return site_pref_data, conc_data
     return  conc_data
 
-@requires(sympy_found,
-          "solute_defect_density requires Sympy module. Please install it.")
+
 def solute_defect_density(structure, e0, vac_defs, antisite_defs, solute_defs,
         solute_concen=0.01, T=800, trial_chem_pot = None,
         plot_style="highchargs"):

@@ -25,7 +25,6 @@ __date__ = "Mar 4, 2012"
 
 import os
 import re
-import warnings
 
 from multiprocessing import Pool
 from pymatgen.alchemy.materials import TransformedStructure
@@ -68,19 +67,6 @@ class StandardTransmuter(object):
             for trans in transformations:
                 self.append_transformation(trans,
                                            extend_collection=extend_collection)
-
-    def get_transformed_structures(self):
-        """
-        Returns all TransformedStructures.
-
-        .. deprecated:: v2.1.0
-
-            Use transformed_structures attribute instead. Will be removed in
-            next version.
-        """
-        warnings.warn("Use transformed_structures attribute instead.",
-                      DeprecationWarning)
-        return self.transformed_structures
 
     def __getitem__(self, index):
         return self.transformed_structures[index]
@@ -135,7 +121,7 @@ class StandardTransmuter(object):
         """
         if self.ncores and transformation.use_multiprocessing:
             p = Pool(self.ncores)
-            #need to condense arguments into single tuple to use map
+            # need to condense arguments into single tuple to use map
             z = map(
                 lambda x: (x, transformation, extend_collection, clear_redo),
                 self.transformed_structures)
@@ -186,16 +172,7 @@ class StandardTransmuter(object):
         output_dir, following the format output_dir/{formula}_{number}.
 
         Args:
-            vasp_input_set: pymatgen.io.vaspio_set.VaspInputSet to create
-                vasp input files from structures
-            output_dir: Directory to output files
-            create_directory (bool): Create the directory if not present.
-                Defaults to True.
-            subfolder: Callable to create subdirectory name from
-                transformed_structure. e.g.,
-                lambda x: x.other_parameters["tags"][0] to use the first tag.
-            include_cif (bool): Whether to output a CIF as well. CIF files
-                are generally better supported in visualization programs.
+            \\*\\*kwargs: All kwargs supported by batch_write_vasp_input.
         """
         batch_write_vasp_input(self.transformed_structures, **kwargs)
 
@@ -294,7 +271,7 @@ class CifTransmuter(StandardTransmuter):
         structure_data = []
         read_data = False
         for line in lines:
-            if re.match("^\s*data", line):
+            if re.match(r"^\s*data", line):
                 structure_data.append([])
                 read_data = True
             if read_data:
@@ -395,7 +372,7 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set=MPRelaxSet,
             programs.
     """
     for i, s in enumerate(transformed_structures):
-        formula = re.sub("\s+", "", s.final_structure.formula)
+        formula = re.sub(r"\s+", "", s.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(s)
             dirname = os.path.join(output_dir, subdir,

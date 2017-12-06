@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 5, 2012"
 
-import unittest2 as unittest
+import unittest
 import os
 from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
 from pymatgen.alchemy.filters import ContainsSpecieFilter
@@ -89,7 +89,7 @@ class PoscarTransmuterTest(unittest.TestCase):
         tsc.apply_filter(ContainsSpecieFilter(['Zn2+', 'Be2+', 'Mn4+'],
                                               strict_compare=True, AND=False))
         self.assertEqual(len(tsc), 8)
-        self.assertEqual(tsc.get_transformed_structures()[0].as_dict()[
+        self.assertEqual(tsc.transformed_structures[0].as_dict()[
                              'history'][-1]['@class'], 'ContainsSpecieFilter')
 
         tsc.apply_filter(ContainsSpecieFilter(['Be2+']))

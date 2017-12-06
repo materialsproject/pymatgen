@@ -11,7 +11,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "bkmedasani@lbl.gov"
 __date__ = "Aug 2, 2013"
 
-import unittest2 as unittest
+import unittest
 import os
 import re
 
@@ -267,7 +267,7 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
         val_dict = dict(zip(el, valences))
         self._radii = {}
         for k, v in val_dict.items():
-            k1 = re.sub('[1-9,+,\-]', '', k)
+            k1 = re.sub(r'[1-9,+,\-]', '', k)
             self._radii[k1] = float(Specie(k1, v).ionic_radius)
         p.remove(0)
         self._vac_struct = p

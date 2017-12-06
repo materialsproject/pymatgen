@@ -15,8 +15,8 @@ from numpy import pi, dot, transpose, radians
 
 from monty.json import MSONable
 from monty.dev import deprecated
-from pymatgen.util.coord_utils import pbc_shortest_vectors
-from pymatgen.util.num_utils import abs_cap
+from pymatgen.util.coord import pbc_shortest_vectors
+from pymatgen.util.num import abs_cap
 
 """
 This module defines the classes relating to 3D lattices.
@@ -296,7 +296,7 @@ class Lattice(MSONable):
         """
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters if fmt is None.
-        
+
         If fmt == "abivars", the function build a `Lattice` object from a
         dictionary with the Abinit variables `acell` and `rprim` in Bohr.
         If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
@@ -1087,7 +1087,7 @@ class Lattice(MSONable):
             fcoords2 (3x1 array): fcoords to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
                 lattice translations, e.g., [1,0,0] implies to take periodic
-                image that is one a-lattice vector away. If jimage == None,
+                image that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
         Returns:
@@ -1100,9 +1100,9 @@ class Lattice(MSONable):
             v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2,
                                          return_d2=True)
             fc = self.get_fractional_coords(v[0][0]) + frac_coords1 - \
-                 frac_coords2
+                frac_coords2
             fc = np.array(np.round(fc), dtype=np.int)
-            return (np.sqrt(d2[0, 0]), fc)
+            return np.sqrt(d2[0, 0]), fc
 
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)

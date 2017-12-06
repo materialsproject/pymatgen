@@ -77,7 +77,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
                 e.data["initial_structure"].volume - 1
             delta_vol = "{:.2f}".format(delta_vol * 100)
         all_data.append((e.data["filename"].replace("./", ""),
-                         re.sub("\s+", "", e.composition.formula),
+                         re.sub(r"\s+", "", e.composition.formula),
                          "{:.5f}".format(e.energy),
                          "{:.5f}".format(e.energy_per_atom),
                          delta_vol))
@@ -96,7 +96,7 @@ def get_magnetizations(mydir, ion_list):
     max_row = 0
     for (parent, subdirs, files) in os.walk(mydir):
         for f in files:
-            if re.match("OUTCAR*", f):
+            if re.match(r"OUTCAR*", f):
                 try:
                     row = []
                     fullpath = os.path.join(parent, f)
@@ -136,7 +136,7 @@ def analyze(args):
         if args.ion_list[0] == "All":
             ion_list = None
         else:
-            (start, end) = [int(i) for i in re.split("-", args.ion_list[0])]
+            (start, end) = [int(i) for i in re.split(r"-", args.ion_list[0])]
             ion_list = list(range(start, end + 1))
         for d in args.directories:
             get_magnetizations(d, ion_list)

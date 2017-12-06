@@ -3,7 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+from scipy.constants import N_A
 
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.units import Charge, Time
+
+from pymatgen.analysis.reaction_calculator import BalancedReaction
+from pymatgen.core.composition import Composition
+from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
+    AbstractVoltagePair
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from monty.json import MontyDecoder
 """
 This module contains the classes to build a ConversionElectrode.
 """
@@ -16,19 +26,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 1, 2012"
 __status__ = "Beta"
-
-from scipy.constants import N_A
-
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.units import Charge, Time
-
-from pymatgen.analysis.reaction_calculator import BalancedReaction
-from pymatgen.core.composition import Composition
-from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
-    AbstractVoltagePair
-from pymatgen.phasediagram.maker import PhaseDiagram
-from pymatgen.phasediagram.analyzer import PDAnalyzer
-from monty.json import MontyDecoder
 
 
 class ConversionElectrode(AbstractElectrode):
@@ -85,9 +82,7 @@ class ConversionElectrode(AbstractElectrode):
             raise ValueError("Not stable compound found at composition {}."
                              .format(comp))
 
-        analyzer = PDAnalyzer(pd)
-
-        profile = analyzer.get_element_profile(working_ion, comp)
+        profile = pd.get_element_profile(working_ion, comp)
         # Need to reverse because voltage goes form most charged to most
         # discharged.
         profile.reverse()
@@ -181,7 +176,6 @@ class ConversionElectrode(AbstractElectrode):
         composition.
         """
         for pair1 in conversion_electrode:
-            found = False
             rxn1 = pair1.rxn
             all_formulas1 = set([rxn1.all_comp[i].reduced_formula
                                  for i in range(len(rxn1.all_comp))
@@ -192,9 +186,8 @@ class ConversionElectrode(AbstractElectrode):
                                      for i in range(len(rxn2.all_comp))
                                      if abs(rxn2.coeffs[i]) > 1e-5])
                 if all_formulas1 == all_formulas2:
-                    found = True
                     break
-            if not found:
+            else:
                 return False
         return True
 
@@ -206,7 +199,6 @@ class ConversionElectrode(AbstractElectrode):
             return False
 
         for pair1 in conversion_electrode:
-            found = False
             rxn1 = pair1.rxn
             all_formulas1 = set([rxn1.all_comp[i].reduced_formula
                                  for i in range(len(rxn1.all_comp))
@@ -217,9 +209,8 @@ class ConversionElectrode(AbstractElectrode):
                                      for i in range(len(rxn2.all_comp))
                                      if abs(rxn2.coeffs[i]) > 1e-5])
                 if all_formulas1 == all_formulas2:
-                    found = True
                     break
-            if not found:
+            else:
                 return False
         return True
 

@@ -91,7 +91,7 @@ def setup_potcars(args):
 
     print("")
     print("PSP resources directory generated. It is recommended that you "
-          "run 'pmg config --add VASP_PSP_DIR %s'" % os.path.abspath(targetdir))
+          "run 'pmg config --add PMG_VASP_PSP_DIR %s'" % os.path.abspath(targetdir))
     print("Start a new terminal to ensure that your environment variables "
           "are properly set.")
 

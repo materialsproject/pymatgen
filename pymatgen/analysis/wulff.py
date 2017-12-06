@@ -21,15 +21,11 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 from __future__ import division, unicode_literals
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_recp_symmetry_operation
-from pymatgen.util.coord_utils import get_angle
+from pymatgen.util.coord import get_angle
 import numpy as np
 import scipy as sp
 from scipy.spatial import ConvexHull
 import logging
-
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import mpl_toolkits.mplot3d as mpl3
 
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
@@ -52,7 +48,7 @@ def hkl_tuple_to_str(hkl):
     str_format = '($'
     for x in hkl:
         if x < 0:
-            str_format += '\overline{' + str(-x) + '}'
+            str_format += '\\overline{' + str(-x) + '}'
         else:
             str_format += str(x)
     str_format += '$)'
@@ -305,6 +301,8 @@ class WulffShape(object):
             (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
             e_surf_on_wulff_list)
         """
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
         color_list = [off_color] * len(self.hkl_list)
         color_proxy_on_wulff = []
         miller_on_wulff = []
@@ -342,8 +340,8 @@ class WulffShape(object):
         Show the Wulff plot.
 
         Args:
-            \*args: Passed to get_plot.
-            \*\*kwargs: Passed to get_plot.
+            \\*args: Passed to get_plot.
+            \\*\\*kwargs: Passed to get_plot.
         """
         self.get_plot(*args, **kwargs).show()
 
@@ -370,7 +368,9 @@ class WulffShape(object):
         Return:
             (matplotlib.pyplot)
         """
-
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+        import mpl_toolkits.mplot3d as mpl3
         color_list, color_proxy, color_proxy_on_wulff, \
             miller_on_wulff, e_surf_on_wulff = self._get_colors(
                 color_set, alpha, off_color)

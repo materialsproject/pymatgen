@@ -4,6 +4,18 @@
 
 from __future__ import division, unicode_literals
 
+from math import pi, sqrt, log
+from datetime import datetime
+from copy import deepcopy, copy
+from warnings import warn
+import bisect
+
+import numpy as np
+from scipy.special import erfc
+from scipy.misc import comb
+
+import scipy.constants as constants
+
 """
 This module provides classes for calculating the ewald sum of a structure.
 """
@@ -16,18 +28,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Aug 1 2012"
-
-from math import pi, sqrt, log
-from datetime import datetime
-from copy import deepcopy, copy
-from warnings import warn
-import bisect
-
-import numpy as np
-from scipy.special import erfc
-from scipy.misc import comb
-
-import scipy.constants as constants
 
 
 class EwaldSummation(object):
@@ -290,13 +290,12 @@ class EwaldSummation(object):
         for g, g2, gr, expval, sreal, simag in zip(gs, g2s, grs, expvals,
                                                    sreals, simags):
 
-            # Create array where exparg[i,j] is gvectdot[i] - gvectdot[j]
-            exparg = gr[None, :] - gr[:, None]
-
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
-            sfactor = qiqj * np.sin(exparg + pi / 4) * 2 ** 0.5
+            m = (gr[None, :] + pi / 4) - gr[:, None]
+            np.sin(m, m)
+            m *= expval / g2
 
-            erecip += expval / g2 * sfactor
+            erecip += m
 
             if self._compute_forces:
                 pref = 2 * expval / g2 * oxistates
@@ -306,8 +305,7 @@ class EwaldSummation(object):
                 forces += factor[:, None] * g[None, :]
 
         forces *= EwaldSummation.CONV_FACT
-        erecip *= prefactor * EwaldSummation.CONV_FACT
-
+        erecip *= prefactor * EwaldSummation.CONV_FACT * qiqj * 2 ** 0.5
         return erecip, forces
 
     def _calc_real_and_point(self):
@@ -366,11 +364,19 @@ class EwaldSummation(object):
         return self._eta
 
     def __str__(self):
-        output = ["Real = " + str(self.real_space_energy),
+        if self._compute_forces:
+            output = ["Real = " + str(self.real_space_energy),
                   "Reciprocal = " + str(self.reciprocal_space_energy),
                   "Point = " + str(self.point_energy),
                   "Total = " + str(self.total_energy),
-                  "Forces:\n" + str(self.forces)]
+                  "Forces:\n" + str(self.forces)
+                  ]           
+        else:
+            output = ["Real = " + str(self.real_space_energy),
+                  "Reciprocal = " + str(self.reciprocal_space_energy),
+                  "Point = " + str(self.point_energy),
+                  "Total = " + str(self.total_energy),
+                  "Forces were not computed"]
         return "\n".join(output)
 
 

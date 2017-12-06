@@ -54,8 +54,8 @@ def get_chgint_plot(args):
                  finder.get_symmetrized_structure().equivalent_sites]
         atom_ind = [s.sites.index(site) for site in sites]
 
-    from pymatgen.util.plotting_utils import get_publication_quality_plot
-    plt = get_publication_quality_plot(12, 8)
+    from pymatgen.util.plotting import pretty_plot
+    plt = pretty_plot(12, 8)
     for i in atom_ind:
         d = chgcar.get_integrated_diff(i, args.radius, 30)
         plt.plot(d[:, 0], d[:, 1],
@@ -68,7 +68,7 @@ def get_chgint_plot(args):
 
 
 def get_xrd_plot(args):
-    s = Structure.from_file(args.xrd)
+    s = Structure.from_file(args.xrd_structure_file)
     c = XRDCalculator()
     return c.get_xrd_plot(s)
 
@@ -84,6 +84,6 @@ def plot(args):
 
     if plt:
         if args.out_file:
-            plt.savefig(args.file[0])
+            plt.savefig(args.out_file)
         else:
             plt.show()

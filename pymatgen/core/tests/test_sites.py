@@ -4,6 +4,15 @@
 
 from __future__ import division, unicode_literals
 
+import numpy as np
+import pickle
+
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.sites import Site, PeriodicSite
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.composition import Composition
+
 """
 Created on Jul 17, 2012
 """
@@ -15,15 +24,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 17, 2012"
-
-import numpy as np
-import pickle
-
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.sites import Site, PeriodicSite
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.composition import Composition
 
 
 class SiteTest(PymatgenTest):
@@ -210,7 +210,7 @@ def get_distance_and_image_old(site1, site2, jimage=None):
         jimage:
             specific periodic image in terms of lattice translations,
             e.g., [1,0,0] implies to take periodic image that is one
-            a-lattice vector away. If jimage == None, the image that is
+            a-lattice vector away. If jimage is None, the image that is
             nearest to the site is found.
 
     Returns:
@@ -235,5 +235,5 @@ def get_distance_and_image_old(site1, site2, jimage=None):
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
-    import unittest2 as unittest
+    import unittest
     unittest.main()

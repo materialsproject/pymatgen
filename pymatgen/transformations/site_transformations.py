@@ -45,8 +45,8 @@ class InsertSitesTransformation(AbstractTransformation):
             [[0,0,0],[0.5,0.5,0.5]].
         coords_are_cartesian (bool): Set to True if coords are given in
             cartesian coords. Defaults to False.
-        validate_proximity (bool): Set to False if you do not wish to ensure that added sites are
-            not too close to other sites. Defaults to True.
+        validate_proximity (bool): Set to False if you do not wish to ensure
+            that added sites are not too close to other sites. Defaults to True.
     """
     def __init__(self, species, coords, coords_are_cartesian=False,
                  validate_proximity=True):
@@ -89,9 +89,9 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         indices_species_map: A dict containing the species mapping in
             int-string pairs. E.g., { 1:"Na"} or {2:"Mn2+"}. Multiple
             substitutions can be done. Overloaded to accept sp_and_occu
-            dictionary. E.g. {"Si: {"Ge":0.75, "C":0.25} }, which
-            substitutes a single species with multiple species to generate a disordered
-            structure.
+            dictionary. E.g. {1: {"Ge":0.75, "C":0.25} }, which
+            substitutes a single species with multiple species to generate a
+            disordered structure.
     """
     def __init__(self, indices_species_map):
         self.indices_species_map = indices_species_map
@@ -513,3 +513,35 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
+
+
+class AddSitePropertyTransformation(AbstractTransformation):
+    """
+    Simple transformation to add site properties to a given structure
+    """
+    def __init__(self, site_properties):
+        """
+        Args:
+            site_properties (dict): site properties to be added to a structure
+        """
+        self.site_properties = site_properties
+
+    def apply_transformation(self, structure):
+        """
+        apply the transformation
+        
+        Args:
+            structure (Structure): structure to add site properties to
+        """
+        new_structure = structure.copy()
+        for prop in self.site_properties.keys():
+            new_structure.add_site_property(prop, self.site_properties[prop])
+        return new_structure
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False

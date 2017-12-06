@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 import os
 from unittest import TestCase
-import unittest2 as unittest
+import unittest
 from pymatgen.analysis.molecule_structure_comparator import \
     MoleculeStructureComparator
 from pymatgen.core.structure import Molecule

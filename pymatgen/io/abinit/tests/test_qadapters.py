@@ -3,16 +3,16 @@
 # Distributed under the terms of the MIT License.
 from __future__ import unicode_literals, division, print_function
 
-import yaml
-import unittest2 as unittest
+import ruamel.yaml as yaml
+import unittest
+import sys
 
-from collections import OrderedDict
-from monty.collections import AttrDict
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.tasks import ParalConf
 from pymatgen.io.abinit.qadapters import *
 from pymatgen.io.abinit.qadapters import QueueAdapter, SlurmAdapter 
 from pymatgen.io.abinit import qutils as qu
+
 
 class ParseTimestr(PymatgenTest):
     def test_slurm_parse_timestr(self):
@@ -35,8 +35,9 @@ class ParseTimestr(PymatgenTest):
         aequal(slurm_parse_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
 
 
+@unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class QadapterTest(PymatgenTest):
-    QDICT = yaml.load("""\
+    QDICT = yaml.safe_load("""\
 priority: 1
 queue:
     qtype: slurm
@@ -164,9 +165,10 @@ hardware:
         assert isinstance(qad, MyAdapter)
 
 
+@unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class ShellAdapterTest(PymatgenTest):
     """Test suite for Shell adapter."""
-    QDICT = yaml.load("""\
+    QDICT = yaml.safe_load("""\
 priority: 1
 queue:
     qname: localhost
@@ -212,9 +214,10 @@ source ~/env1.sh
 """)
 
 
+@unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class SlurmAdapterTest(PymatgenTest):
     """Test suite for Slurm adapter."""
-    QDICT = yaml.load("""\
+    QDICT = yaml.safe_load("""\
 priority: 5
 queue:
   qtype: slurm
@@ -296,9 +299,10 @@ mpirun -n 4 executable < stdin > stdout 2> stderr
         #assert qad.has_omp
 
 
+@unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class PbsProadapterTest(PymatgenTest):
     """Test suite for PbsPro adapter."""
-    QDICT = yaml.load("""\
+    QDICT = yaml.safe_load("""\
 priority: 1
 queue:
     qtype: pbspro
@@ -316,7 +320,7 @@ hardware:
     sockets_per_node: 2
     cores_per_socket: 4
     mem_per_node: 8 Gb""")
-    QDICT_SHARED = yaml.load("""\
+    QDICT_SHARED = yaml.safe_load("""\
 priority: 1
 queue:
     qtype: pbspro
@@ -337,7 +341,7 @@ hardware:
     sockets_per_node: 2
     cores_per_socket: 12
     mem_per_node: 48000 Mb""")
-    QDICT_EXCLUSIVE = yaml.load("""\
+    QDICT_EXCLUSIVE = yaml.safe_load("""\
 priority: 1
 queue:
     qtype: pbspro
@@ -381,8 +385,7 @@ hardware:
 
 #PBS -q fat
 #PBS -N job_name
-#PBS -l select=3:ncpus=1:vmem=1024mb:mpiprocs=1
-#PBS -l pvmem=1024mb
+#PBS -l select=3:ncpus=1:mem=1024mb:mpiprocs=1
 #PBS -l walltime=0:0:10
 #PBS -W group_list=naps
 #PBS -o qout_path
@@ -400,26 +403,26 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         s, params = qad.get_select(ret_dict=True)
         # IN_CORE PURE MPI: MPI: 4, OMP: 1
         aequal(params, 
-          {'ncpus': 1, 'chunks': 4, 'mpiprocs': 1, "vmem": mem})
+          {'ncpus': 1, 'chunks': 4, 'mpiprocs': 1, "mem": mem})
 
         qad.set_omp_threads(2)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 4, OMP: 2
         aequal(params, 
-            {'vmem': mem, 'ncpus': 2, 'chunks': 4, 'ompthreads': 2, 'mpiprocs': 1})
+            {'mem': mem, 'ncpus': 2, 'chunks': 4, 'ompthreads': 2, 'mpiprocs': 1})
 
         qad.set_mpi_procs(12)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 12, OMP: 2
         aequal(params, 
-            {'vmem': mem, 'ncpus': 2, 'chunks': 12, 'ompthreads': 2, 'mpiprocs': 1})
+            {'mem': mem, 'ncpus': 2, 'chunks': 12, 'ompthreads': 2, 'mpiprocs': 1})
 
         qad.set_omp_threads(5)
         qad.set_mpi_procs(3)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP, NOT commensurate with nodes:  MPI: 3, OMP: 5
         aequal(params, 
-            {'vmem': mem, 'ncpus': 5, 'chunks': 3, 'ompthreads': 5, 'mpiprocs': 1})
+            {'mem': mem, 'ncpus': 5, 'chunks': 3, 'ompthreads': 5, 'mpiprocs': 1})
 
         # Testing the handling of master memory overhead
         # Shared mode (the nodes might be shared amongst different jobs from different users)
@@ -427,14 +430,14 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         aequal(qad_shared.hw.mem_per_node, 48000)
         qad_shared.set_mpi_procs(15)
         qad_shared.set_mem_per_proc(6000)
-        aequal(qad_shared.get_select(), '1:ncpus=1:vmem=7000mb:mpiprocs=1+'
-                                        '14:ncpus=1:vmem=6000mb:mpiprocs=1')
+        aequal(qad_shared.get_select(), '1:ncpus=1:mem=7000mb:mpiprocs=1+'
+                                        '14:ncpus=1:mem=6000mb:mpiprocs=1')
         qad_shared.set_mpi_procs(64)
         qad_shared.set_mem_per_proc(3500)
         qad_shared.set_master_mem_overhead(4000)
         self.assertMSONable(qad_shared)
-        aequal(qad_shared.get_select(), '1:ncpus=1:vmem=7500mb:mpiprocs=1+'
-                                        '63:ncpus=1:vmem=3500mb:mpiprocs=1')
+        aequal(qad_shared.get_select(), '1:ncpus=1:mem=7500mb:mpiprocs=1+'
+                                        '63:ncpus=1:mem=3500mb:mpiprocs=1')
 
         # Exclusive mode (the nodes are attributed exclusively to a given user)
         qad_exclusive = make_qadapter(**self.QDICT_EXCLUSIVE)
@@ -443,16 +446,16 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         qad_exclusive.set_mem_per_proc(2000)
         qad_exclusive.set_master_mem_overhead(1)
         self.assertMSONable(qad_exclusive)
-        aequal(qad_exclusive.get_select(), '1:ncpus=23:vmem=48000mb:mpiprocs=23+'
-                                           '1:ncpus=24:vmem=48000mb:mpiprocs=24')
+        aequal(qad_exclusive.get_select(), '1:ncpus=23:mem=48000mb:mpiprocs=23+'
+                                           '1:ncpus=24:mem=48000mb:mpiprocs=24')
         qad_exclusive.set_mpi_procs(48)
-        aequal(qad_exclusive.get_select(), '1:ncpus=1:vmem=48000mb:mpiprocs=1+'
-                                           '1:ncpus=24:vmem=48000mb:mpiprocs=24+'
-                                           '1:ncpus=23:vmem=48000mb:mpiprocs=23')
+        aequal(qad_exclusive.get_select(), '1:ncpus=1:mem=48000mb:mpiprocs=1+'
+                                           '1:ncpus=24:mem=48000mb:mpiprocs=24+'
+                                           '1:ncpus=23:mem=48000mb:mpiprocs=23')
         qad_exclusive.set_mpi_procs(50)
-        aequal(qad_exclusive.get_select(), '1:ncpus=2:vmem=48000mb:mpiprocs=2+'
-                                           '2:ncpus=24:vmem=48000mb:mpiprocs=24')
+        aequal(qad_exclusive.get_select(), '1:ncpus=2:mem=48000mb:mpiprocs=2+'
+                                           '2:ncpus=24:mem=48000mb:mpiprocs=24')
 
 if __name__ == '__main__':
-    import unittest2 as unittest
+    import unittest
     unittest.main()

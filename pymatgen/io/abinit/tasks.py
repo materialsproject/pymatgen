@@ -11,7 +11,7 @@ import shutil
 import collections
 import abc
 import copy
-import yaml
+import ruamel.yaml as yaml
 import six
 import numpy as np
 
@@ -20,13 +20,13 @@ from itertools import product
 from six.moves import map, zip, StringIO
 from monty.dev import deprecated
 from monty.string import is_string, list_strings
-from monty.termcolor import colored
+from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MSONable
 from monty.fnmatch import WildCard
 from pymatgen.core.units import Memory
-from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
+from pymatgen.util.serialization import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
 from . import qutils as qu
@@ -45,6 +45,8 @@ __all__ = [
     "TaskManager",
     "AbinitBuild",
     "ParalHintsParser",
+    "ParalHints",
+    "AbinitTask",
     "ScfTask",
     "NscfTask",
     "RelaxTask",
@@ -231,7 +233,7 @@ class ParalHintsParser(object):
         with abiinspect.YamlTokenizer(filename) as r:
             doc = r.next_doc_with_tag("!Autoparal")
             try:
-                d = yaml.load(doc.text_notag)
+                d = yaml.safe_load(doc.text_notag)
                 return ParalHints(info=d["info"], confs=d["configurations"])
             except:
                 import traceback
@@ -586,7 +588,6 @@ batch_adapter:
         if not os.path.exists(path):
             raise RuntimeError(colored(
 		"\nCannot locate %s neither in current directory nor in %s\n"
-                "\nCannot locate %s neither in current directory nor in %s\n"
                 "!!! PLEASE READ THIS: !!!\n"
                 "To use abipy to run jobs this file must be present\n"
                 "It provides a description of the cluster/computer you are running on\n"
@@ -600,7 +601,7 @@ batch_adapter:
         """Read the configuration parameters from the Yaml file filename."""
         try:
             with open(filename, "r") as fh:
-                return cls.from_dict(yaml.load(fh))
+                return cls.from_dict(yaml.safe_load(fh))
         except Exception as exc:
             print("Error while reading TaskManager parameters from %s\n" % filename)
             raise
@@ -608,7 +609,7 @@ batch_adapter:
     @classmethod
     def from_string(cls, s):
         """Create an instance from string s containing a YAML dictionary."""
-        return cls.from_dict(yaml.load(s))
+        return cls.from_dict(yaml.safe_load(s))
 
     @classmethod
     def as_manager(cls, obj):
@@ -685,6 +686,11 @@ batch_adapter:
 
         if kwargs:
             raise ValueError("Found invalid keywords in the taskmanager file:\n %s" % str(list(kwargs.keys())))
+
+    @lazy_property
+    def abinit_build(self):
+        """:class:`AbinitBuild` object with Abinit version and options used to build the code"""
+        return AbinitBuild(manager=self)
 
     def to_shell_manager(self, mpi_procs=1):
         """
@@ -780,6 +786,7 @@ batch_adapter:
                 possible_pconfs = [pc for pc in pconfs if qad.can_run_pconf(pc)]
 
                 if qad.allocation == "nodes":
+                #if qad.allocation in ["nodes", "force_nodes"]:
                     # Select the configuration divisible by nodes if possible.
                     for pconf in possible_pconfs:
                         if pconf.num_cores % qad.hw.cores_per_node == 0:
@@ -968,7 +975,7 @@ batch_adapter:
         # Submit the task and save the queue id.
         try:
             qjob, process = self.qadapter.submit_to_queue(script_file)
-            task.set_status(task.S_SUB, msg='submitted to queue')
+            task.set_status(task.S_SUB, msg='Submitted to queue')
             task.set_qjob(qjob)
             return process
 
@@ -1049,9 +1056,6 @@ class AbinitBuild(object):
         .. attribute:: has_netcdf
             True if netcdf is enabled.
 
-        .. attribute:: has_etsfio
-            True if etsf-io is enabled.
-
         .. attribute:: has_omp
             True if OpenMP is enabled.
 
@@ -1088,11 +1092,13 @@ class AbinitBuild(object):
             fh.write(script)
         qjob, process = manager.qadapter.submit_to_queue(script_file)
         process.wait()
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
 
-        with open(stdout, "r") as fh:
+        with open(stdout, "rt") as fh:
             self.info = fh.read()
 
         # info string has the following format.
@@ -1143,7 +1149,6 @@ class AbinitBuild(object):
          Committed : 0
         """
         self.has_netcdf = False
-        self.has_etsfio = False
         self.has_omp = False
         self.has_mpi, self.has_mpiio = False, False
 
@@ -1156,7 +1161,6 @@ class AbinitBuild(object):
             if "Version" in line: self.version = line.split()[-1]
             if "TRIO flavor" in line:
                 self.has_netcdf = "netcdf" in line
-                self.has_etsfio = "etsf_io" in line
             if "openMP support" in line: self.has_omp = yesno2bool(line)
             if "Parallel build" in line: self.has_mpi = yesno2bool(line)
             if "Parallel I/O" in line: self.has_mpiio = yesno2bool(line)
@@ -1167,8 +1171,20 @@ class AbinitBuild(object):
         app("Abinit Build Information:")
         app("    Abinit version: %s" % self.version)
         app("    MPI: %s, MPI-IO: %s, OpenMP: %s" % (self.has_mpi, self.has_mpiio, self.has_omp))
-        app("    Netcdf: %s, ETSF-IO: %s" % (self.has_netcdf, self.has_etsfio))
+        app("    Netcdf: %s" % self.has_netcdf)
         return "\n".join(lines)
+
+    def version_ge(self, version_string):
+        """True is Abinit version is >= version_string"""
+        return self.compare_version(version_string, ">=")
+
+    def compare_version(self, version_string, op):
+        """Compare Abinit version to `version_string` with operator `op`"""
+        from pkg_resources import parse_version
+        from monty.operator import operator_from_str
+        op = operator_from_str(op)
+        return op(parse_version(self.version), parse_version(version_string))
+
 
 
 class FakeProcess(object):
@@ -1473,7 +1489,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def executable(self):
         """
         Path to the executable associated to the task (internally stored in self._executable).
@@ -1627,6 +1644,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def wait(self):
         """Wait for child process to terminate. Set and return returncode attribute."""
         self._returncode = self.process.wait()
+        try:
+            self.process.stderr.close()
+        except:
+            pass
         self.set_status(self.S_DONE, "status set to Done")
 
         return self._returncode
@@ -1674,7 +1695,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Can only reset tasks that are done.
         # One should be able to reset 'Submitted' tasks (sometimes, they are not in the queue
         # and we want to restart them)
-        if self.status != self.S_SUB and self.status < self.S_DONE: return 1
+        #if self.status != self.S_SUB and self.status < self.S_DONE: return 1
 
         # Remove output files otherwise the EventParser will think the job is still running
         self.output_file.remove()
@@ -1948,30 +1969,28 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             scheduler_parser.parse()
 
             if scheduler_parser.errors:
+                # Store the queue errors in the task
                 self.queue_errors = scheduler_parser.errors
-                # the queue errors in the task
-                msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
-                # self.history.critical(msg)
-                return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
+                msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
+                return self.set_status(self.S_QCRITICAL, msg=msg)
+
             elif lennone(qerr_info) > 0:
                 # if only qout_info, we are not necessarily in QCRITICAL state,
                 # since there will always be info in the qout file
-                msg = 'found unknown messages in the queue error: %s' % str(qerr_info)
-                logger.history.info(msg)
-                print(msg)
-                # self.num_waiting += 1
-                # if self.num_waiting > 1000:
-                rt = self.datetimes.get_runtime().seconds
-                tl = self.manager.qadapter.timelimit
-                if rt > tl:
-                    msg += 'set to error : runtime (%s) exceded walltime (%s)' % (rt, tl)
-                    print(msg)
-                    return self.set_status(self.S_ERROR, msg=msg)
+                self.history.info('found unknown messages in the queue error: %s' % str(qerr_info))
+                #try:
+                #    rt = self.datetimes.get_runtime().seconds
+                #except:
+                #    rt = -1.0
+                #tl = self.manager.qadapter.timelimit
+                #if rt > tl:
+                #    msg += 'set to error : runtime (%s) exceded walltime (%s)' % (rt, tl)
+                #    print(msg)
+                #    return self.set_status(self.S_ERROR, msg=msg)
                 # The job may be killed or crashed but we don't know what happened
                 # It may also be that an innocent message was written to qerr, so we wait for a while
                 # it is set to QCritical, we will attempt to fix it by running on more resources
-
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
@@ -2072,17 +2091,20 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 dest = self.ipath_from_ext(ext)
 
                 if not os.path.exists(path):
-                    # Try netcdf file. TODO: this case should be treated in a cleaner way.
+                    # Try netcdf file.
+                    # TODO: this case should be treated in a cleaner way.
                     path += ".nc"
                     if os.path.exists(path): dest += ".nc"
 
                 if not os.path.exists(path):
                     raise self.Error("%s: %s is needed by this task but it does not exist" % (self, path))
 
+                if path.endswith(".nc") and not dest.endswith(".nc"): # NC --> NC file
+                    dest += ".nc"
+
                 # Link path to dest if dest link does not exist.
                 # else check that it points to the expected file.
                 logger.debug("Linking path %s --> %s" % (path, dest))
-
                 if not os.path.exists(dest):
                     os.symlink(path, dest)
                 else:
@@ -2384,7 +2406,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             except QueueAdapterError as exc:
                 # If autoparal cannot find a qadapter to run the calculation raises an Exception
                 self.history.critical(exc)
-                msg = "Error trying to find a running configuration:\n%s" % straceback()
+                msg = "Error while trying to run autoparal in task:%s\n%s" % (repr(task), straceback())
+                cprint(msg, "yellow")
                 self.set_status(self.S_QCRITICAL, msg=msg)
                 return 0
             except Exception as exc:
@@ -2404,11 +2427,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 try:
                     self.autoparal_run()
                     self.history.info("Second call to autoparal succeeded!")
+                    #cprint("Second call to autoparal succeeded!", "green")
 
                 except Exception as exc:
                     self.history.critical("Second call to autoparal failed with %s. Cannot recover!", exc)
                     msg = "Tried autoparal again but got:\n%s" % straceback()
-                    # logger.critical(msg)
+                    cprint(msg, "red")
                     self.set_status(self.S_ABICRITICAL, msg=msg)
                     return 0
 
@@ -2452,10 +2476,13 @@ class AbinitTask(Task):
         return cls(input, workdir=workdir, manager=manager)
 
     @classmethod
-    def temp_shell_task(cls, inp, workdir=None, manager=None):
+    def temp_shell_task(cls, inp, mpi_procs=1, workdir=None, manager=None):
         """
         Build a Task with a temporary workdir. The task is executed via the shell with 1 MPI proc.
         Mainly used for invoking Abinit to get important parameters needed to prepare the real task.
+
+        Args:
+            mpi_procs: Number of MPI processes to use.
         """
         # Build a simple manager to run the job in a shell subprocess
         import tempfile
@@ -2463,7 +2490,7 @@ class AbinitTask(Task):
         if manager is None: manager = TaskManager.from_user_config()
 
         # Construct the task and run it
-        task = cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+        task = cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=mpi_procs))
         task.set_name('temp_shell_task')
         return task
 
@@ -2642,9 +2669,11 @@ class AbinitTask(Task):
         process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
         self.history.pop()
         retcode = process.wait()
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         # Remove the variables added for the automatic parallelization
-        self.input.remove_vars(autoparal_vars.keys())
+        self.input.remove_vars(list(autoparal_vars.keys()))
 
         ##############################################################
         # Parse the autoparal configurations from the main output file
@@ -3222,10 +3251,12 @@ class RelaxTask(GsTask, ProduceHist):
         # by the last run that has executed on_done.
         # ********************************************************************************
         if restart_file is None:
-            out_den = self.outdir.path_in("out_DEN")
-            if os.path.exists(out_den):
-                irdvars = irdvars_for_ext("DEN")
-                restart_file = self.out_to_in(out_den)
+            for ext in ("", ".nc"):
+                out_den = self.outdir.path_in("out_DEN" + ext)
+                if os.path.exists(out_den):
+                    irdvars = irdvars_for_ext("DEN")
+                    restart_file = self.out_to_in(out_den)
+                    break
 
         if restart_file is None:
             # Try to restart from the last TIM?_DEN file.
@@ -3233,7 +3264,10 @@ class RelaxTask(GsTask, ProduceHist):
             # Find the last TIM?_DEN file.
             last_timden = self.outdir.find_last_timden_file()
             if last_timden is not None:
-                ofile = self.outdir.path_in("out_DEN")
+                if last_timden.path.endswith(".nc"):
+                    ofile = self.outdir.path_in("out_DEN.nc")
+                else:
+                    ofile = self.outdir.path_in("out_DEN")
                 os.rename(last_timden.path, ofile)
                 restart_file = self.out_to_in(ofile)
                 irdvars = irdvars_for_ext("DEN")
@@ -3319,6 +3353,7 @@ class RelaxTask(GsTask, ProduceHist):
 
         # Rename last TIMDEN with out_DEN.
         ofile = self.outdir.path_in("out_DEN")
+        if last_timden.path.endswith(".nc"): ofile += ".nc"
         self.history.info("Renaming last_denfile %s --> %s" % (last_timden.path, ofile))
         os.rename(last_timden.path, ofile)
 
@@ -3364,9 +3399,115 @@ class DfptTask(AbinitTask):
             return None
 
 
-# TODO Remove
 class DdeTask(DfptTask):
     """Task for DDE calculations."""
+
+    def make_links(self):
+        """Replace the default behaviour of make_links"""
+
+        for dep in self.deps:
+            if dep.exts == ["DDK"]:
+                ddk_task = dep.node
+                out_ddk = ddk_task.outdir.has_abiext("DDK")
+                if not out_ddk:
+                    raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
+
+                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
+                rfdir = list(ddk_task.input["rfdir"])
+                if rfdir.count(1) != 1:
+                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
+
+                idir = rfdir.index(1) + 1
+                ddk_case = idir +  3 * len(ddk_task.input.structure)
+
+                infile = self.indir.path_in("in_1WF%d" % ddk_case)
+                os.symlink(out_ddk, infile)
+
+            elif dep.exts == ["WFK"]:
+                gs_task = dep.node
+                out_wfk = gs_task.outdir.has_abiext("WFK")
+                if not out_wfk:
+                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                if not os.path.exists(self.indir.path_in("in_WFK")):
+                    os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+
+            else:
+                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
+
+
+    def get_results(self, **kwargs):
+        results = super(DdeTask, self).get_results(**kwargs)
+        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
+
+
+class DteTask(DfptTask):
+    """Task for DTE calculations."""
+
+    # @check_spectator
+    def start(self, **kwargs):
+        kwargs['autoparal'] = False
+        return super(DteTask, self).start(**kwargs)
+
+    def make_links(self):
+        """Replace the default behaviour of make_links"""
+
+        for dep in self.deps:
+            for d in dep.exts:
+                if d == "DDK":
+                    ddk_task = dep.node
+                    out_ddk = ddk_task.outdir.has_abiext("DDK")
+                    if not out_ddk:
+                        raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
+
+                    # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
+                    rfdir = list(ddk_task.input["rfdir"])
+                    if rfdir.count(1) != 1:
+                        raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
+
+                    idir = rfdir.index(1) + 1
+                    ddk_case = idir + 3 * len(ddk_task.input.structure)
+
+                    infile = self.indir.path_in("in_1WF%d" % ddk_case)
+                    os.symlink(out_ddk, infile)
+
+                elif d == "WFK":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("WFK")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                    if not os.path.exists(self.indir.path_in("in_WFK")):
+                        os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+
+
+                elif d == "DEN":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("DEN")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                    if not os.path.exists(self.indir.path_in("in_DEN")):
+                        os.symlink(out_wfk, self.indir.path_in("in_DEN"))
+
+                elif d == "1WF":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("1WF")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the 1WF file" % gs_task)
+                    dest = self.indir.path_in("in_" + out_wfk.split("_")[-1])
+                    if not os.path.exists(dest):
+                        os.symlink(out_wfk, dest)
+
+                elif d == "1DEN":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("DEN")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the 1WF file" % gs_task)
+                    dest = self.indir.path_in("in_" + out_wfk.split("_")[-1])
+                    if not os.path.exists(dest):
+                        os.symlink(out_wfk, dest)
+
+
+                else:
+                    raise ValueError("Don't know how to handle extension: %s" % dep.exts)
 
     def get_results(self, **kwargs):
         results = super(DdeTask, self).get_results(**kwargs)
@@ -4111,9 +4252,11 @@ class OpticTask(Task):
         process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
         self.history.pop()
         retcode = process.wait()
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         # Remove the variables added for the automatic parallelization
-        self.input.remove_vars(autoparal_vars.keys())
+        self.input.remove_vars(list(autoparal_vars.keys()))
 
         ##############################################################
         # Parse the autoparal configurations from the main output file
@@ -4196,13 +4339,14 @@ class AnaddbTask(Task):
         super(AnaddbTask, self).__init__(input=anaddb_input, workdir=workdir, manager=manager, deps=deps)
 
     @classmethod
-    def temp_shell_task(cls, inp, ddb_node,
+    def temp_shell_task(cls, inp, ddb_node, mpi_procs=1,
                         gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
         """
         Build a :class:`AnaddbTask` with a temporary workdir. The task is executed via
         the shell with 1 MPI proc. Mainly used for post-processing the DDB files.
 
         Args:
+            mpi_procs: Number of MPI processes to use.
             anaddb_input: string with the anaddb variables.
             ddb_node: The node that will produce the DDB file. Accept :class:`Task`, :class:`Work` or filepath.
 
@@ -4216,7 +4360,7 @@ class AnaddbTask(Task):
         # Construct the task and run it
         return cls(inp, ddb_node,
                    gkk_node=gkk_node, md_node=md_node, ddk_node=ddk_node,
-                   workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+                   workdir=workdir, manager=manager.to_shell_manager(mpi_procs=mpi_procs))
 
     @property
     def executable(self):

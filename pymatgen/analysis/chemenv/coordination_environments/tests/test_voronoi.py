@@ -3,7 +3,7 @@
 
 __author__ = 'waroquiers'
 
-import unittest2 as unittest
+import unittest
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice

@@ -11,6 +11,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
+from pymatgen.electronic_structure.core import Magmom
 import random
 import os
 import numpy as np
@@ -32,7 +33,7 @@ class IStructureTest(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])
         self.assertRaises(StructureError, IStructure, self.lattice,
-                          ["Si"] * 2, coords, True)
+                          ["Si"] * 2, coords, validate_proximity=True)
         self.propertied_structure = IStructure(
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
@@ -48,10 +49,9 @@ class IStructureTest(PymatgenTest):
         coords.append([0.75, 0.5, 0.75])
         self.assertRaises(StructureError, IStructure, self.lattice,
                           ["Si"] * 3, coords, validate_proximity=True)
-        #these shouldn't raise an error
+        # these shouldn't raise an error
         IStructure(self.lattice, ["Si"] * 2, coords[:2], True)
         IStructure(self.lattice, ["Si"], coords[:1], True)
-
 
     def test_volume_and_density(self):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
@@ -296,6 +296,14 @@ class IStructureTest(PymatgenTest):
         bcc_prim = bcc_li.get_primitive_structure()
         self.assertEqual(len(bcc_prim), 1)
         self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+        bcc_li = IStructure(Lattice.cubic(4.09), ["Li"] * 2, coords,
+                            site_properties={"magmom": [1, -1]})
+        bcc_prim = bcc_li.get_primitive_structure()
+        self.assertEqual(len(bcc_prim), 1)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+        bcc_prim = bcc_li.get_primitive_structure(use_site_props=True)
+        self.assertEqual(len(bcc_prim), 2)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 90, 3)
 
         coords = [[0] * 3, [0.5] * 3, [0.25] * 3, [0.26] * 3]
         s = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
@@ -438,6 +446,15 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s.formula, "Fe1")
         self.assertEqual(s[0].magmom, 5)
 
+        # Test atomic replacement.
+        s["Fe"] = "Mn"
+        self.assertEqual(s.formula, "Mn1")
+
+        # Test slice replacement.
+        s = PymatgenTest.get_structure("Li2O")
+        s[0:2] = "S"
+        self.assertEqual(s.formula, "Li1 S2")
+
     def test_non_hash(self):
         self.assertRaises(TypeError, dict, [(self.structure, 1)])
 
@@ -497,7 +514,7 @@ class StructureTest(PymatgenTest):
         s.remove_sites([1, 2])
         self.assertEqual(s.formula, "Ge0.25")
 
-    def test_add_site_property(self):
+    def test_add_remove_site_property(self):
         s = self.structure
         s.add_site_property("charge", [4.1, -5])
         self.assertEqual(s[0].charge, 4.1)
@@ -505,6 +522,8 @@ class StructureTest(PymatgenTest):
         s.add_site_property("magmom", [3, 2])
         self.assertEqual(s[0].charge, 4.1)
         self.assertEqual(s[0].magmom, 3)
+        s.remove_site_property("magmom")
+        self.assertRaises(AttributeError, getattr, s[0], "magmom")
 
     def test_propertied_structure(self):
         #Make sure that site properties are set to None for missing values.
@@ -554,6 +573,35 @@ class StructureTest(PymatgenTest):
         s_specie.remove_oxidation_states()
         self.assertEqual(s_elem, s_specie, "Oxidation state remover "
                                            "failed")
+
+    def test_add_oxidation_states_by_guess(self):
+        s = PymatgenTest.get_structure("Li2O")
+        s.add_oxidation_state_by_guess()
+        for i in s:
+            self.assertTrue(i.specie in [Specie("Li", 1),
+                                         Specie("O", -2)])
+
+    def test_add_remove_spin_states(self):
+
+        latt = Lattice.cubic(4.17)
+        species = ["Ni", "O"]
+        coords = [[0, 0, 0],
+                  [0.5, 0.5, 0.5]]
+        nio = Structure.from_spacegroup(225, latt, species, coords)
+        
+        # should do nothing, but not fail
+        nio.remove_spin()
+
+        spins = {"Ni": 5}
+        nio.add_spin_by_element(spins)
+        self.assertEqual(nio[0].specie.spin, 5, "Failed to add spin states")
+
+        nio.remove_spin()
+        self.assertRaises(AttributeError, getattr, nio[0].specie, 'spin')
+
+        spins = [5, -5, -5, 5, 0, 0, 0, 0] # AFM on (001)
+        nio.add_spin_by_site(spins)
+        self.assertEqual(nio[1].specie.spin, -5, "Failed to add spin states")
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
@@ -659,6 +707,13 @@ class StructureTest(PymatgenTest):
         s2 = Structure.from_dict(d)
         self.assertEqual(type(s2), Structure)
 
+    def test_to_from_abivars(self):
+        """Test as_dict, from_dict with fmt == abivars."""
+        d = self.structure.as_dict(fmt="abivars")
+        s2 = Structure.from_dict(d, fmt="abivars")
+        self.assertEqual(s2, self.structure)
+        self.assertEqual(type(s2), Structure)
+
     def test_to_from_file_string(self):
         for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf"]:
             s = self.structure.to(fmt=fmt)
@@ -705,6 +760,34 @@ class StructureTest(PymatgenTest):
         self.assertRaises(ValueError, Structure.from_spacegroup,
                           "Pm-3m", Lattice.cubic(3), ["Cs"],
                           [[0, 0, 0], [0.5, 0.5, 0.5]])
+    
+    def test_from_magnetic_spacegroup(self):
+
+        # AFM MnF
+        s1 = Structure.from_magnetic_spacegroup("P4_2'/mnm'", Lattice.tetragonal(4.87, 3.30),
+                                                ["Mn", "F"],
+                                                [[0, 0, 0],
+                                                 [0.30, 0.30, 0.00]],
+                                                {'magmom': [4, 0]})
+
+        self.assertEqual(s1.formula, "Mn2 F4")
+        self.assertEqual(sum(map(float, s1.site_properties['magmom'])), 0)
+        self.assertEqual(max(map(float, s1.site_properties['magmom'])), 4)
+        self.assertEqual(min(map(float, s1.site_properties['magmom'])), -4)
+
+        # AFM LaMnO3, ordered on (001) planes
+        s2 = Structure.from_magnetic_spacegroup("Pn'ma'", Lattice.orthorhombic(5.75, 7.66, 5.53),
+                                                ["La", "Mn", "O", "O"],
+                                                [[0.05, 0.25, 0.99],
+                                                 [0.00, 0.00, 0.50],
+                                                 [0.48, 0.25, 0.08],
+                                                 [0.31, 0.04, 0.72]],
+                                                {'magmom': [0, Magmom([4, 0, 0]), 0, 0]})
+
+        self.assertEqual(s2.formula, "La4 Mn4 O12")
+        self.assertEqual(sum(map(float, s2.site_properties['magmom'])), 0)
+        self.assertEqual(max(map(float, s2.site_properties['magmom'])), 4)
+        self.assertEqual(min(map(float, s2.site_properties['magmom'])), -4)
 
     def test_merge_sites(self):
         species = [{'Ag': 0.5}, {'Cl': 0.25}, {'Cl': 0.1},
@@ -780,6 +863,23 @@ class StructureTest(PymatgenTest):
         s.apply_strain(0.5)
         self.assertNotEqual(s, self.structure)
         self.assertNotEqual(self.structure * 2, self.structure)
+
+    def test_charge(self):
+        s = Structure.from_sites(self.structure)
+        self.assertEqual(s.charge,0,"Initial Structure not defaulting to behavior in SiteCollection")
+        s.add_oxidation_state_by_site([1,1])
+        self.assertEqual(s.charge,2,"Initial Structure not defaulting to behavior in SiteCollection")
+        s = Structure.from_sites(s,charge=1)
+        self.assertEqual(s.charge,1,"Overall charge not being stored in seperate property")
+        s = s.copy()
+        self.assertEqual(s.charge,1,"Overall charge not being copied properly with no sanitization")
+        s = s.copy(sanitize=True)
+        self.assertEqual(s.charge,1,"Overall charge not being copied properly with sanitization")
+        super_cell = s*3
+        self.assertEqual(super_cell.charge,27,"Overall charge is not being properly multiplied in IStructure __mul__")
+        self.assertIn("Overall Charge: +1", str(s),"String representation not adding charge")
+        sorted_s = super_cell.get_sorted_structure()
+        self.assertEqual(sorted_s.charge,27,"Overall charge is not properly copied during structure sorting")
 
 
 class IMoleculeTest(PymatgenTest):
@@ -1061,6 +1161,8 @@ class MoleculeTest(PymatgenTest):
         self.mol.add_site_property("magmom", [3, 2, 2, 2, 2])
         self.assertEqual(self.mol[0].charge, 4.1)
         self.assertEqual(self.mol[0].magmom, 3)
+        self.mol.remove_site_property("magmom")
+        self.assertRaises(AttributeError, getattr, self.mol[0], "magmom")
 
     def test_to_from_dict(self):
         d = self.mol.as_dict()
@@ -1108,8 +1210,11 @@ class MoleculeTest(PymatgenTest):
                             "C", "H"], coords)
         benzene.substitute(1, sub)
         self.assertEqual(benzene.formula, "H8 C7")
-        #Carbon attached should be in plane.
+        # Carbon attached should be in plane.
         self.assertAlmostEqual(benzene[11].coords[2], 0)
+        benzene[14] = "Br"
+        benzene.substitute(13, sub)
+        self.assertEqual(benzene.formula, "H9 C8 Br1")
 
     def test_to_from_file_string(self):
         for fmt in ["xyz", "json", "g03"]:
@@ -1123,7 +1228,16 @@ class MoleculeTest(PymatgenTest):
         self.assertTrue(os.path.exists("CH4_testing.xyz"))
         os.remove("CH4_testing.xyz")
 
+    def test_extract_cluster(self):
+        species = self.mol.species * 2
+        coords = list(self.mol.cart_coords) + list(self.mol.cart_coords
+                                                   + [10, 0, 0])
+        mol = Molecule(species, coords)
+        cluster = mol.extract_cluster([mol[0]])
+        self.assertEqual(mol.formula, "H8 C2")
+        self.assertEqual(cluster.formula, "H4 C1")
+
 
 if __name__ == '__main__':
-    import unittest2 as unittest
+    import unittest
     unittest.main()

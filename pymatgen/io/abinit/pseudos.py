@@ -25,11 +25,10 @@ from monty.itertools import iterator_from_slice
 from monty.json import MSONable, MontyDecoder
 from monty.os.path import find_exts
 from monty.string import list_strings, is_string
-from pymatgen.analysis.eos import EOS
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
-from pymatgen.serializers.json_coders import pmg_serialize
-from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
+from pymatgen.util.serialization import pmg_serialize
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
 logger = logging.getLogger(__name__)
 
@@ -137,6 +136,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             return "<%s at %s>" % (self.__class__.__name__, self.filepath)
 
     def __str__(self):
+        return self.to_string()
+
+    def to_string(self, verbose=0):
         """String representation."""
         lines = []
         app = lines.append
@@ -152,15 +154,14 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             app("  radius for non-linear core correction: %s" % self.nlcc_radius)
 
         if self.has_hints:
-            hint_normal = self.hint_for_accuracy()
-            if hint_normal is not None:
-                app("  hint for normal accuracy: %s" % str(hint_normal))
-        else:
-                app("  hints on cutoff-energy are not available")
+            for accuracy in ("low", "normal", "high"):
+                hint = self.hint_for_accuracy(accuracy=accuracy)
+                app("  hint for %s accuracy: %s" % (accuracy, str(hint)))
 
         return "\n".join(lines)
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def summary(self):
         """String summarizing the most important properties."""
 
@@ -173,11 +174,13 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """File basename."""
         return os.path.basename(self.filepath)
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def Z(self):
         """The atomic number of the atom."""
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def Z_val(self):
         """Valence charge."""
 
@@ -198,11 +201,13 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """Element symbol."""
         return self.element.symbol
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def l_max(self):
         """Maximum angular momentum."""
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def l_local(self):
         """Angular momentum used for the local part."""
 
@@ -230,7 +235,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             m = hashlib.md5(text.encode("utf-8"))
             return m.hexdigest()
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def supports_soc(self):
         """
         True if the pseudo can be used in a calculation with spin-orbit coupling.
@@ -382,7 +388,8 @@ class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
     by the concrete classes representing norm-conserving pseudopotentials.
     """
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def nlcc_radius(self):
         """
         Radius at which the core charge vanish (i.e. cut-off in a.u.).
@@ -422,7 +429,8 @@ class PawPseudo(six.with_metaclass(abc.ABCMeta, object)):
     #    """True if the pseudo is generated with non-linear core correction."""
     #    return True
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def paw_radius(self):
         """Radius of the PAW sphere in a.u."""
 
@@ -542,13 +550,19 @@ class Hint(object):
         self.ecut = ecut
         self.pawecutdg = ecut if pawecutdg is None else pawecutdg
 
+    def __str__(self):
+        if self.pawecutdg is not None:
+            return "ecut: %s, pawecutdg: %s" % (self.ecut, self.pawecutdg)
+        else:
+            return "ecut: %s" % (self.ecut)
+
     @pmg_serialize
     def as_dict(self):
         return dict(ecut=self.ecut, pawecutdg=self.pawecutdg)
 
     @classmethod
     def from_dict(cls, d):
-        return cls(**{k: v for k,v in d.items() if not k.startswith("@")})
+        return cls(**{k: v for k, v in d.items() if not k.startswith("@")})
 
 
 def _dict_from_lines(lines, key_nums, sep=None):
@@ -1426,7 +1440,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         ax.grid(True)
         ax.set_xlabel("r [Bohr]")
-        ax.set_ylabel("$r\phi,\\, r\\tilde\phi\, [Bohr]^{-\\frac{1}{2}}$")
+        ax.set_ylabel("$r\\phi,\\, r\\tilde\\phi\\, [Bohr]^{-\\frac{1}{2}}$")
 
         ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
         #ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
@@ -1455,7 +1469,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         title = kwargs.pop("title", "Projectors")
         ax.grid(True)
         ax.set_xlabel('r [Bohr]')
-        ax.set_ylabel("$r\\tilde p\, [Bohr]^{-\\frac{1}{2}}$")
+        ax.set_ylabel("$r\\tilde p\\, [Bohr]^{-\\frac{1}{2}}$")
 
         ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
         #ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))

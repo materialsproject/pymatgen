@@ -7,16 +7,22 @@ from __future__ import division, unicode_literals
 import collections
 import numbers
 import string
+from itertools import combinations_with_replacement, product
 
+import os
 import six
 import re
+
+from collections import defaultdict
+
+from monty.serialization import loadfn
 from six.moves import filter, map, zip
 
 from functools import total_ordering
 
 from monty.fractions import gcd, gcd_float
-from pymatgen.core.periodic_table import get_el_sp, Element
-from pymatgen.util.string_utils import formula_double_format
+from pymatgen.core.periodic_table import get_el_sp, Element, Specie
+from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
 from pymatgen.core.units import unitized
 
@@ -91,6 +97,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                         "O": "O2",  "N": "N2", "F": "F2", "Cl": "Cl2",
                         "H": "H2"}
 
+    oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
+
     def __init__(self, *args, **kwargs):  # allow_negative=False
         """
         Very flexible Composition construction, similar to the built-in Python
@@ -112,7 +120,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             string as an input formula. E.g., Composition("Li2O").
 
             allow_negative: Whether to allow negative compositions. This
-                argument must be popped from the \*\*kwargs due to \*args
+                argument must be popped from the \\*\\*kwargs due to \\*args
                 ambiguity.
         """
         self.allow_negative = kwargs.pop('allow_negative', False)
@@ -247,6 +255,10 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
     def average_electroneg(self):
         return sum((el.X * abs(amt) for el, amt in self.items())) / \
             self.num_atoms
+
+    @property
+    def total_electrons(self):
+        return sum((el.Z * abs(amt) for el, amt in self.items()))
 
     def almost_equals(self, other, rtol=0.1, atol=1e-8):
         """
@@ -388,6 +400,17 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         Li4Fe4P4O16.
         """
         return self.get_reduced_formula_and_factor()[0]
+
+    @property
+    def hill_formula(self):
+        c = self.element_composition
+        elements = sorted([el.symbol for el in c.keys()])
+        if "C" in elements:
+            elements = ["C"] + [el for el in elements if el != "C"]
+
+        formula = ["%s%s" % (el, formula_double_format(c[el]) if c[el] != 1 else "")
+                   for el in elements]
+        return " ".join(formula)
 
     @property
     def elements(self):
@@ -560,6 +583,122 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 "reduced_cell_formula": self.reduced_formula,
                 "elements": self.as_dict().keys(),
                 "nelements": len(self.as_dict().keys())}
+
+    def oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
+                          all_oxi_states=False, max_sites=None):
+        """
+        Checks if the composition is charge-balanced and returns back all
+        charge-balanced oxidation state combinations. Composition must have
+        integer values. Note that more num_atoms in the composition gives
+        more degrees of freedom. e.g., if possible oxidation states of
+        element X are [2,4] and Y are [-3], then XY is not charge balanced
+        but X2Y2 is. Results are returned from most to least probable based
+        on ICSD statistics. Use max_sites to improve performance if needed.
+
+        Args:
+            oxi_states_override (dict): dict of str->list to override an
+                element's common oxidation states, e.g. {"V": [2,3,4,5]}
+            target_charge (int): the desired total charge on the structure.
+                Default is 0 signifying charge balance.
+            all_oxi_states (bool): if True, an element defaults to
+                all oxidation states in pymatgen Element.icsd_oxidation_states.
+                Otherwise, default is Element.common_oxidation_states. Note
+                that the full oxidation state list is *very* inclusive and
+                can produce nonsensical results.
+            max_sites (int): if possible, will reduce Compositions to at most
+                this many many sites to speed up oxidation state guesses. Set
+                to -1 to just reduce fully.
+
+        Returns:
+            A list of dicts - each dict reports an element symbol and average
+                oxidation state across all sites in that composition. If the
+                composition is not charge balanced, an empty list is returned.
+        """
+
+        comp = self.copy()
+
+        # reduce Composition if necessary
+        if max_sites == -1:
+            comp = self.reduced_composition
+
+        elif max_sites and comp.num_atoms > max_sites:
+            reduced_comp, reduced_factor = self.\
+                get_reduced_composition_and_factor()
+            if reduced_factor > 1:
+                reduced_comp *= max(1, int(max_sites / reduced_comp.num_atoms))
+                comp = reduced_comp  # as close to max_sites as possible
+            if comp.num_atoms > max_sites:
+                raise ValueError("Composition {} cannot accommodate max_sites "
+                                 "setting!".format(comp))
+
+        # Load prior probabilities of oxidation states, used to rank solutions
+        if not Composition.oxi_prob:
+            module_dir = os.path.join(os.path.
+                                      dirname(os.path.abspath(__file__)))
+            all_data = loadfn(os.path.join(module_dir, "..",
+                                           "analysis", "icsd_bv.yaml"))
+            Composition.oxi_prob = {Specie.from_string(sp): data
+                                    for sp, data in
+                                    all_data["occurrence"].items()}
+
+        oxi_states_override = oxi_states_override or {}
+
+        # assert: Composition only has integer amounts
+        if not all(amt == int(amt) for amt in comp.values()):
+            raise ValueError("Charge balance analysis requires integer "
+                             "values in Composition!")
+
+        # for each element, determine all possible sum of oxidations
+        # (taking into account nsites for that particular element)
+        el_amt = comp.get_el_amt_dict()
+        els = el_amt.keys()
+        el_sums = []  # matrix: dim1= el_idx, dim2=possible sums
+        el_sum_scores = defaultdict(set)  # dict of el_idx, sum -> score
+        for idx, el in enumerate(els):
+            el_sum_scores[idx] = {}
+            el_sums.append([])
+            if oxi_states_override.get(el):
+                oxids = oxi_states_override[el]
+            elif all_oxi_states:
+                oxids = Element(el).oxidation_states
+            else:
+                oxids = Element(el).icsd_oxidation_states or \
+                        Element(el).oxidation_states
+
+            # get all possible combinations of oxidation states
+            # and sum each combination
+            for oxid_combo in combinations_with_replacement(oxids,
+                                                            int(el_amt[el])):
+                if sum(oxid_combo) not in el_sums[idx]:
+                    el_sums[idx].append(sum(oxid_combo))
+                    score = sum([Composition.oxi_prob.get(Specie(el, o), 0) for
+                                 o in oxid_combo])  # how probable is this combo?
+                    el_sum_scores[idx][sum(oxid_combo)] = max(
+                        el_sum_scores[idx].get(sum(oxid_combo), 0), score)
+
+
+        all_sols = []  # will contain all solutions
+        all_scores = []  # will contain a score for each solution
+        for x in product(*el_sums):
+            # each x is a trial of one possible oxidation sum for each element
+            if sum(x) == target_charge:  # charge balance condition
+                el_sum_sol = dict(zip(els, x))  # element->oxid_sum
+                # normalize oxid_sum by amount to get avg oxid state
+                sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
+                all_sols.append(sol)  # add the solution to the list of solutions
+
+                # determine the score for this solution
+                score = 0
+                for idx, v in enumerate(x):
+                    score += el_sum_scores[idx][v]
+                all_scores.append(score)
+
+        # sort the solutions by highest to lowest score
+        all_sols = [x for (y, x) in sorted(zip(all_scores, all_sols),
+                                           key=lambda pair: pair[0],
+                                           reverse=True)]
+        return all_sols
+
 
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula,
@@ -769,7 +908,7 @@ def reduce_formula(sym_amt):
         (reduced_formula, factor).
     """
     syms = sorted(sym_amt.keys(),
-                  key=lambda s: get_el_sp(s).X)
+                  key=lambda s: [get_el_sp(s).X, s])
 
     syms = list(filter(lambda s: abs(sym_amt[s]) >
                        Composition.amount_tolerance, syms))

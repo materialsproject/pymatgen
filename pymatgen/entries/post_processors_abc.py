@@ -50,7 +50,8 @@ class EntryPostProcessor(six.with_metaclass(abc.ABCMeta, object)):
         """
         return
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def corrected_compound_formulas(self):
         """
         List of compound formulas that are corrected.

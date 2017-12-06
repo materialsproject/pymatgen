@@ -20,6 +20,7 @@ __date__ = "Feb 20, 2016"
 from math import sqrt
 
 import numpy as np
+from scipy.special import erf
 from functools import reduce
 
 
@@ -128,6 +129,11 @@ def get_linearly_independent_vectors(vectors_list):
 
 def scale_and_clamp(xx, edge0, edge1, clamp0, clamp1):
     return np.clip((xx-edge0) / (edge1-edge0), clamp0, clamp1)
+
+
+#Step function based on the cumulative distribution function of the normal law
+def normal_cdf_step(xx, mean, scale):
+    return 0.5 * (1.0 + erf( (xx-mean) / (np.sqrt(2.0) * scale)) )
 
 
 #SMOOTH STEP FUNCTIONS
@@ -240,7 +246,8 @@ def power2_inverse_decreasing(xx, edges=None, prefactor=None):
             aa = 1.0/np.power(-1.0, 2)
         else:
             aa = prefactor
-        return aa * np.power(xx-1.0, 2) / xx
+        return np.where(np.isclose(xx, 0.0), aa * float("inf"),aa * np.power(xx-1.0, 2) / xx)
+        # return aa * np.power(xx-1.0, 2) / xx if xx != 0 else aa * float("inf")
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
         return power2_inverse_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
@@ -252,7 +259,7 @@ def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
             aa = 1.0/np.power(-1.0, 2)
         else:
             aa = prefactor
-        return aa * np.power(xx-1.0, 2) / xx ** 2.0
+        return np.where(np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx-1.0, 2) / xx ** 2.0)
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
         return power2_inverse_power2_decreasing(xx_scaled_and_clamped, prefactor=prefactor)

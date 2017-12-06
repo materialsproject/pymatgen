@@ -4,12 +4,28 @@
 
 from __future__ import unicode_literals
 
+import os
+import re
+import json
+import datetime
+from copy import deepcopy
+
+from monty.json import MontyDecoder, jsanitize
+
+from pymatgen.core.structure import Structure
+from pymatgen.io.cif import CifParser
+from pymatgen.io.vasp.inputs import Poscar
+from monty.json import MSONable
+
+from pymatgen.io.vasp.sets import MPRelaxSet
+
+from warnings import warn
+
 """
 This module provides various representations of transformed structures. A
 TransformedStructure is a structure that has been modified by undergoing a
 series of transformations.
 """
-
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -17,23 +33,6 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 2, 2012"
-
-import os
-import re
-import json
-import datetime
-from copy import deepcopy
-
-from monty.json import MontyDecoder
-
-from pymatgen.core.structure import Structure
-from pymatgen.io.cif import CifParser
-from pymatgen.io.vasp.inputs import Poscar
-from monty.json import MSONable
-from pymatgen.matproj.snl import StructureNL
-from pymatgen.io.vasp.sets import MPRelaxSet
-
-from warnings import warn
 
 dec = MontyDecoder()
 
@@ -189,7 +188,7 @@ class TransformedStructure(MSONable):
         """
         for t in transformations:
             self.append_transformation(t,
-                    return_alternatives=return_alternatives)
+                                       return_alternatives=return_alternatives)
 
     def get_vasp_input(self, vasp_input_set=MPRelaxSet, **kwargs):
         """
@@ -213,8 +212,9 @@ class TransformedStructure(MSONable):
                 pymatgen.io.vaspio_set.VaspInputSet like object that creates
                 vasp input files from structures
             output_dir: Directory to output files
-            create_directory: Create the directory if not present. Defaults to True.
-            \*\*kwargs: All keyword args supported by the VASP input set.
+            create_directory: Create the directory if not present. Defaults to
+                True.
+            \\*\\*kwargs: All keyword args supported by the VASP input set.
         """
         vasp_input_set(self.final_structure, **kwargs).write_input(
             output_dir, make_dir_if_not_present=create_directory)
@@ -272,8 +272,8 @@ class TransformedStructure(MSONable):
             primitive (bool): Option to set if the primitive cell should be
                 extracted. Defaults to True. However, there are certain
                 instances where you might want to use a non-primitive cell,
-                e.g., if you are trying to generate all possible orderings of partial removals
-                or order a disordered structure.
+                e.g., if you are trying to generate all possible orderings of
+                partial removals or order a disordered structure.
             occupancy_tolerance (float): If total occupancy of a site is
                 between 1 and occupancy_tolerance, the occupancies will be
                 scaled down to 1.
@@ -282,7 +282,7 @@ class TransformedStructure(MSONable):
             TransformedStructure
         """
         parser = CifParser.from_string(cif_string, occupancy_tolerance)
-        raw_string = re.sub("'", "\"", cif_string)
+        raw_string = re.sub(r"'", "\"", cif_string)
         cif_dict = parser.as_dict()
         cif_keys = list(cif_dict.keys())
         s = parser.get_structures(primitive)[0]
@@ -311,7 +311,7 @@ class TransformedStructure(MSONable):
         if not p.true_names:
             raise ValueError("Transformation can be craeted only from POSCAR "
                              "strings with proper VASP5 element symbols.")
-        raw_string = re.sub("'", "\"", poscar_string)
+        raw_string = re.sub(r"'", "\"", poscar_string)
         s = p.structure
         source_info = {"source": "POSCAR",
                        "datetime": str(datetime.datetime.now()),
@@ -325,10 +325,10 @@ class TransformedStructure(MSONable):
         d = self.final_structure.as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
-        d["history"] = deepcopy(self.history)
+        d["history"] = jsanitize(self.history)
         d["version"] = __version__
         d["last_modified"] = str(datetime.datetime.utcnow())
-        d["other_parameters"] = deepcopy(self.other_parameters)
+        d["other_parameters"] = jsanitize(self.other_parameters)
         return d
 
     @classmethod
@@ -348,10 +348,11 @@ class TransformedStructure(MSONable):
         hist = []
         for h in self.history:
             snl_metadata = h.pop('_snl', {})
-            hist.append({'name' : snl_metadata.pop('name', 'pymatgen'),
-                         'url' : snl_metadata.pop('url',
-                                    'http://pypi.python.org/pypi/pymatgen'),
-                         'description' : h})
+            hist.append({'name': snl_metadata.pop('name', 'pymatgen'),
+                         'url': snl_metadata.pop(
+                             'url', 'http://pypi.python.org/pypi/pymatgen'),
+                         'description': h})
+        from pymatgen.util.provenance import StructureNL
         return StructureNL(self.final_structure, authors, projects, references,
                            remarks, data, hist, created_at)
 
@@ -369,6 +370,6 @@ class TransformedStructure(MSONable):
         hist = []
         for h in snl.history:
             d = h.description
-            d['_snl'] = {'url' : h.url, 'name' : h.name}
+            d['_snl'] = {'url': h.url, 'name': h.name}
             hist.append(d)
         return cls(snl.structure, history=hist)

@@ -6,6 +6,7 @@ from __future__ import division, unicode_literals, print_function
 import itertools
 import logging
 from collections import defaultdict
+import copy
 
 import math
 from math import cos
@@ -18,12 +19,12 @@ from six.moves import filter, map, zip
 from monty.dev import deprecated
 import spglib
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.coord_utils import find_in_coord_list, pbc_diff
+from pymatgen.util.coord import find_in_coord_list, pbc_diff
 
 """
 An interface to the excellent spglib library by Atsushi Togo
@@ -64,7 +65,7 @@ class SpacegroupAnalyzer(object):
         angle_tolerance (float): Angle tolerance for symmetry finding.
     """
 
-    def __init__(self, structure, symprec=1e-3, angle_tolerance=5):
+    def __init__(self, structure, symprec=0.01, angle_tolerance=5):
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
@@ -101,7 +102,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_spacegroup has been renamed "
                         "get_space_group_operations. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_space_group(self):
         """
         Get the SpacegroupOperations for the Structure.
@@ -113,7 +114,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_spacegroup_symbol has been renamed "
                         "get_space_group_symbol. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_space_group_symbol(self):
         """
         Get the spacegroup symbol (e.g., Pnma) for structure.
@@ -125,7 +126,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_spacegroup_number has been renamed "
                         "get_space_group_number. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_space_group_number(self):
         """
         Get the international spacegroup number (e.g., 62) for structure.
@@ -175,7 +176,7 @@ class SpacegroupAnalyzer(object):
 
     @deprecated(message="get_point_group has been renamed "
                         "get_point_group_symbol. Will be removed in "
-                        "pymatgen 5.0.")
+                        "pymatgen 2018.01.01.")
     def get_point_group(self):
         return self.get_point_group_symbol()
 
@@ -267,13 +268,18 @@ class SpacegroupAnalyzer(object):
         """
         d = spglib.get_symmetry(self._cell, symprec=self._symprec,
                                 angle_tolerance=self._angle_tol)
-        # Sometimes spglib returns small translation vectors, e.g. [1e-4, 2e-4, 1e-4]
-        # (these are in fractional coordinates, so should be small denominator fractions)
+        # Sometimes spglib returns small translation vectors, e.g.
+        # [1e-4, 2e-4, 1e-4]
+        # (these are in fractional coordinates, so should be small denominator
+        # fractions)
         trans = []
         for t in d["translations"]:
-            trans.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
+            trans.append([float(Fraction.from_float(c).limit_denominator(1000))
+                          for c in t])
         trans = np.array(trans)
-        trans[np.abs(trans) == 1] = 0  # fractional translations of 1 are more simply 0
+
+        # fractional translations of 1 are more simply 0
+        trans[np.abs(trans) == 1] = 0
         return d["rotations"], trans
 
     def get_symmetry_operations(self, cartesian=False):
@@ -334,7 +340,8 @@ class SpacegroupAnalyzer(object):
                                   self.get_space_group_number(),
                                   self.get_symmetry_operations())
         return SymmetrizedStructure(self._structure, sg,
-                                    ds["equivalent_atoms"])
+                                    ds["equivalent_atoms"],
+                                    ds["wyckoffs"])
 
     def get_refined_structure(self):
         """
@@ -389,7 +396,7 @@ class SpacegroupAnalyzer(object):
         """
         shift = np.array([1 if i else 0 for i in is_shift])
         mapping, grid = spglib.get_ir_reciprocal_mesh(
-            np.array(mesh), self._cell, is_shift=shift)
+            np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
         tmp_map = list(mapping)
@@ -432,7 +439,7 @@ class SpacegroupAnalyzer(object):
         elif "F" in self.get_space_group_symbol():
             transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]],
                               dtype=np.float) / 2
-        elif "C" in self.get_space_group_symbol():
+        elif "C" in self.get_space_group_symbol() or "A" in self.get_space_group_symbol():
             if self.get_crystal_system() == "monoclinic":
                 transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]],
                                   dtype=np.float) / 2
@@ -512,6 +519,16 @@ class SpacegroupAnalyzer(object):
                 for i in range(2):
                     transf[i][sorted_dic[i]['orig_index']] = 1
                 c = latt.abc[2]
+            elif self.get_space_group_symbol().startswith("A"): #change to C-centering to match Setyawan/Curtarolo convention             
+                transf[2] = [1, 0, 0]
+                a, b = sorted(latt.abc[1:])
+                sorted_dic = sorted([{'vec': latt.matrix[i],
+                                      'length': latt.abc[i],
+                                      'orig_index': i} for i in [1, 2]],
+                                    key=lambda k: k['length'])
+                for i in range(2):
+                    transf[i][sorted_dic[i]['orig_index']] = 1
+                c = latt.abc[0]
             else:
                 for i in range(len(sorted_dic)):
                     transf[i][sorted_dic[i]['orig_index']] = 1
@@ -551,8 +568,7 @@ class SpacegroupAnalyzer(object):
             transf = np.eye(3, 3)
 
         elif latt_type == "monoclinic":
-            #you want to keep the c axis where it is
-            #to keep the C- settings
+            # You want to keep the c axis where it is to keep the C- settings
 
             if self.get_space_group_operations().int_symbol.startswith("C"):
                 transf = np.zeros(shape=(3, 3))
@@ -777,7 +793,7 @@ class SpacegroupAnalyzer(object):
                 shift.append(1)
 
         mapping, grid = spglib.get_ir_reciprocal_mesh(
-            np.array(mesh), self._cell, is_shift=shift)
+            np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
         mapping = list(mapping)
         grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / mesh
         weights = []
@@ -793,6 +809,18 @@ class SpacegroupAnalyzer(object):
             raise ValueError("Unable to find 1:1 corresponding between input "
                              "kpoints and irreducible grid!")
         return [w/sum(weights) for w in weights]
+
+    def is_laue(self):
+
+        """
+        Check if the point group of the structure
+            has Laue symmetry (centrosymmetry)
+        """
+
+        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
+                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
+
+        return str(self.get_point_group_symbol()) in laue
 
 
 class PointGroupAnalyzer(object):
@@ -849,13 +877,13 @@ class PointGroupAnalyzer(object):
         else:
             inertia_tensor = np.zeros((3, 3))
             total_inertia = 0
-            for site in self.mol:
+            for site in self.centered_mol:
                 c = site.coords
                 wt = site.species_and_occu.weight
                 for i in range(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2
                                                   + c[(i + 2) % 3] ** 2)
-                for i, j in itertools.combinations(list(range(3)), 2):
+                for i, j in [(0, 1), (1, 2), (0, 2)]:
                     inertia_tensor[i, j] += -wt * c[i] * c[j]
                     inertia_tensor[j, i] += -wt * c[j] * c[i]
                 total_inertia += wt * np.dot(c, c)
@@ -876,7 +904,6 @@ class PointGroupAnalyzer(object):
 
             self.rot_sym = []
             self.symmops = [SymmOp(np.eye(4))]
-
             if eig_zero:
                 logger.debug("Linear molecule detected")
                 self._proc_linear()
@@ -926,9 +953,10 @@ class PointGroupAnalyzer(object):
             ind = 0
         else:
             ind = 1
-
+        logger.debug("Eigenvalues = %s." % self.eigvals)
         unique_axis = self.principal_axes[ind]
         self._check_rot_sym(unique_axis)
+        logger.debug("Rotation symmetries = %s" % self.rot_sym)
         if len(self.rot_sym) > 0:
             self._check_perpendicular_r2_axis(unique_axis)
 
@@ -1126,7 +1154,7 @@ class PointGroupAnalyzer(object):
 
     def _find_spherical_axes(self):
         """
-        Looks for R5, R4, R3 and R2 axes in speherical top molecules.  Point
+        Looks for R5, R4, R3 and R2 axes in spherical top molecules.  Point
         group T molecules have only one unique 3-fold and one unique 2-fold
         axis. O molecules have one unique 4, 3 and 2-fold axes. I molecules
         have a unique 5-fold axis.
@@ -1166,8 +1194,19 @@ class PointGroupAnalyzer(object):
         """
         Returns a PointGroup object for the molecule.
         """
-        return PointGroupOperations(self.sch_symbol, self.symmops, self.mat_tol)
+        return PointGroupOperations(self.sch_symbol, self.symmops,
+                                    self.mat_tol)
 
+    def get_symmetry_operations(self):
+        """
+        Return symmetry operations as a list of SymmOp objects.
+        Returns Cartesian coord symmops.
+
+        Returns:
+            ([SymmOp]): List of symmetry operations.
+        """
+        return generate_full_symmops(self.symmops, self.tol)
+ 
     def is_valid_op(self, symmop):
         """
         Check if a particular symmetry operation is a valid symmetry operation
@@ -1184,14 +1223,255 @@ class PointGroupAnalyzer(object):
         for site in self.centered_mol:
             coord = symmop.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
-            if not (len(ind) == 1 and
-                            self.centered_mol[ind[0]].species_and_occu
-                            == site.species_and_occu):
+            if not (len(ind) == 1
+                    and self.centered_mol[ind[0]].species_and_occu
+                    == site.species_and_occu):
                 return False
         return True
 
+    def _get_eq_sets(self):
+        """
+        Calculates the dictionary for mapping equivalent atoms onto each other.
 
-def cluster_sites(mol, tol):
+        Args:
+            None
+
+        Returns:
+            dict: The returned dictionary has two possible keys:
+
+            ``eq_sets``:
+            A dictionary of indices mapping to sets of indices,
+            each key maps to indices of all equivalent atoms.
+            The keys are guaranteed to be not equivalent.
+
+            ``sym_ops``:
+            Twofold nested dictionary.
+            ``operations[i][j]`` gives the symmetry operation
+            that maps atom ``i`` unto ``j``.
+        """
+        UNIT = np.eye(3)
+        eq_sets, operations = defaultdict(set), defaultdict(dict)
+        symm_ops = [op.rotation_matrix
+                    for op in generate_full_symmops(self.symmops, self.tol)]
+
+        def get_clustered_indices():
+            indices = cluster_sites(self.centered_mol, self.tol,
+                                    give_only_index=True)
+            out = list(indices[1].values())
+            if indices[0] is not None:
+                out.append([indices[0]])
+            return out
+
+        for index in get_clustered_indices():
+            sites = self.centered_mol.cart_coords[index]
+            for i, reference in zip(index, sites):
+                for op in symm_ops:
+                    rotated = np.dot(op, sites.T).T
+                    matched_indices = find_in_coord_list(rotated, reference,
+                                                         self.tol)
+                    matched_indices = {
+                        dict(enumerate(index))[i] for i in matched_indices}
+                    eq_sets[i] |= matched_indices
+
+                    if i not in operations:
+                        operations[i] = {j: op.T if j != i else UNIT
+                                         for j in matched_indices}
+                    else:
+                        for j in matched_indices:
+                            if j not in operations[i]:
+                                operations[i][j] = op.T if j != i else UNIT
+                    for j in matched_indices:
+                        if j not in operations:
+                            operations[j] = {i: op if j != i else UNIT}
+                        elif i not in operations[j]:
+                            operations[j][i] = op if j != i else UNIT
+
+        return {'eq_sets': eq_sets,
+                'sym_ops': operations}
+
+    @staticmethod
+    def _combine_eq_sets(eq_sets, operations):
+        """Combines the dicts of _get_equivalent_atom_dicts into one
+
+        Args:
+            eq_sets (dict)
+            operations (dict)
+
+        Returns:
+            dict: The returned dictionary has two possible keys:
+
+            ``eq_sets``:
+            A dictionary of indices mapping to sets of indices,
+            each key maps to indices of all equivalent atoms.
+            The keys are guaranteed to be not equivalent.
+
+            ``sym_ops``:
+            Twofold nested dictionary.
+            ``operations[i][j]`` gives the symmetry operation
+            that maps atom ``i`` unto ``j``.
+        """
+        UNIT = np.eye(3)
+
+        def all_equivalent_atoms_of_i(i, eq_sets, ops):
+            """WORKS INPLACE on operations
+            """
+            visited = set([i])
+            tmp_eq_sets = {j: (eq_sets[j] - visited) for j in eq_sets[i]}
+
+            while tmp_eq_sets:
+                new_tmp_eq_sets = {}
+                for j in tmp_eq_sets:
+                    if j in visited:
+                        continue
+                    visited.add(j)
+                    for k in tmp_eq_sets[j]:
+                        new_tmp_eq_sets[k] = eq_sets[k] - visited
+                        if i not in ops[k]:
+                            ops[k][i] = (np.dot(ops[j][i], ops[k][j])
+                                         if k != i else UNIT)
+                        ops[i][k] = ops[k][i].T
+                tmp_eq_sets = new_tmp_eq_sets
+            return visited, ops
+
+        eq_sets = copy.deepcopy(eq_sets)
+        new_eq_sets = {}
+        ops = copy.deepcopy(operations)
+        to_be_deleted = set()
+        for i in eq_sets:
+            if i in to_be_deleted:
+                continue
+            visited, ops = all_equivalent_atoms_of_i(i, eq_sets, ops)
+            to_be_deleted |= visited - {i}
+
+        for k in to_be_deleted:
+            eq_sets.pop(k, None)
+        return {'eq_sets': eq_sets,
+                'sym_ops': ops}
+
+    def get_equivalent_atoms(self):
+        """Returns sets of equivalent atoms with symmetry operations
+
+        Args:
+            None
+
+        Returns:
+            dict: The returned dictionary has two possible keys:
+
+            ``eq_sets``:
+            A dictionary of indices mapping to sets of indices,
+            each key maps to indices of all equivalent atoms.
+            The keys are guaranteed to be not equivalent.
+
+            ``sym_ops``:
+            Twofold nested dictionary.
+            ``operations[i][j]`` gives the symmetry operation
+            that maps atom ``i`` unto ``j``.
+        """
+        eq = self._get_eq_sets()
+        return self._combine_eq_sets(eq['eq_sets'],
+                                     eq['sym_ops'])
+
+    def symmetrize_molecule(self):
+        """Returns a symmetrized molecule
+
+        The equivalent atoms obtained via
+        :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
+        are rotated, mirrored... unto one position.
+        Then the average position is calculated.
+        The average position is rotated, mirrored... back with the inverse
+        of the previous symmetry operations, which gives the
+        symmetrized molecule
+
+        Args:
+            None
+
+        Returns:
+            dict: The returned dictionary has three possible keys:
+
+            ``sym_mol``:
+            A symmetrized molecule instance.
+
+            ``eq_sets``:
+            A dictionary of indices mapping to sets of indices,
+            each key maps to indices of all equivalent atoms.
+            The keys are guaranteed to be not equivalent.
+
+            ``sym_ops``:
+            Twofold nested dictionary.
+            ``operations[i][j]`` gives the symmetry operation
+            that maps atom ``i`` unto ``j``.
+        """
+        eq = self.get_equivalent_atoms()
+        eq_sets, ops = eq['eq_sets'], eq['sym_ops']
+        coords = self.centered_mol.cart_coords.copy()
+        for i, eq_indices in eq_sets.items():
+            for j in eq_indices:
+                coords[j] = np.dot(ops[j][i], coords[j])
+            coords[i] = np.mean(coords[list(eq_indices)], axis=0)
+            for j in eq_indices:
+                if j == i:
+                    continue
+                coords[j] = np.dot(ops[i][j], coords[i])
+                coords[j] = np.dot(ops[i][j], coords[i])
+        molecule = Molecule(species=self.centered_mol.species, coords=coords)
+        return {'sym_mol': molecule,
+                'eq_sets': eq_sets,
+                'sym_ops': ops}
+
+
+def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
+    """Returns a symmetrized molecule
+
+    The equivalent atoms obtained via
+    :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
+    are rotated, mirrored... unto one position.
+    Then the average position is calculated.
+    The average position is rotated, mirrored... back with the inverse
+    of the previous symmetry operations, which gives the
+    symmetrized molecule
+
+    Args:
+        mol (Molecule): A pymatgen Molecule instance.
+        max_n (int): Maximum number of iterations.
+        tolerance (float): Tolerance for detecting symmetry.
+            Gets passed as Argument into
+            :class:`~pymatgen.analyzer.symmetry.PointGroupAnalyzer`.
+        epsilon (float): If the elementwise absolute difference of two
+            subsequently symmetrized structures is smaller epsilon,
+            the iteration stops before ``max_n`` is reached.
+
+
+    Returns:
+        dict: The returned dictionary has three possible keys:
+
+        ``sym_mol``:
+        A symmetrized molecule instance.
+
+        ``eq_sets``:
+        A dictionary of indices mapping to sets of indices,
+        each key maps to indices of all equivalent atoms.
+        The keys are guaranteed to be not equivalent.
+
+        ``sym_ops``:
+        Twofold nested dictionary.
+        ``operations[i][j]`` gives the symmetry operation
+        that maps atom ``i`` unto ``j``.
+    """
+    new = mol
+    n = 0
+    finished = False
+    while not finished and n <= max_n:
+        previous = new
+        PA = PointGroupAnalyzer(previous, tolerance=tolerance)
+        eq = PA.symmetrize_molecule()
+        new = eq['sym_mol']
+        finished = np.allclose(new.cart_coords, previous.cart_coords,
+                               atol=epsilon)
+        n += 1
+    return eq
+
+
+def cluster_sites(mol, tol, give_only_index=False):
     """
     Cluster sites based on distance and species type.
 
@@ -1217,10 +1497,17 @@ def cluster_sites(mol, tol):
     origin_site = None
     for i, site in enumerate(mol):
         if avg_dist[f[i]] < tol:
-            origin_site = site
+            if give_only_index:
+                origin_site = i
+            else:
+                origin_site = site
         else:
-            clustered_sites[(avg_dist[f[i]],
-                             site.species_and_occu)].append(site)
+            if give_only_index:
+                clustered_sites[
+                    (avg_dist[f[i]], site.species_and_occu)].append(i)
+            else:
+                clustered_sites[
+                    (avg_dist[f[i]], site.species_and_occu)].append(site)
     return origin_site, clustered_sites
 
 
@@ -1238,21 +1525,29 @@ def generate_full_symmops(symmops, tol):
     Returns:
         Full set of symmetry operations.
     """
-
-    a = [o.affine_matrix for o in symmops]
-
-    if len(symmops) > 300:
-        logger.debug("Generation of symmetry operations in infinite loop.  " +
-                     "Possible error in initial operations or tolerance too "
-                     "low.")
+    # Uses an algorithm described in:
+    # Gregory Butler. Fundamental Algorithms for Permutation Groups.
+    # Lecture Notes in Computer Science (Book 559). Springer, 1991. page 15
+    UNIT = np.eye(4)
+    generators = [op.affine_matrix for op in symmops
+                  if not np.allclose(op.affine_matrix, UNIT)]
+    if not generators:
+        # C1 symmetry breaks assumptions in the algorithm afterwards
+        return symmops
     else:
-        for op1, op2 in itertools.product(symmops, symmops):
-            m = np.dot(op1.affine_matrix, op2.affine_matrix)
-            d = np.abs(a - m) < tol
-            if not np.any(np.all(np.all(d, axis=2), axis=1)):
-                return generate_full_symmops(symmops + [SymmOp(m)], tol)
+        full = list(generators)
 
-    return symmops
+        for g in full:
+            for s in generators:
+                op = np.dot(g, s)
+                d = np.abs(full - op) < tol
+                if not np.any(np.all(np.all(d, axis=2), axis=1)):
+                    full.append(op)
+
+        d = np.abs(full - UNIT) < tol
+        if not np.any(np.all(np.all(d, axis=2), axis=1)):
+            full.append(UNIT)
+        return [SymmOp(op) for op in full]
 
 
 class SpacegroupOperations(list):
@@ -1296,16 +1591,15 @@ class SpacegroupOperations(list):
                 if test_site.is_periodic_image(site, symm_prec, False):
                     return True
             return False
+
         for op in self:
             newsites2 = [PeriodicSite(site.species_and_occu,
                                       op.operate(site.frac_coords),
                                       site.lattice) for site in sites2]
-            ismapping = True
             for site in newsites2:
                 if not in_sites(site):
-                    ismapping = False
                     break
-            if ismapping:
+            else:
                 return True
         return False
 
@@ -1340,20 +1634,3 @@ class PointGroupOperations(list):
 
     def __repr__(self):
         return self.__str__()
-
-
-if __name__ == "__main__":
-    from pymatgen.io.vasp import Vasprun
-    v = Vasprun("../../test_files/vasprun.xml")
-    a = SpacegroupAnalyzer(v.final_structure)
-    print(v.actual_kpoints)
-    import spglib
-
-    shift = (1, 1, 1)
-    mapping, grid = spglib.get_ir_reciprocal_mesh(
-        np.array([1, 1, 3]), a._cell, is_shift=shift)
-    mapping = list(mapping)
-    grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / [1, 1, 3]
-    print(grid)
-    wts = a.get_kpoint_weights(v.actual_kpoints)
-

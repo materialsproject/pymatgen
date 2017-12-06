@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-import unittest2 as unittest
+import unittest
 import os
 import json
 from io import open
@@ -14,6 +14,8 @@ from pymatgen import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.testing import PymatgenTest
+
+from monty.serialization import loadfn
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -42,20 +44,12 @@ class KpointTest(unittest.TestCase):
 class BandStructureSymmLine_test(PymatgenTest):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"),
-                  "r", encoding='utf-8') as f:
-            d = json.load(f)
-            self.bs = BandStructureSymmLine.from_dict(d)
-
-        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "r",
-                  encoding='utf-8') as f:
-            d = json.load(f)
-            self.bs2 = BandStructureSymmLine.from_dict(d)
-
-        with open(os.path.join(test_dir, "NiO_19009_bandstructure.json"),
-                  "r", encoding='utf-8') as f:
-            d = json.load(f)
-            self.bs_spin = BandStructureSymmLine.from_dict(d)
+        self.bs = loadfn(os.path.join(test_dir, "Cu2O_361_bandstructure.json"))
+        self.bs2 = loadfn(os.path.join(test_dir, "CaO_2605_bandstructure.json"))
+        self.bs_spin = loadfn(os.path.join(test_dir, "NiO_19009_bandstructure.json"))
+        self.bs_cbm0 = loadfn(os.path.join(test_dir, "InN_22205_bandstructure.json"))
+        self.bs_cu = loadfn(os.path.join(test_dir, "Cu_30_bandstructure.json"))
+        self.bs_diff_spins = loadfn(os.path.join(test_dir, "VBr2_971787_bandstructure.json"))
 
     def test_basic(self):
         self.assertArrayAlmostEqual(self.bs.projections[Spin.up][10][12][0],
@@ -102,13 +96,29 @@ class BandStructureSymmLine_test(PymatgenTest):
     def test_get_branch(self):
         self.assertAlmostEqual(self.bs2.get_branch(110)[0]['name'], "U-W")
 
+    def test_get_direct_band_gap_dict(self):
+        direct_dict = self.bs_diff_spins.get_direct_band_gap_dict()
+        self.assertEqual(direct_dict[Spin.down]['value'], 4.5365)
+
+        for bs in [self.bs2, self.bs_spin]:
+            dg_dict = bs.get_direct_band_gap_dict()
+            for spin, v in bs.bands.items():
+                kpt = dg_dict[spin]['kpoint_index']
+                vb, cb = dg_dict[spin]['band_indices']
+                gap = v[cb][kpt] - v[vb][kpt]
+                self.assertEqual(gap, dg_dict[spin]['value'])
+        self.assertRaises(ValueError, self.bs_cu.get_direct_band_gap_dict)
+
     def test_get_direct_band_gap(self):
         self.assertAlmostEqual(self.bs2.get_direct_band_gap(),
                                4.0125999999999999)
+        self.assertTrue(self.bs_diff_spins.get_direct_band_gap() > 0)
+        self.assertEqual(self.bs_cu.get_direct_band_gap(), 0)
 
     def test_is_metal(self):
         self.assertFalse(self.bs2.is_metal(), "wrong metal assignment")
         self.assertFalse(self.bs_spin.is_metal(), "wrong metal assignment")
+        self.assertTrue(self.bs_cu.is_metal(), "wrong metal assignment")
 
     def test_get_cbm(self):
         cbm = self.bs2.get_cbm()
@@ -127,7 +137,7 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertEqual(cbm_spin['kpoint'].frac_coords[0], 0.0, "wrong CBM kpoint frac coords")
         self.assertEqual(cbm_spin['kpoint'].frac_coords[1], 0.0, "wrong CBM kpoint frac coords")
         self.assertEqual(cbm_spin['kpoint'].frac_coords[2], 0.0, "wrong CBM kpoint frac coords")
-        self.assertEqual(cbm_spin['kpoint'].label, "\Gamma", "wrong CBM kpoint label")
+        self.assertEqual(cbm_spin['kpoint'].label, "\\Gamma", "wrong CBM kpoint label")
 
     def test_get_vbm(self):
         vbm = self.bs2.get_vbm()
@@ -138,7 +148,7 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertEqual(vbm['kpoint'].frac_coords[0], 0.0, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm['kpoint'].frac_coords[1], 0.0, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm['kpoint'].frac_coords[2], 0.0, "wrong VBM kpoint frac coords")
-        self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong VBM kpoint label")
+        self.assertEqual(vbm['kpoint'].label, "\\Gamma", "wrong VBM kpoint label")
         vbm_spin = self.bs_spin.get_vbm()
         self.assertAlmostEqual(vbm_spin['energy'], 5.731, "wrong VBM energy")
         self.assertEqual(len(vbm_spin['band_index'][Spin.up]), 2, "wrong VBM number of bands")
@@ -159,6 +169,23 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertAlmostEqual(bg_spin['energy'], 2.3148, "wrong gap energy")
         self.assertEqual(bg_spin['transition'], "L-\\Gamma", "wrong kpoint transition")
         self.assertFalse(bg_spin['direct'], "wrong nature of the gap")
+        bg_cbm0 = self.bs_cbm0.get_band_gap()
+        self.assertAlmostEqual(bg_cbm0['energy'], 0, places=3, msg="wrong gap energy")
+
+    def test_get_sym_eq_kpoints_and_degeneracy(self):
+        bs = self.bs2
+        cbm_k = bs.get_cbm()['kpoint'].frac_coords
+        vbm_k = bs.get_vbm()['kpoint'].frac_coords
+        self.assertEquals(bs.get_kpoint_degeneracy(cbm_k), None)
+        bs.structure = loadfn(os.path.join(test_dir, "CaO_2605_structure.json"))
+        self.assertEquals(bs.get_kpoint_degeneracy(cbm_k), 3)
+        self.assertEquals(bs.get_kpoint_degeneracy(vbm_k), 1)
+        cbm_eqs = bs.get_sym_eq_kpoints(cbm_k)
+        self.assertTrue([0.5, 0., 0.5] in cbm_eqs)
+        self.assertTrue([0., 0.5, 0.5] in cbm_eqs)
+        self.assertTrue([0.5, 0.5, 0.] in cbm_eqs)
+        vbm_eqs = bs.get_sym_eq_kpoints(vbm_k)
+        self.assertTrue([0., 0., 0.] in vbm_eqs)
 
     def test_as_dict(self):
         s = json.dumps(self.bs.as_dict())
@@ -167,6 +194,14 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertIsNotNone(s)
         s = json.dumps(self.bs_spin.as_dict())
         self.assertIsNotNone(s)
+
+    def test_old_format_load(self):
+        with open(os.path.join(test_dir, "bs_ZnS_old.json"),
+                  "r", encoding='utf-8') as f:
+            d = json.load(f)
+            bs_old = BandStructureSymmLine.from_dict(d)
+            self.assertEqual(bs_old.get_projection_on_elements()[
+                                 Spin.up][0][0]['Zn'], 0.0971)
 
 if __name__ == '__main__':
     unittest.main()

@@ -5,11 +5,12 @@
 from __future__ import division, unicode_literals
 import os
 import random
-import unittest2 as unittest
+import unittest
 import json
 import six
 
-from pymatgen import Lattice, PeriodicSite
+from monty.os.path import which
+from pymatgen import Lattice, PeriodicSite, Element
 from monty.json import MontyDecoder
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.transformations.standard_transformations import *
@@ -29,6 +30,8 @@ __date__ = "Sep 23, 2011"
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
+
+enumlib_present = which('enum.x') and which('makestr.x')
 
 
 class RotationTransformationsTest(unittest.TestCase):
@@ -194,6 +197,7 @@ class OxidationStateRemovalTransformationTest(unittest.TestCase):
                          OxidationStateRemovalTransformation)
 
 
+@unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
@@ -224,8 +228,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         lattice = Lattice([[10, 0.00, 0.00], [0, 10, 0.00], [0.00, 0, 10]])
         struct = Structure(lattice, ["Li+"] * 6, coords)
         fast_opt_s = t.apply_transformation(struct)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5,
-                                              PartialRemoveSpecieTransformation.ALGO_COMPLETE)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         slow_opt_s = t.apply_transformation(struct)
         self.assertAlmostEqual(EwaldSummation(fast_opt_s).total_energy,
                                EwaldSummation(slow_opt_s).total_energy, 4)
@@ -237,8 +240,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5,
                                                      "O": -2})
         s = t1.apply_transformation(p.structure)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5,
-                                              PartialRemoveSpecieTransformation.ALGO_COMPLETE)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         self.assertEqual(len(t.apply_transformation(s, 10)), 6)
 
     def test_apply_transformations_best_first(self):
@@ -248,7 +250,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
                                                      "O": -2})
         s = t1.apply_transformation(p.structure)
         t = PartialRemoveSpecieTransformation("Li+", 0.5,
-                                              PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
+            PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
         self.assertEqual(len(t.apply_transformation(s)), 26)
 
 
@@ -314,7 +316,8 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         l = Lattice.cubic(5)
         s = Structure(l, sp, c)
         test_site = PeriodicSite("Si4+", c[2], l)
-        s = SymmetrizedStructure(s, 'not_real', [0, 1, 1, 2, 2])
+        s = SymmetrizedStructure(s, 'not_real', [0, 1, 1, 2, 2],
+                                 ["a", "b", "b", "c", "c"])
         output = t.apply_transformation(s)
         self.assertTrue(test_site in output.sites)
 
@@ -411,8 +414,8 @@ class PerturbStructureTransformationTest(unittest.TestCase):
 class DeformStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = DeformStructureTransformation([[1., 0., 0.],
-                                           [0., 1., 0.05],
-                                           [0., 0., 1.]])
+                                           [0., 1., 0.],
+                                           [0., 0.05, 1.]])
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
@@ -436,6 +439,37 @@ class DeformStructureTransformationTest(unittest.TestCase):
         d = t.as_dict()
         self.assertEqual(type(DeformStructureTransformation.from_dict(d)),
                          DeformStructureTransformation)
+
+
+class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        l = Lattice.cubic(4)
+        s_orig = Structure(l, [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
+                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
+        s = dot.apply_transformation(s_orig)
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.2,
+                                                       Element("Na"): 0.2,
+                                                       Element("K"): 0.6})
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.01)
+        self.assertRaises(RuntimeError, dot.apply_transformation, s_orig)
+
+        s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
+                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.25,
+                                                  fix_denominator=False)
+
+        s = dot.apply_transformation(s_orig_2)
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(1/2),
+                                                       Element("Na"): Fraction(1/4),
+                                                       Element("K"): Fraction(1/4)})
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.05,
+                                                  fix_denominator=True)
+        self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
 
 
 if __name__ == "__main__":

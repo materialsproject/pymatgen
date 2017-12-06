@@ -1,0 +1,167 @@
+# Created by the Bilbao Crystallographic Server
+# http://www.cryst.ehu.es
+# Date: 03/23/2016 17:28:19
+# Database entry: 1.1.4 Cr
+# Cif-like file for the case 1.1.4
+
+
+data_5yOhtAoR
+_audit_creation_date            2016-03-23
+_audit_creation_method          "Bilbao Crystallographic Server"
+
+_chemical_name_systematic
+;
+;
+_chemical_name_common                    ?
+_chemical_formula_moiety                 ?
+_chemical_formula_structural             ?
+_chemical_formula_analytical             ?
+_chemical_formula_iupac                  ?
+_chemical_formula_sum                    'Cr'
+_chemical_formula_weight                 ?
+_chemical_melting_point                  ?
+_chemical_compound_source                ?
+_chemical_absolute_configuration         .
+
+
+_citation_journal_abbrev        "J. Phys.: Condens. Matter"
+_citation_journal_volume        24
+_citation_page_first            ?
+_citation_page_last             ?
+_citation_article_id            163201
+_citation_year                  2012
+_citation_DOI                   10.1088/0953-8984/24/16/163201
+
+loop_
+_citation_author_name
+"Perez-Mato, J.M."
+
+_atomic_positions_source_database_code_ICSD   625717
+_atomic_positions_source_other               .
+
+_transition_temperature     123
+_experiment_temperature     ?
+
+loop_
+_irrep_id
+_irrep_dimension
+_irrep_small_dimension
+_irrep_direction_type
+_irrep_action
+_irrep_modes_number
+_irrep_presence
+mDT4 6 1 . primary 1 .
+
+_exptl_crystal_magnetic_properties_details
+;
+Phase II
+only approximate modulation wave vector and moment values
+see also: Rev. Mod. Phys. 60, 209 (1988) and PHYSICAL REVIEW B 51, 10336 (1995).
+;
+
+_active_magnetic_irreps_details
+;
+1k incommensurate magnetic structure
+2-dim small irrep active (8 possible different ssgroups for this irrep)
+;
+
+_parent_space_group.name_H-M              'I m -3m'
+_parent_space_group.IT_number             229
+_parent_space_group.transform_to_standard_Pp_abc    'a,b,c;0,0,0'
+
+_cell_modulation_dimension               1
+
+loop_
+_cell_wave_vector_seq_id
+_cell_wave_vector_x
+_cell_wave_vector_y
+_cell_wave_vector_z
+1 0.000000 0.000000 0.950000
+
+
+_space_group.magn_ssg_transform_from_parent_Pp_abc   'a,b,c;0,0,0'
+
+_space_group.magn_ssg_name_BNS     "I4/mmm1'(00\g)00sss"
+_space_group.magn_point_group "4/mmm1'"
+_space_group.magn_point_group_number "15.2.54"
+_cell_length_a                 2.884
+_cell_length_b                 2.884
+_cell_length_c                 2.884
+_cell_angle_alpha              90
+_cell_angle_beta               90
+_cell_angle_gamma              90
+
+loop_
+_space_group_symop.magn_ssg_id
+_space_group_symop.magn_ssg_operation_algebraic
+1 x1,x2,x3,x4,+1
+2 -x1,-x2,x3,x4,+1
+3 -x2,x1,x3,x4,+1
+4 x2,-x1,x3,x4,+1
+5 -x1,x2,-x3,-x4+1/2,+1
+6 x1,-x2,-x3,-x4+1/2,+1
+7 x2,x1,-x3,-x4+1/2,+1
+8 -x2,-x1,-x3,-x4+1/2,+1
+9 -x1,-x2,-x3,-x4,+1
+10 x1,x2,-x3,-x4,+1
+11 x2,-x1,-x3,-x4,+1
+12 -x2,x1,-x3,-x4,+1
+13 x1,-x2,x3,x4+1/2,+1
+14 -x1,x2,x3,x4+1/2,+1
+15 -x2,-x1,x3,x4+1/2,+1
+16 x2,x1,x3,x4+1/2,+1
+
+loop_
+_space_group_symop.magn_ssg_centering_id
+_space_group_symop.magn_ssg_centering_algebraic
+1 x1,x2,x3,x4,+1
+2 x1+1/2,x2+1/2,x3+1/2,x4,+1
+3 x1,x2,x3,x4+1/2,-1
+4 x1+1/2,x2+1/2,x3+1/2,x4+1/2,-1
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Cr1 Cr 0 0 0 1
+
+loop_
+_magnetic_atom_site_moment_symmetry_constraints_label
+_atom_site_magnetic_moment_symmetry_constraints_mxmymz
+Cr1 0,0,0
+
+loop_
+_atom_site_moment_label
+_atom_site_moment_crystalaxis_x
+_atom_site_moment_crystalaxis_y
+_atom_site_moment_crystalaxis_z
+Cr1 0 0 0
+
+loop_
+_atom_site_Fourier_wave_vector_seq_id
+_atom_site_Fourier_wave_vector_q1_coeff
+1 1
+
+loop_
+_atom_site_moment_Fourier_atom_site_label
+_atom_site_moment_Fourier_axis
+_atom_site_moment_Fourier_wave_vector_seq_id
+_atom_site_moment_Fourier_param_cos
+_atom_site_moment_Fourier_param_sin
+Cr1 x 1 0 0
+Cr1 y 1 0 0
+Cr1 z 1 0.6 0
+
+loop_
+_atom_site_moment_Fourier_atom_site_sym_constraints_label
+_atom_site_moment_Fourier_sym_constraints_axis
+_atom_site_moment_Fourier_wave_vector_sym_constraints_seq_id
+_atom_site_moment_Fourier_sym_constraints_param_cos
+_atom_site_moment_Fourier_sym_constraints_param_sin
+Cr1 x 1 0 0
+Cr1 y 1 0 0
+Cr1 z 1 Mzcos1 0
+

@@ -10,7 +10,7 @@ This module provides classes for the Piezoelectric tensor
 """
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.elasticity.tensors import TensorBase
+from pymatgen.analysis.elasticity.tensors import Tensor
 from pymatgen.analysis.elasticity import voigt_map
 import numpy as np
 import warnings
@@ -25,7 +25,7 @@ __status__ = "Development"
 __date__ = "Feb, 2016"
 
 
-class PiezoTensor(TensorBase):
+class PiezoTensor(Tensor):
     """
     This class describes the 3x6 piezo tensor in Voigt-notation
     """
@@ -42,13 +42,8 @@ class PiezoTensor(TensorBase):
             input_matrix (3x3x3 array-like): the 3x6 array-like
                 representing the piezo tensor
         """
-        obj = TensorBase(input_array).view(cls)
-        if obj.shape != (3, 3, 3):
-            raise ValueError("Default piezo tensor constructor requires "
-                             "input argument to be the true 3x3x3 "
-                             "array.  To construct from a 3x6 array, use "
-                             "PiezoTensor.from_voigt")
+        obj = super(PiezoTensor, cls).__new__(cls, input_array, check_rank=3)
         if not (obj - np.transpose(obj, (0, 2, 1)) < tol).all():
             warnings.warn("Input piezo tensor does "
                           "not satisfy standard symmetries")
-        return obj
+        return obj.view(cls)

@@ -8,11 +8,11 @@ import copy
 import glob
 import json
 import os
-from unittest import TestCase
-import unittest2 as unittest
+import unittest
 
+import sys
 from pymatgen import Molecule
-from pymatgen.io.qchem import QcTask, QcInput, QcOutput
+from pymatgen.io.qchem import QcTask, QcInput, QcOutput, QcNucVeloc
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = 'xiaohuiqu'
@@ -293,6 +293,137 @@ $end
                               ("H", "6-31g*"), ("cl", "6-31+g*")])
         self.assertEqual(str(qctask), ans_mixed)
         self.elementary_io_verify(ans_mixed, qctask)
+
+    def test_velocities(self):
+        qctask = QcTask.from_file(
+            os.path.join(test_dir, "qc_aimd",
+                         "mg2dig_nvt_langevin.inp"))
+        qcnv = QcNucVeloc(
+            os.path.join(test_dir, "qc_aimd",
+                         "NucVeloc.velocities"))
+        velocities = qcnv.velocities[-1]
+        qctask.set_velocities(velocities)
+        qc_text = str(qctask)
+        vel_text = qc_text[qc_text.index("$velocity"):]
+        self.assertEqual(vel_text.split("\n")[1].strip(),
+                         "8.97607E-05    9.45576E-06   -2.39705E-04")
+        self.assertEqual(len(vel_text.split("\n")), 66)
+        self.assertEqual(vel_text.split("\n")[-4].strip(),
+                         "9.05272E-05    1.11329E-03   -9.17663E-04")
+        qctask2 = QcTask.from_string(qc_text)
+        self.elementary_io_verify(qc_text, qctask2)
+
+    def test_opt_constraint_str(self):
+        opt_coords = [[-1.8438708, 1.7639844, 0.0036111],
+                      [-0.3186117, 1.7258535, 0.0241264],
+                      [0.1990523, 0.2841796, -0.0277432],
+                      [1.7243049, 0.2460376, -0.0067397],
+                      [-2.1904881, 2.8181992, 0.0419217],
+                      [-2.2554858, 1.2221552, 0.8817436],
+                      [-2.2293542, 1.2964646, -0.9274861],
+                      [0.0400963, 2.2185950, 0.9541706],
+                      [0.0663274, 2.2929337, -0.8514870],
+                      [-0.1594453, -0.2084377, -0.9579392],
+                      [-0.1860888, -0.2830148, 0.8477023],
+                      [2.1362687, 0.7881530, -0.8845274],
+                      [2.0709344, -0.8081667, -0.0452220],
+                      [2.1094213, 0.7132527, 0.9246668]]
+        opt_mol = Molecule(["C", "C", "C", "C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"], opt_coords)
+        constraint_dict = {'opt': {'CONSTRAINT': [['tors', 1, 2, 3, 4, 180.0]]}}
+        ans = """$molecule
+ 0  1
+ C          -1.84387080        1.76398440        0.00361110
+ C          -0.31861170        1.72585350        0.02412640
+ C           0.19905230        0.28417960       -0.02774320
+ C           1.72430490        0.24603760       -0.00673970
+ H          -2.19048810        2.81819920        0.04192170
+ H          -2.25548580        1.22215520        0.88174360
+ H          -2.22935420        1.29646460       -0.92748610
+ H           0.04009630        2.21859500        0.95417060
+ H           0.06632740        2.29293370       -0.85148700
+ H          -0.15944530       -0.20843770       -0.95793920
+ H          -0.18608880       -0.28301480        0.84770230
+ H           2.13626870        0.78815300       -0.88452740
+ H           2.07093440       -0.80816670       -0.04522200
+ H           2.10942130        0.71325270        0.92466680
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+
+$opt
+CONSTRAINT
+tors 1 2 3 4 180.0
+ENDCONSTRAINT
+$end
+
+"""
+        qctask = QcTask(opt_mol, exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params=constraint_dict)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+
+    def test_opt_fixed_atoms(self):
+        fixed_dict = {"opt": {"FIXED": {2: "Y", 3: "XYZ"}}}
+        qctask1 = QcTask(mol, exchange="B3LYP", jobtype="SP",
+                         basis_set="6-31+G*",
+                         optional_params=fixed_dict)
+        task_text1 = str(qctask1)
+        opt_text1 = task_text1[task_text1.index("$opt"):]
+        ans1 = """$opt
+FIXED
+ 2 Y
+ 3 XYZ
+ENDFIXED
+$end
+
+"""
+        self.assertEqual(opt_text1, ans1)
+        self.elementary_io_verify(task_text1, qctask1)
+
+        fixed_n_const_dict = {"opt": {"FIXED": {2: "Y", 3: "XYZ"},
+                                      "CONSTRAINT": [['tors', 1, 2, 3, 4, 180.0]]}}
+        qctask2 = QcTask(mol, exchange="B3LYP", jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params=fixed_n_const_dict)
+        task_text2 = str(qctask2)
+        opt_text2 = task_text2[task_text2.index("$opt"):]
+        ans2 = """$opt
+CONSTRAINT
+tors 1 2 3 4 180.0
+ENDCONSTRAINT
+
+FIXED
+ 2 Y
+ 3 XYZ
+ENDFIXED
+$end
+
+"""
+        self.assertEqual(opt_text2, ans2)
+        self.elementary_io_verify(task_text2, qctask2)
+
+    def test_method_keyword(self):
+        qctask1 = QcTask(mol, method="B3LYP", jobtype="SP",
+                         basis_set="6-31+G*")
+        task_text = str(qctask1)
+        rem_text = task_text[task_text.index("$rem"):]
+        ans = """$rem
+  jobtype = sp
+   method = b3lyp
+    basis = 6-31+g*
+$end
+
+"""
+        self.assertEqual(rem_text, ans)
+        self.elementary_io_verify(task_text, qctask1)
 
     def test_partial_hessian(self):
         qcinp1 = QcInput.from_file(os.path.join(test_dir, "partial_hessian.qcinp"))
@@ -1613,7 +1744,18 @@ class TestQcOutput(PymatgenTest):
     "hf_xygjos.qcout": {
         "SCF": -2724.0769973875713,
         "XYGJ-OS": -2726.3447230967517
-    }
+    },
+    "hf_wb97xd_gen_scfman.qcout": {
+        "GEN_SCFMAN": -30051.134375112342,
+        "GEN_SCFMAN": -30051.296918174274,
+        "GEN_SCFMAN": -30051.395763612905,
+        "GEN_SCFMAN": -30051.458839496852,
+        "GEN_SCFMAN": -30051.487970700582,
+        "GEN_SCFMAN": -30051.490764186092,
+        "GEN_SCFMAN": -30051.491278372443,
+        "GEN_SCFMAN": -30051.491359704556,
+        "GEN_SCFMAN": -30051.491369799976
+    } 
 }'''
         ref_energies = json.loads(ref_energies_text)
         parsed_energies = dict()
@@ -2056,6 +2198,14 @@ $end
                           0.341061]
         self.assertEqual(qcout.data[0]['charges']['chelpg'], chelpg_charges)
 
+    @unittest.skipIf(sys.platform not in ["linux", 'darwin'],
+                     "Skip unix file path test on Windows")
+    def test_scr_dir(self):
+        filename = os.path.join(test_dir, 'chelpg_charges.qcout')
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]['scratch_dir'],
+                         "/Users/xiaohuiqu/scratch/qchem7101")
+
     def test_no_message_scf_opt_fail(self):
         so_failfile = os.path.join(test_dir, 'scf_opt_no_message_fail.qcout')
         so_failqcout = QcOutput(so_failfile)
@@ -2353,6 +2503,81 @@ Sites (12)
         filename = os.path.join(test_dir, "aux_mpi_time_mol.qcout")
         qcout = QcOutput(filename)
         self.assertEqual(len(qcout.data), 2)
+
+    def test_parse_opt_contraint(self):
+        filename = os.path.join(test_dir, "pt_dft_180.0.qcout")
+        qcout = QcOutput(filename)
+        qcin = qcout.data[-1]['input']
+        qcin_ans = '''$molecule
+ 0  1
+ S           1.82267924       -1.19997629        0.28714109
+ C           3.20006180       -0.17260711        0.06528466
+ C           2.82980603        1.10216298       -0.25610036
+ C           1.41909100        1.26345446       -0.34254814
+ C           0.71738150        0.10901545       -0.08456145
+ H           0.93627498        2.19419272       -0.61095402
+ C          -0.71741859       -0.10899254       -0.08455524
+ S          -1.82328469        1.20374179       -0.44105740
+ C          -1.41912820       -1.26343144        0.17343142
+ C          -3.19922829        0.16690023       -0.25767458
+ C          -2.82941826       -1.10493701        0.07562280
+ H          -3.53750269       -1.90709774        0.23645949
+ H           4.19429620       -0.57452886        0.18632814
+ H           3.53860725        1.89960515       -0.43610218
+ H          -4.19239866        0.56181917       -0.40716131
+ H          -0.93481970       -2.20399421        0.40193462
+$end
+
+
+$rem
+         jobtype = opt
+        exchange = b3lyp
+           basis = 6-31++g**
+  max_scf_cycles = 75
+      mem_static = 100
+       mem_total = 1500
+$end
+
+
+$opt
+CONSTRAINT
+tors 4 5 7 9 180.0
+ENDCONSTRAINT
+$end
+
+'''
+        self.assertEqual(str(qcin), qcin_ans)
+        constraint = qcin.params['opt']['CONSTRAINT']
+        constraint_ans = [['tors', 4, 5, 7, 9, 180.0]]
+        self.assertEqual(constraint, constraint_ans)
+
+        stre_text = """CONSTRAINT
+stre 70 9 3.795
+stre 13 44 3.656
+ENDCONSTRAINT"""
+        stre_d = qcin._parse_opt(stre_text.split('\n'))
+        qctask = QcTask(mol, exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params={"opt": stre_d})
+        stre_text_2 = "\n".join(qctask._format_opt())
+        self.assertEqual(stre_text_2, stre_text)
+
+class TestQcNucVeloc(PymatgenTest):
+
+    def test_parse(self):
+        qcnv = QcNucVeloc(os.path.join(test_dir, "qc_aimd", "NucVeloc.velocities"))
+        self.assertEqual(len(qcnv.step_times), 302)
+        self.assertEqual(qcnv.step_times[-1], 14.56168)
+        self.assertEqual(len(qcnv.velocities), 302)
+        self.assertEqual(qcnv.velocities[0][0],
+                         (1.42192e-05, 6.65659e-05, 5.22453e-05))
+        self.assertEqual(qcnv.velocities[0][-1],
+                         (-6.52039e-06, -0.000213074, -0.000769596))
+        self.assertEqual(qcnv.velocities[-1][0],
+                         (8.976072e-05, 9.455759e-06, -0.0002397046))
+        self.assertEqual(qcnv.velocities[-1][-1],
+                         (9.052722e-05, 0.001113288, -0.0009176628))
 
 
 if __name__ == "__main__":

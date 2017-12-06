@@ -103,7 +103,7 @@ attacks: [BITE, HURT]
             with self.assertRaises(StopIteration):
                 monster = r.next_doc_with_tag("!Monster")
 
-        os.remove(filename)
+        # os.remove(filename)
 
 
 class AbinitInpectTest(PymatgenTest):
@@ -139,5 +139,5 @@ class AbinitInpectTest(PymatgenTest):
 
 
 if __name__ == '__main__':
-    import unittest2 as unittest
+    import unittest
     unittest.main()
