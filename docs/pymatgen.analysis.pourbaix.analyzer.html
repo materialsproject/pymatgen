@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.pourbaix.analyzer module &#8212; pymatgen 2017.11.30 documentation</title>
+    <title>pymatgen.analysis.pourbaix.analyzer module &#8212; pymatgen 2017.12.6 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.11.30',
+        VERSION:     '2017.12.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.6 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -169,6 +169,28 @@ energy above hull of 0.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_entry_stability">
+<code class="descname">get_entry_stability</code><span class="sig-paren">(</span><em>entry</em>, <em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix/analyzer.html#PourbaixAnalyzer.get_entry_stability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_entry_stability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the energy difference between an entry and the
+most stable decomposition product (i.e. the pourbaix-stable
+entry) at a given pH and voltage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>entry</strong> (<a class="reference internal" href="pymatgen.analysis.pourbaix.entry.html#pymatgen.analysis.pourbaix.entry.PourbaixEntry" title="pymatgen.analysis.pourbaix.entry.PourbaixEntry"><em>PourbaixEntry</em></a>) – Pourbaix entry corresponding to the
+stability to be calculated</li>
+<li><strong>pH</strong> (<em>float</em>) – pH at which to calculate stability of entry</li>
+<li><strong>V</strong> (<em>float</em>) – voltage at which to calculate stability of entry</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_facet_chempots">
 <code class="descname">get_facet_chempots</code><span class="sig-paren">(</span><em>facet</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix/analyzer.html#PourbaixAnalyzer.get_facet_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_facet_chempots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the chemical potentials for each element within a facet.</p>
@@ -249,7 +271,7 @@ V: potential vs SHE</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.11.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.6 documentation</a> &#187;</li> 
       </ul>
     </div>
 
