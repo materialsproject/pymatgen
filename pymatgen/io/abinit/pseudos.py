@@ -1672,7 +1672,8 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
     def as_dict(self, **kwargs):
         d = {}
         for p in self:
-            k, count = p.element, 1
+            k, count = p.element.name, 1
+            # k, count = p.element, 1
             # Handle multiple-pseudos with the same name!
             while k in d:
                 k += k.split("#")[0] + "#" + str(count)
