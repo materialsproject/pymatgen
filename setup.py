@@ -109,8 +109,6 @@ setup(
             'enum34',
         ],
         "provenance": ["pybtex"],
-        "pourbaix": ["pyhull>=1.5.3"],
-        "bandstructure": ["pyhull>=1.5.3"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["apscheduler==2.1.0"]},
