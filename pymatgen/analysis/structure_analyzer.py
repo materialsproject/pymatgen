@@ -1556,6 +1556,7 @@ class OrderParameters(object):
         left_of_unity = 1.0 - 1.0e-12
         # The following threshold has to be adapted to non-Angstrom units.
         very_small = 1.0e-12
+        fac_bcc = 1.0 / exp(-0.5)
 
         # Find central site and its neighbors.
         # Note that we adopt the same way of accessing sites here as in
@@ -1809,7 +1810,8 @@ class OrderParameters(object):
                                                 tmp = (thetam - piover2) / (
                                                         19.47 * pi / 180.0)
                                                 qsptheta[i][j] += fac * cos(
-                                                    3.0 * phi) * 1.6 * tmp * exp(-0.5 * tmp * tmp)
+                                                    3.0 * phi) * fac_bcc * \
+                                                    tmp * exp(-0.5 * tmp * tmp)
                                         elif t == "see_saw":
                                             if thetak < self._paras[i]['min_SPP'] and thetam < self._paras[i]['min_SPP']:
                                                 tmp = self._paras[i][
