@@ -310,7 +310,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
-        Returns a :class:`Hint` object with the suggensted value of ecut [Ha] and
+        Returns a :class:`Hint` object with the suggested value of ecut [Ha] and
         pawecutdg [Ha] for the given accuracy.
         ecut and pawecutdg are set to zero if no hint is available.
 

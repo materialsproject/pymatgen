@@ -19,7 +19,7 @@ from six import string_types
 
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.core.structure import SiteCollection
-from pymatgen import Molecule, Element, Lattice
+from pymatgen import Molecule, Element, Lattice, Structure, Specie
 
 """
 This module implements a core class LammpsData for generating/parsing 
@@ -152,6 +152,41 @@ class LammpsData(MSONable):
 
     def __str__(self):
         return self.get_string()
+
+    @property
+    def structure(self):
+        """
+        Transform from LammpsData file to a pymatgen structure object
+
+        Return:
+            A pymatgen structure object
+        """
+        species_map = {}
+        for i, sp in enumerate(self.masses['mass']):
+            for el in Element:
+                if abs(el.atomic_mass - sp) < 0.05:
+                    species_map[i + 1] = el
+        if (len(species_map.keys()) != len(self.masses['mass'])):
+            raise RuntimeError('Psudo atom exists in data file')
+        xhi, yhi, zhi = self.box_bounds[0][1] - self.box_bounds[0][0], self.box_bounds[1][1] - self.box_bounds[1][0], \
+                        self.box_bounds[2][1] - self.box_bounds[0][0]
+        xy, xz, yz = self.box_tilt if self.box_tilt is not None else [0.0, 0.0, 0.0]
+        lattice = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
+        species = []
+        coords = self.atoms[['x', 'y', 'z']].values
+        for i in range(1, len(self.atoms['type']) + 1):
+            if 'q' in self.atoms:
+                if self.atoms['q'][i] != 0:
+                    species.append(Specie(species_map[self.atoms['type'][i]].symbol, self.atoms['q'][i]))
+                else:
+                    species.append(species_map[self.atoms['type'][i]])
+            else:
+                species.append(species_map[self.atoms['type'][i]])
+
+        return Structure(lattice, species, coords, coords_are_cartesian=True)
+
+
+
 
     def get_string(self, distance=6, velocity=8, charge=3):
         """

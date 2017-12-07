@@ -118,7 +118,9 @@ class Flow(Node, NodeContainer, MSONable):
     Results = FlowResults
 
     @classmethod
-    def from_inputs(cls, workdir, inputs, manager=None, pickle_protocol=-1, task_class=ScfTask, work_class=Work):
+    def from_inputs(cls, workdir, inputs, manager=None, pickle_protocol=-1, task_class=ScfTask,
+                    work_class=Work, remove=False):
+
         """
         Construct a simple flow from a list of inputs. The flow contains a single Work with
         tasks whose class is given by task_class.
@@ -137,10 +139,11 @@ class Flow(Node, NodeContainer, MSONable):
                 -1 denotes the latest version supported by the python interpreter.
             task_class: The class of the :class:`Task`.
             work_class: The class of the :class:`Work`.
+            remove: attempt to remove working directory `workdir` if directory already exists.
         """
         if not isinstance(inputs, (list, tuple)): inputs = [inputs]
 
-        flow = cls(workdir, manager=manager, pickle_protocol=pickle_protocol)
+        flow = cls(workdir, manager=manager, pickle_protocol=pickle_protocol, remove=remove)
         work = work_class()
         for inp in inputs:
             work.register(inp, task_class=task_class)
@@ -841,7 +844,7 @@ class Flow(Node, NodeContainer, MSONable):
         app = lines.append
 
         app("Number of works: %d, total number of tasks: %s" % (len(self), self.num_tasks) )
-        app("Number of tasks with a given class:")
+        app("Number of tasks with a given class:\n")
 
         # Build Table
         data = [[cls.__name__, len(tasks)]
@@ -1139,6 +1142,64 @@ class Flow(Node, NodeContainer, MSONable):
 
         return tasks
 
+    def get_task_cycles(self, nids=None, wslice=None, include_ok_tasks=True):
+        """
+        Return list of (taks, scfcycle) tuples for all the tasks in the flow with a SCF algorithm
+
+        Args:
+            nids: List of node identifiers.
+            wslice: Slice object used to select works.
+            include_ok_tasks: False if only running tasks should be considered.
+
+        Returns:
+            List of `ScfCycle` subclass instances.
+        """
+        select_status = [self.S_RUN, self.S_OK] if include_ok_tasks else [self.S_RUN]
+        tasks_cycles = []
+
+        for task in self.select_tasks(nids=nids, wslice=wslice):
+            if task.status not in select_status or task.cycle_class is None:
+                continue
+            try:
+                cycle = task.cycle_class.from_file(task.output_file.path)
+                if cycle is not None:
+                    tasks_cycles.append((task, cycle))
+            except Exception:
+                # This is intentionally ignored because from_file can fail for several reasons.
+                pass
+
+        return tasks_cycles
+
+    def show_tricky_tasks(self, verbose=0):
+        """
+        Print list of tricky tasks i.e. tasks that have been restarted or
+        launched more than once or tasks with corrections.
+
+        Args:
+            verbose: Verbosity level. If > 0, task history and corrections (if any) are printed.
+        """
+        nids, tasks = [], []
+        for task in self.iflat_tasks():
+            if task.num_launches > 1 or any(n > 0 for n in (task.num_restarts, task.num_corrections)):
+                nids.append(task.node_id)
+                tasks.append(task)
+
+        if not nids:
+            cprint("Everything's fine, no tricky tasks found", color="green")
+        else:
+            self.show_status(nids=nids)
+            if not verbose:
+                print("Use --verbose to print task history.")
+                return
+
+            for nid, task in zip(nids, tasks):
+                cprint(repr(task), **task.status.color_opts)
+                self.show_history(nids=[nid], full_history=False, metadata=False)
+                #if task.num_restarts:
+                #    self.show_restarts(nids=[nid])
+                if task.num_corrections:
+                    self.show_corrections(nids=[nid])
+
     def inspect(self, nids=None, wslice=None, **kwargs):
         """
         Inspect the tasks (SCF iterations, Structural relaxation ...) and
@@ -1344,10 +1405,8 @@ class Flow(Node, NodeContainer, MSONable):
             if report is not None:
                 app("num_errors: %s, num_warnings: %s, num_comments: %s" % (
                     report.num_errors, report.num_warnings, report.num_comments))
-
                 app("*** ERRORS ***")
                 app("\n".join(str(e) for e in report.errors))
-
                 app("*** BUGS ***")
                 app("\n".join(str(b) for b in report.bugs))
 
@@ -1488,7 +1547,7 @@ class Flow(Node, NodeContainer, MSONable):
             cprint("Found scheduler attached to this flow.", "yellow")
             cprint("Sending SIGKILL to the scheduler before cancelling the tasks!", "yellow")
 
-            with open(self.pid_file, "r") as fh:
+            with open(self.pid_file, "rt") as fh:
                 pid = int(fh.readline())
 
             retcode = os.system("kill -9 %d" % pid)
@@ -1720,6 +1779,9 @@ class Flow(Node, NodeContainer, MSONable):
         Args:
             workdir: Working directory of the flow. Must be specified here
                 if we haven't initialized the workdir in the __init__.
+
+        Return:
+            self
         """
         if workdir is not None:
             # We set the workdir of the flow here
@@ -1753,11 +1815,13 @@ class Flow(Node, NodeContainer, MSONable):
         Smart-io means that big files (e.g. WFK) are written only if the calculation
         is unconverged so that we can restart from it. No output is produced if
         convergence is achieved.
+
+        Return:
+            self
         """
         if not self.allocated:
+            #raise RuntimeError("You must call flow.allocate() before invoking flow.use_smartio()")
             self.allocate()
-            #raise RuntimeError("You must call flow.allocate before invoking flow.use_smartio")
-            return
 
         for task in self.iflat_tasks():
             children = task.get_children()
@@ -1786,6 +1850,8 @@ class Flow(Node, NodeContainer, MSONable):
                     if abiext not in must_produce_abiexts:
                         print("%s: setting %s to -1" % (task, varname))
                         task.set_vars({varname: -1})
+
+        return self
 
     #def new_from_input_decorators(self, new_workdir, decorators)
     #    """
@@ -1967,19 +2033,25 @@ class Flow(Node, NodeContainer, MSONable):
 
     #def get_results(self, **kwargs)
 
-    def rapidfire(self, check_status=True, **kwargs):
+    def rapidfire(self, check_status=True, max_nlaunch=-1, max_loops=1, sleep_time=5, **kwargs):
         """
         Use :class:`PyLauncher` to submits tasks in rapidfire mode.
         kwargs contains the options passed to the launcher.
 
+        Args:
+            check_status:
+            max_nlaunch: Maximum number of launches. default: no limit.
+            max_loops: Maximum number of loops
+            sleep_time: seconds to sleep between rapidfire loop iterations
+
         Return:
-            number of tasks submitted.
+            Number of tasks submitted.
         """
         self.check_pid_file()
         self.set_spectator_mode(False)
         if check_status: self.check_status()
         from .launcher import PyLauncher
-        return PyLauncher(self, **kwargs).rapidfire()
+        return PyLauncher(self, **kwargs).rapidfire(max_nlaunch=max_nlaunch, max_loops=max_loops, sleep_time=sleep_time)
 
     def single_shot(self, check_status=True, **kwargs):
         """
@@ -2134,7 +2206,7 @@ class Flow(Node, NodeContainer, MSONable):
     #    return abirobot(flow=self, ext=ext, nids=nids):
 
     @add_fig_kwargs
-    def plot_networkx(self, mode="network", with_edge_labels=False, ax=None,
+    def plot_networkx(self, mode="network", with_edge_labels=False, ax=None, arrows=False,
                       node_size="num_cores", node_label="name_class", layout_type="spring", **kwargs):
         """
         Use networkx to draw the flow with the connections among the nodes and
@@ -2144,6 +2216,7 @@ class Flow(Node, NodeContainer, MSONable):
             mode: `networkx` to show connections, `status` to group tasks by status.
             with_edge_labels: True to draw edge labels.
             ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            arrows: if True draw arrowheads.
             node_size: By default, the size of the node is proportional to the number of cores used.
             node_label: By default, the task class is used to label node.
             layout_type: Get positions for all nodes using `layout_type`. e.g. pos = nx.spring_layout(g)
@@ -2157,7 +2230,8 @@ class Flow(Node, NodeContainer, MSONable):
         import networkx as nx
 
         # Build the graph
-        g, edge_labels = nx.Graph(), {}
+        g = nx.Graph() if not arrows else nx.DiGraph()
+        edge_labels = {}
         tasks = list(self.iflat_tasks())
         for task in tasks:
             g.add_node(task, name=task.name)
@@ -2178,7 +2252,6 @@ class Flow(Node, NodeContainer, MSONable):
         make_node_label = dict(name_class=lambda task: task.pos_str + "\n" + task.__class__.__name__,)[node_label]
 
         labels = {task: make_node_label(task) for task in g.nodes()}
-
         ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         # Select plot type.
@@ -2186,7 +2259,7 @@ class Flow(Node, NodeContainer, MSONable):
             nx.draw_networkx(g, pos, labels=labels,
                              node_color=[task.color_rgb for task in g.nodes()],
                              node_size=[make_node_size(task) for task in g.nodes()],
-                             width=1, style="dotted", with_labels=True, ax=ax)
+                             width=1, style="dotted", with_labels=True, arrows=arrows, ax=ax)
 
             # Draw edge labels
             if with_edge_labels:
@@ -2211,7 +2284,7 @@ class Flow(Node, NodeContainer, MSONable):
                                        )
 
             # Draw edges.
-            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=True, ax=ax) # edge_color='r')
+            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=arrows, ax=ax) # edge_color='r')
 
             # Draw labels
             nx.draw_networkx_labels(g, pos, labels, font_size=12, ax=ax)
@@ -2522,8 +2595,6 @@ class PhononFlow(Flow):
 
         # Call the method of the super class.
         retcode = super(PhononFlow, self).finalize()
-        #print("retcode", retcode)
-        #if retcode != 0: return retcode
         return retcode
 
 
@@ -2538,7 +2609,8 @@ class NonLinearCoeffFlow(Flow):
     @classmethod
     def from_scf_input(cls, workdir, scf_input, manager=None, allocate=True):
         """
-        Create a `NonlinearFlow` for second order susceptibility calculations from an `AbinitInput` defining a ground-state run.
+        Create a `NonlinearFlow` for second order susceptibility calculations from
+        an `AbinitInput` defining a ground-state run.
 
         Args:
             workdir: Working directory of the flow.
@@ -2601,9 +2673,6 @@ class NonLinearCoeffFlow(Flow):
         print("retcode", retcode)
         #if retcode != 0: return retcode
         return retcode
-
-# Alias for compatibility reasons. For the time being, DO NOT REMOVE
-nonlinear_coeff_flow = NonLinearCoeffFlow
 
 
 def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False,

@@ -505,6 +505,7 @@ class AdsorbateSiteFinder(object):
                             properties={"surface_properties": "adsorbate"})
                 slab.append(adsorbate.specie, adsorbate.frac_coords,
                             properties={"surface_properties": "adsorbate"})
+            new_adslabs.append(slab)
 
         return new_adslabs
 

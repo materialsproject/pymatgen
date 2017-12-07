@@ -4,13 +4,14 @@
 import unittest
 import os
 import random
+import json
 
 import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
-    get_symmetrically_distinct_miller_indices
+    get_symmetrically_distinct_miller_indices, ReconstructionGenerator
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -390,6 +391,59 @@ class SlabGeneratorTest(PymatgenTest):
         all_top = [slab[i].frac_coords[2] > slab.center_of_mass[2]
                       for i in bottom_index]
         self.assertTrue(all(all_top))
+
+
+class ReconstructionGeneratorTests(PymatgenTest):
+
+    def setUp(self):
+
+        l = Lattice.cubic(3.51)
+        species = ["Ni"]
+        coords = [[0,0,0]]
+        self.Ni = Structure.from_spacegroup("Fm-3m", l, species, coords)
+        self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500),
+                                            ["Si"], [(0, 0, 0.5)])
+
+    def test_build_slab(self):
+
+        # First lets test a reconstruction where we only remove atoms
+        recon = ReconstructionGenerator(self.Ni, 10, 10,
+                                        "fcc_110_missing_row_1x2")
+        slab = recon.get_unreconstructed_slab()
+        recon_slab = recon.build_slab()
+        self.assertEqual(len(slab), len(recon_slab)+2)
+        self.assertTrue(recon_slab.is_symmetric())
+
+        # Test a reconstruction where we simply add atoms
+        recon = ReconstructionGenerator(self.Ni, 10, 10,
+                                        "fcc_111_adatom_t_1x1")
+        slab = recon.get_unreconstructed_slab()
+        recon_slab = recon.build_slab()
+        self.assertEqual(len(slab), len(recon_slab)-2)
+        self.assertTrue(recon_slab.is_symmetric())
+
+        # Test a reconstruction where it works on a specific
+        # termination (Fd-3m (111))
+        recon = ReconstructionGenerator(self.Si, 10, 10,
+                                        "diamond_111_1x2")
+        slab = recon.get_unreconstructed_slab()
+        recon_slab = recon.build_slab()
+        self.assertEqual(len(slab), len(recon_slab)-8)
+        self.assertTrue(recon_slab.is_symmetric())
+
+        # Test a reconstruction where terminations give
+        # different reconstructions with a non-elemental system
+
+    def test_get_d(self):
+
+        # Ensure that regardles of the size of the vacuum or slab
+        # layer, the spacing between atomic layers should be the same
+
+        recon = ReconstructionGenerator(self.Si, 10, 10,
+                                        "diamond_100_2x1")
+        recon2 = ReconstructionGenerator(self.Si, 20, 10,
+                                         "diamond_100_2x1")
+        self.assertAlmostEqual(recon.get_d(), recon2.get_d())
 
 
 class MillerIndexFinderTests(PymatgenTest):

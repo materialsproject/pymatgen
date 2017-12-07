@@ -220,7 +220,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
 
     if max_row <= 0:
         raise ValueError("The input argument 'max_row' must be positive!")
-    
+
     value_table = np.empty((max_row, 18)) * np.nan
     blank_value = min_val - 0.01
 
@@ -399,7 +399,7 @@ def add_fig_kwargs(func):
     savefig           'abc.png' or 'abc.eps' to save the figure to a file.
     size_kwargs       Dictionary with options passed to fig.set_size_inches
                       example: size_kwargs=dict(w=3, h=4)
-    tight_layout      True if to call fig.tight_layout (default: False)
+    tight_layout      True to call fig.tight_layout (default: False)
     ================  ===================================================="""
 
     if wrapper.__doc__ is not None:

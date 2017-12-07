@@ -127,6 +127,9 @@ class ScfCycle(collections.Mapping):
         return len(self.fields)
 
     def __str__(self):
+        return self.to_string()
+
+    def to_string(self, verbose=0):
         """String representation."""
         rows = [list(map(str, (self[k][it] for k in self.keys())))
                 for it in range(self.num_iterations)]
@@ -275,6 +278,9 @@ class Relaxation(collections.Iterable):
         return self.cycles[slice]
 
     def __str__(self):
+        return self.to_string()
+
+    def to_string(self, verbose=0):
         """String representation."""
         lines = []
         app = lines.append
@@ -282,8 +288,7 @@ class Relaxation(collections.Iterable):
         for i, cycle in enumerate(self):
             app("")
             app("RELAXATION STEP: %d" % i)
-            app(str(cycle))
-            app("")
+            app(cycle.to_string(verbose=verbose))
 
         return "\n".join(lines)
 
