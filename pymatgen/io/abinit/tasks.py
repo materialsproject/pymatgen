@@ -3267,7 +3267,6 @@ class NscfTask(GsTask):
             den_mesh[0] = gsr.reader.read_dimvalue("number_of_grid_points_vector1")
             den_mesh[1] = gsr.reader.read_dimvalue("number_of_grid_points_vector2")
             den_mesh[2] = gsr.reader.read_dimvalue("number_of_grid_points_vector3")
-            #print("den_mesh", den_mesh)
             if self.ispaw:
                 self.set_vars(ngfftdg=den_mesh)
             else:
