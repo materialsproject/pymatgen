@@ -1298,7 +1298,12 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        process = Popen(['sbatch', script_file], stdout=PIPE, stderr=PIPE)
+        if sys.version_info[0] < 3:
+            process = Popen(['sbatch', script_file], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['sbatch', script_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+
         out, err = process.communicate()
 
         # grab the returncode. SLURM returns 0 if the job was successful
@@ -1329,9 +1334,14 @@ $${qverbatim}
             raise self.Error('qadapter failed to exclude nodes')
 
     def _get_njobs_in_queue(self, username):
-        process = Popen(['squeue', '-o "%u"', '-u', username], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['squeue', '-o "%u"', '-u', username], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['squeue', '-o "%u"', '-u', username], stdout=PIPE, stderr=PIPE,
+                            universal_newlines=True)
 
+        out, err = process.communicate()
         njobs = None
         if process.returncode == 0:
             # parse the result. lines should have this form:
@@ -1651,9 +1661,13 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         # grab the return code. PBS returns 0 if the job was successful
         queue_id = None
         if process.returncode == 0:
@@ -1666,9 +1680,13 @@ $${qverbatim}
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
     def _get_njobs_in_queue(self, username):
-        process = Popen(['qstat', '-a', '-u', username], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['qstat', '-a', '-u', username], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['qstat', '-a', '-u', username], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         njobs = None
         if process.returncode == 0:
             # parse the result
@@ -1793,9 +1811,13 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         # grab the returncode. SGE returns 0 if the job was successful
         queue_id = None
         if process.returncode == 0:
@@ -1813,9 +1835,13 @@ $${qverbatim}
         raise self.Error('qadapter failed to exclude nodes, not implemented yet in sge')
 
     def _get_njobs_in_queue(self, username):
-        process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         njobs = None
         if process.returncode == 0:
             # parse the result
@@ -1880,9 +1906,13 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        process = Popen(['msub', script_file], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['msub', script_file], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['msub', script_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         queue_id = None
         if process.returncode == 0:
             # grab the returncode. MOAB returns 0 if the job was successful
@@ -1896,9 +1926,13 @@ $${qverbatim}
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
     def _get_njobs_in_queue(self, username):
-        process = Popen(['showq', '-s -u', username], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['showq', '-s -u', username], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['showq', '-s -u', username], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         njobs = None
         if process.returncode == 0:
             # parse the result
@@ -1989,9 +2023,13 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        process = Popen(['llsubmit', script_file], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['llsubmit', script_file], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['llsubmit', script_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         # grab the return code. llsubmit returns 0 if the job was successful
         queue_id = None
         if process.returncode == 0:
@@ -2009,9 +2047,13 @@ $${qverbatim}
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
     def _get_njobs_in_queue(self, username):
-        process = Popen(['llq', '-u', username], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['llq', '-u', username], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['llq', '-u', username], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         njobs = None
         if process.returncode == 0:
             # parse the result. lines should have this form:

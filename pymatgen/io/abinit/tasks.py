@@ -18,7 +18,7 @@ import numpy as np
 from pprint import pprint
 from itertools import product
 from six.moves import map, zip, StringIO
-from monty.dev import deprecated
+#from monty.dev import deprecated
 from monty.string import is_string, list_strings
 from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
@@ -1449,10 +1449,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def get_inpvar(self, varname, default=None):
         """Return the value of the ABINIT variable varname, None if not present."""
         return self.input.get(varname, default)
-
-    @deprecated(message="_set_inpvars is deprecated. Use set_vars")
-    def _set_inpvars(self, *args, **kwargs):
-        return self.set_vars(*args, **kwargs)
 
     def set_vars(self, *args, **kwargs):
         """
@@ -3202,7 +3198,7 @@ class NscfTask(GsTask):
         events.NscfConvergenceWarning,
     ]
 
-    color_rgb = np.array((255, 122, 122)) / 255
+    color_rgb = np.array((160, 82, 45)) / 255
 
     def setup(self):
         """
@@ -3219,7 +3215,6 @@ class NscfTask(GsTask):
             den_mesh[0] = gsr.reader.read_dimvalue("number_of_grid_points_vector1")
             den_mesh[1] = gsr.reader.read_dimvalue("number_of_grid_points_vector2")
             den_mesh[2] = gsr.reader.read_dimvalue("number_of_grid_points_vector3")
-            #print("den_mesh", den_mesh)
             if self.ispaw:
                 self.set_vars(ngfftdg=den_mesh)
             else:
@@ -4051,10 +4046,6 @@ class OpticTask(Task):
         super(OpticTask, self).set_workdir(workdir, chroot=chroot)
         # Small hack: the log file of optics is actually the main output file.
         self.output_file = self.log_file
-
-    @deprecated(message="_set_inpvars is deprecated. Use set_vars")
-    def _set_inpvars(self, *args, **kwargs):
-        return self.set_vars(*args, **kwargs)
 
     def set_vars(self, *args, **kwargs):
         """

@@ -271,6 +271,8 @@ class Directory(object):
         for f in self.list_filepaths():
             # For the time being, we ignore DDB files in nc format.
             if ext == "_DDB" and f.endswith(".nc"): continue
+            # Ignore BSE text files e.g. GW_NLF_MDF
+            if ext == "_MDF" and not f.endswith(".nc"): continue
             if f.endswith(ext) or f.endswith(ext + ".nc"):
                 files.append(f)
 

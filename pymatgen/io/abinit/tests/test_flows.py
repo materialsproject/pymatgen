@@ -114,6 +114,8 @@ class FlowTest(FlowUnitTest):
         """Testing Flow..."""
         aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
         flow = Flow(workdir=self.workdir, manager=self.manager)
+        assert flow.isinstance(Flow)
+        assert not flow.isinstance(None)
 
         # Build a work with a task
         work = flow.register_task(self.fake_input)
@@ -209,6 +211,7 @@ class FlowTest(FlowUnitTest):
 
         # Test show_status
         flow.show_status()
+        flow.show_tricky_tasks()
         flow.show_event_handlers()
 
     def test_workdir(self):
@@ -243,7 +246,9 @@ class TestFlowInSpectatorMode(FlowUnitTest):
         flow = Flow(workdir=self.workdir, manager=self.manager)
 
         work0 = Work()
-        work0.register_scf_task(self.fake_input)
+        gs_task = work0.register_scf_task(self.fake_input)
+        assert gs_task.isinstance(ScfTask)
+        assert gs_task.isinstance("ScfTask")
         work0.register_scf_task(self.fake_input)
 
         work1 = Work()

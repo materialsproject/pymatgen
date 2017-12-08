@@ -373,10 +373,15 @@ class Flow(Node, NodeContainer, MSONable):
         """The path of the pid file created by PyFlowScheduler."""
         return os.path.join(self.workdir, "_PyFlowScheduler.pid")
 
+    @property
+    def has_scheduler(self):
+        """True if there's a scheduler running the flow."""
+        return os.path.exists(self.pid_file)
+
     def check_pid_file(self):
         """
         This function checks if we are already running the :class:`Flow` with a :class:`PyFlowScheduler`.
-        Raises: Flow.Error if the pif file of the scheduler exists.
+        Raises: Flow.Error if the pid file of the scheduler exists.
         """
         if not os.path.exists(self.pid_file):
             return 0
@@ -707,8 +712,7 @@ class Flow(Node, NodeContainer, MSONable):
             `RuntimeError` if executable is not in $PATH.
         """
         if not self.allocated:
-            self.build()
-            #self.build_and_pickle_dump()
+            self.allocate()
 
         isok, tuples = True, []
         for task in self.iflat_tasks():
@@ -1105,7 +1109,7 @@ class Flow(Node, NodeContainer, MSONable):
                 nodes_files.append((node, File(filepath)))
 
         if nodes_files:
-            print("Found %s files with extension %s produced by the flow" % (len(nodes_files), ext), file=stream)
+            print("Found %s files with extension `%s` produced by the flow" % (len(nodes_files), ext), file=stream)
 
             table = [[f.relpath, "%.2f" % (f.get_stat().st_size / 1024**2),
                       node.node_id, node.__class__.__name__]
@@ -1115,13 +1119,14 @@ class Flow(Node, NodeContainer, MSONable):
         else:
             print("No output file with extension %s has been produced by the flow" % ext, file=stream)
 
-    def select_tasks(self, nids=None, wslice=None):
+    def select_tasks(self, nids=None, wslice=None, task_class=None):
         """
         Return a list with a subset of tasks.
 
         Args:
             nids: List of node identifiers.
             wslice: Slice object used to select works.
+            task_class: String or class used to select tasks. Ignored if None.
 
         .. note::
 
@@ -1140,15 +1145,20 @@ class Flow(Node, NodeContainer, MSONable):
             # All tasks selected if no option is provided.
             tasks = list(self.iflat_tasks())
 
+        # Filter by task class
+        if task_class is not None:
+            tasks = [t for t in tasks if t.isinstance(task_class)]
+
         return tasks
 
-    def get_task_cycles(self, nids=None, wslice=None, include_ok_tasks=True):
+    def get_task_cycles(self, nids=None, wslice=None, task_class=None, include_ok_tasks=True):
         """
         Return list of (taks, scfcycle) tuples for all the tasks in the flow with a SCF algorithm
 
         Args:
             nids: List of node identifiers.
             wslice: Slice object used to select works.
+            task_class: String or class used to select tasks. Ignored if None.
             include_ok_tasks: False if only running tasks should be considered.
 
         Returns:
@@ -1158,7 +1168,10 @@ class Flow(Node, NodeContainer, MSONable):
         tasks_cycles = []
 
         for task in self.select_tasks(nids=nids, wslice=wslice):
+            # Fileter
             if task.status not in select_status or task.cycle_class is None:
+                continue
+            if task_class is not None and not task.isinstance(task_class):
                 continue
             try:
                 cycle = task.cycle_class.from_file(task.output_file.path)
@@ -1322,14 +1335,17 @@ class Flow(Node, NodeContainer, MSONable):
         """
         if not isinstance(nids, collections.Iterable): nids = [nids]
 
-        tasks = []
-        for nid in nids:
-            for task in self.iflat_tasks():
-                if task.node_id == nid:
-                    tasks.append(task)
-                    break
+        n2task = {task.node_id: task for task in self.iflat_tasks()}
+        return [n2task[n] for n in nids if n in n2task]
 
-        return tasks
+        #tasks = []
+        #for nid in nids:
+        #    for task in self.iflat_tasks():
+        #        if task.node_id == nid:
+        #            tasks.append(task)
+        #            break
+
+        #return tasks
 
     def wti_from_nids(self, nids):
         """Return the list of (w, t) indices from the list of node identifiers nids."""
@@ -1610,6 +1626,9 @@ class Flow(Node, NodeContainer, MSONable):
         else:
             with open(nodeid_path, "wt") as fh:
                 fh.write(str(self.node_id))
+
+        if self.pyfile and os.path.isfile(self.pyfile):
+            shutil.copy(self.pyfile, self.workdir)
 
         for work in self:
             work.build(*args, **kwargs)
