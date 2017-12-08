@@ -1,11 +1,8 @@
 Change log
 ==========
 
-v2017.12.6
+v2017.12.8
 ----------
-* Support for HDF5 output for VolumetricData (CHGCAR, LOCPOT, etc.).
-* Support for Crystal Orbital Hamilton Populations (COHPs) (@marcoesters)
-* REST interface for Pourbaix data
-* Support for optical property parsing in Vasprun.
-* Improvements to LammpsData
-* Misc bug fixes.
+* Pymatgen no longer depends on pyhull.
+* MPRester method to get interface reaction kinks between two reactants.
+* Misc improvements.

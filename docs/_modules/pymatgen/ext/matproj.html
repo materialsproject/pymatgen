@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.ext.matproj &#8212; pymatgen 2017.12.6 documentation</title>
+    <title>pymatgen.ext.matproj &#8212; pymatgen 2017.12.8 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.6',
+        VERSION:     '2017.12.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1020,6 +1020,35 @@
         <span class="n">millers</span><span class="p">,</span> <span class="n">energies</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">miller_energy_map</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">WulffShape</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">millers</span><span class="p">,</span> <span class="n">energies</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MPRester.get_interface_reactions"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_interface_reactions">[docs]</a>    <span class="k">def</span> <span class="nf">get_interface_reactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactant1</span><span class="p">,</span> <span class="n">reactant2</span><span class="p">,</span>
+                                <span class="n">open_el</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">relative_mu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets critical reactions between two reactants.</span>
+
+<span class="sd">        Get critical reactions (&quot;kinks&quot; in the mixing ratio where</span>
+<span class="sd">        reaction products change) between two reactants. See the</span>
+<span class="sd">        `pymatgen.analysis.interface_reactions` module for more info.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            reactant1 (str): Chemical formula for reactant</span>
+<span class="sd">            reactant2 (str): Chemical formula for reactant</span>
+<span class="sd">            open_el (str): Element in reservoir available to system</span>
+<span class="sd">            relative_mu (float): Relative chemical potential of element in</span>
+<span class="sd">                reservoir with respect to pure substance. Must be non-positive.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: list of dicts of form {ratio,energy,rxn} where `ratio` is the</span>
+<span class="sd">                reactant mixing ratio, `energy` is the reaction energy</span>
+<span class="sd">                in eV/atom, and `rxn` is a</span>
+<span class="sd">                `pymatgen.analysis.reaction_calculator.Reaction`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;reactants&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">reactant1</span><span class="p">,</span> <span class="n">reactant2</span><span class="p">]),</span>
+                   <span class="s2">&quot;open_el&quot;</span><span class="p">:</span> <span class="n">open_el</span><span class="p">,</span>
+                   <span class="s2">&quot;relative_mu&quot;</span><span class="p">:</span> <span class="n">relative_mu</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/interface_reactions&quot;</span><span class="p">,</span>
+                                  <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="MPRester.parse_criteria"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.parse_criteria">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">parse_criteria</span><span class="p">(</span><span class="n">criteria_string</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1133,7 +1162,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -97,7 +97,7 @@ as Python 3.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2017.12.6",
+    version="2017.12.8",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",
@@ -109,8 +109,6 @@ setup(
             'enum34',
         ],
         "provenance": ["pybtex"],
-        "pourbaix": ["pyhull>=1.5.3"],
-        "bandstructure": ["pyhull>=1.5.3"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["apscheduler==2.1.0"]},

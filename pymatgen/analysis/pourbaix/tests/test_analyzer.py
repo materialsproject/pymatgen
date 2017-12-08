@@ -10,15 +10,10 @@ import os
 from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
 from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO, PourbaixEntry
 from monty.serialization import loadfn
-
-try:
-    from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
-except ImportError:
-    PourbaixAnalyzer = None
+from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
 
 test_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'test_files')
 
-@unittest.skipIf(PourbaixAnalyzer is None, "ImportError while importing PourbaixAnalyzer")
 class TestPourbaixAnalyzer(unittest.TestCase):
 
     def setUp(self):
