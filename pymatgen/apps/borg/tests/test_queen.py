@@ -45,6 +45,6 @@ class BorgQueenTest(unittest.TestCase):
             queen.load_data(os.path.join(test_dir, "assimilated.json"))
             self.assertEqual(len(queen.get_data()), 1)
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
