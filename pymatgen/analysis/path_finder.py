@@ -9,10 +9,8 @@ following work::
     Ceder, The Journal of Chemical Physics 145 (7), 074112
 """
 
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import absolute_import
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 import numpy as np
 import numpy.linalg as la
@@ -22,14 +20,11 @@ from scipy.interpolate import interp1d
 import math
 import six
 
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 
 from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.sites import *
-from pymatgen.core.periodic_table import *
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.io.vasp.outputs import VolumetricData, Chgcar
 
 __author__ = "Daniil Kitchaev"
 __version__ = "1.0"
@@ -154,8 +149,8 @@ class NEBPathfinder:
         # (http://www.cims.nyu.edu/~eve2/main.htm)
         #
 
-        print(
-            "Getting path from {} to {} (coords wrt V grid)".format(start, end))
+        # print("Getting path from {} to {} (coords wrt V grid)".format(start, end))
+        
         # Set parameters
         if not dr:
             dr = np.array(
@@ -293,9 +288,12 @@ class StaticPotential(six.with_metaclass(ABCMeta)):
 
     def rescale_field(self, new_dim):
         """
-        Changes the discretization of the potential field by linear interpolation. This is necessary if the potential field
-        obtained from DFT is strangely skewed, or is too fine or coarse. Obeys periodic boundary conditions at the edges of
-        the cell. Alternatively useful for mixing potentials that originally are on different grids.
+        Changes the discretization of the potential field by linear
+        interpolation. This is necessary if the potential field
+        obtained from DFT is strangely skewed, or is too fine or coarse. Obeys
+        periodic boundary conditions at the edges of
+        the cell. Alternatively useful for mixing potentials that originally
+        are on different grids.
 
         :param new_dim: tuple giving the numpy shape of the new grid
         """
@@ -317,14 +315,18 @@ class StaticPotential(six.with_metaclass(ABCMeta)):
 
     def gaussian_smear(self, r):
         """
-        Applies an isotropic Gaussian smear of width (standard deviation) r to the potential field. This is necessary to
-        avoid finding paths through narrow minima or nodes that may exist in the field (although any potential or
-        charge distribution generated from GGA should be relatively smooth anyway). The smearing obeys periodic
+        Applies an isotropic Gaussian smear of width (standard deviation) r to
+        the potential field. This is necessary to avoid finding paths through
+        narrow minima or nodes that may exist in the field (although any
+        potential or charge distribution generated from GGA should be
+        relatively smooth anyway). The smearing obeys periodic
         boundary conditions at the edges of the cell.
 
-        :param r - Smearing width in cartesian coordinates, in the same units as the structure lattice vectors
+        :param r - Smearing width in cartesian coordinates, in the same units
+            as the structure lattice vectors
         """
-        # Since scaling factor in fractional coords is not isotropic, have to have different radii in 3 directions
+        # Since scaling factor in fractional coords is not isotropic, have to
+        # have different radii in 3 directions
         a_lat = self.__s.lattice.a
         b_lat = self.__s.lattice.b
         c_lat = self.__s.lattice.c
@@ -359,15 +361,18 @@ class StaticPotential(six.with_metaclass(ABCMeta)):
 
 
 class ChgcarPotential(StaticPotential):
-    '''
+    """
     Implements a potential field based on the charge density output from VASP.
-    '''
+    """
 
     def __init__(self, chgcar, smear=False, normalize=True):
         """
-        :param chgcar: Chgcar object based on a VASP run of the structure of interest (Chgcar.from_file("CHGCAR"))
-        :param smear: Whether or not to apply a Gaussian smearing to the potential
-        :param normalize: Whether or not to normalize the potential to range from 0 to 1
+        :param chgcar: Chgcar object based on a VASP run of the structure of
+            interest (Chgcar.from_file("CHGCAR"))
+        :param smear: Whether or not to apply a Gaussian smearing to the
+            potential
+        :param normalize: Whether or not to normalize the potential to range
+            from 0 to 1
         """
         v = chgcar.data['total']
         v = v / (v.shape[0] * v.shape[1] * v.shape[2])
@@ -379,17 +384,20 @@ class ChgcarPotential(StaticPotential):
 
 
 class FreeVolumePotential(StaticPotential):
-    '''
-    Implements a potential field based on geometric distances from atoms in the structure - basically, the potential
+    """
+    Implements a potential field based on geometric distances from atoms in the
+    structure - basically, the potential
     is lower at points farther away from any atoms in the structure.
-    '''
+    """
 
     def __init__(self, struct, dim, smear=False, normalize=True):
         """
         :param struct: Unit cell on which to base the potential
         :param dim: Grid size for the potential
-        :param smear: Whether or not to apply a Gaussian smearing to the potential
-        :param normalize: Whether or not to normalize the potential to range from 0 to 1
+        :param smear: Whether or not to apply a Gaussian smearing to the
+            potential
+        :param normalize: Whether or not to normalize the potential to range
+            from 0 to 1
         """
         self.__s = struct
         v = FreeVolumePotential.__add_gaussians(struct, dim)
