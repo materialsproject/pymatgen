@@ -8,7 +8,7 @@ import numpy as np
 from sympy import Number, Symbol
 
 from pymatgen.analysis.surface_analysis import SurfaceEnergyCalculator, \
-    Composition, SlabEntry#, SurfaceEnergyPlotter
+    Composition, SlabEntry, SurfaceEnergyPlotter
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen import Structure, Lattice
@@ -171,86 +171,85 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         self.O = ComputedStructureEntry.from_dict(isolated_O_entry)
         self.metals_O_entry_dict = load_O_adsorption()
         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Pt"])
-        self.Pt_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entry=self.O)
+        self.Pt_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entries=[self.O])
         self.Pt_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Pt"],
                                                 self.Pt_calculator, [-1, 0])
         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Ni"])
-        self.Ni_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entry=self.O)
+        self.Ni_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entries=[self.O])
         self.Ni_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Ni"],
                                                 self.Ni_calculator, [-1, 0])
         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Rh"])
-        self.Rh_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entry=self.O)
+        self.Rh_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entries=[self.O])
         self.Rh_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Rh"],
                                                 self.Rh_calculator, [-1, 0])
         self.Oads_analyzer_dict = {"Pt": self.Pt_analyzer,
                                    "Ni": self.Ni_analyzer,
                                    "Rh": self.Rh_analyzer}
 #
-#     def test_max_adsorption_chempot_range(self):
-#
-#         # Tests if the range of chemical
-#         # potential has been reasonably chosen
-#
-#         for el in self.Oads_analyzer_dict.keys():
-#             analyzer = self.Oads_analyzer_dict[el]
-#             # Is max chempot 0 or greater
-#             chempot = analyzer.max_adsorption_chempot_range(0)
-#             self.assertLessEqual(chempot[0], 0)
-#
-#             # Is the min chempot going to give us the clean gamma
-#             if (1,1,1) in self.metals_O_entry_dict[el].keys():
-#                 se = analyzer.return_stable_slab_entry_at_u((1,1,1,),
-#                                                             u_ads=chempot[0])[1]
-#                 clean = list(self.metals_O_entry_dict[el][(1,1,1)].keys())[0]
-#                 se_clean = analyzer.se_calculator.surface_energy_coefficients(clean)[2]
-#                 self.assertEqual(se, se_clean)
-#                 se = analyzer.return_stable_slab_entry_at_u((1,1,1,),
-#                                                             u_ads=chempot[1])[1]
-#                 self.assertGreater(se, 0)
-#
-#     def test_wulff_shape_from_chempot(self):
-#
-#         # Test if it generates a Wulff shape, test if
-#         # all the facets for Cu wulff shape are inside.
-#         Cu_wulff = self.Cu_analyzer.wulff_shape_from_chempot()
-#         area_frac_dict = Cu_wulff.area_fraction_dict
-#         facets_hkl = [(1,1,1), (3,3,1), (3,1,0), (1,0,0),
-#                       (3,1,1), (2,1,0), (2,2,1)]
-#         for hkl in area_frac_dict.keys():
-#             if hkl in facets_hkl:
-#                 self.assertNotEqual(area_frac_dict[hkl], 0)
-#             else:
-#                 self.assertEqual(area_frac_dict[hkl], 0)
-#
-#         for el in self.Oads_analyzer_dict.keys():
-#             # Test WulffShape for adsorbed surfaces
-#             analyzer = self.Oads_analyzer_dict[el]
-#             chempot = analyzer.max_adsorption_chempot_range(0)
-#             wulff = analyzer.wulff_shape_from_chempot(u_ads=np.mean(chempot))
-#             se = wulff.weighted_surface_energy
-#
-#     def test_create_slab_label(self):
-#
-#         for el in self.metals_O_entry_dict.keys():
-#             analyzer = self.Oads_analyzer_dict[el]
-#             for hkl in self.metals_O_entry_dict[el].keys():
-#                 # Test WulffShape for adsorbed surfaces
-#                 for clean in self.metals_O_entry_dict[el][hkl]:
-#                     label = analyzer.create_slab_label(clean, miller_index=hkl)
-#
-#                     self.assertEqual(str(hkl), label)
-#
-#                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
-#                         label = analyzer.create_slab_label(clean, miller_index=hkl,
-#                                                            ads_entry=ads)
-#                         self.assertEqual(label, str(hkl)+"+O")
-#
-#     def test_color_palette_dict(self):
-#
-#         for el in self.metals_O_entry_dict.keys():
-#             analyzer = self.Oads_analyzer_dict[el]
-#             color_dict = analyzer.color_palette_dict()
-#
+    # def test_max_adsorption_chempot_range(self):
+    #
+    #     # Tests if the range of chemical
+    #     # potential has been reasonably chosen
+    #
+    #     for el in self.Oads_analyzer_dict.keys():
+    #         analyzer = self.Oads_analyzer_dict[el]
+    #         # Is max chempot 0 or greater
+    #         chempot = analyzer.max_adsorption_chempot_range(0)
+    #         self.assertLessEqual(chempot[0], 0)
+    #
+    #         # Is the min chempot going to give us the clean gamma
+    #         if (1,1,1) in self.metals_O_entry_dict[el].keys():
+    #             se = analyzer.return_stable_slab_entry_at_u((1,1,1,),
+    #                                                         u_ads=chempot[0])[1]
+    #             clean = list(self.metals_O_entry_dict[el][(1,1,1)].keys())[0]
+    #             se_clean = analyzer.se_calculator.surface_energy_coefficients(clean)[2]
+    #             self.assertEqual(se, se_clean)
+    #             se = analyzer.return_stable_slab_entry_at_u((1,1,1,),
+    #                                                         u_ads=chempot[1])[1]
+    #             self.assertGreater(se, 0)
+
+    def test_wulff_shape_from_chempot(self):
+
+        # Test if it generates a Wulff shape, test if
+        # all the facets for Cu wulff shape are inside.
+        Cu_wulff = self.Cu_analyzer.wulff_shape_from_chempot()
+        area_frac_dict = Cu_wulff.area_fraction_dict
+        facets_hkl = [(1,1,1), (3,3,1), (3,1,0), (1,0,0),
+                      (3,1,1), (2,1,0), (2,2,1)]
+        for hkl in area_frac_dict.keys():
+            if hkl in facets_hkl:
+                self.assertNotEqual(area_frac_dict[hkl], 0)
+            else:
+                self.assertEqual(area_frac_dict[hkl], 0)
+
+        for el in self.Oads_analyzer_dict.keys():
+            # Test WulffShape for adsorbed surfaces
+            analyzer = self.Oads_analyzer_dict[el]
+            # chempot = analyzer.max_adsorption_chempot_range(0)
+            wulff = analyzer.wulff_shape_from_chempot()
+            se = wulff.weighted_surface_energy
+
+    def test_create_slab_label(self):
+
+        for el in self.metals_O_entry_dict.keys():
+            analyzer = self.Oads_analyzer_dict[el]
+            for hkl in self.metals_O_entry_dict[el].keys():
+                # Test WulffShape for adsorbed surfaces
+                for clean in self.metals_O_entry_dict[el][hkl]:
+                    label = analyzer.create_slab_label(clean)
+
+                    self.assertEqual(str(hkl), label)
+
+                    for ads in self.metals_O_entry_dict[el][hkl][clean]:
+                        label = analyzer.create_slab_label(ads)
+                        self.assertEqual(label, str(hkl)+"+O")
+
+    def test_color_palette_dict(self):
+
+        for el in self.metals_O_entry_dict.keys():
+            analyzer = self.Oads_analyzer_dict[el]
+            color_dict = analyzer.color_palette_dict()
+
 #     def test_stable_u_range_dict(self):
 #
 #         # Test if it generates a Wulff shape, test if

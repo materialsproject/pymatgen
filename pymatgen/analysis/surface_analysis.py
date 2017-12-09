@@ -294,8 +294,6 @@ class SurfaceEnergyCalculator(object):
                 of the slab whose surface energy we want to calculate
             ads_slab_entry (entry): An optional entry object for the
                 adsorbed slab, defaults to None.
-            u_ref (float): The chemical potential of the reference element
-            u_ads (float): The chemical potential of the adsorbate
 
         Returns (float): surface energy
         """
@@ -402,7 +400,21 @@ class SurfaceEnergyCalculator(object):
         Args:
             slab_entries (array): The coefficients of the first equation
             u_dict (dict): Dictionary of chemical potentials to keep constant.
+                The key is the element and the value is the chemical poten
+        Takes in a list of SlabEntries and calculates the chemical potentials
+            at which all slabs in the list coexists simultaneously. Useful for
+            building surface phase diagrams. Note that to solve for x equations
+            (x slab_entries), there must be x free variables (chemical potentials).
+            Adjust u_dict as need be to get the correct number of free variables.
+        Args:
+            slab_entries (array): The coefficients of the first equation
+            u_dict (dict): Dictionary of chemical potentials to keep constant.
                 The key is the element and the value is the chemical potential.
+
+        Returns:
+            (array): Array containing a solution to x equations with x
+                variables (x-1 chemical potential and 1 surface energy)
+        tial.
 
         Returns:
             (array): Array containing a solution to x equations with x
@@ -533,12 +545,9 @@ class SurfaceEnergyPlotter(object):
         self.chempot_range = chempot_range
         self.entry_dict = entry_dict
         self.color_dict = self.color_palette_dict()
-        self.ref_el_comp = str(self.se_calculator.ref_el_entry.composition.elements[0].name) if \
-            self.se_calculator.ref_el_entry else \
-            self.se_calculator.ucell_entry.composition.get_integer_formula_and_factor()[0]
 
     def chempot_range_adsorption(self, ads_slab_entry, clean_slab_entry,
-                                 ref_el, buffer=0.2):
+                                 buffer=0.2, u_dict={}):
         """
         Returns the chemical potential range as a list for the adsorbate. The min
             chemical potential will be located where the clean and adsorbed surface
@@ -551,22 +560,21 @@ class SurfaceEnergyPlotter(object):
                 ref element to a constant value.
             buffer (float): A buffer fo r the x axis (chemical
                 potential range). For plotting.
+            u_dict (dict): Dictionary of chemical potentials to keep constant.
+                The key is the element and the value is the chemical potential.
+
         """
 
-        c1 = self.se_calculator.surface_energy_coefficients(clean_slab_entry)
-        c2 = self.se_calculator.surface_energy_coefficients(ads_slab_entry)
         soln = self.se_calculator.get_surface_equilibrium([clean_slab_entry,
                                                            ads_slab_entry],
-                                                          x_is_u_ads=True,
-                                                          const_u=const_u_ref)
-
-        # If the surface energy is a constant value, just set the min close to 0
-        umin = -1*10e-5 if not soln else soln[ref_el]
+                                                          u_dict=u_dict)
+        self.se_calculator.calculate_gamma()
+        # If the surface energy is a constant value
+        # (no solution), just set the min close to 0
+        umin = -1*10e-5 if not soln else soln[ads_slab_entry.adsorbate]
         # Make sure upper limit of u doesn't lead to negative or 0 values.
         # Substract a value approaching 0 to avoid surface energies of 0
-        umax = (1*10e-5-const_u_ref*c2[0]-c2[2])/c2[1] if \
-            0 > self.se_calculator.calculate_gamma(ads_slab_entry,
-                                                   u_ref=const_u_ref, u_ads=0) else 0
+        umax = 0
         return [umin-abs(umin)*buffer, umax]
 
 
@@ -602,128 +610,125 @@ class SurfaceEnergyPlotter(object):
     #     all_ranges = sorted(all_ranges, key=lambda r: r[1])
     #     max_range.append(all_ranges[0][1])
     #     return max_range
-    #
-    # def wulff_shape_from_chempot(self, u_ref=0, u_ads=0, symprec=1e-5):
-    #     """
-    #     Method to get the Wulff shape at a specific chemical potential.
-    #     Args:
-    #         u_ref (float): The chemical potential of the reference element
-    #         u_ads (float): The chemical potential of the adsorbate
-    #         symprec (float): See WulffShape.
-    #
-    #     Returns:
-    #         (WulffShape): The WulffShape at u_ref and u_ads.
-    #     """
-    #
-    #     # Check if the user provided chemical potential is within the
-    #     # predetermine range of chemical potential. If not, raise a warning
-    #     if not max(self.chempot_range) >= u_ref >= min(self.chempot_range):
-    #         warnings.warn("The provided chemical potential is outside the range "
-    #                       "of chemical potential (%s to %s). The resulting Wulff "
-    #                       "shape might not be reasonable." % (min(self.chempot_range),
-    #                                                           max(self.chempot_range)))
-    #
-    #     latt = SpacegroupAnalyzer(self.se_calculator.ucell_entry.structure). \
-    #         get_conventional_standard_structure().lattice
-    #
-    #     miller_list = self.entry_dict.keys()
-    #     e_surf_list = []
-    #     for hkl in miller_list:
-    #         # At each possible configuration, we calculate surface energy as a
-    #         # function of u and take the lowest surface energy (corresponds to
-    #         # the most stable slab termination at that particular u)
-    #         entry, gamma = self.return_stable_slab_entry_at_u(hkl, u_ref=u_ref,
-    #                                                           u_ads=u_ads)
-    #         e_surf_list.append(gamma)
-    #
-    #     return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
-    #
-    # def return_stable_slab_entry_at_u(self, miller_index, u_ref=0, u_ads=0):
-    #     """
-    #     Returns the entry corresponding to the most stable
-    #     slab for a particular facet at a specific chempot.
-    #
-    #     Args:
-    #         miller_index ((h,k,l)): The facet to find the most stable slab in
-    #         u_ref (float): The chemical potential of the reference element
-    #         u_ads (float): The chemical potential of the adsorbate
-    #     """
-    #
-    #     all_entries, all_gamma = [], []
-    #     for entry in self.entry_dict[miller_index].keys():
-    #         gamma = self.se_calculator.calculate_gamma(entry, u_ref=u_ref)
-    #         all_entries.append(entry)
-    #         all_gamma.append(gamma)
-    #         for ads_entry in self.entry_dict[miller_index][entry]:
-    #             gamma = self.se_calculator.calculate_gamma(entry, u_ref=u_ref, u_ads=u_ads,
-    #                                                             ads_slab_entry=ads_entry)
-    #             all_entries.append(ads_entry)
-    #             all_gamma.append(gamma)
-    #
-    #     return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
-    #
-    # def area_frac_vs_chempot_plot(self, const_u=0, increments=10,
-    #                               x_is_u_ads=False):
-    #     """
-    #     Plots the change in the area contribution of
-    #     each facet as a function of chemical potential.
-    #
-    #     Args:
-    #         const_u (float): A chemical potential to hold constant if there are
-    #             more than one parameters.
-    #         increments (bool): Number of data points between min/max or point
-    #             of intersection. Defaults to 5 points.
-    #         x_is_u_ads (bool): Whether or not to set the adsorption chempot as
-    #             a free variable (False).
-    #
-    #     Returns:
-    #         (Pylab): Plot of area frac on the Wulff shape
-    #             for each facet vs chemical potential.
-    #     """
-    #
-    #     xrange = self.chempot_range if not x_is_u_ads \
-    #         else self.max_adsorption_chempot_range(const_u)
-    #     all_chempots = np.linspace(min(xrange), max(xrange),
-    #                                increments)
-    #
-    #     # initialize a dictionary of lists of fractional areas for each hkl
-    #     hkl_area_dict = {}
-    #     for hkl in self.entry_dict.keys():
-    #         hkl_area_dict[hkl] = []
-    #
-    #     # Get plot points for each Miller index
-    #     for u in all_chempots:
-    #         u_ads = u if x_is_u_ads else const_u
-    #         u_ref = u if not x_is_u_ads else const_u
-    #         wulffshape = self.wulff_shape_from_chempot(u_ads=u_ads, u_ref=u_ref)
-    #
-    #         for hkl in wulffshape.area_fraction_dict.keys():
-    #             hkl_area_dict[hkl].append(wulffshape.area_fraction_dict[hkl])
-    #
-    #     # Plot the area fraction vs chemical potential for each facet
-    #     plt = pretty_plot(width=8, height=7)
-    #     axes = plt.gca()
-    #
-    #     for i, hkl in enumerate(self.entry_dict.keys()):
-    #         clean_entry = list(self.entry_dict[hkl].keys())[0]
-    #         # Ignore any facets that never show up on the
-    #         # Wulff shape regardless of chemical potential
-    #         if all([a == 0 for a in hkl_area_dict[hkl]]):
-    #             continue
-    #         else:
-    #             plt.plot(all_chempots, hkl_area_dict[hkl],
-    #                      '--', color=self.color_dict[clean_entry],
-    #                      label=str(hkl))
-    #
-    #     # Make the figure look nice
-    #     plt.ylabel(r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
-    #     self.chempot_plot_addons(plt, xrange, axes, pad=5,
-    #                              rect=[-0.0, 0, 0.95, 1],
-    #                              x_is_u_ads=x_is_u_ads,
-    #                              ylim=[0,1])
-    #
-    #     return plt
-    #
+
+    def wulff_shape_from_chempot(self, u_dict={}, u_default=0, symprec=1e-5):
+        """
+        Method to get the Wulff shape at a specific chemical potential.
+        Args:
+            u_dict (dict): Dictionary of chemical potentials to keep constant.
+                The key is the element and the value is the chemical potential.
+
+            symprec (float): See WulffShape.
+
+        Returns:
+            (WulffShape): The WulffShape at u_ref and u_ads.
+        """
+
+        # Check if the user provided chemical potential is within the
+        # predetermine range of chemical potential. If not, raise a warning
+        # if not max(self.chempot_range) >= u_ref >= min(self.chempot_range):
+        #     warnings.warn("The provided chemical potential is outside the range "
+        #                   "of chemical potential (%s to %s). The resulting Wulff "
+        #                   "shape might not be reasonable." % (min(self.chempot_range),
+        #                                                       max(self.chempot_range)))
+
+        latt = SpacegroupAnalyzer(self.se_calculator.ucell_entry.structure). \
+            get_conventional_standard_structure().lattice
+
+        miller_list = self.entry_dict.keys()
+        e_surf_list = []
+        for hkl in miller_list:
+            # At each possible configuration, we calculate surface energy as a
+            # function of u and take the lowest surface energy (corresponds to
+            # the most stable slab termination at that particular u)
+            entry, gamma = self.return_stable_slab_entry_at_u(hkl, u_dict=u_dict,
+                                                              u_default=u_default)
+            e_surf_list.append(gamma)
+
+        return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
+
+    def return_stable_slab_entry_at_u(self, miller_index, u_dict={}, u_default=0):
+        """
+        Returns the entry corresponding to the most stable
+        slab for a particular facet at a specific chempot.
+
+        Args:
+            miller_index ((h,k,l)): The facet to find the most stable slab in
+        """
+
+        all_entries, all_gamma = [], []
+        for entry in self.entry_dict[miller_index].keys():
+            gamma = self.se_calculator.calculate_gamma(entry, u_dict=u_dict,
+                                                       u_default=u_default)
+            all_entries.append(entry)
+            all_gamma.append(gamma)
+            for ads_entry in self.entry_dict[miller_index][entry]:
+                gamma = self.se_calculator.calculate_gamma(entry, u_dict=u_dict,
+                                                           u_default=u_default)
+                all_entries.append(ads_entry)
+                all_gamma.append(gamma)
+
+        return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
+
+    def area_frac_vs_chempot_plot(self, ref_el, chempot_range, u_dict={},
+                                  u_default=0, increments=10):
+        """
+        Plots the change in the area contribution of
+        each facet as a function of chemical potential.
+
+        Args:
+            ref_el (str): The free variable chempot.
+            u_dict (dict): Number of data points between min/max or point
+                of intersection. Defaults to 5 points.
+            u_default (float): Chempot value if a chempot has no assigned value.
+            increments (bool): Number of data points between min/max or point
+                of intersection. Defaults to 5 points.
+
+        Returns:
+            (Pylab): Plot of area frac on the Wulff shape
+                for each facet vs chemical potential.
+        """
+
+        all_chempots = np.linspace(min(chempot_range), max(chempot_range),
+                                   increments)
+
+        # initialize a dictionary of lists of fractional areas for each hkl
+        hkl_area_dict = {}
+        for hkl in self.entry_dict.keys():
+            hkl_area_dict[hkl] = []
+
+        # Get plot points for each Miller index
+        for u in all_chempots:
+            wulffshape = self.wulff_shape_from_chempot(u_dict=u_dict,
+                                                       u_default=u_default)
+
+            for hkl in wulffshape.area_fraction_dict.keys():
+                hkl_area_dict[hkl].append(wulffshape.area_fraction_dict[hkl])
+
+        # Plot the area fraction vs chemical potential for each facet
+        plt = pretty_plot(width=8, height=7)
+        axes = plt.gca()
+
+        for i, hkl in enumerate(self.entry_dict.keys()):
+            clean_entry = list(self.entry_dict[hkl].keys())[0]
+            # Ignore any facets that never show up on the
+            # Wulff shape regardless of chemical potential
+            if all([a == 0 for a in hkl_area_dict[hkl]]):
+                continue
+            else:
+                plt.plot(all_chempots, hkl_area_dict[hkl],
+                         '--', color=self.color_dict[clean_entry],
+                         label=str(hkl))
+
+        # Make the figure look nice
+        plt.ylabel(r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
+        self.chempot_plot_addons(plt, xrange, axes, pad=5,
+                                 rect=[-0.0, 0, 0.95, 1],
+                                 x_is_u_ads=x_is_u_ads,
+                                 ylim=[0,1])
+
+        return plt
+
     # def chempot_vs_gamma_plot_one(self, plt, clean_entry, label='',
     #                               ads_entry=None, JPERM2=False,
     #                               x_is_u_ads=False, const_u=0,
@@ -1130,55 +1135,58 @@ class SurfaceEnergyPlotter(object):
     #                  xytext=xy, rotation=90, fontsize=17)
     #
     #     return plt
-    #
-    # def create_slab_label(self, entry, miller_index=(), ads_entry=None):
-    #
-    #     label = str(miller_index) if miller_index else ""
-    #     if entry.composition.reduced_composition != \
-    #             self.se_calculator.ucell_entry.composition.reduced_composition:
-    #         label += " %s" % (entry.composition.reduced_composition)
-    #     if ads_entry:
-    #         label += r"+%s" %(self.se_calculator.adsorbate_as_str)
-    #     return label
-    #
-    # def color_palette_dict(self, alpha=0.35):
-    #     """
-    #     Helper function to assign each facet a unique color using a dictionary.
-    #
-    #     Args:
-    #         alpha (float): Degree of transparency
-    #
-    #     return (dict): Dictionary of colors (r,g,b,a) when plotting surface
-    #         energy stability. The keys are individual surface entries where
-    #         clean surfaces have a solid color while the corresponding adsorbed
-    #         surface will be transparent.
-    #     """
-    #
-    #     color_dict = {}
-    #     for hkl in self.entry_dict.keys():
-    #         rgb_indices = [0, 1, 2]
-    #         color = [0, 0, 0, 1]
-    #         random.shuffle(rgb_indices)
-    #         for i, ind in enumerate(rgb_indices):
-    #             if i == 2:
-    #                 break
-    #             color[ind] = np.random.uniform(0, 1)
-    #
-    #         # Get the clean (solid) colors first
-    #         clean_list = np.linspace(0, 1, len(self.entry_dict[hkl]))
-    #         for i, clean in enumerate(self.entry_dict[hkl].keys()):
-    #             c = copy.copy(color)
-    #             c[rgb_indices[2]] = clean_list[i]
-    #             color_dict[clean] = c
-    #
-    #             # Now get the adsorbed (transparent) colors
-    #             for ads_entry in self.entry_dict[hkl][clean]:
-    #                 c_ads = copy.copy(c)
-    #                 c_ads[3] = alpha
-    #                 color_dict[ads_entry] = c_ads
-    #
-    #     return color_dict
-    #
+
+    def create_slab_label(self, entry):
+
+        if "name" in entry.data.keys():
+            return entry.data["name"]
+
+        label = str(entry.miller_index)
+        # if entry.composition.reduced_composition != \
+        #         self.se_calculator.ucell_entry.composition.reduced_composition:
+        #     label += " %s" % (entry.composition.reduced_composition)
+        if entry.adsorbate:
+            label += r"+%s" %(entry.adsorbate)
+        return label
+
+    def color_palette_dict(self, alpha=0.35):
+        """
+        Helper function to assign each facet a unique color using a dictionary.
+
+        Args:
+            alpha (float): Degree of transparency
+
+        return (dict): Dictionary of colors (r,g,b,a) when plotting surface
+            energy stability. The keys are individual surface entries where
+            clean surfaces have a solid color while the corresponding adsorbed
+            surface will be transparent.
+        """
+
+        color_dict = {}
+        for hkl in self.entry_dict.keys():
+            rgb_indices = [0, 1, 2]
+            color = [0, 0, 0, 1]
+            random.shuffle(rgb_indices)
+            for i, ind in enumerate(rgb_indices):
+                if i == 2:
+                    break
+                color[ind] = np.random.uniform(0, 1)
+
+            # Get the clean (solid) colors first
+            clean_list = np.linspace(0, 1, len(self.entry_dict[hkl]))
+            for i, clean in enumerate(self.entry_dict[hkl].keys()):
+                c = copy.copy(color)
+                c[rgb_indices[2]] = clean_list[i]
+                color_dict[clean] = c
+
+                # Now get the adsorbed (transparent) colors
+                for ads_entry in self.entry_dict[hkl][clean]:
+                    c_ads = copy.copy(c)
+                    c_ads[3] = alpha
+                    color_dict[ads_entry] = c_ads
+
+        return color_dict
+
     # def get_clean_ads_entry_pair(self, entry):
     #     """
     #     Helper function that returns a pair of entries, the first is
