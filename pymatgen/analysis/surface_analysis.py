@@ -578,39 +578,6 @@ class SurfaceEnergyPlotter(object):
         return [umin-abs(umin)*buffer, umax]
 
 
-    # def max_adsorption_chempot_range(self, const_u_ref, buffer=0.1):
-    #     """
-    #     Returns the chemical potential range as a list for the adsorbate among all
-    #         facets. The min chemical potential will be located where the clean and
-    #         adsorbed surface energy lines intersect while the max chemical potential
-    #         will depend on the formation energy of the material.
-    #     Args:
-    #         const_u_ref (float): Set the chemical potential of the
-    #             ref element to a constant value.
-    #         buffer (float): A buffer fo r the x axis (chemical
-    #             potential range). For plotting.
-    #     """
-    #
-    #     all_ranges = []
-    #     for hkl in self.entry_dict.keys():
-    #         for clean_entry in self.entry_dict[hkl].keys():
-    #             for ads_entry in self.entry_dict[hkl][clean_entry]:
-    #                 all_ranges.append(self.\
-    #                                   chempot_range_adsorption(ads_entry, clean_entry,
-    #                                                            const_u_ref=const_u_ref,
-    #                                                            buffer=buffer))
-    #
-    #     if not all_ranges:
-    #         # If there is no intersection, the range is [-1,0]
-    #         return [-1,0]
-    #     # ensure our lower limit is at an intersection with the clean slab
-    #     all_ranges = sorted(all_ranges, key=lambda r: r[0])
-    #     max_range = [all_ranges[0][0]]
-    #     # ensure our upper limit corresponds to gamm > 0 or if gamma > 0 when u = 0
-    #     all_ranges = sorted(all_ranges, key=lambda r: r[1])
-    #     max_range.append(all_ranges[0][1])
-    #     return max_range
-
     def wulff_shape_from_chempot(self, u_dict={}, u_default=0, symprec=1e-5):
         """
         Method to get the Wulff shape at a specific chemical potential.
@@ -623,14 +590,6 @@ class SurfaceEnergyPlotter(object):
         Returns:
             (WulffShape): The WulffShape at u_ref and u_ads.
         """
-
-        # Check if the user provided chemical potential is within the
-        # predetermine range of chemical potential. If not, raise a warning
-        # if not max(self.chempot_range) >= u_ref >= min(self.chempot_range):
-        #     warnings.warn("The provided chemical potential is outside the range "
-        #                   "of chemical potential (%s to %s). The resulting Wulff "
-        #                   "shape might not be reasonable." % (min(self.chempot_range),
-        #                                                       max(self.chempot_range)))
 
         latt = SpacegroupAnalyzer(self.se_calculator.ucell_entry.structure). \
             get_conventional_standard_structure().lattice
@@ -729,412 +688,412 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    # def chempot_vs_gamma_plot_one(self, plt, clean_entry, label='',
-    #                               ads_entry=None, JPERM2=False,
-    #                               x_is_u_ads=False, const_u=0,
-    #                               urange=None, ylim=[]):
-    #     """
-    #     Helper function to  help plot the surface energy of a
-    #     single surface entry as a function of chemical potential.
-    #
-    #     Args:
-    #         plt (Plot): A plot.
-    #         clean_entry (entry): Entry containing the final energy and structure
-    #             of the slab whose surface energy we want to calculate
-    #         ads_entry (entry): An optional entry object for the adsorbed slab,
-    #             defaults to None.
-    #         JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
-    #             eV/A^2 (False)
-    #         x_is_u_ads (bool): Whether or not to set the adsorption chempot as
-    #             a free variable (False).
-    #         const_u (float): A chemical potential for the fixed chempot.
-    #         urange (list): Chemical potential range for the free variable.
-    #
-    #     Returns:
-    #         (Plot): Plot of surface energy vs chemical potential for one entry.
-    #     """
-    #
-    #
-    #     if x_is_u_ads:
-    #         u_ref_range = [const_u, const_u]
-    #         u_ads_range = urange if urange else \
-    #             self.max_adsorption_chempot_range(const_u)
-    #     else:
-    #         u_ref_range = urange if urange else self.chempot_range
-    #         u_ads_range = [const_u, const_u]
-    #
-    #     # use dashed lines for slabs that are not stoichiometric
-    #     # wrt bulk. Label with formula if nonstoichiometric
-    #     mark = '--' if clean_entry.composition.reduced_composition != \
-    #                    self.se_calculator.ucell_entry. \
-    #                        composition.reduced_composition else '-'
-    #
-    #     gamma_range = [self.se_calculator.calculate_gamma(clean_entry,
-    #                                                            ads_slab_entry=ads_entry,
-    #                                                            u_ref=u_ref_range[0],
-    #                                                            u_ads=u_ads_range[0]),
-    #                    self.se_calculator.calculate_gamma(clean_entry,
-    #                                                            ads_slab_entry=ads_entry,
-    #                                                            u_ref=u_ref_range[1],
-    #                                                            u_ads=u_ads_range[1])]
-    #
-    #     se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
-    #         if JPERM2 else gamma_range
-    #     if not urange:
-    #         urange = u_ref_range if not x_is_u_ads else u_ads_range
-    #     color = self.color_dict[ads_entry] if ads_entry else self.color_dict[clean_entry]
-    #     plt.plot(urange, se_range, mark, color=color, label=label)
-    #
-    #     return plt
-    #
-    # def chempot_vs_gamma_clean(self, miller_index=(), JPERM2=False, plt=None, ylim=[]):
-    #     """
-    #     Plots the surface energy of all facets as a function of chemical potential.
-    #         Each facet will be associated with its own distinct colors. Dashed lines
-    #         will represent stoichiometries different from that of the mpid's compound.
-    #
-    #     Args:
-    #         cmap (cm): A matplotlib colormap object, defaults to jet.
-    #         highlight_stability (bool): For each facet, there may be various
-    #             terminations or stoichiometries and the relative stability of
-    #             these different slabs may change with chemical potential. This
-    #             dict (if provided) will highlight the stability line for a facet.
-    #             The key of the dict is the Miller index we want to highlight while
-    #             the value is the color of the highlight e.g. {(1,1,1): 'r'}.
-    #     """
-    #
-    #     plt = plt if plt else pretty_plot(width=8, height=7)
-    #     axes = plt.gca()
-    #
-    #     # Now we plot each individual slab surface energy
-    #     already_labelled = []
-    #     for hkl in self.entry_dict.keys():
-    #         if miller_index and hkl != tuple(miller_index):
-    #             continue
-    #
-    #         # Plot the clean slabs
-    #         for entry in self.entry_dict[hkl]:
-    #             # Generate a label for the type of slab
-    #             label = self.create_slab_label(entry, miller_index=\
-    #                 () if miller_index else hkl)
-    #
-    #             if label in already_labelled:
-    #                 label = None
-    #             else:
-    #                 already_labelled.append(label)
-    #
-    #             self.chempot_vs_gamma_plot_one(plt, entry, label=label,
-    #                                            JPERM2=JPERM2, x_is_u_ads=False)
-    #
-    #     # Make the figure look nice
-    #     plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
-    #         else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
-    #     plt = self.chempot_plot_addons(plt, self.chempot_range, axes, ylim=ylim)
-    #
-    #     return plt
-    #
-    # def stable_u_range_dict(self, clean_only=True, const_u=0,
-    #                         buffer=0.1, miller_index=()):
-    #
-    #     """
-    #     Creates a dictionary where each entry is a key pointing to a chemical potential
-    #     range where the surface of that entry is stable. Does so by enumerating through
-    #     all possible solutions (intersect) for surface energies of a specific facet.
-    #
-    #     TODO:
-    #         -Make this simpler/cleaner.
-    #
-    #     Args:
-    #         clean_only (bool): Only get the range for clean surface entries if True.
-    #         const_u (float): A chemical potential for the fixed chempot.
-    #         buffer (float): A buffer fo r the x axis (chemical
-    #             potential range). For plotting.
-    #         miller_index (list): Miller index for a specific facet to get a
-    #             dictionary for.
-    #     """
-    #
-    #     all_intesects_dict = {}
-    #     stable_urange_dict = {}
-    #     max_ads_range = self.max_adsorption_chempot_range(const_u,
-    #                                                       buffer=buffer)
-    #     standard_range = max_ads_range if not clean_only else self.chempot_range
-    #     standard_range = sorted(standard_range)
-    #     x_is_u_ads = False if clean_only else True
-    #
-    #     # Get all entries for a specific facet
-    #     for hkl in self.entry_dict.keys():
-    #
-    #         # bool to check if at least one surface exists for a facet
-    #         entry_exists = False
-    #
-    #         if miller_index and hkl != tuple(miller_index):
-    #             continue
-    #         entries_in_hkl = [entry for entry in self.entry_dict[hkl]]
-    #         if not clean_only:
-    #             ads_entries_in_hkl = []
-    #             for entry in self.entry_dict[hkl]:
-    #                 ads_entries_in_hkl.extend([ads_entry for ads_entry in
-    #                                            self.entry_dict[hkl][entry]])
-    #             entries_in_hkl.extend(ads_entries_in_hkl)
-    #
-    #         # if there is only one entry for this facet, then just give it the
-    #         # default urange, you can't make combinations with just 1 item
-    #         if len(entries_in_hkl) == 1:
-    #             stable_urange_dict[entries_in_hkl[0]] = standard_range
-    #             continue
-    #         for pair in itertools.combinations(entries_in_hkl, 2):
-    #             # Check if entry is adsorbed entry or clean, this is
-    #             # a hassle so figure out a cleaner way to do this
-    #             clean_ads_coeffs = []
-    #             for p in pair:
-    #                 p1 = self.get_clean_ads_entry_pair(p)
-    #                 c = self.se_calculator.surface_energy_coefficients(p1[0],
-    #                                                                    ads_slab_entry=p1[1])
-    #                 clean_ads_coeffs.append(c)
-    #
-    #             u, gamma = self.se_calculator.solve_2_linear_eqns(clean_ads_coeffs[0],
-    #                                                               clean_ads_coeffs[1],
-    #                                                               x_is_u_ads=x_is_u_ads,
-    #                                                               const_u=const_u)
-    #
-    #             if u:
-    #                 # If the u in a list is beyond the standard
-    #                 # range, set it to one of the limits
-    #                 if u < standard_range[0]:
-    #                     u_new = standard_range[0]
-    #                 elif u > standard_range[1]:
-    #                     u_new = standard_range[1]
-    #                 else:
-    #                     u_new = u
-    #
-    #                 for entry in pair:
-    #                     if entry not in all_intesects_dict.keys():
-    #                         all_intesects_dict[entry] = []
-    #                     all_intesects_dict[entry].append(u_new)
-    #
-    #         # Now that we have every single intersection for a given
-    #         # slab, find the range of u where each slab is stable
-    #         for entry in all_intesects_dict.keys():
-    #             if entry not in stable_urange_dict.keys():
-    #                 stable_urange_dict[entry] = []
-    #             for u_int in all_intesects_dict[entry]:
-    #                 stable_entries = []
-    #                 for i in [-1, 1]:
-    #                     u_ads = u_int+i*(10e-6) if x_is_u_ads else const_u
-    #                     u_ref = u_int+i*(10e-6) if not x_is_u_ads else const_u
-    #                     # return_stable_slab_entry_at_u() will only return one
-    #                     # entry for one gamma, since u is at an intersection,
-    #                     # this entry is ambiguous, we need to get the entry
-    #                     # slightly above and below u and check if the current
-    #                     # entry is any of these entries. Another inconvenience
-    #                     # that needs to be fixed
-    #                     stable_entry, gamma = \
-    #                         self.return_stable_slab_entry_at_u(hkl, u_ads=u_ads,
-    #                                                            u_ref=u_ref)
-    #                     stable_entries.append(stable_entry)
-    #                 # If this entry is stable at this u, append u
-    #                 if entry in stable_entries:
-    #                     stable_urange_dict[entry].append(u_int)
-    #                     entry_exists = True
-    #
-    #         # Now check for entries with only one intersection
-    #         # is it stable below or above u_intersect
-    #         for entry in stable_urange_dict.keys():
-    #             # First lets check if all the u values for
-    #             # an entry are the same as the standard range,
-    #             # if so, just set it to the standard range
-    #             if stable_urange_dict[entry]:
-    #                 if all([u in standard_range for u in stable_urange_dict[entry]]):
-    #                     stable_urange_dict[entry] = standard_range
-    #
-    #             # If only one u, its stable from u to +-inf.
-    #             # If no u, this entry is never stable
-    #             if len(stable_urange_dict[entry]) == 1:
-    #                 u = stable_urange_dict[entry][0]
-    #                 for i in [-1, 1]:
-    #                     u_ads = u+i*(10e-6) if x_is_u_ads else const_u
-    #                     u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
-    #
-    #                     e, se = self.return_stable_slab_entry_at_u(hkl,
-    #                                                                u_ads=u_ads,
-    #                                                                u_ref=u_ref)
-    #                     if e == entry:
-    #                         # If the entry stable below u, assume it is
-    #                         # stable at -inf, otherwise its stable at +inf
-    #                         u2 = standard_range[0] if i == -1 else standard_range[1]
-    #                         stable_urange_dict[entry].append(u2)
-    #                         entry_exists = True
-    #
-    #             # now sort the ranges for each entry
-    #             stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
-    #         # Now we make sure that each facet has at least
-    #         # one entry, if no entries exist, this means there
-    #         # is not intersection, get the most stable surface
-    #         if not entry_exists:
-    #             e, se = self.return_stable_slab_entry_at_u(hkl,
-    #                                                        u_ads=const_u,
-    #                                                        u_ref=const_u)
-    #             stable_urange_dict[e] = standard_range
-    #
-    #     return stable_urange_dict
-    #
-    # def chempot_vs_gamma_facet(self, miller_index=(), const_u=0,
-    #                            JPERM2=False, show_unstable=False, ylim=[]):
-    #     """
-    #     Plots the surface energy as a function of chemical potential.
-    #         Each facet will be associated with its own distinct colors.
-    #         Dashed lines will represent stoichiometries different from that
-    #         of the mpid's compound. Transparent lines indicates adsorption.
-    #
-    #     Args:
-    #         miller_index (list): Miller index for a specific facet to get a
-    #             dictionary for.
-    #         const_u (float): A chemical potential to hold constant if there are
-    #             more than one parameters.
-    #         plt (Plot): A plot.
-    #         JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
-    #             eV/A^2 (False)
-    #         show_unstable (bool): Whether or not to show parts of the surface
-    #             energy plot outside the region of stability.
-    #
-    #     Returns:
-    #         (Plot): Plot of surface energy vs chemical potential for all entries.
-    #     """
-    #
-    #     plt = pretty_plot(width=8, height=7)
-    #     axes = plt.gca()
-    #
-    #     # Plot wrt to adsorption chempot if any adsorption entries exist
-    #     x_is_u_ads = False
-    #     for hkl in self.entry_dict.keys():
-    #         for clean_entry in self.entry_dict[hkl].keys():
-    #             if self.entry_dict[hkl][clean_entry]:
-    #                 x_is_u_ads = True
-    #
-    #     for hkl in self.entry_dict.keys():
-    #         if miller_index and hkl != tuple(miller_index):
-    #             continue
-    #         if not show_unstable:
-    #             clean_only = False if x_is_u_ads else True
-    #             stable_u_range_dict = self.stable_u_range_dict(clean_only=clean_only,
-    #                                                            const_u=const_u,
-    #                                                            miller_index=hkl)
-    #
-    #         already_labelled = []
-    #         for clean_entry in self.entry_dict[hkl]:
-    #
-    #             urange = stable_u_range_dict[clean_entry] if not show_unstable else None
-    #             if urange != []:
-    #
-    #                 label = self.create_slab_label(clean_entry, miller_index=hkl)
-    #                 if label in already_labelled:
-    #                     label = None
-    #                 else:
-    #                     already_labelled.append(label)
-    #
-    #                 self.chempot_vs_gamma_plot_one(plt, clean_entry, label=label,
-    #                                                JPERM2=JPERM2, x_is_u_ads=x_is_u_ads,
-    #                                                const_u=const_u, urange=urange)
-    #
-    #             for ads_entry in self.entry_dict[hkl][clean_entry]:
-    #                 # Plot the adsorbed slabs
-    #                 # Generate a label for the type of slab
-    #                 urange = stable_u_range_dict[ads_entry] if not show_unstable else None
-    #                 if urange != []:
-    #                     self.chempot_vs_gamma_plot_one(plt, clean_entry, JPERM2=JPERM2,
-    #                                                    ads_entry=ads_entry,
-    #                                                    const_u=const_u, urange=urange,
-    #                                                    x_is_u_ads=x_is_u_ads)
-    #
-    #     const_species = self.se_calculator.adsorbate_as_str  if not \
-    #         x_is_u_ads else self.ref_el_comp
-    #     if miller_index:
-    #         plt.title(r"%s,  $\Delta\mu_{%s}=%.2f$" %(str(miller_index),
-    #                                                   const_species, const_u), fontsize=20)
-    #
-    #     # Make the figure look nice
-    #     xrange = self.chempot_range if not x_is_u_ads \
-    #         else self.max_adsorption_chempot_range(const_u)
-    #     plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
-    #         else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
-    #     plt = self.chempot_plot_addons(plt, xrange, axes,
-    #                                    x_is_u_ads=x_is_u_ads, ylim=ylim)
-    #
-    #     return plt
-    # def monolayer_vs_BE(self, plot_eads=False):
-    #     """
-    #     Plots the binding energy energy as a function of monolayers (ML),
-    #         i.e. the fractional area adsorbate density for all facets.
-    #     Args:
-    #         plot_eads (bool): Option to plot the adsorption energy (binding energy
-    #             multiplied by number of adsorbates) instead.
-    #
-    #     Returns:
-    #         (Plot): Plot of binding energy vs monolayer for all facets.
-    #     """
-    #
-    #     plt = pretty_plot(width=8, height=7)
-    #     for hkl in self.entry_dict.keys():
-    #         for clean_entry in self.entry_dict[hkl].keys():
-    #             if self.entry_dict[hkl][clean_entry]:
-    #                 monolayer = [self.se_calculator.get_monolayer(ads_entry, clean_entry)\
-    #                              for ads_entry in self.entry_dict[hkl][clean_entry]]
-    #                 BEs = [self.se_calculator.gibbs_binding_energy(ads_entry, clean_entry,
-    #                                                                eads=plot_eads) \
-    #                        for ads_entry in self.entry_dict[hkl][clean_entry]]
-    #                 # sort the binding energies and monolayers
-    #                 # in order to properly draw a line plot
-    #                 monolayer, BEs = zip(*sorted(zip(monolayer, BEs)))
-    #                 plt.plot(monolayer, BEs, '-o', c=self.color_dict[clean_entry], label=hkl)
-    #
-    #     plt.xlabel("%s Coverage (ML)" %(self.se_calculator.adsorbate_as_str))
-    #     plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
-    #     plt.legend()
-    #     plt.tight_layout()
-    #
-    #     return plt
-    #
-    # def chempot_plot_addons(self, plt, xrange, axes,
-    #                         pad=2.4, rect=[-0.047, 0, 0.84, 1],
-    #                         x_is_u_ads=False, ylim=[]):
-    #     """
-    #     Helper function to a chempot plot look nicer.
-    #
-    #     Args:
-    #         plt (Plot) Plot to add things to.
-    #         xrange (list): xlim parameter
-    #         axes(axes) Axes object from matplotlib
-    #         pad (float) For tight layout
-    #         rect (list): For tight layout
-    #         x_is_u_ads (bool): Whether or not to set the adsorption
-    #             chempot as a free variable (False).
-    #         ylim (ylim parameter):
-    #
-    #     return (Plot): Modified plot with addons.
-    #     """
-    #
-    #     # Make the figure look nice
-    #     x_species = self.ref_el_comp if not \
-    #         x_is_u_ads else self.se_calculator.adsorbate_as_str
-    #     plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
-    #     axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" % (x_species))
-    #
-    #     ylim = ylim if ylim else axes.get_ylim()
-    #     plt.xticks(rotation=60)
-    #     plt.ylim(ylim)
-    #     xlim = axes.get_xlim()
-    #     plt.xlim(xlim)
-    #     plt.tight_layout(pad=pad, rect=rect)
-    #     plt.plot([xrange[0], xrange[0]], ylim, '--k')
-    #     plt.plot([xrange[1], xrange[1]], ylim, '--k')
-    #     xy = [np.mean([xrange[1]]), np.mean(ylim)]
-    #     plt.annotate("%s-rich" % (x_species), xy=xy,
-    #                  xytext=xy, rotation=90, fontsize=17)
-    #     xy = [np.mean([xlim[0]]), np.mean(ylim)]
-    #     plt.annotate("%s-poor" % (x_species), xy=xy,
-    #                  xytext=xy, rotation=90, fontsize=17)
-    #
-    #     return plt
+    def chempot_vs_gamma_plot_one(self, plt, clean_entry, label='',
+                                  ads_entry=None, JPERM2=False,
+                                  x_is_u_ads=False, const_u=0,
+                                  urange=None, ylim=[]):
+        """
+        Helper function to  help plot the surface energy of a
+        single surface entry as a function of chemical potential.
+
+        Args:
+            plt (Plot): A plot.
+            clean_entry (entry): Entry containing the final energy and structure
+                of the slab whose surface energy we want to calculate
+            ads_entry (entry): An optional entry object for the adsorbed slab,
+                defaults to None.
+            JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
+                eV/A^2 (False)
+            x_is_u_ads (bool): Whether or not to set the adsorption chempot as
+                a free variable (False).
+            const_u (float): A chemical potential for the fixed chempot.
+            urange (list): Chemical potential range for the free variable.
+
+        Returns:
+            (Plot): Plot of surface energy vs chemical potential for one entry.
+        """
+
+
+        if x_is_u_ads:
+            u_ref_range = [const_u, const_u]
+            u_ads_range = urange if urange else \
+                self.max_adsorption_chempot_range(const_u)
+        else:
+            u_ref_range = urange if urange else self.chempot_range
+            u_ads_range = [const_u, const_u]
+
+        # use dashed lines for slabs that are not stoichiometric
+        # wrt bulk. Label with formula if nonstoichiometric
+        mark = '--' if clean_entry.composition.reduced_composition != \
+                       self.se_calculator.ucell_entry. \
+                           composition.reduced_composition else '-'
+
+        gamma_range = [self.se_calculator.calculate_gamma(clean_entry,
+                                                               ads_slab_entry=ads_entry,
+                                                               u_ref=u_ref_range[0],
+                                                               u_ads=u_ads_range[0]),
+                       self.se_calculator.calculate_gamma(clean_entry,
+                                                               ads_slab_entry=ads_entry,
+                                                               u_ref=u_ref_range[1],
+                                                               u_ads=u_ads_range[1])]
+
+        se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
+            if JPERM2 else gamma_range
+        if not urange:
+            urange = u_ref_range if not x_is_u_ads else u_ads_range
+        color = self.color_dict[ads_entry] if ads_entry else self.color_dict[clean_entry]
+        plt.plot(urange, se_range, mark, color=color, label=label)
+
+        return plt
+
+    def chempot_vs_gamma_clean(self, miller_index=(), JPERM2=False, plt=None, ylim=[]):
+        """
+        Plots the surface energy of all facets as a function of chemical potential.
+            Each facet will be associated with its own distinct colors. Dashed lines
+            will represent stoichiometries different from that of the mpid's compound.
+
+        Args:
+            cmap (cm): A matplotlib colormap object, defaults to jet.
+            highlight_stability (bool): For each facet, there may be various
+                terminations or stoichiometries and the relative stability of
+                these different slabs may change with chemical potential. This
+                dict (if provided) will highlight the stability line for a facet.
+                The key of the dict is the Miller index we want to highlight while
+                the value is the color of the highlight e.g. {(1,1,1): 'r'}.
+        """
+
+        plt = plt if plt else pretty_plot(width=8, height=7)
+        axes = plt.gca()
+
+        # Now we plot each individual slab surface energy
+        already_labelled = []
+        for hkl in self.entry_dict.keys():
+            if miller_index and hkl != tuple(miller_index):
+                continue
+
+            # Plot the clean slabs
+            for entry in self.entry_dict[hkl]:
+                # Generate a label for the type of slab
+                label = self.create_slab_label(entry, miller_index=\
+                    () if miller_index else hkl)
+
+                if label in already_labelled:
+                    label = None
+                else:
+                    already_labelled.append(label)
+
+                self.chempot_vs_gamma_plot_one(plt, entry, label=label,
+                                               JPERM2=JPERM2, x_is_u_ads=False)
+
+        # Make the figure look nice
+        plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
+            else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
+        plt = self.chempot_plot_addons(plt, self.chempot_range, axes, ylim=ylim)
+
+        return plt
+
+    def stable_u_range_dict(self, clean_only=True, const_u=0,
+                            buffer=0.1, miller_index=()):
+
+        """
+        Creates a dictionary where each entry is a key pointing to a chemical potential
+        range where the surface of that entry is stable. Does so by enumerating through
+        all possible solutions (intersect) for surface energies of a specific facet.
+
+        TODO:
+            -Make this simpler/cleaner.
+
+        Args:
+            clean_only (bool): Only get the range for clean surface entries if True.
+            const_u (float): A chemical potential for the fixed chempot.
+            buffer (float): A buffer fo r the x axis (chemical
+                potential range). For plotting.
+            miller_index (list): Miller index for a specific facet to get a
+                dictionary for.
+        """
+
+        all_intesects_dict = {}
+        stable_urange_dict = {}
+        max_ads_range = self.max_adsorption_chempot_range(const_u,
+                                                          buffer=buffer)
+        standard_range = max_ads_range if not clean_only else self.chempot_range
+        standard_range = sorted(standard_range)
+        x_is_u_ads = False if clean_only else True
+
+        # Get all entries for a specific facet
+        for hkl in self.entry_dict.keys():
+
+            # bool to check if at least one surface exists for a facet
+            entry_exists = False
+
+            if miller_index and hkl != tuple(miller_index):
+                continue
+            entries_in_hkl = [entry for entry in self.entry_dict[hkl]]
+            if not clean_only:
+                ads_entries_in_hkl = []
+                for entry in self.entry_dict[hkl]:
+                    ads_entries_in_hkl.extend([ads_entry for ads_entry in
+                                               self.entry_dict[hkl][entry]])
+                entries_in_hkl.extend(ads_entries_in_hkl)
+
+            # if there is only one entry for this facet, then just give it the
+            # default urange, you can't make combinations with just 1 item
+            if len(entries_in_hkl) == 1:
+                stable_urange_dict[entries_in_hkl[0]] = standard_range
+                continue
+            for pair in itertools.combinations(entries_in_hkl, 2):
+                # Check if entry is adsorbed entry or clean, this is
+                # a hassle so figure out a cleaner way to do this
+                clean_ads_coeffs = []
+                for p in pair:
+                    p1 = self.get_clean_ads_entry_pair(p)
+                    c = self.se_calculator.surface_energy_coefficients(p1[0],
+                                                                       ads_slab_entry=p1[1])
+                    clean_ads_coeffs.append(c)
+
+                u, gamma = self.se_calculator.solve_2_linear_eqns(clean_ads_coeffs[0],
+                                                                  clean_ads_coeffs[1],
+                                                                  x_is_u_ads=x_is_u_ads,
+                                                                  const_u=const_u)
+
+                if u:
+                    # If the u in a list is beyond the standard
+                    # range, set it to one of the limits
+                    if u < standard_range[0]:
+                        u_new = standard_range[0]
+                    elif u > standard_range[1]:
+                        u_new = standard_range[1]
+                    else:
+                        u_new = u
+
+                    for entry in pair:
+                        if entry not in all_intesects_dict.keys():
+                            all_intesects_dict[entry] = []
+                        all_intesects_dict[entry].append(u_new)
+
+            # Now that we have every single intersection for a given
+            # slab, find the range of u where each slab is stable
+            for entry in all_intesects_dict.keys():
+                if entry not in stable_urange_dict.keys():
+                    stable_urange_dict[entry] = []
+                for u_int in all_intesects_dict[entry]:
+                    stable_entries = []
+                    for i in [-1, 1]:
+                        u_ads = u_int+i*(10e-6) if x_is_u_ads else const_u
+                        u_ref = u_int+i*(10e-6) if not x_is_u_ads else const_u
+                        # return_stable_slab_entry_at_u() will only return one
+                        # entry for one gamma, since u is at an intersection,
+                        # this entry is ambiguous, we need to get the entry
+                        # slightly above and below u and check if the current
+                        # entry is any of these entries. Another inconvenience
+                        # that needs to be fixed
+                        stable_entry, gamma = \
+                            self.return_stable_slab_entry_at_u(hkl, u_ads=u_ads,
+                                                               u_ref=u_ref)
+                        stable_entries.append(stable_entry)
+                    # If this entry is stable at this u, append u
+                    if entry in stable_entries:
+                        stable_urange_dict[entry].append(u_int)
+                        entry_exists = True
+
+            # Now check for entries with only one intersection
+            # is it stable below or above u_intersect
+            for entry in stable_urange_dict.keys():
+                # First lets check if all the u values for
+                # an entry are the same as the standard range,
+                # if so, just set it to the standard range
+                if stable_urange_dict[entry]:
+                    if all([u in standard_range for u in stable_urange_dict[entry]]):
+                        stable_urange_dict[entry] = standard_range
+
+                # If only one u, its stable from u to +-inf.
+                # If no u, this entry is never stable
+                if len(stable_urange_dict[entry]) == 1:
+                    u = stable_urange_dict[entry][0]
+                    for i in [-1, 1]:
+                        u_ads = u+i*(10e-6) if x_is_u_ads else const_u
+                        u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
+
+                        e, se = self.return_stable_slab_entry_at_u(hkl,
+                                                                   u_ads=u_ads,
+                                                                   u_ref=u_ref)
+                        if e == entry:
+                            # If the entry stable below u, assume it is
+                            # stable at -inf, otherwise its stable at +inf
+                            u2 = standard_range[0] if i == -1 else standard_range[1]
+                            stable_urange_dict[entry].append(u2)
+                            entry_exists = True
+
+                # now sort the ranges for each entry
+                stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
+            # Now we make sure that each facet has at least
+            # one entry, if no entries exist, this means there
+            # is not intersection, get the most stable surface
+            if not entry_exists:
+                e, se = self.return_stable_slab_entry_at_u(hkl,
+                                                           u_ads=const_u,
+                                                           u_ref=const_u)
+                stable_urange_dict[e] = standard_range
+
+        return stable_urange_dict
+
+    def chempot_vs_gamma_facet(self, miller_index=(), const_u=0,
+                               JPERM2=False, show_unstable=False, ylim=[]):
+        """
+        Plots the surface energy as a function of chemical potential.
+            Each facet will be associated with its own distinct colors.
+            Dashed lines will represent stoichiometries different from that
+            of the mpid's compound. Transparent lines indicates adsorption.
+
+        Args:
+            miller_index (list): Miller index for a specific facet to get a
+                dictionary for.
+            const_u (float): A chemical potential to hold constant if there are
+                more than one parameters.
+            plt (Plot): A plot.
+            JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
+                eV/A^2 (False)
+            show_unstable (bool): Whether or not to show parts of the surface
+                energy plot outside the region of stability.
+
+        Returns:
+            (Plot): Plot of surface energy vs chemical potential for all entries.
+        """
+
+        plt = pretty_plot(width=8, height=7)
+        axes = plt.gca()
+
+        # Plot wrt to adsorption chempot if any adsorption entries exist
+        x_is_u_ads = False
+        for hkl in self.entry_dict.keys():
+            for clean_entry in self.entry_dict[hkl].keys():
+                if self.entry_dict[hkl][clean_entry]:
+                    x_is_u_ads = True
+
+        for hkl in self.entry_dict.keys():
+            if miller_index and hkl != tuple(miller_index):
+                continue
+            if not show_unstable:
+                clean_only = False if x_is_u_ads else True
+                stable_u_range_dict = self.stable_u_range_dict(clean_only=clean_only,
+                                                               const_u=const_u,
+                                                               miller_index=hkl)
+
+            already_labelled = []
+            for clean_entry in self.entry_dict[hkl]:
+
+                urange = stable_u_range_dict[clean_entry] if not show_unstable else None
+                if urange != []:
+
+                    label = self.create_slab_label(clean_entry, miller_index=hkl)
+                    if label in already_labelled:
+                        label = None
+                    else:
+                        already_labelled.append(label)
+
+                    self.chempot_vs_gamma_plot_one(plt, clean_entry, label=label,
+                                                   JPERM2=JPERM2, x_is_u_ads=x_is_u_ads,
+                                                   const_u=const_u, urange=urange)
+
+                for ads_entry in self.entry_dict[hkl][clean_entry]:
+                    # Plot the adsorbed slabs
+                    # Generate a label for the type of slab
+                    urange = stable_u_range_dict[ads_entry] if not show_unstable else None
+                    if urange != []:
+                        self.chempot_vs_gamma_plot_one(plt, clean_entry, JPERM2=JPERM2,
+                                                       ads_entry=ads_entry,
+                                                       const_u=const_u, urange=urange,
+                                                       x_is_u_ads=x_is_u_ads)
+
+        const_species = self.se_calculator.adsorbate_as_str  if not \
+            x_is_u_ads else self.ref_el_comp
+        if miller_index:
+            plt.title(r"%s,  $\Delta\mu_{%s}=%.2f$" %(str(miller_index),
+                                                      const_species, const_u), fontsize=20)
+
+        # Make the figure look nice
+        xrange = self.chempot_range if not x_is_u_ads \
+            else self.max_adsorption_chempot_range(const_u)
+        plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
+            else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
+        plt = self.chempot_plot_addons(plt, xrange, axes,
+                                       x_is_u_ads=x_is_u_ads, ylim=ylim)
+
+        return plt
+    def monolayer_vs_BE(self, plot_eads=False):
+        """
+        Plots the binding energy energy as a function of monolayers (ML),
+            i.e. the fractional area adsorbate density for all facets.
+        Args:
+            plot_eads (bool): Option to plot the adsorption energy (binding energy
+                multiplied by number of adsorbates) instead.
+
+        Returns:
+            (Plot): Plot of binding energy vs monolayer for all facets.
+        """
+
+        plt = pretty_plot(width=8, height=7)
+        for hkl in self.entry_dict.keys():
+            for clean_entry in self.entry_dict[hkl].keys():
+                if self.entry_dict[hkl][clean_entry]:
+                    monolayer = [self.se_calculator.get_monolayer(ads_entry, clean_entry)\
+                                 for ads_entry in self.entry_dict[hkl][clean_entry]]
+                    BEs = [self.se_calculator.gibbs_binding_energy(ads_entry, clean_entry,
+                                                                   eads=plot_eads) \
+                           for ads_entry in self.entry_dict[hkl][clean_entry]]
+                    # sort the binding energies and monolayers
+                    # in order to properly draw a line plot
+                    monolayer, BEs = zip(*sorted(zip(monolayer, BEs)))
+                    plt.plot(monolayer, BEs, '-o', c=self.color_dict[clean_entry], label=hkl)
+
+        plt.xlabel("%s Coverage (ML)" %(self.se_calculator.adsorbate_as_str))
+        plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
+        plt.legend()
+        plt.tight_layout()
+
+        return plt
+
+    def chempot_plot_addons(self, plt, xrange, axes,
+                            pad=2.4, rect=[-0.047, 0, 0.84, 1],
+                            x_is_u_ads=False, ylim=[]):
+        """
+        Helper function to a chempot plot look nicer.
+
+        Args:
+            plt (Plot) Plot to add things to.
+            xrange (list): xlim parameter
+            axes(axes) Axes object from matplotlib
+            pad (float) For tight layout
+            rect (list): For tight layout
+            x_is_u_ads (bool): Whether or not to set the adsorption
+                chempot as a free variable (False).
+            ylim (ylim parameter):
+
+        return (Plot): Modified plot with addons.
+        """
+
+        # Make the figure look nice
+        x_species = self.ref_el_comp if not \
+            x_is_u_ads else self.se_calculator.adsorbate_as_str
+        plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
+        axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" % (x_species))
+
+        ylim = ylim if ylim else axes.get_ylim()
+        plt.xticks(rotation=60)
+        plt.ylim(ylim)
+        xlim = axes.get_xlim()
+        plt.xlim(xlim)
+        plt.tight_layout(pad=pad, rect=rect)
+        plt.plot([xrange[0], xrange[0]], ylim, '--k')
+        plt.plot([xrange[1], xrange[1]], ylim, '--k')
+        xy = [np.mean([xrange[1]]), np.mean(ylim)]
+        plt.annotate("%s-rich" % (x_species), xy=xy,
+                     xytext=xy, rotation=90, fontsize=17)
+        xy = [np.mean([xlim[0]]), np.mean(ylim)]
+        plt.annotate("%s-poor" % (x_species), xy=xy,
+                     xytext=xy, rotation=90, fontsize=17)
+
+        return plt
 
     def create_slab_label(self, entry):
 
@@ -1187,72 +1146,53 @@ class SurfaceEnergyPlotter(object):
 
         return color_dict
 
-    # def get_clean_ads_entry_pair(self, entry):
-    #     """
-    #     Helper function that returns a pair of entries, the first is
-    #     the clean entry, the second is either nonetype (if the
-    #     initial entry is clean) or the corresponding adsorbed entry.
-    #
-    #     Args:
-    #         entry (ComputedStructureEntry): entry for a slab.
-    #     """
-    #
-    #     for hkl in self.entry_dict.keys():
-    #         if entry in list(self.entry_dict[hkl].keys()):
-    #             # its a clean entry
-    #             return [entry, None]
-    #         else:
-    #             for clean_entry in self.entry_dict[hkl].keys():
-    #                 if entry in self.entry_dict[hkl][clean_entry]:
-    #                     return [clean_entry, entry]
-    #
-    # def BE_vs_SE(self, plot_eads=False, const_u=0,
-    #              annotate_monolayer=True, JPERM2=False):
-    #     """
-    #     For each facet, plot the clean surface energy against the most
-    #         stable binding energy.
-    #     Args:
-    #         plot_eads (bool): Option to plot the adsorption energy (binding
-    #             energy multiplied by number of adsorbates) instead.
-    #         const_u (float): Ref element chemical potential as a constant.
-    #         annotate_monolayer (bool): Whether or not to label each data point
-    #             with its monolayer (adsorbate density per unit primiitve area)
-    #         JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
-    #             eV/A^2 (False)
-    #
-    #     Returns:
-    #         (Plot): Plot of clean surface energy vs binding energy for
-    #             all facets.
-    #     """
-    #
-    #     plt = pretty_plot(width=8, height=7)
-    #     for hkl in self.entry_dict.keys():
-    #         for clean_entry in self.entry_dict[hkl].keys():
-    #             if self.entry_dict[hkl][clean_entry]:
-    #
-    #                 clean_se = self.se_calculator.calculate_gamma(clean_entry,
-    #                                                                    u_ref=const_u)
-    #                 for ads_entry in self.entry_dict[hkl][clean_entry]:
-    #                     ml = self.se_calculator.get_monolayer(ads_entry, clean_entry)
-    #                     be = self.se_calculator.gibbs_binding_energy(ads_entry,
-    #                                                                  clean_entry,
-    #                                                                  eads=plot_eads)
-    #
-    #                     # Now plot the surface energy vs binding energy
-    #                     plt.scatter(clean_se, be)
-    #                     if annotate_monolayer:
-    #                         plt.annotate("%.2f" %(ml), xy=[clean_se, be],
-    #                                      xytext=[clean_se, be])
-    #
-    #     plt.xlabel(r"Surface energy ($J/m^2$)") if JPERM2 \
-    #         else plt.xlabel(r"Surface energy ($eV/\AA^2$)")
-    #     plt.ylabel("Adsorption Energy (eV)") if plot_eads \
-    #         else plt.ylabel("Binding Energy (eV)")
-    #     plt.tight_layout()
-    #     plt.xticks(rotation=60)
-    #
-    #     return plt
-    #
+    def BE_vs_SE(self, plot_eads=False, const_u=0,
+                 annotate_monolayer=True, JPERM2=False):
+        """
+        For each facet, plot the clean surface energy against the most
+            stable binding energy.
+        Args:
+            plot_eads (bool): Option to plot the adsorption energy (binding
+                energy multiplied by number of adsorbates) instead.
+            const_u (float): Ref element chemical potential as a constant.
+            annotate_monolayer (bool): Whether or not to label each data point
+                with its monolayer (adsorbate density per unit primiitve area)
+            JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
+                eV/A^2 (False)
+
+        Returns:
+            (Plot): Plot of clean surface energy vs binding energy for
+                all facets.
+        """
+
+        plt = pretty_plot(width=8, height=7)
+        for hkl in self.entry_dict.keys():
+            for clean_entry in self.entry_dict[hkl].keys():
+                if self.entry_dict[hkl][clean_entry]:
+
+                    clean_se = self.se_calculator.calculate_gamma(clean_entry,
+                                                                       u_ref=const_u)
+                    for ads_entry in self.entry_dict[hkl][clean_entry]:
+                        ml = self.se_calculator.get_monolayer(ads_entry, clean_entry)
+                        be = self.se_calculator.gibbs_binding_energy(ads_entry,
+                                                                     clean_entry,
+                                                                     eads=plot_eads)
+
+                        # Now plot the surface energy vs binding energy
+                        plt.scatter(clean_se, be)
+                        if annotate_monolayer:
+                            plt.annotate("%.2f" %(ml), xy=[clean_se, be],
+                                         xytext=[clean_se, be])
+
+        plt.xlabel(r"Surface energy ($J/m^2$)") if JPERM2 \
+            else plt.xlabel(r"Surface energy ($eV/\AA^2$)")
+        plt.ylabel("Adsorption Energy (eV)") if plot_eads \
+            else plt.ylabel("Binding Energy (eV)")
+        plt.tight_layout()
+        plt.xticks(rotation=60)
+
+        return plt
+
     # def nanoscale_stability(self):
     #
     #     return
@@ -1282,3 +1222,13 @@ class SurfaceEnergyPlotter(object):
     # def broken_bond_vs_gamma(self):
     #
     #     return
+
+
+class GetChempotRange(object):
+    def __init__(self, entry):
+        self.entry = entry
+
+
+class SlabEntryGenerator(object):
+    def __init__(self, entry):
+        self.entry = entry

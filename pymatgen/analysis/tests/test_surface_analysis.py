@@ -186,28 +186,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
                                    "Ni": self.Ni_analyzer,
                                    "Rh": self.Rh_analyzer}
 #
-    # def test_max_adsorption_chempot_range(self):
-    #
-    #     # Tests if the range of chemical
-    #     # potential has been reasonably chosen
-    #
-    #     for el in self.Oads_analyzer_dict.keys():
-    #         analyzer = self.Oads_analyzer_dict[el]
-    #         # Is max chempot 0 or greater
-    #         chempot = analyzer.max_adsorption_chempot_range(0)
-    #         self.assertLessEqual(chempot[0], 0)
-    #
-    #         # Is the min chempot going to give us the clean gamma
-    #         if (1,1,1) in self.metals_O_entry_dict[el].keys():
-    #             se = analyzer.return_stable_slab_entry_at_u((1,1,1,),
-    #                                                         u_ads=chempot[0])[1]
-    #             clean = list(self.metals_O_entry_dict[el][(1,1,1)].keys())[0]
-    #             se_clean = analyzer.se_calculator.surface_energy_coefficients(clean)[2]
-    #             self.assertEqual(se, se_clean)
-    #             se = analyzer.return_stable_slab_entry_at_u((1,1,1,),
-    #                                                         u_ads=chempot[1])[1]
-    #             self.assertGreater(se, 0)
-
     def test_wulff_shape_from_chempot(self):
 
         # Test if it generates a Wulff shape, test if
@@ -250,73 +228,40 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             analyzer = self.Oads_analyzer_dict[el]
             color_dict = analyzer.color_palette_dict()
 
-#     def test_stable_u_range_dict(self):
-#
-#         # Test if it generates a Wulff shape, test if
-#         # all the facets for Cu wulff shape are inside.
-#         stable_u_range_dict = self.Cu_analyzer.stable_u_range_dict()
-#         for entry in stable_u_range_dict.keys():
-#             urange = stable_u_range_dict[entry]
-#             self.assertEqual(-1, urange[0])
-#             self.assertEqual(0, urange[1])
-#
-#         for el in self.Oads_analyzer_dict.keys():
-#             # Test WulffShape for adsorbed surfaces
-#             analyzer = self.Oads_analyzer_dict[el]
-#             urange = analyzer.stable_u_range_dict(clean_only=False)
-#             for entry in urange.keys():
-#                 u = urange[entry]
-#                 self.assertLess(u[0], u[-1])
-#
-#     def test_get_clean_ads_entry_pair(self):
-#
-#         for el in self.metals_O_entry_dict.keys():
-#             # Test WulffShape for adsorbed surfaces
-#             analyzer = self.Oads_analyzer_dict[el]
-#             for hkl in self.metals_O_entry_dict[el].keys():
-#                 for clean in self.metals_O_entry_dict[el][hkl].keys():
-#                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
-#                         pair = analyzer.get_clean_ads_entry_pair(ads)
-#                         c = analyzer.se_calculator.surface_energy_coefficients(
-#                             pair[0], ads_slab_entry=pair[1])
-#                         c1 = analyzer.se_calculator.surface_energy_coefficients(
-#                             clean, ads_slab_entry=ads)
-#                         self.assertEqual(tuple(c), tuple(c1))
-#
-#     # def test_monolayer_vs_BE(self):
-#     #     for el in self.Oads_analyzer_dict.keys():
-#     #         # Test WulffShape for adsorbed surfaces
-#     #         analyzer = self.Oads_analyzer_dict[el]
-#     #         plt = analyzer.monolayer_vs_BE()
-#     #
-#     # def test_area_frac_vs_chempot_plot(self):
-#     #
-#     #     for el in self.Oads_analyzer_dict.keys():
-#     #         # Test WulffShape for adsorbed surfaces
-#     #         analyzer = self.Oads_analyzer_dict[el]
-#     #         plt = analyzer.area_frac_vs_chempot_plot(x_is_u_ads=True)
-#     #
-#     # def test_chempot_vs_gamma_clean(self):
-#     #
-#     #     plt = self.Cu_analyzer.chempot_vs_gamma_clean()
-#     #     for el in self.Oads_analyzer_dict.keys():
-#     #         # Test WulffShape for adsorbed surfaces
-#     #         analyzer = self.Oads_analyzer_dict[el]
-#     #         plt = analyzer.chempot_vs_gamma_clean(x_is_u_ads=True)
-#     #
-#     # def test_chempot_vs_gamma_facet(self):
-#     #
-#     #     for el in self.metals_O_entry_dict.keys():
-#     #         for hkl in self.metals_O_entry_dict[el].keys():
-#     #             # Test WulffShape for adsorbed surfaces
-#     #             analyzer = self.Oads_analyzer_dict[el]
-#     #             plt = analyzer.chempot_vs_gamma_facet(hkl)
-#
-#
-# if __name__ == "__main__":
-#     unittest.main()
-#
-#
+    # def test_monolayer_vs_BE(self):
+    #     for el in self.Oads_analyzer_dict.keys():
+    #         # Test WulffShape for adsorbed surfaces
+    #         analyzer = self.Oads_analyzer_dict[el]
+    #         plt = analyzer.monolayer_vs_BE()
+    #
+    # def test_area_frac_vs_chempot_plot(self):
+    #
+    #     for el in self.Oads_analyzer_dict.keys():
+    #         # Test WulffShape for adsorbed surfaces
+    #         analyzer = self.Oads_analyzer_dict[el]
+    #         plt = analyzer.area_frac_vs_chempot_plot(x_is_u_ads=True)
+    #
+    # def test_chempot_vs_gamma_clean(self):
+    #
+    #     plt = self.Cu_analyzer.chempot_vs_gamma_clean()
+    #     for el in self.Oads_analyzer_dict.keys():
+    #         # Test WulffShape for adsorbed surfaces
+    #         analyzer = self.Oads_analyzer_dict[el]
+    #         plt = analyzer.chempot_vs_gamma_clean(x_is_u_ads=True)
+    #
+    # def test_chempot_vs_gamma_facet(self):
+    #
+    #     for el in self.metals_O_entry_dict.keys():
+    #         for hkl in self.metals_O_entry_dict[el].keys():
+    #             # Test WulffShape for adsorbed surfaces
+    #             analyzer = self.Oads_analyzer_dict[el]
+    #             plt = analyzer.chempot_vs_gamma_facet(hkl)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
 def get_entry_dict(filename):
     # helper to generate an entry_dict
 
