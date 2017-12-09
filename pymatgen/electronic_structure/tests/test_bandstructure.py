@@ -176,10 +176,10 @@ class BandStructureSymmLine_test(PymatgenTest):
         bs = self.bs2
         cbm_k = bs.get_cbm()['kpoint'].frac_coords
         vbm_k = bs.get_vbm()['kpoint'].frac_coords
-        self.assertEquals(bs.get_kpoint_degeneracy(cbm_k), None)
+        self.assertEqual(bs.get_kpoint_degeneracy(cbm_k), None)
         bs.structure = loadfn(os.path.join(test_dir, "CaO_2605_structure.json"))
-        self.assertEquals(bs.get_kpoint_degeneracy(cbm_k), 3)
-        self.assertEquals(bs.get_kpoint_degeneracy(vbm_k), 1)
+        self.assertEqual(bs.get_kpoint_degeneracy(cbm_k), 3)
+        self.assertEqual(bs.get_kpoint_degeneracy(vbm_k), 1)
         cbm_eqs = bs.get_sym_eq_kpoints(cbm_k)
         self.assertTrue([0.5, 0., 0.5] in cbm_eqs)
         self.assertTrue([0., 0.5, 0.5] in cbm_eqs)
