@@ -1637,11 +1637,11 @@ class MVLScanRelaxSet(MPRelaxSet):
 
         self._config_dict["INCAR"].update({"ADDGRID": True,
                                            "EDIFF": 1e-05,
-                                           "EDIFFG": -0.02,
-                                           "ISYM": 0,
+                                           "EDIFFG": -0.05,
                                            "LASPH": True,
+                                           "LDAU": False,
                                            "METAGGA": "SCAN",
-                                           "NELM": 1000})
+                                           "NELM": 200})
 
 
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
