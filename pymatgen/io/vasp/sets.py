@@ -475,6 +475,20 @@ class MPRelaxSet(DictSet):
             structure, MPRelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
 
+class MPSCANRelaxSet(DictSet):
+    """
+    Implementation of VaspInputSet utilizing parameters in the public
+    Materials Project and the SCAN functional. Typically, the pseudopotentials
+    chosen contain more electrons than the MIT parameters, and the k-point grid
+    is ~50% more dense. No LDAU values are used with SCAN.
+    """
+    CONFIG = CONFIG = _load_yaml_config("MPSCANRelaxSet")
+
+    def __init__(self, structure,potcar_functional="PBE_52", **kwargs):
+        super(MPSCANRelaxSet, self).__init__(
+            structure, MPSCANRelaxSet.CONFIG,**kwargs)
+        self.potcar_functional = potcar_functional
+        self.kwargs = kwargs
 
 class MPHSERelaxSet(DictSet):
     """
