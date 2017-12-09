@@ -699,7 +699,6 @@ class MVLScanRelaxSetTest(PymatgenTest):
         self.assertIn("LASPH", incar)
         self.assertIn("ADDGRID", incar)
         self.assertEqual(incar["NSW"], 500)
-        self.assertEqual(incar["ISYM"], 0)
 
         # Test SCAN+rVV10
         scan_rvv10_set = MVLScanRelaxSet(self.struct, vdw="rVV10")
