@@ -2044,7 +2044,6 @@ class VoronoiInterstitial(Defect):
                     break
             if not match:
                 ref.append(i)
-        ref.sort()
         return ref
     
     def screen_polys(self, polys,num,screen_criteria='symmetry'):
