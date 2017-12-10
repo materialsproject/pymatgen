@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.ext.matproj module &#8212; pymatgen 2017.12.6 documentation</title>
+    <title>pymatgen.ext.matproj module &#8212; pymatgen 2017.12.8 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.6',
+        VERSION:     '2017.12.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -357,6 +357,43 @@ Materials Project REST interface.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> (<em>str</em>) – A formula to search for.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of ThermoData objects.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_interface_reactions">
+<code class="descname">get_interface_reactions</code><span class="sig-paren">(</span><em>reactant1</em>, <em>reactant2</em>, <em>open_el=None</em>, <em>relative_mu=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_interface_reactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_interface_reactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets critical reactions between two reactants.</p>
+<p>Get critical reactions (“kinks” in the mixing ratio where
+reaction products change) between two reactants. See the
+<cite>pymatgen.analysis.interface_reactions</cite> module for more info.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reactant1</strong> (<em>str</em>) – Chemical formula for reactant</li>
+<li><strong>reactant2</strong> (<em>str</em>) – Chemical formula for reactant</li>
+<li><strong>open_el</strong> (<em>str</em>) – Element in reservoir available to system</li>
+<li><strong>relative_mu</strong> (<em>float</em>) – Relative chemical potential of element in
+reservoir with respect to pure substance. Must be non-positive.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>list of dicts of form {ratio,energy,rxn} where <cite>ratio</cite> is the</dt>
+<dd><p class="first last">reactant mixing ratio, <cite>energy</cite> is the reaction energy
+in eV/atom, and <cite>rxn</cite> is a
+<cite>pymatgen.analysis.reaction_calculator.Reaction</cite>.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -867,7 +904,7 @@ assimilate. Defaults to None, which means serial.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
       </ul>
     </div>
 

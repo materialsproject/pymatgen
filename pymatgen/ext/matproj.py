@@ -963,6 +963,35 @@ class MPRester(object):
         millers, energies = zip(*miller_energy_map.items())
         return WulffShape(lattice, millers, energies)
 
+    def get_interface_reactions(self, reactant1, reactant2,
+                                open_el=None, relative_mu=None):
+        """
+        Gets critical reactions between two reactants.
+
+        Get critical reactions ("kinks" in the mixing ratio where
+        reaction products change) between two reactants. See the
+        `pymatgen.analysis.interface_reactions` module for more info.
+
+        Args:
+            reactant1 (str): Chemical formula for reactant
+            reactant2 (str): Chemical formula for reactant
+            open_el (str): Element in reservoir available to system
+            relative_mu (float): Relative chemical potential of element in
+                reservoir with respect to pure substance. Must be non-positive.
+
+        Returns:
+            list: list of dicts of form {ratio,energy,rxn} where `ratio` is the
+                reactant mixing ratio, `energy` is the reaction energy
+                in eV/atom, and `rxn` is a
+                `pymatgen.analysis.reaction_calculator.Reaction`.
+
+        """
+        payload = {"reactants": " ".join([reactant1, reactant2]),
+                   "open_el": open_el,
+                   "relative_mu": relative_mu}
+        return self._make_request("/interface_reactions",
+                                  payload=payload, method="POST")
+
     @staticmethod
     def parse_criteria(criteria_string):
         """

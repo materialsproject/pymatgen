@@ -18,6 +18,7 @@ __date__ = "Mar 18, 2012"
 
 import unittest
 import os
+import warnings
 
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
@@ -28,20 +29,22 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class BorgQueenTest(unittest.TestCase):
 
-    def setUp(self):
-        drone = VaspToComputedEntryDrone()
-        self.queen = BorgQueen(drone, test_dir, 1)
-
     def test_get_data(self):
-        data = self.queen.get_data()
-        self.assertEqual(len(data), 8)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            drone = VaspToComputedEntryDrone()
+            self.queen = BorgQueen(drone, test_dir, 1)
+            data = self.queen.get_data()
+            self.assertEqual(len(data), 8)
 
     def test_load_data(self):
-        drone = VaspToComputedEntryDrone()
-        queen = BorgQueen(drone)
-        queen.load_data(os.path.join(test_dir, "assimilated.json"))
-        self.assertEqual(len(queen.get_data()), 1)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            drone = VaspToComputedEntryDrone()
+            queen = BorgQueen(drone)
+            queen.load_data(os.path.join(test_dir, "assimilated.json"))
+            self.assertEqual(len(queen.get_data()), 1)
+
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
