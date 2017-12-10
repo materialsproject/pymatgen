@@ -264,6 +264,7 @@ class Flow(Node, NodeContainer, MSONable):
         self.indir = Directory(os.path.join(self.workdir, "indata"))
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+        self.wdir = Directory(self.workdir)
 
     def reload(self):
         """
@@ -1790,7 +1791,7 @@ class Flow(Node, NodeContainer, MSONable):
         except AttributeError:
             return 0
 
-    def allocate(self, workdir=None):
+    def allocate(self, workdir=None, use_smartio=False):
         """
         Allocate the `Flow` i.e. assign the `workdir` and (optionally)
         the :class:`TaskManager` to the different tasks in the Flow.
@@ -1823,6 +1824,9 @@ class Flow(Node, NodeContainer, MSONable):
 
         if not hasattr(self, "_allocated"): self._allocated = 0
         self._allocated += 1
+
+        if use_smartio:
+            self.use_smartio()
 
         return self
 

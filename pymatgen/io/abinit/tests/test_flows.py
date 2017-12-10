@@ -249,7 +249,10 @@ class TestFlowInSpectatorMode(FlowUnitTest):
         gs_task = work0.register_scf_task(self.fake_input)
         assert gs_task.isinstance(ScfTask)
         assert gs_task.isinstance("ScfTask")
-        work0.register_scf_task(self.fake_input)
+        task = work0.register_scf_task(self.fake_input)
+        assert task.is_abinit_task
+        assert not task.is_optic_task
+        assert not task.is_anaddb_task
 
         work1 = Work()
         work1.register_scf_task(self.fake_input)

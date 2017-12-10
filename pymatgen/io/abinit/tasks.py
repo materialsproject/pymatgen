@@ -967,7 +967,7 @@ batch_adapter:
             args = args[:]
             args.append("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
             kwargs["exec_args"] = args
-            logger.info("Will pass timelimit option to abinit %s:" % args)
+            #logger.info("Will pass timelimit option to abinit %s:" % args)
 
         # Write the submission script
         script_file = self.write_jobfile(task, **kwargs)
@@ -1506,6 +1506,21 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         except AttributeError:
             # Attach a fake process so that we can poll it.
             return FakeProcess()
+
+    @property
+    def is_abinit_task(self):
+        """True if this task is a subclass of AbinitTask."""
+        return isinstance(self, AbinitTask)
+
+    @property
+    def is_anaddb_task(self):
+        """True if this task is a subclass of OpticTask."""
+        return isinstance(self, AnaddbTask)
+
+    @property
+    def is_optic_task(self):
+        """True if this task is a subclass of OpticTask."""
+        return isinstance(self, OpticTask)
 
     @property
     def is_completed(self):

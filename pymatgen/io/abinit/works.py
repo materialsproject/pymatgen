@@ -435,6 +435,7 @@ class Work(BaseWork, NodeContainer):
         self.indir = Directory(os.path.join(self.workdir, "indata"))
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+        self.wdir = Directory(self.workdir)
 
     def chroot(self, new_workdir):
         self.set_workdir(new_workdir, chroot=True)
