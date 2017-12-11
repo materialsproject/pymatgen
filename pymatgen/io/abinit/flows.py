@@ -1152,20 +1152,21 @@ class Flow(Node, NodeContainer, MSONable):
 
         return tasks
 
-    def get_task_cycles(self, nids=None, wslice=None, task_class=None, include_ok_tasks=True):
+    def get_task_scfcycles(self, nids=None, wslice=None, task_class=None, exclude_ok_tasks=False):
         """
         Return list of (taks, scfcycle) tuples for all the tasks in the flow with a SCF algorithm
+        e.g. electronic GS-SCF iteration, DFPT-SCF iterations etc.
 
         Args:
             nids: List of node identifiers.
             wslice: Slice object used to select works.
             task_class: String or class used to select tasks. Ignored if None.
-            include_ok_tasks: False if only running tasks should be considered.
+            exclude_ok_tasks: True if only running tasks should be considered.
 
         Returns:
             List of `ScfCycle` subclass instances.
         """
-        select_status = [self.S_RUN, self.S_OK] if include_ok_tasks else [self.S_RUN]
+        select_status = [self.S_RUN] if exclude_ok_tasks else [self.S_RUN, self.S_OK]
         tasks_cycles = []
 
         for task in self.select_tasks(nids=nids, wslice=wslice):
@@ -1338,15 +1339,6 @@ class Flow(Node, NodeContainer, MSONable):
 
         n2task = {task.node_id: task for task in self.iflat_tasks()}
         return [n2task[n] for n in nids if n in n2task]
-
-        #tasks = []
-        #for nid in nids:
-        #    for task in self.iflat_tasks():
-        #        if task.node_id == nid:
-        #            tasks.append(task)
-        #            break
-
-        #return tasks
 
     def wti_from_nids(self, nids):
         """Return the list of (w, t) indices from the list of node identifiers nids."""

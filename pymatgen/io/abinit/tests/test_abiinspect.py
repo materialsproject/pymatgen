@@ -51,8 +51,8 @@ ac: 16
 attacks: [BITE, HURT]
 ...
 
-This is not a proper document since it does not start with --- 
-the end tag below is ignored 
+This is not a proper document since it does not start with ---
+the end tag below is ignored
 ...
 --- !Monster
 name: Dragon
@@ -111,7 +111,8 @@ class AbinitInpectTest(PymatgenTest):
     def test_scfcycle(self):
         """Testing ScfCycle."""
         cycle = GroundStateScfCycle.from_file(ref_file("mgb2_scf.abo"))
-        print(cycle)
+        str(cycle)
+        cycle.to_string(verbose=2)
 
         assert cycle.num_iterations == 6
         last = cycle.last_iteration
@@ -128,7 +129,7 @@ class AbinitInpectTest(PymatgenTest):
         print(relaxation)
         assert len(relaxation) == 4
 
-        assert relaxation[0]["Etot(hartree)"][-1] == -8.8077409200473 
+        assert relaxation[0]["Etot(hartree)"][-1] == -8.8077409200473
         assert relaxation[-1]["Etot(hartree)"][-1] == -8.8234906607147
 
         for scf_step in relaxation:

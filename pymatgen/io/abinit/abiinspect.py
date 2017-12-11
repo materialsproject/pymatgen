@@ -131,10 +131,10 @@ class ScfCycle(collections.Mapping):
 
     def to_string(self, verbose=0):
         """String representation."""
-        rows = [list(map(str, (self[k][it] for k in self.keys())))
+        rows = [[it + 1] + list(map(str, (self[k][it] for k in self.keys())))
                 for it in range(self.num_iterations)]
         stream = cStringIO()
-        print(tabulate(rows, headers=list(self.keys())), file=stream)
+        print(tabulate(rows, headers=["Iter"] + list(self.keys())), file=stream)
         stream.seek(0)
 
         return "".join(stream)
@@ -169,7 +169,7 @@ class ScfCycle(collections.Mapping):
     @add_fig_kwargs
     def plot(self, axlist=None, **kwargs):
         """
-        Uses matplotlib to plot the evolution of the SCF cycle. Return `matplotlib` figure
+        Uses matplotlib to plot the evolution of the SCF cycle.
 
         Args:
             axlist: List of axes. If None a new figure is produced.
