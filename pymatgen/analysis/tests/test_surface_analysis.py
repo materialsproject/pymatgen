@@ -27,6 +27,21 @@ def get_path(path_str):
                         "surface_tests", path_str)
     return path
 
+class SlabEntryTest(PymatgenTest):
+
+    def setUp(self):
+
+        with open(os.path.join(get_path(""), 'ucell_entries.txt')) as ucell_entries:
+            ucell_entries = json.loads(ucell_entries.read())
+        self.ucell_entries = ucell_entries
+        self.metals_O_entry_dict = load_O_adsorption()
+        with open(os.path.join(get_path(""),
+                               'isolated_O_entry.txt')) as isolated_O_entry:
+            isolated_O_entry = json.loads(isolated_O_entry.read())
+        self.O = ComputedStructureEntry.from_dict(isolated_O_entry)
+
+    def test_properties(self):
+        return
 
 class SurfaceEnergyCalculatorTest(PymatgenTest):
 
@@ -110,7 +125,7 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
                 for clean in self.metals_O_entry_dict[el][hkl]:
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         # Determine the correct number of monolayers.
-                        ml = se_calc.get_unit_primitive_area(ads, clean)
+                        ml = se_calc.get_unit_primitive_area(ads)
                         self.assertEqual(int(round(ml)), 4)
                         # Determine the correct number of adsorbates
                         Nads = se_calc.Nads_in_slab(ads)
@@ -120,10 +135,12 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
                         self.assertEqual(Nsurf, 1)
                         # Determine the correct binding energy
                         gbind = (ads.energy - ml*clean.energy)/Nads - self.O.energy_per_atom
-                        self.assertEqual(gbind, se_calc.gibbs_binding_energy(ads, clean))
+                        self.assertEqual(gbind, se_calc.gibbs_binding_energy(ads))
                         # Determine the correction Gibbs adsorption energy
                         eads = Nads * gbind
-                        self.assertEqual(eads, se_calc.gibbs_binding_energy(ads, clean, eads=True))
+                        self.assertEqual(eads, se_calc.gibbs_binding_energy(ads, eads=True))
+                        coeffs = se_calc.surface_energy_coefficients(ads)
+                        self.assertEqual(coeffs["O"], ads.surface_area**(-1))
 
     def test_get_surface_equilibrium(self):
 
@@ -315,12 +332,15 @@ def load_O_adsorption():
             if el in k:
                 if "111" in k:
                     clean = list(metals_O_entry_dict[el][(1, 1, 1)].keys())[0]
-                    metals_O_entry_dict[el][(1, 1, 1)][clean] = [SlabEntry(entry, (1,1,1), name=k, adsorbate="O")]
+                    metals_O_entry_dict[el][(1, 1, 1)][clean] = [SlabEntry(entry, (1,1,1), name=k,
+                                                                           adsorbate="O", clean_entry=clean)]
                 if "110" in k:
                     clean = list(metals_O_entry_dict[el][(1, 1, 0)].keys())[0]
-                    metals_O_entry_dict[el][(1, 1, 0)][clean] = [SlabEntry(entry, (1,1,0), name=k, adsorbate="O")]
+                    metals_O_entry_dict[el][(1, 1, 0)][clean] = [SlabEntry(entry, (1,1,0), name=k,
+                                                                           adsorbate="O", clean_entry=clean)]
                 if "100" in k:
                     clean = list(metals_O_entry_dict[el][(1, 0, 0)].keys())[0]
-                    metals_O_entry_dict[el][(1, 0, 0)][clean] = [SlabEntry(entry, (1,0,0), name=k, adsorbate="O")]
+                    metals_O_entry_dict[el][(1, 0, 0)][clean] = [SlabEntry(entry, (1,0,0), name=k,
+                                                                           adsorbate="O", clean_entry=clean)]
 
     return metals_O_entry_dict

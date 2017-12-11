@@ -73,12 +73,13 @@ class SlabEntry(ComputedStructureEntry):
     """
 
     def __init__(self, entry, miller_index, name=None,
-                 coverage=None, adsorbate=None):
+                 coverage=None, adsorbates=None, clean_entry=None):
         self.entry = entry
         self.miller_index = miller_index
         self.name = name
         self.coverage = coverage
-        self.adsorbate = adsorbate
+        self.adsorbates = adsorbates
+        self.clean_entry = clean_entry
 
         super(SlabEntry, self).__init__(
             entry.structure, entry.energy, correction=0.0,
@@ -94,6 +95,69 @@ class SlabEntry(ComputedStructureEntry):
         d["entry"] = self.entry.as_dict()
         d["miller_index"] = miller_index
         return d
+
+    @property
+    def get_unit_primitive_area(self):
+        """
+        Returns the surface area of the adsorbed system per
+        unit area of the primitive slab system.
+        Args:
+            ads_slab_entry (entry): The entry of the adsorbed slab
+            clean_slab_entry (entry): The entry of the clean slab
+        """
+
+        A_ads = self.surface_area
+        A_clean = self.clean_entry.surface_area
+        n = (A_ads / A_clean)
+        return n
+
+    @property
+    def get_monolayer(self):
+        """
+        Returns the primitive unit surface area density of the
+            adsorbate.
+        Args:
+            ads_slab_entry (entry): The entry of the adsorbed slab
+            clean_slab_entry (entry): The entry of the clean slab
+        """
+
+        unit_a = self.get_unit_primitive_area
+        Nsurfs = self.Nsurfs_ads_in_slab
+        Nads = self.Nads_in_slab
+        return Nads / (unit_a * Nsurfs)
+
+    @property
+    def Nads_in_slab(self):
+        """
+        Returns the TOTAL number of adsorbates in the slab on BOTH sides
+        Args:
+            ads_slab_entry (entry): The entry of the adsorbed slab
+        """
+        print(self.adsorbate, self.composition.as_dict())
+        return self.composition.as_dict()[self.adsorbate]
+
+    @property
+    def Nsurfs_ads_in_slab(self):
+        """
+        Returns the TOTAL number of adsorbed surfaces in the slab
+        Args:
+            ads_slab_entry (entry): The entry of the adsorbed slab
+        """
+
+        struct = self.structure
+        weights = [s.species_and_occu.weight for s in struct]
+        center_of_mass = np.average(struct.frac_coords,
+                                    weights=weights, axis=0)
+
+        Nsurfs = 0
+        if any([site.species_string == self.adsorbate for site in
+                struct if site.frac_coords[2] > center_of_mass[2]]):
+            Nsurfs += 1
+        if any([site.species_string == self.adsorbate for site in
+                struct if site.frac_coords[2] < center_of_mass[2]]):
+            Nsurfs += 1
+
+        return Nsurfs
 
     @classmethod
     def from_dict(cls, d):
@@ -118,6 +182,21 @@ class SlabEntry(ComputedStructureEntry):
         m = self.structure.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
+    @property
+    def create_slab_label(self):
+
+        if "name" in entry.data.keys():
+            return entry.data["name"]
+
+        label = str(entry.miller_index)
+        # if entry.composition.reduced_composition != \
+        #         self.se_calculator.ucell_entry.composition.reduced_composition:
+        #     label += " %s" % (entry.composition.reduced_composition)
+        if entry.adsorbate:
+            label += r"+%s" %(entry.adsorbate)
+        return label
+
+
 
 class SurfaceEnergyCalculator(object):
     """
@@ -138,45 +217,14 @@ class SurfaceEnergyCalculator(object):
                 Surfaces : A Primer. Experiment, Modeling and Simulation of Gas-Surface
                 Interactions for Reactive Flows in Hypersonic Flights, 2–1 – 2–18.
 
-    .. attribute:: ref_el_entry
-
-        All chemical potentials can be written in terms of the range of chemical
-            potential of this element which will be used to calculate surface energy.
-
-    .. attribute:: ref_el_as_str
-
-        Reference element as a string (see ref_el_entry).
-
     .. attribute:: ucell_entry
 
         Bulk entry of the base material of the slab.
-
-    .. attribute:: x
-
-        Reduced amount composition of decomposed compound A in the
-            bulk. e.g. x=1 for FePO4 in LiFePO4
-
-    .. attribute:: y
-
-        Reduced amount composition of ref_element in the bulk. e.g.
-            y=2 for Li in LiFePO4
 
     .. attribute:: gbulk
 
         Gibbs free energy of the bulk per formula unit
 
-    .. attribute:: e_of_element
-
-        Energy per atom of ground state ref_element, eg. if ref_element=O,
-            than e_of_element=1/2*E_O2.
-
-    .. attribute:: adsorbate_entry
-
-        Entry of the adsorbate (if there is one).
-
-    .. attribute:: adsorbate_as_str
-
-        Adsorbate formula as a string (see adsorbate_entry).
     """
 
     def __init__(self, ucell_entry, ref_entries=[], adsorbate_entries=[]):
@@ -249,11 +297,12 @@ class SurfaceEnergyCalculator(object):
             bulk_energy += N * (chempot_vars[el] + entry.energy_per_atom)
 
         # Add the reservoir from the adsorbate to the bulk energy
-        if slab_entry.adsorbate:
-            N = slab_entry.composition.as_dict()[slab_entry.adsorbate]
-            bulk_energy += N * (chempot_vars[slab_entry.adsorbate] - \
-                                self.adsorbate_entries_dict[slab_entry.adsorbate] \
-                                .energy_per_atom)
+        if slab_entry.adsorbates:
+            for ads in slab_entry.adsorbates:
+                N = slab_entry.composition.as_dict()[ads]
+                bulk_energy += N * (chempot_vars[ads] + \
+                                    self.adsorbate_entries_dict[ads] \
+                                    .energy_per_atom)
 
         # Next, we add the contribution to the bulk energy from
         # the variable element (the element without a ref_entry),
@@ -310,36 +359,7 @@ class SurfaceEnergyCalculator(object):
                 u_vals.append(u_default)
         return np.dot(u_vals, coeff_vals)
 
-    def get_unit_primitive_area(self, ads_slab_entry, clean_slab_entry):
-        """
-        Returns the surface area of the adsorbed system per
-        unit area of the primitive slab system.
-        Args:
-            ads_slab_entry (entry): The entry of the adsorbed slab
-            clean_slab_entry (entry): The entry of the clean slab
-        """
-
-        A_ads = ads_slab_entry.surface_area
-        A_clean = clean_slab_entry.surface_area
-        n = (A_ads / A_clean)
-        return n
-
-    def get_monolayer(self, ads_slab_entry, clean_slab_entry):
-        """
-        Returns the primitive unit surface area density of the
-            adsorbate.
-        Args:
-            ads_slab_entry (entry): The entry of the adsorbed slab
-            clean_slab_entry (entry): The entry of the clean slab
-        """
-
-        unit_a = self.get_unit_primitive_area(ads_slab_entry, clean_slab_entry)
-        Nsurfs = self.Nsurfs_ads_in_slab(ads_slab_entry)
-        Nads = self.Nads_in_slab(ads_slab_entry)
-        return Nads / (unit_a * Nsurfs)
-
-    def gibbs_binding_energy(self, ads_slab_entry,
-                             clean_slab_entry, eads=False):
+    def gibbs_binding_energy(self, ads_slab_entry, eads=False):
         """
         Returns the adsorption energy or Gibb's binding energy
             of an adsorbate on a surface
@@ -351,43 +371,12 @@ class SurfaceEnergyCalculator(object):
                 adsorption energy normalized by number of adsorbates.
         """
 
-        n = self.get_unit_primitive_area(ads_slab_entry, clean_slab_entry)
-        Nads = self.Nads_in_slab(ads_slab_entry)
+        n = ads_slab_entry.get_unit_primitive_area
+        Nads = ads_slab_entry.Nads_in_slab
 
-        BE = (ads_slab_entry.energy - n * clean_slab_entry.energy) / Nads \
+        BE = (ads_slab_entry.energy - n * ads_slab_entry.clean_entry.energy) / Nads \
              - self.adsorbate_entries_dict[ads_slab_entry.adsorbate].energy_per_atom
         return BE * Nads if eads else BE
-
-    def Nads_in_slab(self, ads_slab_entry):
-        """
-        Returns the TOTAL number of adsorbates in the slab on BOTH sides
-        Args:
-            ads_slab_entry (entry): The entry of the adsorbed slab
-        """
-        print(ads_slab_entry.adsorbate, ads_slab_entry.composition.as_dict())
-        return ads_slab_entry.composition.as_dict()[ads_slab_entry.adsorbate]
-
-    def Nsurfs_ads_in_slab(self, ads_slab_entry):
-        """
-        Returns the TOTAL number of adsorbed surfaces in the slab
-        Args:
-            ads_slab_entry (entry): The entry of the adsorbed slab
-        """
-
-        struct = ads_slab_entry.structure
-        weights = [s.species_and_occu.weight for s in struct]
-        center_of_mass = np.average(struct.frac_coords,
-                                    weights=weights, axis=0)
-
-        Nsurfs = 0
-        if any([site.species_string == ads_slab_entry.adsorbate for site in
-                struct if site.frac_coords[2] > center_of_mass[2]]):
-            Nsurfs += 1
-        if any([site.species_string == ads_slab_entry.adsorbate for site in
-                struct if site.frac_coords[2] < center_of_mass[2]]):
-            Nsurfs += 1
-
-        return Nsurfs
 
     def get_surface_equilibrium(self, slab_entries, u_dict={}):
 
@@ -658,6 +647,7 @@ class SurfaceEnergyPlotter(object):
 
         # Get plot points for each Miller index
         for u in all_chempots:
+            u_dict[ref_el] = u
             wulffshape = self.wulff_shape_from_chempot(u_dict=u_dict,
                                                        u_default=u_default)
 
@@ -1020,6 +1010,7 @@ class SurfaceEnergyPlotter(object):
                                        x_is_u_ads=x_is_u_ads, ylim=ylim)
 
         return plt
+
     def monolayer_vs_BE(self, plot_eads=False):
         """
         Plots the binding energy energy as a function of monolayers (ML),
@@ -1094,19 +1085,6 @@ class SurfaceEnergyPlotter(object):
                      xytext=xy, rotation=90, fontsize=17)
 
         return plt
-
-    def create_slab_label(self, entry):
-
-        if "name" in entry.data.keys():
-            return entry.data["name"]
-
-        label = str(entry.miller_index)
-        # if entry.composition.reduced_composition != \
-        #         self.se_calculator.ucell_entry.composition.reduced_composition:
-        #     label += " %s" % (entry.composition.reduced_composition)
-        if entry.adsorbate:
-            label += r"+%s" %(entry.adsorbate)
-        return label
 
     def color_palette_dict(self, alpha=0.35):
         """
