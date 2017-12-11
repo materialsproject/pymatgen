@@ -951,7 +951,10 @@ class Flow(Node, NodeContainer, MSONable):
 
                 qinfo = "None"
                 if task.queue_id is not None:
-                    qinfo = str(task.queue_id) + "@" + str(task.qname)
+                    qname = str(task.qname)
+                    if not verbose:
+                        qname = qname[:min(5, len(qname))]
+                    qinfo = str(task.queue_id) + "@" + qname
 
                 if task.status.is_critical:
                     tot_num_errors += 1

@@ -173,7 +173,6 @@ to build an appropriate supercell from partial occupancies or alternatively use 
     natom = structure.num_sites
 
     znucl_type = [specie.number for specie in types_of_specie]
-
     znucl_atoms = structure.atomic_numbers
 
     typat = np.zeros(natom, np.int)
@@ -181,7 +180,8 @@ to build an appropriate supercell from partial occupancies or alternatively use 
         typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
     rprim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
-    xred = np.reshape([site.frac_coords for site in structure], (-1,3))
+    angdeg = structure.lattice.angles
+    xred = np.reshape([site.frac_coords for site in structure], (-1, 3))
 
     # Set small values to zero. This usually happens when the CIF file
     # does not give structure parameters with enough digits.
@@ -200,17 +200,24 @@ to build an appropriate supercell from partial occupancies or alternatively use 
     # Add info on the lattice.
     # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
     geomode = kwargs.pop("geomode", "rprim")
-    #latt_dict = structure.lattice.to_abivars(geomode=geomode)
+    if geomode == "automatic":
+        geomode = "rprim"
+        if structure.lattice.is_hexagonal: # or structure.lattice.is_rhombohedral
+            geomode = "angdeg"
+            angdeg = structure.lattice.angles
+            # Here one could polish a bit the numerical values if they are not exact.
 
     if geomode == "rprim":
-        d.update(dict(
+        d.update(
             acell=3 * [1.0],
-            rprim=rprim))
+            rprim=rprim,
+        )
 
     elif geomode == "angdeg":
-        d.update(dict(
-            acell=3 * [1.0],
-            angdeg=angdeg))
+        d.update(
+            acell=ArrayWithUnit(structure.lattice.abc, "ang").to("bohr"),
+            angdeg=angdeg,
+        )
     else:
         raise ValueError("Wrong value for geomode: %s" % geomode)
 

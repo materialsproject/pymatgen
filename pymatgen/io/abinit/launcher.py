@@ -577,16 +577,22 @@ class PyFlowScheduler(object):
                 work.set_manager(new_manager)
 
         nqjobs = 0
-        if self.contact_resource_manager: # or flow.TaskManager.qadapter.QTYPE == "shell":
-            # This call is expensive and therefore it's optional
+        if self.contact_resource_manager: # and flow.TaskManager.qadapter.QTYPE == "shell":
+            # This call is expensive and therefore it's optional (must be activate in manager.yml)
             nqjobs = flow.get_njobs_in_queue()
             if nqjobs is None:
                 nqjobs = 0
-                if flow.manager.has_queue: logger.warning('Cannot get njobs_inqueue')
+                if flow.manager.has_queue:
+                    logger.warning('Cannot get njobs_inqueue')
+        else:
+            # Here we just count the number of tasks in the flow who are running.
+            # This logic breaks down if there are multiple schedulers runnig
+            # but it's easy to implement without having to contact the resource manager.
+            nqjobs = sum(task for task in flow.iflat_tasks(status=flow.S_RUN))
 
-            if nqjobs >= self.max_njobs_inqueue:
-                print("Too many jobs in the queue: %s, returning" % nqjobs)
-                return
+        if nqjobs >= self.max_njobs_inqueue:
+            print("Too many jobs in the queue: %s, returning" % nqjobs)
+            return
 
         if self.max_nlaunches == -1:
             max_nlaunch = self.max_njobs_inqueue - nqjobs
@@ -601,7 +607,7 @@ class PyFlowScheduler(object):
         # Many sections of this code should be rewritten.
         #if self.max_ncores_used is not None and flow.ncores_used > self.max_ncores_used:
         if self.max_ncores_used is not None and flow.ncores_allocated > self.max_ncores_used:
-            print("Cannot exceed max_ncores_use:d %s" % self.max_ncores_used)
+            print("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
             return
 
         # Try to restart the unconverged tasks
