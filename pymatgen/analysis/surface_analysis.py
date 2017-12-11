@@ -93,7 +93,12 @@ class SlabEntry(ComputedStructureEntry):
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__}
         d["entry"] = self.entry.as_dict()
-        d["miller_index"] = miller_index
+        d["miller_index"] = self.miller_index
+        d["name"] = self.name
+        d["coverage"] = self.coverage
+        d["adsorbates"] = self.adsorbates
+        d["clean_entry"] = self.clean_entry
+
         return d
 
     @property
@@ -101,9 +106,6 @@ class SlabEntry(ComputedStructureEntry):
         """
         Returns the surface area of the adsorbed system per
         unit area of the primitive slab system.
-        Args:
-            ads_slab_entry (entry): The entry of the adsorbed slab
-            clean_slab_entry (entry): The entry of the clean slab
         """
 
         A_ads = self.surface_area
@@ -133,8 +135,7 @@ class SlabEntry(ComputedStructureEntry):
         Args:
             ads_slab_entry (entry): The entry of the adsorbed slab
         """
-        print(self.adsorbate, self.composition.as_dict())
-        return self.composition.as_dict()[self.adsorbate]
+        return sum([self.composition.as_dict()[ads] for ads in self.adsorbates])
 
     @property
     def Nsurfs_ads_in_slab(self):
@@ -150,10 +151,10 @@ class SlabEntry(ComputedStructureEntry):
                                     weights=weights, axis=0)
 
         Nsurfs = 0
-        if any([site.species_string == self.adsorbate for site in
+        if any([site.species_string in self.adsorbates for site in
                 struct if site.frac_coords[2] > center_of_mass[2]]):
             Nsurfs += 1
-        if any([site.species_string == self.adsorbate for site in
+        if any([site.species_string in self.adsorbates for site in
                 struct if site.frac_coords[2] < center_of_mass[2]]):
             Nsurfs += 1
 
@@ -170,9 +171,11 @@ class SlabEntry(ComputedStructureEntry):
         name = d["name"]
         coverage = d["coverage"]
         adsorbate = d["adsorbate"]
+        clean_entry = d["clean_entry"] = self.clean_entry
 
         return SlabEntry(entry, miller_index, name=name,
-                         coverage=coverage, adsorbate=adsorbate)
+                         coverage=coverage, adsorbate=adsorbate,
+                         clean_entry=clean_entry)
 
     @property
     def surface_area(self):
@@ -185,15 +188,16 @@ class SlabEntry(ComputedStructureEntry):
     @property
     def create_slab_label(self):
 
-        if "name" in entry.data.keys():
-            return entry.data["name"]
+        if "name" in self.data.keys():
+            return self.data["name"]
 
-        label = str(entry.miller_index)
+        label = str(self.miller_index)
         # if entry.composition.reduced_composition != \
         #         self.se_calculator.ucell_entry.composition.reduced_composition:
         #     label += " %s" % (entry.composition.reduced_composition)
-        if entry.adsorbate:
-            label += r"+%s" %(entry.adsorbate)
+        if self.adsorbates:
+            for ads in self.adsorbates:
+                label += r"+%s" %(ads)
         return label
 
 
@@ -234,7 +238,7 @@ class SurfaceEnergyCalculator(object):
         Args:
             ucell_entry (material_id or computed_entry): Materials Project or entry
                 of the bulk system the slab is based on (a string, e.g., mp-1234).
-            ref_el_entry (ComputedStructureEntry): Entry to be considered as
+            ref_entries (List, [ComputedStructureEntry]): Entries to be considered as
                 independent variable. E.g., if you want to show the stability
                 ranges of all Li-Co-O phases wrt to uLi
             adsorbate_entries (ComputedStructureEntry): Computed entry of adsorbate,
@@ -365,7 +369,6 @@ class SurfaceEnergyCalculator(object):
             of an adsorbate on a surface
         Args:
             ads_slab_entry (entry): The entry of the adsorbed slab
-            clean_slab_entry (entry): The entry of the clean slab
             eads (bool): Whether to calculate the adsorption energy
                 (True) or the binding energy (False) which is just
                 adsorption energy normalized by number of adsorbates.
@@ -375,7 +378,7 @@ class SurfaceEnergyCalculator(object):
         Nads = ads_slab_entry.Nads_in_slab
 
         BE = (ads_slab_entry.energy - n * ads_slab_entry.clean_entry.energy) / Nads \
-             - self.adsorbate_entries_dict[ads_slab_entry.adsorbate].energy_per_atom
+             - sum([self.adsorbate_entries_dict[ads].energy_per_atom for ads in ads_slab_entry.adsorbates])
         return BE * Nads if eads else BE
 
     def get_surface_equilibrium(self, slab_entries, u_dict={}):

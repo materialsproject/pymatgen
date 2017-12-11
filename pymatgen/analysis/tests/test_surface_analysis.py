@@ -41,7 +41,30 @@ class SlabEntryTest(PymatgenTest):
         self.O = ComputedStructureEntry.from_dict(isolated_O_entry)
 
     def test_properties(self):
-        return
+
+        for el in self.metals_O_entry_dict.keys():
+            for hkl in self.metals_O_entry_dict[el].keys():
+                for clean in self.metals_O_entry_dict[el][hkl].keys():
+                    for ads in self.metals_O_entry_dict[el][hkl][clean]:
+                        self.assertAlmostEqual(ads.get_unit_primitive_area, 4, 2)
+                        self.assertAlmostEqual(ads.get_monolayer, 1/4, 2)
+                        self.assertEqual(ads.Nads_in_slab, 1)
+                        self.assertEqual(ads.Nsurfs_ads_in_slab, 1)
+
+    def test_create_slab_label(self):
+
+        for el in self.metals_O_entry_dict.keys():
+            for hkl in self.metals_O_entry_dict[el].keys():
+                # Test WulffShape for adsorbed surfaces
+                for clean in self.metals_O_entry_dict[el][hkl]:
+                    label = clean.create_slab_label
+
+                    self.assertEqual(str(hkl), label)
+
+                    for ads in self.metals_O_entry_dict[el][hkl][clean]:
+                        label = ads.create_slab_label
+                        self.assertEqual(label, str(hkl)+"+O")
+
 
 class SurfaceEnergyCalculatorTest(PymatgenTest):
 
@@ -125,13 +148,13 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
                 for clean in self.metals_O_entry_dict[el][hkl]:
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         # Determine the correct number of monolayers.
-                        ml = se_calc.get_unit_primitive_area(ads)
+                        ml = ads.get_unit_primitive_area
                         self.assertEqual(int(round(ml)), 4)
                         # Determine the correct number of adsorbates
-                        Nads = se_calc.Nads_in_slab(ads)
+                        Nads = ads.Nads_in_slab
                         self.assertEqual(Nads, 1)
                         # Determine the correct number of surfaces with an adsorbate
-                        Nsurf = se_calc.Nsurfs_ads_in_slab(ads)
+                        Nsurf = ads.Nsurfs_ads_in_slab
                         self.assertEqual(Nsurf, 1)
                         # Determine the correct binding energy
                         gbind = (ads.energy - ml*clean.energy)/Nads - self.O.energy_per_atom
@@ -140,7 +163,7 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
                         eads = Nads * gbind
                         self.assertEqual(eads, se_calc.gibbs_binding_energy(ads, eads=True))
                         coeffs = se_calc.surface_energy_coefficients(ads)
-                        self.assertEqual(coeffs["O"], ads.surface_area**(-1))
+                        self.assertAlmostEqual(coeffs[Symbol("O")], (-1/2)*ads.surface_area**(-1))
 
     def test_get_surface_equilibrium(self):
 
@@ -166,7 +189,6 @@ class SurfaceEnergyCalculatorTest(PymatgenTest):
         self.assertEqual(("O", "gamma"), tuple(soln.keys()))
         # Adsorbed systems have a b2=(-1*Nads) / (Nsurfs * Aads)
         coeffs = Pt_analyzer.surface_energy_coefficients(ads)
-        print(coeffs, "Pt")
         self.assertAlmostEqual(coeffs[Symbol("O")], -1/(2*ads.surface_area))
 
 
@@ -223,21 +245,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             # chempot = analyzer.max_adsorption_chempot_range(0)
             wulff = analyzer.wulff_shape_from_chempot()
             se = wulff.weighted_surface_energy
-
-    def test_create_slab_label(self):
-
-        for el in self.metals_O_entry_dict.keys():
-            analyzer = self.Oads_analyzer_dict[el]
-            for hkl in self.metals_O_entry_dict[el].keys():
-                # Test WulffShape for adsorbed surfaces
-                for clean in self.metals_O_entry_dict[el][hkl]:
-                    label = analyzer.create_slab_label(clean)
-
-                    self.assertEqual(str(hkl), label)
-
-                    for ads in self.metals_O_entry_dict[el][hkl][clean]:
-                        label = analyzer.create_slab_label(ads)
-                        self.assertEqual(label, str(hkl)+"+O")
 
     def test_color_palette_dict(self):
 
@@ -333,14 +340,14 @@ def load_O_adsorption():
                 if "111" in k:
                     clean = list(metals_O_entry_dict[el][(1, 1, 1)].keys())[0]
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = [SlabEntry(entry, (1,1,1), name=k,
-                                                                           adsorbate="O", clean_entry=clean)]
+                                                                           adsorbates=["O"], clean_entry=clean)]
                 if "110" in k:
                     clean = list(metals_O_entry_dict[el][(1, 1, 0)].keys())[0]
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = [SlabEntry(entry, (1,1,0), name=k,
-                                                                           adsorbate="O", clean_entry=clean)]
+                                                                           adsorbates=["O"], clean_entry=clean)]
                 if "100" in k:
                     clean = list(metals_O_entry_dict[el][(1, 0, 0)].keys())[0]
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = [SlabEntry(entry, (1,0,0), name=k,
-                                                                           adsorbate="O", clean_entry=clean)]
+                                                                           adsorbates=["O"], clean_entry=clean)]
 
     return metals_O_entry_dict
