@@ -72,11 +72,11 @@ class SlabEntry(ComputedStructureEntry):
             entry object
     """
 
-    def __init__(self, entry, miller_index, name=None,
+    def __init__(self, entry, miller_index, label=None,
                  coverage=None, adsorbates=None, clean_entry=None):
         self.entry = entry
         self.miller_index = miller_index
-        self.name = name
+        self.label = label
         self.coverage = coverage
         self.adsorbates = adsorbates
         self.clean_entry = clean_entry
@@ -94,7 +94,7 @@ class SlabEntry(ComputedStructureEntry):
              "@class": self.__class__.__name__}
         d["entry"] = self.entry.as_dict()
         d["miller_index"] = self.miller_index
-        d["name"] = self.name
+        d["label"] = self.label
         d["coverage"] = self.coverage
         d["adsorbates"] = self.adsorbates
         d["clean_entry"] = self.clean_entry
@@ -168,12 +168,12 @@ class SlabEntry(ComputedStructureEntry):
 
         entry = SlabEntry.from_dict(d["entry"])
         miller_index = d["miller_index"]
-        name = d["name"]
+        label = d["label"]
         coverage = d["coverage"]
         adsorbate = d["adsorbate"]
         clean_entry = d["clean_entry"] = self.clean_entry
 
-        return SlabEntry(entry, miller_index, name=name,
+        return SlabEntry(entry, miller_index, label=label,
                          coverage=coverage, adsorbate=adsorbate,
                          clean_entry=clean_entry)
 
@@ -188,8 +188,8 @@ class SlabEntry(ComputedStructureEntry):
     @property
     def create_slab_label(self):
 
-        if "name" in self.data.keys():
-            return self.data["name"]
+        if "label" in self.data.keys():
+            return self.data["label"]
 
         label = str(self.miller_index)
         # if entry.composition.reduced_composition != \
@@ -336,23 +336,28 @@ class SurfaceEnergyCalculator(object):
                             se.as_coefficients_dict().items() if abs(coeff) > 1e-6}
             return coefficients
 
-    def calculate_gamma(self, slab_entry, u_dict={}, u_default=0):
+    def calculate_gamma(self, slab_entry, u_dict={}):
         """
         Quickly calculates the surface energy for the slab of the vasprun file
-            at a specific chemical potential for the reference and adsorbate.
-            Both chemical potentials are set to 0 by default (i.e. clean
-            stoichiometric slab).
+            at specific chemical potentials. If not all possible chemical
+            potentials have been set, the surface energy will be a function of
+            those unset chemical potentials.
         args:
-            slab_entry (entry): Entry containing the final energy and structure
-                of the slab whose surface energy we want to calculate
-            ads_slab_entry (entry): An optional entry object for the
-                adsorbed slab, defaults to None.
+            slab_entry (SlabEntry): SlabEntry whose surface energy we want to
+                calculate
+            u_dict (entry): A dictionary of chemical potential values for the
+                chemical potential variables. Chemical potentials that remain
+                unset will become the new free variables.
 
-        Returns (float): surface energy
+        Returns (dict): surface energy as a dictionary. Like with the
+            surface_energy_coefficients method, the keys correspond to the free
+            variables (chemical potentials). If only a key of 1 exists in the dict,
+            surface energy is a constant value.
         """
 
         coeffs = self.surface_energy_coefficients(slab_entry)
         coeff_vals = [coeffs[el] for el in coeffs.keys()]
+
         u_vals = []
         for el in coeffs.keys():
             if el in u_dict.keys():
@@ -360,8 +365,19 @@ class SurfaceEnergyCalculator(object):
             elif el == Number(1):
                 u_vals.append(1)
             else:
-                u_vals.append(u_default)
-        return np.dot(u_vals, coeff_vals)
+                u_vals.append(el)
+
+        se = np.dot(u_vals, coeff_vals)
+
+        # Return dict of a constant if the equation is constant
+        if type(se).__name__ != "Add":
+            return {Number(1): se}
+        else:
+            # Remove any variables with coefficient of 0
+            # (Sympy doesn't handle cancellation very well)
+            coefficients = {el: coeff for el, coeff in \
+                            se.as_coefficients_dict().items() if abs(coeff) > 1e-6}
+            return coefficients
 
     def gibbs_binding_energy(self, ads_slab_entry, eads=False):
         """
@@ -538,37 +554,81 @@ class SurfaceEnergyPlotter(object):
         self.entry_dict = entry_dict
         self.color_dict = self.color_palette_dict()
 
-    def chempot_range_adsorption(self, ads_slab_entry, clean_slab_entry,
-                                 buffer=0.2, u_dict={}):
+    # def chempot_range_adsorption(self, ads_slab_entry, clean_slab_entry,
+    #                              buffer=0.2, u_dict={}):
+    #     """
+    #     Returns the chemical potential range as a list for the adsorbate. The min
+    #         chemical potential will be located where the clean and adsorbed surface
+    #         energy lines intersect while the max chemical potential will depend on
+    #         the formation energy of the material.
+    #     Args:
+    #         ads_slab_entry (entry): The entry of the adsorbed slab
+    #         clean_slab_entry (entry): The entry of the clean slab
+    #         const_u_ref (float): Set the chemical potential of the
+    #             ref element to a constant value.
+    #         buffer (float): A buffer fo r the x axis (chemical
+    #             potential range). For plotting.
+    #         u_dict (dict): Dictionary of chemical potentials to keep constant.
+    #             The key is the element and the value is the chemical potential.
+    #
+    #     """
+    #
+    #     soln = self.se_calculator.get_surface_equilibrium([clean_slab_entry,
+    #                                                        ads_slab_entry],
+    #                                                       u_dict=u_dict)
+    #     self.se_calculator.calculate_gamma()
+    #     # If the surface energy is a constant value
+    #     # (no solution), just set the min close to 0
+    #     umin = -1*10e-5 if not soln else soln[ads_slab_entry.adsorbate]
+    #     # Make sure upper limit of u doesn't lead to negative or 0 values.
+    #     # Substract a value approaching 0 to avoid surface energies of 0
+    #     umax = 0
+    #     return [umin-abs(umin)*buffer, umax]
+
+    def set_all_variables(self, entry, u_dict, u_default):
+
+        # Set up the variables
+        all_u_dict = {}
+        for el in entry.composition.as_dict().keys():
+            if Symbol(el) in u_dict.keys():
+                all_u_dict[Symbol(el)] = u_dict[Symbol(el)]
+            else:
+                all_u_dict[Symbol(el)] = u_default
+
+        return all_u_dict
+
+    def return_stable_slab_entry_at_u(self, miller_index, u_dict={}, u_default=0):
         """
-        Returns the chemical potential range as a list for the adsorbate. The min
-            chemical potential will be located where the clean and adsorbed surface
-            energy lines intersect while the max chemical potential will depend on
-            the formation energy of the material.
+        Returns the entry corresponding to the most stable slab for a particular
+            facet at a specific chempot. We assume that surface energy is constant
+            so all free variables must be set with u_dict, otherwise they are
+            assumed to be equal to u_default.
+
         Args:
-            ads_slab_entry (entry): The entry of the adsorbed slab
-            clean_slab_entry (entry): The entry of the clean slab
-            const_u_ref (float): Set the chemical potential of the
-                ref element to a constant value.
-            buffer (float): A buffer fo r the x axis (chemical
-                potential range). For plotting.
+            miller_index ((h,k,l)): The facet to find the most stable slab in
             u_dict (dict): Dictionary of chemical potentials to keep constant.
                 The key is the element and the value is the chemical potential.
+            u_default (float): Chempot value if a chempot has no assigned value.
 
+        Returns:
+            SlabEntry, surface_energy (float)
         """
 
-        soln = self.se_calculator.get_surface_equilibrium([clean_slab_entry,
-                                                           ads_slab_entry],
-                                                          u_dict=u_dict)
-        self.se_calculator.calculate_gamma()
-        # If the surface energy is a constant value
-        # (no solution), just set the min close to 0
-        umin = -1*10e-5 if not soln else soln[ads_slab_entry.adsorbate]
-        # Make sure upper limit of u doesn't lead to negative or 0 values.
-        # Substract a value approaching 0 to avoid surface energies of 0
-        umax = 0
-        return [umin-abs(umin)*buffer, umax]
+        all_entries, all_gamma = [], []
+        for entry in self.entry_dict[miller_index].keys():
+            all_u_dict = self.set_all_variables(entry, u_dict, u_default)
+            gamma = self.se_calculator.calculate_gamma(entry,
+                                                       u_dict=all_u_dict)[Number(1)]
+            all_entries.append(entry)
+            all_gamma.append(gamma)
+            for ads_entry in self.entry_dict[miller_index][entry]:
+                all_u_dict = self.set_all_variables(ads_entry, u_dict, u_default)
+                gamma = self.se_calculator.calculate_gamma(ads_entry,
+                                                           u_dict=all_u_dict)[Number(1)]
+                all_entries.append(ads_entry)
+                all_gamma.append(gamma)
 
+        return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
 
     def wulff_shape_from_chempot(self, u_dict={}, u_default=0, symprec=1e-5):
         """
@@ -576,7 +636,6 @@ class SurfaceEnergyPlotter(object):
         Args:
             u_dict (dict): Dictionary of chemical potentials to keep constant.
                 The key is the element and the value is the chemical potential.
-
             symprec (float): See WulffShape.
 
         Returns:
@@ -595,31 +654,9 @@ class SurfaceEnergyPlotter(object):
             entry, gamma = self.return_stable_slab_entry_at_u(hkl, u_dict=u_dict,
                                                               u_default=u_default)
             e_surf_list.append(gamma)
-
+        print(miller_list)
+        print(e_surf_list)
         return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
-
-    def return_stable_slab_entry_at_u(self, miller_index, u_dict={}, u_default=0):
-        """
-        Returns the entry corresponding to the most stable
-        slab for a particular facet at a specific chempot.
-
-        Args:
-            miller_index ((h,k,l)): The facet to find the most stable slab in
-        """
-
-        all_entries, all_gamma = [], []
-        for entry in self.entry_dict[miller_index].keys():
-            gamma = self.se_calculator.calculate_gamma(entry, u_dict=u_dict,
-                                                       u_default=u_default)
-            all_entries.append(entry)
-            all_gamma.append(gamma)
-            for ads_entry in self.entry_dict[miller_index][entry]:
-                gamma = self.se_calculator.calculate_gamma(entry, u_dict=u_dict,
-                                                           u_default=u_default)
-                all_entries.append(ads_entry)
-                all_gamma.append(gamma)
-
-        return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
 
     def area_frac_vs_chempot_plot(self, ref_el, chempot_range, u_dict={},
                                   u_default=0, increments=10):
@@ -681,8 +718,8 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def chempot_vs_gamma_plot_one(self, plt, clean_entry, label='',
-                                  ads_entry=None, JPERM2=False,
+    def chempot_vs_gamma_plot_one(self, plt, entry, label='',
+                                  JPERM2=False,
                                   x_is_u_ads=False, const_u=0,
                                   urange=None, ylim=[]):
         """
@@ -767,9 +804,7 @@ class SurfaceEnergyPlotter(object):
             # Plot the clean slabs
             for entry in self.entry_dict[hkl]:
                 # Generate a label for the type of slab
-                label = self.create_slab_label(entry, miller_index=\
-                    () if miller_index else hkl)
-
+                label = entry.create_slab_label
                 if label in already_labelled:
                     label = None
                 else:
