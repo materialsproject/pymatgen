@@ -1560,10 +1560,6 @@ class BSPlotterProjected(BSPlotter):
                                             individual_orbs[orb])) != 0:
                                         raise ValueError(
                                             "The 'dictio[%s]' contains orbitals repeated." % elt)
-                                    else:
-                                        pass
-                                else:
-                                    pass
                         nelems = Counter(dictio[elt]).values()
                         if sum(nelems) > len(nelems):
                             raise ValueError(
@@ -1588,7 +1584,7 @@ class BSPlotterProjected(BSPlotter):
                 if Element.is_valid_symbol(elt):
                     if isinstance(sum_morbs[elt], list):
                         for orb in sum_morbs[elt]:
-                            if not isinstance(orb, str):
+                            if not isinstance(orb, six.string_types):
                                 raise TypeError(
                                     "The invalid format of orbitals is in 'sum_morbs[%s]': %s. "
                                     "They should be string." % (elt, str(orb)))
@@ -1601,10 +1597,6 @@ class BSPlotterProjected(BSPlotter):
                                             individual_orbs[orb])) != 0:
                                         raise ValueError(
                                             "The 'sum_morbs[%s]' contains orbitals repeated." % elt)
-                                    else:
-                                        pass
-                                else:
-                                    pass
                         nelems = Counter(sum_morbs[elt]).values()
                         if sum(nelems) > len(nelems):
                             raise ValueError(
@@ -1628,8 +1620,6 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(
                             "You cannot sum projection over one individual orbital '%s' of '%s'." %
                             (dictio[elt][0], elt))
-                    else:
-                        pass
                 else:
                     if sum_morbs is None:
                         pass
@@ -1646,8 +1636,6 @@ class BSPlotterProjected(BSPlotter):
                                     raise ValueError(
                                         "The invalid orbital '%s' was put into 'sum_morbs[%s]'." %
                                         (orb, elt))
-                                else:
-                                    pass
                         else:
                             if orb == 's' or len(orb) > 1:
                                 raise ValueError(
@@ -1663,8 +1651,6 @@ class BSPlotterProjected(BSPlotter):
                         duplicate.remove(orb)
                         for o in individual_orbs[orb]:
                             duplicate.append(o)
-                    else:
-                        pass
                 dictio[elt] = copy.deepcopy(duplicate)
 
                 if sum_morbs is None:
@@ -1696,8 +1682,6 @@ class BSPlotterProjected(BSPlotter):
                                 duplicate.remove(orb)
                                 for o in individual_orbs[orb]:
                                     duplicate.append(o)
-                            else:
-                                pass
                         sum_morbs[elt] = copy.deepcopy(duplicate)
 
                     for orb in sum_morbs[elt]:

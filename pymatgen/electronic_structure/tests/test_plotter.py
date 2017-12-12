@@ -185,11 +185,28 @@ x_trans = which("x_trans")
 @unittest.skipIf(not x_trans, "No x_trans.")
 class BoltztrapPlotterTest(unittest.TestCase):
 
-    def test_plot(self):
+    def test_plots(self):
         bz = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/transp/"))
         plotter = BoltztrapPlotter(bz)
         plotter.plot_seebeck_eff_mass_mu()
+        plotter.plot_seebeck_temp()
+        plotter.plot_seebeck_dop()
+        plotter.plot_complexity_factor_mu()
+
+        plotter.plot_conductivity_dop()
+        plotter.plot_conductivity_mu()
+        plotter.plot_conductivity_temp()
+        plotter.plot_power_factor_dop()
+        plotter.plot_power_factor_mu()
+        plotter.plot_power_factor_temp()
+
+        plotter.plot_carriers()
+        plotter.plot_dos()
+        plotter.plot_eff_mass_dop()
+        plotter.plot_zt_dop()
+        plotter.plot_zt_mu()
+        plotter.plot_zt_temp()
 
 
 class CohpPlotterTest(PymatgenTest):
