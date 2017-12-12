@@ -8,6 +8,7 @@ import math
 import itertools
 import warnings
 from collections import OrderedDict
+import six
 
 import numpy as np
 
@@ -1533,7 +1534,7 @@ class BSPlotterProjected(BSPlotter):
                            'd': ['dxy', 'dyz', 'dxz', 'dx2', 'dz2'],
                            'f': ['f_3', 'f_2', 'f_1', 'f0', 'f1', 'f2', 'f3']}
 
-        if (not isinstance(dictio, dict)):
+        if not isinstance(dictio, dict):
             raise TypeError(
                 "The invalid type of 'dictio' was bound. It should be dict type.")
         elif len(dictio.keys()) == 0:
@@ -1546,7 +1547,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(
                                 "The dictio[%s] is empty. We cannot do anything" % elt)
                         for orb in dictio[elt]:
-                            if not isinstance(orb, str):
+                            if not isinstance(orb, six.string_types):
                                 raise ValueError(
                                     "The invalid format of orbitals is in 'dictio[%s]': %s. "
                                     "They should be string." % (elt, str(orb)))
@@ -1577,7 +1578,7 @@ class BSPlotterProjected(BSPlotter):
 
         if sum_morbs is None:
             print("You do not want to sum projection over orbitals.")
-        elif (not isinstance(sum_morbs, dict)):
+        elif not isinstance(sum_morbs, dict):
             raise TypeError(
                 "The invalid type of 'sum_orbs' was bound. It should be dict or 'None' type.")
         elif len(sum_morbs.keys()) == 0:
@@ -1648,7 +1649,7 @@ class BSPlotterProjected(BSPlotter):
                                 else:
                                     pass
                         else:
-                            if (orb == 's' or len(orb) > 1):
+                            if orb == 's' or len(orb) > 1:
                                 raise ValueError(
                                     "The invalid orbital '%s' was put into sum_orbs['%s']." % (
                                     orb, elt))
@@ -2554,7 +2555,7 @@ class BSDOSPlotter(object):
 
 
 class BoltztrapPlotter(object):
-    #TODO: We need a unittest for this. Come on folks.
+    # TODO: We need a unittest for this. Come on folks.
     """
     class containing methods to plot the data from Boltztrap.
 
