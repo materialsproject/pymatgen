@@ -1537,9 +1537,10 @@ class Outcar(MSONable):
         self.data = {}
 
         # Read the drift:
-        self.read_pattern({"drift":"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
-                          terminate_on_match=False,
-                          postprocess=float)        
+        self.read_pattern({
+            "drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
+            terminate_on_match=False,
+            postprocess=float)
         self.drift = self.data.get('drift',[])
            
 
@@ -1572,7 +1573,8 @@ class Outcar(MSONable):
             self.read_pseudo_zval()
 
         # Read electrostatic potential
-        self.read_pattern({'electrostatic': "average \(electrostatic\) potential at core"})
+        self.read_pattern({
+            'electrostatic': r"average \(electrostatic\) potential at core"})
         if self.data.get('electrostatic', []):
             self.read_electrostatic_potential()
 
@@ -1688,7 +1690,7 @@ class Outcar(MSONable):
         pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
         pots = "".join(itertools.chain.from_iterable(pots))
 
-        pots = re.findall("\s+\d+\s?([\.\-\d]+)+", pots)
+        pots = re.findall(r"\s+\d+\s?([\.\-\d]+)+", pots)
         pots = [float(f) for f in pots]
 
         self.electrostatic_potential = pots
@@ -1823,21 +1825,24 @@ class Outcar(MSONable):
                          r"\s+-{50,}$"
         first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
         row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"]*3)
-        unsym_footer_pattern = "^\s+SYMMETRIZED TENSORS\s+$"
+        unsym_footer_pattern = r"^\s+SYMMETRIZED TENSORS\s+$"
 
         with zopen(self.filename, 'rt') as f:
             text = f.read()
         unsym_table_pattern_text = header_pattern + first_part_pattern + \
                                    r"(?P<table_body>.+)" + unsym_footer_pattern
-        table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
+        table_pattern = re.compile(unsym_table_pattern_text,
+                                   re.MULTILINE | re.DOTALL)
         rp = re.compile(row_pattern)
         m = table_pattern.search(text)
         if m:
             table_text = m.group("table_body")
             micro_header_pattern = r"ion\s+\d+"
-            micro_table_pattern_text = micro_header_pattern + r"\s*^(?P<table_body>(?:\s*" + \
+            micro_table_pattern_text = micro_header_pattern + \
+                                       r"\s*^(?P<table_body>(?:\s*" + \
                                        row_pattern + r")+)\s+"
-            micro_table_pattern = re.compile(micro_table_pattern_text, re.MULTILINE | re.DOTALL)
+            micro_table_pattern = re.compile(micro_table_pattern_text,
+                                             re.MULTILINE | re.DOTALL)
             unsym_tensors = []
             for mt in micro_table_pattern.finditer(table_text):
                 table_body_text = mt.group("table_body")

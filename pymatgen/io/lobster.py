@@ -120,9 +120,9 @@ class Cohpcar(object):
         length = float(line[-1][:-1])
         # Replacing "->" with ":" makes splitting easier
         sites = line[0].replace("->", ":").split(":")[1:3]
-        site_indices = tuple(int(re.split("\D+", site)[1]) - 1
+        site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1
                              for site in sites)
-        species = tuple(re.split("\d+", site)[0] for site in sites)
+        species = tuple(re.split(r"\d+", site)[0] for site in sites)
         label = "%s%d-%s%d" % (species[0], site_indices[0] + 1,
                                species[1], site_indices[1] + 1)
         return label, length, site_indices

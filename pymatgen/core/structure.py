@@ -2252,7 +2252,7 @@ class IMolecule(SiteCollection, MSONable):
 
         Args:
             target_sites ([Site]): List of initial sites to nucleate cluster.
-            \*\*kwargs: kwargs passed through to CovalentBond.is_bonded.
+            \\*\\*kwargs: kwargs passed through to CovalentBond.is_bonded.
 
         Returns:
             (Molecule) Cluster of atoms.
