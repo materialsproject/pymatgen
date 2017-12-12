@@ -65,6 +65,11 @@ class EwaldSummationTest(unittest.TestCase):
 
 
 class EwaldMinimizerTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_init(self):
         matrix = np.array([[-3., 3., 4., -0., 3., 3., 1., 14., 9., -4.],
