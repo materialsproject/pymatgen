@@ -36,7 +36,8 @@ class TestPourbaixAnalyzer(unittest.TestCase):
             self.assertEqual(len(range_map_dict[entry]), self.num_simplices[entry])
 
     def test_get_decomp(self):
-        for entry in [entry for entry in self.pd.all_entries if entry not in self.pd.stable_entries]:
+        for entry in [entry for entry in self.pd.all_entries
+                      if entry not in self.pd.stable_entries]:
             decomp_entries = self.analyzer.get_decomposition(entry)
             for entr in decomp_entries:
                 self.assertEqual(decomp_entries[entr], self.decomp_test[entry.name][entr.name])
@@ -49,11 +50,15 @@ class TestPourbaixAnalyzer(unittest.TestCase):
                                     comp_dict = {"Ag": 0.5, "Te": 0.5})
         analyzer_binary = PourbaixAnalyzer(pd_binary)
 
-        te_entry = pd_binary._unprocessed_entries[4]
+        te_entry = [e for e in pd_binary._unprocessed_entries
+                    if e.composition.formula == "Te3"][0]
         de, hull_e, entries = analyzer_binary.get_all_decomp_and_e_above_hull(te_entry)
         self.assertEqual(len(de), 10)
         self.assertEqual(len(hull_e), 10)
-        self.assertAlmostEqual(hull_e[0], 5.4419792326439893)
+        # Find a specific multientry to test
+        tuples = zip(de, hull_e, entries)
+        test_tuple = [t for t in tuples if t[2].name=='Te(s) + Ag[2+]'][0]
+        self.assertAlmostEqual(test_tuple[1], 5.1396968548627315)
 
     def test_ternary(self):
         # Ternary
@@ -64,18 +69,11 @@ class TestPourbaixAnalyzer(unittest.TestCase):
                                                   "N": 0.33333})
         analyzer_ternary = PourbaixAnalyzer(pd_ternary)
         de, hull_e, entries = analyzer_ternary.get_all_decomp_and_e_above_hull(te_entry)
-        self.assertEqual(len(de), 116)
-        self.assertEqual(len(hull_e), 116)
-        self.assertAlmostEqual(hull_e[0], 29.2520325229)
-
-    def test_v_fe(self):
-        v_fe_entries = self.multi_data['v_fe']
-        pd = PourbaixDiagram(v_fe_entries, comp_dict = {"Fe": 0.5, "V": 0.5})
-        analyzer_vfe = PourbaixAnalyzer(pd)
-        entries = sorted(pd._all_entries, key=lambda x: x.energy)
-        self.assertAlmostEqual(entries[1].weights[1], 0.6666666666)
-        self.assertAlmostEqual(entries[1].energy, -110.77582628499995)
-        self.assertAlmostEqual(entries[100].energy, -20.685496454465955)
+        self.assertEqual(len(de), 89)
+        self.assertEqual(len(hull_e), 89)
+        tuples = zip(de, hull_e, entries)
+        test_tuple = [t for t in tuples if t[2].name=='N2(s) + TeO4[2-] + Ag[2+]'][0]
+        self.assertAlmostEqual(test_tuple[1], 50.337069095866745)
 
     def test_get_entry_stability(self):
         stab = self.analyzer.get_entry_stability(self.pd.all_entries[0], pH=0, V=1)
