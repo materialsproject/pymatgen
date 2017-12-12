@@ -27,14 +27,6 @@ class TestPourbaixDiagram(unittest.TestCase):
         self.assertEqual(set([e.name for e in self._pd.stable_entries]), 
                          set(self.list_of_stable_entries), "List of stable entries does not match")
 
-    def test_temp_plot(self):
-        from pymatgen.analysis.pourbaix.plotter import PourbaixPlotter
-        from pymatgen import MPRester
-        mpr = MPRester()
-        cu_entries = mpr.get_pourbaix_entries(["Cu"])
-        pd = PourbaixDiagram(cu_entries)
-        plotter = PourbaixPlotter(pd)
-        plotter.get_pourbaix_plot().savefig('out.png')
 
 if __name__ == '__main__':
     unittest.main()
