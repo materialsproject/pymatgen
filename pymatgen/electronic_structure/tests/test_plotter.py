@@ -197,6 +197,8 @@ class BoltztrapPlotterTest(unittest.TestCase):
         # the plotter until these are fixed.
         # plotter.plot_seebeck_temp()
         # plotter.plot_seebeck_dop()
+        # plotter.plot_carriers()
+
         plotter.plot_complexity_factor_mu()
 
         plotter.plot_conductivity_dop()
@@ -206,7 +208,6 @@ class BoltztrapPlotterTest(unittest.TestCase):
         plotter.plot_power_factor_mu()
         plotter.plot_power_factor_temp()
 
-        plotter.plot_carriers()
         plotter.plot_dos()
         plotter.plot_eff_mass_dop()
         plotter.plot_zt_dop()
