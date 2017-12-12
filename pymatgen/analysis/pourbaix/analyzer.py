@@ -238,13 +238,13 @@ class PourbaixAnalyzer(object):
         decomp_entries, hull_energies, decomp_species, entries = [], [], [], []
 
         # for all entries where the material is the only solid
-        if not isinstance(self._pd.all_entries[0], MultiEntry):
+        if not self._pd._multielement:
            possible_entries = [e for e in self._pd.all_entries
-                             if single_entry == e]
+                               if single_entry == e]
         else:
            possible_entries = [e for e in self._pd.all_entries
-                         if e.phases.count("Solid") == 1
-                         and single_entry in e.entrylist]
+                               if e.phases.count("Solid") == 1
+                               and single_entry in e.entrylist]
         
         for possible_entry in possible_entries:
             # Find the decomposition details if the material
@@ -348,8 +348,8 @@ class PourbaixAnalyzer(object):
         entry) at a given pH and voltage.
 
         Args:
-            entry (PourbaixEntry): Pourbaix entry corresponding to the
-                stability to be calculated
+            entry (PourbaixEntry): Pourbaix entry or MultiEntry
+                corresponding to the stability to be calculated
             pH (float): pH at which to calculate stability of entry
             V (float): voltage at which to calculate stability of entry
         """
