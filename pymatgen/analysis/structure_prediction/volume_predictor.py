@@ -102,7 +102,7 @@ class RLSVolumePredictor:
 
                 return ref_structure.volume * (numerator / denominator) ** 3
             except Exception as ex:
-                warnings.warn(str(ex))
+                warnings.warn("Exception occured. Will attempt atomic radii.")
                 # If error occurs during use of ionic radii scheme, pass
                 # and see if we can resolve it using atomic radii.
                 pass

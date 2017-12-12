@@ -8,11 +8,18 @@ from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePre
     RLSVolumePredictor
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core import Structure
+import warnings
 
 dir_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 
 class RLSVolumePredictorTest(PymatgenTest):
+
+    def setUp(self):
+        warnings.filterwarnings("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_predict(self):
         s = PymatgenTest.get_structure("CsCl")
