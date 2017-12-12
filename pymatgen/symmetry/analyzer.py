@@ -16,7 +16,6 @@ from fractions import Fraction
 import numpy as np
 
 from six.moves import filter, map, zip
-from monty.dev import deprecated
 import spglib
 
 from pymatgen.core.structure import Structure, Molecule
@@ -100,21 +99,6 @@ class SpacegroupAnalyzer(object):
         self._space_group_data = spglib.get_symmetry_dataset(
             self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance)
 
-    @deprecated(message="get_spacegroup has been renamed "
-                        "get_space_group_operations. Will be removed in "
-                        "pymatgen 2018.01.01.")
-    def get_space_group(self):
-        """
-        Get the SpacegroupOperations for the Structure.
-
-        Returns:
-            SpacgroupOperations object.
-        """
-        return self.get_space_group_operations()
-
-    @deprecated(message="get_spacegroup_symbol has been renamed "
-                        "get_space_group_symbol. Will be removed in "
-                        "pymatgen 2018.01.01.")
     def get_space_group_symbol(self):
         """
         Get the spacegroup symbol (e.g., Pnma) for structure.
@@ -124,9 +108,6 @@ class SpacegroupAnalyzer(object):
         """
         return self._space_group_data["international"]
 
-    @deprecated(message="get_spacegroup_number has been renamed "
-                        "get_space_group_number. Will be removed in "
-                        "pymatgen 2018.01.01.")
     def get_space_group_number(self):
         """
         Get the international spacegroup number (e.g., 62) for structure.
@@ -173,12 +154,6 @@ class SpacegroupAnalyzer(object):
             (str): Hall symbol
         """
         return self._space_group_data["hall"]
-
-    @deprecated(message="get_point_group has been renamed "
-                        "get_point_group_symbol. Will be removed in "
-                        "pymatgen 2018.01.01.")
-    def get_point_group(self):
-        return self.get_point_group_symbol()
 
     def get_point_group_symbol(self):
         """
