@@ -129,10 +129,10 @@ class BSPlotterProjectedTest(unittest.TestCase):
         self.plotter.get_elt_projected_plots()
         self.plotter.get_elt_projected_plots_color()
         self.plotter.get_projected_plots_dots({'Cu': ['d', 's'], 'O': ['p']})
-        # self.plotter.get_projected_plots_dots_patom_pmorb(
-        #     {'Cu': ['dxy', 's', 'px'], 'O': ['px', 'py', 'pz']},
-        #     {'Cu': [3, 5], 'O': [1]}
-        # )
+        self.plotter.get_projected_plots_dots_patom_pmorb(
+            {'Cu': ['dxy'], 'O': ['px', 'py', 'pz']},
+            {'Cu': [3, 5], 'O': [1]}
+        )
 
 
 class BSDOSPlotterTest(unittest.TestCase):

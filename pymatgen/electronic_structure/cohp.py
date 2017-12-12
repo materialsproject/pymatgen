@@ -16,7 +16,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ry_to_eV
 from pymatgen.io.lmto import LMTOCopl
 from pymatgen.io.lobster import Cohpcar
-from pymatgen.util.coord_utils import get_linear_interpolated_value
+from pymatgen.util.coord import get_linear_interpolated_value
 
 """
 This module defines classes to represent crystal orbital Hamilton
