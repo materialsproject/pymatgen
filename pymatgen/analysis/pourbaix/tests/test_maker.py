@@ -19,13 +19,22 @@ class TestPourbaixDiagram(unittest.TestCase):
                                                     "test_entries.csv"))
         self._entries = entries
         self._pd = PourbaixDiagram(entries)
-        self.list_of_stable_entries = ["ZnO(s)", "Zn[2+]", "ZnO2(s)", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"]
+        self.list_of_stable_entries = ["ZnO(s)", "ZnO2(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"]
 
         
     def test_pourbaix_diagram(self):
         self.assertEqual(len(self._pd.facets), 6, "Incorrect number of facets")
-        for entry in self._pd.stable_entries:
-            self.assertIn(entry.name, self.list_of_stable_entries, "List of stable entries does not match")
+        self.assertEqual(set([e.name for e in self._pd.stable_entries]), 
+                         set(self.list_of_stable_entries), "List of stable entries does not match")
+
+    def test_temp_plot(self):
+        from pymatgen.analysis.pourbaix.plotter import PourbaixPlotter
+        from pymatgen import MPRester
+        mpr = MPRester()
+        cu_entries = mpr.get_pourbaix_entries(["Cu"])
+        pd = PourbaixDiagram(cu_entries)
+        plotter = PourbaixPlotter(pd)
+        plotter.get_pourbaix_plot().savefig('out.png')
 
 if __name__ == '__main__':
     unittest.main()
