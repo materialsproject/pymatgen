@@ -554,37 +554,6 @@ class SurfaceEnergyPlotter(object):
         self.entry_dict = entry_dict
         self.color_dict = self.color_palette_dict()
 
-    # def chempot_range_adsorption(self, ads_slab_entry, clean_slab_entry,
-    #                              buffer=0.2, u_dict={}):
-    #     """
-    #     Returns the chemical potential range as a list for the adsorbate. The min
-    #         chemical potential will be located where the clean and adsorbed surface
-    #         energy lines intersect while the max chemical potential will depend on
-    #         the formation energy of the material.
-    #     Args:
-    #         ads_slab_entry (entry): The entry of the adsorbed slab
-    #         clean_slab_entry (entry): The entry of the clean slab
-    #         const_u_ref (float): Set the chemical potential of the
-    #             ref element to a constant value.
-    #         buffer (float): A buffer fo r the x axis (chemical
-    #             potential range). For plotting.
-    #         u_dict (dict): Dictionary of chemical potentials to keep constant.
-    #             The key is the element and the value is the chemical potential.
-    #
-    #     """
-    #
-    #     soln = self.se_calculator.get_surface_equilibrium([clean_slab_entry,
-    #                                                        ads_slab_entry],
-    #                                                       u_dict=u_dict)
-    #     self.se_calculator.calculate_gamma()
-    #     # If the surface energy is a constant value
-    #     # (no solution), just set the min close to 0
-    #     umin = -1*10e-5 if not soln else soln[ads_slab_entry.adsorbate]
-    #     # Make sure upper limit of u doesn't lead to negative or 0 values.
-    #     # Substract a value approaching 0 to avoid surface energies of 0
-    #     umax = 0
-    #     return [umin-abs(umin)*buffer, umax]
-
     def set_all_variables(self, entry, u_dict, u_default):
 
         # Set up the variables
@@ -628,7 +597,7 @@ class SurfaceEnergyPlotter(object):
                 all_entries.append(ads_entry)
                 all_gamma.append(gamma)
 
-        return all_entries[all_gamma.index(min(all_gamma))], min(all_gamma)
+        return all_entries[all_gamma.index(min(all_gamma))], float(min(all_gamma))
 
     def wulff_shape_from_chempot(self, u_dict={}, u_default=0, symprec=1e-5):
         """
@@ -654,8 +623,7 @@ class SurfaceEnergyPlotter(object):
             entry, gamma = self.return_stable_slab_entry_at_u(hkl, u_dict=u_dict,
                                                               u_default=u_default)
             e_surf_list.append(gamma)
-        print(miller_list)
-        print(e_surf_list)
+
         return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
 
     def area_frac_vs_chempot_plot(self, ref_el, chempot_range, u_dict={},
