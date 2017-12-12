@@ -246,26 +246,26 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
                 self.assertEqual(entry3.label, entry4.label)
                 self.assertNotEqual(gamma3, gamma4)
 
-    # def test_wulff_shape_from_chempot(self):
-    #
-    #     # Test if it generates a Wulff shape, test if
-    #     # all the facets for Cu wulff shape are inside.
-    #     Cu_wulff = self.Cu_analyzer.wulff_shape_from_chempot()
-    #     area_frac_dict = Cu_wulff.area_fraction_dict
-    #     facets_hkl = [(1,1,1), (3,3,1), (3,1,0), (1,0,0),
-    #                   (3,1,1), (2,1,0), (2,2,1)]
-    #     for hkl in area_frac_dict.keys():
-    #         if hkl in facets_hkl:
-    #             self.assertNotEqual(area_frac_dict[hkl], 0)
-    #         else:
-    #             self.assertEqual(area_frac_dict[hkl], 0)
-    #
-    #     for el in self.Oads_analyzer_dict.keys():
-    #         # Test WulffShape for adsorbed surfaces
-    #         analyzer = self.Oads_analyzer_dict[el]
-    #         # chempot = analyzer.max_adsorption_chempot_range(0)
-    #         wulff = analyzer.wulff_shape_from_chempot()
-    #         se = wulff.weighted_surface_energy
+    def test_wulff_shape_from_chempot(self):
+
+        # Test if it generates a Wulff shape, test if
+        # all the facets for Cu wulff shape are inside.
+        Cu_wulff = self.Cu_analyzer.wulff_shape_from_chempot()
+        area_frac_dict = Cu_wulff.area_fraction_dict
+        facets_hkl = [(1,1,1), (3,3,1), (3,1,0), (1,0,0),
+                      (3,1,1), (2,1,0), (2,2,1)]
+        for hkl in area_frac_dict.keys():
+            if hkl in facets_hkl:
+                self.assertNotEqual(area_frac_dict[hkl], 0)
+            else:
+                self.assertEqual(area_frac_dict[hkl], 0)
+
+        for el in self.Oads_analyzer_dict.keys():
+            # Test WulffShape for adsorbed surfaces
+            analyzer = self.Oads_analyzer_dict[el]
+            # chempot = analyzer.max_adsorption_chempot_range(0)
+            wulff = analyzer.wulff_shape_from_chempot()
+            se = wulff.weighted_surface_energy
 
     def test_color_palette_dict(self):
 

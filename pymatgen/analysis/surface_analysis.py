@@ -629,16 +629,17 @@ class SurfaceEnergyPlotter(object):
     def area_frac_vs_chempot_plot(self, ref_el, chempot_range, u_dict={},
                                   u_default=0, increments=10):
         """
-        Plots the change in the area contribution of
-        each facet as a function of chemical potential.
+        1D plot. Plots the change in the area contribution
+        of each facet as a function of chemical potential.
 
         Args:
             ref_el (str): The free variable chempot.
-            u_dict (dict): Number of data points between min/max or point
-                of intersection. Defaults to 5 points.
+            chempot_range (list): Min/max range of chemical potential to plot along
+            u_dict (dict): Dictionary of chemical potentials to keep constant.
+                The key is the element and the value is the chemical potential.
             u_default (float): Chempot value if a chempot has no assigned value.
             increments (bool): Number of data points between min/max or point
-                of intersection. Defaults to 5 points.
+                of intersection. Defaults to 10 points.
 
         Returns:
             (Pylab): Plot of area frac on the Wulff shape
@@ -679,10 +680,9 @@ class SurfaceEnergyPlotter(object):
 
         # Make the figure look nice
         plt.ylabel(r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
-        self.chempot_plot_addons(plt, xrange, axes, pad=5,
+        self.chempot_plot_addons(plt, chempot_range, ref_el, axes,
                                  rect=[-0.0, 0, 0.95, 1],
-                                 x_is_u_ads=x_is_u_ads,
-                                 ylim=[0,1])
+                                 pad=5, ylim=[0,1])
 
         return plt
 
@@ -1050,9 +1050,9 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def chempot_plot_addons(self, plt, xrange, axes,
+    def chempot_plot_addons(self, plt, xrange, ref_el, axes,
                             pad=2.4, rect=[-0.047, 0, 0.84, 1],
-                            x_is_u_ads=False, ylim=[]):
+                            ylim=[]):
         """
         Helper function to a chempot plot look nicer.
 
@@ -1070,10 +1070,8 @@ class SurfaceEnergyPlotter(object):
         """
 
         # Make the figure look nice
-        x_species = self.ref_el_comp if not \
-            x_is_u_ads else self.se_calculator.adsorbate_as_str
         plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
-        axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" % (x_species))
+        axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" % (ref_el))
 
         ylim = ylim if ylim else axes.get_ylim()
         plt.xticks(rotation=60)
@@ -1084,10 +1082,10 @@ class SurfaceEnergyPlotter(object):
         plt.plot([xrange[0], xrange[0]], ylim, '--k')
         plt.plot([xrange[1], xrange[1]], ylim, '--k')
         xy = [np.mean([xrange[1]]), np.mean(ylim)]
-        plt.annotate("%s-rich" % (x_species), xy=xy,
+        plt.annotate("%s-rich" % (ref_el), xy=xy,
                      xytext=xy, rotation=90, fontsize=17)
         xy = [np.mean([xlim[0]]), np.mean(ylim)]
-        plt.annotate("%s-poor" % (x_species), xy=xy,
+        plt.annotate("%s-poor" % (ref_el), xy=xy,
                      xytext=xy, rotation=90, fontsize=17)
 
         return plt
