@@ -2554,7 +2554,7 @@ class BSDOSPlotter(object):
 
 
 class BoltztrapPlotter(object):
-    #TODO: We need a unittest for this. Come one folks.
+    #TODO: We need a unittest for this. Come on folks.
     """
     class containing methods to plot the data from Boltztrap.
 

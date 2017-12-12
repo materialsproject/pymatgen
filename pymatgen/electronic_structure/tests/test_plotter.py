@@ -11,13 +11,14 @@ from io import open
 
 import matplotlib
 matplotlib.use("pdf")  # Use non-graphical display backend during test.
-
+from monty.os.path import which
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.cohp import CompleteCohp
 from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
 from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, \
     plot_ellipsoid, fold_point, plot_brillouin_zone, BSPlotterProjected, \
-    BSDOSPlotter, CohpPlotter
+    BSDOSPlotter, CohpPlotter, BoltztrapPlotter
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
@@ -130,7 +131,7 @@ class BSPlotterProjectedTest(unittest.TestCase):
         self.plotter.get_elt_projected_plots_color()
         self.plotter.get_projected_plots_dots({'Cu': ['d', 's'], 'O': ['p']})
         self.plotter.get_projected_plots_dots_patom_pmorb(
-            {'Cu': ['dxy'], 'O': ['px', 'py', 'pz']},
+            {'Cu': ['dxy', 's', 'px'], 'O': ['px', 'py', 'pz']},
             {'Cu': [3, 5], 'O': [1]}
         )
 
@@ -177,6 +178,18 @@ class PlotBZTest(unittest.TestCase):
         self.assertTrue(
             scipy.allclose(fold_point([0.1, -0.6, 0.2], lattice=self.rec_latt),
                            self.rec_latt.get_cartesian_coords([0.1, 0.4, 0.2])))
+
+
+x_trans = which("x_trans")
+
+@unittest.skipIf(not x_trans, "No x_trans.")
+class BoltztrapPlotterTest(unittest.TestCase):
+
+    def test_plot(self):
+        bz = BoltztrapAnalyzer.from_files(
+            os.path.join(test_dir, "boltztrap/transp/"))
+        plotter = BoltztrapPlotter(bz)
+        plotter.plot_seebeck_eff_mass_mu()
 
 
 class CohpPlotterTest(PymatgenTest):
