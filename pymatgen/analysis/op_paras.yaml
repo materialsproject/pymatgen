@@ -207,3 +207,16 @@ sq_pyr_legacy:
     30
   2:
     10
+hex_plan:
+  min_SPP:
+    2.792526803190927
+  IGW_SPP:
+    15
+  w_SPP:
+    3
+  fac_AA:
+    1
+  exp_cos_AA:
+    2
+  IGW_EP:
+    18

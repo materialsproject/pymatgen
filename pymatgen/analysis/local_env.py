@@ -24,7 +24,7 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __status__ = "Production"
 __date__ = "August 17, 2017"
 
-from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos
+from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos, fabs
 import numpy as np
 
 from bisect import bisect_left
@@ -897,7 +897,7 @@ class LocalStructOrderParas(object):
         "pent_plan", "sq", "tet", "tri_pyr", \
         "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "sq_bipyr", "oct", \
         "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", \
-        "T", "cuboct", "see_saw", "bcc", "q2", "q4", "q6")
+        "T", "cuboct", "see_saw", "bcc", "hex_plan", "q2", "q4", "q6")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -1724,7 +1724,8 @@ class LocalStructOrderParas(object):
                                 tmp = self._paras[i]['IGW_TA'] * (
                                         thetak * ipi - self._paras[i]['TA'])
                                 gaussthetak[i] = exp(-0.5 * tmp * tmp)
-                            elif t in ["sq_plan", "oct", "oct_legacy",
+                            elif t in ["sq_plan", "hex_plan",
+                                       "oct", "oct_legacy",
                                        "see_saw", "tri_bipyr", "sq_bipyr",
                                        "pent_bipyr", "hex_bipyr", "cuboct"]:
                                 if thetak >= self._paras[i]['min_SPP']:
@@ -1808,15 +1809,17 @@ class LocalStructOrderParas(object):
                                         elif t in ["sq_plan", "oct",
                                                    "oct_legacy", "tri_bipyr",
                                                    "sq_bipyr", "pent_bipyr",
-                                                   "hex_bipyr"]:
+                                                   "hex_bipyr", "hex_plan"]:
                                             if thetak < self._paras[i]['min_SPP'] and thetam < self._paras[i]['min_SPP']:
                                                 tmp = cos(
                                                     self._paras[i]['fac_AA'] *
                                                     phi) ** self._paras[i][
                                                           'exp_cos_AA']
+                                                tmptheta = thetam * ipi - 0.5
+                                                if t == 'hex_plan':
+                                                    tmptheta = fabs(tmptheta) - 1/6
                                                 tmp2 = self._paras[i][
-                                                           'IGW_EP'] * (
-                                                               thetam * ipi - 0.5)
+                                                           'IGW_EP'] * tmptheta
                                                 qsptheta[i][j] += tmp * exp(-0.5 * tmp2 * tmp2)
                                                 if t == "oct_legacy":
                                                     qsptheta[i][j] -= tmp * self._paras[i][6] * self._paras[i][7]
@@ -1873,7 +1876,7 @@ class LocalStructOrderParas(object):
                 if t in ["tri_plan", "tet", "pent_plan"]:
                     ops[i] = ops[i] / sum(norms[i]) \
                         if sum(norms[i]) > 1.0e-12 else None
-                elif t in ["bent", "sq_plan", "oct", "oct_legacy", "cuboct"]:
+                elif t in ["bent", "sq_plan", "oct", "oct_legacy", 'hex_plan', "cuboct"]:
                     ops[i] = sum(qsptheta[i]) / sum(norms[i]) \
                         if sum(norms[i]) > 1.0e-12 else None
                 elif t in ["T", "tri_pyr", "see_saw", "sq_pyr", "tri_bipyr",
