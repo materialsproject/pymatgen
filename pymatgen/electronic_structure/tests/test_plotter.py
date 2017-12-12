@@ -202,16 +202,15 @@ class BoltztrapPlotterTest(unittest.TestCase):
         # plotter.plot_conductivity_temp()
         # plotter.plot_power_factor_dop()
         # plotter.plot_power_factor_temp()
+        # plotter.plot_eff_mass_dop()
+        # plotter.plot_zt_dop()
+        # plotter.plot_zt_temp()
 
         plotter.plot_complexity_factor_mu()
         plotter.plot_conductivity_mu()
         plotter.plot_power_factor_mu()
-
-        plotter.plot_dos()
-        plotter.plot_eff_mass_dop()
-        plotter.plot_zt_dop()
         plotter.plot_zt_mu()
-        plotter.plot_zt_temp()
+        plotter.plot_dos()
 
 
 class CohpPlotterTest(PymatgenTest):
