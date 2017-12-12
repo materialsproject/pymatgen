@@ -654,10 +654,6 @@ class PhaseDiagram(MSONable):
         facet = self._get_facet_and_simplex(comp)[0]
         return self._get_facet_chempots(facet)
 
-    @deprecated(get_composition_chempots)
-    def get_facet_chempots(self, facet):
-        return self._get_facet_chempots(facet)
-
     def get_transition_chempots(self, element):
         """
         Get the critical chemical potentials for an element in the Phase

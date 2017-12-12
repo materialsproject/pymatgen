@@ -5,7 +5,6 @@
 from __future__ import division, unicode_literals
 import math
 import itertools
-import warnings
 
 from six.moves import map, zip
 
@@ -14,7 +13,6 @@ from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
 
 from monty.json import MSONable
-from monty.dev import deprecated
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.num import abs_cap
 
@@ -1038,40 +1036,6 @@ class Lattice(MSONable):
                 and abs(lengths[right_angles[0]] -
                         lengths[right_angles[1]]) < hex_length_tol)
 
-    @deprecated(get_points_in_sphere)
-    def get_all_distance_and_image(self, frac_coords1, frac_coords2):
-        """
-        Gets distance between two frac_coords and nearest periodic images.
-
-        Args:
-            frac_coords1 (3x1 array): Reference fcoords to get distance from.
-            frac_coords2 (3x1 array): fcoords to get distance from.
-
-        Returns:
-            [(distance, jimage)] List of distance and periodic lattice
-            translations of the other site for which the distance applies.
-            This means that the distance between frac_coords1 and (jimage +
-            frac_coords2) is equal to distance.
-        """
-        # The following code is heavily vectorized to maximize speed.
-        # Get the image adjustment necessary to bring coords to unit_cell.
-        adj1 = np.floor(frac_coords1)
-        adj2 = np.floor(frac_coords2)
-        # Shift coords to unitcell
-        coord1 = frac_coords1 - adj1
-        coord2 = frac_coords2 - adj2
-
-        n = self._get_mic_range(coord1, coord2)
-        ranges = [list(range(-i, i + 1)) for i in n]
-        images = np.array(list(itertools.product(*ranges)))
-
-        # Create tiled cartesian coords for computing distances.
-        vec = np.tile(coord2 - coord1, (len(images), 1)) + images
-        vec = self.get_cartesian_coords(vec)
-        # Compute distances manually.
-        dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
-        return list(zip(dist, adj1 - adj2 + images))
-
     def get_distance_and_image(self, frac_coords1, frac_coords2, jimage=None):
         """
         Gets distance between two frac_coords assuming periodic boundary
@@ -1107,35 +1071,3 @@ class Lattice(MSONable):
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)
         return np.linalg.norm(mapped_vec), jimage
-
-    @deprecated(get_points_in_sphere)
-    def _get_mic_range(self, fcoords1, fcoords2):
-
-        if self.is_orthogonal:
-            return 1, 1, 1
-
-        if self._diags is None:
-            self._diags = np.sqrt((np.dot([[1, 1, 1], [-1, 1, 1], [1, -1, 1],
-                                     [-1, -1, 1],
-                                     ], self._matrix) ** 2).sum(1))
-
-        vecs = np.vstack(fcoords1[:, None] - fcoords2[None, :])
-        vecs = vecs - np.round(vecs)
-
-        d = dot(vecs, self._matrix)
-        d = np.sqrt(np.sum(d ** 2, axis=1))
-        d = np.max(d)
-
-        cutoff = min(d, max(self._diags) / 2)
-        n = np.array(np.ceil(cutoff * np.prod(self._lengths) /
-                             (self.volume * self._lengths)))
-
-        if any(n > 50):
-            n_new = np.minimum(n, 50)
-            warnings.warn("Cell is highly skewed and requires a search "
-                          "through image range of +- %s. For efficiency, "
-                          "we will limit the search to %s images. Recommend "
-                          "you do a niggli or LLL reduction of the cell "
-                          "before computing distances" % (n, n_new))
-            n = n_new.astype(dtype=np.int)
-        return n.astype(dtype=int)

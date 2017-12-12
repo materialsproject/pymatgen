@@ -6,8 +6,6 @@ from __future__ import division, unicode_literals
 import math
 import numpy as np
 
-from monty.dev import deprecated
-
 from pymatgen.core.periodic_table import Element
 
 """
