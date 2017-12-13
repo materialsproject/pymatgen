@@ -8,6 +8,7 @@ import unittest
 import os
 import json
 from io import open
+import warnings
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen import Lattice
@@ -50,6 +51,10 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.bs_cbm0 = loadfn(os.path.join(test_dir, "InN_22205_bandstructure.json"))
         self.bs_cu = loadfn(os.path.join(test_dir, "Cu_30_bandstructure.json"))
         self.bs_diff_spins = loadfn(os.path.join(test_dir, "VBr2_971787_bandstructure.json"))
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_basic(self):
         self.assertArrayAlmostEqual(self.bs.projections[Spin.up][10][12][0],

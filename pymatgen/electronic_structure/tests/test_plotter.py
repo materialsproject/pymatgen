@@ -189,9 +189,14 @@ class BoltztrapPlotterTest(unittest.TestCase):
         bz = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/transp/"))
         plotter = BoltztrapPlotter(bz)
-        plotter.plot_seebeck_eff_mass_mu()
+        plotter.plot_seebeck_eff_mass_mu().close()
+        plotter.plot_complexity_factor_mu().close()
+        plotter.plot_conductivity_mu().close()
+        plotter.plot_power_factor_mu().close()
+        plotter.plot_zt_mu().close()
+        plotter.plot_dos().close()
 
-        # TODO: These two tests fail. Whoever is responsible for the
+        # TODO: These tests fail. Whoever is responsible for the
         # BoltztrapPlotter needs to fix these. The fact that there are not tests
         # for the plotter is atrocious. I will reject all future additions to
         # the plotter until these are fixed.
@@ -205,12 +210,6 @@ class BoltztrapPlotterTest(unittest.TestCase):
         # plotter.plot_eff_mass_dop()
         # plotter.plot_zt_dop()
         # plotter.plot_zt_temp()
-
-        plotter.plot_complexity_factor_mu()
-        plotter.plot_conductivity_mu()
-        plotter.plot_power_factor_mu()
-        plotter.plot_zt_mu()
-        plotter.plot_dos()
 
 
 class CohpPlotterTest(PymatgenTest):

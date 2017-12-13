@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import unittest
 import os
 import json
+import warnings
 from pymatgen.electronic_structure.bandstructure import BandStructure
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer, \
     BoltztrapRunner
@@ -50,6 +51,10 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
             d = json.load(f)
             self.bs = BandStructure.from_dict(d)
             self.btr = BoltztrapRunner(self.bs, 1)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_properties(self):
         self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)

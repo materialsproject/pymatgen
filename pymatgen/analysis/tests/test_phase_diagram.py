@@ -483,8 +483,8 @@ class PDPlotterTest(unittest.TestCase):
 
     def test_get_plot(self):
         # Some very basic non-tests. Just to make sure the methods are callable.
-        self.plotter.get_plot()
-        self.plotter3d.get_plot()
+        self.plotter.get_plot().close()
+        self.plotter3d.get_plot().close()
         # self.plotter.get_plot(energy_colormap="Reds", process_attributes=True)
         # plt = self.plotter3d.get_plot(energy_colormap="Reds",
         #                               process_attributes=True)

@@ -68,6 +68,10 @@ class ValenceIonicRadiusEvaluatorMultiOxiTest(PymatgenTest):
         self._struct = cif_ob.get_structures()[0]
         self._valrad_evaluator = ValenceIonicRadiusEvaluator(self._struct)
         self._length = len(self._struct.sites)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_valences_ionic_structure(self):
         valence_set = set(self._valrad_evaluator.valences.values())
