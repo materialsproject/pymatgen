@@ -121,7 +121,16 @@ class AbinitInpectTest(PymatgenTest):
         assert list(cycle["vres2"]) == [1.769E+02, 7.920E-01, 1.570E-01, 4.259E-03, 4.150E-05, 3.879E-08]
 
         if have_matplotlib:
-            cycle.plot(show=False)
+            assert cycle.plot(show=False)
+
+        # Testing CyclesPlotter.
+        p = CyclesPlotter()
+        p.add_label_cycle("mgb2 SCF", cycle)
+        p.add_label_cycle("same SCF", cycle)
+
+        if have_matplotlib:
+            assert p.combiplot(show=False)
+            p.slideshow()
 
     def test_relaxation(self):
         """Testing Relaxation object."""
@@ -137,6 +146,7 @@ class AbinitInpectTest(PymatgenTest):
 
         if have_matplotlib:
             relaxation.plot(show=False)
+            relaxation.slideshow(show=False)
 
 
 if __name__ == '__main__':

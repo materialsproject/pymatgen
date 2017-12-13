@@ -588,10 +588,12 @@ class PyFlowScheduler(object):
             # Here we just count the number of tasks in the flow who are running.
             # This logic breaks down if there are multiple schedulers runnig
             # but it's easy to implement without having to contact the resource manager.
-            nqjobs = sum(task for task in flow.iflat_tasks(status=flow.S_RUN))
+            nqjobs = (len(list(flow.iflat_tasks(status=flow.S_RUN))) +
+                      len(list(flow.iflat_tasks(status=flow.S_SUB))))
 
         if nqjobs >= self.max_njobs_inqueue:
-            print("Too many jobs in the queue: %s, returning" % nqjobs)
+            print("Too many jobs in the queue: %s. No job will be submitted." % nqjobs)
+            flow.check_status(show=False)
             return
 
         if self.max_nlaunches == -1:

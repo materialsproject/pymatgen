@@ -206,6 +206,8 @@ to build an appropriate supercell from partial occupancies or alternatively use 
             geomode = "angdeg"
             angdeg = structure.lattice.angles
             # Here one could polish a bit the numerical values if they are not exact.
+            # Note that in pmg the angles are 12, 20, 01 while in Abinit 12, 02, 01
+            # One should make sure that the orientation is preserved (see Curtarolo's settings)
 
     if geomode == "rprim":
         d.update(

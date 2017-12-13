@@ -461,6 +461,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     S_ABICRITICAL = Status.from_string("AbiCritical")
     S_QCRITICAL = Status.from_string("QCritical")
     S_UNCONVERGED = Status.from_string("Unconverged")
+    #S_CANCELLED = Status.from_string("Cancelled")
     S_ERROR = Status.from_string("Error")
     S_OK = Status.from_string("Completed")
 
@@ -474,6 +475,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         S_ABICRITICAL,
         S_QCRITICAL,
         S_UNCONVERGED,
+        #S_CANCELLED,
         S_ERROR,
         S_OK,
     ]
