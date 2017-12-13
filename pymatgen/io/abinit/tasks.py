@@ -55,6 +55,7 @@ __all__ = [
     "SigmaTask",
     "OpticTask",
     "AnaddbTask",
+    "set_user_config_taskmanager"
 ]
 
 import logging
@@ -523,6 +524,11 @@ class FixQueueCriticalError(Exception):
 _USER_CONFIG_TASKMANAGER = None
 
 
+def set_user_config_taskmanager(manager):
+    global USER_CONFIG_TASKMANAGER
+    USER_CONFIG_TASKMANAGER  = manager
+
+
 class TaskManager(MSONable):
     """
     A `TaskManager` is responsible for the generation of the job script and the submission
@@ -638,7 +644,7 @@ batch_adapter:
 
     @pmg_serialize
     def as_dict(self):
-        return self._kwargs
+        return copy.deepcopy(self._kwargs)
 
     def __init__(self, **kwargs):
         """
