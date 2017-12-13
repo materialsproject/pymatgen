@@ -1105,7 +1105,11 @@ class DummySpecie(Specie):
 
     .. attribute:: Z
 
-        DummySpecie is always assigned an atomic number of 0.
+        DummySpecie is always assigned an atomic number equal to the hash
+        number of the symbol. Obviously, it makes no sense whatsoever to use
+        the atomic number of a Dummy specie for anything scientific. The purpose
+        of this is to ensure that for most use cases, a DummySpecie behaves no
+        differently from an Element or Specie.
 
     .. attribute:: X
 
