@@ -8,6 +8,7 @@ import unittest
 import os
 from numbers import Number
 import matplotlib
+import warnings
 matplotlib.use("pdf")
 
 from pymatgen.analysis.phase_diagram import *
@@ -130,10 +131,14 @@ class PhaseDiagramTest(unittest.TestCase):
         (self.elements, self.entries) = PDEntry.from_csv(
             os.path.join(module_dir, "pdentries_test.csv"))
         self.pd = PhaseDiagram(self.entries)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_init(self):
-        #Ensure that a bad set of entries raises a PD error. Remove all Li
-        #from self.entries.
+        # Ensure that a bad set of entries raises a PD error. Remove all Li
+        # from self.entries.
         entries = filter(lambda e: (not e.composition.is_element) or
                          e.composition.elements[0] != Element("Li"),
                          self.entries)
@@ -141,7 +146,7 @@ class PhaseDiagramTest(unittest.TestCase):
                           self.elements)
 
     def test_dim1(self):
-        #Ensure that dim 1 PDs can eb generated.
+        # Ensure that dim 1 PDs can eb generated.
         for el in ["Li", "Fe", "O2"]:
             entries = [e for e in self.entries
                        if e.composition.reduced_formula == el]
@@ -276,7 +281,6 @@ class PhaseDiagramTest(unittest.TestCase):
                     abs(c[Element("Li")]+3.931) < 1e-2:
                 test_equality = True
         self.assertTrue(test_equality,"there is an expected vertex missing in the list")
-
 
     def test_getmu_range_stability_phase(self):
         results = self.pd.get_chempot_range_stability_phase(

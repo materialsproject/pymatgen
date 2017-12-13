@@ -176,20 +176,6 @@ class VacancyTest(PymatgenTest):
         for sc in vac_scs:
             self.assertIn(sc.formula, expected_structure_formulae)
 
-    @unittest.skip("deprecated")
-    def test_get_volume(self):
-        for i in range(self._mgo_vac.defectsite_count()):
-            vol = self._mgo_vac.get_volume(i)
-            # Once the zeo++ is properly working, make sure vol is +ve
-            self.assertIsInstance(vol, float)
-
-    @unittest.skip("deprecated")
-    def test_get_surface_area(self):
-        for i in range(self._mgo_vac.defectsite_count()):
-            sa = self._mgo_vac.get_surface_area(i)
-            # Once the zeo++ is properly working, make sure vol is +ve
-            self.assertIsInstance(sa, float)
-
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class VacancyFormationEnergyTest(PymatgenTest):

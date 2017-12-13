@@ -6,8 +6,6 @@ from __future__ import division, unicode_literals
 import math
 import numpy as np
 
-from monty.dev import deprecated
-
 from pymatgen.core.periodic_table import Element
 
 """
@@ -74,12 +72,6 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None,
     ax.set_ylabel(ax.get_ylabel(), size=labelsize)
 
     return plt
-
-
-@deprecated(pretty_plot, "get_publication_quality_plot has been renamed "
-                         "pretty_plot. This stub will be removed in pmg 2018.01.01.")
-def get_publication_quality_plot(*args, **kwargs):
-    return pretty_plot(*args, **kwargs)
 
 
 def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,

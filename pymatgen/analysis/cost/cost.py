@@ -100,14 +100,15 @@ class CostDBCSV(CostDB):
         # read in data from file
         self._chemsys_entries = defaultdict(list)
         filename = os.path.join(os.path.dirname(__file__), filename)
-        reader = csv.reader(open(filename, "rt"), quotechar=unicode2str("|"))
-        for row in reader:
-            comp = Composition(row[0])
-            cost_per_mol = float(row[1]) * comp.weight.to("kg") * const.N_A
-            pde = CostEntry(comp.formula, cost_per_mol, row[2], row[3])
-            chemsys = "-".join(sorted([el.symbol
-                                       for el in pde.composition.elements]))
-            self._chemsys_entries[chemsys].append(pde)
+        with open(filename, "rt") as f:
+            reader = csv.reader(f, quotechar=unicode2str("|"))
+            for row in reader:
+                comp = Composition(row[0])
+                cost_per_mol = float(row[1]) * comp.weight.to("kg") * const.N_A
+                pde = CostEntry(comp.formula, cost_per_mol, row[2], row[3])
+                chemsys = "-".join(sorted([el.symbol
+                                           for el in pde.composition.elements]))
+                self._chemsys_entries[chemsys].append(pde)
 
     def get_entries(self, chemsys):
         chemsys = "-".join(sorted([el.symbol for el in chemsys]))
