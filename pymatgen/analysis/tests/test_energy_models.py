@@ -10,6 +10,7 @@ from pymatgen.core.structure import Structure
 
 import os
 import unittest
+import warnings
 
 """
 TODO: Modify module doc.
@@ -29,6 +30,11 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 
 class EwaldElectrostaticModelTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_get_energy(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5],

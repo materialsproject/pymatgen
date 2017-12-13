@@ -18,6 +18,12 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 class EwaldSummationTest(unittest.TestCase):
 
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         p = Poscar.from_file(filepath, check_for_POTCAR=False)
@@ -30,9 +36,7 @@ class EwaldSummationTest(unittest.TestCase):
         self.assertAlmostEqual(ham.real_space_energy, -502.23549897772602, 4)
         self.assertAlmostEqual(ham.reciprocal_space_energy,  6.1541071599534654, 4)
         self.assertAlmostEqual(ham.point_energy, -620.22598358035918, 4)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            self.assertAlmostEqual(ham.total_energy, -1116.30737539811, 2)
+        self.assertAlmostEqual(ham.total_energy, -1116.30737539811, 2)
         self.assertAlmostEqual(ham.forces[0, 0], -1.98818620e-01, 4)
         self.assertAlmostEqual(sum(sum(abs(ham.forces))), 915.925354346, 4,
                                "Forces incorrect")
@@ -65,6 +69,11 @@ class EwaldSummationTest(unittest.TestCase):
 
 
 class EwaldMinimizerTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_init(self):
         matrix = np.array([[-3., 3., 4., -0., 3., 3., 1., 14., 9., -4.],

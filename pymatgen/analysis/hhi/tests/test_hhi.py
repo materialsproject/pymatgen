@@ -6,6 +6,7 @@ from __future__ import division, unicode_literals
 import unittest
 from pymatgen.analysis.hhi.hhi import HHIModel
 
+
 class HHIModelTest(unittest.TestCase):
 
     def test_hhi(self):

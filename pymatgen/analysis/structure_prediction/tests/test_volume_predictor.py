@@ -4,14 +4,22 @@
 
 import unittest
 import os
-from pymatgen.structure_prediction.volume_predictor import DLSVolumePredictor, \
+from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePredictor, \
     RLSVolumePredictor
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core import Structure
+import warnings
 
 dir_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
+
 class RLSVolumePredictorTest(PymatgenTest):
+
+    def setUp(self):
+        warnings.filterwarnings("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_predict(self):
         s = PymatgenTest.get_structure("CsCl")
@@ -83,11 +91,11 @@ class DLSVolumePredictorTest(PymatgenTest):
         p = DLSVolumePredictor()
 
         fen = Structure.from_file(os.path.join(dir_path, "FeN_mp-6988.cif"))
-        self.assertAlmostEquals(p.predict(fen), 18.2252568873)
+        self.assertAlmostEqual(p.predict(fen), 18.2252568873)
         fen.scale_lattice(3.0)
-        self.assertAlmostEquals(p.predict(fen), 18.2252568873)
+        self.assertAlmostEqual(p.predict(fen), 18.2252568873)
         fen.scale_lattice(0.24)
-        self.assertAlmostEquals(p.predict(fen), 18.2252568873)
+        self.assertAlmostEqual(p.predict(fen), 18.2252568873)
 
         lfpo = PymatgenTest.get_structure("LiFePO4")
         lfpo.scale_lattice(10.1)
@@ -96,7 +104,7 @@ class DLSVolumePredictorTest(PymatgenTest):
         self.assertAlmostEqual(p.predict(lfpo), 291.62094410192924)
         lmpo = PymatgenTest.get_structure("LiFePO4")
         lmpo.replace_species({"Fe": "Mn"})
-        self.assertAlmostEquals(p.predict(lmpo), 290.795329052)
+        self.assertAlmostEqual(p.predict(lmpo), 290.795329052)
 
 if __name__ == '__main__':
     unittest.main()

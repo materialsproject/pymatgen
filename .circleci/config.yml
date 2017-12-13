@@ -13,7 +13,7 @@ jobs:
             pip install -r requirements.txt -r requirements-optional.txt
       - run:
           command: |
-            python setup.py develop
+            python setup.py --quiet develop
             export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             ls
@@ -41,7 +41,7 @@ jobs:
             pip install -r requirements.txt -r requirements-optional.txt
       - run:
           command: |
-            python setup.py develop
+            python setup.py --quiet develop
             export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             ls

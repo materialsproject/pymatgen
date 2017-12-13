@@ -2,17 +2,11 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import unittest
-import os
 
-import numpy as np
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.util.coord import in_coord_list, in_coord_list_pbc
-from pymatgen.core.surface import generate_all_slabs
 from pymatgen.analysis.adsorption import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen import Structure, Lattice, Molecule
-import json
-from six.moves import zip
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')

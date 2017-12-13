@@ -82,6 +82,13 @@ class PourbaixEntry(MSONable):
         return self.uncorrected_energy + self.correction
 
     @property
+    def energy_per_atom(self):
+        # This is slightly different because it's normalized by formula unit
+        # TODO: remember to fix this if this module ever gets refactored
+        #       to be more consistent with the other PD infrastructure
+        return self.energy / self.composition.reduced_composition.num_atoms
+
+    @property
     def g0(self):
         """
         Return g0 for the entry. Legacy function.
