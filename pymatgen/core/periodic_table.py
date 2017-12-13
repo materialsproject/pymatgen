@@ -1133,10 +1133,7 @@ class DummySpecie(Specie):
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
-        try:
-            return getattr(self._el, a)
-        except:
-            raise AttributeError(a)
+        raise AttributeError(a)
 
     def __hash__(self):
         return self.symbol.__hash__()
