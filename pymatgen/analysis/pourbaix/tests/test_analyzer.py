@@ -14,6 +14,7 @@ from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
 
 test_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'test_files')
 
+# TODO: refactor with more sensible binary/ternary test data
 class TestPourbaixAnalyzer(unittest.TestCase):
 
     def setUp(self):
@@ -69,8 +70,8 @@ class TestPourbaixAnalyzer(unittest.TestCase):
                                                   "N": 0.33333})
         analyzer_ternary = PourbaixAnalyzer(pd_ternary)
         de, hull_e, entries = analyzer_ternary.get_all_decomp_and_e_above_hull(te_entry)
-        self.assertEqual(len(de), 89)
-        self.assertEqual(len(hull_e), 89)
+        self.assertEqual(len(de), 116)
+        self.assertEqual(len(hull_e), 116)
         tuples = zip(de, hull_e, entries)
         test_tuple = [t for t in tuples if t[2].name=='N2(s) + TeO4[2-] + Ag[2+]'][0]
         self.assertAlmostEqual(test_tuple[1], 50.337069095866745)
@@ -78,6 +79,13 @@ class TestPourbaixAnalyzer(unittest.TestCase):
     def test_get_entry_stability(self):
         stab = self.analyzer.get_entry_stability(self.pd.all_entries[0], pH=0, V=1)
         self.assertAlmostEqual(stab, 3.88159999)
+
+        # binary
+        pd_binary = PourbaixDiagram(self.multi_data['binary'],
+                                    comp_dict = {"Ag": 0.5, "Te": 0.5})
+        analyzer_binary = PourbaixAnalyzer(pd_binary)
+        ghull = analyzer_binary.get_entry_stability(self.multi_data['binary'][16], 
+                                                    0, -5)
 
 if __name__ == '__main__':
     unittest.main()
