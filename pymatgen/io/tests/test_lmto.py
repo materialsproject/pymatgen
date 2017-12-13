@@ -10,6 +10,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.units import bohr_to_angstrom, Ry_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lmto import LMTOCtrl, LMTOCopl
+from pymatgen.util.num import round_to_sigfigs
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Marco Esters"
@@ -21,6 +22,7 @@ __date__ = "Nov 30, 2017"
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "..", "..", "..", "test_files", "cohp")
 this_dir = os.path.dirname(os.path.abspath(__file__))
+
 
 class CtrlTest(unittest.TestCase):
     def setUp(self):
@@ -41,11 +43,13 @@ class CtrlTest(unittest.TestCase):
         self.assertEqual(self.ctrl_bise,
                          LMTOCtrl(self.ctrl_bise.structure,
                                   header="Bi6Se6, hexagonal"))
+
     def test_read_write(self):
         self.ctrl_bise.write_file(filename="CTRL.tmp")
         ctrl_tmp = LMTOCtrl.from_file(filename="CTRL.tmp")
         self.assertTrue(self.ctrl_bise.structure.matches(ctrl_tmp.structure))
         os.remove("CTRL.tmp")
+
 
 class CoplTest(PymatgenTest):
     def setUp(self):
@@ -78,7 +82,7 @@ class CoplTest(PymatgenTest):
                              lengths_sites_bise[bond][0])
             self.assertEqual(self.copl_bise.cohp_data[bond]["sites"],
                              lengths_sites_bise[bond][1])
-        labels_fe = ["Fe1-Fe1"] + ["Fe1-Fe1-%d" % i for i in range(1,8)]
+        labels_fe = ["Fe1-Fe1"] + ["Fe1-Fe1-%d" % i for i in range(1, 8)]
         self.assertEqual(sorted(self.copl_fe.cohp_data.keys()), labels_fe)
         for bond in labels_fe:
             self.assertEqual(self.copl_fe.cohp_data[bond]["length"], 2.482)
@@ -88,12 +92,13 @@ class CoplTest(PymatgenTest):
         self.assertEqual(self.copl_bise.efermi, -0.17223)
         self.assertEqual(self.copl_bise_eV.efermi, -2.3433)
         self.assertEqual(self.copl_fe.efermi, -0.085683)
-        ener_eV = np.array(["{0:.5g}".format(energy)
-                           for energy in self.copl_bise.energies * Ry_to_eV],
+        ener_eV = np.array([round_to_sigfigs(energy, 5)
+                            for energy in self.copl_bise.energies * Ry_to_eV],
                            dtype=float)
         self.assertArrayEqual(ener_eV, self.copl_bise_eV.energies)
         copl_icohp = self.copl_bise.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
-        icohp = np.array(["{0:.5g}".format(i) for i in copl_icohp * Ry_to_eV],
+        icohp = np.array([round_to_sigfigs(i, 5)
+                          for i in copl_icohp * Ry_to_eV],
                          dtype=float)
         icohp_eV = self.copl_bise_eV.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
         self.assertArrayEqual(icohp, icohp_eV)
