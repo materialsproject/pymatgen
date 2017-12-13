@@ -11,6 +11,7 @@ from functools import cmp_to_key
 from scipy.spatial import HalfspaceIntersection, ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry
 from six.moves import zip
+import warnings
 
 """
 Class for analyzing Pourbaix Diagrams. Similar to PDAnalyzer
@@ -238,13 +239,13 @@ class PourbaixAnalyzer(object):
         decomp_entries, hull_energies, decomp_species, entries = [], [], [], []
 
         # for all entries where the material is the only solid
-        if not isinstance(self._pd.all_entries[0], MultiEntry):
+        if not self._pd._multielement:
            possible_entries = [e for e in self._pd.all_entries
-                             if single_entry == e]
+                               if single_entry == e]
         else:
            possible_entries = [e for e in self._pd.all_entries
-                         if e.phases.count("Solid") == 1
-                         and single_entry in e.entrylist]
+                               if e.phases.count("Solid") == 1
+                               and single_entry in e.entrylist]
         
         for possible_entry in possible_entries:
             # Find the decomposition details if the material
@@ -341,6 +342,20 @@ class PourbaixAnalyzer(object):
         stable_entry = [k for k, v in data.items() if v == gibbs_energy]
         return (gibbs_energy, stable_entry)
 
+    def _min_multientry_from_single_entry(self, single_entry):
+        """
+        Gives lowest energy multi-entry from single entry
+
+        Args:
+            single_entry (PourbaixEntry): pourbaix entry to find valid
+                multientries from
+        """
+        de, ehulls, entries = self.get_all_decomp_and_e_above_hull(single_entry)
+        if not ehulls:
+            raise ValueError("No entries where {} is the only solid".format(
+                             single_entry.name))
+        return entries[np.argmin(ehulls)]
+
     def get_entry_stability(self, entry, pH, V):
         """
         Get the energy difference between an entry and the
@@ -348,9 +363,15 @@ class PourbaixAnalyzer(object):
         entry) at a given pH and voltage.
 
         Args:
-            entry (PourbaixEntry): Pourbaix entry corresponding to the
-                stability to be calculated
+            entry (PourbaixEntry): Pourbaix entry or MultiEntry
+                corresponding to the stability to be calculated
             pH (float): pH at which to calculate stability of entry
             V (float): voltage at which to calculate stability of entry
         """
+        if self._pd._multielement and not isinstance(entry, MultiEntry):
+            _, _, entries = self.get_all_decomp_and_e_above_hull(entry)
+            warnings.warn("{} is not a multi-entry, calculating stability of "
+                          "representative {} multientry")
+            gs = [self.g(e, pH, V) for e in entries]
+            return min(gs) - self.get_gibbs_free_energy(pH, V)[0]
         return self.g(entry, pH, V) - self.get_gibbs_free_energy(pH, V)[0]
