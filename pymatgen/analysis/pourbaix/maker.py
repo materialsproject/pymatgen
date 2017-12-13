@@ -48,24 +48,19 @@ class PourbaixDiagram(object):
     Class to create a Pourbaix diagram from entries
 
     Args:
-        entries: Entries list containing both Solids and Ions
-        comp_dict: Dictionary of compositions, defaults to
+        entries [Entry]: Entries list containing both Solids and Ions
+        comp_dict {str: float}: Dictionary of compositions, defaults to
             equal parts of each elements
-        conc_dict: Dictionary of ion concentrations, defaults
+        conc_dict {str: float}: Dictionary of ion concentrations, defaults
             to 1e-6 for each element
-
-    Note: In order to describe the pourbaix diagram correctly,
-        we need to include all of the phases which would decompose
-        into the terminal entries (e.g. Fe, etc.) and either of H
-        or O.  This is because the composition at these levels is
-        essentially infinite in H or O.  The "entries_HO" approach
-        here is a bit of a hack designed to ensure that these
-        entries are included in the analysis, but there should
-        probably be a more direct approach.  Note that this doesn't
-        actually affect any of the energetics, just the initial
-        sieve of solid entries to be included.
+        filter_multielement (bool): applying this filter to a multi-
+            element pourbaix diagram makes generates it a bit more
+            efficiently by filtering the entries used to generate
+            the hull.  This breaks some of the functionality of
+            the analyzer, though, so use with caution.
     """
-    def __init__(self, entries, comp_dict=None, conc_dict=None):
+    def __init__(self, entries, comp_dict=None, conc_dict=None,
+                 filter_multielement=False):
         # Get non-OH elements
         pbx_elts = set(itertools.chain.from_iterable(
             [entry.composition.elements for entry in entries]))
@@ -80,18 +75,11 @@ class PourbaixDiagram(object):
         self._elt_comp = comp_dict
         self.pourbaix_elements = pbx_elts
 
-        # Preprocess solids and ions into sets of entries
-        # that will be used to construct the pourbaix diagram
         solid_entries = [entry for entry in entries
                          if entry.phase_type == "Solid"]
-        # Add two high-energy H/O entries that ensure the hull
-        # includes all stable solids.
-        entries_HO = [ComputedEntry('H', 10000), ComputedEntry('O', 10000)]
-        solid_pd = PhaseDiagram(solid_entries + entries_HO)
-        stable_solids = list(set(solid_pd.stable_entries) - set(entries_HO))
-
         ion_entries = [entry for entry in entries
                        if entry.phase_type == "Ion"]
+
         for entry in ion_entries:
             ion_elts = list(set(entry.composition.elements) - elements_HO)
             if len(ion_elts) != 1:
@@ -107,11 +95,18 @@ class PourbaixDiagram(object):
 
         if len(comp_dict) > 1:
             self._multielement = True
+            if filter_multielement:
+                # Add two high-energy H/O entries that ensure the hull
+                # includes all stable solids.
+                entries_HO = [ComputedEntry('H', 10000), ComputedEntry('O', 10000)]
+                solid_pd = PhaseDiagram(solid_entries + entries_HO)
+                solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
             self._processed_entries = self._generate_multielement_entries(
-                    stable_solids + ion_entries)
+                    solid_entries + ion_entries)
         else:
             self._multielement = False
-            self._processed_entries = stable_solids + ion_entries
+
+            self._processed_entries = solid_entries + ion_entries
         self._make_pourbaix_diagram()
 
     def _create_conv_hull_data(self):
@@ -322,7 +317,7 @@ class PourbaixDiagram(object):
         return [e for e in self.qhull_entries if e not in self.stable_entries]
 
     @property
-    def processed_entries(self):
+    def all_entries(self):
         """
         Return all entries used to generate the pourbaix diagram
         """
