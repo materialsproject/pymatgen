@@ -32,6 +32,11 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "EventsParser",
+    "get_event_handler_classes",
+    "ScfConvergenceWarning",
+    "NscfConvergenceWarning",
+    "RelaxConvergenceWarning",
+    "Correction"
 ]
 
 
