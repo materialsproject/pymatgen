@@ -16,6 +16,7 @@ This module provides classes for plotting Pourbaix objects.
 import six
 from six.moves import map
 from six.moves import zip
+import warnings
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -211,9 +212,21 @@ class PourbaixPlotter(object):
 
         # Get stability map
         phs, vs = np.mgrid[ph_min:ph_max:resolution*1j, 
-                         v_min:v_max:resolution*1j]
-        stability = [self._analyzer.get_entry_stability(entry, ph, v)
-                     for ph, v in zip(phs.ravel(), vs.ravel())]
+                           v_min:v_max:resolution*1j]
+        if self._pd._multielement and not isinstance(entry, MultiEntry):
+            _, _, m_entries = self._analyzer.\
+                    get_all_decomp_and_e_above_hull(entry)
+            warnings.warn("{} is not a multi-entry, calculating stability of "
+                          "representative multientries".format(entry.name))
+            stability = [self._analyzer.get_entry_stability(m_entries[0], ph, v)
+                         for ph, v in zip(phs.ravel(), vs.ravel())]
+            for m_entry in m_entries[1:]:
+                new_stab = [self._analyzer.get_entry_stability(m_entry, ph, v)
+                            for ph, v in zip(phs.ravel(), vs.ravel())]
+                stability = np.min(np.array([stability, new_stab]), axis=0)
+        else:
+            stability = [self._analyzer.get_entry_stability(entry, ph, v)
+                         for ph, v in zip(phs.ravel(), vs.ravel())]
         stability = np.array(stability).reshape(phs.shape)
 
         # Plot stability map
@@ -390,7 +403,6 @@ class PourbaixPlotter(object):
             plt:
                 matplotlib plot object
         """
-#        plt = pretty_plot(24, 14.4)
         plt = pretty_plot(16)
         (stable, unstable) = self.pourbaix_plot_data(limits)
         if limits:
