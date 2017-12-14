@@ -14,6 +14,8 @@ TODO:
     -Simplify or clean the stable_u_range_dict() method
         for the SurfaceEnergyPlotter class
     -Annotations for which configuration is on a plot
+    -Simplify the input for SurfaceEnergyPlotter such that the
+        user does not need to generate a dict
 """
 
 from __future__ import division, unicode_literals
@@ -74,9 +76,10 @@ class SlabEntry(ComputedStructureEntry):
             entry object
     """
 
-    def __init__(self, entry, miller_index, label=None,
+    def __init__(self, structure, energy, miller_index, correction=0.0,
+                 parameters=None, data=None, entry_id=None, label=None,
                  coverage=None, adsorbates=[], clean_entry=None):
-        self.entry = entry
+
         self.miller_index = miller_index
         self.label = label
         self.coverage = coverage
@@ -87,8 +90,8 @@ class SlabEntry(ComputedStructureEntry):
 
 
         super(SlabEntry, self).__init__(
-            entry.structure, entry.energy, correction=0.0,
-            parameters=None, data=None, entry_id=None)
+            structure, energy, correction=correction,
+            parameters=parameters, data=data, entry_id=entry_id)
 
     def as_dict(self):
         """
@@ -97,7 +100,8 @@ class SlabEntry(ComputedStructureEntry):
 
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__}
-        d["entry"] = self.entry.as_dict()
+        d["structure"] = self.structure
+        d["energy"] = self.energy
         d["miller_index"] = self.miller_index
         d["label"] = self.label
         d["coverage"] = self.coverage
@@ -189,7 +193,7 @@ class SlabEntry(ComputedStructureEntry):
                                        for el, ref in ref_entries_dict.items()]))
 
         # Full equation of the surface energy (constant if stoichiometric)
-        se = (self.energy - bulk_energy) / (2 * self.surface_area)
+        se = (Number(self.energy) - bulk_energy) / (2 * self.surface_area)
 
         return se
 
@@ -294,7 +298,7 @@ class SlabEntry(ComputedStructureEntry):
         if self.adsorbates:
             for ads in ads_strs:
                 label += r"+%s" %(ads)
-            label += r"%.3f ML" %(self.get_monolayer)
+            label += r", %.3f ML" %(self.get_monolayer)
         return label
 
 
