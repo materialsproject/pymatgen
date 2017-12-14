@@ -399,6 +399,7 @@ class Vasprun(MSONable):
         self.efermi = None
         self.eigenvalues = None
         self.projected_eigenvalues = None
+        self.dielectric = None
         self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
@@ -445,8 +446,13 @@ class Vasprun(MSONable):
                         elem)
                 elif tag == "dielectricfunction":
                     if ("comment" not in elem.attrib) or \
-                       elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                        self.dielectric = self._parse_diel(elem)
+                        elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
+                        if not self.dielectric:
+                            self.dielectric = self._parse_diel(elem)
+                        elif not 'current-current' in self.other_dielectric:    
+                            self.other_dielectric['current-current'] = self._parse_diel(elem)
+                        else:
+                            raise NotImplementedError('This vasprun.xml has >2 unlabelled dielectric functions')
                     else:
                         comment = elem.attrib["comment"]
                         self.other_dielectric[comment] = self._parse_diel(elem)

@@ -43,6 +43,22 @@ class VasprunTest(unittest.TestCase):
         v = Vasprun(os.path.join(test_dir, "vasprun.GW0.xml"))
         self.assertEqual(len(v.other_dielectric), 3)
 
+    def test_charge_charge_dielectric(self):
+        """
+        VASP 5.4.4 writes out two dielectric functions to vasprun.xml
+        These are the "density-density" and "current-current" linear response functions.
+        See the comments in `linear_optics.F` for details.
+        """ 
+        v = Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric_5.4.4"), 
+                    parse_potcar_file=False)
+        self.assertEqual( v.dielectric is not None, True )
+        self.assertEqual( 'current-current' in v.other_dielectric, True )
+
+    def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
+        with self.assertRaises(NotImplementedError):
+            Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric_bad"),
+                    parse_potcar_file=False)
+
     def test_bad_vasprun(self):
         self.assertRaises(ET.ParseError,
                           Vasprun, os.path.join(test_dir, "bad_vasprun.xml"))
