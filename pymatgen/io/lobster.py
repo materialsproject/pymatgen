@@ -132,9 +132,9 @@ class Cohpcar(object):
             line: line in the COHPCAR header describing the bond.
 
         Returns:
-            Dict with The bond label, the bond length, atuple of the site
-            indices, a tuple containing the orbitals (if orbital resolved),
-            and a label for the orbitals (if orbital resolved).
+            Dict with the bond label, the bond length, a tuple of the site
+            indices, a tuple containing the orbitals (if orbital-resolved),
+            and a label for the orbitals (if orbital-resolved).
         """
 
         orb_labs = ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
