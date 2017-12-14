@@ -4,13 +4,15 @@
 
 """
 TODO:
-    -Only works for monatomic adsorbates
+    -Still assumes individual elements have their own chempots
+        in a molecular adsorbate instead of considering a single
+        chempot for a single molecular adsorbate. E.g. for an OH
+        adsorbate, the surface energy is a function of delu_O and
+        delu_H instead of delu_OH
     -Need a method to automatically get chempot range when
         dealing with non-stoichiometric slabs
     -Simplify or clean the stable_u_range_dict() method
         for the SurfaceEnergyPlotter class
-    -Combine chempot_vs_gamma_clean(), chempot_vs_gamma_plot_one()
-        and chempot_vs_gamma_facet() into one class method.
     -Annotations for which configuration is on a plot
 """
 
@@ -23,11 +25,11 @@ import random, copy
 from sympy import Symbol, Number
 
 from pymatgen.core.composition import Composition
+from pymatgen import Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.analysis.reaction_calculator import Reaction
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -73,13 +75,16 @@ class SlabEntry(ComputedStructureEntry):
     """
 
     def __init__(self, entry, miller_index, label=None,
-                 coverage=None, adsorbates=None, clean_entry=None):
+                 coverage=None, adsorbates=[], clean_entry=None):
         self.entry = entry
         self.miller_index = miller_index
         self.label = label
         self.coverage = coverage
         self.adsorbates = adsorbates
         self.clean_entry = clean_entry
+        self.ads_entries_dict = {str(list(ads.composition.as_dict().keys())[0]): \
+                                ads for ads in adsorbates}
+
 
         super(SlabEntry, self).__init__(
             entry.structure, entry.energy, correction=0.0,
@@ -100,6 +105,93 @@ class SlabEntry(ComputedStructureEntry):
         d["clean_entry"] = self.clean_entry
 
         return d
+
+    def gibbs_binding_energy(self, eads=False):
+        """
+        Returns the adsorption energy or Gibb's binding energy
+            of an adsorbate on a surface
+        Args:
+            eads (bool): Whether to calculate the adsorption energy
+                (True) or the binding energy (False) which is just
+                adsorption energy normalized by number of adsorbates.
+        """
+
+        n = self.get_unit_primitive_area
+        Nads = self.Nads_in_slab
+
+        BE = (self.energy - n * self.clean_entry.energy) / Nads - \
+             sum([ads.energy_per_atom for ads in self.adsorbates])
+        return BE * Nads if eads else BE
+
+    def surface_energy(self, ucell_entry, ref_entries=[]):
+        """
+        Calculates the surface energy of this SlabEntry.
+        Args:
+            bulk_entry (entry): An entry object for the bulk
+            ref_entries (list: [entry]): A list of entries for each type
+                of element to be used as a reservoir for nonstoichiometric
+                systems. The length of this list MUST be n-1 where n is the
+                number of different elements in the bulk entry. The chempot
+                of the element ref_entry that is not in the list will be
+                treated as a variable.
+            ref_adsorbate_entry (entry): Entry for the adsorbate to be used
+                as a reservoir during adsorption.
+            chempot (dict): A dictionary with the key being an element
+                existing in the slab system. All elements will have a
+                chempot variable, however most of these variables will cancel
+                out, so the chempot will have no effect. By default, if a
+                chempot is not set for an element, we set it to 0. This only
+                effects the surface energy if a reservoir (either for an
+                adsorbate or an element in the bulk) is needed.
+
+        Returns (Add (Sympy class)): Surface energy
+        """
+
+        # Set up
+        ucell_comp = ucell_entry.composition
+        ucell_reduced_comp = ucell_comp.reduced_composition
+        ref_entries_dict = {str(list(ref.composition.as_dict().keys())[0]): \
+                                ref for ref in ref_entries}
+
+        # Calculate Gibbs free energy of the bulk per unit formula
+        gbulk = ucell_entry.energy / \
+                ucell_comp.get_integer_formula_and_factor()[1]
+
+        # Get reservoir for bulk energy ref_entries
+        bulk_energy = 0
+
+        # First we get the contribution to the bulk energy
+        # from each element with an existing ref_entry.
+        for el, ref in ref_entries_dict.items():
+            N = self.composition.as_dict()[el]
+            bulk_energy += N * (Symbol("delu_"+el) + ref.energy_per_atom)
+
+        # Add the reservoir from the adsorbate to the bulk energy
+        if self.adsorbates:
+            for a, ads in self.ads_entries_dict.items():
+                N = self.composition.as_dict()[a]
+                bulk_energy += N * (Symbol("delu_"+a) + \
+                                    ads.energy_per_atom)
+
+        # Next, we add the contribution to the bulk energy from
+        # the variable element (the element without a ref_entry),
+        # as a function of the other elements
+        for el in ucell_comp.as_dict().keys():
+            if str(el) not in ref_entries_dict.keys():
+                ref_el = str(el)
+
+        N = self.composition.as_dict()[ref_el]
+        n = ucell_reduced_comp.as_dict()[ref_el]
+        bulk_energy += (N / n) * (gbulk - \
+                                  sum([ucell_reduced_comp[el] * \
+                                       (Symbol("delu_"+str(el)) + \
+                                        ref.energy_per_atom) \
+                                       for el, ref in ref_entries_dict.items()]))
+
+        # Full equation of the surface energy (constant if stoichiometric)
+        se = (self.energy - bulk_energy) / (2 * self.surface_area)
+
+        return se
 
     @property
     def get_unit_primitive_area(self):
@@ -135,14 +227,13 @@ class SlabEntry(ComputedStructureEntry):
         Args:
             ads_slab_entry (entry): The entry of the adsorbed slab
         """
-        return sum([self.composition.as_dict()[ads] for ads in self.adsorbates])
+        return sum([self.composition.as_dict()[a] for a \
+                    in self.ads_entries_dict.keys()])
 
     @property
     def Nsurfs_ads_in_slab(self):
         """
         Returns the TOTAL number of adsorbed surfaces in the slab
-        Args:
-            ads_slab_entry (entry): The entry of the adsorbed slab
         """
 
         struct = self.structure
@@ -151,11 +242,13 @@ class SlabEntry(ComputedStructureEntry):
                                     weights=weights, axis=0)
 
         Nsurfs = 0
-        if any([site.species_string in self.adsorbates for site in
-                struct if site.frac_coords[2] > center_of_mass[2]]):
+        # Are there adsorbates on top surface?
+        if any([site.species_string in self.ads_entries_dict.keys() for \
+                site in struct if site.frac_coords[2] > center_of_mass[2]]):
             Nsurfs += 1
-        if any([site.species_string in self.adsorbates for site in
-                struct if site.frac_coords[2] < center_of_mass[2]]):
+        # Are there adsorbates on bottom surface?
+        if any([site.species_string in self.ads_entries_dict.keys() for \
+                site in struct if site.frac_coords[2] < center_of_mass[2]]):
             Nsurfs += 1
 
         return Nsurfs
@@ -170,11 +263,11 @@ class SlabEntry(ComputedStructureEntry):
         miller_index = d["miller_index"]
         label = d["label"]
         coverage = d["coverage"]
-        adsorbate = d["adsorbate"]
+        adsorbates = d["adsorbates"]
         clean_entry = d["clean_entry"] = self.clean_entry
 
         return SlabEntry(entry, miller_index, label=label,
-                         coverage=coverage, adsorbate=adsorbate,
+                         coverage=coverage, adsorbates=adsorbates,
                          clean_entry=clean_entry)
 
     @property
@@ -192,296 +285,17 @@ class SlabEntry(ComputedStructureEntry):
             return self.data["label"]
 
         label = str(self.miller_index)
-        # if entry.composition.reduced_composition != \
-        #         self.se_calculator.ucell_entry.composition.reduced_composition:
-        #     label += " %s" % (entry.composition.reduced_composition)
+        ads_strs = list(self.ads_entries_dict.keys())
+
+        cleaned = self.structure.copy()
+        cleaned.remove_species(ads_strs)
+        label += " %s" % (cleaned.composition.reduced_composition)
+
         if self.adsorbates:
-            for ads in self.adsorbates:
+            for ads in ads_strs:
                 label += r"+%s" %(ads)
+            label += r"%.3f ML" %(self.get_monolayer)
         return label
-
-
-
-class SurfaceEnergyCalculator(object):
-    """
-    A class used for analyzing the surface energies, adsorbate binding energies
-        and other quantities related to surface thermodynamics for a material.
-        By default, this code will only use one bulk entry to calculate surface
-        energy. Ideally, to get the most accurate surface energy, the user should
-        compare their slab energy to the energy of the oriented unit cell with
-        both calculations containing consistent k-points to avoid convergence
-        problems as the slab size is varied. Note that this is for symmetric
-        surfaces, i.e. for the case of adsorption, it is assumed both sides are
-        adsorbed. See:
-
-            Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
-                Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
-        and
-            Rogal, J., & Reuter, K. (2007). Ab Initio Atomistic Thermodynamics for
-                Surfaces : A Primer. Experiment, Modeling and Simulation of Gas-Surface
-                Interactions for Reactive Flows in Hypersonic Flights, 2–1 – 2–18.
-
-    .. attribute:: ucell_entry
-
-        Bulk entry of the base material of the slab.
-
-    .. attribute:: gbulk
-
-        Gibbs free energy of the bulk per formula unit
-
-    """
-
-    def __init__(self, ucell_entry, ref_entries=[], adsorbate_entries=[]):
-        """
-        Analyzes surface energies and Wulff shape of a particular
-            material using the chemical potential.
-        Args:
-            ucell_entry (material_id or computed_entry): Materials Project or entry
-                of the bulk system the slab is based on (a string, e.g., mp-1234).
-            ref_entries (List, [ComputedStructureEntry]): Entries to be considered as
-                independent variable. E.g., if you want to show the stability
-                ranges of all Li-Co-O phases wrt to uLi
-            adsorbate_entries (ComputedStructureEntry): Computed entry of adsorbate,
-                defaults to None. Could be an isolated H2 or O2 molecule for gaseous
-                    adsorption or just the bulk ground state structure for metals.
-                    Either way, the extracted term is going to be in energy per atom.
-        """
-
-        # Set up basic attributes
-        self.ucell_entry = ucell_entry
-        self.ref_entries = ref_entries
-        self.ucell_comp = self.ucell_entry.composition
-        self.ucell_reduced_comp = self.ucell_comp.reduced_composition
-        self.adsorbate_entries_dict = {list(ads_entry.composition.as_dict().keys())[0]: \
-                                           ads_entry for ads_entry in adsorbate_entries}
-
-        # Calculate Gibbs free energy of the bulk per unit formula
-        self.gbulk = self.ucell_entry.energy / \
-                     self.ucell_comp.get_integer_formula_and_factor()[1]
-
-    def surface_energy_coefficients(self, slab_entry):
-        """
-        Calculates the surface energy for a single slab.
-        Args:
-            clean_slab_entry (entry): An entry object for the clean slab
-            bulk_entry (entry): An entry object for the bulk
-            ref_entries (list: [entry]): A list of entries for each type
-                of element to be used as a reservoir for nonstoichiometric
-                systems. The length of this list MUST be n-1 where n is the
-                number of different elements in the bulk entry. The chempot
-                of the element ref_entry that is not in the list will be
-                treated as a variable.
-            ref_adsorbate_entry (entry): Entry for the adsorbate to be used
-                as a reservoir during adsorption.
-            chempot (dict): A dictionary with the key being an element
-                existing in the slab system. All elements will have a
-                chempot variable, however most of these variables will cancel
-                out, so the chempot will have no effect. By default, if a
-                chempot is not set for an element, we set it to 0. This only
-                effects the surface energy if a reservoir (either for an
-                adsorbate or an element in the bulk) is needed.
-
-        Returns (float): Surface energy
-        """
-
-        # Add missing chemical potentials for elements
-        # not present in chempot, defaults to 0.
-        chempot_vars = {el: Symbol(el) for el in \
-                        slab_entry.composition.as_dict().keys()}
-
-        # Calculate Gibbs free energy of the bulk per unit formula
-        ref_entries_dict = {list(entry.composition.as_dict().keys())[0]: \
-                                entry for entry in self.ref_entries}
-        bulk_energy = 0
-        # First we get the contribution to the bulk energy
-        # from each element with an existing ref_entry.
-        for el in ref_entries_dict.keys():
-            entry = ref_entries_dict[el]
-            N = slab_entry.composition.as_dict()[el]
-            bulk_energy += N * (chempot_vars[el] + entry.energy_per_atom)
-
-        # Add the reservoir from the adsorbate to the bulk energy
-        if slab_entry.adsorbates:
-            for ads in slab_entry.adsorbates:
-                N = slab_entry.composition.as_dict()[ads]
-                bulk_energy += N * (chempot_vars[ads] + \
-                                    self.adsorbate_entries_dict[ads] \
-                                    .energy_per_atom)
-
-        # Next, we add the contribution to the bulk energy from
-        # the variable element (the element without a ref_entry),
-        # as a function of the other elements
-        for el in self.ucell_entry.composition.as_dict().keys():
-            if el not in ref_entries_dict.keys():
-                ref_el = el
-
-        N = slab_entry.composition.as_dict()[ref_el]
-        n = self.ucell_reduced_comp.as_dict()[ref_el]
-        bulk_energy += (N / n) * (self.gbulk - \
-                                  sum([self.ucell_reduced_comp[el] * \
-                                       (chempot_vars[el] + \
-                                        ref_entries_dict[el].energy_per_atom) \
-                                       for el in ref_entries_dict.keys()]))
-
-        # Full equation of the surface energy (constant if stoichiometric)
-        se = (slab_entry.energy - bulk_energy) / (2 * slab_entry.surface_area)
-
-        # Return dict of a constant if the equation is constant
-        if type(se).__name__ != "Add":
-            return {Number(1): se}
-        else:
-            # Remove any variables with coefficient of 0
-            # (Sympy doesn't handle cancellation very well)
-            coefficients = {el: coeff for el, coeff in \
-                            se.as_coefficients_dict().items() if abs(coeff) > 1e-6}
-            return coefficients
-
-    def calculate_gamma(self, slab_entry, u_dict={}):
-        """
-        Quickly calculates the surface energy for the slab of the vasprun file
-            at specific chemical potentials. If not all possible chemical
-            potentials have been set, the surface energy will be a function of
-            those unset chemical potentials.
-        args:
-            slab_entry (SlabEntry): SlabEntry whose surface energy we want to
-                calculate
-            u_dict (entry): A dictionary of chemical potential values for the
-                chemical potential variables. Chemical potentials that remain
-                unset will become the new free variables.
-
-        Returns (dict): surface energy as a dictionary. Like with the
-            surface_energy_coefficients method, the keys correspond to the free
-            variables (chemical potentials). If only a key of 1 exists in the dict,
-            surface energy is a constant value.
-        """
-
-        coeffs = self.surface_energy_coefficients(slab_entry)
-        coeff_vals = [coeffs[el] for el in coeffs.keys()]
-
-        u_vals = []
-        for el in coeffs.keys():
-            if el in u_dict.keys():
-                u_vals.append(u_dict[el])
-            elif el == Number(1):
-                u_vals.append(1)
-            else:
-                u_vals.append(el)
-
-        se = np.dot(u_vals, coeff_vals)
-
-        # Return dict of a constant if the equation is constant
-        if type(se).__name__ != "Add":
-            return {Number(1): se}
-        else:
-            # Remove any variables with coefficient of 0
-            # (Sympy doesn't handle cancellation very well)
-            coefficients = {el: coeff for el, coeff in \
-                            se.as_coefficients_dict().items() if abs(coeff) > 1e-6}
-            return coefficients
-
-    def gibbs_binding_energy(self, ads_slab_entry, eads=False):
-        """
-        Returns the adsorption energy or Gibb's binding energy
-            of an adsorbate on a surface
-        Args:
-            ads_slab_entry (entry): The entry of the adsorbed slab
-            eads (bool): Whether to calculate the adsorption energy
-                (True) or the binding energy (False) which is just
-                adsorption energy normalized by number of adsorbates.
-        """
-
-        n = ads_slab_entry.get_unit_primitive_area
-        Nads = ads_slab_entry.Nads_in_slab
-
-        BE = (ads_slab_entry.energy - n * ads_slab_entry.clean_entry.energy) / Nads \
-             - sum([self.adsorbate_entries_dict[ads].energy_per_atom for ads in ads_slab_entry.adsorbates])
-        return BE * Nads if eads else BE
-
-    def get_surface_equilibrium(self, slab_entries, u_dict={}):
-
-        """
-        Takes in a list of SlabEntries and calculates the chemical potentials
-            at which all slabs in the list coexists simultaneously. Useful for
-            building surface phase diagrams. Note that to solve for x equations
-            (x slab_entries), there must be x free variables (chemical potentials).
-            Adjust u_dict as need be to get the correct number of free variables.
-        Args:
-            slab_entries (array): The coefficients of the first equation
-            u_dict (dict): Dictionary of chemical potentials to keep constant.
-                The key is the element and the value is the chemical poten
-        Takes in a list of SlabEntries and calculates the chemical potentials
-            at which all slabs in the list coexists simultaneously. Useful for
-            building surface phase diagrams. Note that to solve for x equations
-            (x slab_entries), there must be x free variables (chemical potentials).
-            Adjust u_dict as need be to get the correct number of free variables.
-        Args:
-            slab_entries (array): The coefficients of the first equation
-            u_dict (dict): Dictionary of chemical potentials to keep constant.
-                The key is the element and the value is the chemical potential.
-
-        Returns:
-            (array): Array containing a solution to x equations with x
-                variables (x-1 chemical potential and 1 surface energy)
-        tial.
-
-        Returns:
-            (array): Array containing a solution to x equations with x
-                variables (x-1 chemical potential and 1 surface energy)
-        """
-
-        # Generate all possible coefficients
-        all_parameters = []
-        all_coeffs = []
-        for slab_entry in slab_entries:
-            coeffs = self.surface_energy_coefficients(slab_entry)
-
-            # remove the free chempots we wish to keep constant
-            for el in u_dict.keys():
-                if el in coeffs.keys():
-                    coeffs[1] += coeffs[el] * u_dict[el]
-                    del coeffs[el]
-            all_coeffs.append(coeffs)
-
-        # Find all possible free variables
-        for coeffs in all_coeffs:
-            for el in coeffs.keys():
-                if el not in all_parameters and el != Number(1):
-                    all_parameters.append(el)
-
-        # if there are no variables in the parameter list, then
-        # it means the equations are constant (i.e. parallel)
-        if not all_parameters:
-            print("lines are parallel", all_parameters)
-            return None
-
-        print(all_parameters, "all_parameters", slab_entries[0].composition)
-        # Check if its even possible for the system
-        # of equations to even have a solution
-        if len(slab_entries) != len(all_parameters) + 1:
-            raise MatrixError()
-
-        # Set up the matrix
-        coeffs_matrix, const_vector = [], []
-        for coeffs in all_coeffs:
-            coeff_vector = []
-            for el in all_parameters:
-                if el in coeffs.keys():
-                    coeff_vector.append(float(coeffs[el]))
-                else:
-                    coeff_vector.append(float(0))
-            coeff_vector.append(float(-1))
-            coeffs_matrix.append(coeff_vector)
-            const_vector.append(float(coeffs[1]))
-
-        # Solve for the chempots and surface energy
-        print(coeffs_matrix, const_vector, "A, B")
-        solution = np.linalg.solve(coeffs_matrix, const_vector)
-
-        soln = {str(el): solution[i] for i, el in enumerate(all_parameters) \
-                if i < len(solution)-1}
-        soln["gamma"] = solution[-1]
-        print("solution", soln, solution, all_parameters)
-        return soln
 
 
 class SurfaceEnergyPlotter(object):
@@ -490,11 +304,6 @@ class SurfaceEnergyPlotter(object):
         of a material by taking in a SurfaceEnergyCalculator object. Produces
         stability maps of different slab configurations, phases diagrams of two
         parameters to determine stability of configurations, and Wulff shapes.
-
-    .. attribute:: se_calculator
-
-        SurfaceEnergyCalculator object to calculate quantities such as surface
-            energy, binding energy, adsorption energy, etc.
 
     .. attribute:: chempot_range
 
@@ -536,7 +345,7 @@ class SurfaceEnergyPlotter(object):
 
     """
 
-    def __init__(self, entry_dict, surface_energy_calculator, chempot_range):
+    def __init__(self, entry_dict, ucell_entry, ref_entries=[]):
         """
         Object for plotting surface energy in different ways for clean and
             adsorbed surfaces.
@@ -549,8 +358,8 @@ class SurfaceEnergyPlotter(object):
                 the ref_element.
         """
 
-        self.se_calculator = surface_energy_calculator
-        self.chempot_range = chempot_range
+        self.ucell_entry = ucell_entry
+        self.ref_entries = ref_entries
         self.entry_dict = entry_dict
         self.color_dict = self.color_palette_dict()
 
@@ -737,9 +546,80 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def stable_u_range_dict(self, clean_only=True, const_u=0,
-                            buffer=0.1, miller_index=()):
+    def get_surface_equilibrium(self, slab_entries, u_dict={}):
 
+        """
+        Takes in a list of SlabEntries and calculates the chemical potentials
+            at which all slabs in the list coexists simultaneously. Useful for
+            building surface phase diagrams. Note that to solve for x equations
+            (x slab_entries), there must be x free variables (chemical potentials).
+            Adjust u_dict as need be to get the correct number of free variables.
+        Args:
+            slab_entries (array): The coefficients of the first equation
+            u_dict (dict): Dictionary of chemical potentials to keep constant.
+                The key is the element and the value is the chemical poten
+
+        Returns:
+            (array): Array containing a solution to x equations with x
+                variables (x-1 chemical potential and 1 surface energy)
+        """
+
+        # Generate all possible coefficients
+        all_parameters = []
+        all_coeffs = []
+        for slab_entry in slab_entries:
+            coeffs = self.surface_energy_coefficients(slab_entry)
+
+            # remove the free chempots we wish to keep constant
+            for el in u_dict.keys():
+                if el in coeffs.keys():
+                    coeffs[1] += coeffs[el] * u_dict[el]
+                    del coeffs[el]
+            all_coeffs.append(coeffs)
+
+        # Find all possible free variables
+        for coeffs in all_coeffs:
+            for el in coeffs.keys():
+                if el not in all_parameters and el != Number(1):
+                    all_parameters.append(el)
+
+        # if there are no variables in the parameter list, then
+        # it means the equations are constant (i.e. parallel)
+        if not all_parameters:
+            print("lines are parallel", all_parameters)
+            return None
+
+        print(all_parameters, "all_parameters", slab_entries[0].composition)
+        # Check if its even possible for the system
+        # of equations to even have a solution
+        if len(slab_entries) != len(all_parameters) + 1:
+            raise MatrixError()
+
+        # Set up the matrix
+        coeffs_matrix, const_vector = [], []
+        for coeffs in all_coeffs:
+            coeff_vector = []
+            for el in all_parameters:
+                if el in coeffs.keys():
+                    coeff_vector.append(float(coeffs[el]))
+                else:
+                    coeff_vector.append(float(0))
+            coeff_vector.append(float(-1))
+            coeffs_matrix.append(coeff_vector)
+            const_vector.append(float(coeffs[1]))
+
+        # Solve for the chempots and surface energy
+        print(coeffs_matrix, const_vector, "A, B")
+        solution = np.linalg.solve(coeffs_matrix, const_vector)
+
+        soln = {str(el): solution[i] for i, el in enumerate(all_parameters) \
+                if i < len(solution)-1}
+        soln["gamma"] = solution[-1]
+        print("solution", soln, solution, all_parameters)
+        return soln
+
+    def stable_u_range_dict(self, clean_only=True, u_dict={},
+                            buffer=0.1, miller_index=()):
         """
         Creates a dictionary where each entry is a key pointing to a chemical potential
         range where the surface of that entry is stable. Does so by enumerating through
@@ -914,8 +794,7 @@ class SurfaceEnergyPlotter(object):
                 continue
             if not show_unstable:
                 stable_u_range_dict = self.stable_u_range_dict(clean_only=clean_only,
-                                                               u_dict={}, u_default=0,
-                                                               miller_index=hkl)
+                                                               u_dict=u_dict, miller_index=hkl)
 
             already_labelled = []
             for clean_entry in self.entry_dict[hkl]:
@@ -941,6 +820,7 @@ class SurfaceEnergyPlotter(object):
                             plt = self.chempot_vs_gamma_plot_one(plt, ads_entry, ref_el, urange,
                                                                  u_dict=u_dict, u_default=u_default,
                                                                  label=label, JPERM2=JPERM2)
+
 
         # if miller_index:
         #     plt.title(r"%s,  $\Delta\mu_{%s}=%.2f$" %(str(miller_index),
