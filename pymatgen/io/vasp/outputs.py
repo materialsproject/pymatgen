@@ -399,6 +399,7 @@ class Vasprun(MSONable):
         self.efermi = None
         self.eigenvalues = None
         self.projected_eigenvalues = None
+        self.dielectric_data = {}
         self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
@@ -445,8 +446,13 @@ class Vasprun(MSONable):
                         elem)
                 elif tag == "dielectricfunction":
                     if ("comment" not in elem.attrib) or \
-                       elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                        self.dielectric = self._parse_diel(elem)
+                        elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
+                        if not 'density' in self.dielectric_data:
+                            self.dielectric_data['density'] = self._parse_diel(elem)
+                        elif not 'velocity' in self.dielectric_data:    
+                            self.dielectric_data['velocity'] = self._parse_diel(elem)
+                        else:
+                            raise NotImplementedError('This vasprun.xml has >2 unlabelled dielectric functions')
                     else:
                         comment = elem.attrib["comment"]
                         self.other_dielectric[comment] = self._parse_diel(elem)
@@ -502,6 +508,10 @@ class Vasprun(MSONable):
         Property only available for DFPT calculations and when IBRION=5, 6, 7 or 8.
         """
         return self.ionic_steps[-1].get("epsilon_ion", [])
+
+    @property
+    def dielectric(self):
+        return self.dielectric_data['density']
 
     @property
     def lattice(self):
