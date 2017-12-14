@@ -149,7 +149,7 @@ class Cohpcar(object):
                              for site in sites)
         species = tuple(re.split(r"\d+", site)[0] for site in sites)
         if "[" in sites[0]:
-            orbs = [re.findall("\[(.*)\]", site)[0] for site in sites]
+            orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
             orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:]))))
                         for orb in orbs]
             orb_label = "%d%s-%d%s" % (orbitals[0][0], orbitals[0][1].name,

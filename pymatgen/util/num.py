@@ -145,9 +145,10 @@ def round_to_sigfigs(num, sigfigs):
     figures instead of to a specific precision.
     """
     if type(sigfigs) != int:
-        raise TypeError("Argument sigfigs must be of type int.")
+        raise TypeError("Number of significant figures must be integer.")
     elif sigfigs < 1:
-        raise ValueError("Significant figures must be larger then zero.")
+        raise ValueError("Number of significant figures "
+                         "must be larger than zero.")
     elif num == 0:
         return num
     else:
