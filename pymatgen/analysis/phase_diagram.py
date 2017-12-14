@@ -762,6 +762,8 @@ class PhaseDiagram(MSONable):
             [ {'chempot': -10.487582010000001, 'evolution': -2.0,
             'reaction': Reaction Object], ...]
         """
+        element = get_el_sp(element)
+        element = Element(element.symbol)
 
         if element not in self.elements:
             raise ValueError("get_transition_chempots can only be called with"
