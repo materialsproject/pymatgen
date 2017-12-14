@@ -5,20 +5,23 @@
 from __future__ import division, unicode_literals
 import unittest
 import os
+import numpy as np
 from pymatgen.io.lobster import Cohpcar, Icohplist
-from pymatgen.electronic_structure.core import Spin
+from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
-__version__ = "0.1"
+__version__ = "0.2"
 __email__ = "esters@uoregon.edu"
-__date__ = "Nov 30, 2017"
+__date__ = "Dec 10, 2017"
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "..", "..", "..", "test_files", "cohp")
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
-class CohpcarTest(unittest.TestCase):
+
+class CohpcarTest(PymatgenTest):
     def setUp(self):
         os.chdir(test_dir)
         self.cohp_bise = Cohpcar(filename="COHPCAR.lobster.BiSe")
@@ -26,6 +29,8 @@ class CohpcarTest(unittest.TestCase):
                                  are_coops=True)
         self.cohp_fe = Cohpcar()
         self.coop_fe = Cohpcar(are_coops=True)
+        self.orb = Cohpcar(filename="COHPCAR.lobster.orbitalwise")
+        self.orb_notot = Cohpcar(filename="COHPCAR.lobster.notot.orbitalwise")
 
     def test_attributes(self):
         self.assertFalse(self.cohp_bise.are_coops)
@@ -108,8 +113,36 @@ class CohpcarTest(unittest.TestCase):
                     self.assertEqual(len(data[bond]["COHP"][Spin.up]), 301)
                     self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 301)
 
+    def test_orbital_resolved_cohp(self):
+        orbitals = [tuple((Orbital(i), Orbital(j))) for j in range(4)
+                    for i in range(4)]
+        self.assertIsNone(self.cohp_bise.orb_res_cohp)
+        self.assertIsNone(self.coop_bise.orb_res_cohp)
+        self.assertIsNone(self.cohp_fe.orb_res_cohp)
+        self.assertIsNone(self.coop_fe.orb_res_cohp)
+        self.assertIsNone(self.orb_notot.cohp_data["Ga1-As2"]["COHP"])
+        self.assertIsNone(self.orb_notot.cohp_data["Ga1-As2"]["ICOHP"])
+        for o, orbs in enumerate(self.orb.orb_res_cohp["Ga1-As2"]):
+            orb_set = self.orb.orb_res_cohp["Ga1-As2"][orbs]["orbitals"]
+            self.assertEqual(orb_set[0][0], 4)
+            self.assertEqual(orb_set[1][0], 4)
+            self.assertIn(tuple((orb_set[0][1], orb_set[1][1])), orbitals)
+
+        # The sum of the orbital-resolved COHPs should be approximately
+        # the total COHP. Due to small deviations in the LOBSTER calculation,
+        # the precision is not very high though.
+        cohp = self.orb.cohp_data["Ga1-As2"]["COHP"][Spin.up]
+        icohp = self.orb.cohp_data["Ga1-As2"]["ICOHP"][Spin.up]
+        tot = np.sum([self.orb.orb_res_cohp["Ga1-As2"][orbs]["COHP"][Spin.up]
+                      for orbs in self.orb.orb_res_cohp["Ga1-As2"]], axis=0)
+        self.assertArrayAlmostEqual(tot, cohp, decimal=3)
+        tot = np.sum([self.orb.orb_res_cohp["Ga1-As2"][orbs]["ICOHP"][Spin.up]
+                      for orbs in self.orb.orb_res_cohp["Ga1-As2"]], axis=0)
+        self.assertArrayAlmostEqual(tot, icohp, decimal=3)
+
     def tearDown(self):
         os.chdir(this_dir)
+
 
 class IcohplistTest(unittest.TestCase):
     def setUp(self):

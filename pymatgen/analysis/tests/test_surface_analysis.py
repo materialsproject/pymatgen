@@ -1,9 +1,8 @@
 import unittest
 import os
-import random
+import warnings
 import glob
 
-import numpy as np
 
 from pymatgen import SETTINGS
 from pymatgen.io.vasp.outputs import Vasprun
@@ -24,19 +23,19 @@ def get_path(path_str):
                         path_str)
     return path
 
+
 @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
 class SurfaceEnergyAnalyzerTest(PymatgenTest):
 
     def setUp(self):
-
-
-
-        vasprun_dict = {}
-        for v in glob.glob(os.path.join(get_path(""), "*")):
-            if ".xml.Cu" in v:
-                vasprun_dict[tuple([int(i) for i in v[-6:].strip(".gz")])] = [Vasprun(v)]
-        self.vasprun_dict = vasprun_dict
-        self.Cu_analyzer = SurfaceEnergyAnalyzer("mp-30", self.vasprun_dict, "Cu")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            vasprun_dict = {}
+            for v in glob.glob(os.path.join(get_path(""), "*")):
+                if ".xml.Cu" in v:
+                    vasprun_dict[tuple([int(i) for i in v[-6:].strip(".gz")])] = [Vasprun(v)]
+            self.vasprun_dict = vasprun_dict
+            self.Cu_analyzer = SurfaceEnergyAnalyzer("mp-30", self.vasprun_dict, "Cu")
 
     def test_gamma_calculator(self):
 
@@ -75,6 +74,7 @@ class SurfaceEnergyAnalyzerTest(PymatgenTest):
         for hkl in self.Cu_analyzer.vasprun_dict.keys():
             self.assertEqual(wulff1.area_fraction_dict[hkl],
                              wulff2.area_fraction_dict[hkl])
+
 
 if __name__ == "__main__":
     unittest.main()

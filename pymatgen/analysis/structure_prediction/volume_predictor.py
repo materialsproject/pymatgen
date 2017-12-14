@@ -17,6 +17,7 @@ from pymatgen.core import Structure
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 bond_params = loadfn(os.path.join(MODULE_DIR, 'DLS_bond_params.yaml'))
 
+
 def is_ox(structure):
     comp = structure.composition
     for k in comp.keys():
@@ -101,7 +102,7 @@ class RLSVolumePredictor:
 
                 return ref_structure.volume * (numerator / denominator) ** 3
             except Exception as ex:
-                warnings.warn(str(ex))
+                warnings.warn("Exception occured. Will attempt atomic radii.")
                 # If error occurs during use of ionic radii scheme, pass
                 # and see if we can resolve it using atomic radii.
                 pass
@@ -224,7 +225,6 @@ class DLSVolumePredictor:
             volume_factor *= 1.05
 
         return structure.volume * volume_factor
-
 
     def get_predicted_structure(self, structure, icsd_vol=False):
         """

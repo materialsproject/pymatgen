@@ -12,7 +12,9 @@ from scipy.spatial import ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry, ion_or_solid_comp_object
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
+from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 
 """
 Module containing analysis classes which compute a pourbaix diagram given a
@@ -35,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 PREFAC = 0.0591
 MU_H2O = -2.4583
-
+elements_HO = {Element('H'), Element('O')}
 # TODO: There's a lot of functionality here that diverges
 #   based on whether or not the pbx diagram is multielement
 #   or not.  Could be a more elegant way to
@@ -44,71 +46,75 @@ MU_H2O = -2.4583
 class PourbaixDiagram(object):
     """
     Class to create a Pourbaix diagram from entries
+
     Args:
-        entries: Entries list containing both Solids and Ions
-        comp_dict: Dictionary of compositions
+        entries [Entry]: Entries list containing both Solids and Ions
+        comp_dict {str: float}: Dictionary of compositions, defaults to
+            equal parts of each elements
+        conc_dict {str: float}: Dictionary of ion concentrations, defaults
+            to 1e-6 for each element
+        filter_multielement (bool): applying this filter to a multi-
+            element pourbaix diagram makes generates it a bit more
+            efficiently by filtering the entries used to generate
+            the hull.  This breaks some of the functionality of
+            the analyzer, though, so use with caution.
     """
-    def __init__(self, entries, comp_dict=None):
-        self._solid_entries = list()
-        self._ion_entries = list()
-        for entry in entries:
-            if entry.phase_type == "Solid":
-                self._solid_entries.append(entry)
-            elif entry.phase_type == "Ion":
-                self._ion_entries.append(entry)
-            else:
-                raise Exception("Incorrect Phase type - needs to be \
-                Pourbaix entry of phase type Ion/Solid")
-        if len(self._ion_entries) == 0:
-            raise Exception("No ion phase. Equilibrium between ion/solid "
-                            "is required to make a Pourbaix Diagram")
-        self._unprocessed_entries = self._solid_entries + self._ion_entries
+    def __init__(self, entries, comp_dict=None, conc_dict=None,
+                 filter_multielement=False):
+        # Get non-OH elements
+        pbx_elts = set(itertools.chain.from_iterable(
+            [entry.composition.elements for entry in entries]))
+        pbx_elts = list(pbx_elts - elements_HO)
+
+        # Set default conc/comp dicts
+        if not comp_dict:
+            comp_dict = {elt.symbol : 1. / len(pbx_elts) for elt in pbx_elts}
+        if not conc_dict:
+            conc_dict = {elt.symbol : 1e-6 for elt in pbx_elts}
+
         self._elt_comp = comp_dict
+        self.pourbaix_elements = pbx_elts
 
-        if comp_dict and len(comp_dict) > 1:
+        solid_entries = [entry for entry in entries
+                         if entry.phase_type == "Solid"]
+        ion_entries = [entry for entry in entries
+                       if entry.phase_type == "Ion"]
+
+        for entry in ion_entries:
+            ion_elts = list(set(entry.composition.elements) - elements_HO)
+            if len(ion_elts) != 1:
+                raise ValueError("Elemental concentration not compatible "
+                                 "with multi-element ions")
+            entry.conc = conc_dict[ion_elts[0].symbol]
+
+        if not len(solid_entries + ion_entries) == len(entries):
+            raise ValueError("All supplied entries must have a phase type of "
+                             "either \"Solid\" or \"Ion\"")
+
+        self._unprocessed_entries = entries
+
+        if len(comp_dict) > 1:
             self._multielement = True
-            pbx_elements = set()
-            for comp in comp_dict.keys():
-                for el in [el for el in
-                           ion_or_solid_comp_object(comp).elements
-                           if el not in ["H", "O"]]:
-                    pbx_elements.add(el.symbol)
-            self.pourbaix_elements = pbx_elements
-            w = [comp_dict[key] for key in comp_dict]
-            A = []
-            for comp in comp_dict:
-                comp_obj = ion_or_solid_comp_object(comp)
-                Ai = []
-                for elt in self.pourbaix_elements:
-                    Ai.append(comp_obj[elt])
-                A.append(Ai)
-            A = np.array(A).T.astype(float)
-            w = np.array(w)
-            A /= np.dot([a.sum() for a in A], w)
-            x = np.linalg.solve(A, w)
-            self._elt_comp = dict(zip(self.pourbaix_elements, x))
-
+            if filter_multielement:
+                # Add two high-energy H/O entries that ensure the hull
+                # includes all stable solids.
+                entries_HO = [ComputedEntry('H', 10000), ComputedEntry('O', 10000)]
+                solid_pd = PhaseDiagram(solid_entries + entries_HO)
+                solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
+            self._processed_entries = self._generate_multielement_entries(
+                    solid_entries + ion_entries)
         else:
             self._multielement = False
-            pb_els = set(itertools.chain.from_iterable(
-                            [e.composition for e in entries]))
-            pb_els -= {Element('H'), Element('O')}
-            self.pourbaix_elements = [e.name for e in list(pb_els)]
-            # TODO: document the physical meaning
-            # of ternary oxide of pbx diagrams in both modes
-            self._elt_comp = {self.pourbaix_elements[0]: 1.0}
+
+            self._processed_entries = solid_entries + ion_entries
         self._make_pourbaix_diagram()
 
     def _create_conv_hull_data(self):
         """
         Make data conducive to convex hull generator.
         """
-        if self._multielement:
-            self._all_entries = self._process_multielement_entries()
-        else:
-            self._all_entries = self._unprocessed_entries
         entries_to_process = list()
-        for entry in self._all_entries:
+        for entry in self._processed_entries:
             entry.scale(entry.normalization_factor)
             entry.correction += (- MU_H2O * entry.nH2O + entry.conc_term)
             entries_to_process.append(entry)
@@ -129,23 +135,25 @@ class PourbaixDiagram(object):
         [data, self._qhull_entries] = list(zip(*temp))
         return data
 
-    def _process_multielement_entries(self):
+    def _generate_multielement_entries(self, entries):
         """
         Create entries for multi-element Pourbaix construction.
 
         This works by finding all possible linear combinations
         of entries that can result in the specified composition
         from the initialized comp_dict.
+
+        Args:
+            entries ([PourbaixEntries]): list of pourbaix entries
+                to process into MultiEntries
         """
         N = len(self._elt_comp)  # No. of elements
-        entries = self._unprocessed_entries
-        dummy_prod = Composition(self._elt_comp) 
         total_comp = Composition(self._elt_comp)
 
         # generate all possible combinations of compounds that have all elts
         entry_combos = [itertools.combinations(entries, j+1) for j in range(N)]
         entry_combos = itertools.chain.from_iterable(entry_combos)
-        entry_combos = filter(lambda x: dummy_prod < MultiEntry(x).total_composition, 
+        entry_combos = filter(lambda x: total_comp < MultiEntry(x).total_composition, 
                               entry_combos)
 
         # Generate and filter entries
@@ -311,9 +319,9 @@ class PourbaixDiagram(object):
     @property
     def all_entries(self):
         """
-        Return all entries
+        Return all entries used to generate the pourbaix diagram
         """
-        return self._all_entries
+        return self._processed_entries
 
     @property
     def vertices(self):

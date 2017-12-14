@@ -241,24 +241,6 @@ class GrandPotPDEntry(PDEntry):
         raise AttributeError(a)
 
 
-class PDEntryIO(object):
-    @staticmethod
-    def to_csv(*args, **kwargs):
-        warnings.warn(
-            "PDEntryIO.from_csv and PDEntryIO.to_csv has been moved to "
-            "PDEntry.from_csv and PDEntryIO.to_csv. This stub will be "
-            "removed in pmg 2018.01.01.")
-        PDEntry.to_csv(*args, **kwargs)
-
-    @staticmethod
-    def from_csv(*args, **kwargs):
-        warnings.warn(
-            "PDEntryIO.from_csv and PDEntryIO.to_csv has been moved to "
-            "PDEntry.from_csv and PDEntryIO.to_csv. This stub will be "
-            "removed in pmg 2018.01.01.")
-        return PDEntry.from_csv(*args, **kwargs)
-
-
 class TransformedPDEntry(PDEntry):
     """
     This class repesents a TransformedPDEntry, which allows for a PDEntry to be
@@ -672,10 +654,6 @@ class PhaseDiagram(MSONable):
         facet = self._get_facet_and_simplex(comp)[0]
         return self._get_facet_chempots(facet)
 
-    @deprecated(get_composition_chempots)
-    def get_facet_chempots(self, facet):
-        return self._get_facet_chempots(facet)
-
     def get_transition_chempots(self, element):
         """
         Get the critical chemical potentials for an element in the Phase
@@ -784,6 +762,8 @@ class PhaseDiagram(MSONable):
             [ {'chempot': -10.487582010000001, 'evolution': -2.0,
             'reaction': Reaction Object], ...]
         """
+        element = get_el_sp(element)
+        element = Element(element.symbol)
 
         if element not in self.elements:
             raise ValueError("get_transition_chempots can only be called with"
@@ -1171,25 +1151,6 @@ def get_facets(qhull_data, joggle=False):
         return ConvexHull(qhull_data, qhull_options="QJ i").simplices
     else:
         return ConvexHull(qhull_data, qhull_options="Qt i").simplices
-
-
-class PDAnalyzer(object):
-    @deprecated(PhaseDiagram,
-                "All PDAnalyzer methods have been moved to PhaseDiagram itself."
-                " E.g., PDAnalyzer.get_e_above_hull is now simply "
-                "PhaseDiagram.get_e_above_hull. This stub will be removed in "
-                "pymatgen 2018.1.1")
-    def __init__(self, pd):
-        """
-        Initializes analyzer with a PhaseDiagram.
-
-        Args:
-            pd: Phase Diagram to analyze.
-        """
-        self._pd = pd
-
-    def __getattr__(self, item):
-        return getattr(self._pd, item)
 
 
 class PDPlotter(object):

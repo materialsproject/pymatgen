@@ -167,19 +167,24 @@ def spline_functions(lower_points, upper_points, degree=3):
 
     return {'lower': lower, 'upper': upper}
 
+
 def diamond_functions(xx, yy, y_x0, x_y0):
     """
-    Method that creates two upper and lower functions based on points xx and yy as well as intercepts defined by
-     y_x0 and x_y0. The resulting functions form kind of a distorted diamond-like structure aligned from
-     point xx to point yy.
+    Method that creates two upper and lower functions based on points xx and yy
+    as well as intercepts defined by y_x0 and x_y0. The resulting functions
+    form kind of a distorted diamond-like structure aligned from
+    point xx to point yy.
 
     Schematically :
 
-    xx is symbolized by x, yy is symbolized by y, y_x0 is equal to the distance from x to a, x_y0 is equal to the
-     distance from x to b, the lines a-p and b-q are parallel to the line x-y such that points p and q are
-     obtained automatically.
-    In case of an increasing diamond the lower function is x-b-q and the upper function is a-p-y while in case of a
-     decreasing diamond, the lower function is a-p-y and the upper function is x-b-q.
+    xx is symbolized by x, yy is symbolized by y, y_x0 is equal to the distance
+    from x to a, x_y0 is equal to the distance from x to b, the lines a-p and
+    b-q are parallel to the line x-y such that points p and q are
+    obtained automatically.
+    In case of an increasing diamond the lower function is x-b-q and the upper
+    function is a-p-y while in case of a
+    decreasing diamond, the lower function is a-p-y and the upper function is
+    x-b-q.
 
            Increasing diamond      |     Decreasing diamond
                      p--y                    x----b
