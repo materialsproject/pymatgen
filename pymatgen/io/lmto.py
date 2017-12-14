@@ -417,7 +417,7 @@ class LMTOCopl(object):
         # Replacing "/" with "-" makes splitting easier
         sites = line[0].replace("/", "-").split("-")
         site_indices = tuple(int(ind) - 1 for ind in sites[1:4:2])
-        species = tuple(re.split("\d+", spec)[0] for spec in sites[0:3:2])
+        species = tuple(re.split(r"\d+", spec)[0] for spec in sites[0:3:2])
         label = "%s%d-%s%d" % (species[0], site_indices[0] + 1,
                                species[1], site_indices[1] + 1)
         return label, length, site_indices

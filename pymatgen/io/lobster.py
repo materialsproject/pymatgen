@@ -145,11 +145,11 @@ class Cohpcar(object):
         length = float(line[-1][:-1])
         # Replacing "->" with ":" makes splitting easier
         sites = line[0].replace("->", ":").split(":")[1:3]
-        site_indices = tuple(int(re.split("\D+", site)[1]) - 1
+        site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1
                              for site in sites)
-        species = tuple(re.split("\d+", site)[0] for site in sites)
+        species = tuple(re.split(r"\d+", site)[0] for site in sites)
         if "[" in sites[0]:
-            orbs = [re.findall("\[(.*)\]", site)[0] for site in sites]
+            orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
             orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:]))))
                         for orb in orbs]
             orb_label = "%d%s-%d%s" % (orbitals[0][0], orbitals[0][1].name,
