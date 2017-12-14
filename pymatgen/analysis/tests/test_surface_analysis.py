@@ -75,7 +75,6 @@ class SlabEntryTest(PymatgenTest):
                         eads = Nads * gbind
                         self.assertEqual(eads, ads.gibbs_binding_energy(eads=True))
                         se = ads.surface_energy(el_ucell)
-                        print(se)
                         self.assertAlmostEqual(se.as_coefficients_dict()[Symbol("delu_O")],
                                                (-1/2)*ads.surface_area**(-1))
 
@@ -95,7 +94,7 @@ class SlabEntryTest(PymatgenTest):
 
     def test_surface_energy(self):
         # For a nonstoichiometric case, the cheimcal potentials do not
-        # cancel out, they serve as a reservoir for any missing element
+        # cancel out, they serve as a reservoir for any missing atoms
         for slab_entry in self.MgO_slab_entry_dict[(1,1,1)].keys():
             se = slab_entry.surface_energy(self.MgO_ucell_entry,
                                            ref_entries=[self.Mg_ucell_entry])
@@ -211,6 +210,11 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         for el in self.metals_O_entry_dict.keys():
             analyzer = self.Oads_analyzer_dict[el]
             color_dict = analyzer.color_palette_dict()
+            for hkl in self.metals_O_entry_dict[el].keys():
+                for clean in self.metals_O_entry_dict[el][hkl].keys():
+                    color = color_dict[clean]
+                    for ads in self.metals_O_entry_dict[el][hkl][clean]:
+                        color = color_dict[ads]
 
     def test_get_surface_equilibrium(self):
 
@@ -237,6 +241,9 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         se = ads.surface_energy(Pt_analyzer.ucell_entry, Pt_analyzer.ref_entries)
         self.assertAlmostEqual(se.as_coefficients_dict()[Symbol("delu_O")],
                                -1 / (2 * ads.surface_area))
+
+    def test_stable_u_range_dict(self):
+        print("TODO")
 
     # def test_monolayer_vs_BE(self):
     #     for el in self.Oads_analyzer_dict.keys():
@@ -266,10 +273,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
     #             # Test WulffShape for adsorbed surfaces
     #             analyzer = self.Oads_analyzer_dict[el]
     #             plt = analyzer.chempot_vs_gamma_facet(hkl)
-
-
-if __name__ == "__main__":
-    unittest.main()
 
 
 def get_entry_dict(filename):
@@ -355,3 +358,7 @@ def load_O_adsorption():
                                                                            clean_entry=clean)]
 
     return metals_O_entry_dict
+
+
+if __name__ == "__main__":
+    unittest.main()

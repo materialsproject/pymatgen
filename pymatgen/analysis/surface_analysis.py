@@ -153,50 +153,38 @@ class SlabEntry(ComputedStructureEntry):
         """
 
         # Set up
+        gamma = (Symbol("E_surf")- Symbol("Ebulk"))/(2*Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
         ref_entries_dict = {str(list(ref.composition.as_dict().keys())[0]): \
                                 ref for ref in ref_entries}
+        ref_entries_dict.update(self.ads_entries_dict)
 
         # Calculate Gibbs free energy of the bulk per unit formula
         gbulk = ucell_entry.energy / \
                 ucell_comp.get_integer_formula_and_factor()[1]
 
-        # Get reservoir for bulk energy ref_entries
-        bulk_energy = 0
-
         # First we get the contribution to the bulk energy
         # from each element with an existing ref_entry.
+        bulk_energy, gbulk_eqn = 0, 0
         for el, ref in ref_entries_dict.items():
-            N = self.composition.as_dict()[el]
+            N, delu = self.composition.as_dict()[el], Symbol("delu_"+str(el))
+            if el in ucell_comp.as_dict().keys():
+                gbulk_eqn += ucell_reduced_comp[el] * (delu + ref.energy_per_atom)
             bulk_energy += N * (Symbol("delu_"+el) + ref.energy_per_atom)
-
-        # Add the reservoir from the adsorbate to the bulk energy
-        if self.adsorbates:
-            for a, ads in self.ads_entries_dict.items():
-                N = self.composition.as_dict()[a]
-                bulk_energy += N * (Symbol("delu_"+a) + \
-                                    ads.energy_per_atom)
 
         # Next, we add the contribution to the bulk energy from
         # the variable element (the element without a ref_entry),
         # as a function of the other elements
-        for el in ucell_comp.as_dict().keys():
-            if str(el) not in ref_entries_dict.keys():
-                ref_el = str(el)
+        for ref_el in ucell_comp.as_dict().keys():
+            if str(ref_el) not in ref_entries_dict.keys():
+                delu = Symbol("delu_" + str(ref_el))
+                break
+        refEperA = (gbulk-gbulk_eqn)/ucell_reduced_comp.as_dict()[ref_el] - delu
+        bulk_energy += self.composition.as_dict()[ref_el] * (delu + refEperA)
 
-        N = self.composition.as_dict()[ref_el]
-        n = ucell_reduced_comp.as_dict()[ref_el]
-        bulk_energy += (N / n) * (gbulk - \
-                                  sum([ucell_reduced_comp[el] * \
-                                       (Symbol("delu_"+str(el)) + \
-                                        ref.energy_per_atom) \
-                                       for el, ref in ref_entries_dict.items()]))
-
-        # Full equation of the surface energy (constant if stoichiometric)
-        se = (Number(self.energy) - bulk_energy) / (2 * self.surface_area)
-
-        return se
+        return gamma.subs({Symbol("E_surf"): self.energy, Symbol("Ebulk"): bulk_energy,
+                           Symbol("A"): self.surface_area})
 
     @property
     def get_unit_primitive_area(self):
@@ -440,14 +428,14 @@ class SurfaceEnergyPlotter(object):
 
         return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
 
-    def area_frac_vs_chempot_plot(self, ref_el, chempot_range, u_dict={},
+    def area_frac_vs_chempot_plot(self, ref_delu, chempot_range, u_dict={},
                                   u_default=0, increments=10):
         """
         1D plot. Plots the change in the area contribution
         of each facet as a function of chemical potential.
 
         Args:
-            ref_el (str): The free variable chempot.
+            ref_delu (str): The free variable chempot.
             chempot_range (list): Min/max range of chemical potential to plot along
             u_dict (dict): Dictionary of chemical potentials to keep constant.
                 The key is the element and the value is the chemical potential.
@@ -470,7 +458,7 @@ class SurfaceEnergyPlotter(object):
 
         # Get plot points for each Miller index
         for u in all_chempots:
-            u_dict[ref_el] = u
+            u_dict[ref_delu] = u
             wulffshape = self.wulff_shape_from_chempot(u_dict=u_dict,
                                                        u_default=u_default)
 
@@ -494,60 +482,9 @@ class SurfaceEnergyPlotter(object):
 
         # Make the figure look nice
         plt.ylabel(r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
-        self.chempot_plot_addons(plt, chempot_range, ref_el, axes,
-                                 rect=[-0.0, 0, 0.95, 1],
-                                 pad=5, ylim=[0,1])
+        self.chempot_plot_addons(plt, chempot_range, str(ref_delu).split("_")[1],
+                                 axes, rect=[-0.0, 0, 0.95, 1], pad=5, ylim=[0,1])
 
-        return plt
-
-    def chempot_vs_gamma_plot_one(self, plt, entry, ref_el, chempot_range, u_dict={},
-                                  u_default=0, label='', JPERM2=False):
-        """
-        Helper function to  help plot the surface energy of a
-        single surface entry as a function of chemical potential.
-
-        Args:
-            plt (Plot): A plot.
-            clean_entry (entry): Entry containing the final energy and structure
-                of the slab whose surface energy we want to calculate
-            ads_entry (entry): An optional entry object for the adsorbed slab,
-                defaults to None.
-            JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
-                eV/A^2 (False)
-            x_is_u_ads (bool): Whether or not to set the adsorption chempot as
-                a free variable (False).
-            const_u (float): A chemical potential for the fixed chempot.
-            urange (list): Chemical potential range for the free variable.
-
-        Returns:
-            (Plot): Plot of surface energy vs chemical potential for one entry.
-        """
-
-        # use dashed lines for slabs that are not stoichiometric
-        # wrt bulk. Label with formula if nonstoichiometric
-        ucell_comp = self.se_calculator.ucell_entry.composition.reduced_composition.as_dict()
-        is_stoich = []
-        for el in ucell_comp.keys():
-            if entry.adsorbates:
-                s = entry.structure
-                s.remove_species(entry.adsorbates)
-                is_stoich.append(ucell_comp[el] == s.composition.reduced_composition.as_dict()[el])
-            else:
-                is_stoich.append(ucell_comp[el] == entry.composition.reduced_composition.as_dict()[el])
-        mark = '--' if not all(is_stoich) else '-'
-
-        u_dict = self.set_all_variables(entry, u_dict, u_default)
-        u_dict[ref_el] = chempot_range[0]
-        gamma_min = self.se_calculator.calculate_gamma(entry, u_dict=u_dict)[Number(1)]
-        u_dict[ref_el] = chempot_range[1]
-        gamma_max = self.se_calculator.calculate_gamma(entry, u_dict=u_dict)[Number(1)]
-        gamma_range = [gamma_min, gamma_max]
-
-        se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
-            if JPERM2 else gamma_range
-
-        plt.plot(chempot_range, se_range, mark,
-                 color=self.color_dict[entry], label=label)
 
         return plt
 
@@ -571,7 +508,6 @@ class SurfaceEnergyPlotter(object):
 
         # Generate all possible coefficients
         all_parameters = []
-        all_coeffs = []
         all_eqns = []
         for slab_entry in slab_entries:
             se = slab_entry.surface_energy(self.ucell_entry,
@@ -595,48 +531,7 @@ class SurfaceEnergyPlotter(object):
             return soln
         return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
 
-        # # Find all possible free variables
-        # for coeffs in all_coeffs:
-        #     for el in coeffs.keys():
-        #         if el not in all_parameters and el != Number(1):
-        #             all_parameters.append(el)
-        #
-        # # if there are no variables in the parameter list, then
-        # # it means the equations are constant (i.e. parallel)
-        # if not all_parameters:
-        #     print("lines are parallel", all_parameters)
-        #     return None
-        #
-        # print(all_parameters, "all_parameters", slab_entries[0].composition)
-        # # Check if its even possible for the system
-        # # of equations to even have a solution
-        # if len(slab_entries) != len(all_parameters) + 1:
-        #     raise MatrixError()
-        #
-        # # Set up the matrix
-        # coeffs_matrix, const_vector = [], []
-        # for coeffs in all_coeffs:
-        #     coeff_vector = []
-        #     for el in all_parameters:
-        #         if el in coeffs.keys():
-        #             coeff_vector.append(float(coeffs[el]))
-        #         else:
-        #             coeff_vector.append(float(0))
-        #     coeff_vector.append(float(-1))
-        #     coeffs_matrix.append(coeff_vector)
-        #     const_vector.append(float(coeffs[1]))
-        #
-        # # Solve for the chempots and surface energy
-        # print(coeffs_matrix, const_vector, "A, B")
-        # solution = np.linalg.solve(coeffs_matrix, const_vector)
-        #
-        # soln = {str(el): solution[i] for i, el in enumerate(all_parameters) \
-        #         if i < len(solution)-1}
-        # soln["gamma"] = solution[-1]
-        # print("solution", soln, solution, all_parameters)
-        # return soln
-
-    def stable_u_range_dict(self, clean_only=True, u_dict={},
+    def stable_u_range_dict(self, chempot_range, ref_u, clean_only=True, u_dict={},
                             buffer=0.1, miller_index=()):
         """
         Creates a dictionary where each entry is a key pointing to a chemical potential
@@ -657,11 +552,11 @@ class SurfaceEnergyPlotter(object):
 
         all_intesects_dict = {}
         stable_urange_dict = {}
-        max_ads_range = self.max_adsorption_chempot_range(const_u,
-                                                          buffer=buffer)
-        standard_range = max_ads_range if not clean_only else self.chempot_range
-        standard_range = sorted(standard_range)
-        x_is_u_ads = False if clean_only else True
+        # max_ads_range = self.max_adsorption_chempot_range(const_u,
+        #                                                   buffer=buffer)
+        # standard_range = max_ads_range if not clean_only else self.chempot_range
+        # standard_range = sorted(standard_range)
+        # x_is_u_ads = False if clean_only else True
 
         # Get all entries for a specific facet
         for hkl in self.entry_dict.keys():
@@ -682,22 +577,13 @@ class SurfaceEnergyPlotter(object):
             # if there is only one entry for this facet, then just give it the
             # default urange, you can't make combinations with just 1 item
             if len(entries_in_hkl) == 1:
-                stable_urange_dict[entries_in_hkl[0]] = standard_range
+                stable_urange_dict[entries_in_hkl[0]] = chempot_range
                 continue
             for pair in itertools.combinations(entries_in_hkl, 2):
                 # Check if entry is adsorbed entry or clean, this is
                 # a hassle so figure out a cleaner way to do this
                 clean_ads_coeffs = []
-                for p in pair:
-                    p1 = self.get_clean_ads_entry_pair(p)
-                    c = self.se_calculator.surface_energy_coefficients(p1[0],
-                                                                       ads_slab_entry=p1[1])
-                    clean_ads_coeffs.append(c)
-
-                u, gamma = self.se_calculator.solve_2_linear_eqns(clean_ads_coeffs[0],
-                                                                  clean_ads_coeffs[1],
-                                                                  x_is_u_ads=x_is_u_ads,
-                                                                  const_u=const_u)
+                solution = self.get_surface_equilibrium(p, u_dict=u_dict)
 
                 if u:
                     # If the u in a list is beyond the standard
@@ -769,9 +655,10 @@ class SurfaceEnergyPlotter(object):
 
                 # now sort the ranges for each entry
                 stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
+
             # Now we make sure that each facet has at least
             # one entry, if no entries exist, this means there
-            # is not intersection, get the most stable surface
+            # is no intersection, get the most stable surface
             if not entry_exists:
                 e, se = self.return_stable_slab_entry_at_u(hkl,
                                                            u_ads=const_u,
@@ -780,7 +667,100 @@ class SurfaceEnergyPlotter(object):
 
         return stable_urange_dict
 
-    def chempot_vs_gamma(self, ref_el, chempot_range, miller_index=(),
+    def color_palette_dict(self, alpha=0.35):
+        """
+        Helper function to assign each facet a unique color using a dictionary.
+
+        Args:
+            alpha (float): Degree of transparency
+
+        return (dict): Dictionary of colors (r,g,b,a) when plotting surface
+            energy stability. The keys are individual surface entries where
+            clean surfaces have a solid color while the corresponding adsorbed
+            surface will be transparent.
+        """
+
+        color_dict = {}
+        for hkl in self.entry_dict.keys():
+            rgb_indices = [0, 1, 2]
+            color = [0, 0, 0, 1]
+            random.shuffle(rgb_indices)
+            for i, ind in enumerate(rgb_indices):
+                if i == 2:
+                    break
+                color[ind] = np.random.uniform(0, 1)
+
+            # Get the clean (solid) colors first
+            clean_list = np.linspace(0, 1, len(self.entry_dict[hkl]))
+            for i, clean in enumerate(self.entry_dict[hkl].keys()):
+                c = copy.copy(color)
+                c[rgb_indices[2]] = clean_list[i]
+                color_dict[clean] = c
+
+                # Now get the adsorbed (transparent) colors
+                for ads_entry in self.entry_dict[hkl][clean]:
+                    c_ads = copy.copy(c)
+                    c_ads[3] = alpha
+                    color_dict[ads_entry] = c_ads
+
+        return color_dict
+
+    def chempot_vs_gamma_plot_one(self, plt, entry, ref_u, chempot_range, u_dict={},
+                                  u_default=0, label='', JPERM2=False):
+        """
+        Helper function to  help plot the surface energy of a
+        single surface entry as a function of chemical potential.
+
+        Args:
+            plt (Plot): A plot.
+            clean_entry (entry): Entry containing the final energy and structure
+                of the slab whose surface energy we want to calculate
+            ads_entry (entry): An optional entry object for the adsorbed slab,
+                defaults to None.
+            JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
+                eV/A^2 (False)
+            x_is_u_ads (bool): Whether or not to set the adsorption chempot as
+                a free variable (False).
+            const_u (float): A chemical potential for the fixed chempot.
+            urange (list): Chemical potential range for the free variable.
+
+        Returns:
+            (Plot): Plot of surface energy vs chemical potential for one entry.
+        """
+
+        # use dashed lines for slabs that are not stoichiometric
+        # wrt bulk. Label with formula if nonstoichiometric
+        ucell_comp = self.ucell_entry.composition.reduced_composition.as_dict()
+        is_stoich = []
+        for el in ucell_comp.keys():
+            if entry.adsorbates:
+                s = entry.structure
+                s.remove_species(entry.ads_entries_dict.keys())
+                is_stoich.append(ucell_comp[el] == \
+                                 s.composition.reduced_composition.as_dict()[el])
+            else:
+                is_stoich.append(ucell_comp[el] == \
+                                 entry.composition.reduced_composition.as_dict()[el])
+        mark = '--' if not all(is_stoich) else '-'
+
+        u_dict = self.set_all_variables(entry, u_dict, u_default)
+        u_dict[ref_u] = chempot_range[0]
+        gamma_min = entry.surface_energy(self.ucell_entry,
+                                         ref_entries=self.ref_entries).subs(u_dict)
+        u_dict[ref_u] = chempot_range[1]
+        gamma_max = entry.surface_energy(self.ucell_entry,
+                                         ref_entries=self.ref_entries).subs(u_dict)
+        gamma_range = [gamma_min, gamma_max]
+
+        se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
+            if JPERM2 else gamma_range
+
+        plt.plot(chempot_range, se_range, mark,
+                 color=self.color_dict[entry], label=label)
+
+        return plt
+
+    def chempot_vs_gamma(self, ref_u, chempot_range, miller_index=(),
                          u_dict={}, u_default=0, JPERM2=False,
                          show_unstable=False, ylim=[], clean_only=False):
         """
@@ -826,7 +806,7 @@ class SurfaceEnergyPlotter(object):
                     else:
                         already_labelled.append(label)
 
-                    plt = self.chempot_vs_gamma_plot_one(plt, clean_entry, ref_el, urange,
+                    plt = self.chempot_vs_gamma_plot_one(plt, clean_entry, ref_u, urange,
                                                          u_dict=u_dict, u_default=u_default,
                                                          label=label, JPERM2=JPERM2)
                 if not clean_only:
@@ -835,21 +815,22 @@ class SurfaceEnergyPlotter(object):
                         # Generate a label for the type of slab
                         urange = stable_u_range_dict[ads_entry] if not show_unstable else chempot_range
                         if urange != []:
-                            plt = self.chempot_vs_gamma_plot_one(plt, ads_entry, ref_el, urange,
+                            plt = self.chempot_vs_gamma_plot_one(plt, ads_entry, ref_u, urange,
                                                                  u_dict=u_dict, u_default=u_default,
                                                                  label=label, JPERM2=JPERM2)
 
 
         # if miller_index:
         #     plt.title(r"%s,  $\Delta\mu_{%s}=%.2f$" %(str(miller_index),
-        #                                               ref_el, const_u), fontsize=20)
+        #                                               str(ref_u).split("_")[1], const_u), fontsize=20)
 
         # Make the figure look nice
         # xrange = self.chempot_range if not x_is_u_ads \
         #     else self.max_adsorption_chempot_range(const_u)
         plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
             else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
-        plt = self.chempot_plot_addons(plt, chempot_range, ref_el, axes, ylim=ylim)
+        plt = self.chempot_plot_addons(plt, chempot_range, str(ref_u).split("_")[1],
+                                       axes, ylim=ylim)
 
         return plt
 
@@ -925,44 +906,6 @@ class SurfaceEnergyPlotter(object):
                      xytext=xy, rotation=90, fontsize=17)
 
         return plt
-
-    def color_palette_dict(self, alpha=0.35):
-        """
-        Helper function to assign each facet a unique color using a dictionary.
-
-        Args:
-            alpha (float): Degree of transparency
-
-        return (dict): Dictionary of colors (r,g,b,a) when plotting surface
-            energy stability. The keys are individual surface entries where
-            clean surfaces have a solid color while the corresponding adsorbed
-            surface will be transparent.
-        """
-
-        color_dict = {}
-        for hkl in self.entry_dict.keys():
-            rgb_indices = [0, 1, 2]
-            color = [0, 0, 0, 1]
-            random.shuffle(rgb_indices)
-            for i, ind in enumerate(rgb_indices):
-                if i == 2:
-                    break
-                color[ind] = np.random.uniform(0, 1)
-
-            # Get the clean (solid) colors first
-            clean_list = np.linspace(0, 1, len(self.entry_dict[hkl]))
-            for i, clean in enumerate(self.entry_dict[hkl].keys()):
-                c = copy.copy(color)
-                c[rgb_indices[2]] = clean_list[i]
-                color_dict[clean] = c
-
-                # Now get the adsorbed (transparent) colors
-                for ads_entry in self.entry_dict[hkl][clean]:
-                    c_ads = copy.copy(c)
-                    c_ads[3] = alpha
-                    color_dict[ads_entry] = c_ads
-
-        return color_dict
 
     def BE_vs_SE(self, plot_eads=False, const_u=0,
                  annotate_monolayer=True, JPERM2=False):
