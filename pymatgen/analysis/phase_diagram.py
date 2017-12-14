@@ -1265,8 +1265,9 @@ class PDPlotter(object):
         """
         Draw the element profile plot from PhaseDiagram.get_element_profile
         data. Basically, it gives the plot of element evolution for a composition.
-        X is the negative value of the chemical potential versus elemental potential.
-        For Li/Na system, it means the voltage versus metal anode. Y is the evolution
+        X value is the negative value of the chemical potential reference to elemental
+        chemical potential. For example, if choose Element("Li"), X= -(µLi-µLi0),
+        which corresponds to the voltage versus metal anode. Y is the evolution
         for given composition.
 
         Args:
