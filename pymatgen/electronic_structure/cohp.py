@@ -5,6 +5,7 @@
 from __future__ import division, unicode_literals
 
 import re
+import six
 import warnings
 import numpy as np
 
@@ -151,7 +152,7 @@ class Cohp(MSONable):
         else:
             if type(spin) == int:
                 spin = Spin(spin)
-            elif type(spin) == str:
+            elif isinstance(spin, six.string_types):
                 s = {"up": 1, "down": -1}[spin.lower()]
                 spin = Spin(s)
             return {spin: populations[spin]}
@@ -392,12 +393,16 @@ class CompleteCohp(Cohp):
                     orbs.append(tuple((orbital[0], Orbital(orbital[1]))))
                 elif type(orbital[1]) is Orbital:
                     orbs.append(tuple((orbital[0], orbital[1])))
-                else:
+                elif isinstance(orbital[1], six.string_types):
                     orbs.append(tuple((orbital[0], Orbital[orbital[1]])))
+                else:
+                    raise TypeError("Orbital must be str, int, or Orbital.")
             orb_index = cohp_orbs.index(orbs)
             orb_label = list(self.orb_res_cohp[label].keys())[orb_index]
-        else:
+        elif isinstance(orbitals, six.string_types):
             orb_label = orbitals
+        else:
+            raise TypeError("Orbitals must be str, list, or tuple.")
         try:
             icohp = self.orb_res_cohp[label][orb_label]["ICOHP"]
         except KeyError:
