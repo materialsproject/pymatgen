@@ -27,8 +27,7 @@ from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, \
-            ReactionError
-
+    ReactionError
 
 """
 This module defines tools to generate and analyze phase diagrams.
@@ -1259,6 +1258,45 @@ class PDPlotter(object):
                                     process_attributes=process_attributes)
         elif self._dim == 4:
             plt = self._get_3d_plot(label_stable)
+
+        return plt
+
+    def plot_element_profile(self, evolution):
+        """
+        Draw the element profile plot from PhaseDiagram.get_element_profile
+        data. Basically, it gives the plot of element evolution for a composition.
+        X value is the negative value of the chemical potential reference to elemental
+        chemical potential. For example, if choose Element("Li"), X= -(µLi-µLi0),
+        which corresponds to the voltage versus metal anode. Y is the evolution
+        for given composition.
+
+        Args:
+         evolution: The evolution data from PhaseDiagram.get_element_profile.
+
+        Returns:
+            Plot of element profile.
+        """
+        plt = pretty_plot(12, 8)
+        num_atoms = evolution[0]["reaction"].reactants[0].num_atoms
+        element_energy = evolution[0]['chempot']
+        for i, d in enumerate(evolution):
+            v = -(d["chempot"] - element_energy)
+
+            if i != 0:
+                plt.plot([x2, x2], [y1, d["evolution"] / num_atoms],
+                         'r', linewidth=3)
+            x1 = v
+            y1 = d["evolution"] / num_atoms
+
+            if i != len(evolution) - 1:
+                x2 = - (evolution[i + 1]["chempot"] - element_energy)
+            else:
+                x2 = 5.0
+            plt.plot([x1, x2], [y1, y1], 'r', linewidth=3)
+
+        plt.xlim((0, 5))
+        plt.xlabel("-$\Delta{\mu}$ (V)")
+        plt.ylabel("Uptake per atom")
 
         return plt
 
