@@ -121,129 +121,122 @@ class SlabEntryTest(PymatgenTest):
         self.assertEqual(min(all_se), se_Cu111)
 
 
-# class SurfaceEnergyPlotterTest(PymatgenTest):
-#
-#     def setUp(self):
-#
-#         entry_dict = get_entry_dict(os.path.join(get_path(""),
-#                                                  "Cu_entries.txt"))
-#         with open(os.path.join(get_path(""), 'ucell_entries.txt')) as ucell_entries:
-#             ucell_entries = json.loads(ucell_entries.read())
-#
-#         Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
-#         calculator = SurfaceEnergyCalculator(Cu_ucell_entry)
-#         self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, calculator, [-1, 0])
-#
-#         with open(os.path.join(get_path(""), 'isolated_O_entry.txt')) as isolated_O_entry:
-#             isolated_O_entry = json.loads(isolated_O_entry.read())
-#         self.O = ComputedStructureEntry.from_dict(isolated_O_entry)
-#         self.metals_O_entry_dict = load_O_adsorption()
-#         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Pt"])
-#         self.Pt_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entries=[self.O])
-#         self.Pt_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Pt"],
-#                                                 self.Pt_calculator, [-1, 0])
-#         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Ni"])
-#         self.Ni_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entries=[self.O])
-#         self.Ni_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Ni"],
-#                                                 self.Ni_calculator, [-1, 0])
-#         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Rh"])
-#         self.Rh_calculator = SurfaceEnergyCalculator(ucell_entry, adsorbate_entries=[self.O])
-#         self.Rh_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Rh"],
-#                                                 self.Rh_calculator, [-1, 0])
-#         self.Oads_analyzer_dict = {"Pt": self.Pt_analyzer,
-#                                    "Ni": self.Ni_analyzer,
-#                                    "Rh": self.Rh_analyzer}
+class SurfaceEnergyPlotterTest(PymatgenTest):
 
-    # def test_get_surface_equilibrium(self):
-    #
-    #     # For clean stoichiometric system, the two equations should
-    #     # be parallel because the surface energy is a constant. Then
-    #     # get_surface_equilibrium should return None
-    #     clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)].keys())[0]
-    #     clean100_entry = list(self.Cu_entry_dict[(1, 0, 0)].keys())[0]
-    #     soln = self.Cu_calc.get_surface_equilibrium([clean111_entry, clean100_entry])
-    #     self.assertFalse(soln)
-    #
-    #     # For adsorbed system, we should find one intercept
-    #     Pt_entries = self.metals_O_entry_dict["Pt"]
-    #     clean = list(Pt_entries[(1, 1, 1)].keys())[0]
-    #     ads = Pt_entries[(1, 1, 1)][clean][0]
-    #     Pt_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Pt"])
-    #     Pt_analyzer = SurfaceEnergyCalculator(Pt_ucell_entry, adsorbate_entries=[self.O])
-    #     soln = Pt_analyzer.get_surface_equilibrium([clean, ads])
-    #
-    #     self.assertNotEqual(list(soln.values())[0], list(soln.values())[1])
-    #
-    #     # Check if the number of parameters for adsorption are correct
-    #     self.assertEqual(("O", "gamma"), tuple(soln.keys()))
-    #     # Adsorbed systems have a b2=(-1*Nads) / (Nsurfs * Aads)
-    #     coeffs = Pt_analyzer.surface_energy_coefficients(ads)
-    #     self.assertAlmostEqual(coeffs[Symbol("O")], -1 / (2 * ads.surface_area))
+    def setUp(self):
 
-#
-#     def test_return_stable_slab_entry_at_u(self):
-#
-#         for el in self.Oads_analyzer_dict.keys():
-#             plotter = self.Oads_analyzer_dict[el]
-#             for hkl in plotter.entry_dict.keys():
-#                 # Test that the surface energy is clean for specific range of chempot
-#                 entry1, gamma1 = plotter.return_stable_slab_entry_at_u(hkl,
-#                                                                      u_dict={Symbol("O"): -7})
-#                 entry2, gamma2 = plotter.return_stable_slab_entry_at_u(hkl,
-#                                                                      u_dict={Symbol("O"): -6})
-#                 self.assertEqual(gamma1, gamma2)
-#                 self.assertEqual(entry1.label, entry2.label)
-#
-#                 # Now test that for a high chempot, adsorption
-#                 # occurs and gamma is not equal to clean gamma
-#                 entry3, gamma3 = plotter.return_stable_slab_entry_at_u(hkl,
-#                                                                      u_dict={Symbol("O"): -1})
-#                 self.assertNotEqual(entry3.label, entry2.label)
-#                 self.assertNotEqual(gamma3, gamma2)
-#
-#                 # For any chempot greater than -6, surface energy should vary
-#                 # but the configuration should remain the same
-#                 entry4, gamma4 = plotter.return_stable_slab_entry_at_u(hkl,
-#                                                                        u_dict={Symbol("O"): 0})
-#                 self.assertEqual(entry3.label, entry4.label)
-#                 self.assertNotEqual(gamma3, gamma4)
-#
-#     def test_wulff_shape_from_chempot(self):
-#
-#         # Test if it generates a Wulff shape, test if
-#         # all the facets for Cu wulff shape are inside.
-#         Cu_wulff = self.Cu_analyzer.wulff_shape_from_chempot()
-#         area_frac_dict = Cu_wulff.area_fraction_dict
-#         facets_hkl = [(1,1,1), (3,3,1), (3,1,0), (1,0,0),
-#                       (3,1,1), (2,1,0), (2,2,1)]
-#         for hkl in area_frac_dict.keys():
-#             if hkl in facets_hkl:
-#                 self.assertNotEqual(area_frac_dict[hkl], 0)
-#             else:
-#                 self.assertEqual(area_frac_dict[hkl], 0)
-#
-#         for el in self.Oads_analyzer_dict.keys():
-#             # Test WulffShape for adsorbed surfaces
-#             analyzer = self.Oads_analyzer_dict[el]
-#             # chempot = analyzer.max_adsorption_chempot_range(0)
-#             wulff = analyzer.wulff_shape_from_chempot()
-#             se = wulff.weighted_surface_energy
-#
-#         # Test if a different Wulff shape is generated
-#         # for Ni when adsorption comes into play
-#         wulff_neg7 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=-7)
-#         wulff_neg6 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=-6)
-#         self.assertEqual(wulff_neg7.weighted_surface_energy, wulff_neg6.weighted_surface_energy)
-#         wulff_neg1 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=-1)
-#         self.assertNotEqual(wulff_neg1.weighted_surface_energy, wulff_neg6.weighted_surface_energy)
-#         wulff_neg0 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=0)
-#         self.assertNotEqual(wulff_neg1.weighted_surface_energy, wulff_neg0.weighted_surface_energy)
-#
-#     def test_color_palette_dict(self):
-#
-#         for el in self.metals_O_entry_dict.keys():
-#             analyzer = self.Oads_analyzer_dict[el]
-#             color_dict = analyzer.color_palette_dict()
+        entry_dict = get_entry_dict(os.path.join(get_path(""),
+                                                 "Cu_entries.txt"))
+        self.Cu_entry_dict = entry_dict
+        with open(os.path.join(get_path(""), 'ucell_entries.txt')) as ucell_entries:
+            ucell_entries = json.loads(ucell_entries.read())
+
+        self.Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
+        self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, self.Cu_ucell_entry)
+
+        self.metals_O_entry_dict = load_O_adsorption()
+        ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Pt"])
+        self.Pt_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Pt"],
+                                                ucell_entry)
+        ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Ni"])
+        self.Ni_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Ni"],
+                                                ucell_entry)
+        ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Rh"])
+        self.Rh_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Rh"],
+                                                ucell_entry)
+        self.Oads_analyzer_dict = {"Pt": self.Pt_analyzer,
+                                   "Ni": self.Ni_analyzer,
+                                   "Rh": self.Rh_analyzer}
+
+    def test_return_stable_slab_entry_at_u(self):
+
+        for el in self.Oads_analyzer_dict.keys():
+            plotter = self.Oads_analyzer_dict[el]
+            for hkl in plotter.entry_dict.keys():
+                # Test that the surface energy is clean for specific range of chempot
+                entry1, gamma1 = plotter.return_stable_slab_entry_at_u(hkl,
+                                                                     u_dict={Symbol("delu_O"): -7})
+                entry2, gamma2 = plotter.return_stable_slab_entry_at_u(hkl,
+                                                                     u_dict={Symbol("delu_O"): -6})
+                self.assertEqual(gamma1, gamma2)
+                self.assertEqual(entry1.label, entry2.label)
+
+                # Now test that for a high chempot, adsorption
+                # occurs and gamma is not equal to clean gamma
+                entry3, gamma3 = plotter.return_stable_slab_entry_at_u(hkl,
+                                                                     u_dict={Symbol("delu_O"): -1})
+                self.assertNotEqual(entry3.label, entry2.label)
+                self.assertNotEqual(gamma3, gamma2)
+
+                # For any chempot greater than -6, surface energy should vary
+                # but the configuration should remain the same
+                entry4, gamma4 = plotter.return_stable_slab_entry_at_u(hkl,
+                                                                       u_dict={Symbol("delu_O"): 0})
+                self.assertEqual(entry3.label, entry4.label)
+                self.assertNotEqual(gamma3, gamma4)
+
+    def test_wulff_shape_from_chempot(self):
+
+        # Test if it generates a Wulff shape, test if
+        # all the facets for Cu wulff shape are inside.
+        Cu_wulff = self.Cu_analyzer.wulff_shape_from_chempot()
+        area_frac_dict = Cu_wulff.area_fraction_dict
+        facets_hkl = [(1,1,1), (3,3,1), (3,1,0), (1,0,0),
+                      (3,1,1), (2,1,0), (2,2,1)]
+        for hkl in area_frac_dict.keys():
+            if hkl in facets_hkl:
+                self.assertNotEqual(area_frac_dict[hkl], 0)
+            else:
+                self.assertEqual(area_frac_dict[hkl], 0)
+
+        for el in self.Oads_analyzer_dict.keys():
+            # Test WulffShape for adsorbed surfaces
+            analyzer = self.Oads_analyzer_dict[el]
+            # chempot = analyzer.max_adsorption_chempot_range(0)
+            wulff = analyzer.wulff_shape_from_chempot()
+            se = wulff.weighted_surface_energy
+
+        # Test if a different Wulff shape is generated
+        # for Ni when adsorption comes into play
+        wulff_neg7 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=-7)
+        wulff_neg6 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=-6)
+        self.assertEqual(wulff_neg7.weighted_surface_energy, wulff_neg6.weighted_surface_energy)
+        wulff_neg1 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=-1)
+        self.assertNotEqual(wulff_neg1.weighted_surface_energy, wulff_neg6.weighted_surface_energy)
+        wulff_neg0 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=0)
+        self.assertNotEqual(wulff_neg1.weighted_surface_energy, wulff_neg0.weighted_surface_energy)
+
+    def test_color_palette_dict(self):
+
+        for el in self.metals_O_entry_dict.keys():
+            analyzer = self.Oads_analyzer_dict[el]
+            color_dict = analyzer.color_palette_dict()
+
+    def test_get_surface_equilibrium(self):
+
+        # For clean stoichiometric system, the two equations should
+        # be parallel because the surface energy is a constant. Then
+        # get_surface_equilibrium should return None
+        clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)].keys())[0]
+        clean100_entry = list(self.Cu_entry_dict[(1, 0, 0)].keys())[0]
+        soln = self.Cu_analyzer.get_surface_equilibrium([clean111_entry, clean100_entry])
+        self.assertFalse(soln)
+
+        # For adsorbed system, we should find one intercept
+        Pt_entries = self.metals_O_entry_dict["Pt"]
+        clean = list(Pt_entries[(1, 1, 1)].keys())[0]
+        ads = Pt_entries[(1, 1, 1)][clean][0]
+        Pt_analyzer = self.Oads_analyzer_dict["Pt"]
+        soln = Pt_analyzer.get_surface_equilibrium([clean, ads])
+
+        self.assertNotEqual(list(soln.values())[0], list(soln.values())[1])
+
+        # Check if the number of parameters for adsorption are correct
+        self.assertEqual((Symbol("delu_O"), Symbol("gamma")), tuple(soln.keys()))
+        # Adsorbed systems have a b2=(-1*Nads) / (Nsurfs * Aads)
+        se = ads.surface_energy(Pt_analyzer.ucell_entry, Pt_analyzer.ref_entries)
+        self.assertAlmostEqual(se.as_coefficients_dict()[Symbol("delu_O")],
+                               -1 / (2 * ads.surface_area))
 
     # def test_monolayer_vs_BE(self):
     #     for el in self.Oads_analyzer_dict.keys():

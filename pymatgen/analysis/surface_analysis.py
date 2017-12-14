@@ -25,6 +25,7 @@ import itertools
 import warnings
 import random, copy
 from sympy import Symbol, Number
+from sympy.solvers import linsolve
 
 from pymatgen.core.composition import Composition
 from pymatgen import Structure
@@ -372,10 +373,10 @@ class SurfaceEnergyPlotter(object):
         # Set up the variables
         all_u_dict = {}
         for el in entry.composition.as_dict().keys():
-            if Symbol(el) in u_dict.keys():
-                all_u_dict[Symbol(el)] = u_dict[Symbol(el)]
+            if Symbol("delu_%s" %(el)) in u_dict.keys():
+                all_u_dict[Symbol("delu_%s" %(el))] = u_dict[Symbol("delu_%s" %(el))]
             else:
-                all_u_dict[Symbol(el)] = u_default
+                all_u_dict[Symbol("delu_%s" %(el))] = u_default
 
         return all_u_dict
 
@@ -399,16 +400,16 @@ class SurfaceEnergyPlotter(object):
         all_entries, all_gamma = [], []
         for entry in self.entry_dict[miller_index].keys():
             all_u_dict = self.set_all_variables(entry, u_dict, u_default)
-            gamma = self.se_calculator.calculate_gamma(entry,
-                                                       u_dict=all_u_dict)[Number(1)]
+            gamma = entry.surface_energy(self.ucell_entry,
+                                         ref_entries=self.ref_entries)
             all_entries.append(entry)
-            all_gamma.append(gamma)
+            all_gamma.append(gamma.subs(all_u_dict))
             for ads_entry in self.entry_dict[miller_index][entry]:
                 all_u_dict = self.set_all_variables(ads_entry, u_dict, u_default)
-                gamma = self.se_calculator.calculate_gamma(ads_entry,
-                                                           u_dict=all_u_dict)[Number(1)]
+                gamma = ads_entry.surface_energy(self.ucell_entry,
+                                                 ref_entries=self.ref_entries)
                 all_entries.append(ads_entry)
-                all_gamma.append(gamma)
+                all_gamma.append(gamma.subs(all_u_dict))
 
         return all_entries[all_gamma.index(min(all_gamma))], float(min(all_gamma))
 
@@ -424,7 +425,7 @@ class SurfaceEnergyPlotter(object):
             (WulffShape): The WulffShape at u_ref and u_ads.
         """
 
-        latt = SpacegroupAnalyzer(self.se_calculator.ucell_entry.structure). \
+        latt = SpacegroupAnalyzer(self.ucell_entry.structure). \
             get_conventional_standard_structure().lattice
 
         miller_list = self.entry_dict.keys()
@@ -561,7 +562,7 @@ class SurfaceEnergyPlotter(object):
         Args:
             slab_entries (array): The coefficients of the first equation
             u_dict (dict): Dictionary of chemical potentials to keep constant.
-                The key is the element and the value is the chemical poten
+                The key is the element and the value is the chemical potential
 
         Returns:
             (array): Array containing a solution to x equations with x
@@ -571,56 +572,69 @@ class SurfaceEnergyPlotter(object):
         # Generate all possible coefficients
         all_parameters = []
         all_coeffs = []
+        all_eqns = []
         for slab_entry in slab_entries:
-            coeffs = self.surface_energy_coefficients(slab_entry)
+            se = slab_entry.surface_energy(self.ucell_entry,
+                                           ref_entries=self.ref_entries)
 
-            # remove the free chempots we wish to keep constant
-            for el in u_dict.keys():
-                if el in coeffs.keys():
-                    coeffs[1] += coeffs[el] * u_dict[el]
-                    del coeffs[el]
-            all_coeffs.append(coeffs)
+            # remove the free chempots we wish to keep constant and
+            # set the equation to 0 (subtract gamma from both sides)
+            all_eqns.append(se.subs(u_dict) - Symbol("gamma"))
+            all_parameters.extend([p for p in list(se.free_symbols)
+                                   if p not in all_parameters])
+        all_parameters.append(Symbol("gamma"))
+        # Now solve the system of linear eqns to find the chempot
+        # where the slabs are at equilibrium with each other
+        print(all_eqns)
+        print(all_parameters)
 
-        # Find all possible free variables
-        for coeffs in all_coeffs:
-            for el in coeffs.keys():
-                if el not in all_parameters and el != Number(1):
-                    all_parameters.append(el)
+        soln = linsolve(all_eqns, all_parameters)
+        print("soln", soln)
+        if not soln:
+            warnings.warn("No solution")
+            return soln
+        return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
 
-        # if there are no variables in the parameter list, then
-        # it means the equations are constant (i.e. parallel)
-        if not all_parameters:
-            print("lines are parallel", all_parameters)
-            return None
-
-        print(all_parameters, "all_parameters", slab_entries[0].composition)
-        # Check if its even possible for the system
-        # of equations to even have a solution
-        if len(slab_entries) != len(all_parameters) + 1:
-            raise MatrixError()
-
-        # Set up the matrix
-        coeffs_matrix, const_vector = [], []
-        for coeffs in all_coeffs:
-            coeff_vector = []
-            for el in all_parameters:
-                if el in coeffs.keys():
-                    coeff_vector.append(float(coeffs[el]))
-                else:
-                    coeff_vector.append(float(0))
-            coeff_vector.append(float(-1))
-            coeffs_matrix.append(coeff_vector)
-            const_vector.append(float(coeffs[1]))
-
-        # Solve for the chempots and surface energy
-        print(coeffs_matrix, const_vector, "A, B")
-        solution = np.linalg.solve(coeffs_matrix, const_vector)
-
-        soln = {str(el): solution[i] for i, el in enumerate(all_parameters) \
-                if i < len(solution)-1}
-        soln["gamma"] = solution[-1]
-        print("solution", soln, solution, all_parameters)
-        return soln
+        # # Find all possible free variables
+        # for coeffs in all_coeffs:
+        #     for el in coeffs.keys():
+        #         if el not in all_parameters and el != Number(1):
+        #             all_parameters.append(el)
+        #
+        # # if there are no variables in the parameter list, then
+        # # it means the equations are constant (i.e. parallel)
+        # if not all_parameters:
+        #     print("lines are parallel", all_parameters)
+        #     return None
+        #
+        # print(all_parameters, "all_parameters", slab_entries[0].composition)
+        # # Check if its even possible for the system
+        # # of equations to even have a solution
+        # if len(slab_entries) != len(all_parameters) + 1:
+        #     raise MatrixError()
+        #
+        # # Set up the matrix
+        # coeffs_matrix, const_vector = [], []
+        # for coeffs in all_coeffs:
+        #     coeff_vector = []
+        #     for el in all_parameters:
+        #         if el in coeffs.keys():
+        #             coeff_vector.append(float(coeffs[el]))
+        #         else:
+        #             coeff_vector.append(float(0))
+        #     coeff_vector.append(float(-1))
+        #     coeffs_matrix.append(coeff_vector)
+        #     const_vector.append(float(coeffs[1]))
+        #
+        # # Solve for the chempots and surface energy
+        # print(coeffs_matrix, const_vector, "A, B")
+        # solution = np.linalg.solve(coeffs_matrix, const_vector)
+        #
+        # soln = {str(el): solution[i] for i, el in enumerate(all_parameters) \
+        #         if i < len(solution)-1}
+        # soln["gamma"] = solution[-1]
+        # print("solution", soln, solution, all_parameters)
+        # return soln
 
     def stable_u_range_dict(self, clean_only=True, u_dict={},
                             buffer=0.1, miller_index=()):
