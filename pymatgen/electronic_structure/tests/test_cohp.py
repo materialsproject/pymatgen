@@ -7,7 +7,7 @@ import unittest
 import json
 import os
 from pymatgen.electronic_structure.cohp import CompleteCohp, Cohp
-from pymatgen.electronic_structure.core import Spin
+from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -75,6 +75,9 @@ class CompleteCohpTest(PymatgenTest):
         filepath = os.path.join(test_dir, "complete_cohp_lmto.json")
         with open(filepath, "r") as f:
             self.cohp_lmto_dict = CompleteCohp.from_dict(json.load(f))
+        filepath = os.path.join(test_dir, "complete_cohp_orbitalwise.json")
+        with open(filepath, "r") as f:
+            self.cohp_orb_dict = CompleteCohp.from_dict(json.load(f))
 
         filepath = os.path.join(test_dir, "COPL.BiSe")
         structure = os.path.join(test_dir, "CTRL.BiSe")
@@ -91,6 +94,15 @@ class CompleteCohpTest(PymatgenTest):
                                                    filename=filepath,
                                                    structure_file=structure,
                                                    are_coops=True)
+        filepath = os.path.join(test_dir, "COHPCAR.lobster.orbitalwise")
+        structure = os.path.join(test_dir, "POSCAR.orbitalwise")
+        self.cohp_orb = CompleteCohp.from_file("lobster",
+                                               filename=filepath,
+                                               structure_file=structure)
+        filepath = os.path.join(test_dir, "COHPCAR.lobster.notot.orbitalwise")
+        self.cohp_notot = CompleteCohp.from_file("lobster",
+                                                 filename=filepath,
+                                                 structure_file=structure)
 
     def test_attiributes(self):
         self.assertFalse(self.cohp_lobster.are_coops)
@@ -112,6 +124,8 @@ class CompleteCohpTest(PymatgenTest):
 
         self.assertEqual(self.cohp_lobster.as_dict(),
                          self.cohp_lobster_dict.as_dict())
+        self.assertEqual(self.cohp_orb.as_dict(),
+                         self.cohp_orb_dict.as_dict())
 
         # Testing the LMTO dicts will be more involved. Since the average
         # is calculated and not read, there may be differences in rounding
@@ -158,6 +172,32 @@ class CompleteCohpTest(PymatgenTest):
             icoop_ef = all_coops_lobster[bond].get_interpolated_value(
                            self.coop_lobster.efermi, integrated=True)
             self.assertEqual(icoop_ef_dict[bond], icoop_ef)
+
+    def test_orbital_resolved_cohp(self):
+        # When read from a COHPCAR file, total COHPs are calculated from
+        # the orbital-resolved COHPs if the total is missing. This may be
+        # case for LOBSTER version 2.2.0 and earlier due to a bug with the
+        # cohpgenerator keyword. The calculated total should be approximately
+        # the total COHP calculated by LOBSTER. Due to numerical errors in
+        # the LOBSTER calculation, the precision is not very high though.
+        self.assertArrayAlmostEqual(
+            self.cohp_orb.all_cohps["Ga1-As2"].cohp[Spin.up],
+            self.cohp_notot.all_cohps["Ga1-As2"].cohp[Spin.up], decimal=3)
+        self.assertArrayAlmostEqual(
+            self.cohp_orb.all_cohps["Ga1-As2"].icohp[Spin.up],
+            self.cohp_notot.all_cohps["Ga1-As2"].icohp[Spin.up], decimal=3)
+
+        # Tests different methods for getting orbital-resolved COHPs
+        ref = self.cohp_orb.orb_res_cohp["Ga1-As2"]["4s-4px"]
+        cohp_label = self.cohp_orb.get_orbital_resolved_cohp("Ga1-As2",
+                                                             "4s-4px")
+        self.assertEqual(cohp_label.cohp, ref["COHP"])
+        self.assertEqual(cohp_label.icohp, ref["ICOHP"])
+        orbitals = [[Orbital.s, Orbital.px], ["s", "px"], [0, 3]]
+        cohps = [self.cohp_orb.get_orbital_resolved_cohp("Ga1-As2",
+                 [[4, orb[0]], [4, orb[1]]]) for orb in orbitals]
+        for cohp in cohps:
+            self.assertEqual(cohp.as_dict(), cohp_label.as_dict())
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ from pymatgen.core.units import bohr_to_angstrom, Ry_to_eV
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.num import round_to_sigfigs
 
 """
 Module for implementing a CTRL file object class for the Stuttgart
@@ -360,11 +361,10 @@ class LMTOCopl(object):
                         for row in contents[num_bonds+2:]]).transpose()
         if to_eV:
             # LMTO energies have 5 sig figs
-            self.energies = np.array(["{0:.5g}".format(energy)
+            self.energies = np.array([round_to_sigfigs(energy, 5)
                                      for energy in data[0] * Ry_to_eV],
                                      dtype=float)
-            self.efermi = float("{0:.5g}".format(
-                                float(parameters[-1]) * Ry_to_eV))
+            self.efermi = round_to_sigfigs(float(parameters[-1])*Ry_to_eV, 5)
         else:
             self.energies = data[0]
             self.efermi = float(parameters[-1])
@@ -375,9 +375,8 @@ class LMTOCopl(object):
             cohp = {spin: data[2*(bond+s*num_bonds)+1]
                     for s, spin in enumerate(spins)}
             if to_eV:
-                icohp = {spin: np.array(["{0:.5g}".format(i)
-                                        for i in data[2*(bond+s*num_bonds)+2] * Ry_to_eV],
-                                        dtype=float)
+                icohp = {spin: np.array([round_to_sigfigs(i, 5) for i in
+                                        data[2*(bond+s*num_bonds)+2] * Ry_to_eV])
                          for s, spin in enumerate(spins)}
             else:
                 icohp = {spin: data[2*(bond+s*num_bonds)+2]
