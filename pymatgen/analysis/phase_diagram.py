@@ -1265,8 +1265,9 @@ class PDPlotter(object):
         """
         Draw the element profile plot from PhaseDiagram.get_element_profile
         data. Basically, it gives the plot of element evolution for a composition.
-        X axis and Y axis are voltage versus the reference element and evolution
-        of element for the given composition.
+        X is the negative value of the chemical potential versus elemental potential.
+        For Li/Na system, it means the voltage versus metal anode. Y is the evolution
+        for given composition.
 
         Args:
          evolution: The evolution data from PhaseDiagram.get_element_profile.
@@ -1283,7 +1284,6 @@ class PDPlotter(object):
             if i != 0:
                 plt.plot([x2, x2], [y1, d["evolution"] / num_atoms],
                          'r', linewidth=3)
-
             x1 = v
             y1 = d["evolution"] / num_atoms
 
@@ -1291,11 +1291,10 @@ class PDPlotter(object):
                 x2 = - (evolution[i + 1]["chempot"] - element_energy)
             else:
                 x2 = 5.0
-
             plt.plot([x1, x2], [y1, y1], 'r', linewidth=3)
 
         plt.xlim((0, 5))
-        plt.xlabel("Voltage (V)")
+        plt.xlabel("-$\Delta{\mu}$ (V)")
         plt.ylabel("Uptake per atom")
 
         return plt
