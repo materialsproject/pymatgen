@@ -147,30 +147,26 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
                                    "Ni": self.Ni_analyzer,
                                    "Rh": self.Rh_analyzer}
 
-    def test_return_stable_slab_entry_at_u(self):
+    def test_get_stable_entry_at_u(self):
 
         for el in self.Oads_analyzer_dict.keys():
             plotter = self.Oads_analyzer_dict[el]
             for hkl in plotter.entry_dict.keys():
                 # Test that the surface energy is clean for specific range of chempot
-                entry1, gamma1 = plotter.return_stable_slab_entry_at_u(hkl,
-                                                                     u_dict={Symbol("delu_O"): -7})
-                entry2, gamma2 = plotter.return_stable_slab_entry_at_u(hkl,
-                                                                     u_dict={Symbol("delu_O"): -6})
+                entry1, gamma1 = plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -7})
+                entry2, gamma2 = plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -6})
                 self.assertEqual(gamma1, gamma2)
                 self.assertEqual(entry1.label, entry2.label)
 
                 # Now test that for a high chempot, adsorption
                 # occurs and gamma is not equal to clean gamma
-                entry3, gamma3 = plotter.return_stable_slab_entry_at_u(hkl,
-                                                                     u_dict={Symbol("delu_O"): -1})
+                entry3, gamma3 = plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -1})
                 self.assertNotEqual(entry3.label, entry2.label)
                 self.assertNotEqual(gamma3, gamma2)
 
                 # For any chempot greater than -6, surface energy should vary
                 # but the configuration should remain the same
-                entry4, gamma4 = plotter.return_stable_slab_entry_at_u(hkl,
-                                                                       u_dict={Symbol("delu_O"): 0})
+                entry4, gamma4 = plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): 0})
                 self.assertEqual(entry3.label, entry4.label)
                 self.assertNotEqual(gamma3, gamma4)
 

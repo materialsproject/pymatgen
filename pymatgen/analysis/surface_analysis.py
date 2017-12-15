@@ -16,6 +16,8 @@ TODO:
     -Annotations for which configuration is on a plot
     -Simplify the input for SurfaceEnergyPlotter such that the
         user does not need to generate a dict
+    -u_dict and ref_u should not be parameters at the same time? 
+        save the user from himself.
 """
 
 from __future__ import division, unicode_literals
@@ -61,11 +63,6 @@ consider citing the following works::
         Computational Materials, 3(1), 14.
         https://doi.org/10.1038/s41524-017-0017-z
 """
-
-class MatrixError(Exception):
-    def __init__(self):
-        print('Number of equations (slab_entries) is not \
-        equal to number of free variables (chempot and surface energy)')
 
 
 class SlabEntry(ComputedStructureEntry):
@@ -368,7 +365,7 @@ class SurfaceEnergyPlotter(object):
 
         return all_u_dict
 
-    def return_stable_slab_entry_at_u(self, miller_index, u_dict={}, u_default=0):
+    def get_stable_entry_at_u(self, miller_index, u_dict={}, u_default=0):
         """
         Returns the entry corresponding to the most stable slab for a particular
             facet at a specific chempot. We assume that surface energy is constant
@@ -422,7 +419,7 @@ class SurfaceEnergyPlotter(object):
             # At each possible configuration, we calculate surface energy as a
             # function of u and take the lowest surface energy (corresponds to
             # the most stable slab termination at that particular u)
-            entry, gamma = self.return_stable_slab_entry_at_u(hkl, u_dict=u_dict,
+            entry, gamma = self.get_stable_entry_at_u(hkl, u_dict=u_dict,
                                                               u_default=u_default)
             e_surf_list.append(gamma)
 
@@ -521,11 +518,8 @@ class SurfaceEnergyPlotter(object):
         all_parameters.append(Symbol("gamma"))
         # Now solve the system of linear eqns to find the chempot
         # where the slabs are at equilibrium with each other
-        print(all_eqns)
-        print(all_parameters)
 
         soln = linsolve(all_eqns, all_parameters)
-        print("soln", soln)
         if not soln:
             warnings.warn("No solution")
             return soln
@@ -550,122 +544,201 @@ class SurfaceEnergyPlotter(object):
                 dictionary for.
         """
 
-        all_intesects_dict = {}
-        stable_urange_dict = {}
-        # max_ads_range = self.max_adsorption_chempot_range(const_u,
-        #                                                   buffer=buffer)
-        # standard_range = max_ads_range if not clean_only else self.chempot_range
-        # standard_range = sorted(standard_range)
-        # x_is_u_ads = False if clean_only else True
+        all_intesects_dict, stable_urange_dict = {}, {}
 
         # Get all entries for a specific facet
         for hkl in self.entry_dict.keys():
 
-            # bool to check if at least one surface exists for a facet
-            entry_exists = False
-
+            # Skip this facet if this is not the facet we want
             if miller_index and hkl != tuple(miller_index):
                 continue
-            entries_in_hkl = [entry for entry in self.entry_dict[hkl]]
+
+            entries_in_hkl = [clean for clean in self.entry_dict[hkl]]
             if not clean_only:
-                ads_entries_in_hkl = []
                 for entry in self.entry_dict[hkl]:
-                    ads_entries_in_hkl.extend([ads_entry for ads_entry in
-                                               self.entry_dict[hkl][entry]])
-                entries_in_hkl.extend(ads_entries_in_hkl)
+                    entries_in_hkl.extend([ads_entry for ads_entry in
+                                           self.entry_dict[hkl][entry]])
+
+            for entry in entries_in_hkl:
+                stable_urange_dict[entry] = []
 
             # if there is only one entry for this facet, then just give it the
             # default urange, you can't make combinations with just 1 item
             if len(entries_in_hkl) == 1:
                 stable_urange_dict[entries_in_hkl[0]] = chempot_range
                 continue
+
             for pair in itertools.combinations(entries_in_hkl, 2):
-                # Check if entry is adsorbed entry or clean, this is
-                # a hassle so figure out a cleaner way to do this
-                clean_ads_coeffs = []
-                solution = self.get_surface_equilibrium(p, u_dict=u_dict)
+                # I'm assuming ref_u was not set in u_dict,
+                # so the solution should be for ref_u
+                solution = self.get_surface_equilibrium(pair, u_dict=u_dict)
 
-                if u:
-                    # If the u in a list is beyond the standard
-                    # range, set it to one of the limits
-                    if u < standard_range[0]:
-                        u_new = standard_range[0]
-                    elif u > standard_range[1]:
-                        u_new = standard_range[1]
-                    else:
-                        u_new = u
+                # Check if this solution is stable
+                print("soln", solution)
+                if not solution:
+                    continue
+                new_u_dict = u_dict.copy()
+                new_u_dict[ref_u] = solution[ref_u]
+                stable_entry, gamma = self.get_stable_entry_at_u(hkl, new_u_dict)
+                if stable_entry not in pair:
+                    continue
 
-                    for entry in pair:
-                        if entry not in all_intesects_dict.keys():
-                            all_intesects_dict[entry] = []
-                        all_intesects_dict[entry].append(u_new)
+                for entry in pair:
+                    stable_urange_dict[entry].append(solution[ref_u])
 
-            # Now that we have every single intersection for a given
-            # slab, find the range of u where each slab is stable
-            for entry in all_intesects_dict.keys():
-                if entry not in stable_urange_dict.keys():
-                    stable_urange_dict[entry] = []
-                for u_int in all_intesects_dict[entry]:
-                    stable_entries = []
-                    for i in [-1, 1]:
-                        u_ads = u_int+i*(10e-6) if x_is_u_ads else const_u
-                        u_ref = u_int+i*(10e-6) if not x_is_u_ads else const_u
-                        # return_stable_slab_entry_at_u() will only return one
-                        # entry for one gamma, since u is at an intersection,
-                        # this entry is ambiguous, we need to get the entry
-                        # slightly above and below u and check if the current
-                        # entry is any of these entries. Another inconvenience
-                        # that needs to be fixed
-                        stable_entry, gamma = \
-                            self.return_stable_slab_entry_at_u(hkl, u_ads=u_ads,
-                                                               u_ref=u_ref)
-                        stable_entries.append(stable_entry)
-                    # If this entry is stable at this u, append u
-                    if entry in stable_entries:
-                        stable_urange_dict[entry].append(u_int)
-                        entry_exists = True
-
-            # Now check for entries with only one intersection
-            # is it stable below or above u_intersect
+            # Now check if all entries have 2 chempot values. If only
+            # one, we need to set the other value as either the upper
+            # limit or lower limit of the user provided chempot_range
+            all_u = []
             for entry in stable_urange_dict.keys():
-                # First lets check if all the u values for
-                # an entry are the same as the standard range,
-                # if so, just set it to the standard range
-                if stable_urange_dict[entry]:
-                    if all([u in standard_range for u in stable_urange_dict[entry]]):
-                        stable_urange_dict[entry] = standard_range
-
-                # If only one u, its stable from u to +-inf.
-                # If no u, this entry is never stable
+                all_u.extend(stable_urange_dict[entry])
+            for entry in stable_urange_dict.keys():
                 if len(stable_urange_dict[entry]) == 1:
-                    u = stable_urange_dict[entry][0]
-                    for i in [-1, 1]:
-                        u_ads = u+i*(10e-6) if x_is_u_ads else const_u
-                        u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
+                    if stable_urange_dict[entry][0] == max(all_u):
+                        stable_urange_dict[entry].append(max(chempot_range))
+                    else:
+                        stable_urange_dict[entry].append(min(chempot_range))
 
-                        e, se = self.return_stable_slab_entry_at_u(hkl,
-                                                                   u_ads=u_ads,
-                                                                   u_ref=u_ref)
-                        if e == entry:
-                            # If the entry stable below u, assume it is
-                            # stable at -inf, otherwise its stable at +inf
-                            u2 = standard_range[0] if i == -1 else standard_range[1]
-                            stable_urange_dict[entry].append(u2)
-                            entry_exists = True
-
-                # now sort the ranges for each entry
-                stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
-
-            # Now we make sure that each facet has at least
-            # one entry, if no entries exist, this means there
-            # is no intersection, get the most stable surface
-            if not entry_exists:
-                e, se = self.return_stable_slab_entry_at_u(hkl,
-                                                           u_ads=const_u,
-                                                           u_ref=const_u)
-                stable_urange_dict[e] = standard_range
+        # sort the chempot ranges for each facet
+        for entry in stable_urange_dict.keys():
+            stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
 
         return stable_urange_dict
+
+
+
+
+
+    # def stable_u_range_dict(self, chempot_range, ref_u, clean_only=True, u_dict={},
+    #                         buffer=0.1, miller_index=()):
+    #     """
+    #     Creates a dictionary where each entry is a key pointing to a chemical potential
+    #     range where the surface of that entry is stable. Does so by enumerating through
+    #     all possible solutions (intersect) for surface energies of a specific facet.
+    #
+    #     TODO:
+    #         -Make this simpler/cleaner.
+    #
+    #     Args:
+    #         clean_only (bool): Only get the range for clean surface entries if True.
+    #         const_u (float): A chemical potential for the fixed chempot.
+    #         buffer (float): A buffer fo r the x axis (chemical
+    #             potential range). For plotting.
+    #         miller_index (list): Miller index for a specific facet to get a
+    #             dictionary for.
+    #     """
+    #
+    #     all_intesects_dict = {}
+    #     stable_urange_dict = {}
+    #     # max_ads_range = self.max_adsorption_chempot_range(const_u,
+    #     #                                                   buffer=buffer)
+    #     # standard_range = max_ads_range if not clean_only else self.chempot_range
+    #     # standard_range = sorted(standard_range)
+    #     # x_is_u_ads = False if clean_only else True
+    #
+    #     # Get all entries for a specific facet
+    #     for hkl in self.entry_dict.keys():
+    #
+    #         # bool to check if at least one surface exists for a facet
+    #         entry_exists = False
+    #         # Skip this facet if we want to get the range for a specific facet
+    #         if miller_index and hkl != tuple(miller_index):
+    #             continue
+    #         entries_in_hkl = [entry for entry in self.entry_dict[hkl]]
+    #         if not clean_only:
+    #             for entry in self.entry_dict[hkl]:
+    #                 entries_in_hkl.extend([ads_entry for ads_entry in
+    #                                        self.entry_dict[hkl][entry]])
+    #
+    #         # if there is only one entry for this facet, then just give it the
+    #         # default urange, you can't make combinations with just 1 item
+    #         if len(entries_in_hkl) == 1:
+    #             stable_urange_dict[entries_in_hkl[0]] = chempot_range
+    #             continue
+    #         for pair in itertools.combinations(entries_in_hkl, 2):
+    #             solution = self.get_surface_equilibrium(pair, u_dict=u_dict)
+    #             uval = solution.as_coefficients_dict()[ref_u]
+    #
+    #             # If the u in a list is beyond the standard
+    #             # range, set it to one of the limits
+    #             if uval < chempot_range[0]:
+    #                 u_new = chempot_range[0]
+    #             elif uval > chempot_range[1]:
+    #                 u_new = chempot_range[1]
+    #             else:
+    #                 u_new = uval
+    #
+    #             for entry in pair:
+    #                 if entry not in all_intesects_dict.keys():
+    #                     all_intesects_dict[entry] = []
+    #                 all_intesects_dict[entry].append(u_new)
+    #
+    #         # Now that we have every single intersection for a given
+    #         # slab, find the range of u where each slab is stable
+    #         for entry in all_intesects_dict.keys():
+    #             if entry not in stable_urange_dict.keys():
+    #                 stable_urange_dict[entry] = []
+    #             for u_int in all_intesects_dict[entry]:
+    #                 stable_entries = []
+    #                 for i in [-1, 1]:
+    #                     u_ads = u_int+i*(10e-6) if x_is_u_ads else const_u
+    #                     u_ref = u_int+i*(10e-6) if not x_is_u_ads else const_u
+    #                     # get_stable_entry_at_u() will only return one
+    #                     # entry for one gamma, since u is at an intersection,
+    #                     # this entry is ambiguous, we need to get the entry
+    #                     # slightly above and below u and check if the current
+    #                     # entry is any of these entries. Another inconvenience
+    #                     # that needs to be fixed
+    #                     stable_entry, gamma = \
+    #                         self.get_stable_entry_at_u(hkl, u_ads=u_ads,
+    #                                                            u_ref=u_ref)
+    #                     stable_entries.append(stable_entry)
+    #                 # If this entry is stable at this u, append u
+    #                 if entry in stable_entries:
+    #                     stable_urange_dict[entry].append(u_int)
+    #                     entry_exists = True
+    #
+    #         # Now check for entries with only one intersection
+    #         # is it stable below or above u_intersect
+    #         for entry in stable_urange_dict.keys():
+    #             # First lets check if all the u values for
+    #             # an entry are the same as the standard range,
+    #             # if so, just set it to the standard range
+    #             if stable_urange_dict[entry]:
+    #                 if all([u in standard_range for u in stable_urange_dict[entry]]):
+    #                     stable_urange_dict[entry] = standard_range
+    #
+    #             # If only one u, its stable from u to +-inf.
+    #             # If no u, this entry is never stable
+    #             if len(stable_urange_dict[entry]) == 1:
+    #                 u = stable_urange_dict[entry][0]
+    #                 for i in [-1, 1]:
+    #                     u_ads = u+i*(10e-6) if x_is_u_ads else const_u
+    #                     u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
+    #
+    #                     e, se = self.get_stable_entry_at_u(hkl,
+    #                                                                u_ads=u_ads,
+    #                                                                u_ref=u_ref)
+    #                     if e == entry:
+    #                         # If the entry stable below u, assume it is
+    #                         # stable at -inf, otherwise its stable at +inf
+    #                         u2 = standard_range[0] if i == -1 else standard_range[1]
+    #                         stable_urange_dict[entry].append(u2)
+    #                         entry_exists = True
+    #
+    #             # now sort the ranges for each entry
+    #             stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
+    #
+    #         # Now we make sure that each facet has at least
+    #         # one entry, if no entries exist, this means there
+    #         # is no intersection, get the most stable surface
+    #         if not entry_exists:
+    #             e, se = self.get_stable_entry_at_u(hkl,
+    #                                                        u_ads=const_u,
+    #                                                        u_ref=const_u)
+    #             stable_urange_dict[e] = standard_range
+    #
+    #     return stable_urange_dict
 
     def color_palette_dict(self, alpha=0.35):
         """
@@ -791,13 +864,15 @@ class SurfaceEnergyPlotter(object):
             if miller_index and hkl != tuple(miller_index):
                 continue
             if not show_unstable:
-                stable_u_range_dict = self.stable_u_range_dict(clean_only=clean_only,
+                stable_u_range_dict = self.stable_u_range_dict(chempot_range, ref_u,
+                                                               clean_only=clean_only,
                                                                u_dict=u_dict, miller_index=hkl)
 
             already_labelled = []
             for clean_entry in self.entry_dict[hkl]:
 
                 urange = stable_u_range_dict[clean_entry] if not show_unstable else chempot_range
+                # Don't plot if the slab is unstable, plot if it is.
                 if urange != []:
 
                     label = clean_entry.label
