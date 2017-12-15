@@ -190,7 +190,7 @@ def log_ver(ctx):
 @task
 def release(ctx, notest=False):
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
-    set_ver(ctx)
+    #set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
     publish(ctx)
