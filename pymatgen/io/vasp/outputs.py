@@ -517,7 +517,8 @@ class Vasprun(MSONable):
     def optical_absorption_coeff(self):
         """
         Calculate the optical absorption coefficient
-        from the dielectric constants
+        from the dielectric constants. Note that this method is only
+        implemented for optical properties calculated with GGA and BSE.
         Returns:
         optical absorption coefficient in list
         """
