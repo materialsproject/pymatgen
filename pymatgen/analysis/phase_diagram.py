@@ -1261,30 +1261,41 @@ class PDPlotter(object):
 
         return plt
 
-    def plot_element_profile(self, evolution):
+    def plot_element_profile(self, element, comp, show_label_index=None, xlim=5):
         """
-        Draw the element profile plot from PhaseDiagram.get_element_profile
-        data. Basically, it gives the plot of element evolution for a composition.
+        Draw the element profile plot for a composition varying different chemical
+        potential of an element.
         X value is the negative value of the chemical potential reference to elemental
         chemical potential. For example, if choose Element("Li"), X= -(µLi-µLi0),
-        which corresponds to the voltage versus metal anode. Y is the evolution
-        for given composition.
+        which corresponds to the voltage versus metal anode.
+        Y values represent for the number of element uptake in this composition
+        (unit: per atom). All reactions are printed to help choosing the profile steps
+        you want to show label in the plot.
 
         Args:
-         evolution: The evolution data from PhaseDiagram.get_element_profile.
-
+         element (Element): An element of which the chemical potential is considered.
+         It also must be in the phase diagram.
+         comp (Composition): A composition.
+         show_label_index (list of integers): The labels for reaction products you
+         want to show in the plot. Default to None (not showing any annotation for
+         reaction products). For the profile steps you want to show the labels,
+         just add it to the show_label_index. The profile step counts from zero.
+         For example, you can set show_label_index=[0, 2, 5] to label profile step 0,2,5.
+         xlim (float): The max x value. x value is from 0 to xlim. Default to 5 eV.
         Returns:
-            Plot of element profile.
+            Plot of element profile evolution by varying the chemical potential of an element.
         """
         plt = pretty_plot(12, 8)
+        pd = self._pd
+        evolution = pd.get_element_profile(element, comp)
         num_atoms = evolution[0]["reaction"].reactants[0].num_atoms
         element_energy = evolution[0]['chempot']
         for i, d in enumerate(evolution):
             v = -(d["chempot"] - element_energy)
-
+            print ("index= %s, -\u0394\u03BC=%.4f(eV)," % (i, v), d["reaction"])
             if i != 0:
                 plt.plot([x2, x2], [y1, d["evolution"] / num_atoms],
-                         'r', linewidth=3)
+                         'k', linewidth=2.5)
             x1 = v
             y1 = d["evolution"] / num_atoms
 
@@ -1292,10 +1303,18 @@ class PDPlotter(object):
                 x2 = - (evolution[i + 1]["chempot"] - element_energy)
             else:
                 x2 = 5.0
-            plt.plot([x1, x2], [y1, y1], 'r', linewidth=3)
+            if show_label_index is not None and i in show_label_index:
+                products = [re.sub(r"(\d+)", r"$_{\1}$", p.reduced_formula)
+                            for p in d["reaction"].products
+                            if p.reduced_formula != element.symbol]
+                plt.annotate(", ".join(products), xy=(v + 0.05, y1 + 0.05),
+                             fontsize=24, color='r')
+                plt.plot([x1, x2], [y1, y1], 'r', linewidth=3)
+            else:
+                plt.plot([x1, x2], [y1, y1], 'k', linewidth=2.5)
 
-        plt.xlim((0, 5))
-        plt.xlabel("-$\Delta{\mu}$ (V)")
+        plt.xlim((0, xlim))
+        plt.xlabel("-$\Delta{\mu}$ (eV)")
         plt.ylabel("Uptake per atom")
 
         return plt
