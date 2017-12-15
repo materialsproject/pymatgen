@@ -213,7 +213,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
                         color = color_dict[ads]
 
     def test_get_surface_equilibrium(self):
-
         # For clean stoichiometric system, the two equations should
         # be parallel because the surface energy is a constant. Then
         # get_surface_equilibrium should return None
@@ -239,7 +238,16 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
                                -1 / (2 * ads.surface_area))
 
     def test_stable_u_range_dict(self):
-        print("TODO")
+        for el in self.Oads_analyzer_dict.keys():
+            analyzer = self.Oads_analyzer_dict[el]
+
+        stable_u_range = analyzer.stable_u_range_dict([-1,0], Symbol("delu_O"),
+                                                      clean_only=False)
+        all_u = []
+        for entry in stable_u_range.keys():
+            print(stable_u_range[entry], entry, len(stable_u_range.keys()))
+            all_u.extend(stable_u_range[entry])
+        self.assertGreater(len(all_u), 1)
 
     # def test_monolayer_vs_BE(self):
     #     for el in self.Oads_analyzer_dict.keys():

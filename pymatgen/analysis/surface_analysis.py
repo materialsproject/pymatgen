@@ -86,7 +86,6 @@ class SlabEntry(ComputedStructureEntry):
         self.ads_entries_dict = {str(list(ads.composition.as_dict().keys())[0]): \
                                 ads for ads in adsorbates}
 
-
         super(SlabEntry, self).__init__(
             structure, energy, correction=correction,
             parameters=parameters, data=data, entry_id=entry_id)
@@ -525,18 +524,19 @@ class SurfaceEnergyPlotter(object):
             return soln
         return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
 
-    def stable_u_range_dict(self, chempot_range, ref_u, clean_only=True, u_dict={},
-                            buffer=0.1, miller_index=()):
+    def stable_u_range_dict(self, chempot_range, ref_u, clean_only=True,
+                            u_dict={}, miller_index=()):
         """
-        Creates a dictionary where each entry is a key pointing to a chemical potential
-        range where the surface of that entry is stable. Does so by enumerating through
-        all possible solutions (intersect) for surface energies of a specific facet.
+        Creates a dictionary where each entry is a key pointing to a
+        chemical potential range where the surface of that entry is stable.
+        Does so by enumerating through all possible solutions (intersect)
+        for surface energies of a specific facet.
 
         TODO:
             -Make this simpler/cleaner.
 
         Args:
-            clean_only (bool): Only get the range for clean surface entries if True.
+            clean_only (bool): Only get the range for clean slab entries if True.
             const_u (float): A chemical potential for the fixed chempot.
             buffer (float): A buffer fo r the x axis (chemical
                 potential range). For plotting.
@@ -574,7 +574,6 @@ class SurfaceEnergyPlotter(object):
                 solution = self.get_surface_equilibrium(pair, u_dict=u_dict)
 
                 # Check if this solution is stable
-                print("soln", solution)
                 if not solution:
                     continue
                 new_u_dict = u_dict.copy()
@@ -583,162 +582,28 @@ class SurfaceEnergyPlotter(object):
                 if stable_entry not in pair:
                     continue
 
+                # Now check if the solution is within the chempot range
+                if not (chempot_range[0] <= solution[ref_u] <= chempot_range[1]):
+                    continue
+
                 for entry in pair:
                     stable_urange_dict[entry].append(solution[ref_u])
 
             # Now check if all entries have 2 chempot values. If only
             # one, we need to set the other value as either the upper
             # limit or lower limit of the user provided chempot_range
-            all_u = []
-            for entry in stable_urange_dict.keys():
-                all_u.extend(stable_urange_dict[entry])
-            for entry in stable_urange_dict.keys():
-                if len(stable_urange_dict[entry]) == 1:
-                    if stable_urange_dict[entry][0] == max(all_u):
-                        stable_urange_dict[entry].append(max(chempot_range))
-                    else:
-                        stable_urange_dict[entry].append(min(chempot_range))
+            new_u_dict = u_dict.copy()
+            for u in chempot_range:
+                print(u)
+                new_u_dict[ref_u] = u
+                entry, gamma = self.get_stable_entry_at_u(hkl, u_dict=new_u_dict)
+                stable_urange_dict[entry].append(u)
 
         # sort the chempot ranges for each facet
         for entry in stable_urange_dict.keys():
             stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
 
         return stable_urange_dict
-
-
-
-
-
-    # def stable_u_range_dict(self, chempot_range, ref_u, clean_only=True, u_dict={},
-    #                         buffer=0.1, miller_index=()):
-    #     """
-    #     Creates a dictionary where each entry is a key pointing to a chemical potential
-    #     range where the surface of that entry is stable. Does so by enumerating through
-    #     all possible solutions (intersect) for surface energies of a specific facet.
-    #
-    #     TODO:
-    #         -Make this simpler/cleaner.
-    #
-    #     Args:
-    #         clean_only (bool): Only get the range for clean surface entries if True.
-    #         const_u (float): A chemical potential for the fixed chempot.
-    #         buffer (float): A buffer fo r the x axis (chemical
-    #             potential range). For plotting.
-    #         miller_index (list): Miller index for a specific facet to get a
-    #             dictionary for.
-    #     """
-    #
-    #     all_intesects_dict = {}
-    #     stable_urange_dict = {}
-    #     # max_ads_range = self.max_adsorption_chempot_range(const_u,
-    #     #                                                   buffer=buffer)
-    #     # standard_range = max_ads_range if not clean_only else self.chempot_range
-    #     # standard_range = sorted(standard_range)
-    #     # x_is_u_ads = False if clean_only else True
-    #
-    #     # Get all entries for a specific facet
-    #     for hkl in self.entry_dict.keys():
-    #
-    #         # bool to check if at least one surface exists for a facet
-    #         entry_exists = False
-    #         # Skip this facet if we want to get the range for a specific facet
-    #         if miller_index and hkl != tuple(miller_index):
-    #             continue
-    #         entries_in_hkl = [entry for entry in self.entry_dict[hkl]]
-    #         if not clean_only:
-    #             for entry in self.entry_dict[hkl]:
-    #                 entries_in_hkl.extend([ads_entry for ads_entry in
-    #                                        self.entry_dict[hkl][entry]])
-    #
-    #         # if there is only one entry for this facet, then just give it the
-    #         # default urange, you can't make combinations with just 1 item
-    #         if len(entries_in_hkl) == 1:
-    #             stable_urange_dict[entries_in_hkl[0]] = chempot_range
-    #             continue
-    #         for pair in itertools.combinations(entries_in_hkl, 2):
-    #             solution = self.get_surface_equilibrium(pair, u_dict=u_dict)
-    #             uval = solution.as_coefficients_dict()[ref_u]
-    #
-    #             # If the u in a list is beyond the standard
-    #             # range, set it to one of the limits
-    #             if uval < chempot_range[0]:
-    #                 u_new = chempot_range[0]
-    #             elif uval > chempot_range[1]:
-    #                 u_new = chempot_range[1]
-    #             else:
-    #                 u_new = uval
-    #
-    #             for entry in pair:
-    #                 if entry not in all_intesects_dict.keys():
-    #                     all_intesects_dict[entry] = []
-    #                 all_intesects_dict[entry].append(u_new)
-    #
-    #         # Now that we have every single intersection for a given
-    #         # slab, find the range of u where each slab is stable
-    #         for entry in all_intesects_dict.keys():
-    #             if entry not in stable_urange_dict.keys():
-    #                 stable_urange_dict[entry] = []
-    #             for u_int in all_intesects_dict[entry]:
-    #                 stable_entries = []
-    #                 for i in [-1, 1]:
-    #                     u_ads = u_int+i*(10e-6) if x_is_u_ads else const_u
-    #                     u_ref = u_int+i*(10e-6) if not x_is_u_ads else const_u
-    #                     # get_stable_entry_at_u() will only return one
-    #                     # entry for one gamma, since u is at an intersection,
-    #                     # this entry is ambiguous, we need to get the entry
-    #                     # slightly above and below u and check if the current
-    #                     # entry is any of these entries. Another inconvenience
-    #                     # that needs to be fixed
-    #                     stable_entry, gamma = \
-    #                         self.get_stable_entry_at_u(hkl, u_ads=u_ads,
-    #                                                            u_ref=u_ref)
-    #                     stable_entries.append(stable_entry)
-    #                 # If this entry is stable at this u, append u
-    #                 if entry in stable_entries:
-    #                     stable_urange_dict[entry].append(u_int)
-    #                     entry_exists = True
-    #
-    #         # Now check for entries with only one intersection
-    #         # is it stable below or above u_intersect
-    #         for entry in stable_urange_dict.keys():
-    #             # First lets check if all the u values for
-    #             # an entry are the same as the standard range,
-    #             # if so, just set it to the standard range
-    #             if stable_urange_dict[entry]:
-    #                 if all([u in standard_range for u in stable_urange_dict[entry]]):
-    #                     stable_urange_dict[entry] = standard_range
-    #
-    #             # If only one u, its stable from u to +-inf.
-    #             # If no u, this entry is never stable
-    #             if len(stable_urange_dict[entry]) == 1:
-    #                 u = stable_urange_dict[entry][0]
-    #                 for i in [-1, 1]:
-    #                     u_ads = u+i*(10e-6) if x_is_u_ads else const_u
-    #                     u_ref = u+i*(10e-6) if not x_is_u_ads else const_u
-    #
-    #                     e, se = self.get_stable_entry_at_u(hkl,
-    #                                                                u_ads=u_ads,
-    #                                                                u_ref=u_ref)
-    #                     if e == entry:
-    #                         # If the entry stable below u, assume it is
-    #                         # stable at -inf, otherwise its stable at +inf
-    #                         u2 = standard_range[0] if i == -1 else standard_range[1]
-    #                         stable_urange_dict[entry].append(u2)
-    #                         entry_exists = True
-    #
-    #             # now sort the ranges for each entry
-    #             stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
-    #
-    #         # Now we make sure that each facet has at least
-    #         # one entry, if no entries exist, this means there
-    #         # is no intersection, get the most stable surface
-    #         if not entry_exists:
-    #             e, se = self.get_stable_entry_at_u(hkl,
-    #                                                        u_ads=const_u,
-    #                                                        u_ref=const_u)
-    #             stable_urange_dict[e] = standard_range
-    #
-    #     return stable_urange_dict
 
     def color_palette_dict(self, alpha=0.35):
         """
@@ -778,8 +643,8 @@ class SurfaceEnergyPlotter(object):
 
         return color_dict
 
-    def chempot_vs_gamma_plot_one(self, plt, entry, ref_u, chempot_range, u_dict={},
-                                  u_default=0, label='', JPERM2=False):
+    def chempot_vs_gamma_plot_one(self, plt, entry, ref_u, chempot_range,
+                                  u_dict={}, u_default=0, label='', JPERM2=False):
         """
         Helper function to  help plot the surface energy of a
         single surface entry as a function of chemical potential.
@@ -866,12 +731,14 @@ class SurfaceEnergyPlotter(object):
             if not show_unstable:
                 stable_u_range_dict = self.stable_u_range_dict(chempot_range, ref_u,
                                                                clean_only=clean_only,
-                                                               u_dict=u_dict, miller_index=hkl)
+                                                               u_dict=u_dict,
+                                                               miller_index=hkl)
 
             already_labelled = []
             for clean_entry in self.entry_dict[hkl]:
 
-                urange = stable_u_range_dict[clean_entry] if not show_unstable else chempot_range
+                urange = stable_u_range_dict[clean_entry] if \
+                    not show_unstable else chempot_range
                 # Don't plot if the slab is unstable, plot if it is.
                 if urange != []:
 
@@ -881,27 +748,25 @@ class SurfaceEnergyPlotter(object):
                     else:
                         already_labelled.append(label)
 
-                    plt = self.chempot_vs_gamma_plot_one(plt, clean_entry, ref_u, urange,
-                                                         u_dict=u_dict, u_default=u_default,
+                    plt = self.chempot_vs_gamma_plot_one(plt, clean_entry, ref_u,
+                                                         urange, u_dict=u_dict,
+                                                         u_default=u_default,
                                                          label=label, JPERM2=JPERM2)
                 if not clean_only:
                     for ads_entry in self.entry_dict[hkl][clean_entry]:
                         # Plot the adsorbed slabs
                         # Generate a label for the type of slab
-                        urange = stable_u_range_dict[ads_entry] if not show_unstable else chempot_range
+                        urange = stable_u_range_dict[ads_entry] \
+                            if not show_unstable else chempot_range
                         if urange != []:
-                            plt = self.chempot_vs_gamma_plot_one(plt, ads_entry, ref_u, urange,
-                                                                 u_dict=u_dict, u_default=u_default,
-                                                                 label=label, JPERM2=JPERM2)
-
-
-        # if miller_index:
-        #     plt.title(r"%s,  $\Delta\mu_{%s}=%.2f$" %(str(miller_index),
-        #                                               str(ref_u).split("_")[1], const_u), fontsize=20)
+                            plt = self.chempot_vs_gamma_plot_one(plt, ads_entry,
+                                                                 ref_u, urange,
+                                                                 u_dict=u_dict,
+                                                                 u_default=u_default,
+                                                                 label=label,
+                                                                 JPERM2=JPERM2)
 
         # Make the figure look nice
-        # xrange = self.chempot_range if not x_is_u_ads \
-        #     else self.max_adsorption_chempot_range(const_u)
         plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 \
             else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
         plt = self.chempot_plot_addons(plt, chempot_range, str(ref_u).split("_")[1],
@@ -913,6 +778,8 @@ class SurfaceEnergyPlotter(object):
         """
         Plots the binding energy energy as a function of monolayers (ML),
             i.e. the fractional area adsorbate density for all facets.
+            For each facet at a specific monlayer, only plot the lowest
+            binding energy.
         Args:
             plot_eads (bool): Option to plot the adsorption energy (binding energy
                 multiplied by number of adsorbates) instead.
@@ -923,28 +790,34 @@ class SurfaceEnergyPlotter(object):
 
         plt = pretty_plot(width=8, height=7)
         for hkl in self.entry_dict.keys():
+            ml_be_dict = {}
             for clean_entry in self.entry_dict[hkl].keys():
                 if self.entry_dict[hkl][clean_entry]:
-                    monolayer = [self.se_calculator.get_monolayer(ads_entry, clean_entry)\
-                                 for ads_entry in self.entry_dict[hkl][clean_entry]]
-                    BEs = [self.se_calculator.gibbs_binding_energy(ads_entry, clean_entry,
-                                                                   eads=plot_eads) \
-                           for ads_entry in self.entry_dict[hkl][clean_entry]]
-                    # sort the binding energies and monolayers
-                    # in order to properly draw a line plot
-                    monolayer, BEs = zip(*sorted(zip(monolayer, BEs)))
-                    plt.plot(monolayer, BEs, '-o', c=self.color_dict[clean_entry], label=hkl)
+                    for ads_entry in self.entry_dict[hkl][clean_entry]:
+                        if ads_entry.get_monolayer not in ml_be_dict.keys():
+                            ml_be_dict[ads_entry.get_monolayer] = 1000
+                        be = ads_entry.gibbs_binding_energy(eads=plot_eads)
+                        if be < ml_be_dict[ads_entry.get_monolayer]:
+                            ml_be_dict[ads_entry.get_monolayer] = be
+            # sort the binding energies and monolayers
+            # in order to properly draw a line plot
+            vals = sorted(ml_be_dict.items())
+            monolayers, BEs = zip(*vals)
+            plt.plot(monolayers, BEs, '-o',
+                     c=self.color_dict[clean_entry], label=hkl)
 
-        plt.xlabel("%s Coverage (ML)" %(self.se_calculator.adsorbate_as_str))
-        plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
+        adsorbates = tuple(ads_entry.ads_entries_dict.keys())
+        plt.xlabel(" %s"*len(adsorbates) %adsorbates + " Coverage (ML)")
+        plt.ylabel("Adsorption Energy (eV)") if plot_eads \
+            else plt.ylabel("Binding Energy (eV)")
         plt.legend()
         plt.tight_layout()
 
         return plt
 
-    def chempot_plot_addons(self, plt, xrange, ref_el, axes,
-                            pad=2.4, rect=[-0.047, 0, 0.84, 1],
-                            ylim=[]):
+    def chempot_plot_addons(self, plt, xrange, ref_el, axes, pad=2.4,
+                            rect=[-0.047, 0, 0.84, 1], ylim=[]):
+
         """
         Helper function to a chempot plot look nicer.
 
@@ -982,8 +855,8 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def BE_vs_SE(self, plot_eads=False, const_u=0,
-                 annotate_monolayer=True, JPERM2=False):
+    def BE_vs_clean_SE(self, u_dict, u_default=0, plot_eads=False,
+                       annotate_monolayer=True, JPERM2=False):
         """
         For each facet, plot the clean surface energy against the most
             stable binding energy.
@@ -1060,11 +933,11 @@ class SurfaceEnergyPlotter(object):
     #     return
 
 
-class GetChempotRange(object):
-    def __init__(self, entry):
-        self.entry = entry
-
-
-class SlabEntryGenerator(object):
-    def __init__(self, entry):
-        self.entry = entry
+# class GetChempotRange(object):
+#     def __init__(self, entry):
+#         self.entry = entry
+#
+#
+# class SlabEntryGenerator(object):
+#     def __init__(self, entry):
+#         self.entry = entry
