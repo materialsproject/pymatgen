@@ -14,6 +14,7 @@ Submodules
 
    pymatgen.analysis.structure_prediction.substitution_probability
    pymatgen.analysis.structure_prediction.substitutor
+   pymatgen.analysis.structure_prediction.volume_predictor
 
 Module contents
 ---------------

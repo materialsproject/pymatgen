@@ -11,6 +11,7 @@ This module provides utilities for basic math operations.
 import collections
 
 from six.moves import zip
+import numpy as np
 
 
 def abs_cap(val, max_abs_val=1):
@@ -136,6 +137,23 @@ def monotonic(values, mode="<", atol=1.e-8):
         raise ValueError("Wrong mode %s" % str(mode))
 
     return True
+
+
+def round_to_sigfigs(num, sigfigs):
+    """
+    Rounds a number rounded to a specific number of significant
+    figures instead of to a specific precision.
+    """
+    if type(sigfigs) != int:
+        raise TypeError("Number of significant figures must be integer.")
+    elif sigfigs < 1:
+        raise ValueError("Number of significant figures "
+                         "must be larger than zero.")
+    elif num == 0:
+        return num
+    else:
+        prec = int(sigfigs - np.ceil(np.log10(np.absolute(num))))
+        return round(num, prec)
 
 
 if __name__ == "__main__":
