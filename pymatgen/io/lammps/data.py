@@ -1032,13 +1032,16 @@ class ForceField(MSONable):
         return cls(d["mass_info"], d["nonbond_coeffs"], d["topo_coeffs"])
 
 
-def structure_2_lmpdata(structure, atom_style="charge"):
+def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
     """
     Converts a structure to a LammpsData object with no force field
     parameters and topologies.
 
     Args:
         structure (Structure): Input structure.
+        ff_elements ([str]): List of strings of elements that must be
+            present due to force field settings but not necessarily in
+            the structure. Default to None.
         atom_style (str): Choose between "atomic" (neutral) and
             "charge" (charged). Default to "charge".
 
@@ -1046,9 +1049,7 @@ def structure_2_lmpdata(structure, atom_style="charge"):
         LammpsData
 
     """
-    assert structure.is_ordered, "Cannot convert disordered structure"
-    s = structure.copy()
-    s.remove_oxidation_states()
+    s = structure.get_sorted_structure()
 
     a, b, c = s.lattice.abc
     m = s.lattice.matrix
@@ -1064,7 +1065,11 @@ def structure_2_lmpdata(structure, atom_style="charge"):
     new_latt = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
     s.modify_lattice(new_latt)
 
-    mass_info = [(i, i) for i in s.symbol_set]
+    symbols = list(s.symbol_set)
+    if ff_elements:
+        symbols.extend(ff_elements)
+    elements = sorted(Element(el) for el in set(symbols))
+    mass_info = [tuple([i.symbol] * 2) for i in elements]
     ff = ForceField(mass_info)
     topo = Topology(s)
     return LammpsData.from_ff_and_topologies(ff=ff, topologies=[topo],
