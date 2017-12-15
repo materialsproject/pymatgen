@@ -55,6 +55,11 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual( 'density' in v.dielectric_data, True )
         self.assertEqual( 'velocity' in v.dielectric_data, True )
 
+    def test_optical_absorption_coeff(self):
+        v = Vasprun(os.path.join(test_dir, "vasprun.BSE.xml.gz"))
+        absorption_coeff = v.optical_absorption_coeff
+        self.assertEqual(absorption_coeff[1], 24966408728.917931)
+
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
         with self.assertRaises(NotImplementedError):
             Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric_bad"),
