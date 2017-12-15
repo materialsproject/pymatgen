@@ -17,10 +17,8 @@ import pandas as pd
 from ruamel.yaml import YAML
 from pymatgen import Molecule, Element, Lattice, Structure
 
-from pymatgen.io.lammps.data import LammpsData, Topology, ForceField,\
+from pymatgen.io.lammps.data import LammpsData, Topology, ForceField, \
     structure_2_lmpdata
-
-from pymatgen.analysis.structure_matcher import StructureMatcher
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
@@ -42,34 +40,19 @@ class LammpsDataTest(unittest.TestCase):
                       atom_style="angle")
 
     def test_structure(self):
-        pep = self.peptide
-        structure = pep.structure
-        self.assertEqual(type(structure).__name__, 'Structure')
-        self.assertEqual(len(structure.composition.elements), 21)
-        self.assertEqual(structure.num_sites, 2004)
-        self.assertEqual(structure.formula, "H1320 C30 S1 N6 O647")
-        structure.remove_oxidation_states()
-        self.assertEqual(len(structure.composition.elements), 5)
+        quartz_box = self.quartz.structure
+        np.testing.assert_array_equal(quartz_box.lattice.matrix,
+                                      [[4.913400, 0, 0],
+                                       [-2.456700, 4.255129, 0],
+                                       [0, 0, 5.405200]])
+        self.assertEqual(quartz_box.formula, "Si3 O6")
 
-        ethane = self.ethane
-        structure = ethane.structure
-        self.assertEqual(len(structure.composition.elements), 2)
-        self.assertEqual(structure.num_sites, 8)
-        self.assertEqual(structure.formula, "H6 C2")
-
-        quartz = self.quartz
-        structure = quartz.structure
-        self.assertEqual(len(structure.composition.elements), 2)
-        self.assertEqual(structure.num_sites, 9)
-        self.assertEqual(structure.formula, "Si3 O6")
-
-        # test tilt structure
-        tilt_str = Structure.from_file(os.path.join(test_dir, "POSCAR_tilt"))
-        lmp_tilt_data = structure_2_lmpdata(tilt_str)
-        s = StructureMatcher()
-        groups = s.group_structures([lmp_tilt_data.structure, tilt_str])
-        self.assertEqual(len(groups), 1)
-
+        ethane_box = self.ethane.structure
+        np.testing.assert_array_equal(ethane_box.lattice.matrix,
+                                      np.diag([10.0] * 3))
+        box_lbounds = np.array(self.ethane.box_bounds)[:, 0]
+        coords = self.ethane.atoms[["x", "y", "z"]].values - box_lbounds
+        np.testing.assert_array_equal(ethane_box.cart_coords, coords)
 
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)

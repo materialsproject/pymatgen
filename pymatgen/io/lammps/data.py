@@ -19,7 +19,7 @@ from six import string_types
 
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.core.structure import SiteCollection
-from pymatgen import Molecule, Element, Lattice, Structure, Specie
+from pymatgen import Molecule, Element, Lattice, Structure
 
 """
 This module implements a core class LammpsData for generating/parsing 
@@ -156,37 +156,34 @@ class LammpsData(MSONable):
     @property
     def structure(self):
         """
-        Transform from LammpsData file to a pymatgen structure object
+        Export a periodic structure object representing the simulation box.
 
         Return:
             A pymatgen structure object
+
         """
-        species_map = {}
-        for i, sp in enumerate(self.masses['mass']):
-            for el in Element:
-                if abs(el.atomic_mass - sp) < 0.05:
-                    species_map[i + 1] = el
-        if (len(species_map.keys()) != len(self.masses['mass'])):
-            raise RuntimeError('Psudo atom exists in data file')
-        xhi, yhi, zhi = self.box_bounds[0][1] - self.box_bounds[0][0], self.box_bounds[1][1] - self.box_bounds[1][0], \
-                        self.box_bounds[2][1] - self.box_bounds[0][0]
-        xy, xz, yz = self.box_tilt if self.box_tilt is not None else [0.0, 0.0, 0.0]
-        lattice = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
-        species = []
-        coords = self.atoms[['x', 'y', 'z']].values
-        for i in range(1, len(self.atoms['type']) + 1):
-            if 'q' in self.atoms:
-                if self.atoms['q'][i] != 0:
-                    species.append(Specie(species_map[self.atoms['type'][i]].symbol, self.atoms['q'][i]))
-                else:
-                    species.append(species_map[self.atoms['type'][i]])
-            else:
-                species.append(species_map[self.atoms['type'][i]])
+        masses = self.masses
+        atoms = self.atoms
+        atoms["molecule-ID"] = 1
+        box_bounds = np.array(self.box_bounds)
+        box_tilt = self.box_tilt if self.box_tilt else [0.0] * 3
+        ld_copy = self.__class__(masses, atoms, box_bounds, box_tilt)
+        _, topologies = ld_copy.disassemble()
+        molecule = topologies[0].sites
+        coords = molecule.cart_coords - box_bounds[:, 0]
+        species = molecule.species
 
-        return Structure(lattice, species, coords, coords_are_cartesian=True)
+        matrix = np.diag(box_bounds[:, 1] - box_bounds[:, 0])
+        matrix[1, 0] = box_tilt[0]
+        matrix[2, 0] = box_tilt[1]
+        matrix[2, 1] = box_tilt[2]
+        latt = Lattice(matrix)
 
+        site_properties = None if self.velocities is None \
+            else {"velocities": self.velocities.values}
 
-
+        return Structure(latt, species, coords, coords_are_cartesian=True,
+                         site_properties=site_properties)
 
     def get_string(self, distance=6, velocity=8, charge=3):
         """
@@ -296,6 +293,7 @@ class LammpsData(MSONable):
         """
         Breaks down LammpsData to ForceField and a series of Topology.
         RESTRICTIONS APPLIED:
+
         1. No complex force field defined not just on atom
             types, where the same type or equivalent types of topology
             may have more than one set of coefficients.
