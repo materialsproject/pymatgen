@@ -1,7 +1,8 @@
 Change log
 ==========
 
-v2017.9.29
+v2017.12.8
 ----------
-* critic2 command line caller for topological analysis (M. Horton)
-* Refactor coord_util -> coord.
+* Pymatgen no longer depends on pyhull.
+* MPRester method to get interface reaction kinks between two reactants.
+* Misc improvements.

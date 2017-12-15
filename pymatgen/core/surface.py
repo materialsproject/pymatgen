@@ -14,6 +14,9 @@ import math
 import itertools
 import logging
 import warnings
+import copy
+import os
+import json
 
 import numpy as np
 from scipy.spatial.distance import squareform
@@ -565,6 +568,47 @@ class Slab(Structure):
 
         return all(equal_surf_sites)
 
+    def get_symmetric_site(self, point):
+        """
+        This method uses symmetry operations to find equivalent sites on
+            both sides of the slab. Works mainly for slabs with Laue
+            symmetry. This is useful for retaining the non-polar and
+            symmetric properties of a slab when creating adsorbed
+            structures or symmetric reconstructions.
+
+        Arg:
+            point: Fractional coordinate.
+
+        Returns:
+            point: Fractional coordinate. A point equivalent to the
+                parameter point, but on the other side of the slab
+        """
+
+        sg = SpacegroupAnalyzer(self)
+        ops = sg.get_symmetry_operations()
+
+        # Each operation on a point will return an equivalent point.
+        # We want to find the point on the other side of the slab.
+        for op in ops:
+            slab = self.copy()
+            site2 = op.operate(point)
+            if "%.6f" % (site2[2]) == "%.6f" % (point[2]):
+                continue
+
+            # Add dummy site to check the overall structure is symmetric
+            slab.append("O", point)
+            slab.append("O", site2)
+            sg = SpacegroupAnalyzer(slab)
+            if sg.is_laue():
+                break
+            else:
+                # If not symmetric, remove the two added
+                # sites and try another symmetry operator
+                slab.remove_sites([len(slab) - 1])
+                slab.remove_sites([len(slab) - 1])
+
+        return site2
+
 
 class SlabGenerator(object):
 
@@ -1101,7 +1145,6 @@ class SlabGenerator(object):
                 slab.remove_sites([c_dir.index(min(c_dir))])
 
                 # Check if the altered surface is symmetric
-
                 sg = SpacegroupAnalyzer(slab, symprec=tol)
 
                 if sg.is_laue():
@@ -1112,6 +1155,306 @@ class SlabGenerator(object):
                           "size.")
 
         return slab
+
+
+module_dir = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(module_dir,
+                       "reconstructions_archive.json")) as data_file:
+    reconstructions_archive = json.load(data_file)
+
+
+class ReconstructionGenerator(object):
+
+    """
+    This class takes in a pre-defined dictionary specifying the parameters
+    need to build a reconstructed slab such as the SlabGenerator parameters,
+    transformation matrix, sites to remove/add and slab/vacuum size. It will
+    then use the formatted instructions provided by the dictionary to build
+    the desired reconstructed slab from the initial structure.
+
+    .. attribute:: slabgen_params
+
+        Parameters for the SlabGenerator
+
+    .. trans_matrix::
+
+        A 3x3 transformation matrix to generate the reconstructed
+            slab. Only the a and b lattice vectors are actually
+            changed while the c vector remains the same. This
+            matrix is what the Wood's notation is based on.
+
+    .. reconstruction_json::
+
+        The full json or dictionary containing the instructions
+            for building the reconstructed slab
+
+    .. termination::
+
+        The index of the termination of the slab
+
+    TODO:
+    - Right now there is no way to specify what atom is being
+        added. In the future, use basis sets?
+    """
+
+    def __init__(self, initial_structure, min_slab_size,
+                 min_vacuum_size, reconstruction_name, termination=0):
+
+        """
+        Generates reconstructed slabs from a set of instructions
+            specified by a dictionary or json file.
+
+        Args:
+            initial_structure (Structure): Initial input structure. Note that
+                to ensure that the miller indices correspond to usual
+                crystallographic definitions, you should supply a conventional
+                unit cell structure.
+            min_slab_size (float): In Angstroms
+            min_vacuum_size (float): In Angstroms
+            termination (int): The index of the termination of the slab. Some
+                surfaces can have more than one termination when using the
+                get_slabs() method from SlabGenerator(). For simplicity, the
+                reconstruction template will operate on the more stable
+                termination (e.g. for diamond (111), the termination without
+                the dangling bond) unless specified.
+
+            reconstruction (str): Name of the dict containing the instructions
+                for building a reconstructed slab. The dictionary can contain
+                any item the creator deems relevant, however any instructions
+                archived in pymatgen for public use needs to contain the
+                following keys and items to ensure compatibility with the
+                ReconstructionGenerator:
+
+                    "name" (str): A descriptive name for the type of reconstruction.
+                        Typically the name will have the type of structure the
+                        reconstruction is for, the Miller index, and Wood's notation
+                        along with anything to describe the reconstruction: e.g.:
+                        "fcc_110_missing_row_1x2"
+                    "description" (str): A longer description of your reconstruction.
+                        This is to help future contributors who want to add other
+                        types of reconstructions to the archive on pymatgen to check
+                        if the reconstruction already exists. Please read the
+                        descriptions carefully before adding a new type of
+                        reconstruction to ensure it is not in the archive yet.
+                    "reference" (str): Optional reference to where the reconstruction
+                        was taken from or first observed.
+                    "spacegroup" (dict): e.g. {"symbol": "Fm-3m", "number": 225}
+                        Indicates what kind of structure is this reconstruction.
+                    "miller_index" ([h,k,l]): Miller index of your reconstruction
+                    "Woods_notation" (str): For a reconstruction, the a and b lattice
+                        may change to accomodate the symmetry of the reconstruction.
+                        This notation indicates the change in the vectors relative to
+                        the primitive (p) or conventional (c) slab cell. E.g. p(2x1):
+
+                        Wood, E. A. (1964). Vocabulary of surface crystallography.
+                            Journal of Applied Physics, 35(4), 1306–1312.
+
+                    "transformation_matrix" (numpy array): A 3x3 matrix to transform
+                        the slab. Only the a and b lattice vectors should change while
+                        the c vector remains the same.
+                    "SlabGenerator_parameters" (dict): A dictionary containing the
+                        parameters for the SlabGenerator class excluding the
+                        miller_index, min_slab_size and min_vac_size as the Miller
+                        index is already specified and the min_slab_size and
+                        min_vac_size can be changed regardless of what type of
+                        reconstruction is used. Having a consistent set of
+                        SlabGenerator parameters allows for the instructions to be
+                        reused to consistently build a reconstructed slab.
+                    "points_to_remove" (list of coords): A list of sites to remove
+                        where the first two indices are fraction (in a an b) and
+                        the third index is in units of 1/d (in c).
+                    "points_to_add" (list of frac_coords): A list of sites to add
+                        where the first two indices are fraction (in a an b) and
+                        the third index is in units of 1/d (in c).
+
+                    "base_reconstruction" (dict): Option to base a reconstruction on
+                        an existing reconstruction model also exists to easily build
+                        the instructions without repeating previous work. E.g. the
+                        alpha reconstruction of halites is based on the octopolar
+                        reconstruction but with the topmost atom removed. The dictionary
+                        for the alpha reconstruction would therefore contain the item
+                        "reconstruction_base": "halite_111_octopolar_2x2", and
+                        additional sites for "points_to_remove" and "points_to_add"
+                        can be added to modify this reconstruction.
+
+                    For "points_to_remove" and "points_to_add", the third index for
+                        the c vector is in units of 1/d where d is the spacing
+                        between atoms along hkl (the c vector) and is relative to
+                        the topmost site in the unreconstructed slab. e.g. a point
+                        of [0.5, 0.25, 1] corresponds to the 0.5 frac_coord of a,
+                        0.25 frac_coord of b and a distance of 1 atomic layer above
+                        the topmost site. [0.5, 0.25, -0.5] where the third index
+                        corresponds to a point half a atomic layer below the topmost
+                        site. [0.5, 0.25, 0] corresponds to a point in the same
+                        position along c as the topmost site. This is done because
+                        while the primitive units of a and b will remain constant,
+                        the user can vary the length of the c direction by changing
+                        the slab layer or the vacuum layer.
+
+            NOTE: THE DICTIONARY SHOULD ONLY CONTAIN "points_to_remove" AND
+            "points_to_add" FOR THE TOP SURFACE. THE ReconstructionGenerator
+            WILL MODIFY THE BOTTOM SURFACE TO RETURN A SLAB WITH EQUIVALENT SURFACES.
+        """
+
+        if reconstruction_name not in reconstructions_archive.keys():
+            raise KeyError("The reconstruction_name entered does not exist in the "
+            "archive. Please select from one of the following reconstructions: %s "
+            "or add the appropriate dictionary to the archive file "
+            "reconstructions_archive.json." %(list(reconstructions_archive.keys())))
+
+        # Get the instructions to build the reconstruction
+        # from the reconstruction_archive
+        recon_json = copy.deepcopy(reconstructions_archive[reconstruction_name])
+        if "base_reconstruction" in recon_json.keys():
+            if "points_to_add" in recon_json.keys():
+                new_points_to_add = recon_json["points_to_add"]
+            if "points_to_remove" in recon_json.keys():
+                new_points_to_remove = recon_json["points_to_remove"]
+            recon_json = copy.deepcopy(reconstructions_archive[recon_json["base_reconstruction"]])
+            if new_points_to_add and "points_to_add" not in recon_json.keys():
+                recon_json["points_to_add"] = new_points_to_add
+            else:
+                recon_json["points_to_add"].extend(new_points_to_add)
+            if new_points_to_remove and "points_to_remove" not in recon_json.keys():
+                recon_json["points_to_remove"] = new_points_to_remove
+            else:
+                recon_json["points_to_remove"].extend(new_points_to_remove)
+
+        slabgen_params = copy.deepcopy(recon_json["SlabGenerator_parameters"])
+        slabgen_params["initial_structure"] = initial_structure.copy()
+        slabgen_params["miller_index"] = recon_json["miller_index"]
+        slabgen_params["min_slab_size"] = min_slab_size
+        slabgen_params["min_vacuum_size"] = min_vacuum_size
+
+        self.slabgen_params = slabgen_params
+        self.trans_matrix = recon_json["transformation_matrix"]
+        self.reconstruction_json = recon_json
+        self.termination = termination
+
+    def build_slab(self):
+
+        """
+        Builds the reconstructed slab by:
+            (1) Obtaining the unreconstructed slab using the specified
+                parameters for the SlabGenerator.
+            (2) Applying the appropriate lattice transformation in the
+                a and b lattice vectors.
+            (3) Remove any specified sites from both surfaces.
+            (4) Add any specified sites to both surfaces.
+
+        Returns:
+            (Slab): The reconstructed slab.
+        """
+
+        slab = self.get_unreconstructed_slab()
+        d= self.get_d()
+        top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
+
+        # Add any specified sites
+        if "points_to_add" in self.reconstruction_json.keys():
+            for p in self.reconstruction_json["points_to_add"]:
+                p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
+                                                           top_site[2]+p[2]*d])[2]
+                slab = self.symmetrically_add_atom(slab, p)
+
+        # Remove any specified sites
+        if "points_to_remove" in self.reconstruction_json.keys():
+            for p in self.reconstruction_json["points_to_remove"]:
+                p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
+                                                           top_site[2]+p[2]*d])[2]
+                slab = self.symmetrically_remove_atom(slab, p)
+
+        return slab
+
+    def symmetrically_remove_atom(self, slab, point):
+
+        """
+        Class method for removing a site at a specified point in a slab.
+            Will remove the corresponding site on the other side of the
+            slab to maintain equivalent surfaces.
+
+        Arg:
+            slab (Slab): The slab to modify
+            point (frac coord): The fractional coordinate of the site
+                in the slab to remove.
+
+        Returns:
+            (Slab): The modified slab
+        """
+
+        # Get the index of the original site on top
+        cart_point = slab.lattice.get_cartesian_coords(point)
+        dist = [site.distance_from_point(cart_point) for site in slab]
+        site1 = dist.index(min(dist))
+
+        # Get the index of the corresponding site at the bottom
+        point2 = slab.get_symmetric_site(point)
+        cart_point = slab.lattice.get_cartesian_coords(point2)
+        dist = [site.distance_from_point(cart_point) for site in slab]
+        site2 = dist.index(min(dist))
+
+        slab.remove_sites([site1, site2])
+
+        return slab
+
+    def symmetrically_add_atom(self, slab, point):
+
+        """
+        Class method for adding a site at a specified point in a slab.
+            Will add the corresponding site on the other side of the
+            slab to maintain equivalent surfaces.
+
+        Arg:
+            slab (Slab): The slab to modify
+            point (frac coord): The fractional coordinate of the site
+                in the slab to add.
+
+        Returns:
+            (Slab): The modified slab
+        """
+
+        # For now just use the species of the
+        # surface atom as the element to add
+        el = sorted(slab, key=lambda site: \
+            site.frac_coords[2])[-1].species_string
+
+        # Get the index of the corresponding site at the bottom
+        point2 = slab.get_symmetric_site(point)
+
+        slab.append(el, point)
+        slab.append(el, point2)
+
+        return slab
+
+    def get_unreconstructed_slab(self):
+
+        """
+        Generates the unreconstructed or pristine super slab.
+        """
+
+        slab = SlabGenerator(**self.slabgen_params).get_slabs()[self.termination]
+        slab.make_supercell(self.trans_matrix)
+        return slab
+
+    def get_d(self):
+
+        """
+        Determine the distance of space between
+        each layer of atoms along c
+        """
+
+        slab = self.get_unreconstructed_slab()
+        sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
+        for i, site in enumerate(sorted_sites):
+            if "%.6f" % (site.frac_coords[2]) == \
+                            "%.6f" % (sorted_sites[i+1].frac_coords[2]):
+                continue
+            else:
+                d = abs(site.frac_coords[2] - \
+                        sorted_sites[i+1].frac_coords[2])
+                break
+
+        return slab.lattice.get_cartesian_coords([0,0,d])[2]
 
 
 def get_recp_symmetry_operation(structure, symprec=0.01):

@@ -10,6 +10,7 @@ import subprocess
 import itertools
 import logging
 import glob
+import warnings
 
 import numpy as np
 from monty.fractions import lcm
@@ -30,7 +31,7 @@ from monty.tempfile import ScratchDir
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
 
-This module depends on a compiled enumlib with the executables multienum.x and
+This module depends on a compiled enumlib with the executables enum.x and
 makestr.x available in the path. Please download the library at
 http://enum.sourceforge.net/ and follow the instructions in the README to
 compile these two executables accordingly.
@@ -64,6 +65,7 @@ logger = logging.getLogger(__name__)
 enum_cmd = which('enum.x') or which('multienum.x')
 # prefer makestr.x at present
 makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
+
 
 @requires(enum_cmd and makestr_cmd,
           "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
@@ -131,23 +133,15 @@ class EnumlibAdaptor(object):
         # Create a temporary directory for working.
         with ScratchDir(".") as d:
             logger.debug("Temp dir : {}".format(d))
-            try:
-                # Generate input files
-                self._gen_input_file()
-                # Perform the actual enumeration
-                num_structs = self._run_multienum()
-                # Read in the enumeration output as structures.
-                if num_structs > 0:
-                    self.structures = self._get_structures(num_structs)
-                else:
-                    raise ValueError("Unable to enumerate structure.")
-            except Exception:
-                import sys
-                import traceback
-
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                          limit=10, file=sys.stdout)
+            # Generate input files
+            self._gen_input_file()
+            # Perform the actual enumeration
+            num_structs = self._run_multienum()
+            # Read in the enumeration output as structures.
+            if num_structs > 0:
+                self.structures = self._get_structures(num_structs)
+            else:
+                raise EnumError("Unable to enumerate structure.")
 
     def _gen_input_file(self):
         """
@@ -163,6 +157,8 @@ class EnumlibAdaptor(object):
             fitter.get_space_group_number(),
             len(symmetrized_structure.equivalent_sites))
         )
+
+        target_sgnum = fitter.get_space_group_number()
 
         """
         Enumlib doesn"t work when the number of species get too large. To
@@ -214,40 +210,36 @@ class EnumlibAdaptor(object):
             return finder.get_space_group_number()
 
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
-        min_sgnum = get_sg_info(curr_sites)
-        logger.debug("Disordered sites has sgnum %d" % (
-            min_sgnum))
-        # It could be that some of the ordered sites has a lower symmetry than
-        # the disordered sites.  So we consider the lowest symmetry sites as
-        # disordered in our enumeration.
+        sgnum = get_sg_info(curr_sites)
+        ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
+        logger.debug("Disordered sites has sg # %d" % (sgnum))
         self.ordered_sites = []
-        to_add = []
 
         if self.check_ordered_symmetry:
-            for sites in ordered_sites:
+            while sgnum != target_sgnum:
+                sites = ordered_sites.pop(0)
                 temp_sites = list(curr_sites) + sites
-                sgnum = get_sg_info(temp_sites)
-                if sgnum < min_sgnum:
-                    logger.debug("Adding {} to sites to be ordered. "
-                                 "New sgnum {}"
-                                 .format(sites, sgnum))
-                    to_add = sites
-                    min_sgnum = sgnum
+                new_sgnum = get_sg_info(temp_sites)
+                if sgnum != new_sgnum:
+                    logger.debug("Adding %s in enum. New sg # %d"
+                                 % (sites[0].specie, new_sgnum))
+                    index_species.append(sites[0].specie)
+                    index_amounts.append(len(sites))
+                    sp_label = len(index_species) - 1
+                    for site in sites:
+                        coord_str.append("{} {}".format(
+                            coord_format.format(*site.coords),
+                            sp_label))
+                    disordered_sites.append(sites)
+                    sgnum = new_sgnum
+                else:
+                    self.ordered_sites.extend(sites)
+
+                if sgnum == target_sgnum:
+                    break
 
         for sites in ordered_sites:
-            if sites == to_add:
-                index_species.append(sites[0].specie)
-                index_amounts.append(len(sites))
-                sp_label = len(index_species) - 1
-                logger.debug("Lowest symmetry {} sites are included in enum."
-                             .format(sites[0].specie))
-                for site in sites:
-                    coord_str.append("{} {}".format(
-                        coord_format.format(*site.coords),
-                        sp_label))
-                disordered_sites.append(sites)
-            else:
-                self.ordered_sites.extend(sites)
+            self.ordered_sites.extend(sites)
 
         self.index_species = index_species
 
@@ -256,8 +248,8 @@ class EnumlibAdaptor(object):
         output = [self.structure.formula, "bulk"]
         for vec in lattice.matrix:
             output.append(coord_format.format(*vec))
-        output.append("{}".format(len(index_species)))
-        output.append("{}".format(len(coord_str)))
+        output.append("%d" % len(index_species))
+        output.append("%d" % len(coord_str))
         output.extend(coord_str)
 
         output.append("{} {}".format(self.min_cell_size, self.max_cell_size))
@@ -325,51 +317,58 @@ class EnumlibAdaptor(object):
             # Need to strip sites of site_properties, which would otherwise
             # result in an index error. Hence Structure is reconstructed in
             # the next step.
+            site_properties = {}
+            for site in self.ordered_sites:
+                for k, v in site.properties.items():
+                    if k in site_properties:
+                        site_properties[k].append(v)
+                    else:
+                        site_properties[k] = [v]
             ordered_structure = Structure(
                 original_latt,
                 [site.species_and_occu for site in self.ordered_sites],
-                [site.frac_coords for site in self.ordered_sites])
+                [site.frac_coords for site in self.ordered_sites],
+                site_properties=site_properties
+            )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
 
-        try:
-            for file in glob.glob('vasp.*'):
-                with open(file) as f:
-                    data = f.read()
-                    data = re.sub(r'scale factor', "1", data)
-                    data = re.sub(r'(\d+)-(\d+)', r'\1 -\2', data)
-                    poscar = Poscar.from_string(data, self.index_species)
-                    sub_structure = poscar.structure
-                    # Enumeration may have resulted in a super lattice. We need to
-                    # find the mapping from the new lattice to the old lattice, and
-                    # perform supercell construction if necessary.
-                    new_latt = sub_structure.lattice
+        for file in glob.glob('vasp.*'):
+            with open(file) as f:
+                data = f.read()
+                data = re.sub(r'scale factor', "1", data)
+                data = re.sub(r'(\d+)-(\d+)', r'\1 -\2', data)
+                poscar = Poscar.from_string(data, self.index_species)
+                sub_structure = poscar.structure
+                # Enumeration may have resulted in a super lattice. We need to
+                # find the mapping from the new lattice to the old lattice, and
+                # perform supercell construction if necessary.
+                new_latt = sub_structure.lattice
 
-                    sites = []
+                sites = []
 
-                    if len(self.ordered_sites) > 0:
-                        transformation = np.dot(new_latt.matrix, inv_org_latt)
-                        transformation = [[int(round(cell)) for cell in row]
-                                          for row in transformation]
-                        logger.debug("Supercell matrix: {}".format(transformation))
-                        s = ordered_structure * transformation
-                        sites.extend([site.to_unit_cell for site in s])
-                        super_latt = sites[-1].lattice
+                if len(self.ordered_sites) > 0:
+                    transformation = np.dot(new_latt.matrix, inv_org_latt)
+                    transformation = [[int(round(cell)) for cell in row]
+                                      for row in transformation]
+                    logger.debug("Supercell matrix: {}".format(transformation))
+                    s = ordered_structure * transformation
+                    sites.extend([site.to_unit_cell for site in s])
+                    super_latt = sites[-1].lattice
+                else:
+                    super_latt = new_latt
+
+                for site in sub_structure:
+                    if site.specie.symbol != "X":  # We exclude vacancies.
+                        sites.append(PeriodicSite(site.species_and_occu,
+                                                  site.frac_coords,
+                                                  super_latt).to_unit_cell)
                     else:
-                        super_latt = new_latt
-
-                    for site in sub_structure:
-                        if site.specie.symbol != "X":  # We exclude vacancies.
-                            sites.append(PeriodicSite(site.species_and_occu,
-                                                      site.frac_coords,
-                                                      super_latt).to_unit_cell)
-                        else:
-                            logger.warning("Skipping sites that include species X.")
-                    structs.append(Structure.from_sites(sorted(sites)))
-
-        except Exception as e:
-            logger.error(e)
-            logger.error("Failed to read structures, test your makeStr binary is working "
-                         "correctly.")
+                        warnings.warn("Skipping sites that include species X.")
+                structs.append(Structure.from_sites(sorted(sites)))
 
         logger.debug("Read in a total of {} structures.".format(num_structs))
         return structs
+
+
+class EnumError(BaseException):
+    pass

@@ -396,7 +396,7 @@ loop_
 
     def test_symmetrized(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         writer = CifWriter(poscar.structure, symprec=0.1)
         ans = """# generated using pymatgen
 data_FePO4
@@ -980,10 +980,16 @@ loop_
 class MagCifTest(unittest.TestCase):
 
     def setUp(self):
-        self.mcif = CifParser(os.path.join(test_dir, "magnetic.example.NiO.mcif"))
-        self.mcif_ncl = CifParser(os.path.join(test_dir, "magnetic.ncl.example.GdB4.mcif"))
-        self.mcif_incom = CifParser(os.path.join(test_dir, "magnetic.incommensurate.example.Cr.mcif"))
-        self.mcif_disord = CifParser(os.path.join(test_dir, "magnetic.disordered.example.CuMnO2.mcif"))
+        self.mcif = CifParser(os.path.join(test_dir,
+                                           "magnetic.example.NiO.mcif"))
+        self.mcif_ncl = CifParser(os.path.join(test_dir,
+                                               "magnetic.ncl.example.GdB4.mcif"))
+        self.mcif_incom = CifParser(os.path.join(test_dir,
+                                                 "magnetic.incommensurate.example.Cr.mcif"))
+        self.mcif_disord = CifParser(os.path.join(test_dir,
+                                                  "magnetic.disordered.example.CuMnO2.mcif"))
+        self.mcif_ncl2 = CifParser(os.path.join(test_dir,
+                                                  "Mn3Ge_IR2.mcif"))
 
     def test_mcif_detection(self):
         self.assertTrue(self.mcif.feature_flags["magcif"])
@@ -1181,6 +1187,15 @@ loop_
 """
 
         self.assertEqual(cw.__str__(), cw_ref_string_magnitudes)
+
+        # test we're getting correct magmoms in ncl case
+        s_ncl2 = self.mcif_ncl2.get_structures()[0]
+        list_magmoms = [list(m) for m in s_ncl2.site_properties['magmom']]
+        self.assertEqual(list_magmoms[0][0], 0.0)
+        self.assertAlmostEqual(list_magmoms[0][1], 5.9160793408726366)
+        self.assertAlmostEqual(list_magmoms[1][0], -5.1234749999999991)
+        self.assertAlmostEqual(list_magmoms[1][1], 2.9580396704363183)
+
 
     def test_bibtex(self):
 

@@ -29,7 +29,7 @@ import warnings
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.structure_analyzer import OrderParameters
+from pymatgen.analysis.local_env import LocalStructOrderParas
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
     SpacegroupOperations
 from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
@@ -1601,7 +1601,7 @@ class StructureMotifInterstitial(Defect):
         struct_w_inter = struct.copy()
         struct_w_inter.append(inter_elem, [0, 0, 0])
         natoms = len(list(struct_w_inter.sites))
-        ops = OrderParameters(motif_types, cutoff=-10.0)
+        ops = LocalStructOrderParas(motif_types, cutoff=-10.0)
         trialsites = []
 
         # Loop over trial positions that are based on a regular
@@ -1632,11 +1632,11 @@ class StructureMotifInterstitial(Defect):
                                 continue
 
                             allsites = [s for s in neighs]
-                            indeces_neighs = [i for i in range(len(allsites))]
+                            indices_neighs = [i for i in range(len(allsites))]
                             allsites.append(struct_w_inter.sites[natoms-1])
                             opvals = ops.get_order_parameters(
                                         allsites, len(allsites)-1,
-                                        indeces_neighs=indeces_neighs)
+                                        indices_neighs=indices_neighs)
                             motif_type = "unrecognized"
                             if "tet" in motif_types:
                                 if nneighs == 4 and \

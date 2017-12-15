@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 
 import unittest
-
+import warnings
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.sites import Site
 
@@ -20,6 +20,12 @@ __date__ = "Jul 26, 2012"
 
 class CovalentBondTest(unittest.TestCase):
 
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_length(self):
         site1 = Site("C", [0, 0, 0])
         site2 = Site("H", [0, 0.7, 0.6])
@@ -32,6 +38,9 @@ class CovalentBondTest(unittest.TestCase):
         self.assertTrue(CovalentBond.is_bonded(site1, site2))
         site2 = Site("H", [0, 0, 1.5])
         self.assertFalse(CovalentBond.is_bonded(site1, site2))
+        site1 = Site("U", [0, 0, 0])
+        self.assertRaises(ValueError, CovalentBond.is_bonded, site1, site2)
+        self.assertTrue(CovalentBond.is_bonded(site1, site2, default_bl=2))
 
     def test_str(self):
         site1 = Site("C", [0, 0, 0])

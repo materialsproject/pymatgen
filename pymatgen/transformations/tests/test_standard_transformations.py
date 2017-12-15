@@ -8,9 +8,10 @@ import random
 import unittest
 import json
 import six
+import warnings
 
 from monty.os.path import which
-from pymatgen import Lattice, PeriodicSite
+from pymatgen import Lattice, PeriodicSite, Element
 from monty.json import MontyDecoder
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.transformations.standard_transformations import *
@@ -199,6 +200,13 @@ class OxidationStateRemovalTransformationTest(unittest.TestCase):
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_apply_transformation(self):
         t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
         coords = list()
@@ -439,6 +447,37 @@ class DeformStructureTransformationTest(unittest.TestCase):
         d = t.as_dict()
         self.assertEqual(type(DeformStructureTransformation.from_dict(d)),
                          DeformStructureTransformation)
+
+
+class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        l = Lattice.cubic(4)
+        s_orig = Structure(l, [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
+                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
+        s = dot.apply_transformation(s_orig)
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.2,
+                                                       Element("Na"): 0.2,
+                                                       Element("K"): 0.6})
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.01)
+        self.assertRaises(RuntimeError, dot.apply_transformation, s_orig)
+
+        s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
+                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.25,
+                                                  fix_denominator=False)
+
+        s = dot.apply_transformation(s_orig_2)
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(1/2),
+                                                       Element("Na"): Fraction(1/4),
+                                                       Element("K"): Fraction(1/4)})
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.05,
+                                                  fix_denominator=True)
+        self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,58 @@
 Change log
 ==========
 
+v2017.12.8
+----------
+* Pymatgen no longer depends on pyhull.
+* MPRester method to get interface reaction kinks between two reactants.
+* Misc improvements.
+
+v2017.12.6
+----------
+* Support for HDF5 output for VolumetricData (CHGCAR, LOCPOT, etc.).
+* Support for Crystal Orbital Hamilton Populations (COHPs) (@marcoesters)
+* REST interface for Pourbaix data
+* Support for optical property parsing in Vasprun.
+* Improvements to LammpsData
+* Misc bug fixes.
+
+v2017.11.30
+-----------
+* Fix for severe enumlib_caller bug. This causes enumerations not to be carried
+  out properly due to bad accounting of symmetry of ordered sites. It results
+  in too few orderings.
+* New method to extract clusters of atoms from a Molecule based on bonds.
+
+v2017.11.27
+-----------
+* Improvements to FEFF
+* MPRester now supports surface data.
+* Improvement to DiscretizeOccupanciesTransformation.
+
+v2017.11.9
+----------
+* Massive rewrite of LAMMPSData to support more functionality (Zhi Deng)
+* Misc bug fixes.
+
+v2017.11.6
+----------
+* Better exception handling in EnumlibAdaptor and
+  EnumerateStructureTransformation.
+* Allow bypassing of ewald calculation in EnumerateStructureTransformation.
+* get_symmetry_operations API convenience method for PointGroupAnalyzer.
+* New DiscretizeOccupanciesTransformation to help automate ordering of
+  disordered structures.
+* Fix POTCAR check for POSCAR.
+* Minor updates to periodic table data.
+* Misc bug fixes.
+
+v2017.10.16
+-----------
+* Added many more OPs and made normalization procedure more robust (Nils Zimmermann)
+* Molecular orbitals functionality in Element (Maxwell Dylla)
+* Improvements in chemenv (David Waroquiers)
+* Add I/O for ATAT’s mcsqs lattice format (Matthew Horton)
+
 v2017.9.29
 ----------
 * critic2 command line caller for topological analysis (M. Horton)

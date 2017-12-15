@@ -6,7 +6,7 @@ from __future__ import division, unicode_literals
 
 import unittest
 import os
-
+import warnings
 from pymatgen import SETTINGS
 from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
@@ -16,6 +16,10 @@ from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.analysis.pourbaix.entry import PourbaixEntry
+from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
+from pymatgen.analysis.wulff import WulffShape
+from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
 
 """
@@ -40,7 +44,11 @@ class MPResterTest(unittest.TestCase):
 
     def setUp(self):
         self.rester = MPRester()
+        warnings.simplefilter("ignore")
 
+    def tearDown(self):
+        warnings.resetwarnings()
+        
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
@@ -182,6 +190,16 @@ class MPResterTest(unittest.TestCase):
         for e in self.rester.get_entries("CdO2", inc_structure=False):
             self.assertIsNotNone(e.data["oxide_type"])
 
+    def test_get_pourbaix_entries(self):
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
+        for pbx_entry in pbx_entries:
+            self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
+        # Ensure entries are pourbaix compatible
+        pbx = PourbaixDiagram(pbx_entries)
+        # Try binary system
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        pbx = PourbaixDiagram(pbx_entries)
+
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
@@ -233,6 +251,34 @@ class MPResterTest(unittest.TestCase):
         substrate_data = self.rester.get_substrates('mp-123', 5, [1, 0, 0])
         substrates = [sub_dict['sub_id'] for sub_dict in substrate_data]
         self.assertIn("mp-2534", substrates)
+
+    def test_get_surface_data(self):
+        data = self.rester.get_surface_data("mp-126") # Pt
+        self.assertIn("surfaces", data)
+        surfaces = data["surfaces"]
+        self.assertTrue(len(surfaces) > 0)
+        surface = surfaces.pop()
+        self.assertIn("miller_index", surface)
+        self.assertIn("surface_energy", surface)
+        self.assertIn("is_reconstructed", surface)
+        data_inc = self.rester.get_surface_data("mp-126", inc_structures=True)
+        self.assertIn("structure", data_inc["surfaces"][0])
+
+    def test_get_wulff_shape(self):
+        ws = self.rester.get_wulff_shape("mp-126")
+        self.assertTrue(isinstance(ws, WulffShape))
+
+    def test_get_interface_reactions(self):
+        kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
+        self.assertTrue(len(kinks) > 0)
+        kink = kinks[0]
+        self.assertIn("energy", kink)
+        self.assertIn("ratio", kink)
+        self.assertIn("rxn", kink)
+        self.assertTrue(isinstance(kink['rxn'], Reaction))
+        kinks_open_O = self.rester.get_interface_reactions(
+            "LiCoO2", "Li3PS4", open_el="O", relative_mu=-1)
+        self.assertTrue(len(kinks_open_O) > 0)
 
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")

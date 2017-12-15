@@ -552,7 +552,6 @@ class DiffusionAnalyzer(MSONable):
                     msdc) + [mscd]]))
                 f.write("\n")
 
-
     @classmethod
     def from_structures(cls, structures, specie, temperature,
                         time_step, step_skip, initial_disp=None,
@@ -587,8 +586,6 @@ class DiffusionAnalyzer(MSONable):
         """
         p, l = [], []
         for i, s in enumerate(structures):
-            if i == 0:
-                structure = s
             p.append(np.array(s.frac_coords)[:, None])
             l.append(s.lattice.matrix)
         if initial_structure is not None:
@@ -602,7 +599,9 @@ class DiffusionAnalyzer(MSONable):
         dp = p[:, 1:] - p[:, :-1]
         dp = dp - np.round(dp)
         f_disp = np.cumsum(dp, axis=1)
-        c_disp = [np.dot(d, m) for d, m in zip(f_disp, l)]
+        c_disp = []
+        for i in f_disp:
+            c_disp.append( [ np.dot(d, m) for d, m in zip(i, l[1:]) ] )
         disp = np.array(c_disp)
 
         # If is NVT-AIMD, clear lattice data.
@@ -613,7 +612,7 @@ class DiffusionAnalyzer(MSONable):
         if initial_disp is not None:
             disp += initial_disp[:, None, :]
 
-        return cls(structure, disp, specie, temperature, time_step,
+        return cls(structures[0], disp, specie, temperature, time_step,
                    step_skip=step_skip, lattices=l, **kwargs)
 
     @classmethod

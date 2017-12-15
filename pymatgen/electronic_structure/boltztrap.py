@@ -2,11 +2,12 @@
 
 from __future__ import division, unicode_literals, print_function
 
+import logging
 import math
 import os
 import subprocess
 import tempfile
-import logging
+import time
 
 import numpy as np
 from monty.dev import requires
@@ -139,8 +140,9 @@ class BoltztrapRunner(MSONable):
             cb_cut: by default 10% of the highest conduction bands are 
                 removed because they are often not accurate. 
                 Tune cb_cut to change the percentage (0-100) of bands 
-                that are removed.                
-
+                that are removed.
+            timeout: overall time limit (in seconds): mainly to avoid infinite
+                loop when trying to find Fermi levels.
     """
 
     @requires(which('x_trans'),
@@ -153,7 +155,7 @@ class BoltztrapRunner(MSONable):
                  lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0,
                  tauen=0, soc=False, doping=None, energy_span_around_fermi=1.5,
                  scissor=0.0, kpt_line=None, spin=None, cond_band=False,
-                 tmax=1300, tgrid=50, symprec=1e-3, cb_cut=10):
+                 tmax=1300, tgrid=50, symprec=1e-3, cb_cut=10, timeout=7200):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -184,6 +186,8 @@ class BoltztrapRunner(MSONable):
         self._symprec = symprec
         if self.run_type in ("DOS", "BANDS"):
             self._auto_set_energy_range()
+        self.timeout = timeout
+        self.start_time = time.time()
 
     def _auto_set_energy_range(self):
         """
@@ -598,10 +602,16 @@ class BoltztrapRunner(MSONable):
 
             while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
+                if time.time() - self.start_time > self.timeout:
+                    raise BoltztrapError("no doping convergence after timeout "
+                                         "of {} s".format(self.timeout))
 
                 logging.info("lpfac, energy_grid: {} {}".format(self.lpfac, self.energy_grid))
 
                 while self.lpfac <= max_lpfac and not converged:
+                    if time.time() - self.start_time > self.timeout:
+                        raise BoltztrapError("no doping convergence after "
+                                        "timeout of {} s".format(self.timeout))
 
                     if write_input:
                         self.write_input(path_dir)

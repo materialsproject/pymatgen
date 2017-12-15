@@ -5,7 +5,6 @@
 from __future__ import division, unicode_literals
 
 import warnings
-import six
 import ruamel.yaml as yaml
 import os
 
@@ -21,8 +20,8 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import math
-from math import pi, asin, atan, sqrt, exp, cos
+
+from math import pi, sin, asin, sqrt, exp, cos, acos
 import numpy as np
 import itertools
 import collections
@@ -34,6 +33,12 @@ from pymatgen import Element, Specie, Composition
 from pymatgen.util.num import abs_cap
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.surface import Slab, SlabGenerator
+
+default_op_paras = {}
+with open(os.path.join(os.path.dirname(
+        __file__), 'op_paras.yaml'), "rt") as f:
+    default_op_paras = yaml.safe_load(f)
+    f.close()
 
 
 class VoronoiCoordFinder(object):
@@ -164,7 +169,7 @@ class JMolCoordFinder:
         """
 
         warnings.warn("JMolCoordFinder will be moved to local_env.py"
-                " with pymatgen >= 2018")
+                      " with pymatgen >= 2018")
 
         # load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -187,7 +192,7 @@ class JMolCoordFinder:
         Returns: (float) max bond length
 
         """
-        return math.sqrt(
+        return sqrt(
             (self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
 
     def get_coordination_number(self, structure, n, tol=1E-3):
@@ -467,7 +472,7 @@ class VoronoiConnectivity(object):
         self.cutoff = cutoff
         self.s = structure
         recp_len = np.array(self.s.lattice.reciprocal_lattice.abc)
-        i = np.ceil(cutoff * recp_len / (2 * math.pi))
+        i = np.ceil(cutoff * recp_len / (2 * pi))
         offsets = np.mgrid[-i[0]:i[0] + 1, -i[1]:i[1] + 1, -i[2]:i[2] + 1].T
         self.offsets = np.reshape(offsets, (-1, 3))
         # shape = [image, axis]
@@ -580,9 +585,9 @@ def solid_angle(center, coords):
     for i in range(len(n) - 1):
         v = -np.dot(n[i], n[i + 1]) \
             / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
-        vals.append(math.acos(abs_cap(v)))
+        vals.append(acos(abs_cap(v)))
     phi = sum(vals)
-    return phi + (3 - len(r)) * math.pi
+    return phi + (3 - len(r)) * pi
 
 
 def get_max_bond_lengths(structure, el_radius_updates=None):
@@ -613,7 +618,6 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
 def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
                        min_slab_size=5, min_vacuum_size=5,
                        standardize=True, bonds=None):
-
     """
     This method returns whether a structure is 3D, 2D (layered), or 1D (linear 
     chains or molecules) according to the algorithm published in Gorai, P., 
@@ -648,7 +652,7 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
 
     """
     if standardize:
-        structure = SpacegroupAnalyzer(structure).\
+        structure = SpacegroupAnalyzer(structure). \
             get_conventional_standard_structure()
 
     if not bonds:
@@ -816,7 +820,8 @@ def sulfide_type(structure):
 
     finder = SpacegroupAnalyzer(structure, symprec=0.1)
     symm_structure = finder.get_symmetrized_structure()
-    s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
+    s_sites = [sites[0] for sites in symm_structure.equivalent_sites if
+               sites[0].specie == s]
 
     def process_site(site):
         neighbors = structure.get_neighbors(site, 4)
@@ -863,13 +868,16 @@ def gramschmidt(vin, uin):
 
 class OrderParameters(object):
     """
-    This class permits the calculation of various types of local order
-    parameters.
+    This class permits the calculation of various types of local
+    structure order parameters.
     """
 
     __supported_types = (
-            "cn", "lin", "bent", "tet", "tet_legacy", "oct", "oct_legacy",
-            "bcc", "q2", "q4", "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr")
+        "cn", "sgl_bd", "bent", "tri_plan", "reg_tri", "sq_plan", \
+        "pent_plan", "sq", "tet", "tri_pyr", \
+        "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "sq_bipyr", "oct", \
+        "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", \
+        "T", "cuboct", "see_saw", "bcc", "q2", "q4", "q6")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -877,352 +885,145 @@ class OrderParameters(object):
             types ([string]): list of strings representing the types of
                 order parameters to be calculated. Note that multiple
                 mentions of the same type may occur. Currently available
-                types are:
+                types recognize following environments:
                   "cn": simple coordination number---normalized
                         if desired;
-                  "lin": Peters-style OP recognizing linear coordination
-                         (Zimmermann & Jain, in progress, 2017);
-                  "bent": Peters-style OP recognizing bent coordination
+                  "sgl_bd": single bonds;
+                  "bent": bent (angular) coordinations
                           (Zimmermann & Jain, in progress, 2017);
-                  "tet": Peters-style OP recognizing tetrahedral
-                         environments (Zimmermann et al., submitted,
-                         2017);
-                  "oct": Peters-style OP recognizing octahedral
-                         environments (Zimmermann et al., submitted,
-                         2017);
-                  "bcc": Peters-style OP recognizing local
-                         body-centered cubic environment (Peters,
+                  "T": T-shape coordinations;
+                  "see_saw": see saw-like coordinations;
+                  "tet": tetrahedra
+                         (Zimmermann et al., submitted, 2017);
+                  "oct": octahedra
+                         (Zimmermann et al., submitted, 2017);
+                  "bcc": body-centered cubic environments (Peters,
                          J. Chem. Phys., 131, 244103, 2009);
-                  "reg_tri": OP recognizing coordination with a regular triangle;
-                  "sq": OP recognizing square coordination;
-                  "sq_pyr": OP recognizing square pyramidal coordination;
-                  "tri_bipyr": OP recognizing trigonal bipyramidal coord.;
-                  "q2": bond orientational order parameter (BOOP)
-                        of weight l=2 (Steinhardt et al., Phys. Rev. B,
-                        28, 784-805, 1983);
+                  "tri_plan": trigonal planar environments;
+                  "sq_plan": square planar environments;
+                  "pent_plan": pentagonal planar environments;
+                  "tri_pyr": trigonal pyramids (coordinated atom is in
+                             the center of the basal plane);
+                  "sq_pyr": square pyramids;
+                  "pent_pyr": pentagonal pyramids;
+                  "hex_pyr": hexagonal pyramids;
+                  "tri_bipyr": trigonal bipyramids;
+                  "sq_bipyr": square bipyramids;
+                  "pent_bipyr": pentagonal bipyramids;
+                  "hex_bipyr": hexagonal bipyramids;
+                  "cuboct": cuboctahedra;
+                  "q2": motif-unspecific bond orientational order
+                        parameter (BOOP) of weight l=2 (Steinhardt
+                        et al., Phys. Rev. B, 28, 784-805, 1983);
                   "q4": BOOP of weight l=4;
                   "q6": BOOP of weight l=6.
-                  "tet_legacy": original Peters-style OP recognizing
-                                tetrahedral coordination environments
-                                (Zimmermann et al., J. Am. Chem. Soc.,
-                                137, 13352-13361, 2015) that can, however,
-                                produce small negative values sometimes;
+                  "reg_tri": regular triangle with varying height
+                             to basal plane;
+                  "sq": square coordination (cf., "reg_tri");
                   "oct_legacy": original Peters-style OP recognizing
                                 octahedral coordination environments
                                 (Zimmermann et al., J. Am. Chem. Soc.,
                                 137, 13352-13361, 2015) that can, however,
                                 produce small negative values sometimes.
-            parameters ([[float]]): 2D list of floating point numbers that store
-                parameters associated with the different order parameters
-                that are to be calculated (1st dimension = length of
-                types tuple; any 2nd dimension may be zero, in which case
-                default values are used). In the following, those order
-                parameters q_i are listed that require further parameters
-                for their computation (values in brackets denote default
-                values):
-                  "cn":  normalizing constant (1);
-                  "lin": Gaussian width in fractions of pi (180 degrees)
-                         reflecting the "speed of penalizing" deviations
-                         away from 180 degrees of any individual
-                         neighbor1-center-neighbor2 configuration (0.0667);
-                  "bent": target angle in degrees (180);
-                          Gaussian width for penalizing deviations away
-                          from perfect target angle in fractions of pi
-                          (0.0667);
-                  "tet": Gaussian width for penalizing deviations
-                         away perfect tetrahedral angle (0.0667);
-                  "oct": threshold angle in degrees distinguishing
-                         a second neighbor to be either close to the
-                         south pole or close to the equator (160.0);
-                         Gaussian width for penalizing deviations
-                         away from south pole (0.0667); Gaussian
-                         width for penalizing deviations away from
-                         equator (0.0556);
-                  "bcc": south-pole threshold angle as for "oct" (160.0);
-                         south-pole Gaussian width as for "oct" (0.0667);
-                  "reg_tri": Gaussian width for penalizing angles away from
-                             the expected angles, given the estimated
-                             height-to-side ratio of the trigonal pyramid
-                             in which the central atom is located at the
-                             tip (0.0222);
-                  "sq": Gaussian width for penalizing angles away from
-                        the expected angles, given the estimated
-                        height-to-diagonal ratio of the pyramid in which
-                        the central atom is located at the tip
-                        (0.0333);
-                  "sq_pyr": Gaussian width in fractions of pi
-                            for penalizing angles away from 90 degrees
-                            (0.0333);
-                            Gaussian width in Angstrom for penalizing
-                            variations in neighbor distances (0.1);
-                  "tri_bipyr": threshold angle to identify close to
-                            South pole positions (160.0, cf., oct).
-                            Gaussian width for penalizing deviations away
-                            from south pole (0.0667);
-                            Gaussian width for penalizing deviations away
-                            from equator (0.0556).
-                  "tet_legacy": Gaussian width for penalizing deviations
-                                away perfect tetrahedral angle (0.0667);
-                  "oct_legacy": threshold angle in degrees distinguishing
-                                a second neighbor to be either close to the
-                                south pole or close to the equator (160.0);
-                                Gaussian width for penalizing deviations
-                                away from south pole (0.0667); Gaussian
-                                width for penalizing deviations away from
-                                equator (0.0556); constant for shifting
-                                q_oct_legacy toward smaller values, which
-                                can be helpful when trying to fine-tune
-                                the capabilities of distinguishing between
-                                different environments (e.g., tet vs oct)
-                                given a single mutual threshold q_thresh;
-            cutoff (float): Cutoff radius to determine which nearest neighbors are
-                supposed to contribute to the order parameters.
-                If the value is negative the neighboring sites found by
-                distance and cutoff radius are further
+                  "sq_pyr_legacy": square pyramids (legacy);
+            parameters ([dict]): list of dictionaries
+                that store float-type parameters associated with the
+                definitions of the different order parameters
+                (length of list = number of OPs). If an entry
+                is None, default values are used that are read from
+                the op_paras.yaml file. With few exceptions, 9 different
+                parameters are used across all OPs:
+                  "norm": normalizing constant (used in "cn"
+                      (default value: 1)).
+                  "TA": target angle (TA) in fraction of 180 degrees
+                      ("bent" (1), "tet" (0.6081734479693927),
+                      "tri_plan" (0.66666666667), "pent_plan" (0.6),
+                      "sq_pyr_legacy" (0.5)).
+                  "IGW_TA": inverse Gaussian width (IGW) for penalizing
+                      angles away from the target angle in inverse
+                      fractions of 180 degrees to ("bent" and "tet" (15),
+                      "tri_plan" (13.5), "pent_plan" (18),
+                      "sq_pyr_legacy" (30)).
+                  "IGW_EP": IGW for penalizing angles away from the
+                      equatorial plane (EP) at 90 degrees ("T", "see_saw",
+                      "oct", "sq_plan", "tri_pyr", "sq_pyr", "pent_pyr",
+                      "hex_pyr", "tri_bipyr", "sq_bipyr", "pent_bipyr",
+                      "hex_bipyr", and "oct_legacy" (18)).
+                  "fac_AA": factor applied to azimuth angle (AA) in cosine
+                      term ("T", "tri_plan", and "sq_plan" (1), "tet",
+                      "tri_pyr", and "tri_bipyr" (1.5), "oct", "sq_pyr",
+                      "sq_bipyr", and "oct_legacy" (2), "pent_pyr"
+                      and "pent_bipyr" (2.5), "hex_pyr" and
+                      "hex_bipyr" (3)).
+                  "exp_cos_AA": exponent applied to cosine term of AA
+                      ("T", "tet", "oct", "tri_plan", "sq_plan",
+                      "tri_pyr", "sq_pyr", "pent_pyr", "hex_pyr",
+                      "tri_bipyr", "sq_bipyr", "pent_bipyr", "hex_bipyr",
+                      and "oct_legacy" (2)).
+                  "min_SPP": smallest angle (in radians) to consider
+                      a neighbor to be
+                      at South pole position ("see_saw", "oct", "bcc",
+                      "sq_plan", "tri_bipyr", "sq_bipyr", "pent_bipyr",
+                      "hex_bipyr", "cuboct", and "oct_legacy"
+                      (2.792526803190927)).
+                  "IGW_SPP": IGW for penalizing angles away from South
+                      pole position ("see_saw", "oct", "bcc", "sq_plan",
+                      "tri_bipyr", "sq_bipyr", "pent_bipyr", "hex_bipyr",
+                      "cuboct", and "oct_legacy" (15)).
+                  "w_SPP": weight for South pole position relative to
+                      equatorial positions ("see_saw" and "sq_plan" (1),
+                      "cuboct" (1.8), "tri_bipyr" (2), "oct",
+                      "sq_bipyr", and "oct_legacy" (3), "pent_bipyr" (4),
+                      "hex_bipyr" (5), "bcc" (6)).
+            cutoff (float): Cutoff radius to determine which nearest
+                neighbors are supposed to contribute to the order
+                parameters. If the value is negative the neighboring
+                sites found by distance and cutoff radius are further
                 pruned using the get_coordinated_sites method from the
                 VoronoiCoordFinder class.
         """
-        if len(types) == 0:
-            raise ValueError("Empty types list!")
         for t in types:
             if t not in OrderParameters.__supported_types:
                 raise ValueError("Unknown order parameter type (" + \
                                  t + ")!")
-        if parameters is not None:
-            if len(types) != len(parameters):
-                raise ValueError("1st dimension of parameters array is not"
-                                 " consistent with types list!")
-            for lp in parameters:
-                if len(lp) > 0:
-                    for p in lp:
-                        if type(p) != float and type(p) != int:
-                            raise AttributeError("Expected only float and"
-                                                 " integer type parameters!")
-            loc_parameters = list(parameters)
-        else:
-            loc_parameters = [[] for t in types]
         self._types = tuple(types)
-        tmpparas = []
+
+        self._paras = []
+        for i, t in enumerate(self._types):
+            d = default_op_paras[t].copy() if default_op_paras[t] is not None \
+                else None
+            if parameters is None:
+                self._paras.append(d)
+            elif parameters[i] is None:
+                self._paras.append(d)
+            else:
+                self._paras.append(parameters[i].copy())
+
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
         self._max_trig_order = -1
-        for i, t in enumerate(self._types):
-            # add here any additional parameter checking and
-            #     default value assignment
-            tmpparas.append([])
-            if t == "cn":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Normalizing constant for"
-                                         " coordination-number based order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i].append(loc_parameters[i][0])
-            elif t == "lin":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0667]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " linear order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i] = [1.0 / loc_parameters[i][0]]
-            elif t == "bent":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0, 1.0 / 0.0667]
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] > 180.0:
-                        warn("Target angle for bent order parameter is"
-                            " not in ]0,180] interval.")
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " bent order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i] = [loc_parameters[i][0] / 180.0, \
-                                1.0 / loc_parameters[i][1]]
-            elif t == "tet_legacy":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0 / 0.0667)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " original tetrahedral order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][0])
-            elif t == "tet":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0 / 0.0667)
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for"
-                                         " tetrahedral order"
-                                         " parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][0])
-            elif t == "oct_legacy":
-                if len(loc_parameters[i]) < 4:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0556)
-                    tmpparas[i].append(0.25)
-                    tmpparas[i].append(4.0 / 3.0)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in original octahedral order"
-                             " parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in original"
-                                         " octahedral order parameter is"
-                                         " zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
-                    if loc_parameters[i][2] == 0.0:
-                        raise ValueError("Gaussian width for equatorial"
-                                         " configurations in original"
-                                         " octahedral order parameter is"
-                                         " zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][2])
-                    if loc_parameters[i][3] - 1.0 == 0.0:
-                        raise ValueError("Shift constant may not be"
-                                         " unity!")
-                    if loc_parameters[i][3] < 0.0 or loc_parameters[i][3] > 1.0:
-                        warn("Shift constant outside [0,1[.")
-                    tmpparas[i].append(loc_parameters[i][3])
-                    tmpparas[i].append(1.0 / (1.0 - loc_parameters[i][3]))
-            elif t == "oct":
-                if len(loc_parameters[i]) < 3:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0556)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in octahedral order"
-                             " parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in octahedral"
-                                         " order parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
-                    if loc_parameters[i][2] == 0.0:
-                        raise ValueError("Gaussian width for equatorial"
-                                         " configurations in octahedral"
-                                         " order parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][2])
-            elif t == "bcc":
-                if len(loc_parameters[i]) < 2:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                        0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in bcc order"
-                             " parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in bcc"
-                                         " order parameter is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
-            elif t == "reg_tri":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0222]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for angles in"
-                                " trigonal pyramid tip of regular triangle"
-                                " order parameter is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
-            elif t == "sq":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0333]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for angles in"
-                                " pyramid tip of square order parameter"
-                                " is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
-            elif t == "sq_pyr":
-                if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0333, 1.0 / 0.1]
-                else:
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for angles in"
-                                " square pyramid order parameter is zero!")
-                    if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for lengths in"
-                                " square pyramid order parameter is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0], \
-                            1.0 / loc_parameters[i][1]]
-            elif t == "tri_bipyr":
-                if len(loc_parameters[i]) < 3:
-                    tmpparas[i].append(8.0 * pi / 9.0)
-                    tmpparas[i].append(1.0 / 0.0667)
-                    tmpparas[i].append(1.0 / 0.0741)
-                else:
-                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
-                        warn("Threshold value for south pole"
-                             " configurations in trigonal bipyramidal"
-                             " order parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for south pole"
-                                         " configurations in trigonal"
-                                         " bipyramidal order parameter is"
-                                         " zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][1])
-                    if loc_parameters[i][2] == 0.0:
-                        raise ValueError("Gaussian width for equatorial"
-                                         " configurations in trigonal"
-                                         " bipyramidal order parameter"
-                                         " is zero!")
-                    else:
-                        tmpparas[i].append(1.0 / loc_parameters[i][2])
-            # All following types should be well-defined/-implemented,
-            # and they should not require parameters.
-            elif t != "q2" and t != "q4" and t != "q6":
-                raise ValueError("unknown order-parameter type \"" + t + "\"")
 
-            # Add here any additional flags to be used during calculation.
-            # self._computerijs: compute vectors from centeral atom i
-            #                    to any neighbor j.
-            # self._computerjks: compute vectors from non-centeral atom j
-            #                    to any non-central atom k.
-            if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
-                    t == "tri_bipyr" or t == "tet_legacy" or t == "oct_legacy":
-                self._computerijs = self._geomops = True
-            if t == "reg_tri" or t =="sq":
-                self._computerijs = self._computerjks = self._geomops2 = True
-            if t == "q2" or t == "q4" or t == "q6":
-                self._computerijs = self._boops = True
-            if t == "q2" and self._max_trig_order < 2:
-                self._max_trig_order = 2
-            if t == "q4" and self._max_trig_order < 4:
-                self._max_trig_order = 4
-            if t == "q6" and self._max_trig_order < 6:
-                self._max_trig_order = 6
+        # Add here any additional flags to be used during calculation.
+        if "sgl_bd" in self._types:
+            self._computerijs = True
+        if not set(self._types).isdisjoint(
+                ["tet", "oct", "bcc", "sq_pyr", "sq_pyr_legacy", \
+                 "tri_bipyr", "sq_bipyr", "oct_legacy", "tri_plan", \
+                 "sq_plan", "pent_plan", "tri_pyr", "pent_pyr", "hex_pyr", \
+                 "pent_bipyr", "hex_bipyr", "T", "cuboct"]):
+            self._computerijs = self._geomops = True
+        if not set(self._types).isdisjoint(["reg_tri", "sq"]):
+            self._computerijs = self._computerjks = self._geomops2 = True
+        if not set(self._types).isdisjoint(["q2", "q4", "q6"]):
+            self._computerijs = self._boops = True
+        if "q2" in self._types:
+            self._max_trig_order = 2
+        if "q4" in self._types:
+            self._max_trig_order = 4
+        if "q6" in self._types:
+            self._max_trig_order = 6
 
         # Finish parameter treatment.
-        self._paras = list(tmpparas)
         if cutoff < 0.0:
             self._cutoff = -cutoff
             self._voroneigh = True
@@ -1243,8 +1044,9 @@ class OrderParameters(object):
     def num_ops(self):
 
         """"
-        Returns the number of different order parameters that are targeted
-        to be calculated.
+        Returns:
+            int: the number of different order parameters that are targeted
+                to be calculated.
         """
 
         return len(self._types)
@@ -1253,9 +1055,11 @@ class OrderParameters(object):
     def last_nneigh(self):
 
         """"
-        Returns the number of neighbors encountered during the most
-        recent order-parameter calculation. A value of -1 indicates that
-        no such calculation has yet been performed for this instance.
+        Returns:
+            int: the number of neighbors encountered during the most
+                recent order parameter calculation. A value of -1 indicates
+                that no such calculation has yet been performed for this
+                instance.
         """
 
         return len(self._last_nneigh)
@@ -1264,19 +1068,20 @@ class OrderParameters(object):
 
         """"
         Computes trigonometric terms that are required to
-        calculate bond orientational order parameters.
+        calculate bond orientational order parameters using
+        internal variables.
 
         Args:
-            thetas ([float]):
-                polar angles of all neighbors in radians.
-            phis ([float]):
+            thetas ([float]): polar angles of all neighbors in radians.
+            phis ([float]): azimuth angles of all neighbors in radians.
+                The list of
                 azimuth angles of all neighbors in radians.  The list of
-                azimuth angles is expected to have the same size as the list
-                of polar angles; otherwise, a ValueError is raised.  Also,
-                the two lists of angles have to be coherent in order. That
-                is, it is expected that the order in the list of azimuth
-                angles corresponds to a distinct sequence of neighbors.
-                And, this sequence has to equal the sequence
+                azimuth angles is expected to have the same size as the
+                list of polar angles; otherwise, a ValueError is raised.
+                Also, the two lists of angles have to be coherent in
+                order. That is, it is expected that the order in the list
+                of azimuth angles corresponds to a distinct sequence of
+                neighbors. And, this sequence has to equal the sequence
                 of neighbors in the list of polar angles.
 
         """
@@ -1290,19 +1095,19 @@ class OrderParameters(object):
         self._sin_n_p.clear()
         self._cos_n_p.clear()
 
-        self._pow_sin_t[1] = [math.sin(float(t)) for t in thetas]
-        self._pow_cos_t[1] = [math.cos(float(t)) for t in thetas]
-        self._sin_n_p[1] = [math.sin(float(p)) for p in phis]
-        self._cos_n_p[1] = [math.cos(float(p)) for p in phis]
+        self._pow_sin_t[1] = [sin(float(t)) for t in thetas]
+        self._pow_cos_t[1] = [cos(float(t)) for t in thetas]
+        self._sin_n_p[1] = [sin(float(p)) for p in phis]
+        self._cos_n_p[1] = [cos(float(p)) for p in phis]
 
         for i in range(2, self._max_trig_order + 1):
             self._pow_sin_t[i] = [e[0] * e[1] for e in zip(
                 self._pow_sin_t[i - 1], self._pow_sin_t[1])]
             self._pow_cos_t[i] = [e[0] * e[1] for e in zip(
                 self._pow_cos_t[i - 1], self._pow_cos_t[1])]
-            self._sin_n_p[i] = [math.sin(float(i) * float(p)) \
+            self._sin_n_p[i] = [sin(float(i) * float(p)) \
                                 for p in phis]
-            self._cos_n_p[i] = [math.cos(float(i) * float(p)) \
+            self._cos_n_p[i] = [cos(float(i) * float(p)) \
                                 for p in phis]
 
     def get_q2(self, thetas=None, phis=None):
@@ -1315,13 +1120,11 @@ class OrderParameters(object):
         compute_trigonometric_terms function has been just called.
 
         Args:
-            thetas ([float]):
-                polar angles of all neighbors in radians.
-            phis ([float]):
-                azimuth angles of all neighbors in radians.
+            thetas ([float]): polar angles of all neighbors in radians.
+            phis ([float]): azimuth angles of all neighbors in radians.
 
-        Return:
-            q2 (float): bond orientational order parameter of weight l=2
+        Returns:
+            float: bond orientational order parameter of weight l=2
                 corresponding to the input angles thetas and phis.
         """
 
@@ -1330,8 +1133,8 @@ class OrderParameters(object):
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
 
-        sqrt_15_2pi = math.sqrt(15.0 / (2.0 * pi))
-        sqrt_5_pi = math.sqrt(5.0 / pi)
+        sqrt_15_2pi = sqrt(15.0 / (2.0 * pi))
+        sqrt_5_pi = sqrt(5.0 / pi)
 
         pre_y_2_2 = [0.25 * sqrt_15_2pi * val for val in self._pow_sin_t[2]]
         pre_y_2_1 = [0.5 * sqrt_15_2pi * val[0] * val[1]
@@ -1373,7 +1176,7 @@ class OrderParameters(object):
             imag += pre_y_2_2[i] * self._sin_n_p[2][i]
         acc += (real * real + imag * imag)
 
-        q2 = math.sqrt(4.0 * pi * acc / (5.0 * float(nnn * nnn)))
+        q2 = sqrt(4.0 * pi * acc / (5.0 * float(nnn * nnn)))
         return q2
 
     def get_q4(self, thetas=None, phis=None):
@@ -1386,13 +1189,11 @@ class OrderParameters(object):
         compute_trigonometric_terms function has been just called.
 
         Args:
-            thetas ([float]):
-                polar angles of all neighbors in radians.
-            phis ([float]):
-                azimuth angles of all neighbors in radians.
+            thetas ([float]): polar angles of all neighbors in radians.
+            phis ([float]): azimuth angles of all neighbors in radians.
 
-        Return:
-            q4 (float): bond orientational order parameter of weight l=4
+        Returns:
+            float: bond orientational order parameter of weight l=4
                 corresponding to the input angles thetas and phis.
         """
 
@@ -1404,11 +1205,11 @@ class OrderParameters(object):
         i16_3 = 3.0 / 16.0
         i8_3 = 3.0 / 8.0
 
-        sqrt_35_pi = math.sqrt(35.0 / pi)
-        sqrt_35_2pi = math.sqrt(35.0 / (2.0 * pi))
-        sqrt_5_pi = math.sqrt(5.0 / pi)
-        sqrt_5_2pi = math.sqrt(5.0 / (2.0 * pi))
-        sqrt_1_pi = math.sqrt(1.0 / pi)
+        sqrt_35_pi = sqrt(35.0 / pi)
+        sqrt_35_2pi = sqrt(35.0 / (2.0 * pi))
+        sqrt_5_pi = sqrt(5.0 / pi)
+        sqrt_5_2pi = sqrt(5.0 / (2.0 * pi))
+        sqrt_1_pi = sqrt(1.0 / pi)
 
         pre_y_4_4 = [i16_3 * sqrt_35_2pi * val for val in self._pow_sin_t[4]]
         pre_y_4_3 = [i8_3 * sqrt_35_pi * val[0] * val[1] \
@@ -1484,7 +1285,7 @@ class OrderParameters(object):
             imag += pre_y_4_4[i] * self._sin_n_p[4][i]
         acc += (real * real + imag * imag)
 
-        q4 = math.sqrt(4.0 * pi * acc / (9.0 * float(nnn * nnn)))
+        q4 = sqrt(4.0 * pi * acc / (9.0 * float(nnn * nnn)))
         return q4
 
     def get_q6(self, thetas=None, phis=None):
@@ -1497,13 +1298,11 @@ class OrderParameters(object):
         compute_trigonometric_terms function has been just called.
 
         Args:
-            thetas ([float]):
-                polar angles of all neighbors in radians.
-            phis ([float]):
-                azimuth angles of all neighbors in radians.
+            thetas ([float]): polar angles of all neighbors in radians.
+            phis ([float]): azimuth angles of all neighbors in radians.
 
-        Return:
-            q6 (float): bond orientational order parameter of weight l=6
+        Returns:
+            float: bond orientational order parameter of weight l=6
                 corresponding to the input angles thetas and phis.
         """
 
@@ -1517,37 +1316,36 @@ class OrderParameters(object):
         i32_3 = 3.0 / 32.0
         i16 = 1.0 / 16.0
 
-        sqrt_3003_pi = math.sqrt(3003.0 / pi)
-        sqrt_1001_pi = math.sqrt(1001.0 / pi)
-        sqrt_91_2pi = math.sqrt(91.0 / (2.0 * pi))
-        sqrt_1365_pi = math.sqrt(1365.0 / pi)
-        sqrt_273_2pi = math.sqrt(273.0 / (2.0 * pi))
-        sqrt_13_pi = math.sqrt(13.0 / pi)
+        sqrt_3003_pi = sqrt(3003.0 / pi)
+        sqrt_1001_pi = sqrt(1001.0 / pi)
+        sqrt_91_2pi = sqrt(91.0 / (2.0 * pi))
+        sqrt_1365_pi = sqrt(1365.0 / pi)
+        sqrt_273_2pi = sqrt(273.0 / (2.0 * pi))
+        sqrt_13_pi = sqrt(13.0 / pi)
 
         pre_y_6_6 = [i64 * sqrt_3003_pi * val for val in self._pow_sin_t[6]]
-        pre_y_6_5 = [i32_3 * sqrt_1001_pi * val[0] * val[1] \
+        pre_y_6_5 = [i32_3 * sqrt_1001_pi * val[0] * val[1]
                      for val in zip(self._pow_sin_t[5], self._pow_cos_t[1])]
-        pre_y_6_4 = [i32_3 * sqrt_91_2pi * val[0] * (11.0 * val[1] - 1.0) \
+        pre_y_6_4 = [i32_3 * sqrt_91_2pi * val[0] * (11.0 * val[1] - 1.0)
                      for val in zip(self._pow_sin_t[4], self._pow_cos_t[2])]
         pre_y_6_3 = [
-            i32 * sqrt_1365_pi * val[0] * (11.0 * val[1] - 3.0 * val[2]) \
-            for val in zip(self._pow_sin_t[3], self._pow_cos_t[3], \
+            i32 * sqrt_1365_pi * val[0] * (11.0 * val[1] - 3.0 * val[2])
+            for val in zip(self._pow_sin_t[3], self._pow_cos_t[3],
                            self._pow_cos_t[1])]
-        pre_y_6_2 = [i64 * sqrt_1365_pi * val[0] * (33.0 * val[1] - \
+        pre_y_6_2 = [i64 * sqrt_1365_pi * val[0] * (33.0 * val[1] -
                                                     18.0 * val[2] + 1.0) for val
-                     in zip(self._pow_sin_t[2], \
+                     in zip(self._pow_sin_t[2],
                             self._pow_cos_t[4], self._pow_cos_t[2])]
-        pre_y_6_1 = [i16 * sqrt_273_2pi * val[0] * (33.0 * val[1] - \
+        pre_y_6_1 = [i16 * sqrt_273_2pi * val[0] * (33.0 * val[1] -
                                                     30.0 * val[2] + 5.0 * val[
                                                         3]) for val in
-                     zip(self._pow_sin_t[1], \
+                     zip(self._pow_sin_t[1],
                          self._pow_cos_t[5], self._pow_cos_t[3],
                          self._pow_cos_t[1])]
 
         acc = 0.0
 
         # Y_6_-6
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1556,7 +1354,6 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_-5
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1565,7 +1362,6 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_-4
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1574,7 +1370,6 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_-3
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1583,7 +1378,6 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_-2
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1592,7 +1386,6 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_-1
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1601,17 +1394,15 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_0
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
-            real += i32 * sqrt_13_pi * (231.0 * self._pow_cos_t[6][i] - \
+            real += i32 * sqrt_13_pi * (231.0 * self._pow_cos_t[6][i] -
                                         315.0 * self._pow_cos_t[4][i] + 105.0 *
                                         self._pow_cos_t[2][i] - 5.0)
         acc += (real * real)
 
         # Y_6_1
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1620,7 +1411,6 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_2
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1629,7 +1419,6 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_3
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1638,7 +1427,6 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_4
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1647,7 +1435,6 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_5
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1656,7 +1443,6 @@ class OrderParameters(object):
         acc += (real * real + imag * imag)
 
         # Y_6_6
-        real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
@@ -1664,21 +1450,23 @@ class OrderParameters(object):
             imag += pre_y_6_6[i] * self._sin_n_p[6][i]
         acc += (real * real + imag * imag)
 
-        q6 = math.sqrt(4.0 * pi * acc / (13.0 * float(nnn * nnn)))
+        q6 = sqrt(4.0 * pi * acc / (13.0 * float(nnn * nnn)))
         return q6
 
     def get_type(self, index):
 
         """
-        Return type of order-parameter at the index provided and
+        Return type of order parameter at the index provided and
         represented by a short string.
 
         Args:
-            index (int):
-                index of order-parameter for which type is to be returned
+            index (int): index of order parameter for which type is
+                to be returned.
+        Returns:
+            str: OP type.
         """
         if index < 0 or index >= len(self._types):
-            raise ValueError("Index for getting order-parameter type"
+            raise ValueError("Index for getting order parameter type"
                              " out-of-bounds!")
         return self._types[index]
 
@@ -1693,36 +1481,37 @@ class OrderParameters(object):
 
         Args:
             index (int):
-                index of order-parameter for which associated parameters
-                are to be returned
+                index of order parameter for which associated parameters
+                are to be returned.
+        Returns:
+            [float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
             raise ValueError("Index for getting parameters associated with"
-                             " order-parameter calculation out-of-bounds!")
+                             " order parameter calculation out-of-bounds!")
         return self._paras[index]
 
-    def get_order_parameters(self, structure, n, indeces_neighs=None, \
+    def get_order_parameters(self, structure, n, indices_neighs=None, \
                              tol=0.0, target_spec=None):
 
         """
         Compute all order parameters of site n.
 
         Args:
-            structure (Structure):
-                input structure.
-            n (int):
-                index of site in input structure, for which OPs are to be
+            structure (Structure): input structure.
+            n (int): index of site in input structure,
+                for which OPs are to be
                 calculated.  Note that we do not use the sites iterator
                 here, but directly access sites via struct[index].
-            indeces_neighs ([int]):
-                list of indeces of those neighbors in Structure object
+            indices_neighs ([int]): list of indices of those neighbors
+                in Structure object
                 structure that are to be considered for OP computation.
                 This optional argument overwrites the way neighbors are
                 to be determined as defined in the constructor (i.e.,
                 Voronoi coordination finder via negative cutoff radius
                 vs constant cutoff radius if cutoff was positive).
                 We do not use information about the underlying
-                structure lattice if the neighbor indeces are explicitly
+                structure lattice if the neighbor indices are explicitly
                 provided.  This has two important consequences.  First,
                 the input Structure object can, in fact, be a
                 simple list of Site objects.  Second, no nearest images
@@ -1730,23 +1519,24 @@ class OrderParameters(object):
                 Note furthermore that this neighbor
                 determination type ignores the optional target_spec
                 argument.
-            tol (float):
-                threshold of weight (= solid angle / maximal solid angle)
+            tol (float): threshold of weight
+                (= solid angle / maximal solid angle)
                 to determine if a particular pair is
                 considered neighbors; this is relevant only in the case
                 when Voronoi polyhedra are used to determine coordination
-            target_spec (Specie):
-                target specie to be considered when calculating the order
+            target_spec (Specie): target species to be considered
+                when calculating the order
                 parameters of site n; None includes all species of input
                 structure.
 
         Returns:
-            list of floats representing order parameters.  Should it not be
+            [floats]: representing order parameters.  Should it not be
             possible to compute a given OP for a conceptual reason, the
             corresponding entry is None instead of a float.  For Steinhardt
             et al.'s bond orientational OPs and the other geometric OPs
-            ("tet", "oct", "bcc"), this can happen if there is a single
-            neighbor around site n in the structure because that, obviously,
+            ("tet", "oct", "bcc", etc.),
+            this can happen if there is a single
+            neighbor around site n in the structure because that
             does not permit calculation of angles between multiple
             neighbors.
         """
@@ -1756,8 +1546,8 @@ class OrderParameters(object):
             raise ValueError("Site index smaller zero!")
         if n >= len(structure):
             raise ValueError("Site index beyond maximum!")
-        if indeces_neighs is not None:
-            for index in indeces_neighs:
+        if indices_neighs is not None:
+            for index in indices_neighs:
                 if index >= len(structure):
                     raise ValueError("Neighbor site index beyond maximum!")
         if tol < 0.0:
@@ -1766,13 +1556,14 @@ class OrderParameters(object):
         left_of_unity = 1.0 - 1.0e-12
         # The following threshold has to be adapted to non-Angstrom units.
         very_small = 1.0e-12
+        fac_bcc = 1.0 / exp(-0.5)
 
         # Find central site and its neighbors.
         # Note that we adopt the same way of accessing sites here as in
         # VoronoiCoordFinder; that is, not via the sites iterator.
         centsite = structure[n]
-        if indeces_neighs is not None:
-            neighsites = [structure[index] for index in indeces_neighs]
+        if indices_neighs is not None:
+            neighsites = [structure[index] for index in indices_neighs]
         elif self._voroneigh:
             vorocf = VoronoiCoordFinder(structure)
             neighsites = vorocf.get_coordinated_sites(n, tol, target_spec)
@@ -1823,11 +1614,18 @@ class OrderParameters(object):
                         kk = kk + 1
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
+        norms = [[0.0 for i in range(nneigh)] for t in self._types]
 
-        # First, coordination number-based OPs.
+        # First, coordination number and distance-based OPs.
         for i, t in enumerate(self._types):
             if t == "cn":
-                ops[i] = nneigh / self._paras[i][0]
+                ops[i] = nneigh / self._paras[i]['norm']
+            elif t == "sgl_bd":
+                dist_sorted = sorted(dist)
+                if len(dist_sorted) == 1:
+                    ops[i] = 1.0
+                elif len(dist_sorted) > 1:
+                    ops[i] = 1.0 - dist_sorted[0] / dist_sorted[1]
 
         # Then, bond orientational OPs based on spherical harmonics
         # according to Steinhardt et al., Phys. Rev. B, 28, 784-805, 1983.
@@ -1838,19 +1636,16 @@ class OrderParameters(object):
 
                 # z is North pole --> theta between vec and (0, 0, 1)^T.
                 # Because vec is normalized, dot product is simply vec[2].
-                thetas.append(math.acos(max(-1.0, min(vec[2], 1.0))))
+                thetas.append(acos(max(-1.0, min(vec[2], 1.0))))
                 tmpphi = 0.0
 
                 # Compute phi only if it is not (almost) perfectly
                 # aligned with z-axis.
-                if vec[2] < left_of_unity and vec[2] > - (left_of_unity):
+                if -left_of_unity < vec[2] < left_of_unity:
                     # x is prime meridian --> phi between projection of vec
                     # into x-y plane and (1, 0, 0)^T
-                    tmpphi = math.acos(max(
-                        -1.0,
-                        min(vec[0] / (math.sqrt(
-                            vec[0] * vec[0] + vec[1] * vec[1])),
-                            1.0)))
+                    tmpphi = acos(max(-1.0, min(vec[0] / (sqrt(
+                        vec[0] * vec[0] + vec[1] * vec[1])), 1.0)))
                     if vec[1] < 0.0:
                         tmpphi = -tmpphi
                 phis.append(tmpphi)
@@ -1877,9 +1672,10 @@ class OrderParameters(object):
             qsptheta = [[] for t in self._types]  # not used by all OPs
             ipi = 1.0 / pi
             piover2 = pi / 2.0
-            tetangoverpi = math.acos(-1.0 / 3.0) * ipi
+            tetangoverpi = acos(-1.0 / 3.0) * ipi  # xxx: delete
             itetangminuspihalfoverpi = 1.0 / (tetangoverpi - 0.5)
-
+            onethird = 1.0 / 3.0
+            twothird = 2.0 / 3.0
             for j in range(nneigh):  # Neighbor j is put to the North pole.
                 zaxis = rijnorm[j]
                 for i, t in enumerate(self._types):
@@ -1888,7 +1684,7 @@ class OrderParameters(object):
                     if j != k:  # the prime meridian.
                         tmp = max(
                             -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
-                        thetak = math.acos(tmp)
+                        thetak = acos(tmp)
                         xaxistmp = gramschmidt(rijnorm[k], zaxis)
                         if np.linalg.norm(xaxistmp) < very_small:
                             flag_xaxis = True
@@ -1896,53 +1692,59 @@ class OrderParameters(object):
                             xaxis = xaxistmp / np.linalg.norm(xaxistmp)
                             flag_xaxis = False
 
-                        # Contributions of j-i-k angles, where i represents the central atom
-                        # and j and k two of the neighbors.
+                        # Contributions of j-i-k angles, where i represents the
+                        # central atom and j and k two of the neighbors.
                         for i, t in enumerate(self._types):
-                            if t == "lin":
-                                tmp = self._paras[i][0] * (thetak * ipi - 1.0)
-                                ops[i] += exp(-0.5 * tmp * tmp)
-                            elif t == "bent":
-                                tmp = self._paras[i][1] * (
-                                    thetak * ipi - self._paras[i][0])
-                                ops[i] += exp(-0.5 * tmp * tmp)
-                            elif t == "tet" or t == "tet_legacy":
-                                tmp = self._paras[i][0] * (
-                                    thetak * ipi - tetangoverpi)
-                                gaussthetak[i] = math.exp(-0.5 * tmp * tmp)
-                            elif t == "oct" or t == "oct_legacy":
-                                if thetak >= self._paras[i][0]:
-                                    # k is south pole to j
-                                    tmp = self._paras[i][1] * (
-                                        thetak * ipi - 1.0)
-                                    ops[i] += 3.0 * math.exp(-0.5 * tmp * tmp)
+                            if t in ["bent", "sq_pyr_legacy"]:
+                                tmp = self._paras[i]['IGW_TA'] * (
+                                        thetak * ipi - self._paras[i]['TA'])
+                                qsptheta[i][j] += exp(-0.5 * tmp * tmp)
+                                norms[i][j] += 1
+                            elif t in ["tri_plan", "tet"]:
+                                tmp = self._paras[i]['IGW_TA'] * (
+                                        thetak * ipi - self._paras[i]['TA'])
+                                gaussthetak[i] = exp(-0.5 * tmp * tmp)
+                            elif t in ["sq_plan", "oct", "oct_legacy",
+                                       "see_saw", "tri_bipyr", "sq_bipyr",
+                                       "pent_bipyr", "hex_bipyr", "cuboct"]:
+                                if thetak >= self._paras[i]['min_SPP']:
+                                    tmp = self._paras[i]['IGW_SPP'] * (
+                                            thetak * ipi - 1.0)
+                                    if t in ["tri_bipyr", "sq_bipyr",
+                                             "pent_bipyr", "hex_bipyr"]:
+                                        qsptheta[i][j] = (
+                                                self._paras[i]['w_SPP'] *
+                                                exp(-0.5 * tmp * tmp))
+                                    else:
+                                        qsptheta[i][j] += (
+                                                self._paras[i]['w_SPP'] *
+                                                exp(-0.5 * tmp * tmp))
+                                    norms[i][j] += self._paras[i]['w_SPP']
+                            elif t == "pent_plan":
+                                if thetak <= self._paras[i]['TA'] * pi:
+                                    tmp = self._paras[i]['IGW_TA'] * (
+                                            thetak * ipi - 0.4)
+                                    gaussthetak[i] = exp(-0.5 * tmp * tmp)
                             elif t == "bcc" and j < k:
-                                if thetak >= self._paras[i][0]:
-                                    # k is south pole to j
-                                    tmp = self._paras[i][1] * (
-                                        thetak * ipi - 1.0)
-                                    ops[i] += 6.0 * math.exp(-0.5 * tmp * tmp)
-                            elif t == "sq_pyr":
-                                tmp = self._paras[i][0] * (thetak * ipi - 0.5)
-                                qsptheta[i][j] = qsptheta[i][j] + exp(-0.5 * tmp * tmp)
-                            elif t == "tri_bipyr":
-                                if thetak >= self._paras[i][0]:
-                                    tmp = self._paras[i][1] * (
-                                        thetak * ipi - 1.0)
-                                    qsptheta[i][j] = 2.0 * math.exp(-0.5 * tmp * tmp)
+                                if thetak >= self._paras[i]['min_SPP']:
+                                    tmp = self._paras[i]['IGW_SPP'] * (
+                                            thetak * ipi - 1.0)
+                                    qsptheta[i][j] += (self._paras[i]['w_SPP'] *
+                                                       exp(-0.5 * tmp * tmp))
+                                    norms[i][j] += self._paras[i]['w_SPP']
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
                                 tmp = max(
                                     -1.0, min(np.inner(zaxis, rijnorm[m]), 1.0))
-                                thetam = math.acos(tmp)
+                                thetam = acos(tmp)
                                 xtwoaxistmp = gramschmidt(rijnorm[m], zaxis)
                                 l = np.linalg.norm(xtwoaxistmp)
                                 if l < very_small:
                                     flag_xtwoaxis = True
                                 else:
                                     xtwoaxis = xtwoaxistmp / l
-                                    phi = math.acos(max(
+                                    phi = acos(max(
                                         -1.0,
                                         min(np.inner(xtwoaxis, xaxis), 1.0)))
                                     flag_xtwoaxis = False
@@ -1951,97 +1753,131 @@ class OrderParameters(object):
                                 # angles between plane j-i-k and i-m vector.
                                 if not flag_xaxis and not flag_xtwoaxis:
                                     for i, t in enumerate(self._types):
-                                        if t == "tet_legacy":
-                                            tmp = self._paras[i][0] * (
-                                                thetam * ipi - tetangoverpi)
-                                            ops[i] += gaussthetak[i] * math.exp(
-                                                -0.5 * tmp * tmp) * math.cos(
-                                                3.0 * phi)
-                                        elif t == "tet":
-                                            tmp = self._paras[i][0] * (
-                                                thetam * ipi - tetangoverpi)
-                                            tmp2 = math.cos(1.5 * phi)
-                                            ops[i] += gaussthetak[i] * math.exp(
-                                                -0.5 * tmp * tmp) * tmp2 * tmp2
-                                        elif t == "oct_legacy":
-                                            if thetak < self._paras[i][0] and \
-                                                            thetam < \
-                                                            self._paras[i][0]:
-                                                tmp = math.cos(2.0 * phi)
-                                                tmp2 = self._paras[i][2] * (
+                                        if t in ["tri_plan", "tet"]:
+                                            tmp = self._paras[i]['IGW_TA'] * (
+                                                    thetam * ipi -
+                                                    self._paras[i]['TA'])
+                                            tmp2 = cos(
+                                                self._paras[i]['fac_AA'] *
+                                                phi) ** self._paras[i][
+                                                       'exp_cos_AA']
+                                            ops[i] += gaussthetak[i] * exp(
+                                                -0.5 * tmp * tmp) * tmp2
+                                            norms[i][j] += 1
+                                        elif t == "pent_plan":
+                                            if thetak <= self._paras[i]['TA'] * pi and thetam >= self._paras[i]['TA'] * pi:
+                                                tmp = self._paras[i][
+                                                          'IGW_TA'] * (
+                                                              thetam * ipi - 0.8)
+                                                tmp2 = cos(phi)
+                                                ops[i] += gaussthetak[i] * exp(-0.5 * tmp * tmp) * tmp2 * tmp2
+                                                norms[i][j] += 1
+                                        elif t in ["T", "tri_pyr", "sq_pyr",
+                                                   "pent_pyr", "hex_pyr"]:
+                                            tmp = cos(self._paras[i]['fac_AA'] *
+                                                      phi) ** self._paras[i][
+                                                      'exp_cos_AA']
+                                            tmp2 = self._paras[i]['IGW_EP'] * (
+                                                    thetak * ipi - 0.5)
+                                            tmp3 = self._paras[i]['IGW_EP'] * (
                                                     thetam * ipi - 0.5)
-                                                ops[i] += tmp * tmp * \
-                                                          self._paras[i][4] * (
-                                                              math.exp(
-                                                                  -0.5 * tmp2 * tmp2) - \
-                                                              self._paras[i][3])
-                                        elif t == "oct":
-                                            if thetak < self._paras[i][0] and \
-                                                    thetam < self._paras[i][0]:
-                                                tmp = math.cos(2.0 * phi)
-                                                tmp2 = self._paras[i][2] * (
-                                                        thetam * ipi - 0.5)
-                                                ops[i] += tmp * tmp * \
-                                                        math.exp(
-                                                        -0.5 * tmp2 * tmp2)
+                                            qsptheta[i][j] += tmp * exp(
+                                                -0.5 * tmp2 * tmp2) * exp(
+                                                -0.5 * tmp3 * tmp3)
+                                            norms[i][j] += 1
+                                        elif t in ["sq_plan", "oct",
+                                                   "oct_legacy", "tri_bipyr",
+                                                   "sq_bipyr", "pent_bipyr",
+                                                   "hex_bipyr"]:
+                                            if thetak < self._paras[i]['min_SPP'] and thetam < self._paras[i]['min_SPP']:
+                                                tmp = cos(
+                                                    self._paras[i]['fac_AA'] *
+                                                    phi) ** self._paras[i][
+                                                          'exp_cos_AA']
+                                                tmp2 = self._paras[i][
+                                                           'IGW_EP'] * (
+                                                               thetam * ipi - 0.5)
+                                                qsptheta[i][j] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                if t == "oct_legacy":
+                                                    qsptheta[i][j] -= tmp * self._paras[i][6] * self._paras[i][7]
+                                                norms[i][j] += 1
                                         elif t == "bcc" and j < k:
-                                            if thetak < self._paras[i][0]:
+                                            if thetak < self._paras[i]['min_SPP']:
                                                 if thetak > piover2:
                                                     fac = 1.0
                                                 else:
                                                     fac = -1.0
                                                 tmp = (thetam - piover2) / (
-                                                    19.47 * pi / 180.0)
-                                                ops[i] += fac * math.cos(
-                                                    3.0 * phi) * \
-                                                          1.6 * tmp * \
-                                                          math.exp(
-                                                              -0.5 * tmp * tmp)
-                                        elif t == "tri_bipyr":
-                                            if thetak < self._paras[i][0] and \
-                                                    thetam < self._paras[i][0]:
-                                                tmp = math.cos(1.5 * phi)
-                                                tmp2 = self._paras[i][2] * (
-                                                    thetam * ipi - 0.5)
-                                                qsptheta[i][j] += \
-                                                    tmp * tmp * math.exp( \
-                                                    -0.5 * tmp2 * tmp2)
-
+                                                        19.47 * pi / 180.0)
+                                                qsptheta[i][j] += fac * cos(
+                                                    3.0 * phi) * fac_bcc * \
+                                                    tmp * exp(-0.5 * tmp * tmp)
+                                        elif t == "see_saw":
+                                            if thetak < self._paras[i]['min_SPP'] and thetam < self._paras[i]['min_SPP']:
+                                                tmp = self._paras[i][
+                                                          'IGW_EP'] * (
+                                                              phi * ipi - 0.5)
+                                                tmp2 = self._paras[i][
+                                                           'IGW_EP'] * (
+                                                               thetam * ipi - 0.5)
+                                                qsptheta[i][j] += exp(-0.5 * tmp * tmp) * exp(-0.5 * tmp2 * tmp2)
+                                                norms[i][j] += 1.0
+                                        elif t == "cuboct":
+                                            if thetam < self._paras[i]['min_SPP'] and thetak > self._paras[i][4] and thetak < self._paras[i][2]:
+                                                if thetam > self._paras[i][4] and thetam < self._paras[i][2]:
+                                                    tmp = cos(phi)
+                                                    tmp2 = self._paras[i][5] * (thetam * ipi - 0.5)
+                                                    qsptheta[i][j] += tmp * tmp * exp(-0.5 * tmp2 * tmp2)
+                                                    norms[i][j] += 1.0
+                                                elif thetam < self._paras[i][4]:
+                                                    tmp = 0.0556 * (
+                                                            cos(
+                                                                phi - 0.5 * pi) - 0.81649658)
+                                                    tmp2 = self._paras[i][6] * (
+                                                            thetam * ipi - onethird)
+                                                    qsptheta[i][j] += exp(
+                                                        -0.5 * tmp * tmp) * \
+                                                                      exp(
+                                                                          -0.5 * tmp2 * tmp2)
+                                                    norms[i][j] += 1.0
+                                                elif thetam > self._paras[i][2]:
+                                                    tmp = 0.0556 * (
+                                                            cos(
+                                                                phi - 0.5 * pi) - 0.81649658)
+                                                    tmp2 = self._paras[i][6] * (thetam * ipi - twothird)
+                                                    qsptheta[i][j] += exp(-0.5 * tmp * tmp) * exp(-0.5 * tmp2 * tmp2)
+                                                    norms[i][j] += 1.0
 
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
-                if t == "lin":
-                    ops[i] = ops[i] / float(nneigh * (
-                            nneigh - 1)) if nneigh > 1 else None
-                elif t == "bent":
-                    ops[i] = ops[i] / float(nneigh * (
-                            nneigh - 1)) if nneigh > 1 else None
-                elif t == "tet" or t == "tet_legacy":
-                    ops[i] = ops[i] / float(nneigh * (nneigh - 1) * (
-                            nneigh - 2)) if nneigh > 2 else None
-                elif t == "oct" or t == "oct_legacy":
-                    ops[i] = ops[i] / float(nneigh * (3 + (nneigh - 2) * (
-                            nneigh - 3))) if nneigh > 3 else None
+                if t in ["tri_plan", "tet", "pent_plan"]:
+                    ops[i] = ops[i] / sum(norms[i]) \
+                        if sum(norms[i]) > 1.0e-12 else None
+                elif t in ["bent", "sq_plan", "oct", "oct_legacy", "cuboct"]:
+                    ops[i] = sum(qsptheta[i]) / sum(norms[i]) \
+                        if sum(norms[i]) > 1.0e-12 else None
+                elif t in ["T", "tri_pyr", "see_saw", "sq_pyr", "tri_bipyr",
+                           "sq_bipyr", "pent_pyr", "hex_pyr", "pent_bipyr",
+                           "hex_bipyr"]:
+                    for j in range(nneigh):
+                        qsptheta[i][j] = qsptheta[i][j] / norms[i][j] \
+                            if norms[i][j] > 1.0e-12 else 0.0
+                    ops[i] = max(qsptheta[i]) if len(qsptheta[i]) > 0 else None
                 elif t == "bcc":
-                    ops[i] = ops[i] / float(0.5 * float(
-                            nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) \
-                            if nneigh > 3 else None
-                elif t == "sq_pyr":
+                    ops[i] = sum(qsptheta[i]) / float(0.5 * float(
+                        nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) \
+                        if nneigh > 3 else None
+                elif t == "sq_pyr_legacy":
                     if nneigh > 1:
                         dmean = np.mean(dist)
                         acc = 0.0
                         for d in dist:
-                            tmp = self._paras[i][1] * (d - dmean)
+                            tmp = self._paras[i][2] * (d - dmean)
                             acc = acc + exp(-0.5 * tmp * tmp)
                         ops[i] = acc * max(qsptheta[i]) / float(
-                                nneigh * (nneigh - 1))
+                            nneigh * (nneigh - 1))
                     else:
                         ops[i] = None
-                elif t == "tri_bipyr":
-                    ops[i] = max(qsptheta[i]) / float(
-                            2 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
-                            else None
-
 
         # Then, deal with the new-style OPs that require vectors between
         # neighbors.
@@ -2049,9 +1885,8 @@ class OrderParameters(object):
             # Compute all (unique) angles and sort the resulting list.
             aij = []
             for ir, r in enumerate(rijnorm):
-                for j in range(ir+1, len(rijnorm)):
-                    aij.append(math.acos(max(-1.0, min(np.inner(
-                            r, rijnorm[j]), 1.0))))
+                for j in range(ir + 1, len(rijnorm)):
+                    aij.append(acos(max(-1.0, min(np.inner(r, rijnorm[j]), 1.0))))
             aijs = sorted(aij)
 
             # Compute height, side and diagonal length estimates.
@@ -2071,14 +1906,17 @@ class OrderParameters(object):
                     else:
                         ops[i] = 1.0
                         if t == "reg_tri":
-                            a = 2.0 * asin(b / (2.0 * sqrt(h*h + (b / (
-                                    2.0 * cos(3.0 * pi / 18.0)))**2.0)))
+                            a = 2.0 * asin(b / (2.0 * sqrt(h * h + (b / (
+                                    2.0 * cos(3.0 * pi / 18.0))) ** 2.0)))
                             nmax = 3
-                        else:
-                            a = 2.0 * asin(b / (2.0 * sqrt(h*h + dhalf*dhalf)))
+                        elif t == "sq":
+                            a = 2.0 * asin(
+                                b / (2.0 * sqrt(h * h + dhalf * dhalf)))
                             nmax = 4
-                        for j in range(min([nneigh,nmax])):
+                        for j in range(min([nneigh, nmax])):
                             ops[i] = ops[i] * exp(-0.5 * ((
-                                    aijs[j] - a) * self._paras[i][0])**2)
+                                                                  aijs[j] - a) *
+                                                          self._paras[i][
+                                                              0]) ** 2)
 
         return ops
