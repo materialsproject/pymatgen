@@ -877,21 +877,21 @@ class SurfaceEnergyPlotter(object):
         plt = pretty_plot(width=8, height=7)
         for hkl in self.entry_dict.keys():
             for clean_entry in self.entry_dict[hkl].keys():
+                all_u_dict = self.set_all_variables(clean_entry, u_dict, u_default)
                 if self.entry_dict[hkl][clean_entry]:
 
-                    clean_se = self.se_calculator.calculate_gamma(clean_entry,
-                                                                       u_ref=const_u)
+                    clean_se = clean_entry.surface_energy(self.ucell_entry,
+                                                          ref_entries=self.ref_entries)
+                    se = clean_se.subs(all_u_dict)
                     for ads_entry in self.entry_dict[hkl][clean_entry]:
-                        ml = self.se_calculator.get_monolayer(ads_entry, clean_entry)
-                        be = self.se_calculator.gibbs_binding_energy(ads_entry,
-                                                                     clean_entry,
-                                                                     eads=plot_eads)
+                        ml = ads_entry.get_monolayer
+                        be = ads_entry.gibbs_binding_energy(eads=plot_eads)
 
                         # Now plot the surface energy vs binding energy
-                        plt.scatter(clean_se, be)
+                        plt.scatter(se, be)
                         if annotate_monolayer:
-                            plt.annotate("%.2f" %(ml), xy=[clean_se, be],
-                                         xytext=[clean_se, be])
+                            plt.annotate("%.2f" %(ml), xy=[se, be],
+                                         xytext=[se, be])
 
         plt.xlabel(r"Surface energy ($J/m^2$)") if JPERM2 \
             else plt.xlabel(r"Surface energy ($eV/\AA^2$)")
