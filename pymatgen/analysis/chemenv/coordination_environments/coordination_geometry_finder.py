@@ -502,6 +502,7 @@ class LocalGeometryFinder(object):
                                        info=None,
                                        timelimit=None,
                                        initial_structure_environments=None,
+                                       get_from_hints=False,
                                        recompute=None):
         """
         Computes and returns the StructureEnvironments object containing all the information about the coordination
@@ -637,7 +638,7 @@ class LocalGeometryFinder(object):
                     for cg_symbol, cg_dict in ce:
                         cg = self.allcg[cg_symbol]
                         # Get possibly missing neighbors sets
-                        if cg.neighbors_sets_hints is not None:
+                        if get_from_hints and cg.neighbors_sets_hints is not None:
                             logging.debug('       ... getting hints from cg with mp_symbol "{}" ...'.format(cg_symbol))
                             hints_info = {'csm': cg_dict['symmetry_measure'],
                                           'nb_set': nb_set,
