@@ -449,6 +449,8 @@ class Vasprun(MSONable):
                         elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
                         if not 'density' in self.dielectric_data:
                             self.dielectric_data['density'] = self._parse_diel(elem)
+                            # "velocity-velocity" is also named "current-current"
+                            # in OUTCAR
                         elif not 'velocity' in self.dielectric_data:    
                             self.dielectric_data['velocity'] = self._parse_diel(elem)
                         else:
