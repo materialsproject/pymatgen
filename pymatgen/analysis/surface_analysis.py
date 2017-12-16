@@ -397,7 +397,7 @@ class SurfaceEnergyPlotter(object):
 
         return all_entries[all_gamma.index(min(all_gamma))], float(min(all_gamma))
 
-    def wulff_shape_from_chempot(self, u_dict={}, u_default=0, symprec=1e-5):
+    def wulff_from_chempot(self, u_dict={}, u_default=0, symprec=1e-5):
         """
         Method to get the Wulff shape at a specific chemical potential.
         Args:
@@ -415,11 +415,11 @@ class SurfaceEnergyPlotter(object):
         miller_list = self.entry_dict.keys()
         e_surf_list = []
         for hkl in miller_list:
-            # At each possible configuration, we calculate surface energy as a
-            # function of u and take the lowest surface energy (corresponds to
-            # the most stable slab termination at that particular u)
+            # For all configurations, calculate surface energy as a
+            # function of u. Use the lowest surface energy (corresponds
+            # to the most stable slab termination at that particular u)
             entry, gamma = self.get_stable_entry_at_u(hkl, u_dict=u_dict,
-                                                              u_default=u_default)
+                                                      u_default=u_default)
             e_surf_list.append(gamma)
 
         return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
@@ -455,8 +455,8 @@ class SurfaceEnergyPlotter(object):
         # Get plot points for each Miller index
         for u in all_chempots:
             u_dict[ref_delu] = u
-            wulffshape = self.wulff_shape_from_chempot(u_dict=u_dict,
-                                                       u_default=u_default)
+            wulffshape = self.wulff_from_chempot(u_dict=u_dict,
+                                                 u_default=u_default)
 
             for hkl in wulffshape.area_fraction_dict.keys():
                 hkl_area_dict[hkl].append(wulffshape.area_fraction_dict[hkl])
@@ -710,8 +710,8 @@ class SurfaceEnergyPlotter(object):
         Args:
             miller_index (list): Miller index for a specific facet to get a
                 dictionary for.
-            const_u (float): A chemical potential to hold constant if there are
-                more than one parameters.
+            const_u (float): A chemical potential to hold constant if there
+                are more than one parameters.
             plt (Plot): A plot.
             JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
                 eV/A^2 (False)
@@ -719,7 +719,7 @@ class SurfaceEnergyPlotter(object):
                 energy plot outside the region of stability.
 
         Returns:
-            (Plot): Plot of surface energy vs chemical potential for all entries.
+            (Plot): Plot of surface energy vs chempot for all entries.
         """
 
         plt = pretty_plot(width=8, height=7)
@@ -781,8 +781,8 @@ class SurfaceEnergyPlotter(object):
             For each facet at a specific monlayer, only plot the lowest
             binding energy.
         Args:
-            plot_eads (bool): Option to plot the adsorption energy (binding energy
-                multiplied by number of adsorbates) instead.
+            plot_eads (bool): Option to plot the adsorption energy (binding
+                 energy multiplied by number of adsorbates) instead.
 
         Returns:
             (Plot): Plot of binding energy vs monolayer for all facets.
@@ -902,14 +902,6 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    # def nanoscale_stability(self):
-    #
-    #     return
-    #
-    # def H_wrt_bulk(self):
-    #
-    #     return
-    #
     # def surface_phase_diagram(self, y_param, x_param, miller_index):
     #     return
     #
@@ -932,6 +924,138 @@ class SurfaceEnergyPlotter(object):
     #
     #     return
 
+
+class NanoscaleStability(object):
+    """
+    A class for analyzing the stability of nanoparticles of different
+        polymorphs with respect to size. The Wulff shape will be the
+        model for the nanoparticle. Stability will be determined by
+        an energetic competition between the weighted surface energy
+        (surface energy of the Wulff shape) and the bulk energy. A
+        future release will include a 2D phase diagram (e.g. wrt size
+        vs chempot for adsorbed or nonstoichiometric surfaces). Based
+        on the following work:
+
+        Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
+            stabilization of sodium oxides: Implications for Na-O2
+            batteries. Nano Letters, 14(2), 1016–1020.
+            https://doi.org/10.1021/nl404557w
+    """
+
+    def __init__(self, se_analyzers, symprec=1e-5):
+
+        self.se_analyzers = se_analyzers
+        self.symprec = symprec
+
+    def solve_equilibrium_point(self, analyzer1, analyzer2,
+                                u_dict={}, u_default=0):
+        """
+        Gives the radial size of two particles where equilibrium is reached
+        between both particles. Note the solution here is not the same as
+        the solution visualized in the plot because solving for r requires
+        that both the total surface area and volume of the particle are
+        functions of r.
+        """
+
+        # Set up
+        s1 = analyzer1.ucell_entry.structure
+        s2 = analyzer2.ucell_entry.structure
+        E1 = analyzer1.ucell_entry.energy_per_atom
+        E2 = analyzer2.ucell_entry.energy_per_atom
+        wulff1 = analyzer1.wulff_from_chempot(u_dict=u_dict,
+                                              u_default=u_default,
+                                              symprec=self.symprec)
+        wulff2 = analyzer2.wulff_from_chempot(u_dict=u_dict,
+                                              u_default=u_default,
+                                              symprec=self.symprec)
+
+        delta_gamma = wulff1.weighted_surface_energy - wulff2.weighted_surface_energy
+        delta_E = (len(s1) / s1.lattice.volume) * E1 - (len(s2) / s2.lattice.volume) * E2
+
+        return (-3 * delta_gamma) / (delta_E)
+
+    def plot_one_stability_map(self, analyzer, max_r, u_dict={}, label="",
+                               increments=50, u_default=0, plt=None,
+                               from_sphere_area=False):
+        """
+        Plots the formation energy of a particle against its effect radius
+        """
+        plt = plt if plt else pretty_plot(width=8, height=7)
+
+        wulffshape = analyzer.wulff_from_chempot(u_dict=u_dict,
+                                                 u_default=u_default,
+                                                 symprec=self.symprec)
+
+        gform_list, r_list = [], []
+        for r in np.linspace(1e-6, max_r, increments):
+            gform, r = self.wulff_gform_and_r(wulffshape,
+                                              analyzer.ucell_entry, r,
+                                              from_sphere_area=from_sphere_area)
+            gform_list.append(gform)
+            r_list.append(r)
+        plt.plot(r_list, gform_list, label=label)
+
+        return plt
+
+    def plot_all_stability_map(self, max_r, increments=50, u_dict={},
+                               u_default=0, plt=None, labels=[],
+                               from_sphere_area=False):
+        """
+        Plots the formation energy of a particles of
+        different polymorphs against its effect radius
+        """
+        plt = plt if plt else pretty_plot(width=8, height=7)
+
+        for i, analyzer in enumerate(self.se_analyzers):
+            label = labels[i] if labels else ""
+            plt = self.plot_one_stability_map(analyzer, max_r, u_dict,
+                                              label=label, plt=plt,
+                                              increments=increments,
+                                              u_default=u_default,
+                                              from_sphere_area=from_sphere_area)
+
+        return plt
+
+    def wulff_gform_and_r(self, wulffshape, bulk_entry,
+                          r, from_sphere_area=False):
+
+        # Set up
+        miller_se_dict = wulffshape.miller_energy_dict
+        new_wulff = self.scaled_wulff(wulffshape, r)
+        new_wulff_area = new_wulff.miller_area_dict
+
+        # calculate surface energy of the particle
+        if not from_sphere_area:
+            tot_wulff_se = 0
+            for hkl in new_wulff_area.keys():
+                tot_wulff_se += miller_se_dict[hkl] * new_wulff_area[hkl]
+        else:
+            wulff_r = ((3 / 4) * (new_wulff.volume / np.pi)) ** (1 / 3)
+            sphere_sa = 4 * np.pi * wulff_r ** 2
+            tot_wulff_se = wulffshape.weighted_surface_energy * sphere_sa
+
+        # get formation energy of bulk
+        Ebulk = self.bulk_gform(new_wulff, bulk_entry)
+
+        return Ebulk + tot_wulff_se, new_wulff.effective_radius
+
+    def bulk_gform(self, wulffshape, bulk_entry):
+
+        ucell = bulk_entry.structure
+        N_per_ucell = len(ucell) / ucell.lattice.volume
+        print(N_per_ucell * bulk_entry.energy_per_atom, wulffshape.volume)
+        Gform = N_per_ucell * bulk_entry.energy_per_atom
+
+        return Gform * wulffshape.volume
+
+    def scaled_wulff(self, wulffshape, r):
+
+        miller_list = wulffshape.miller_energy_dict.keys()
+        se_list = np.array(list(wulffshape.miller_energy_dict.values()))
+        scaled_se = (se_list / min(se_list)) * r
+
+        return WulffShape(wulffshape.lattice, miller_list,
+                          scaled_se, symprec=self.symprec)
 
 # class GetChempotRange(object):
 #     def __init__(self, entry):

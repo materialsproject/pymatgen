@@ -153,28 +153,32 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             plotter = self.Oads_analyzer_dict[el]
             for hkl in plotter.entry_dict.keys():
                 # Test that the surface energy is clean for specific range of chempot
-                entry1, gamma1 = plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -7})
-                entry2, gamma2 = plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -6})
+                entry1, gamma1 = \
+                    plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -7})
+                entry2, gamma2 = \
+                    plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -6})
                 self.assertEqual(gamma1, gamma2)
                 self.assertEqual(entry1.label, entry2.label)
 
                 # Now test that for a high chempot, adsorption
                 # occurs and gamma is not equal to clean gamma
-                entry3, gamma3 = plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -1})
+                entry3, gamma3 = \
+                    plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -1})
                 self.assertNotEqual(entry3.label, entry2.label)
                 self.assertNotEqual(gamma3, gamma2)
 
                 # For any chempot greater than -6, surface energy should vary
                 # but the configuration should remain the same
-                entry4, gamma4 = plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): 0})
+                entry4, gamma4 = \
+                    plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): 0})
                 self.assertEqual(entry3.label, entry4.label)
                 self.assertNotEqual(gamma3, gamma4)
 
-    def test_wulff_shape_from_chempot(self):
+    def test_wulff_from_chempot(self):
 
         # Test if it generates a Wulff shape, test if
         # all the facets for Cu wulff shape are inside.
-        Cu_wulff = self.Cu_analyzer.wulff_shape_from_chempot()
+        Cu_wulff = self.Cu_analyzer.wulff_from_chempot()
         area_frac_dict = Cu_wulff.area_fraction_dict
         facets_hkl = [(1,1,1), (3,3,1), (3,1,0), (1,0,0),
                       (3,1,1), (2,1,0), (2,2,1)]
@@ -188,18 +192,21 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             # Test WulffShape for adsorbed surfaces
             analyzer = self.Oads_analyzer_dict[el]
             # chempot = analyzer.max_adsorption_chempot_range(0)
-            wulff = analyzer.wulff_shape_from_chempot()
+            wulff = analyzer.wulff_from_chempot()
             se = wulff.weighted_surface_energy
 
         # Test if a different Wulff shape is generated
         # for Ni when adsorption comes into play
-        wulff_neg7 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=-7)
-        wulff_neg6 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=-6)
-        self.assertEqual(wulff_neg7.weighted_surface_energy, wulff_neg6.weighted_surface_energy)
-        wulff_neg1 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=-1)
-        self.assertNotEqual(wulff_neg1.weighted_surface_energy, wulff_neg6.weighted_surface_energy)
-        wulff_neg0 = self.Oads_analyzer_dict["Ni"].wulff_shape_from_chempot(u_default=0)
-        self.assertNotEqual(wulff_neg1.weighted_surface_energy, wulff_neg0.weighted_surface_energy)
+        wulff_neg7 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-7)
+        wulff_neg6 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-6)
+        self.assertEqual(wulff_neg7.weighted_surface_energy,
+                         wulff_neg6.weighted_surface_energy)
+        wulff_neg1 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-1)
+        self.assertNotEqual(wulff_neg1.weighted_surface_energy,
+                            wulff_neg6.weighted_surface_energy)
+        wulff_neg0 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=0)
+        self.assertNotEqual(wulff_neg1.weighted_surface_energy,
+                            wulff_neg0.weighted_surface_energy)
 
     def test_color_palette_dict(self):
 
@@ -218,7 +225,8 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         # get_surface_equilibrium should return None
         clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)].keys())[0]
         clean100_entry = list(self.Cu_entry_dict[(1, 0, 0)].keys())[0]
-        soln = self.Cu_analyzer.get_surface_equilibrium([clean111_entry, clean100_entry])
+        soln = self.Cu_analyzer.get_surface_equilibrium([clean111_entry,
+                                                         clean100_entry])
         self.assertFalse(soln)
 
         # For adsorbed system, we should find one intercept
@@ -324,14 +332,17 @@ def load_O_adsorption():
         for el in metals_O_entry_dict.keys():
             if el in k:
                 if "111" in k:
-                    metals_O_entry_dict[el][(1, 1, 1)][SlabEntry(entry.structure, entry.energy,
-                                                                 (1,1,1), label=k+"_clean")] = []
+                    clean = SlabEntry(entry.structure, entry.energy,
+                                      (1,1,1), label=k+"_clean")
+                    metals_O_entry_dict[el][(1, 1, 1)][clean] = []
                 if "110" in k:
-                    metals_O_entry_dict[el][(1, 1, 0)][SlabEntry(entry.structure, entry.energy,
-                                                                 (1,1,0), label=k+"_clean")] = []
+                    clean = SlabEntry(entry.structure, entry.energy,
+                                      (1, 1, 0), label=k + "_clean")
+                    metals_O_entry_dict[el][(1, 1, 0)][clean] = []
                 if "100" in k:
-                    metals_O_entry_dict[el][(1, 0, 0)][SlabEntry(entry.structure, entry.energy,
-                                                                 (1,0,0), label=k+"_clean")] = []
+                    clean = SlabEntry(entry.structure, entry.energy,
+                                      (1,0,0), label=k+"_clean")
+                    metals_O_entry_dict[el][(1, 0, 0)][clean] = []
 
     with open(os.path.join(get_path(""), "csentries_o_ads.json")) as entries:
         entries = json.loads(entries.read())
@@ -341,25 +352,19 @@ def load_O_adsorption():
             if el in k:
                 if "111" in k:
                     clean = list(metals_O_entry_dict[el][(1, 1, 1)].keys())[0]
-                    metals_O_entry_dict[el][(1, 1, 1)][clean] = [SlabEntry(entry.structure,
-                                                                           entry.energy, (1,1,1),
-                                                                           label=k+"_O",
-                                                                           adsorbates=[O],
-                                                                           clean_entry=clean)]
+                    ads = SlabEntry(entry.structure, entry.energy, (1,1,1),
+                                    label=k+"_O", adsorbates=[O], clean_entry=clean)
+                    metals_O_entry_dict[el][(1, 1, 1)][clean] = [ads]
                 if "110" in k:
                     clean = list(metals_O_entry_dict[el][(1, 1, 0)].keys())[0]
-                    metals_O_entry_dict[el][(1, 1, 0)][clean] = [SlabEntry(entry.structure,
-                                                                           entry.energy, (1,1,0),
-                                                                           label=k+"_O",
-                                                                           adsorbates=[O],
-                                                                           clean_entry=clean)]
+                    ads = SlabEntry(entry.structure, entry.energy, (1,1,0),
+                                    label=k+"_O", adsorbates=[O], clean_entry=clean)
+                    metals_O_entry_dict[el][(1, 1, 0)][clean] = [ads]
                 if "100" in k:
                     clean = list(metals_O_entry_dict[el][(1, 0, 0)].keys())[0]
-                    metals_O_entry_dict[el][(1, 0, 0)][clean] = [SlabEntry(entry.structure,
-                                                                           entry.energy, (1,0,0),
-                                                                           label=k+"_O",
-                                                                           adsorbates=[O],
-                                                                           clean_entry=clean)]
+                    ads = SlabEntry(entry.structure, entry.energy, (1,0,0),
+                                    label=k+"_O", adsorbates=[O], clean_entry=clean)
+                    metals_O_entry_dict[el][(1, 0, 0)][clean] = [ads]
 
     return metals_O_entry_dict
 
