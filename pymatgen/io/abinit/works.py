@@ -1169,41 +1169,6 @@ class QptdmWork(Work):
         return self.Results(node=self, returncode=0, message="mrgscr done", final_scr=final_scr)
 
 
-@deprecated(message="This class is deprecated and will be removed in pymatgen 4.0. Use PhononWork")
-def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, work_class=None):
-    """
-    Returns a work for the computation of phonon frequencies
-    ph_inputs is a list of input for Phonon calculation in which all the independent perturbations
-    are explicitly computed i.e.
-
-        * rfdir 1 1 1
-        * rfatpol 1 natom
-
-    .. warning::
-        This work is mainly used for simple calculations, e.g. convergence studies.
-        Use :class:`PhononWork` for better efficiency.
-    """
-    work_class = OneShotPhononWork if work_class is None else work_class
-    work = work_class(workdir=workdir, manager=manager)
-    scf_task = work.register_scf_task(scf_input)
-    ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
-
-    for phinp in ph_inputs:
-        # Check rfdir and rfatpol.
-        rfdir = np.array(phinp.get("rfdir", [0, 0, 0]))
-        if len(rfdir) != 3 or any(rfdir != (1, 1, 1)):
-            raise ValueError("Expecting rfdir == (1, 1, 1), got %s" % rfdir)
-
-        rfatpol = np.array(phinp.get("rfatpol", [1, 1]))
-        if len(rfatpol) != 2 or any(rfatpol != (1, len(phinp.structure))):
-            raise ValueError("Expecting rfatpol == (1, natom), got %s" % rfatpol)
-
-        # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
-        ph_task = work.register(phinp, deps={scf_task: "WFK"})
-
-    return work
-
-
 class OneShotPhononWork(Work):
     """
     Simple and very inefficient work for the computation of the phonon frequencies

@@ -26,6 +26,8 @@ Submodules
    pymatgen.io.cssr
    pymatgen.io.fiesta
    pymatgen.io.gaussian
+   pymatgen.io.lmto
+   pymatgen.io.lobster
    pymatgen.io.nwchem
    pymatgen.io.phonopy
    pymatgen.io.pwscf

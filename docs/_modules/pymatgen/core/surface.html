@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.surface &#8212; pymatgen 2017.11.27 documentation</title>
+    <title>pymatgen.core.surface &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.11.27',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.11.27 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -624,47 +624,6 @@
             <span class="n">equal_surf_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top</span> <span class="o">==</span> <span class="n">bottom</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">equal_surf_sites</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">get_symmetric_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This method uses symmetry operations to find equivalent sites on</span>
-<span class="sd">            both sides of the slab. Works mainly for slabs with Laue</span>
-<span class="sd">            symmetry. This is useful for retaining the non-polar and</span>
-<span class="sd">            symmetric properties of a slab when creating adsorbed</span>
-<span class="sd">            structures or symmetric reconstructions.</span>
-
-<span class="sd">        Arg:</span>
-<span class="sd">            point: Fractional coordinate.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            point: Fractional coordinate. A point equivalent to the</span>
-<span class="sd">                parameter point, but on the other side of the slab</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">ops</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">()</span>
-
-        <span class="c1"># Each operation on a point will return an equivalent point.</span>
-        <span class="c1"># We want to find the point on the other side of the slab.</span>
-        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
-            <span class="n">slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">site2</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site2</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># Add dummy site to check the overall structure is symmetric</span>
-            <span class="n">slab</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
-            <span class="n">slab</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">site2</span><span class="p">)</span>
-            <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">sg</span><span class="o">.</span><span class="n">is_laue</span><span class="p">():</span>
-                <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># If not symmetric, remove the two added</span>
-                <span class="c1"># sites and try another symmetry operator</span>
-                <span class="n">slab</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-                <span class="n">slab</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-
-        <span class="k">return</span> <span class="n">site2</span>
 
 <div class="viewcode-block" id="Slab.get_symmetric_site"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.Slab.get_symmetric_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_symmetric_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1721,7 +1680,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.11.27 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -188,6 +188,20 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(incar['LUSE_VDW'], True)
         self.assertEqual(incar['PARAM1'], 0.1234)
 
+        # Test that NELECT is updated when a charge is present
+        si = 14
+        coords = list()
+        coords.append(np.array([0, 0, 0]))
+        coords.append(np.array([0.75, 0.5, 0.75]))
+
+        # Silicon structure for testing.
+        latt = Lattice(np.array([[3.8401979337, 0.00, 0.00],
+                                 [1.9200989668, 3.3257101909, 0.00],
+                                 [0.00, -2.2171384943, 3.1355090603]]))
+        struct = Structure(latt, [si, si], coords,charge=1)
+        mpr = MPRelaxSet(struct)
+        self.assertEqual(mpr.incar["NELECT"],mpr.nelect+1,"NELECT not properly set for nonzero charge")
+
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 5]])
@@ -430,15 +444,15 @@ class MVLNPTMDSetTest(unittest.TestCase):
         incar = npt_set.incar
         self.assertNotIn("LDAUU", incar)
         self.assertAlmostEqual(incar['EDIFF'], 1e-5)
-        self.assertEquals(incar["LANGEVIN_GAMMA_L"], 1)
-        self.assertEquals(incar["LANGEVIN_GAMMA"], [10, 10, 10])
+        self.assertEqual(incar["LANGEVIN_GAMMA_L"], 1)
+        self.assertEqual(incar["LANGEVIN_GAMMA"], [10, 10, 10])
         enmax = max([npt_set.potcar[i].keywords["ENMAX"] for i in
                      range(self.struct.ntypesp)])
         self.assertAlmostEqual(incar["ENCUT"], 1.5 * enmax)
-        self.assertEquals(incar["IALGO"], 48)
-        self.assertEquals(incar["ISIF"], 3)
-        self.assertEquals(incar["MDALGO"], 3)
-        self.assertEquals(incar["SMASS"], 0)
+        self.assertEqual(incar["IALGO"], 48)
+        self.assertEqual(incar["ISIF"], 3)
+        self.assertEqual(incar["MDALGO"], 3)
+        self.assertEqual(incar["SMASS"], 0)
 
         kpoints = npt_set.kpoints
         self.assertEqual(kpoints.kpts, [(1, 1, 1)])
@@ -668,6 +682,45 @@ class MPHSEBSTest(PymatgenTest):
         self.assertEqual(vis.incar['NSW'], 0)
         self.assertEqual(vis.incar['ISYM'], 3)
         self.assertEqual(len(vis.kpoints.kpts), 180)
+
+
+class MVLScanRelaxSetTest(PymatgenTest):
+    def setUp(self):
+        file_path = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(file_path)
+        self.struct = poscar.structure
+        self.mvl_scan_set = MVLScanRelaxSet(self.struct,
+                                            potcar_functional="PBE_52",
+                                            user_incar_settings={"NSW": 500})
+
+    def test_incar(self):
+        incar = self.mvl_scan_set.incar
+        self.assertIn("METAGGA", incar)
+        self.assertIn("LASPH", incar)
+        self.assertIn("ADDGRID", incar)
+        self.assertEqual(incar["NSW"], 500)
+
+        # Test SCAN+rVV10
+        scan_rvv10_set = MVLScanRelaxSet(self.struct, vdw="rVV10")
+        self.assertEqual(scan_rvv10_set.incar["BPARAM"], 15.7)
+
+    def test_potcar(self):
+        self.assertEqual(self.mvl_scan_set.potcar.functional, "PBE_52")
+
+        test_potcar_set_1 = MVLScanRelaxSet(
+            self.struct, potcar_functional="PBE_54")
+        self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_54")
+
+        test_potcar_set_2 = MVLScanRelaxSet(
+            self.struct, potcar_functional="PBE")
+        self.assertEqual(test_potcar_set_2.potcar.functional, "PBE_52")
+
+    def test_as_from_dict(self):
+        d = self.mvl_scan_set.as_dict()
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MVLScanRelaxSet)
+        self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
+        self.assertEqual(v.user_incar_settings["NSW"], 500)
 
 
 class FuncTest(PymatgenTest):

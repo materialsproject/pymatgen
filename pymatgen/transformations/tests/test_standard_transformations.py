@@ -8,6 +8,7 @@ import random
 import unittest
 import json
 import six
+import warnings
 
 from monty.os.path import which
 from pymatgen import Lattice, PeriodicSite, Element
@@ -199,6 +200,13 @@ class OxidationStateRemovalTransformationTest(unittest.TestCase):
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_apply_transformation(self):
         t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
         coords = list()

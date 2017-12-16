@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v2017.11.27
+v2017.12.16
 -----------
-* Improvements to FEFF
-* MPRester now supports surface data.
-* Improvement to DiscretizeOccupanciesTransformation.
+* Add optical absorption coefficient method
+* Improve plot_element_profile

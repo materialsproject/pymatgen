@@ -16,6 +16,7 @@ This module provides classes for plotting Pourbaix objects.
 import six
 from six.moves import map
 from six.moves import zip
+import warnings
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -202,6 +203,45 @@ class PourbaixPlotter(object):
             f.set_size_inches((11.5, 9))
             plt.tight_layout(pad=1.09)
 
+    def plot_entry_stability(self, entry, resolution=100, e_hull_max=1,
+                             **kwargs):
+        # plot the Pourbaix diagram
+        plt = self.get_pourbaix_plot(**kwargs)
+        ax = plt.gca()
+        ph_min, ph_max, v_min, v_max = ax.get_xlim() + ax.get_ylim()
+
+        # Get stability map
+        phs, vs = np.mgrid[ph_min:ph_max:resolution*1j, 
+                           v_min:v_max:resolution*1j]
+        if self._pd._multielement and not isinstance(entry, MultiEntry):
+            _, _, m_entries = self._analyzer.\
+                    get_all_decomp_and_e_above_hull(entry)
+            warnings.warn("{} is not a multi-entry, calculating stability of "
+                          "representative multientries".format(entry.name))
+            stability = [self._analyzer.get_entry_stability(m_entries[0], ph, v)
+                         for ph, v in zip(phs.ravel(), vs.ravel())]
+            for m_entry in m_entries[1:]:
+                new_stab = [self._analyzer.get_entry_stability(m_entry, ph, v)
+                            for ph, v in zip(phs.ravel(), vs.ravel())]
+                stability = np.min(np.array([stability, new_stab]), axis=0)
+        else:
+            stability = [self._analyzer.get_entry_stability(entry, ph, v)
+                         for ph, v in zip(phs.ravel(), vs.ravel())]
+        stability = np.array(stability).reshape(phs.shape)
+
+        # Plot stability map
+        plt.pcolor(phs, vs, stability, cmap='RdYlBu_r',
+                   vmin=0, vmax=e_hull_max)
+        cbar = plt.colorbar()
+        cbar.set_label("Stability of {} (eV)".format(self.print_name(entry)))
+
+        # Set ticklabels
+        ticklabels = [t.get_text() for t in cbar.ax.get_yticklabels()]
+        ticklabels[-1] = '>={}'.format(ticklabels[-1])
+        cbar.ax.set_yticklabels(ticklabels)
+
+        return plt
+
     def pourbaix_plot_data(self, limits=None):
         """
         Get data required to plot Pourbaix diagram.
@@ -350,7 +390,8 @@ class PourbaixPlotter(object):
                         center_y = h2o_y + radius
         return center_x, center_y
 
-    def get_pourbaix_plot(self, limits=None, title="", label_domains=True):
+    def get_pourbaix_plot(self, limits=[[-2, 14], [-3, 3]],
+                          title="", label_domains=True):
         """
         Plot Pourbaix diagram.
 
@@ -362,7 +403,6 @@ class PourbaixPlotter(object):
             plt:
                 matplotlib plot object
         """
-#        plt = pretty_plot(24, 14.4)
         plt = pretty_plot(16)
         (stable, unstable) = self.pourbaix_plot_data(limits)
         if limits:
@@ -413,7 +453,8 @@ class PourbaixPlotter(object):
                 continue
             xy = (center_x, center_y)
             if label_domains:
-                plt.annotate(self.print_name(entry), xy, fontsize=20, color="b")
+                plt.annotate(self.print_name(entry), xy, ha='center',
+                             va='center', fontsize=20, color="b")
 
         plt.xlabel("pH")
         plt.ylabel("E (V)")

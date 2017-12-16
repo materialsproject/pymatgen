@@ -11,9 +11,7 @@ from warnings import warn
 import bisect
 
 import numpy as np
-from scipy.special import erfc
-from scipy.misc import comb
-
+from scipy.special import erfc, comb
 import scipy.constants as constants
 
 """
