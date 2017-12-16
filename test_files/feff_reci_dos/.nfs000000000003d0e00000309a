@@ -1,0 +1,19 @@
+DEBUG:launchpad:FW with id: 51902 is unique!
+DEBUG:launchpad:Created/updated Launch with launch_id: 51332
+DEBUG:launchpad:RUNNING FW with id: 51902
+INFO:rocket.launcher:RUNNING fw_id: 51902 in directory: /home/chz022/fw-setup/condo/block_2017-08-14-05-16-54-030534/launcher_2017-12-14-07-42-07-385971
+INFO:rocket.launcher:Task started: {{atomate.feff.firetasks.write_inputs.WriteFeffFromIOSet}}.
+WARNING:pymatgen.io.feff.sets:Setting COREHOLE = RPA for K-space calculation
+WARNING:pymatgen.io.feff.sets:Setting COREHOLE = RPA for K-space calculation
+INFO:rocket.launcher:Task completed: {{atomate.feff.firetasks.write_inputs.WriteFeffFromIOSet}} 
+INFO:rocket.launcher:Task started: {{pyxas.fireworks.tscc_firetask.RunFeffTscc}}.
+INFO:custodian.custodian:Run started at 2017-12-14 01:47:20.949428 in /oasis/tscc/scratch/chz022/tmp104jgn06.
+INFO:custodian.custodian:Custodian running on Python version 3.6.3 |Anaconda, Inc.| (default, Oct 27 2017, 19:41:01)  [GCC 7.2.0]
+INFO:custodian.custodian:Hostname: tscc-1-62.sdsc.edu, Cluster: unknown
+INFO:custodian.custodian:Starting job no. 1 (Feffjob) attempt no. 1. Total errors and errors in job thus far = 0, 0.
+INFO:custodian.custodian:Feffjob.run has completed. Checking remaining handlers
+INFO:custodian.custodian:Logging to custodian.json...
+INFO:custodian.custodian:Run ended at 2017-12-14 01:48:57.590874.
+INFO:custodian.custodian:Run completed. Total time taken = 0:01:36.641446.
+INFO:rocket.launcher:Task completed: {{pyxas.fireworks.tscc_firetask.RunFeffTscc}} 
+INFO:rocket.launcher:Task started: {{pyxas.fireworks.tscc_firetask.TransferAndInsertFeffTask}}.
