@@ -1,13 +1,10 @@
 import unittest
 import os
-import random
-import glob
+import warnings
 import json
-
-import numpy as np
 from sympy import Number, Symbol
 
-from pymatgen.analysis.surface_analysis import SlabEntry, SurfaceEnergyPlotter
+from pymatgen.analysis.surface_analysis import SlabEntry, SurfaceEnergyPlotter, NanoscaleStability
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 
@@ -28,6 +25,9 @@ def get_path(path_str):
 class SlabEntryTest(PymatgenTest):
 
     def setUp(self):
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
 
         with open(os.path.join(get_path(""), 'ucell_entries.txt')) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
@@ -285,6 +285,41 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
     #             # Test WulffShape for adsorbed surfaces
     #             analyzer = self.Oads_analyzer_dict[el]
     #             plt = analyzer.chempot_vs_gamma_facet(hkl)
+
+
+class NanoscaleStabilityTest(PymatgenTest):
+
+    def setUp(self):
+
+        # Load all entries
+        La_hcp_entry_dict = get_entry_dict(os.path.join(get_path(""),
+                                                        "La_hcp_entries.txt"))
+        La_fcc_entry_dict = get_entry_dict(os.path.join(get_path(""),
+                                                        "La_fcc_entries.txt"))
+        with open(os.path.join(get_path(""), 'ucell_entries.txt')) as ucell_entries:
+            ucell_entries = json.loads(ucell_entries.read())
+        La_hcp_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_hcp"])
+        La_fcc_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_fcc"])
+
+        # Set up the NanoscaleStabilityClass
+        self.La_hcp_analyzer = SurfaceEnergyPlotter(La_hcp_entry_dict,
+                                                    La_hcp_ucell_entry)
+        self.La_fcc_analyzer = SurfaceEnergyPlotter(La_fcc_entry_dict,
+                                                    La_fcc_ucell_entry)
+        self.nanoscale_stability = NanoscaleStability([self.La_fcc_analyzer,
+                                                       self.La_hcp_analyzer])
+
+    def test_stability_at_r(self):
+
+        # Check that we have a different polymorph that is
+        # stable below or above the equilibrium particle size
+        r = self.nanoscale_stability.solve_equilibrium_point(self.La_hcp_analyzer,
+                                                             self.La_fcc_analyzer)
+        self.bulk_gform(self.nanoscale_stability.)
+
+
+
+
 
 
 def get_entry_dict(filename):
