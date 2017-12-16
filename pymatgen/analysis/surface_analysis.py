@@ -594,7 +594,6 @@ class SurfaceEnergyPlotter(object):
             # limit or lower limit of the user provided chempot_range
             new_u_dict = u_dict.copy()
             for u in chempot_range:
-                print(u)
                 new_u_dict[ref_u] = u
                 entry, gamma = self.get_stable_entry_at_u(hkl, u_dict=new_u_dict)
                 stable_urange_dict[entry].append(u)
@@ -974,6 +973,47 @@ class NanoscaleStability(object):
 
         return (-3 * delta_gamma) / (delta_E)
 
+    def wulff_gform_and_r(self, wulffshape, bulk_entry,
+                          r, from_sphere_area=False):
+
+        # Set up
+        miller_se_dict = wulffshape.miller_energy_dict
+        new_wulff = self.scaled_wulff(wulffshape, r)
+        new_wulff_area = new_wulff.miller_area_dict
+
+        # calculate surface energy of the particle
+        if not from_sphere_area:
+            tot_wulff_se = 0
+            for hkl in new_wulff_area.keys():
+                tot_wulff_se += miller_se_dict[hkl] * new_wulff_area[hkl]
+            Ebulk = self.bulk_gform(bulk_entry)*new_wulff.volume
+            new_r = new_wulff.effective_radius
+        else:
+            sphere_sa = 4 * np.pi * r ** 2
+            tot_wulff_se = wulffshape.weighted_surface_energy * sphere_sa
+            wulff_v = (4/3)*np.pi*r**3
+            Ebulk = self.bulk_gform(bulk_entry)*wulff_v
+            new_r = r
+
+        return Ebulk + tot_wulff_se, new_r
+
+    def bulk_gform(self, bulk_entry):
+
+        ucell = bulk_entry.structure
+        N_per_ucell = len(ucell) / ucell.lattice.volume
+        Gform = N_per_ucell * bulk_entry.energy_per_atom
+
+        return Gform
+
+    def scaled_wulff(self, wulffshape, r):
+
+        miller_list = wulffshape.miller_energy_dict.keys()
+        se_list = np.array(list(wulffshape.miller_energy_dict.values()))
+        scaled_se = (se_list / min(se_list)) * r
+
+        return WulffShape(wulffshape.lattice, miller_list,
+                          scaled_se, symprec=self.symprec)
+
     def plot_one_stability_map(self, analyzer, max_r, u_dict={}, label="",
                                increments=50, u_default=0, plt=None,
                                from_sphere_area=False):
@@ -1016,46 +1056,6 @@ class NanoscaleStability(object):
 
         return plt
 
-    def wulff_gform_and_r(self, wulffshape, bulk_entry,
-                          r, from_sphere_area=False):
-
-        # Set up
-        miller_se_dict = wulffshape.miller_energy_dict
-        new_wulff = self.scaled_wulff(wulffshape, r)
-        new_wulff_area = new_wulff.miller_area_dict
-
-        # calculate surface energy of the particle
-        if not from_sphere_area:
-            tot_wulff_se = 0
-            for hkl in new_wulff_area.keys():
-                tot_wulff_se += miller_se_dict[hkl] * new_wulff_area[hkl]
-        else:
-            wulff_r = ((3 / 4) * (new_wulff.volume / np.pi)) ** (1 / 3)
-            sphere_sa = 4 * np.pi * wulff_r ** 2
-            tot_wulff_se = wulffshape.weighted_surface_energy * sphere_sa
-
-        # get formation energy of bulk
-        Ebulk = self.bulk_gform(new_wulff, bulk_entry)
-
-        return Ebulk + tot_wulff_se, new_wulff.effective_radius
-
-    def bulk_gform(self, wulffshape, bulk_entry):
-
-        ucell = bulk_entry.structure
-        N_per_ucell = len(ucell) / ucell.lattice.volume
-        print(N_per_ucell * bulk_entry.energy_per_atom, wulffshape.volume)
-        Gform = N_per_ucell * bulk_entry.energy_per_atom
-
-        return Gform * wulffshape.volume
-
-    def scaled_wulff(self, wulffshape, r):
-
-        miller_list = wulffshape.miller_energy_dict.keys()
-        se_list = np.array(list(wulffshape.miller_energy_dict.values()))
-        scaled_se = (se_list / min(se_list)) * r
-
-        return WulffShape(wulffshape.lattice, miller_list,
-                          scaled_se, symprec=self.symprec)
 
 # class GetChempotRange(object):
 #     def __init__(self, entry):

@@ -253,7 +253,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
                                                       clean_only=False)
         all_u = []
         for entry in stable_u_range.keys():
-            print(stable_u_range[entry], entry, len(stable_u_range.keys()))
             all_u.extend(stable_u_range[entry])
         self.assertGreater(len(all_u), 1)
 
@@ -315,11 +314,30 @@ class NanoscaleStabilityTest(PymatgenTest):
         # stable below or above the equilibrium particle size
         r = self.nanoscale_stability.solve_equilibrium_point(self.La_hcp_analyzer,
                                                              self.La_fcc_analyzer)
-        self.bulk_gform(self.nanoscale_stability.)
 
+        # hcp phase of La particle should be the stable
+        # polymorph above the equilibrium radius
+        hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
+        bulk = self.La_hcp_analyzer.ucell_entry
+        ghcp, rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r+10,
+                                                                from_sphere_area=True)
+        fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
+        bulk = self.La_fcc_analyzer.ucell_entry
+        gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r+10,
+                                                                from_sphere_area=True)
+        self.assertGreater(gfcc, ghcp)
 
-
-
+        # fcc phase of La particle should be the stable
+        # polymorph below the equilibrium radius
+        hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
+        bulk = self.La_hcp_analyzer.ucell_entry
+        ghcp, rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r-10,
+                                                                from_sphere_area=True)
+        fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
+        bulk = self.La_fcc_analyzer.ucell_entry
+        gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r-10,
+                                                                from_sphere_area=True)
+        self.assertLess(gfcc, ghcp)
 
 
 def get_entry_dict(filename):
@@ -332,9 +350,14 @@ def get_entry_dict(filename):
         n = k[25:]
         miller_index = []
         for i, s in enumerate(n):
-            if i > 2:
+            if s == "_":
                 break
-            miller_index.append(int(s))
+            if s == "-":
+                continue
+            t = int(s)
+            if n[i - 1] == "-":
+                t *= -1
+            miller_index.append(t)
         hkl = tuple(miller_index)
         if hkl not in entry_dict.keys():
             entry_dict[hkl] = {}
