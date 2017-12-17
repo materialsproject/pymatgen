@@ -266,6 +266,14 @@ class SlabEntry(ComputedStructureEntry):
         """
         m = self.structure.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
+    
+    @property
+    def cleaned_up_slab(self):
+        
+        ads_strs = list(self.ads_entries_dict.keys())
+        cleaned = self.structure.copy()
+        cleaned.remove_species(ads_strs)
+        return cleaned
 
     @property
     def create_slab_label(self):
@@ -276,8 +284,7 @@ class SlabEntry(ComputedStructureEntry):
         label = str(self.miller_index)
         ads_strs = list(self.ads_entries_dict.keys())
 
-        cleaned = self.structure.copy()
-        cleaned.remove_species(ads_strs)
+        cleaned = self.cleaned_up_slab
         label += " %s" % (cleaned.composition.reduced_composition)
 
         if self.adsorbates:
@@ -667,18 +674,13 @@ class SurfaceEnergyPlotter(object):
 
         # use dashed lines for slabs that are not stoichiometric
         # wrt bulk. Label with formula if nonstoichiometric
-        ucell_comp = self.ucell_entry.composition.reduced_composition.as_dict()
-        is_stoich = []
-        for el in ucell_comp.keys():
-            if entry.adsorbates:
-                s = entry.structure
-                s.remove_species(entry.ads_entries_dict.keys())
-                is_stoich.append(ucell_comp[el] == \
-                                 s.composition.reduced_composition.as_dict()[el])
-            else:
-                is_stoich.append(ucell_comp[el] == \
-                                 entry.composition.reduced_composition.as_dict()[el])
-        mark = '--' if not all(is_stoich) else '-'
+        ucell_comp = self.ucell_entry.composition.reduced_composition
+        if entry.adsorbates:
+            s = entry.cleaned_up_slab
+            clean_comp = s.composition.reduced_composition
+        else:
+            clean_comp = entry.composition.reduced_composition
+        mark = '--' if ucell_comp != clean_comp else '-'
 
         u_dict = self.set_all_variables(entry, u_dict, u_default)
         u_dict[ref_u] = chempot_range[0]

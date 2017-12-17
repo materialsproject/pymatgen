@@ -119,6 +119,16 @@ class SlabEntryTest(PymatgenTest):
         se_Cu111 = clean111_entry.surface_energy(self.Cu_ucell_entry)
         self.assertEqual(min(all_se), se_Cu111)
 
+    def test_cleaned_up_slab(self):
+        # The cleaned up slab should have the same reduced formula as a clean slab
+        for el in self.metals_O_entry_dict.keys():
+            for hkl in self.metals_O_entry_dict[el].keys():
+                for clean in self.metals_O_entry_dict[el][hkl].keys():
+                    for ads in self.metals_O_entry_dict[el][hkl][clean]:
+                        s = ads.cleaned_up_slab
+                        self.assertEqual(s.composition.reduced_composition,
+                                         clean.composition.reduced_composition)
+
 
 class SurfaceEnergyPlotterTest(PymatgenTest):
 
