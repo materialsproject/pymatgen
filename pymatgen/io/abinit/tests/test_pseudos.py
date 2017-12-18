@@ -195,9 +195,9 @@ class PseudoTableTest(PymatgenTest):
         # Data persistence
         self.serialize_with_pickle(table, test_eq=False)
 
-        #d = table.as_dict()
-        #PseudoTable.from_dict(d)
-        #self.assertMSONable(table)
+        d = table.as_dict()
+        PseudoTable.from_dict(d)
+        self.assertMSONable(table)
 
         selected = table.select_symbols("Si")
         assert len(selected) == len(table) and selected.__class__ is table.__class__
