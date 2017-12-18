@@ -7,6 +7,7 @@ from sympy import Number, Symbol
 from pymatgen.analysis.surface_analysis import SlabEntry, SurfaceEnergyPlotter, NanoscaleStability
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.analysis.wulff import WulffShape
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -142,6 +143,12 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
 
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
         self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, self.Cu_ucell_entry)
+        w = WulffShape(self.Cu_ucell_entry.structure.lattice, list(entry_dict.keys()),
+                       [0.0998493240061542, 0.09662342231048893, 0.10066633799430091,
+                        0.08985039953429563, 0.09267191947498676, 0.10135660324867501,
+                        0.09160536592770563, 0.09892272009042058, 0.08231163450664747,
+                        0.09795561781949647, 0.09084551325809342, 0.09498994685105133,
+                        0.102117822888256])
 
         self.metals_O_entry_dict = load_O_adsorption()
         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Pt"])
@@ -323,7 +330,7 @@ class NanoscaleStabilityTest(PymatgenTest):
         # Check that we have a different polymorph that is
         # stable below or above the equilibrium particle size
         r = self.nanoscale_stability.solve_equilibrium_point(self.La_hcp_analyzer,
-                                                             self.La_fcc_analyzer)
+                                                             self.La_fcc_analyzer)*10
 
         # hcp phase of La particle should be the stable
         # polymorph above the equilibrium radius

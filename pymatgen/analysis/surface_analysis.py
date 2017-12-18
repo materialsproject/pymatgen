@@ -1065,6 +1065,9 @@ class NanoscaleStability(object):
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             u_default (float): Default value for all unset chemical potentials
+
+        Returns:
+            Particle radius in nm
         """
 
         # Set up
@@ -1083,7 +1086,7 @@ class NanoscaleStability(object):
         delta_gamma = wulff1.weighted_surface_energy - wulff2.weighted_surface_energy
         delta_E = (len(s1) / s1.lattice.volume) * E1 - (len(s2) / s2.lattice.volume) * E2
 
-        return (-3 * delta_gamma) / (delta_E)
+        return ((-3 * delta_gamma) / (delta_E))/10
 
     def wulff_gform_and_r(self, wulffshape, bulk_entry,
                           r, from_sphere_area=False):
@@ -1093,13 +1096,13 @@ class NanoscaleStability(object):
         Args:
             wulffshape (WulffShape): Initial, unscaled WulffShape
             bulk_entry (ComputedStructureEntry): Entry of the corresponding bulk.
-            r (float): Arbitrary effective radius of the WulffShape
+            r (float (Ang)): Arbitrary effective radius of the WulffShape
             from_sphere_area (bool): There are two ways to calculate the bulk
                 formation energy. Either by treating the volume and thus surface
                 area of the particle as a perfect sphere, or as a Wulff shape.
 
         Returns:
-            particle formation energy (float), effective radius (float)
+            particle formation energy (float in keV), effective radius (float in nm)
         """
 
         # Set up
@@ -1123,7 +1126,7 @@ class NanoscaleStability(object):
             Ebulk = self.bulk_gform(bulk_entry)*wulff_v
             new_r = r
 
-        return Ebulk + tot_wulff_se, new_r
+        return (Ebulk + tot_wulff_se)/1000, new_r/10
 
     def bulk_gform(self, bulk_entry):
         """
@@ -1200,6 +1203,9 @@ class NanoscaleStability(object):
                                               from_sphere_area=from_sphere_area)
             gform_list.append(gform)
             r_list.append(r)
+        plt.xlabel("Particle radius (nm)")
+        plt.ylabel(r"$\Delta \bar{G}_{form}$ (keV)")
+
         plt.plot(r_list, gform_list, label=label)
 
         return plt
