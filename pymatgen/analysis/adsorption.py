@@ -510,7 +510,7 @@ class AdsorbateSiteFinder(object):
         return new_adslabs
 
     def generate_substitution_structures(self, atom, target_species=[],
-                                         sub_both_sides=False):
+                                         sub_both_sides=False, sub_range=[]):
         """
         Function that performs substitution-type doping on the surface and
             returns all possible configurations where one dopant is substituted
@@ -521,33 +521,48 @@ class AdsorbateSiteFinder(object):
             sub_both_sides (bool): If true, substitute an equivalent
                 site on the other surface
             target_species (list): List of specific species to substitute
+            sub_range (list): Range along c (fractional coords), to find
+                sites to substitute
         """
 
         # Get symmetrized structure in case we want to substitue both sides
         sym_slab = SpacegroupAnalyzer(self.slab).get_symmetrized_structure()
 
+        # Define a function for substituting a site
+        def substitute(site, i):
+
+            if target_species and site.species_string in target_species:
+                slab = self.slab.copy()
+                props = self.slab.site_properties
+                if sub_both_sides:
+                    # Find an equivalent site on the other surface
+                    eq_indices = [indices for indices in
+                                  sym_slab.equivalent_indices if i in indices][0]
+                    for ii in eq_indices:
+                        if "%.6f" % (sym_slab[ii].frac_coords[2]) != \
+                                        "%.6f" % (site.frac_coords[2]):
+                            props["surface_properties"][ii] = "substitute"
+                            slab.replace(ii, atom)
+
+                props["surface_properties"][i] = "substitute"
+                slab.replace(i, atom)
+                slab.add_site_property("surface_properties",
+                                       props["surface_properties"])
+                return slab
+            else:
+                return None
+
         # Get all possible substitution sites
         substituted_slabs = []
         for i, site in enumerate(sym_slab):
+            slab = None
+            if sub_range:
+                if sub_range[0] < site.frac_coords[2] < sub_range[1]:
+                    slab = substitute(site, i)
             if site.surface_properties == "surface":
-                if target_species and site.species_string in target_species:
-                    slab = self.slab.copy()
-                    props = self.slab.site_properties
-                    if sub_both_sides:
-                        # Find an equivalnet site on the other surface
-                        eq_indices = [indices for indices in
-                                      sym_slab.equivalent_indices if i in indices][0]
-                        for ii in eq_indices:
-                            if "%.6f" % (sym_slab[ii].frac_coords[2]) != \
-                                            "%.6f" % (site.frac_coords[2]):
-                                props["surface_properties"][ii] = "substitute"
-                                slab.replace(ii, atom)
-
-                    props["surface_properties"][i] = "substitute"
-                    slab.replace(i, atom)
-                    slab.add_site_property("surface_properties",
-                                           props["surface_properties"])
-                    substituted_slabs.append(slab)
+                slab = substitute(site, i)
+            if slab:
+                substituted_slabs.append(slab)
 
         matcher = StructureMatcher()
         return [s[0] for s in matcher.group_structures(substituted_slabs)]
