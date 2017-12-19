@@ -483,7 +483,7 @@ class AdsorbateSiteFinder(object):
                                                       find_args=find_args)
 
         new_adslabs = []
-        for i, adslab in enumerate(adslabs):
+        for adslab in adslabs:
 
             # Find the adsorbate sites and indices in each slab
             symmetric, adsorbates, indices = False, [], []
@@ -508,6 +508,49 @@ class AdsorbateSiteFinder(object):
             new_adslabs.append(slab)
 
         return new_adslabs
+
+    def generate_substitution_structures(self, atom, target_species=[],
+                                         sub_both_sides=False):
+        """
+        Function that performs substitution-type doping on the surface and
+            returns all possible configurations where one dopant is substituted
+            per surface. Can substitute on side or both.
+
+        Args:
+            atom (str): atom corresponding to substitutional dopant
+            sub_both_sides (bool): If true, substitute an equivalent
+                site on the other surface
+            target_species (list): List of specific species to substitute
+        """
+
+        # Get symmetrized structure in case we want to substitue both sides
+        sym_slab = SpacegroupAnalyzer(self.slab).get_symmetrized_structure()
+
+        # Get all possible substitution sites
+        substituted_slabs = []
+        for i, site in enumerate(sym_slab):
+            if site.surface_properties == "surface":
+                if target_species and site.species_string in target_species:
+                    slab = self.slab.copy()
+                    props = self.slab.site_properties
+                    if sub_both_sides:
+                        # Find an equivalnet site on the other surface
+                        eq_indices = [indices for indices in
+                                      sym_slab.equivalent_indices if i in indices][0]
+                        for ii in eq_indices:
+                            if "%.6f" % (sym_slab[ii].frac_coords[2]) != \
+                                            "%.6f" % (site.frac_coords[2]):
+                                props["surface_properties"][ii] = "substitute"
+                                slab.replace(ii, atom)
+
+                    props["surface_properties"][i] = "substitute"
+                    slab.replace(i, atom)
+                    slab.add_site_property("surface_properties",
+                                           props["surface_properties"])
+                    substituted_slabs.append(slab)
+
+        matcher = StructureMatcher()
+        return [s[0] for s in matcher.group_structures(substituted_slabs)]
 
 
 def get_mi_vec(slab):
