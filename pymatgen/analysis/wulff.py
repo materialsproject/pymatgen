@@ -517,7 +517,11 @@ class WulffShape(object):
         Returns:
             sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)
         """
-        return self.total_surface_energy / self.surface_area
+        tot_area_energy = 0
+        for hkl in self.miller_energy_dict.keys():
+            tot_area_energy += self.miller_energy_dict[hkl] * \
+                               self.miller_area_dict[hkl]
+        return tot_area_energy / self.surface_area
 
     @property
     def area_fraction_dict(self):
@@ -557,29 +561,3 @@ class WulffShape(object):
             (float) Shape factor.
         """
         return self.surface_area / (self.volume ** (2 / 3))
-
-
-    @property
-    def effective_radius(self):
-        """
-        Radius of the Wulffshape when the
-        Wulffshape is approximated as a sphere.
-
-        Returns:
-            (float) radius.
-        """
-        return ((3/4)*(self.volume/np.pi)) ** (1 / 3)
-
-    @property
-    def total_surface_energy(self):
-        """
-        Total surface energy of the Wulff shape.
-
-        Returns:
-            (float) sum(surface_energy_hkl * area_hkl)
-        """
-        tot_surface_energy = 0
-        for hkl in self.miller_energy_dict.keys():
-            tot_surface_energy += self.miller_energy_dict[hkl] * \
-                                  self.miller_area_dict[hkl]
-        return tot_surface_energy
