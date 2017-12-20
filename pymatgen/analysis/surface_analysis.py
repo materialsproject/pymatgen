@@ -490,7 +490,9 @@ class SurfaceEnergyPlotter(object):
             entry, gamma = self.get_stable_entry_at_u(hkl, u_dict=u_dict,
                                                       u_default=u_default)
             e_surf_list.append(gamma)
-
+        print(miller_list)
+        print(e_surf_list)
+        print(latt)
         return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
 
     def area_frac_vs_chempot_plot(self, ref_delu, chempot_range, u_dict={},

@@ -143,12 +143,11 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
 
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
         self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, self.Cu_ucell_entry)
-        w = WulffShape(self.Cu_ucell_entry.structure.lattice, list(entry_dict.keys()),
-                       [0.0998493240061542, 0.09662342231048893, 0.10066633799430091,
-                        0.08985039953429563, 0.09267191947498676, 0.10135660324867501,
-                        0.09160536592770563, 0.09892272009042058, 0.08231163450664747,
-                        0.09795561781949647, 0.09084551325809342, 0.09498994685105133,
-                        0.102117822888256])
+
+        # Test out wulff shape generation
+        Ni_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Ni"])
+        w = WulffShape(Ni_ucell_entry.structure.lattice, [(1, 1, 1), (1, 0, 0)],
+                       [0.007479788904726177, 0.0371730557181893])
 
         self.metals_O_entry_dict = load_O_adsorption()
         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Pt"])
@@ -219,6 +218,8 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         self.assertEqual(wulff_neg7.weighted_surface_energy,
                          wulff_neg6.weighted_surface_energy)
         wulff_neg1 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-1)
+
+        kek
         self.assertNotEqual(wulff_neg1.weighted_surface_energy,
                             wulff_neg6.weighted_surface_energy)
         wulff_neg0 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=0)
