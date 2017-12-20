@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 import unittest
 import os
 import warnings
@@ -143,12 +145,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
 
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
         self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, self.Cu_ucell_entry)
-        w = WulffShape(self.Cu_ucell_entry.structure.lattice, list(entry_dict.keys()),
-                       [0.0998493240061542, 0.09662342231048893, 0.10066633799430091,
-                        0.08985039953429563, 0.09267191947498676, 0.10135660324867501,
-                        0.09160536592770563, 0.09892272009042058, 0.08231163450664747,
-                        0.09795561781949647, 0.09084551325809342, 0.09498994685105133,
-                        0.102117822888256])
 
         self.metals_O_entry_dict = load_O_adsorption()
         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Pt"])
@@ -209,7 +205,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             # Test WulffShape for adsorbed surfaces
             analyzer = self.Oads_analyzer_dict[el]
             # chempot = analyzer.max_adsorption_chempot_range(0)
-            wulff = analyzer.wulff_from_chempot()
+            wulff = analyzer.wulff_from_chempot(u_default=-6)
             se = wulff.weighted_surface_energy
 
         # Test if a different Wulff shape is generated
@@ -218,12 +214,12 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         wulff_neg6 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-6)
         self.assertEqual(wulff_neg7.weighted_surface_energy,
                          wulff_neg6.weighted_surface_energy)
-        wulff_neg1 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-1)
-        self.assertNotEqual(wulff_neg1.weighted_surface_energy,
+        wulff_neg55 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-5.5)
+        self.assertNotEqual(wulff_neg55.weighted_surface_energy,
                             wulff_neg6.weighted_surface_energy)
-        wulff_neg0 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=0)
-        self.assertNotEqual(wulff_neg1.weighted_surface_energy,
-                            wulff_neg0.weighted_surface_energy)
+        wulff_neg525 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-5.25)
+        self.assertNotEqual(wulff_neg55.weighted_surface_energy,
+                            wulff_neg525.weighted_surface_energy)
 
     def test_color_palette_dict(self):
 
