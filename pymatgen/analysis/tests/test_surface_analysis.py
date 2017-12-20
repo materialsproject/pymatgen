@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 import unittest
 import os
 import warnings
@@ -144,11 +146,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
         self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, self.Cu_ucell_entry)
 
-        # Test out wulff shape generation
-        Ni_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Ni"])
-        w = WulffShape(Ni_ucell_entry.structure.lattice, [(1, 1, 1), (1, 0, 0)],
-                       [0.007479788904726177, 0.0371730557181893])
-
         self.metals_O_entry_dict = load_O_adsorption()
         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Pt"])
         self.Pt_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Pt"],
@@ -208,7 +205,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             # Test WulffShape for adsorbed surfaces
             analyzer = self.Oads_analyzer_dict[el]
             # chempot = analyzer.max_adsorption_chempot_range(0)
-            wulff = analyzer.wulff_from_chempot()
+            wulff = analyzer.wulff_from_chempot(u_default=-0.75)
             se = wulff.weighted_surface_energy
 
         # Test if a different Wulff shape is generated
@@ -221,7 +218,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
 
         self.assertNotEqual(wulff_neg1.weighted_surface_energy,
                             wulff_neg6.weighted_surface_energy)
-        wulff_neg0 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=0)
+        wulff_neg0 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-0.75)
         self.assertNotEqual(wulff_neg1.weighted_surface_energy,
                             wulff_neg0.weighted_surface_energy)
 
