@@ -219,7 +219,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
                          wulff_neg6.weighted_surface_energy)
         wulff_neg1 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-1)
 
-        kek
         self.assertNotEqual(wulff_neg1.weighted_surface_energy,
                             wulff_neg6.weighted_surface_energy)
         wulff_neg0 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=0)
