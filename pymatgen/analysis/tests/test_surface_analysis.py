@@ -214,9 +214,12 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         wulff_neg6 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-6)
         self.assertEqual(wulff_neg7.weighted_surface_energy,
                          wulff_neg6.weighted_surface_energy)
-        # wulff_neg1 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-1)
-        # self.assertNotEqual(wulff_neg1.weighted_surface_energy,
-        #                     wulff_neg6.weighted_surface_energy)
+        wulff_neg55 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-5.5)
+        self.assertNotEqual(wulff_neg55.weighted_surface_energy,
+                            wulff_neg6.weighted_surface_energy)
+        wulff_neg525 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-5.25)
+        self.assertNotEqual(wulff_neg55.weighted_surface_energy,
+                            wulff_neg525.weighted_surface_energy)
 
     def test_color_palette_dict(self):
 
