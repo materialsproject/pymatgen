@@ -521,8 +521,8 @@ class AdsorbateSiteFinder(object):
             sub_both_sides (bool): If true, substitute an equivalent
                 site on the other surface
             target_species (list): List of specific species to substitute
-            sub_range (list): Range along c (fractional coords), to find
-                sites to substitute
+            sub_range ([[min, max]]): List of ranges along c (fractional coords)
+                to find sites to substitute
         """
 
         # Get symmetrized structure in case we want to substitue both sides
@@ -530,7 +530,6 @@ class AdsorbateSiteFinder(object):
 
         # Define a function for substituting a site
         def substitute(site, i):
-
             if target_species and site.species_string in target_species:
                 slab = self.slab.copy()
                 props = self.slab.site_properties
@@ -557,7 +556,7 @@ class AdsorbateSiteFinder(object):
         for i, site in enumerate(sym_slab):
             slab = None
             if sub_range:
-                if sub_range[0] < site.frac_coords[2] < sub_range[1]:
+                if any([r[0] < site.frac_coords[2] < r[1] for r in sub_range]):
                     slab = substitute(site, i)
             if site.surface_properties == "surface":
                 slab = substitute(site, i)
