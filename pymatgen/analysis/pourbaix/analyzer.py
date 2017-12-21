@@ -131,6 +131,7 @@ class PourbaixAnalyzer(object):
 
         # Remove entries with no pourbaix region
         pourbaix_domains = {k: v for k, v in pourbaix_domains.items() if v}
+        pourbaix_domain_vertices = {}
 
         # Post-process boundary points, sorting isn't strictly necessary
         # but useful for some plotting tools (e.g. highcharts)
@@ -139,19 +140,23 @@ class PourbaixAnalyzer(object):
             center = np.average(points, axis=0)
             points_centered = points - center
 
-            # Sort points by cross product of centered points
+            # Sort points by cross product of centered points,
+            # then roll by min sum to to ensure consistency
             point_comparator = lambda x, y: x[0]*y[1] - x[1]*y[0]
             points_centered = sorted(points_centered,
                                      key=cmp_to_key(point_comparator))
             points = points_centered + center
+            shift = -np.lexsort(np.transpose(points))[0]
+            points = np.roll(points, shift, axis=0)
 
             # Create simplices corresponding to pourbaix boundary
             simplices = [Simplex(points[indices]) 
                          for indices in ConvexHull(points).simplices]
             pourbaix_domains[entry] = simplices
-
+            pourbaix_domain_vertices[entry] = points
 
         self.pourbaix_domains = pourbaix_domains
+        self.pourbaix_domain_vertices = pourbaix_domain_vertices
         return pourbaix_domains
 
     def _in_facet(self, facet, entry):
