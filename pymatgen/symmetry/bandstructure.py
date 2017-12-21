@@ -145,7 +145,7 @@ class HighSymmKpath(object):
                             + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 == 1:
                         self._kpath = self.mclc4(a, b, c, alpha * pi / 180)
                     if b * cos(alpha * pi / 180) / c \
-                            + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 > 1:
+                            + b ** 2 * sin(alpha * pi  / 180) ** 2 / a ** 2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
                 warn("Unexpected value for spg_symbol: %s" % spg_symbol)
