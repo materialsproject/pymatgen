@@ -9,13 +9,13 @@ jobs:
       - run:
           command: |
             wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-            bash Miniconda3-latest-MacOSX-x86_64.sh -b
+            bash Miniconda3-latest-Linux-x86_64.sh -b
             export PATH=$HOME/miniconda3/bin:$PATH
             conda create -n test_env python
             source activate test_env
             conda install --yes numpy scipy matplotlib
+            conda update --all
             mkdir coverage_reports
-            pip install numpy
             pip install -r requirements.txt -r requirements-optional.txt
       - run:
           command: |
