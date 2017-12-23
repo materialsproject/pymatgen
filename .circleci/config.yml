@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           command: |
-            python3 -m testenv testenv
+            python3 -m venv testenv
             source testenv/bin/activate
             mkdir coverage_reports
             pip install numpy
