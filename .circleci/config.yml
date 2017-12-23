@@ -6,8 +6,6 @@ jobs:
         - image: circleci/python:3.6.4
     steps:
       - checkout
-      - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           command: |
             wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -19,10 +17,6 @@ jobs:
             mkdir coverage_reports
             pip install numpy
             pip install -r requirements.txt -r requirements-optional.txt
-      - save_cache:
-        key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
-        paths:
-          - "venv"
       - run:
           command: |
             source activate test_env
