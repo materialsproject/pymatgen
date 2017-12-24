@@ -3,12 +3,11 @@ jobs:
   py3test:
     working_directory: ~/pymatgen
     docker:
-        - image: circleci/python:3.6.4
+        - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.1
     steps:
       - checkout
       - run:
           command: |
-            sudo apt-get install -y gfortran
             wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
             bash Miniconda3-latest-Linux-x86_64.sh -b
             export PATH=$HOME/miniconda3/bin:$PATH
