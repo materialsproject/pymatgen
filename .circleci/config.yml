@@ -8,6 +8,7 @@ jobs:
       - checkout
       - run:
           command: |
+            export PATH=$HOME/miniconda3/bin:$PATH
             conda create -n test_env python
             source activate test_env
             conda install --yes numpy scipy matplotlib sympy pandas
@@ -17,6 +18,7 @@ jobs:
             pip install -r requirements.txt -r requirements-optional.txt
       - run:
           command: |
+            export PATH=$HOME/miniconda3/bin:$PATH
             export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             source activate test_env
             python setup.py --quiet develop
