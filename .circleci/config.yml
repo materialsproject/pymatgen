@@ -3,14 +3,11 @@ jobs:
   py3test:
     working_directory: ~/pymatgen
     docker:
-        - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.1
+        - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.2
     steps:
       - checkout
       - run:
           command: |
-            wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-            bash Miniconda3-latest-Linux-x86_64.sh -b
-            export PATH=$HOME/miniconda3/bin:$PATH
             conda create -n test_env python
             source activate test_env
             conda install --yes numpy scipy matplotlib sympy pandas
@@ -20,10 +17,9 @@ jobs:
             pip install -r requirements.txt -r requirements-optional.txt
       - run:
           command: |
-            export PATH=$HOME/miniconda3/bin:$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
+            export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             source activate test_env
             python setup.py --quiet develop
-            export PATH=$HOME/miniconda3/bin:$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
