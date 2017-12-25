@@ -14,6 +14,7 @@ jobs:
             conda create -n test_env python
             source activate test_env
             conda install --yes numpy scipy matplotlib sympy pandas
+            conda install -c openbabel openbabel
             conda update --all
             mkdir coverage_reports
             pip install -r requirements.txt -r requirements-optional.txt
