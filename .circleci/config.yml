@@ -13,6 +13,7 @@ jobs:
             source activate test_env
             conda install --yes numpy scipy matplotlib sympy pandas
             conda install -c openbabel openbabel
+            conda install -c clinicalgraphics vtk
             conda update --all
             mkdir coverage_reports
             pip install -r requirements.txt -r requirements-optional.txt
