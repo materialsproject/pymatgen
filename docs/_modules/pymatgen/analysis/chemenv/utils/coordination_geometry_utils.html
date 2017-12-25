@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -224,19 +224,24 @@
 
     <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;lower&#39;</span><span class="p">:</span> <span class="n">lower</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">:</span> <span class="n">upper</span><span class="p">}</span></div>
 
+
 <div class="viewcode-block" id="diamond_functions"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions">[docs]</a><span class="k">def</span> <span class="nf">diamond_functions</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">y_x0</span><span class="p">,</span> <span class="n">x_y0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Method that creates two upper and lower functions based on points xx and yy as well as intercepts defined by</span>
-<span class="sd">     y_x0 and x_y0. The resulting functions form kind of a distorted diamond-like structure aligned from</span>
-<span class="sd">     point xx to point yy.</span>
+<span class="sd">    Method that creates two upper and lower functions based on points xx and yy</span>
+<span class="sd">    as well as intercepts defined by y_x0 and x_y0. The resulting functions</span>
+<span class="sd">    form kind of a distorted diamond-like structure aligned from</span>
+<span class="sd">    point xx to point yy.</span>
 
 <span class="sd">    Schematically :</span>
 
-<span class="sd">    xx is symbolized by x, yy is symbolized by y, y_x0 is equal to the distance from x to a, x_y0 is equal to the</span>
-<span class="sd">     distance from x to b, the lines a-p and b-q are parallel to the line x-y such that points p and q are</span>
-<span class="sd">     obtained automatically.</span>
-<span class="sd">    In case of an increasing diamond the lower function is x-b-q and the upper function is a-p-y while in case of a</span>
-<span class="sd">     decreasing diamond, the lower function is a-p-y and the upper function is x-b-q.</span>
+<span class="sd">    xx is symbolized by x, yy is symbolized by y, y_x0 is equal to the distance</span>
+<span class="sd">    from x to a, x_y0 is equal to the distance from x to b, the lines a-p and</span>
+<span class="sd">    b-q are parallel to the line x-y such that points p and q are</span>
+<span class="sd">    obtained automatically.</span>
+<span class="sd">    In case of an increasing diamond the lower function is x-b-q and the upper</span>
+<span class="sd">    function is a-p-y while in case of a</span>
+<span class="sd">    decreasing diamond, the lower function is a-p-y and the upper function is</span>
+<span class="sd">    x-b-q.</span>
 
 <span class="sd">           Increasing diamond      |     Decreasing diamond</span>
 <span class="sd">                     p--y                    x----b</span>
@@ -956,7 +961,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

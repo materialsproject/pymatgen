@@ -16,6 +16,18 @@ class AdsorbateSiteFinderTest(PymatgenTest):
     def setUp(self):
         self.structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5),
                                                    ["Ni"], [[0, 0, 0]])
+        lattice = Lattice.cubic(3.010)
+        frac_coords = [[0.00000, 0.00000, 0.00000],
+                       [0.00000, 0.50000, 0.50000],
+                       [0.50000, 0.00000, 0.50000],
+                       [0.50000, 0.50000, 0.00000],
+                       [0.50000, 0.00000, 0.00000],
+                       [0.50000, 0.50000, 0.50000],
+                       [0.00000, 0.00000, 0.50000],
+                       [0.00000, 0.50000, 0.00000]]
+        species = ['Mg', 'Mg', 'Mg', 'Mg', 'O', 'O', 'O', 'O']
+        self.MgO = Structure(lattice, species, frac_coords)
+
         slabs = generate_all_slabs(self.structure, max_index=2,
                                    min_slab_size=6.0, min_vacuum_size=15.0,
                                    max_normal_search=1, center_slab=True)
@@ -110,6 +122,43 @@ class AdsorbateSiteFinderTest(PymatgenTest):
             self.assertTrue(sites[0].species_string in ["O", "H"])
             self.assertTrue(sites[-1].species_string in ["O", "H"])
             self.assertTrue(sg.is_laue())
+
+    def test_generate_substitution_structures(self):
+
+        # Test this for a low miller index halite structure
+        slabs = generate_all_slabs(self.MgO, 1, 10, 10, center_slab=True,
+                                   max_normal_search=1)
+        for slab in slabs:
+            adsgen = AdsorbateSiteFinder(slab)
+
+
+            adslabs = adsgen.generate_substitution_structures("Ni")
+            # There should be 2 configs (sub O and sub
+            # Mg) for (110) and (100), 1 for (111)
+            if tuple(slab.miller_index) != (1,1,1):
+                self.assertEqual(len(adslabs), 2)
+            else:
+                self.assertEqual(len(adslabs), 1)
+
+            # Test out whether it can correctly dope both
+            # sides. Avoid (111) becasue it is not symmetric
+            if tuple(slab.miller_index) != (1,1,1):
+                adslabs = adsgen.generate_substitution_structures("Ni", sub_both_sides=True,
+                                                                  target_species=["Mg"])
+                # Test if default parameters dope the surface site
+                for i, site in enumerate(adslabs[0]):
+                    if adsgen.slab[i].surface_properties == "surface" \
+                            and site.species_string == "Mg":
+                        print(adslabs[0][i].surface_properties,
+                              adsgen.slab[i].surface_properties)
+                        self.assertTrue(adslabs[0][i].surface_properties == "substitute")
+
+                self.assertTrue(adslabs[0].is_symmetric())
+                # Correctly dope the target species
+                self.assertEqual(adslabs[0].composition.as_dict()["Mg"],
+                                 slab.composition.as_dict()["Mg"]-2)
+                # There should be one config (sub Mg)
+                self.assertEqual(len(adslabs), 1)
 
     def test_functions(self):
         slab = self.slab_dict["111"]

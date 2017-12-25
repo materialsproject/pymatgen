@@ -163,7 +163,7 @@ class PymatgenTest(unittest.TestCase):
         Tests if obj is MSONable and tries to verify whether the contract is
         fulfilled.
 
-        By default, the method tests whether obj is an instance of MSONable. 
+        By default, the method tests whether obj is an instance of MSONable.
         This check can be deactivated by setting test_if_subclass to False.
         """
         if test_if_subclass:

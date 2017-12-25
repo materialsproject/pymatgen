@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.num &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.util.num &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -68,6 +68,7 @@
 <span class="kn">import</span> <span class="nn">collections</span>
 
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">zip</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
 <div class="viewcode-block" id="abs_cap"><a class="viewcode-back" href="../../../pymatgen.util.num.html#pymatgen.util.num.abs_cap">[docs]</a><span class="k">def</span> <span class="nf">abs_cap</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">max_abs_val</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -195,6 +196,23 @@
     <span class="k">return</span> <span class="kc">True</span></div>
 
 
+<div class="viewcode-block" id="round_to_sigfigs"><a class="viewcode-back" href="../../../pymatgen.util.num.html#pymatgen.util.num.round_to_sigfigs">[docs]</a><span class="k">def</span> <span class="nf">round_to_sigfigs</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">sigfigs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rounds a number rounded to a specific number of significant</span>
+<span class="sd">    figures instead of to a specific precision.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sigfigs</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Number of significant figures must be integer.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">sigfigs</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of significant figures &quot;</span>
+                         <span class="s2">&quot;must be larger than zero.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">num</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prec</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sigfigs</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">num</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">prec</span><span class="p">)</span></div>
+
+
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">doctest</span>
     <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
@@ -228,7 +246,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

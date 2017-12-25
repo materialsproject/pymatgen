@@ -89,9 +89,11 @@ class ComputedEntry(MSONable):
         return self.energy / self.composition.num_atoms
 
     def __repr__(self):
-        output = ["ComputedEntry {}".format(self.composition.formula),
+        output = ["ComputedEntry {} - {}".format(self.entry_id,
+                                                 self.composition.formula),
                   "Energy = {:.4f}".format(self.uncorrected_energy),
-                  "Correction = {:.4f}".format(self.correction), "Parameters:"]
+                  "Correction = {:.4f}".format(self.correction),
+                  "Parameters:"]
         for k, v in self.parameters.items():
             output.append("{} = {}".format(k, v))
         output.append("Data:")
@@ -154,7 +156,8 @@ class ComputedStructureEntry(ComputedEntry):
         self.structure = structure
 
     def __repr__(self):
-        output = ["ComputedStructureEntry {}".format(self.composition.formula),
+        output = ["ComputedStructureEntry {} - {}".format(
+            self.entry_id, self.composition.formula),
                   "Energy = {:.4f}".format(self.uncorrected_energy),
                   "Correction = {:.4f}".format(self.correction), "Parameters:"]
         for k, v in self.parameters.items():

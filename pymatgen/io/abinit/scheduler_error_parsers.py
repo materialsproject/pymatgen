@@ -254,7 +254,6 @@ class AbstractErrorParser(object):
     def __init__(self, err_file, out_file=None, run_err_file=None, batch_err_file=None):
         self.files = {'err': err_file, 'out': out_file, 'run_err': run_err_file, 'batch_err': batch_err_file}
         self.errors = []
-        return
 
     @property
     @abc.abstractmethod

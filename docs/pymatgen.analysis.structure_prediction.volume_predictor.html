@@ -1,0 +1,248 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.analysis.structure_prediction.volume_predictor module &#8212; pymatgen 2017.12.16 documentation</title>
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2017.12.16',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.structure_prediction.volume_predictor">
+<span id="pymatgen-analysis-structure-prediction-volume-predictor-module"></span><h1>pymatgen.analysis.structure_prediction.volume_predictor module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.volume_predictor" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor">
+<em class="property">class </em><code class="descname">DLSVolumePredictor</code><span class="sig-paren">(</span><em>cutoff=4.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/volume_predictor.html#DLSVolumePredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Data-mined lattice scaling (DLS) scheme that relies on data-mined bond
+lengths to predict the crystal volume of a given structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cutoff</strong> (<em>float</em>) – cutoff radius added to site radius for finding
+site pairs. Necessary to increase only if your initial
+structure guess is extremely bad (atoms way too far apart). In
+all other instances, increasing cutoff gives same answer
+but takes more time.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.get_predicted_structure">
+<code class="descname">get_predicted_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>icsd_vol=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/volume_predictor.html#DLSVolumePredictor.get_predicted_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.get_predicted_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a structure, returns back the structure scaled to predicted
+volume.
+:param structure: structure w/unknown volume
+:type structure: Structure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a Structure object with predicted volume</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>structure</em>, <em>icsd_vol=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/volume_predictor.html#DLSVolumePredictor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a structure, returns the predicted volume.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – a crystal structure with an unknown volume.</li>
+<li><strong>icsd_vol</strong> (<em>bool</em>) – True if the input structure’s volume comes from
+ICSD.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a float value of the predicted volume.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor">
+<em class="property">class </em><code class="descname">RLSVolumePredictor</code><span class="sig-paren">(</span><em>check_isostructural=True</em>, <em>radii_type='ionic-atomic'</em>, <em>use_bv=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/volume_predictor.html#RLSVolumePredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Reference lattice scaling (RLS) scheme that predicts the volume of a
+structure based on a known crystal structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>check_isostructural</strong> – Whether to test that the two structures are
+isostructural. This algo works best for isostructural compounds.
+Defaults to True.</li>
+<li><strong>radii_type</strong> (<em>str</em>) – Types of radii to use. You can specify “ionic”
+(only uses ionic radii), “atomic” (only uses atomic radii) or
+“ionic-atomic” (uses either ionic or atomic radii, with a
+preference for ionic where possible).</li>
+<li><strong>use_bv</strong> (<em>bool</em>) – Whether to use BVAnalyzer to determine oxidation
+states if not present.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.get_predicted_structure">
+<code class="descname">get_predicted_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>ref_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/volume_predictor.html#RLSVolumePredictor.get_predicted_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.get_predicted_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a structure, returns back the structure scaled to predicted
+volume.
+:param structure: structure w/unknown volume
+:type structure: Structure
+:param ref_structure: A reference structure with a similar</p>
+<blockquote>
+<div>structure but different species.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a Structure object with predicted volume</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>structure</em>, <em>ref_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/volume_predictor.html#RLSVolumePredictor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a structure, returns the predicted volume.
+:param structure: structure w/unknown volume
+:type structure: Structure
+:param ref_structure: A reference structure with a similar</p>
+<blockquote>
+<div>structure but different species.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a float value of the predicted volume</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_prediction.volume_predictor.is_ox">
+<code class="descname">is_ox</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/volume_predictor.html#is_ox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.is_ox" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.structure_prediction.volume_predictor.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

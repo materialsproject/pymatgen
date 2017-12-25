@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.coord_utils_cython module &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.util.coord_utils_cython module &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,8 +52,76 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pymatgen-util-coord-utils-cython-module">
-<h1>pymatgen.util.coord_utils_cython module<a class="headerlink" href="#pymatgen-util-coord-utils-cython-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pymatgen.util.coord_utils_cython">
+<span id="pymatgen-util-coord-utils-cython-module"></span><h1>pymatgen.util.coord_utils_cython module<a class="headerlink" href="#module-pymatgen.util.coord_utils_cython" title="Permalink to this headline">¶</a></h1>
+<p>Utilities for manipulating coordinates or list of coordinates, under periodic
+boundary conditions or otherwise.</p>
+<dl class="function">
+<dt id="pymatgen.util.coord_utils_cython.coord_list_mapping_pbc">
+<code class="descname">coord_list_mapping_pbc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.util.coord_utils_cython.coord_list_mapping_pbc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the index mapping from a subset to a superset.
+Superset cannot contain duplicate matching rows</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em>) – List of frac_coords</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of indices such that superset[indices] = subset</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.coord_utils_cython.is_coord_subset_pbc">
+<code class="descname">is_coord_subset_pbc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.util.coord_utils_cython.is_coord_subset_pbc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests if all fractional coords in subset are contained in superset.
+Allows specification of a mask determining pairs that are not
+allowed to match to each other</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em>) – List of fractional coords</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if all of subset is in superset.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.coord_utils_cython.pbc_shortest_vectors">
+<code class="descname">pbc_shortest_vectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.util.coord_utils_cython.pbc_shortest_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the shortest vectors between two lists of coordinates taking into
+account periodic boundary conditions and the lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lattice</strong> – lattice to use</li>
+<li><strong>fcoords1</strong> – First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
+or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. Must be <a href="#id1"><span class="problematic" id="id2">np.float_</span></a></li>
+<li><strong>fcoords2</strong> – Second set of fractional coordinates.</li>
+<li><strong>mask</strong> (<a href="#id3"><span class="problematic" id="id4">int_</span></a> array) – Mask of matches that are not allowed.
+i.e. if mask[1,2] == True, then subset[1] cannot be matched
+to superset[2]</li>
+<li><strong>lll_frac_tol</strong> (<a href="#id5"><span class="problematic" id="id6">float_</span></a> array of length 3) – Fractional tolerance (per LLL lattice vector) over which
+the calculation of minimum vectors will be skipped.
+Can speed up calculation considerably for large structures.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">array of displacement vectors from fcoords1 to fcoords2
+first index is fcoords1 index, second is fcoords2 index</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -92,7 +160,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

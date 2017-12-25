@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lammps.data &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.io.lammps.data &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -76,7 +76,7 @@
 
 <span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="k">import</span> <span class="n">clean_lines</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">SiteCollection</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">Structure</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements a core class LammpsData for generating/parsing </span>
@@ -213,37 +213,34 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Transform from LammpsData file to a pymatgen structure object</span>
+<span class="sd">        Export a periodic structure object representing the simulation box.</span>
 
 <span class="sd">        Return:</span>
 <span class="sd">            A pymatgen structure object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">species_map</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">masses</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]):</span>
-            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">Element</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="o">-</span> <span class="n">sp</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
-                    <span class="n">species_map</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">el</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">species_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">masses</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">])):</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Psudo atom exists in data file&#39;</span><span class="p">)</span>
-        <span class="n">xhi</span><span class="p">,</span> <span class="n">yhi</span><span class="p">,</span> <span class="n">zhi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> \
-                        <span class="bp">self</span><span class="o">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">xy</span><span class="p">,</span> <span class="n">xz</span><span class="p">,</span> <span class="n">yz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
-        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">([[</span><span class="n">xhi</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">xy</span><span class="p">,</span> <span class="n">yhi</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">xz</span><span class="p">,</span> <span class="n">yz</span><span class="p">,</span> <span class="n">zhi</span><span class="p">]])</span>
-        <span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">if</span> <span class="s1">&#39;q&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Specie</span><span class="p">(</span><span class="n">species_map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">species_map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">species_map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]])</span>
+        <span class="n">masses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">masses</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span>
+        <span class="n">atoms</span><span class="p">[</span><span class="s2">&quot;molecule-ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">box_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box_bounds</span><span class="p">)</span>
+        <span class="n">box_tilt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_tilt</span> <span class="k">else</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+        <span class="n">ld_copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">masses</span><span class="p">,</span> <span class="n">atoms</span><span class="p">,</span> <span class="n">box_bounds</span><span class="p">,</span> <span class="n">box_tilt</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">topologies</span> <span class="o">=</span> <span class="n">ld_copy</span><span class="o">.</span><span class="n">disassemble</span><span class="p">()</span>
+        <span class="n">molecule</span> <span class="o">=</span> <span class="n">topologies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">cart_coords</span> <span class="o">-</span> <span class="n">box_bounds</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">species</span>
 
-        <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">box_bounds</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">box_bounds</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">box_tilt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">box_tilt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">box_tilt</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">latt</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
 
+        <span class="n">site_properties</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocities</span> <span class="ow">is</span> <span class="kc">None</span> \
+            <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;velocities&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocities</span><span class="o">.</span><span class="n">values</span><span class="p">}</span>
 
-
+        <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">latt</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LammpsData.get_string"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_string">[docs]</a>    <span class="k">def</span> <span class="nf">get_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -353,6 +350,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Breaks down LammpsData to ForceField and a series of Topology.</span>
 <span class="sd">        RESTRICTIONS APPLIED:</span>
+
 <span class="sd">        1. No complex force field defined not just on atom</span>
 <span class="sd">            types, where the same type or equivalent types of topology</span>
 <span class="sd">            may have more than one set of coefficients.</span>
@@ -1089,13 +1087,16 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mass_info&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;nonbond_coeffs&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;topo_coeffs&quot;</span><span class="p">])</span></div></div>
 
 
-<div class="viewcode-block" id="structure_2_lmpdata"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.structure_2_lmpdata">[docs]</a><span class="k">def</span> <span class="nf">structure_2_lmpdata</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">atom_style</span><span class="o">=</span><span class="s2">&quot;charge&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="structure_2_lmpdata"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.structure_2_lmpdata">[docs]</a><span class="k">def</span> <span class="nf">structure_2_lmpdata</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">ff_elements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">atom_style</span><span class="o">=</span><span class="s2">&quot;charge&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts a structure to a LammpsData object with no force field</span>
 <span class="sd">    parameters and topologies.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        structure (Structure): Input structure.</span>
+<span class="sd">        ff_elements ([str]): List of strings of elements that must be</span>
+<span class="sd">            present due to force field settings but not necessarily in</span>
+<span class="sd">            the structure. Default to None.</span>
 <span class="sd">        atom_style (str): Choose between &quot;atomic&quot; (neutral) and</span>
 <span class="sd">            &quot;charge&quot; (charged). Default to &quot;charge&quot;.</span>
 
@@ -1103,9 +1104,7 @@
 <span class="sd">        LammpsData</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">,</span> <span class="s2">&quot;Cannot convert disordered structure&quot;</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">remove_oxidation_states</span><span class="p">()</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
 
     <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
@@ -1121,7 +1120,11 @@
     <span class="n">new_latt</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">([[</span><span class="n">xhi</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">xy</span><span class="p">,</span> <span class="n">yhi</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">xz</span><span class="p">,</span> <span class="n">yz</span><span class="p">,</span> <span class="n">zhi</span><span class="p">]])</span>
     <span class="n">s</span><span class="o">.</span><span class="n">modify_lattice</span><span class="p">(</span><span class="n">new_latt</span><span class="p">)</span>
 
-    <span class="n">mass_info</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">]</span>
+    <span class="n">symbols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ff_elements</span><span class="p">:</span>
+        <span class="n">symbols</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ff_elements</span><span class="p">)</span>
+    <span class="n">elements</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">symbols</span><span class="p">))</span>
+    <span class="n">mass_info</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">]</span>
     <span class="n">ff</span> <span class="o">=</span> <span class="n">ForceField</span><span class="p">(</span><span class="n">mass_info</span><span class="p">)</span>
     <span class="n">topo</span> <span class="o">=</span> <span class="n">Topology</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">LammpsData</span><span class="o">.</span><span class="n">from_ff_and_topologies</span><span class="p">(</span><span class="n">ff</span><span class="o">=</span><span class="n">ff</span><span class="p">,</span> <span class="n">topologies</span><span class="o">=</span><span class="p">[</span><span class="n">topo</span><span class="p">],</span>
@@ -1158,7 +1161,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

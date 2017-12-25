@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.pourbaix.maker &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.analysis.pourbaix.maker &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -69,7 +69,9 @@
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix.entry</span> <span class="k">import</span> <span class="n">MultiEntry</span><span class="p">,</span> <span class="n">ion_or_solid_comp_object</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedEntry</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="k">import</span> <span class="n">Reaction</span><span class="p">,</span> <span class="n">ReactionError</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">PhaseDiagram</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module containing analysis classes which compute a pourbaix diagram given a</span>
@@ -92,7 +94,7 @@
 
 <span class="n">PREFAC</span> <span class="o">=</span> <span class="mf">0.0591</span>
 <span class="n">MU_H2O</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.4583</span>
-
+<span class="n">elements_HO</span> <span class="o">=</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">),</span> <span class="n">Element</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">)}</span>
 <span class="c1"># TODO: There&#39;s a lot of functionality here that diverges</span>
 <span class="c1">#   based on whether or not the pbx diagram is multielement</span>
 <span class="c1">#   or not.  Could be a more elegant way to</span>
@@ -101,71 +103,75 @@
 <div class="viewcode-block" id="PourbaixDiagram"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.maker.html#pymatgen.analysis.pourbaix.maker.PourbaixDiagram">[docs]</a><span class="k">class</span> <span class="nc">PourbaixDiagram</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to create a Pourbaix diagram from entries</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        entries: Entries list containing both Solids and Ions</span>
-<span class="sd">        comp_dict: Dictionary of compositions</span>
+<span class="sd">        entries [Entry]: Entries list containing both Solids and Ions</span>
+<span class="sd">        comp_dict {str: float}: Dictionary of compositions, defaults to</span>
+<span class="sd">            equal parts of each elements</span>
+<span class="sd">        conc_dict {str: float}: Dictionary of ion concentrations, defaults</span>
+<span class="sd">            to 1e-6 for each element</span>
+<span class="sd">        filter_multielement (bool): applying this filter to a multi-</span>
+<span class="sd">            element pourbaix diagram makes generates it a bit more</span>
+<span class="sd">            efficiently by filtering the entries used to generate</span>
+<span class="sd">            the hull.  This breaks some of the functionality of</span>
+<span class="sd">            the analyzer, though, so use with caution.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">comp_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ion_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Solid&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_solid_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Ion&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_ion_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Incorrect Phase type - needs to be </span><span class="se">\</span>
-<span class="s2">                Pourbaix entry of phase type Ion/Solid&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ion_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No ion phase. Equilibrium between ion/solid &quot;</span>
-                            <span class="s2">&quot;is required to make a Pourbaix Diagram&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid_entries</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ion_entries</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">comp_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">conc_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">filter_multielement</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Get non-OH elements</span>
+        <span class="n">pbx_elts</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">]))</span>
+        <span class="n">pbx_elts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pbx_elts</span> <span class="o">-</span> <span class="n">elements_HO</span><span class="p">)</span>
+
+        <span class="c1"># Set default conc/comp dicts</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">comp_dict</span><span class="p">:</span>
+            <span class="n">comp_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">elt</span><span class="o">.</span><span class="n">symbol</span> <span class="p">:</span> <span class="mf">1.</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">pbx_elts</span><span class="p">)</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">pbx_elts</span><span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">conc_dict</span><span class="p">:</span>
+            <span class="n">conc_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">elt</span><span class="o">.</span><span class="n">symbol</span> <span class="p">:</span> <span class="mf">1e-6</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">pbx_elts</span><span class="p">}</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span> <span class="o">=</span> <span class="n">comp_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span> <span class="o">=</span> <span class="n">pbx_elts</span>
 
-        <span class="k">if</span> <span class="n">comp_dict</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">comp_dict</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">solid_entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span>
+                         <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Solid&quot;</span><span class="p">]</span>
+        <span class="n">ion_entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span>
+                       <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Ion&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ion_entries</span><span class="p">:</span>
+            <span class="n">ion_elts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span> <span class="o">-</span> <span class="n">elements_HO</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ion_elts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Elemental concentration not compatible &quot;</span>
+                                 <span class="s2">&quot;with multi-element ions&quot;</span><span class="p">)</span>
+            <span class="n">entry</span><span class="o">.</span><span class="n">conc</span> <span class="o">=</span> <span class="n">conc_dict</span><span class="p">[</span><span class="n">ion_elts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">solid_entries</span> <span class="o">+</span> <span class="n">ion_entries</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All supplied entries must have a phase type of &quot;</span>
+                             <span class="s2">&quot;either </span><span class="se">\&quot;</span><span class="s2">Solid</span><span class="se">\&quot;</span><span class="s2"> or </span><span class="se">\&quot;</span><span class="s2">Ion</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span> <span class="o">=</span> <span class="n">entries</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">comp_dict</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_multielement</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">pbx_elements</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">comp_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="p">[</span><span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span>
-                           <span class="n">ion_or_solid_comp_object</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span><span class="o">.</span><span class="n">elements</span>
-                           <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">]]:</span>
-                    <span class="n">pbx_elements</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span> <span class="o">=</span> <span class="n">pbx_elements</span>
-            <span class="n">w</span> <span class="o">=</span> <span class="p">[</span><span class="n">comp_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">comp_dict</span><span class="p">]</span>
-            <span class="n">A</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">comp_dict</span><span class="p">:</span>
-                <span class="n">comp_obj</span> <span class="o">=</span> <span class="n">ion_or_solid_comp_object</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
-                <span class="n">Ai</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span><span class="p">:</span>
-                    <span class="n">Ai</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp_obj</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span>
-                <span class="n">A</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Ai</span><span class="p">)</span>
-            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-            <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
-            <span class="n">A</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">A</span><span class="p">],</span> <span class="n">w</span><span class="p">)</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
-
+            <span class="k">if</span> <span class="n">filter_multielement</span><span class="p">:</span>
+                <span class="c1"># Add two high-energy H/O entries that ensure the hull</span>
+                <span class="c1"># includes all stable solids.</span>
+                <span class="n">entries_HO</span> <span class="o">=</span> <span class="p">[</span><span class="n">ComputedEntry</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="mi">10000</span><span class="p">),</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)]</span>
+                <span class="n">solid_pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">solid_entries</span> <span class="o">+</span> <span class="n">entries_HO</span><span class="p">)</span>
+                <span class="n">solid_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">solid_pd</span><span class="o">.</span><span class="n">stable_entries</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">entries_HO</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_processed_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_multielement_entries</span><span class="p">(</span>
+                    <span class="n">solid_entries</span> <span class="o">+</span> <span class="n">ion_entries</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_multielement</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">pb_els</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
-                            <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">composition</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">]))</span>
-            <span class="n">pb_els</span> <span class="o">-=</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">),</span> <span class="n">Element</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">)}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">pb_els</span><span class="p">)]</span>
-            <span class="c1"># TODO: document the physical meaning</span>
-            <span class="c1"># of ternary oxide of pbx diagrams in both modes</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="mf">1.0</span><span class="p">}</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_processed_entries</span> <span class="o">=</span> <span class="n">solid_entries</span> <span class="o">+</span> <span class="n">ion_entries</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_pourbaix_diagram</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_create_conv_hull_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make data conducive to convex hull generator.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multielement</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_all_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_multielement_entries</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_all_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span>
         <span class="n">entries_to_process</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_entries</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processed_entries</span><span class="p">:</span>
             <span class="n">entry</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">normalization_factor</span><span class="p">)</span>
             <span class="n">entry</span><span class="o">.</span><span class="n">correction</span> <span class="o">+=</span> <span class="p">(</span><span class="o">-</span> <span class="n">MU_H2O</span> <span class="o">*</span> <span class="n">entry</span><span class="o">.</span><span class="n">nH2O</span> <span class="o">+</span> <span class="n">entry</span><span class="o">.</span><span class="n">conc_term</span><span class="p">)</span>
             <span class="n">entries_to_process</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
@@ -186,23 +192,25 @@
         <span class="p">[</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qhull_entries</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">temp</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">data</span>
 
-    <span class="k">def</span> <span class="nf">_process_multielement_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_generate_multielement_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create entries for multi-element Pourbaix construction.</span>
 
 <span class="sd">        This works by finding all possible linear combinations</span>
 <span class="sd">        of entries that can result in the specified composition</span>
 <span class="sd">        from the initialized comp_dict.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entries ([PourbaixEntries]): list of pourbaix entries</span>
+<span class="sd">                to process into MultiEntries</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">)</span>  <span class="c1"># No. of elements</span>
-        <span class="n">entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span>
-        <span class="n">dummy_prod</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">)</span> 
         <span class="n">total_comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">)</span>
 
         <span class="c1"># generate all possible combinations of compounds that have all elts</span>
         <span class="n">entry_combos</span> <span class="o">=</span> <span class="p">[</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
         <span class="n">entry_combos</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">entry_combos</span><span class="p">)</span>
-        <span class="n">entry_combos</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">dummy_prod</span> <span class="o">&lt;</span> <span class="n">MultiEntry</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">total_composition</span><span class="p">,</span> 
+        <span class="n">entry_combos</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">total_comp</span> <span class="o">&lt;</span> <span class="n">MultiEntry</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">total_composition</span><span class="p">,</span> 
                               <span class="n">entry_combos</span><span class="p">)</span>
 
         <span class="c1"># Generate and filter entries</span>
@@ -368,9 +376,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">all_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return all entries</span>
+<span class="sd">        Return all entries used to generate the pourbaix diagram</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_entries</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processed_entries</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -415,7 +423,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

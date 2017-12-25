@@ -21,9 +21,9 @@ import numpy as np
 from scipy.optimize import leastsq, minimize
 
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.plotting import pretty_plot
+from pymatgen.util.plotting import pretty_plot, add_fig_kwargs, get_ax_fig_plt
 
-__author__ = "Kiran Mathew, Guido Matteo"
+__author__ = "Kiran Mathew, gmatteo"
 __credits__ = "Cormac Toher"
 
 logger = logging.getLogger(__file__)
@@ -217,6 +217,54 @@ class EOSBase(six.with_metaclass(ABCMeta)):
         plt.text(0.4, 0.5, text, transform=plt.gca().transAxes)
 
         return plt
+
+    @add_fig_kwargs
+    def plot_ax(self, ax=None, fontsize=12, **kwargs):
+        """
+        Plot the equation of state on axis `ax`
+
+        Args:
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            fontsize: Legend fontsize.
+            color (str): plot color.
+            label (str): Plot label
+            text (str): Legend text (options)
+
+        Returns:
+            Matplotlib figure object.
+        """
+        ax, fig, plt = get_ax_fig_plt(ax=ax)
+
+        color = kwargs.get("color", "r")
+        label = kwargs.get("label", "{} fit".format(self.__class__.__name__))
+        lines = ["Equation of State: %s" % self.__class__.__name__,
+                 "Minimum energy = %1.2f eV" % self.e0,
+                 "Minimum or reference volume = %1.2f Ang^3" % self.v0,
+                 "Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa" %
+                 (self.b0, self.b0_GPa),
+                 "Derivative of bulk modulus wrt pressure = %1.2f" % self.b1]
+        text = "\n".join(lines)
+        text = kwargs.get("text", text)
+
+        # Plot input data.
+        ax.plot(self.volumes, self.energies, linestyle="None", marker="o", color=color)
+
+        # Plot eos fit.
+        vmin, vmax = min(self.volumes), max(self.volumes)
+        vmin, vmax = (vmin - 0.01 * abs(vmin), vmax + 0.01 * abs(vmax))
+        vfit = np.linspace(vmin, vmax, 100)
+
+        ax.plot(vfit, self.func(vfit), linestyle="dashed", color=color, label=label)
+
+        ax.grid(True)
+        ax.set_xlabel("Volume $\\AA^3$")
+        ax.set_ylabel("Energy (eV)")
+        ax.legend(loc="best", shadow=True)
+        # Add text with fit parameters.
+        ax.text(0.5, 0.5, text, fontsize=fontsize, horizontalalignment='center',
+            verticalalignment='center', transform=ax.transAxes)
+
+        return fig
 
 
 class Murnaghan(EOSBase):
