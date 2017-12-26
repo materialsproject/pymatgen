@@ -11,10 +11,10 @@ jobs:
             export PATH=$HOME/miniconda3/bin:$PATH
             conda create -n test_env python
             source activate test_env
-            conda install --yes numpy scipy matplotlib sympy pandas
-            conda install --yes -c openbabel openbabel
-            conda install --yes -c clinicalgraphics vtk
-            conda update --all
+            conda install --quiet --yes numpy scipy matplotlib sympy pandas
+            conda install --quiet --yes -c openbabel openbabel
+            conda install --quiet --yes -c clinicalgraphics vtk
+            conda update --quiet --all
             mkdir coverage_reports
             pip install -r requirements.txt -r requirements-optional.txt
       - run:
