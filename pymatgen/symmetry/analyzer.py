@@ -174,7 +174,7 @@ class SpacegroupAnalyzer(object):
         orthorhombic, cubic, etc.).
 
         Returns:
-            (str): Crystal system for structure.
+            (str): Crystal system for structure or None if system cannot be detected.
         """
         n = self._space_group_data["number"]
 
@@ -200,7 +200,7 @@ class SpacegroupAnalyzer(object):
         lattice
 
         Returns:
-            (str): Lattice type for structure.
+            (str): Lattice type for structure or None if type cannot be detected.
         """
         n = self._space_group_data["number"]
         system = self.get_crystal_system()
@@ -494,7 +494,7 @@ class SpacegroupAnalyzer(object):
                 for i in range(2):
                     transf[i][sorted_dic[i]['orig_index']] = 1
                 c = latt.abc[2]
-            elif self.get_space_group_symbol().startswith("A"): #change to C-centering to match Setyawan/Curtarolo convention             
+            elif self.get_space_group_symbol().startswith("A"): #change to C-centering to match Setyawan/Curtarolo convention
                 transf[2] = [1, 0, 0]
                 a, b = sorted(latt.abc[1:])
                 sorted_dic = sorted([{'vec': latt.matrix[i],
@@ -1181,7 +1181,7 @@ class PointGroupAnalyzer(object):
             ([SymmOp]): List of symmetry operations.
         """
         return generate_full_symmops(self.symmops, self.tol)
- 
+
     def is_valid_op(self, symmop):
         """
         Check if a particular symmetry operation is a valid symmetry operation

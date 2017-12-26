@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lobster &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.io.lobster &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -65,7 +65,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module for reading Lobster output files. For more information</span>
@@ -74,10 +74,10 @@
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;esters@uoregon.edu&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Nov 30, 2017&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Dec 13, 2017&quot;</span>
 
 
 <div class="viewcode-block" id="Cohpcar"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Cohpcar">[docs]</a><span class="k">class</span> <span class="nc">Cohpcar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -145,15 +145,33 @@
                                           <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spins</span><span class="p">)},</span>
                                  <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">s</span><span class="o">*</span><span class="p">(</span><span class="n">num_bonds</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
                                            <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spins</span><span class="p">)}}}</span>
+        <span class="n">orb_cohp</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_bonds</span><span class="p">):</span>
-            <span class="n">label</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bond_data</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="mi">3</span><span class="o">+</span><span class="n">bond</span><span class="p">])</span>
+            <span class="n">bond_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bond_data</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="mi">3</span><span class="o">+</span><span class="n">bond</span><span class="p">])</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">bond_data</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+            <span class="n">orbs</span> <span class="o">=</span> <span class="n">bond_data</span><span class="p">[</span><span class="s2">&quot;orbitals&quot;</span><span class="p">]</span>
             <span class="n">cohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bond</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="p">(</span><span class="n">num_bonds</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spins</span><span class="p">)}</span>
             <span class="n">icohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bond</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="p">(</span><span class="n">num_bonds</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>
                      <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spins</span><span class="p">)}</span>
-            <span class="n">cohp_data</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="n">cohp</span><span class="p">,</span> <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="n">icohp</span><span class="p">,</span>
-                                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                                <span class="s2">&quot;sites&quot;</span><span class="p">:</span> <span class="n">sites</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">orbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cohp_data</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="n">cohp</span><span class="p">,</span> <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="n">icohp</span><span class="p">,</span>
+                                    <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">bond_data</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+                                    <span class="s2">&quot;sites&quot;</span><span class="p">:</span> <span class="n">bond_data</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]}</span>
+            <span class="k">elif</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">orb_cohp</span><span class="p">:</span>
+                <span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">bond_data</span><span class="p">[</span><span class="s2">&quot;orb_label&quot;</span><span class="p">]:</span>
+                                        <span class="p">{</span><span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="n">cohp</span><span class="p">,</span> <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="n">icohp</span><span class="p">,</span>
+                                         <span class="s2">&quot;orbitals&quot;</span><span class="p">:</span> <span class="n">orbs</span><span class="p">}})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cohp_data</span><span class="p">:</span>
+                    <span class="n">cohp_data</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                                        <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">bond_data</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+                                        <span class="s2">&quot;sites&quot;</span><span class="p">:</span> <span class="n">bond_data</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]}</span>
+                <span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">bond_data</span><span class="p">[</span><span class="s2">&quot;orb_label&quot;</span><span class="p">]:</span> <span class="p">{</span><span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="n">cohp</span><span class="p">,</span>
+                                                            <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="n">icohp</span><span class="p">,</span>
+                                                            <span class="s2">&quot;orbitals&quot;</span><span class="p">:</span> <span class="n">orbs</span><span class="p">}}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span> <span class="o">=</span> <span class="n">orb_cohp</span> <span class="k">if</span> <span class="n">orb_cohp</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cohp_data</span> <span class="o">=</span> <span class="n">cohp_data</span>
 
     <span class="nd">@staticmethod</span>
@@ -164,25 +182,44 @@
 <span class="sd">        can be easily used with a Structure object.</span>
 
 <span class="sd">        Example header line: No.4:Fe1-&gt;Fe9(2.4524893531900283)</span>
+<span class="sd">        Example header line for orbtial-resolved COHP:</span>
+<span class="sd">            No.1:Fe1[3p_x]-&gt;Fe2[3d_x^2-y^2](2.456180552772262)</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            line: line in the COHPCAR header describing the bond.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            The bond label, the bond length and a tuple of the site</span>
-<span class="sd">            indices.</span>
+<span class="sd">            Dict with the bond label, the bond length, a tuple of the site</span>
+<span class="sd">            indices, a tuple containing the orbitals (if orbital-resolved),</span>
+<span class="sd">            and a label for the orbitals (if orbital-resolved).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">orb_labs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;p_y&quot;</span><span class="p">,</span> <span class="s2">&quot;p_z&quot;</span><span class="p">,</span> <span class="s2">&quot;p_x&quot;</span><span class="p">,</span> <span class="s2">&quot;d_xy&quot;</span><span class="p">,</span> <span class="s2">&quot;d_yz&quot;</span><span class="p">,</span> <span class="s2">&quot;d_z^2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;d_xz&quot;</span><span class="p">,</span> <span class="s2">&quot;d_x^2-y^2&quot;</span><span class="p">,</span> <span class="s2">&quot;4f_y(3x^2-y^2)&quot;</span><span class="p">,</span> <span class="s2">&quot;4f_xyz&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;4f_yz^2&quot;</span><span class="p">,</span> <span class="s2">&quot;4f_z^3&quot;</span><span class="p">,</span> <span class="s2">&quot;4f_xz^2&quot;</span><span class="p">,</span> <span class="s2">&quot;4f_z(x^2-y^2)&quot;</span><span class="p">]</span>
 
         <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">)</span>
         <span class="n">length</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="c1"># Replacing &quot;-&gt;&quot; with &quot;:&quot; makes splitting easier</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
-        <span class="n">site_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;\D+&quot;</span><span class="p">,</span> <span class="n">site</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">site_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\D+&quot;</span><span class="p">,</span> <span class="n">site</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
                              <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">)</span>
-        <span class="n">species</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="n">site</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">)</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="n">site</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;[&quot;</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">orbs</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[(.*)\]&quot;</span><span class="p">,</span> <span class="n">site</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">]</span>
+            <span class="n">orbitals</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">orb</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">Orbital</span><span class="p">(</span><span class="n">orb_labs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">orb</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))))</span>
+                        <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">orbs</span><span class="p">]</span>
+            <span class="n">orb_label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d%s</span><span class="s2">-</span><span class="si">%d%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">orbitals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">orbitals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                       <span class="n">orbitals</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">orbitals</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">orbitals</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">orb_label</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%d</span><span class="s2">-</span><span class="si">%s%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">site_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
                                <span class="n">species</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">site_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">label</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">site_indices</span></div>
+        <span class="n">bond_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span> <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span> <span class="s2">&quot;sites&quot;</span><span class="p">:</span> <span class="n">site_indices</span><span class="p">,</span>
+                     <span class="s2">&quot;orbitals&quot;</span><span class="p">:</span> <span class="n">orbitals</span><span class="p">,</span> <span class="s2">&quot;orb_label&quot;</span><span class="p">:</span> <span class="n">orb_label</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">bond_data</span></div>
 
 
 <div class="viewcode-block" id="Icohplist"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Icohplist">[docs]</a><span class="k">class</span> <span class="nc">Icohplist</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -198,6 +235,7 @@
 
 
 <span class="sd">    .. attribute: are_coops</span>
+
 <span class="sd">         Boolean to indicate if the populations are COOPs or COHPs.</span>
 
 <span class="sd">    .. attribute: is_spin_polarized</span>
@@ -222,10 +260,15 @@
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;ICOHPLIST file contains no data.&quot;</span><span class="p">)</span>
+
         <span class="c1"># If the calculation is spin polarized, the line in the middle</span>
         <span class="c1"># of the file will be another header line.</span>
         <span class="k">if</span> <span class="s2">&quot;distance&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">]:</span>
             <span class="n">num_bonds</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+            <span class="k">if</span> <span class="n">num_bonds</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;ICOHPLIST file contains no data.&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">num_bonds</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -275,7 +318,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

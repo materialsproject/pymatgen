@@ -491,10 +491,7 @@ class PDPlotterTest(unittest.TestCase):
         # plt = self.plotter3d.get_plot(energy_colormap="Reds",
         #                               process_attributes=False)
         self.plotter.get_chempot_range_map_plot([Element("Li"), Element("O")])
-
-    def test_plot_element_profile(self):
-        evolution = self.pd.get_element_profile(Element("O"), Composition("Li2O"))
-        self.plotter.plot_element_profile(evolution)
+        self.plotter.plot_element_profile(Element("O"), Composition("Li2O"))
 
 
 class UtilityFunctionTest(unittest.TestCase):

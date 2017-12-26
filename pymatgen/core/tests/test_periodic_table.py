@@ -65,7 +65,7 @@ class ElementTestCase(PymatgenTest):
             for sym in k:
                 self.assertTrue(getattr(Element(sym), v), sym + " is false")
 
-        keys = ["name", "mendeleev_no", "atomic_mass",
+        keys = ["mendeleev_no", "atomic_mass",
                 "electronic_structure", "atomic_radius",
                 "min_oxidation_state", "max_oxidation_state",
                 "electrical_resistivity", "velocity_of_sound", "reflectivity",
@@ -78,7 +78,7 @@ class ElementTestCase(PymatgenTest):
                 "vickers_hardness", "density_of_solid", "atomic_orbitals"
                 "coefficient_of_linear_thermal_expansion", "oxidation_states",
                 "common_oxidation_states", "average_ionic_radius",
-                "ionic_radii"]
+                "ionic_radii", "long_name"]
 
         # Test all elements up to Uranium
         for i in range(1, 104):
@@ -88,6 +88,8 @@ class ElementTestCase(PymatgenTest):
                 k_str = k.capitalize().replace("_", " ")
                 if k_str in d and (not str(d[k_str]).startswith("no data")):
                     self.assertIsNotNone(getattr(el, k))
+                elif k == "long_name":
+                    self.assertEqual(getattr(el, "long_name"), d["Name"])
             el = Element.from_Z(i)
             if len(el.oxidation_states) > 0:
                 self.assertEqual(max(el.oxidation_states),

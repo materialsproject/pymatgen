@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.cohp &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.electronic_structure.cohp &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -62,33 +62,33 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Ry_to_eV</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.lmto</span> <span class="k">import</span> <span class="n">LMTOCopl</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.lobster</span> <span class="k">import</span> <span class="n">Cohpcar</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="k">import</span> <span class="n">get_linear_interpolated_value</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">round_to_sigfigs</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">get_linear_interpolated_value</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module defines classes to represent crystal orbital Hamilton</span>
 <span class="sd">populations (COHP) and integrated COHP (ICOHP), but can also be used</span>
 <span class="sd">for crystal orbital overlap populations (COOP).</span>
-
-<span class="sd">TODO: Write code for orbital-resolved COHPs/COOPs.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;esters@uoregon.edu&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Nov 30, 2017&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Dec 13, 2017&quot;</span>
 
 
 <div class="viewcode-block" id="Cohp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.Cohp">[docs]</a><span class="k">class</span> <span class="nc">Cohp</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -209,7 +209,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
                 <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spin</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;up&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;down&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}[</span><span class="n">spin</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
                 <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">populations</span><span class="p">[</span><span class="n">spin</span><span class="p">]}</span></div>
@@ -279,6 +279,8 @@
 <span class="sd">        are_coops: indicates whether the Cohp objects are COHPs or COOPs.</span>
 <span class="sd">            Defauls to False for COHPs.</span>
 
+<span class="sd">        orb_res_cohp: Orbital-resolved COHPs.</span>
+
 
 <span class="sd">    .. attribute: are_coops</span>
 
@@ -303,9 +305,13 @@
 <span class="sd">    .. attribute: all_cohps</span>
 
 <span class="sd">         A dict of COHPs for individual bonds of the form {label: COHP}</span>
+
+<span class="sd">    .. attribute: orb_res_cohp</span>
+
+<span class="sd">        Orbital-resolved COHPs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">avg_cohp</span><span class="p">,</span>
-                 <span class="n">cohp_dict</span><span class="p">,</span> <span class="n">bonds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">are_coops</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">avg_cohp</span><span class="p">,</span> <span class="n">cohp_dict</span><span class="p">,</span> <span class="n">bonds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">are_coops</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">orb_res_cohp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CompleteCohp</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">avg_cohp</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span>
                                            <span class="n">avg_cohp</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
                                            <span class="n">avg_cohp</span><span class="o">.</span><span class="n">cohp</span><span class="p">,</span>
@@ -314,6 +320,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span> <span class="o">=</span> <span class="n">are_coops</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">all_cohps</span> <span class="o">=</span> <span class="n">cohp_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span> <span class="o">=</span> <span class="n">orb_res_cohp</span>
         <span class="k">if</span> <span class="n">bonds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bonds</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_cohps</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
         <span class="k">else</span><span class="p">:</span>
@@ -361,24 +368,105 @@
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;bonds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">bond</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonds</span><span class="p">[</span><span class="n">bond</span><span class="p">][</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
                                  <span class="s2">&quot;sites&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">site</span>
                                            <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonds</span><span class="p">[</span><span class="n">bond</span><span class="p">][</span><span class="s2">&quot;sites&quot;</span><span class="p">]]}</span>
-                                 <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonds</span><span class="p">}</span>
+                          <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonds</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span><span class="p">:</span>
+            <span class="n">orb_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span><span class="p">:</span>
+                <span class="n">orb_dict</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">orbs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]:</span>
+                    <span class="n">cohp</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">spin</span><span class="p">):</span> <span class="n">pops</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">pops</span> <span class="ow">in</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orbs</span><span class="p">][</span><span class="s2">&quot;COHP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                    <span class="n">orb_dict</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orbs</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="n">cohp</span><span class="p">}</span>
+                    <span class="n">icohp</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">spin</span><span class="p">):</span> <span class="n">pops</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">pops</span> <span class="ow">in</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orbs</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                    <span class="n">orb_dict</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orbs</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">icohp</span>
+                    <span class="n">orbitals</span> <span class="o">=</span> <span class="p">[[</span><span class="n">orb</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">orb</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orbs</span><span class="p">][</span><span class="s2">&quot;orbitals&quot;</span><span class="p">]]</span>
+                    <span class="n">orb_dict</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orbs</span><span class="p">][</span><span class="s2">&quot;orbitals&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">orbitals</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;orb_res_cohp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">orb_dict</span>
+
         <span class="k">return</span> <span class="n">d</span></div>
 
 <div class="viewcode-block" id="CompleteCohp.get_cohp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.CompleteCohp.get_cohp">[docs]</a>    <span class="k">def</span> <span class="nf">get_cohp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">integrated</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get specific COHP or ICOHP.</span>
+<span class="sd">        Get specific COHP or ICOHP. If label is not in the COHP labels,</span>
+<span class="sd">        try reversing the order of the sites.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spin: Spin. Can be parsed as spin object, integer (-1/1)</span>
+<span class="sd">                or str (&quot;up&quot;/&quot;down&quot;)</span>
+<span class="sd">            integrated: Return COHP (False) or ICOHP (True)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Returns the CHOP or ICOHP for the input spin. If Spin is</span>
+<span class="sd">            None and both spins are present, both spins will be returned</span>
+<span class="sd">            as a dictionary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;average&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohp</span><span class="o">.</span><span class="n">get_cohp</span><span class="p">(</span><span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">integrated</span><span class="o">=</span><span class="n">integrated</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_cohps</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">get_cohp</span><span class="p">(</span><span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
-                                                  <span class="n">integrated</span><span class="o">=</span><span class="n">integrated</span><span class="p">)</span></div>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_cohps</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">get_cohp</span><span class="p">(</span><span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+                                                      <span class="n">integrated</span><span class="o">=</span><span class="n">integrated</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">atoms</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">atoms</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">atoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_cohps</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">get_cohp</span><span class="p">(</span><span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+                                                      <span class="n">integrated</span><span class="o">=</span><span class="n">integrated</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CompleteCohp.get_icohp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.CompleteCohp.get_icohp">[docs]</a>    <span class="k">def</span> <span class="nf">get_icohp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient alternative to get a specific ICOHP.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cohp</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">integrated</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CompleteCohp.get_orbital_resolved_cohp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.CompleteCohp.get_orbital_resolved_cohp">[docs]</a>    <span class="k">def</span> <span class="nf">get_orbital_resolved_cohp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">orbitals</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get orbital-resolved COHP.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label: bond label.</span>
+
+<span class="sd">            orbitals: The orbitals as a label, or list or tuple of the form</span>
+<span class="sd">                [(n1, orbital1), (n2, orbital2)]. Orbitals can either be str,</span>
+<span class="sd">                int, or Orbital.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A Cohp object if CompleteCohp contains orbital-resolved cohp,</span>
+<span class="sd">            or None if it doesn&#39;t.</span>
+
+<span class="sd">        Note: It currently assumes that orbitals are str if they aren&#39;t the</span>
+<span class="sd">            other valid types. This is not ideal, but the easiest way to</span>
+<span class="sd">            avoid unicode issues between python 2 and python 3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">orbitals</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+            <span class="n">cohp_orbs</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;orbitals&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+            <span class="n">orbs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">orbital</span> <span class="ow">in</span> <span class="n">orbitals</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">orbital</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+                    <span class="n">orbs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">((</span><span class="n">orbital</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Orbital</span><span class="p">(</span><span class="n">orbital</span><span class="p">[</span><span class="mi">1</span><span class="p">]))))</span>
+                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">orbital</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">is</span> <span class="n">Orbital</span><span class="p">:</span>
+                    <span class="n">orbs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">((</span><span class="n">orbital</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">orbital</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                    <span class="n">orbs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">((</span><span class="n">orbital</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Orbital</span><span class="p">[</span><span class="n">orbital</span><span class="p">[</span><span class="mi">1</span><span class="p">]])))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Orbital must be str, int, or Orbital.&quot;</span><span class="p">)</span>
+            <span class="n">orb_index</span> <span class="o">=</span> <span class="n">cohp_orbs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">orbs</span><span class="p">)</span>
+            <span class="n">orb_label</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">orb_index</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbitals</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="n">orb_label</span> <span class="o">=</span> <span class="n">orbitals</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Orbitals must be str, list, or tuple.&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">icohp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orb_label</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">icohp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">Cohp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orb_label</span><span class="p">][</span><span class="s2">&quot;COHP&quot;</span><span class="p">],</span>
+                    <span class="n">icohp</span><span class="o">=</span><span class="n">icohp</span><span class="p">,</span> <span class="n">are_coops</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CompleteCohp.from_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.CompleteCohp.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
@@ -408,6 +496,58 @@
                 <span class="n">avg_cohp</span> <span class="o">=</span> <span class="n">Cohp</span><span class="p">(</span><span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">cohp</span><span class="p">,</span> <span class="n">icohp</span><span class="o">=</span><span class="n">icohp</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">cohp_dict</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">Cohp</span><span class="p">(</span><span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">cohp</span><span class="p">,</span> <span class="n">icohp</span><span class="o">=</span><span class="n">icohp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;orb_res_cohp&quot;</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">orb_cohp</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;orb_res_cohp&quot;</span><span class="p">]:</span>
+                <span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;orb_res_cohp&quot;</span><span class="p">][</span><span class="n">label</span><span class="p">]:</span>
+                    <span class="n">cohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;orb_res_cohp&quot;</span><span class="p">][</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">][</span><span class="s2">&quot;COHP&quot;</span><span class="p">][</span><span class="n">s</span><span class="p">],</span>
+                            <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;orb_res_cohp&quot;</span><span class="p">][</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">][</span><span class="s2">&quot;COHP&quot;</span><span class="p">]}</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">icohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                                 <span class="n">d</span><span class="p">[</span><span class="s2">&quot;orb_res_cohp&quot;</span><span class="p">][</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">][</span><span class="n">s</span><span class="p">],</span>
+                                 <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                                 <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;orb_res_cohp&quot;</span><span class="p">][</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">]}</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="n">icohp</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">orbitals</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">Orbital</span><span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="mi">1</span><span class="p">]]))</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span>
+                                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;orb_res_cohp&quot;</span><span class="p">][</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">][</span><span class="s2">&quot;orbitals&quot;</span><span class="p">]]</span>
+                    <span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="n">cohp</span><span class="p">,</span> <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="n">icohp</span><span class="p">,</span>
+                                            <span class="s2">&quot;orbitals&quot;</span><span class="p">:</span> <span class="n">orbitals</span><span class="p">}</span>
+                <span class="c1"># If no total COHPs are present, calculate the total</span>
+                <span class="c1"># COHPs from the single-orbital populations. Total COHPs</span>
+                <span class="c1"># may not be present when the cohpgenerator keyword is used</span>
+                <span class="c1"># in LOBSTER versions 2.2.0 and earlier.</span>
+                <span class="k">if</span> <span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;COHP&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;COHP&quot;</span><span class="p">][</span><span class="n">label</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">cohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                                      <span class="p">[</span><span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">][</span><span class="s2">&quot;COHP&quot;</span><span class="p">][</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span>
+                                       <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)}</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                                              <span class="p">[</span><span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">][</span><span class="s2">&quot;COHP&quot;</span><span class="p">][</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span>
+                                               <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                <span class="n">orb_res_icohp</span> <span class="o">=</span> <span class="kc">None</span> <span class="ow">in</span> <span class="p">[</span><span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">]</span>
+                                         <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">]</span> <span class="ow">or</span>
+                   <span class="n">d</span><span class="p">[</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">][</span><span class="n">label</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">orb_res_icohp</span><span class="p">:</span>
+                    <span class="n">icohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                                       <span class="p">[</span><span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">][</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span>
+                                        <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)}</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                                               <span class="p">[</span><span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orb</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">][</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span>
+                                                <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">orb_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">orb_cohp</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">if</span> <span class="s2">&quot;average&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;COHP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="c1"># calculate average</span>
             <span class="n">cohp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
@@ -420,7 +560,7 @@
             <span class="n">avg_cohp</span> <span class="o">=</span> <span class="n">Cohp</span><span class="p">(</span><span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">cohp</span><span class="p">,</span> <span class="n">icohp</span><span class="o">=</span><span class="n">icohp</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">CompleteCohp</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">avg_cohp</span><span class="p">,</span> <span class="n">cohp_dict</span><span class="p">,</span> <span class="n">bonds</span><span class="o">=</span><span class="n">bonds</span><span class="p">,</span>
-                            <span class="n">are_coops</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;are_coops&quot;</span><span class="p">])</span></div>
+                            <span class="n">are_coops</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;are_coops&quot;</span><span class="p">],</span> <span class="n">orb_res_cohp</span><span class="o">=</span><span class="n">orb_cohp</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CompleteCohp.from_file"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.CompleteCohp.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -450,8 +590,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;LMTO&quot;</span><span class="p">:</span>
-            <span class="c1"># LMTO COOPs cannot be handled yet.</span>
+            <span class="c1"># LMTO COOPs and orbital-resolved COHP cannot be handled yet.</span>
             <span class="n">are_coops</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">orb_res_cohp</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">structure_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">structure_file</span> <span class="o">=</span> <span class="s2">&quot;CTRL&quot;</span>
             <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -464,6 +605,7 @@
                 <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;COOPCAR.lobster&quot;</span> <span class="k">if</span> <span class="n">are_coops</span> \
                             <span class="k">else</span> <span class="s2">&quot;COHPCAR.lobster&quot;</span>
             <span class="n">cohp_file</span> <span class="o">=</span> <span class="n">Cohpcar</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">are_coops</span><span class="o">=</span><span class="n">are_coops</span><span class="p">)</span>
+            <span class="n">orb_res_cohp</span> <span class="o">=</span> <span class="n">cohp_file</span><span class="o">.</span><span class="n">orb_res_cohp</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown format </span><span class="si">%s</span><span class="s2">. Valid formats are LMTO &quot;</span>
                              <span class="s2">&quot;and LOBSTER.&quot;</span> <span class="o">%</span> <span class="n">fmt</span><span class="p">)</span>
@@ -476,14 +618,31 @@
         <span class="c1"># Lobster shifts the energies so that the Fermi energy is at zero.</span>
         <span class="c1"># Shifting should be done by the plotter object though.</span>
 
+        <span class="n">spins</span> <span class="o">=</span> <span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">,</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="k">if</span> <span class="n">cohp_file</span><span class="o">.</span><span class="n">is_spin_polarized</span> \
+            <span class="k">else</span> <span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;LOBSTER&quot;</span><span class="p">:</span>
             <span class="n">energies</span> <span class="o">+=</span> <span class="n">efermi</span>
+
+        <span class="k">if</span> <span class="n">orb_res_cohp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># If no total COHPs are present, calculate the total</span>
+            <span class="c1"># COHPs from the single-orbital populations. Total COHPs</span>
+            <span class="c1"># may not be present when the cohpgenerator keyword is used</span>
+            <span class="c1"># in LOBSTER versions 2.2.0 and earlier.</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">orb_res_cohp</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">cohp_file</span><span class="o">.</span><span class="n">cohp_data</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s2">&quot;COHP&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">cohp_data</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s2">&quot;COHP&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="p">{</span><span class="n">sp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orbs</span><span class="p">][</span><span class="s2">&quot;COHP&quot;</span><span class="p">][</span><span class="n">sp</span><span class="p">]</span>
+                                     <span class="k">for</span> <span class="n">orbs</span> <span class="ow">in</span> <span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]],</span>
+                                    <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">spins</span><span class="p">}</span>
+                <span class="k">if</span> <span class="n">cohp_file</span><span class="o">.</span><span class="n">cohp_data</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">cohp_data</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="p">{</span><span class="n">sp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">orbs</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">][</span><span class="n">sp</span><span class="p">]</span>
+                                     <span class="k">for</span> <span class="n">orbs</span> <span class="ow">in</span> <span class="n">orb_res_cohp</span><span class="p">[</span><span class="n">label</span><span class="p">]],</span>
+                                    <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">spins</span><span class="p">}</span>
 
         <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;LMTO&quot;</span><span class="p">:</span>
             <span class="c1"># Calculate the average COHP for the LMTO file to be</span>
             <span class="c1"># consistent with LOBSTER output.</span>
-            <span class="n">spins</span> <span class="o">=</span> <span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">,</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="k">if</span> <span class="n">cohp_file</span><span class="o">.</span><span class="n">is_spin_polarized</span> \
-                      <span class="k">else</span> <span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span>
             <span class="n">avg_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="p">{}}</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">avg_data</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">spins</span><span class="p">:</span>
@@ -491,8 +650,10 @@
                                          <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">cohp_data</span><span class="p">])</span>
                         <span class="n">avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                         <span class="c1"># LMTO COHPs have 5 significant figures</span>
-                        <span class="n">avg_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">spin</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{:.5g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-                                            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">avg</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)})</span>
+                        <span class="n">avg_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">spin</span><span class="p">:</span>
+                                            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">round_to_sigfigs</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                                                      <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">avg</span><span class="p">],</span>
+                                                     <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)})</span>
             <span class="n">avg_cohp</span> <span class="o">=</span> <span class="n">Cohp</span><span class="p">(</span><span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span>
                             <span class="n">avg_data</span><span class="p">[</span><span class="s2">&quot;COHP&quot;</span><span class="p">],</span>
                             <span class="n">icohp</span><span class="o">=</span><span class="n">avg_data</span><span class="p">[</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">])</span>
@@ -515,7 +676,7 @@
                      <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">cohp_data</span><span class="p">}</span>
 
         <span class="k">return</span> <span class="n">CompleteCohp</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">avg_cohp</span><span class="p">,</span> <span class="n">cohp_dict</span><span class="p">,</span> <span class="n">bonds</span><span class="o">=</span><span class="n">bond_dict</span><span class="p">,</span>
-                            <span class="n">are_coops</span><span class="o">=</span><span class="n">are_coops</span><span class="p">)</span></div></div>
+                            <span class="n">are_coops</span><span class="o">=</span><span class="n">are_coops</span><span class="p">,</span> <span class="n">orb_res_cohp</span><span class="o">=</span><span class="n">orb_res_cohp</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -546,7 +707,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
