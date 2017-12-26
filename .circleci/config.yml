@@ -16,13 +16,13 @@ jobs:
             conda install --quiet --yes -c clinicalgraphics vtk
             conda update --quiet --all
             mkdir coverage_reports
-            pip install -r requirements.txt -r requirements-optional.txt
+            pip install --quiet -r requirements.txt -r requirements-optional.txt
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
             export PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit
             source activate test_env
-            python setup.py --quiet develop
+            pip install --quiet -e .
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
