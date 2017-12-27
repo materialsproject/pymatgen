@@ -437,6 +437,11 @@ class StructureEnvironments(MSONable):
         else:
             raise ValueError('Neighbors set not yet in ce_list !')
 
+    def update_site_info(self, isite, info_dict):
+        if 'sites_info' not in self.info:
+            self.info['sites_info'] = [{} for _ in range(len(self.structure))]
+        self.info['sites_info'][isite].update(info_dict)
+
     def get_coordination_environments(self, isite, cn, nb_set):
         if self.ce_list[isite] is None:
             return None
