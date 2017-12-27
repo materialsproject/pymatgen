@@ -940,6 +940,13 @@ class StructureEnvironments(MSONable):
                           for cn, nb_sets in site_nbs_sets.items()}
                          if site_nbs_sets is not None else None
                          for site_nbs_sets in self.neighbors_sets]
+        info_dict = {key: val for key, val in self.info.items() if key not in ['sites_info']}
+        info_dict['sites_info'] = [{'nb_sets_info': {str(cn): {str(inb_set): nb_set_info
+                                                               for inb_set, nb_set_info in cn_sets.items()}
+                                                     for cn, cn_sets in site_info['nb_sets_info'].items()},
+                                    'time': site_info['time']} if 'nb_sets_info' in site_info else {}
+                                   for site_info in self.info['sites_info']]
+
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "voronoi": self.voronoi.as_dict(),
@@ -949,7 +956,7 @@ class StructureEnvironments(MSONable):
                 "ce_list": ce_list_dict,
                 "structure": self.structure.as_dict(),
                 "neighbors_sets": nbs_sets_dict,
-                "info": self.info}
+                "info": info_dict}
 
     @classmethod
     def from_dict(cls, d):
@@ -972,12 +979,19 @@ class StructureEnvironments(MSONable):
                            for cn, nb_sets in site_nbs_sets_dict.items()}
                           if site_nbs_sets_dict is not None else None
                           for site_nbs_sets_dict in d['neighbors_sets']]
+        info = {key: val for key, val in d['info'].items() if key not in ['sites_info']}
+        if 'sites_info' in d['info']:
+            info['sites_info'] = [{'nb_sets_info': {int(cn): {int(inb_set): nb_set_info
+                                                              for inb_set, nb_set_info in cn_sets.items()}
+                                                    for cn, cn_sets in site_info['nb_sets_info'].items()},
+                                   'time': site_info['time']} if 'nb_sets_info' in site_info else {}
+                                  for site_info in d['info']['sites_info']]
         return cls(voronoi=voronoi, valences=d['valences'],
                    sites_map=d['sites_map'],
                    equivalent_sites=[[PeriodicSite.from_dict(psd) for psd in psl] for psl in d['equivalent_sites']],
                    ce_list=ce_list, structure=structure,
                    neighbors_sets=neighbors_sets,
-                   info=d['info'])
+                   info=info)
 
 
 class LightStructureEnvironments(MSONable):
