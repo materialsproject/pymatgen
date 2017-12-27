@@ -50,7 +50,7 @@ class EwaldSummationTest(unittest.TestCase):
                                ham.total_energy, 2)
         # note that forces are not individually tested, but should work fine.
         self.assertAlmostEqual(ham.get_site_energy(0), ham.get_site_energy(2))  # The Fe atoms should all be the same
-        self.assertAlmostEqual(ham.get_site_energy(0), -24.45, 2)
+        self.assertAlmostEqual(ham.get_site_energy(0), -24.457, 2)
 
         self.assertRaises(ValueError, EwaldSummation, original_s)
         # try sites with charge.
