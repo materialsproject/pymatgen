@@ -89,7 +89,7 @@ def make_doc(ctx):
 def update_doc(ctx):
     make_doc(ctx)
     ctx.run("git add .")
-    ctx.run("git commit -a -m \"Update dev docs\"")
+    ctx.run("git commit -a -m \"Update docs\"")
     ctx.run("git push")
 
 
