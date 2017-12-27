@@ -250,6 +250,17 @@ class EwaldSummation(object):
             raise AttributeError(
                 "Forces are available only if compute_forces is True!")
         return self._forces
+        
+    def get_site_energy(self, site_index):
+        """Compute the energy for a single site in the structure
+        
+        Args:
+            site_index (int): Index of site
+        ReturnS:
+            (float) - Energy of that site"""
+        
+        return np.sum(self._recip[:,site_index]) + np.sum(self._real[:,site_index]) \
+            + self._point[site_index]
 
     def _calc_recip(self):
         """
