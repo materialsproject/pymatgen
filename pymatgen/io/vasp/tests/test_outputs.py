@@ -43,6 +43,28 @@ class VasprunTest(unittest.TestCase):
         v = Vasprun(os.path.join(test_dir, "vasprun.GW0.xml"))
         self.assertEqual(len(v.other_dielectric), 3)
 
+    def test_charge_charge_dielectric(self):
+        """
+        VASP 5.4.4 writes out two dielectric functions to vasprun.xml
+        These are the "density-density" and "velocity-velocity" linear response functions.
+        See the comments in `linear_optics.F` for details.
+        """ 
+        v = Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric_5.4.4"), 
+                    parse_potcar_file=False)
+        self.assertEqual( v.dielectric is not None, True )
+        self.assertEqual( 'density' in v.dielectric_data, True )
+        self.assertEqual( 'velocity' in v.dielectric_data, True )
+
+    def test_optical_absorption_coeff(self):
+        v = Vasprun(os.path.join(test_dir, "vasprun.BSE.xml.gz"))
+        absorption_coeff = v.optical_absorption_coeff
+        self.assertEqual(absorption_coeff[1], 24966408728.917931)
+
+    def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
+        with self.assertRaises(NotImplementedError):
+            Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric_bad"),
+                    parse_potcar_file=False)
+
     def test_bad_vasprun(self):
         self.assertRaises(ET.ParseError,
                           Vasprun, os.path.join(test_dir, "bad_vasprun.xml"))
@@ -346,10 +368,11 @@ class VasprunTest(unittest.TestCase):
 
     def test_sc_step_overflow(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            vasprun = Vasprun(filepath)
-            self.assertEqual(len(w), 3)
+        # with warnings.catch_warnings(record=True) as w:
+        #     warnings.simplefilter("always")
+        #     vasprun = Vasprun(filepath)
+        #     self.assertEqual(len(w), 3)
+        vasprun = Vasprun(filepath)
         estep = vasprun.ionic_steps[0]['electronic_steps'][29]
         self.assertTrue(np.isnan(estep['e_wo_entrp']))
 

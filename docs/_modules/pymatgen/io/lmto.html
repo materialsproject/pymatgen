@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lmto &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.io.lmto &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -69,6 +69,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">round_to_sigfigs</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module for implementing a CTRL file object class for the Stuttgart</span>
@@ -303,7 +304,7 @@
 
         <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;HEADER&quot;</span><span class="p">,</span> <span class="s2">&quot;VERS&quot;</span><span class="p">]:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">token</span><span class="o">+</span><span class="s2">&quot;\s*&quot;</span><span class="p">,</span> <span class="n">struc_lines</span><span class="p">[</span><span class="n">token</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">token</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;\s*&quot;</span><span class="p">,</span> <span class="n">struc_lines</span><span class="p">[</span><span class="n">token</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
                     <span class="n">structure_tokens</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                 <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
                     <span class="k">pass</span>
@@ -417,11 +418,10 @@
                         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">[</span><span class="n">num_bonds</span><span class="o">+</span><span class="mi">2</span><span class="p">:]])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">to_eV</span><span class="p">:</span>
             <span class="c1"># LMTO energies have 5 sig figs</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{0:.5g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">round_to_sigfigs</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
                                      <span class="k">for</span> <span class="n">energy</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">Ry_to_eV</span><span class="p">],</span>
                                      <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:.5g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                <span class="nb">float</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">Ry_to_eV</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">round_to_sigfigs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">Ry_to_eV</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -432,9 +432,8 @@
             <span class="n">cohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bond</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">num_bonds</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spins</span><span class="p">)}</span>
             <span class="k">if</span> <span class="n">to_eV</span><span class="p">:</span>
-                <span class="n">icohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{0:.5g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bond</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">num_bonds</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">Ry_to_eV</span><span class="p">],</span>
-                                        <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                <span class="n">icohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">round_to_sigfigs</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+                                        <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bond</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">num_bonds</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">Ry_to_eV</span><span class="p">])</span>
                          <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spins</span><span class="p">)}</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">icohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bond</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">num_bonds</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
@@ -475,7 +474,7 @@
         <span class="c1"># Replacing &quot;/&quot; with &quot;-&quot; makes splitting easier</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
         <span class="n">site_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
-        <span class="n">species</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
         <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%d</span><span class="s2">-</span><span class="si">%s%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">site_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
                                <span class="n">species</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">site_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">label</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">site_indices</span></div>
@@ -509,7 +508,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

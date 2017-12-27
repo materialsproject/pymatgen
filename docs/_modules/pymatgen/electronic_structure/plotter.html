@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -65,6 +65,7 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -1590,7 +1591,7 @@
                            <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;dxy&#39;</span><span class="p">,</span> <span class="s1">&#39;dyz&#39;</span><span class="p">,</span> <span class="s1">&#39;dxz&#39;</span><span class="p">,</span> <span class="s1">&#39;dx2&#39;</span><span class="p">,</span> <span class="s1">&#39;dz2&#39;</span><span class="p">],</span>
                            <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;f_3&#39;</span><span class="p">,</span> <span class="s1">&#39;f_2&#39;</span><span class="p">,</span> <span class="s1">&#39;f_1&#39;</span><span class="p">,</span> <span class="s1">&#39;f0&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">,</span> <span class="s1">&#39;f3&#39;</span><span class="p">]}</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictio</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictio</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">&quot;The invalid type of &#39;dictio&#39; was bound. It should be dict type.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">dictio</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1603,7 +1604,7 @@
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                 <span class="s2">&quot;The dictio[</span><span class="si">%s</span><span class="s2">] is empty. We cannot do anything&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid format of orbitals is in &#39;dictio[</span><span class="si">%s</span><span class="s2">]&#39;: </span><span class="si">%s</span><span class="s2">. &quot;</span>
                                     <span class="s2">&quot;They should be string.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">orb</span><span class="p">)))</span>
@@ -1616,10 +1617,6 @@
                                             <span class="n">individual_orbs</span><span class="p">[</span><span class="n">orb</span><span class="p">]))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                             <span class="s2">&quot;The &#39;dictio[</span><span class="si">%s</span><span class="s2">]&#39; contains orbitals repeated.&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
-                                    <span class="k">else</span><span class="p">:</span>
-                                        <span class="k">pass</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="k">pass</span>
                         <span class="n">nelems</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
                         <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">nelems</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nelems</span><span class="p">):</span>
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -1634,7 +1631,7 @@
 
         <span class="k">if</span> <span class="n">sum_morbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You do not want to sum projection over orbitals.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">&quot;The invalid type of &#39;sum_orbs&#39; was bound. It should be dict or &#39;None&#39; type.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sum_morbs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1644,7 +1641,7 @@
                 <span class="k">if</span> <span class="n">Element</span><span class="o">.</span><span class="n">is_valid_symbol</span><span class="p">(</span><span class="n">elt</span><span class="p">):</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
                                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid format of orbitals is in &#39;sum_morbs[</span><span class="si">%s</span><span class="s2">]&#39;: </span><span class="si">%s</span><span class="s2">. &quot;</span>
                                     <span class="s2">&quot;They should be string.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">orb</span><span class="p">)))</span>
@@ -1657,10 +1654,6 @@
                                             <span class="n">individual_orbs</span><span class="p">[</span><span class="n">orb</span><span class="p">]))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                             <span class="s2">&quot;The &#39;sum_morbs[</span><span class="si">%s</span><span class="s2">]&#39; contains orbitals repeated.&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
-                                    <span class="k">else</span><span class="p">:</span>
-                                        <span class="k">pass</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="k">pass</span>
                         <span class="n">nelems</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
                         <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">nelems</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nelems</span><span class="p">):</span>
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -1684,8 +1677,6 @@
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                             <span class="s2">&quot;You cannot sum projection over one individual orbital &#39;</span><span class="si">%s</span><span class="s2">&#39; of &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span>
                             <span class="p">(</span><span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">elt</span><span class="p">))</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">pass</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">sum_morbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">pass</span>
@@ -1702,10 +1693,8 @@
                                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                         <span class="s2">&quot;The invalid orbital &#39;</span><span class="si">%s</span><span class="s2">&#39; was put into &#39;sum_morbs[</span><span class="si">%s</span><span class="s2">]&#39;.&quot;</span> <span class="o">%</span>
                                         <span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">elt</span><span class="p">))</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="k">pass</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="p">(</span><span class="n">orb</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">orb</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">orb</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">orb</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid orbital &#39;</span><span class="si">%s</span><span class="s2">&#39; was put into sum_orbs[&#39;</span><span class="si">%s</span><span class="s2">&#39;].&quot;</span> <span class="o">%</span> <span class="p">(</span>
                                     <span class="n">orb</span><span class="p">,</span> <span class="n">elt</span><span class="p">))</span>
@@ -1719,8 +1708,6 @@
                         <span class="n">duplicate</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">orb</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">individual_orbs</span><span class="p">[</span><span class="n">orb</span><span class="p">]:</span>
                             <span class="n">duplicate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">pass</span>
                 <span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">duplicate</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">sum_morbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1752,8 +1739,6 @@
                                 <span class="n">duplicate</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">orb</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">individual_orbs</span><span class="p">[</span><span class="n">orb</span><span class="p">]:</span>
                                     <span class="n">duplicate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="k">pass</span>
                         <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">duplicate</span><span class="p">)</span>
 
                     <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
@@ -2611,7 +2596,7 @@
 
 
 <div class="viewcode-block" id="BoltztrapPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="c1">#TODO: We need a unittest for this. Come one folks.</span>
+    <span class="c1"># TODO: We need a unittest for this. Come on folks.</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    class containing methods to plot the data from Boltztrap.</span>
 
@@ -4274,7 +4259,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

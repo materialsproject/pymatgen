@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -456,6 +456,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">projected_eigenvalues</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">other_dielectric</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">ionic_steps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">parsed_header</span> <span class="o">=</span> <span class="kc">False</span>
@@ -502,8 +503,15 @@
                         <span class="n">elem</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;dielectricfunction&quot;</span><span class="p">:</span>
                     <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;comment&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span> <span class="ow">or</span> \
-                       <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))&quot;</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+                        <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;density&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+                            <span class="c1"># &quot;velocity-velocity&quot; is also named &quot;current-current&quot;</span>
+                            <span class="c1"># in OUTCAR</span>
+                        <span class="k">elif</span> <span class="ow">not</span> <span class="s1">&#39;velocity&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">:</span>    
+                            <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;This vasprun.xml has &gt;2 unlabelled dielectric functions&#39;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">comment</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">other_dielectric</span><span class="p">[</span><span class="n">comment</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
@@ -559,6 +567,41 @@
 <span class="sd">        Property only available for DFPT calculations and when IBRION=5, 6, 7 or 8.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;epsilon_ion&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dielectric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">optical_absorption_coeff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the optical absorption coefficient</span>
+<span class="sd">        from the dielectric constants. Note that this method is only</span>
+<span class="sd">        implemented for optical properties calculated with GGA and BSE.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        optical absorption coefficient in list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">]:</span>
+            <span class="n">real_avg</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]))]</span>
+            <span class="n">imag_avg</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]))]</span>
+
+            <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                The optical absorption coefficient calculated in terms of</span>
+<span class="sd">                equation</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="n">hbar</span> <span class="o">=</span> <span class="mf">6.582119514e-16</span>  <span class="c1"># eV/K</span>
+                <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">real</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">imag</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">real</span><span class="p">)</span> <span class="o">*</span> \
+                        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">hbar</span> <span class="o">*</span> <span class="n">freq</span>
+                <span class="k">return</span> <span class="n">coeff</span>
+
+            <span class="n">absorption_coeff</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">)</span> <span class="k">for</span> <span class="n">freq</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">imag</span> <span class="ow">in</span>
+                                <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                    <span class="n">real_avg</span><span class="p">,</span> <span class="n">imag_avg</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">absorption_coeff</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -916,7 +959,7 @@
 <div class="viewcode-block" id="Vasprun.update_charge_from_potcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.update_charge_from_potcar">[docs]</a>    <span class="k">def</span> <span class="nf">update_charge_from_potcar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">potcar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_potcars</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">potcar</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">potcar</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ALGO&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;GW0&quot;</span><span class="p">,</span> <span class="s2">&quot;G0W0&quot;</span><span class="p">,</span> <span class="s2">&quot;GW&quot;</span><span class="p">,</span> <span class="s2">&quot;BSE&quot;</span><span class="p">]:</span>
             <span class="n">nelect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;NELECT&quot;</span><span class="p">]</span>
             <span class="n">potcar_nelect</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">element_composition</span><span class="p">[</span>
                                 <span class="n">ps</span><span class="o">.</span><span class="n">element</span><span class="p">]</span> <span class="o">*</span> <span class="n">ps</span><span class="o">.</span><span class="n">ZVAL</span> <span class="k">for</span> <span class="n">ps</span> <span class="ow">in</span> <span class="n">potcar</span><span class="p">])))</span>
@@ -1594,9 +1637,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Read the drift:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="s2">&quot;drift&quot;</span><span class="p">:</span><span class="s2">&quot;total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)&quot;</span><span class="p">},</span>
-                          <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                          <span class="n">postprocess</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span>
+            <span class="s2">&quot;drift&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)&quot;</span><span class="p">},</span>
+            <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">postprocess</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">drift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;drift&#39;</span><span class="p">,[])</span>
            
 
@@ -1629,7 +1673,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">read_pseudo_zval</span><span class="p">()</span>
 
         <span class="c1"># Read electrostatic potential</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="s1">&#39;electrostatic&#39;</span><span class="p">:</span> <span class="s2">&quot;average \(electrostatic\) potential at core&quot;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span>
+            <span class="s1">&#39;electrostatic&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;average \(electrostatic\) potential at core&quot;</span><span class="p">})</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;electrostatic&#39;</span><span class="p">,</span> <span class="p">[]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">read_electrostatic_potential</span><span class="p">()</span>
 
@@ -1745,7 +1790,7 @@
         <span class="n">pots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_pattern</span><span class="p">(</span><span class="n">header_pattern</span><span class="p">,</span> <span class="n">table_pattern</span><span class="p">,</span> <span class="n">footer_pattern</span><span class="p">)</span>
         <span class="n">pots</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">pots</span><span class="p">))</span>
 
-        <span class="n">pots</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;\s+\d+\s?([\.\-\d]+)+&quot;</span><span class="p">,</span> <span class="n">pots</span><span class="p">)</span>
+        <span class="n">pots</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+\d+\s?([\.\-\d]+)+&quot;</span><span class="p">,</span> <span class="n">pots</span><span class="p">)</span>
         <span class="n">pots</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">pots</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_potential</span> <span class="o">=</span> <span class="n">pots</span></div>
@@ -1880,21 +1925,24 @@
                          <span class="sa">r</span><span class="s2">&quot;\s+-{50,}$&quot;</span>
         <span class="n">first_part_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s+UNSYMMETRIZED TENSORS\s+$&quot;</span>
         <span class="n">row_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">r</span><span class="s2">&quot;([-]?\d+\.\d+)&quot;</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">unsym_footer_pattern</span> <span class="o">=</span> <span class="s2">&quot;^\s+SYMMETRIZED TENSORS\s+$&quot;</span>
+        <span class="n">unsym_footer_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\s+SYMMETRIZED TENSORS\s+$&quot;</span>
 
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">unsym_table_pattern_text</span> <span class="o">=</span> <span class="n">header_pattern</span> <span class="o">+</span> <span class="n">first_part_pattern</span> <span class="o">+</span> \
                                    <span class="sa">r</span><span class="s2">&quot;(?P&lt;table_body&gt;.+)&quot;</span> <span class="o">+</span> <span class="n">unsym_footer_pattern</span>
-        <span class="n">table_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">unsym_table_pattern_text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+        <span class="n">table_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">unsym_table_pattern_text</span><span class="p">,</span>
+                                   <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
         <span class="n">rp</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">row_pattern</span><span class="p">)</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">table_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
             <span class="n">table_text</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;table_body&quot;</span><span class="p">)</span>
             <span class="n">micro_header_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;ion\s+\d+&quot;</span>
-            <span class="n">micro_table_pattern_text</span> <span class="o">=</span> <span class="n">micro_header_pattern</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;\s*^(?P&lt;table_body&gt;(?:\s*&quot;</span> <span class="o">+</span> \
+            <span class="n">micro_table_pattern_text</span> <span class="o">=</span> <span class="n">micro_header_pattern</span> <span class="o">+</span> \
+                                       <span class="sa">r</span><span class="s2">&quot;\s*^(?P&lt;table_body&gt;(?:\s*&quot;</span> <span class="o">+</span> \
                                        <span class="n">row_pattern</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;)+)\s+&quot;</span>
-            <span class="n">micro_table_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">micro_table_pattern_text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+            <span class="n">micro_table_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">micro_table_pattern_text</span><span class="p">,</span>
+                                             <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
             <span class="n">unsym_tensors</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">mt</span> <span class="ow">in</span> <span class="n">micro_table_pattern</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">table_text</span><span class="p">):</span>
                 <span class="n">table_body_text</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;table_body&quot;</span><span class="p">)</span>
@@ -3846,7 +3894,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

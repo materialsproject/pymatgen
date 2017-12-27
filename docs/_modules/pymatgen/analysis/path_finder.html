@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.path_finder &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.analysis.path_finder &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -66,10 +66,8 @@
 <span class="sd">    Ceder, The Journal of Chemical Physics 145 (7), 074112</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> \
+    <span class="n">absolute_import</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numpy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
@@ -79,14 +77,11 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">six</span>
 
-<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Poscar</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">VolumetricData</span><span class="p">,</span> <span class="n">Chgcar</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Daniil Kitchaev&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
@@ -211,8 +206,8 @@
         <span class="c1"># (http://www.cims.nyu.edu/~eve2/main.htm)</span>
         <span class="c1">#</span>
 
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="s2">&quot;Getting path from </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2"> (coords wrt V grid)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
+        <span class="c1"># print(&quot;Getting path from {} to {} (coords wrt V grid)&quot;.format(start, end))</span>
+        
         <span class="c1"># Set parameters</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dr</span><span class="p">:</span>
             <span class="n">dr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
@@ -350,9 +345,12 @@
 
 <div class="viewcode-block" id="StaticPotential.rescale_field"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.StaticPotential.rescale_field">[docs]</a>    <span class="k">def</span> <span class="nf">rescale_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_dim</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Changes the discretization of the potential field by linear interpolation. This is necessary if the potential field</span>
-<span class="sd">        obtained from DFT is strangely skewed, or is too fine or coarse. Obeys periodic boundary conditions at the edges of</span>
-<span class="sd">        the cell. Alternatively useful for mixing potentials that originally are on different grids.</span>
+<span class="sd">        Changes the discretization of the potential field by linear</span>
+<span class="sd">        interpolation. This is necessary if the potential field</span>
+<span class="sd">        obtained from DFT is strangely skewed, or is too fine or coarse. Obeys</span>
+<span class="sd">        periodic boundary conditions at the edges of</span>
+<span class="sd">        the cell. Alternatively useful for mixing potentials that originally</span>
+<span class="sd">        are on different grids.</span>
 
 <span class="sd">        :param new_dim: tuple giving the numpy shape of the new grid</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -374,14 +372,18 @@
 
 <div class="viewcode-block" id="StaticPotential.gaussian_smear"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.StaticPotential.gaussian_smear">[docs]</a>    <span class="k">def</span> <span class="nf">gaussian_smear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Applies an isotropic Gaussian smear of width (standard deviation) r to the potential field. This is necessary to</span>
-<span class="sd">        avoid finding paths through narrow minima or nodes that may exist in the field (although any potential or</span>
-<span class="sd">        charge distribution generated from GGA should be relatively smooth anyway). The smearing obeys periodic</span>
+<span class="sd">        Applies an isotropic Gaussian smear of width (standard deviation) r to</span>
+<span class="sd">        the potential field. This is necessary to avoid finding paths through</span>
+<span class="sd">        narrow minima or nodes that may exist in the field (although any</span>
+<span class="sd">        potential or charge distribution generated from GGA should be</span>
+<span class="sd">        relatively smooth anyway). The smearing obeys periodic</span>
 <span class="sd">        boundary conditions at the edges of the cell.</span>
 
-<span class="sd">        :param r - Smearing width in cartesian coordinates, in the same units as the structure lattice vectors</span>
+<span class="sd">        :param r - Smearing width in cartesian coordinates, in the same units</span>
+<span class="sd">            as the structure lattice vectors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Since scaling factor in fractional coords is not isotropic, have to have different radii in 3 directions</span>
+        <span class="c1"># Since scaling factor in fractional coords is not isotropic, have to</span>
+        <span class="c1"># have different radii in 3 directions</span>
         <span class="n">a_lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span>
         <span class="n">b_lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">b</span>
         <span class="n">c_lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span>
@@ -416,15 +418,18 @@
 
 
 <div class="viewcode-block" id="ChgcarPotential"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.ChgcarPotential">[docs]</a><span class="k">class</span> <span class="nc">ChgcarPotential</span><span class="p">(</span><span class="n">StaticPotential</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements a potential field based on the charge density output from VASP.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chgcar</span><span class="p">,</span> <span class="n">smear</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param chgcar: Chgcar object based on a VASP run of the structure of interest (Chgcar.from_file(&quot;CHGCAR&quot;))</span>
-<span class="sd">        :param smear: Whether or not to apply a Gaussian smearing to the potential</span>
-<span class="sd">        :param normalize: Whether or not to normalize the potential to range from 0 to 1</span>
+<span class="sd">        :param chgcar: Chgcar object based on a VASP run of the structure of</span>
+<span class="sd">            interest (Chgcar.from_file(&quot;CHGCAR&quot;))</span>
+<span class="sd">        :param smear: Whether or not to apply a Gaussian smearing to the</span>
+<span class="sd">            potential</span>
+<span class="sd">        :param normalize: Whether or not to normalize the potential to range</span>
+<span class="sd">            from 0 to 1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">chgcar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">/</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
@@ -436,17 +441,20 @@
 
 
 <div class="viewcode-block" id="FreeVolumePotential"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.FreeVolumePotential">[docs]</a><span class="k">class</span> <span class="nc">FreeVolumePotential</span><span class="p">(</span><span class="n">StaticPotential</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Implements a potential field based on geometric distances from atoms in the structure - basically, the potential</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements a potential field based on geometric distances from atoms in the</span>
+<span class="sd">    structure - basically, the potential</span>
 <span class="sd">    is lower at points farther away from any atoms in the structure.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">smear</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param struct: Unit cell on which to base the potential</span>
 <span class="sd">        :param dim: Grid size for the potential</span>
-<span class="sd">        :param smear: Whether or not to apply a Gaussian smearing to the potential</span>
-<span class="sd">        :param normalize: Whether or not to normalize the potential to range from 0 to 1</span>
+<span class="sd">        :param smear: Whether or not to apply a Gaussian smearing to the</span>
+<span class="sd">            potential</span>
+<span class="sd">        :param normalize: Whether or not to normalize the potential to range</span>
+<span class="sd">            from 0 to 1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__s</span> <span class="o">=</span> <span class="n">struct</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">FreeVolumePotential</span><span class="o">.</span><span class="n">__add_gaussians</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
@@ -525,7 +533,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

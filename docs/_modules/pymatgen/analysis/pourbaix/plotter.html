@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.pourbaix.plotter &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.analysis.pourbaix.plotter &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -73,6 +73,7 @@
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">zip</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Sai Jayaraman&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
@@ -268,9 +269,21 @@
 
         <span class="c1"># Get stability map</span>
         <span class="n">phs</span><span class="p">,</span> <span class="n">vs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">ph_min</span><span class="p">:</span><span class="n">ph_max</span><span class="p">:</span><span class="n">resolution</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> 
-                         <span class="n">v_min</span><span class="p">:</span><span class="n">v_max</span><span class="p">:</span><span class="n">resolution</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="p">]</span>
-        <span class="n">stability</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_analyzer</span><span class="o">.</span><span class="n">get_entry_stability</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">ph</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
-                     <span class="k">for</span> <span class="n">ph</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">phs</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">vs</span><span class="o">.</span><span class="n">ravel</span><span class="p">())]</span>
+                           <span class="n">v_min</span><span class="p">:</span><span class="n">v_max</span><span class="p">:</span><span class="n">resolution</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">_multielement</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">MultiEntry</span><span class="p">):</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">m_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyzer</span><span class="o">.</span>\
+                    <span class="n">get_all_decomp_and_e_above_hull</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> is not a multi-entry, calculating stability of &quot;</span>
+                          <span class="s2">&quot;representative multientries&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">stability</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_analyzer</span><span class="o">.</span><span class="n">get_entry_stability</span><span class="p">(</span><span class="n">m_entries</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ph</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">ph</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">phs</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">vs</span><span class="o">.</span><span class="n">ravel</span><span class="p">())]</span>
+            <span class="k">for</span> <span class="n">m_entry</span> <span class="ow">in</span> <span class="n">m_entries</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">new_stab</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_analyzer</span><span class="o">.</span><span class="n">get_entry_stability</span><span class="p">(</span><span class="n">m_entry</span><span class="p">,</span> <span class="n">ph</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">ph</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">phs</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">vs</span><span class="o">.</span><span class="n">ravel</span><span class="p">())]</span>
+                <span class="n">stability</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">stability</span><span class="p">,</span> <span class="n">new_stab</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stability</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_analyzer</span><span class="o">.</span><span class="n">get_entry_stability</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">ph</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">ph</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">phs</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">vs</span><span class="o">.</span><span class="n">ravel</span><span class="p">())]</span>
         <span class="n">stability</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">stability</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">phs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
         <span class="c1"># Plot stability map</span>
@@ -447,7 +460,6 @@
 <span class="sd">            plt:</span>
 <span class="sd">                matplotlib plot object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-<span class="c1">#        plt = pretty_plot(24, 14.4)</span>
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
         <span class="p">(</span><span class="n">stable</span><span class="p">,</span> <span class="n">unstable</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_plot_data</span><span class="p">(</span><span class="n">limits</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">limits</span><span class="p">:</span>
@@ -959,7 +971,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

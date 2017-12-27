@@ -13,13 +13,18 @@ from pymatgen.io.feff.outputs import LDos, Xmu
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
+test_dir_reci = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                             'test_files', 'feff_reci_dos')
 
 
 class FeffLdosTest(unittest.TestCase):
-
     filepath1 = os.path.join(test_dir, 'feff.inp')
     filepath2 = os.path.join(test_dir, 'ldos')
     l = LDos.from_file(filepath1, filepath2)
+
+    reci_feffinp = os.path.join(test_dir_reci, 'feff.inp')
+    reci_ldos = os.path.join(test_dir_reci, 'ldos')
+    reci_dos = LDos.from_file(reci_feffinp, reci_ldos)
 
     def test_init(self):
         efermi = FeffLdosTest.l.complete_dos.efermi
@@ -37,6 +42,22 @@ class FeffLdosTest(unittest.TestCase):
         d = FeffLdosTest.l.as_dict()
         l3 = LDos.from_dict(d).charge_transfer_to_string()
         self.assertEqual(l2, l3, "Feffldos to and from dict does not match")
+
+    def test_reci_init(self):
+        efermi = FeffLdosTest.reci_dos.complete_dos.efermi
+        self.assertEqual(efermi, -9.672,
+                         "Did not read correct Fermi energy from ldos file")
+
+    def test_reci_complete_dos(self):
+        complete_dos = FeffLdosTest.reci_dos.complete_dos
+        self.assertEqual(complete_dos.as_dict()['spd_dos']["s"]['efermi'],
+                         -9.672,
+                         "Failed to construct complete_dos dict properly")
+
+    def test_reci_charge(self):
+        charge_trans = FeffLdosTest.reci_dos.charge_transfer
+        self.assertEqual(charge_trans['0']['Na']['s'], 0.241)
+        self.assertEqual(charge_trans['1']['O']['tot'], -0.594)
 
 
 class XmuTest(unittest.TestCase):

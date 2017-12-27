@@ -25,8 +25,10 @@ __maintainer__ = 'Anubhav Jain'
 __email__ = 'ajain@lbl.gov'
 __date__ = 'Oct 27, 2014'
 
+
 csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         'hhi_data.csv')
+
 
 @singleton
 class HHIModel(object):

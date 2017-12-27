@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -225,12 +225,14 @@ keys, and each value is a DataFrame.</li>
 <dt id="pymatgen.io.lammps.data.LammpsData.disassemble">
 <code class="descname">disassemble</code><span class="sig-paren">(</span><em>atom_labels=None</em>, <em>guess_element=True</em>, <em>ff_label='ff_map'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.disassemble"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.disassemble" title="Permalink to this definition">¶</a></dt>
 <dd><p>Breaks down LammpsData to ForceField and a series of Topology.
-RESTRICTIONS APPLIED:
-1. No complex force field defined not just on atom</p>
-<blockquote>
-<div>types, where the same type or equivalent types of topology
-may have more than one set of coefficients.</div></blockquote>
-<ol class="arabic simple" start="2">
+RESTRICTIONS APPLIED:</p>
+<ol class="arabic simple">
+<li><dl class="first docutils">
+<dt>No complex force field defined not just on atom</dt>
+<dd>types, where the same type or equivalent types of topology
+may have more than one set of coefficients.</dd>
+</dl>
+</li>
 <li><dl class="first docutils">
 <dt>No intermolecular topologies (with atoms from different</dt>
 <dd>molecule-ID) since a Topology object includes data for ONE
@@ -350,7 +352,7 @@ charges. Default to 3.</li>
 <dl class="attribute">
 <dt id="pymatgen.io.lammps.data.LammpsData.structure">
 <code class="descname">structure</code><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transform from LammpsData file to a pymatgen structure object</p>
+<dd><p>Export a periodic structure object representing the simulation box.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -468,7 +470,7 @@ Not recommended to alter.</li>
 
 <dl class="function">
 <dt id="pymatgen.io.lammps.data.structure_2_lmpdata">
-<code class="descname">structure_2_lmpdata</code><span class="sig-paren">(</span><em>structure</em>, <em>atom_style='charge'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#structure_2_lmpdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.structure_2_lmpdata" title="Permalink to this definition">¶</a></dt>
+<code class="descname">structure_2_lmpdata</code><span class="sig-paren">(</span><em>structure</em>, <em>ff_elements=None</em>, <em>atom_style='charge'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#structure_2_lmpdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.structure_2_lmpdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a structure to a LammpsData object with no force field
 parameters and topologies.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -477,6 +479,9 @@ parameters and topologies.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</li>
+<li><strong>ff_elements</strong> (<em>[</em><em>str</em><em>]</em>) – List of strings of elements that must be
+present due to force field settings but not necessarily in
+the structure. Default to None.</li>
 <li><strong>atom_style</strong> (<em>str</em>) – Choose between “atomic” (neutral) and
 “charge” (charged). Default to “charge”.</li>
 </ul>
@@ -527,7 +532,7 @@ parameters and topologies.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

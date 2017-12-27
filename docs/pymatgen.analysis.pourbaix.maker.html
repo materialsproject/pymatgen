@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.pourbaix.maker module &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.analysis.pourbaix.maker module &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,15 +56,33 @@
 <span id="pymatgen-analysis-pourbaix-maker-module"></span><h1>pymatgen.analysis.pourbaix.maker module<a class="headerlink" href="#module-pymatgen.analysis.pourbaix.maker" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.pourbaix.maker.PourbaixDiagram">
-<em class="property">class </em><code class="descname">PourbaixDiagram</code><span class="sig-paren">(</span><em>entries</em>, <em>comp_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix/maker.html#PourbaixDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix.maker.PourbaixDiagram" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">PourbaixDiagram</code><span class="sig-paren">(</span><em>entries</em>, <em>comp_dict=None</em>, <em>conc_dict=None</em>, <em>filter_multielement=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix/maker.html#PourbaixDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix.maker.PourbaixDiagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Class to create a Pourbaix diagram from entries
-:param entries: Entries list containing both Solids and Ions
-:param comp_dict: Dictionary of compositions</p>
+<p>Class to create a Pourbaix diagram from entries</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>[</strong><strong>Entry</strong><strong>]</strong> (<a class="reference internal" href="pymatgen.entries.html#module-pymatgen.entries" title="pymatgen.entries"><em>entries</em></a>) – Entries list containing both Solids and Ions</li>
+<li><strong>{str</strong> (<em>conc_dict</em>) – float}: Dictionary of compositions, defaults to
+equal parts of each elements</li>
+<li><strong>{str</strong> – float}: Dictionary of ion concentrations, defaults
+to 1e-6 for each element</li>
+<li><strong>filter_multielement</strong> (<em>bool</em>) – applying this filter to a multi-
+element pourbaix diagram makes generates it a bit more
+efficiently by filtering the entries used to generate
+the hull.  This breaks some of the functionality of
+the analyzer, though, so use with caution.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="pymatgen.analysis.pourbaix.maker.PourbaixDiagram.all_entries">
 <code class="descname">all_entries</code><a class="headerlink" href="#pymatgen.analysis.pourbaix.maker.PourbaixDiagram.all_entries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return all entries</p>
+<dd><p>Return all entries used to generate the pourbaix diagram</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -175,7 +193,7 @@ composition data and energy per atom values created from qhull_entries.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

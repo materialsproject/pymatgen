@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -125,7 +125,8 @@ alter the structure. Valid values: None, “niggli”, “LLL”.</li>
 by VASP to INCAR. Supported functionals are: DFT-D2, undamped
 DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-Scheffler,
 Tkatchenko-Scheffler with iterative Hirshfeld partitioning,
-<a class="reference external" href="mailto:MBD&#37;&#52;&#48;rSC">MBD<span>&#64;</span>rSC</a>, dDsC, Dion’s vdW-DF and DF2, optPBE, optB88, and optB86b.</li>
+<a class="reference external" href="mailto:MBD&#37;&#52;&#48;rSC">MBD<span>&#64;</span>rSC</a>, dDsC, Dion’s vdW-DF, DF2, optPBE, optB88, optB86b and
+rVV10.</li>
 </ul>
 </td>
 </tr>
@@ -784,6 +785,43 @@ The ISPIN parameter. Defaults to False.</li>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.io.vasp.sets.MVLScanRelaxSet">
+<em class="property">class </em><code class="descname">MVLScanRelaxSet</code><span class="sig-paren">(</span><em>structure</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLScanRelaxSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLScanRelaxSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
+<p>Class for writing a relax input set using Strongly Constrained and
+Appropriately Normed (SCAN) semilocal density functional.</p>
+<p class="rubric">Notes</p>
+<ol class="arabic simple">
+<li>This functional is only available from VASP.5.4.3 upwards.</li>
+</ol>
+<p>2. Meta-GGA calculations require POTCAR files that include
+information on the kinetic energy density of the core-electrons,
+i.e. “PBE_52” or “PBE_54”. Make sure the POTCAR including the
+following lines (see VASP wiki for more details):</p>
+<blockquote>
+<div>$ grep kinetic POTCAR
+kinetic energy-density
+mkinetic energy-density pseudized
+kinetic energy density (partial)</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
+<li><strong>potcar_functional</strong> (<em>str</em>) – choose from “PBE_52” and “PBE_54”.</li>
+<li><strong>vdw</strong> (<em>str</em>) – set “rVV10” to enable SCAN+rVV10, which is a versatile
+van der Waals density functional by combing the SCAN functional
+with the rVV10 non-local correlation functional.</li>
+<li><strong>**kwargs</strong> – Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal"><span class="pre">DictSet</span></code></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.io.vasp.sets.MVLSlabSet">
 <em class="property">class </em><code class="descname">MVLSlabSet</code><span class="sig-paren">(</span><em>structure</em>, <em>k_product=50</em>, <em>bulk=False</em>, <em>auto_dipole=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLSlabSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLSlabSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
@@ -1004,7 +1042,7 @@ Vasp input files, e.g. get_kpoints.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

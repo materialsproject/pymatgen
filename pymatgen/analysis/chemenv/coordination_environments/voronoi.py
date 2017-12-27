@@ -81,11 +81,14 @@ class DetailedVoronoiContainer(MSONable):
     """
     AC = AdditionalConditions()
     default_voronoi_cutoff = 10.0
+    default_normalized_distance_tolerance = 1e-5
+    default_normalized_angle_tolerance = 1e-3
 
     def __init__(self, structure=None, voronoi_list=None, voronoi_list2=None,
                  # neighbors_lists=None,
                  voronoi_cutoff=default_voronoi_cutoff, isites=None,
-                 normalized_distance_tolerance=1e-5, normalized_angle_tolerance=1e-3,
+                 normalized_distance_tolerance=default_normalized_distance_tolerance,
+                 normalized_angle_tolerance=default_normalized_angle_tolerance,
                  additional_conditions=None, valences=None,
                  maximum_distance_factor=None, minimum_angle_factor=None):
         """
