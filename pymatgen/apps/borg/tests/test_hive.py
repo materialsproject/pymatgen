@@ -18,11 +18,11 @@ __date__ = "Mar 18, 2012"
 
 import unittest
 import os
+import warnings
 
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone, \
     SimpleVaspToComputedEntryDrone, GaussianToComputedEntryDrone
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.entries.compatibility import MITCompatibility
 
 
 class VaspToComputedEntryDroneTest(unittest.TestCase):
@@ -39,18 +39,20 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
                 self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_assimilate(self):
-        entry = self.drone.assimilate(self.test_dir)
-        for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
-            self.assertIn(p, entry.parameters)
-        self.assertAlmostEqual(entry.data["efermi"], -6.62148548)
-        self.assertEqual(entry.composition.reduced_formula, "Xe")
-        self.assertAlmostEqual(entry.energy, 0.5559329)
-        entry = self.structure_drone.assimilate(self.test_dir)
-        self.assertEqual(entry.composition.reduced_formula, "Xe")
-        self.assertAlmostEqual(entry.energy, 0.5559329)
-        self.assertIsInstance(entry, ComputedStructureEntry)
-        self.assertIsNotNone(entry.structure)
-        self.assertEqual(len(entry.parameters["history"]), 2)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            entry = self.drone.assimilate(self.test_dir)
+            for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
+                self.assertIn(p, entry.parameters)
+            self.assertAlmostEqual(entry.data["efermi"], -6.62148548)
+            self.assertEqual(entry.composition.reduced_formula, "Xe")
+            self.assertAlmostEqual(entry.energy, 0.5559329)
+            entry = self.structure_drone.assimilate(self.test_dir)
+            self.assertEqual(entry.composition.reduced_formula, "Xe")
+            self.assertAlmostEqual(entry.energy, 0.5559329)
+            self.assertIsInstance(entry, ComputedStructureEntry)
+            self.assertIsNotNone(entry.structure)
+            self.assertEqual(len(entry.parameters["history"]), 2)
 
     def test_to_from_dict(self):
         d = self.structure_drone.as_dict()

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -94,7 +94,11 @@ Defaults to zero.</li>
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.DummySpecie.Z">
 <code class="descname">Z</code><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.Z" title="Permalink to this definition">¶</a></dt>
-<dd><p>DummySpecie is always assigned an atomic number of 0.</p>
+<dd><p>DummySpecie is always assigned an atomic number equal to the hash
+number of the symbol. Obviously, it makes no sense whatsoever to use
+the atomic number of a Dummy specie for anything scientific. The purpose
+of this is to ensure that for most use cases, a DummySpecie behaves no
+differently from an Element or Specie.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1451,7 +1455,7 @@ that can be determined.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

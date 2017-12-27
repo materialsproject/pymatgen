@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.path_finder module &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.analysis.path_finder module &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -72,9 +72,12 @@ following work:</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>chgcar</strong> – Chgcar object based on a VASP run of the structure of interest (Chgcar.from_file(“CHGCAR”))</li>
-<li><strong>smear</strong> – Whether or not to apply a Gaussian smearing to the potential</li>
-<li><strong>normalize</strong> – Whether or not to normalize the potential to range from 0 to 1</li>
+<li><strong>chgcar</strong> – Chgcar object based on a VASP run of the structure of
+interest (Chgcar.from_file(“CHGCAR”))</li>
+<li><strong>smear</strong> – Whether or not to apply a Gaussian smearing to the
+potential</li>
+<li><strong>normalize</strong> – Whether or not to normalize the potential to range
+from 0 to 1</li>
 </ul>
 </td>
 </tr>
@@ -86,7 +89,8 @@ following work:</p>
 <dt id="pymatgen.analysis.path_finder.FreeVolumePotential">
 <em class="property">class </em><code class="descname">FreeVolumePotential</code><span class="sig-paren">(</span><em>struct</em>, <em>dim</em>, <em>smear=False</em>, <em>normalize=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/path_finder.html#FreeVolumePotential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.FreeVolumePotential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.path_finder.StaticPotential" title="pymatgen.analysis.path_finder.StaticPotential"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.path_finder.StaticPotential</span></code></a></p>
-<p>Implements a potential field based on geometric distances from atoms in the structure - basically, the potential
+<p>Implements a potential field based on geometric distances from atoms in the
+structure - basically, the potential
 is lower at points farther away from any atoms in the structure.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -95,8 +99,10 @@ is lower at points farther away from any atoms in the structure.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>struct</strong> – Unit cell on which to base the potential</li>
 <li><strong>dim</strong> – Grid size for the potential</li>
-<li><strong>smear</strong> – Whether or not to apply a Gaussian smearing to the potential</li>
-<li><strong>normalize</strong> – Whether or not to normalize the potential to range from 0 to 1</li>
+<li><strong>smear</strong> – Whether or not to apply a Gaussian smearing to the
+potential</li>
+<li><strong>normalize</strong> – Whether or not to normalize the potential to range
+from 0 to 1</li>
 </ul>
 </td>
 </tr>
@@ -225,11 +231,16 @@ function to normalize the potential from 0 to 1 (recommended).</p>
 <dl class="method">
 <dt id="pymatgen.analysis.path_finder.StaticPotential.gaussian_smear">
 <code class="descname">gaussian_smear</code><span class="sig-paren">(</span><em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/path_finder.html#StaticPotential.gaussian_smear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.gaussian_smear" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies an isotropic Gaussian smear of width (standard deviation) r to the potential field. This is necessary to
-avoid finding paths through narrow minima or nodes that may exist in the field (although any potential or
-charge distribution generated from GGA should be relatively smooth anyway). The smearing obeys periodic
+<dd><p>Applies an isotropic Gaussian smear of width (standard deviation) r to
+the potential field. This is necessary to avoid finding paths through
+narrow minima or nodes that may exist in the field (although any
+potential or charge distribution generated from GGA should be
+relatively smooth anyway). The smearing obeys periodic
 boundary conditions at the edges of the cell.</p>
-<p>:param r - Smearing width in cartesian coordinates, in the same units as the structure lattice vectors</p>
+<dl class="docutils">
+<dt>:param r - Smearing width in cartesian coordinates, in the same units</dt>
+<dd>as the structure lattice vectors</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -247,9 +258,12 @@ boundary conditions at the edges of the cell.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.path_finder.StaticPotential.rescale_field">
 <code class="descname">rescale_field</code><span class="sig-paren">(</span><em>new_dim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/path_finder.html#StaticPotential.rescale_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.rescale_field" title="Permalink to this definition">¶</a></dt>
-<dd><p>Changes the discretization of the potential field by linear interpolation. This is necessary if the potential field
-obtained from DFT is strangely skewed, or is too fine or coarse. Obeys periodic boundary conditions at the edges of
-the cell. Alternatively useful for mixing potentials that originally are on different grids.</p>
+<dd><p>Changes the discretization of the potential field by linear
+interpolation. This is necessary if the potential field
+obtained from DFT is strangely skewed, or is too fine or coarse. Obeys
+periodic boundary conditions at the edges of
+the cell. Alternatively useful for mixing potentials that originally
+are on different grids.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -300,7 +314,7 @@ the cell. Alternatively useful for mixing potentials that originally are on diff
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

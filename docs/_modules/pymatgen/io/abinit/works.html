@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.works &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.io.abinit.works &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1226,41 +1226,6 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;mrgscr done&quot;</span><span class="p">,</span> <span class="n">final_scr</span><span class="o">=</span><span class="n">final_scr</span><span class="p">)</span></div></div>
 
 
-<span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;This class is deprecated and will be removed in pymatgen 4.0. Use PhononWork&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">build_oneshot_phononwork</span><span class="p">(</span><span class="n">scf_input</span><span class="p">,</span> <span class="n">ph_inputs</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">work_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns a work for the computation of phonon frequencies</span>
-<span class="sd">    ph_inputs is a list of input for Phonon calculation in which all the independent perturbations</span>
-<span class="sd">    are explicitly computed i.e.</span>
-
-<span class="sd">        * rfdir 1 1 1</span>
-<span class="sd">        * rfatpol 1 natom</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This work is mainly used for simple calculations, e.g. convergence studies.</span>
-<span class="sd">        Use :class:`PhononWork` for better efficiency.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">work_class</span> <span class="o">=</span> <span class="n">OneShotPhononWork</span> <span class="k">if</span> <span class="n">work_class</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">work_class</span>
-    <span class="n">work</span> <span class="o">=</span> <span class="n">work_class</span><span class="p">(</span><span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
-    <span class="n">scf_task</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">register_scf_task</span><span class="p">(</span><span class="n">scf_input</span><span class="p">)</span>
-    <span class="n">ph_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ph_inputs</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ph_inputs</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="n">ph_inputs</span>
-
-    <span class="k">for</span> <span class="n">phinp</span> <span class="ow">in</span> <span class="n">ph_inputs</span><span class="p">:</span>
-        <span class="c1"># Check rfdir and rfatpol.</span>
-        <span class="n">rfdir</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phinp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rfdir&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rfdir</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">rfdir</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting rfdir == (1, 1, 1), got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rfdir</span><span class="p">)</span>
-
-        <span class="n">rfatpol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phinp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rfatpol&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rfatpol</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">rfatpol</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">phinp</span><span class="o">.</span><span class="n">structure</span><span class="p">))):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting rfatpol == (1, natom), got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rfatpol</span><span class="p">)</span>
-
-        <span class="c1"># cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations</span>
-        <span class="n">ph_task</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">phinp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="p">{</span><span class="n">scf_task</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">})</span>
-
-    <span class="k">return</span> <span class="n">work</span>
-
-
 <span class="k">class</span> <span class="nc">OneShotPhononWork</span><span class="p">(</span><span class="n">Work</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Simple and very inefficient work for the computation of the phonon frequencies</span>
@@ -1602,7 +1567,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

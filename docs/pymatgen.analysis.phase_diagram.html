@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.phase_diagram module &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.analysis.phase_diagram module &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -214,12 +214,6 @@ the the entries themselves.</li>
 </dd></dl>
 
 <dl class="class">
-<dt id="pymatgen.analysis.phase_diagram.PDAnalyzer">
-<em class="property">class </em><code class="descname">PDAnalyzer</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDAnalyzer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-</dd></dl>
-
-<dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry">
 <em class="property">class </em><code class="descname">PDEntry</code><span class="sig-paren">(</span><em>composition</em>, <em>energy</em>, <em>name=None</em>, <em>attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
@@ -308,22 +302,6 @@ e.g., Li_{2}O</li>
 </tbody>
 </table>
 </dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pymatgen.analysis.phase_diagram.PDEntryIO">
-<em class="property">class </em><code class="descname">PDEntryIO</code><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntryIO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntryIO" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<dl class="staticmethod">
-<dt id="pymatgen.analysis.phase_diagram.PDEntryIO.from_csv">
-<em class="property">static </em><code class="descname">from_csv</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntryIO.from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntryIO.from_csv" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.analysis.phase_diagram.PDEntryIO.to_csv">
-<em class="property">static </em><code class="descname">to_csv</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntryIO.to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntryIO.to_csv" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -445,6 +423,41 @@ all Li-Co-O phases wrt to uLi and uO, you will supply
 <li><strong>referenced</strong> – if True, gives the results with a reference being the
 energy of the elemental phase. If False, gives absolute values.</li>
 </ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.phase_diagram.PDPlotter.plot_element_profile">
+<code class="descname">plot_element_profile</code><span class="sig-paren">(</span><em>element</em>, <em>comp</em>, <em>show_label_index=None</em>, <em>xlim=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.plot_element_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.plot_element_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw the element profile plot for a composition varying different chemical
+potential of an element.
+X value is the negative value of the chemical potential reference to elemental
+chemical potential. For example, if choose Element(“Li”), X= -(µLi-µLi0),
+which corresponds to the voltage versus metal anode.
+Y values represent for the number of element uptake in this composition
+(unit: per atom). All reactions are printed to help choosing the profile steps
+you want to show label in the plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>element</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a>) – An element of which the chemical potential is considered.</li>
+<li><strong>also must be in the phase diagram.</strong> (<em>It</em>) – </li>
+<li><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – A composition.</li>
+<li><strong>show_label_index</strong> (<em>list of integers</em>) – The labels for reaction products you</li>
+<li><strong>to show in the plot. Default to None</strong><strong> (</strong><strong>not showing any annotation for</strong> (<em>want</em>) – </li>
+<li><strong>products</strong><strong>)</strong><strong> For the profile steps you want to show the labels</strong><strong>,</strong> (<em>reaction</em>) – </li>
+<li><strong>add it to the show_label_index. The profile step counts from zero.</strong> (<em>just</em>) – </li>
+<li><strong>example</strong><strong>, </strong><strong>you can set show_label_index=</strong><strong>[</strong><strong>0</strong><strong>, </strong><strong>2</strong><strong>, </strong><strong>5</strong><strong>] </strong><strong>to label profile step 0</strong><strong>,</strong><strong>2</strong><strong>,</strong><strong>5.</strong> (<em>For</em>) – </li>
+<li><strong>xlim</strong> (<em>float</em>) – The max x value. x value is from 0 to xlim. Default to 5 eV.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Plot of element profile evolution by varying the chemical potential of an element.</p>
 </td>
 </tr>
 </tbody>
@@ -749,11 +762,6 @@ equilibrium reaction energy &lt;= 0.</td>
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_facet_chempots">
-<code class="descname">get_facet_chempots</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_facet_chempots" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_form_energy">
@@ -1081,7 +1089,7 @@ used for converting convex hull facets into line pairs of coordinates.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -22,7 +22,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 import numpy as np
-from scipy.misc import factorial
+from scipy.special import factorial
 import itertools
 import abc
 from monty.json import MSONable, MontyDecoder

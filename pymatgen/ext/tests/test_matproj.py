@@ -6,7 +6,7 @@ from __future__ import division, unicode_literals
 
 import unittest
 import os
-
+import warnings
 from pymatgen import SETTINGS
 from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
@@ -44,7 +44,11 @@ class MPResterTest(unittest.TestCase):
 
     def setUp(self):
         self.rester = MPRester()
+        warnings.simplefilter("ignore")
 
+    def tearDown(self):
+        warnings.resetwarnings()
+        
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",

@@ -27,8 +27,7 @@ from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, \
-            ReactionError
-
+    ReactionError
 
 """
 This module defines tools to generate and analyze phase diagrams.
@@ -239,24 +238,6 @@ class GrandPotPDEntry(PDEntry):
         if hasattr(self.original_entry, a):
             return getattr(self.original_entry, a)
         raise AttributeError(a)
-
-
-class PDEntryIO(object):
-    @staticmethod
-    def to_csv(*args, **kwargs):
-        warnings.warn(
-            "PDEntryIO.from_csv and PDEntryIO.to_csv has been moved to "
-            "PDEntry.from_csv and PDEntryIO.to_csv. This stub will be "
-            "removed in pmg 2018.01.01.")
-        PDEntry.to_csv(*args, **kwargs)
-
-    @staticmethod
-    def from_csv(*args, **kwargs):
-        warnings.warn(
-            "PDEntryIO.from_csv and PDEntryIO.to_csv has been moved to "
-            "PDEntry.from_csv and PDEntryIO.to_csv. This stub will be "
-            "removed in pmg 2018.01.01.")
-        return PDEntry.from_csv(*args, **kwargs)
 
 
 class TransformedPDEntry(PDEntry):
@@ -672,10 +653,6 @@ class PhaseDiagram(MSONable):
         facet = self._get_facet_and_simplex(comp)[0]
         return self._get_facet_chempots(facet)
 
-    @deprecated(get_composition_chempots)
-    def get_facet_chempots(self, facet):
-        return self._get_facet_chempots(facet)
-
     def get_transition_chempots(self, element):
         """
         Get the critical chemical potentials for an element in the Phase
@@ -784,6 +761,8 @@ class PhaseDiagram(MSONable):
             [ {'chempot': -10.487582010000001, 'evolution': -2.0,
             'reaction': Reaction Object], ...]
         """
+        element = get_el_sp(element)
+        element = Element(element.symbol)
 
         if element not in self.elements:
             raise ValueError("get_transition_chempots can only be called with"
@@ -1173,25 +1152,6 @@ def get_facets(qhull_data, joggle=False):
         return ConvexHull(qhull_data, qhull_options="Qt i").simplices
 
 
-class PDAnalyzer(object):
-    @deprecated(PhaseDiagram,
-                "All PDAnalyzer methods have been moved to PhaseDiagram itself."
-                " E.g., PDAnalyzer.get_e_above_hull is now simply "
-                "PhaseDiagram.get_e_above_hull. This stub will be removed in "
-                "pymatgen 2018.1.1")
-    def __init__(self, pd):
-        """
-        Initializes analyzer with a PhaseDiagram.
-
-        Args:
-            pd: Phase Diagram to analyze.
-        """
-        self._pd = pd
-
-    def __getattr__(self, item):
-        return getattr(self._pd, item)
-
-
 class PDPlotter(object):
     """
     A plotter class for phase diagrams.
@@ -1298,6 +1258,64 @@ class PDPlotter(object):
                                     process_attributes=process_attributes)
         elif self._dim == 4:
             plt = self._get_3d_plot(label_stable)
+
+        return plt
+
+    def plot_element_profile(self, element, comp, show_label_index=None, xlim=5):
+        """
+        Draw the element profile plot for a composition varying different chemical
+        potential of an element.
+        X value is the negative value of the chemical potential reference to elemental
+        chemical potential. For example, if choose Element("Li"), X= -(µLi-µLi0),
+        which corresponds to the voltage versus metal anode.
+        Y values represent for the number of element uptake in this composition
+        (unit: per atom). All reactions are printed to help choosing the profile steps
+        you want to show label in the plot.
+
+        Args:
+         element (Element): An element of which the chemical potential is considered.
+         It also must be in the phase diagram.
+         comp (Composition): A composition.
+         show_label_index (list of integers): The labels for reaction products you
+         want to show in the plot. Default to None (not showing any annotation for
+         reaction products). For the profile steps you want to show the labels,
+         just add it to the show_label_index. The profile step counts from zero.
+         For example, you can set show_label_index=[0, 2, 5] to label profile step 0,2,5.
+         xlim (float): The max x value. x value is from 0 to xlim. Default to 5 eV.
+        Returns:
+            Plot of element profile evolution by varying the chemical potential of an element.
+        """
+        plt = pretty_plot(12, 8)
+        pd = self._pd
+        evolution = pd.get_element_profile(element, comp)
+        num_atoms = evolution[0]["reaction"].reactants[0].num_atoms
+        element_energy = evolution[0]['chempot']
+        for i, d in enumerate(evolution):
+            v = -(d["chempot"] - element_energy)
+            print ("index= %s, -\u0394\u03BC=%.4f(eV)," % (i, v), d["reaction"])
+            if i != 0:
+                plt.plot([x2, x2], [y1, d["evolution"] / num_atoms],
+                         'k', linewidth=2.5)
+            x1 = v
+            y1 = d["evolution"] / num_atoms
+
+            if i != len(evolution) - 1:
+                x2 = - (evolution[i + 1]["chempot"] - element_energy)
+            else:
+                x2 = 5.0
+            if show_label_index is not None and i in show_label_index:
+                products = [re.sub(r"(\d+)", r"$_{\1}$", p.reduced_formula)
+                            for p in d["reaction"].products
+                            if p.reduced_formula != element.symbol]
+                plt.annotate(", ".join(products), xy=(v + 0.05, y1 + 0.05),
+                             fontsize=24, color='r')
+                plt.plot([x1, x2], [y1, y1], 'r', linewidth=3)
+            else:
+                plt.plot([x1, x2], [y1, y1], 'k', linewidth=2.5)
+
+        plt.xlim((0, xlim))
+        plt.xlabel("-$\Delta{\mu}$ (eV)")
+        plt.ylabel("Uptake per atom")
 
         return plt
 

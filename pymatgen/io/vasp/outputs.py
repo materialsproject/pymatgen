@@ -399,6 +399,7 @@ class Vasprun(MSONable):
         self.efermi = None
         self.eigenvalues = None
         self.projected_eigenvalues = None
+        self.dielectric_data = {}
         self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
@@ -445,8 +446,15 @@ class Vasprun(MSONable):
                         elem)
                 elif tag == "dielectricfunction":
                     if ("comment" not in elem.attrib) or \
-                       elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                        self.dielectric = self._parse_diel(elem)
+                        elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
+                        if not 'density' in self.dielectric_data:
+                            self.dielectric_data['density'] = self._parse_diel(elem)
+                            # "velocity-velocity" is also named "current-current"
+                            # in OUTCAR
+                        elif not 'velocity' in self.dielectric_data:    
+                            self.dielectric_data['velocity'] = self._parse_diel(elem)
+                        else:
+                            raise NotImplementedError('This vasprun.xml has >2 unlabelled dielectric functions')
                     else:
                         comment = elem.attrib["comment"]
                         self.other_dielectric[comment] = self._parse_diel(elem)
@@ -502,6 +510,41 @@ class Vasprun(MSONable):
         Property only available for DFPT calculations and when IBRION=5, 6, 7 or 8.
         """
         return self.ionic_steps[-1].get("epsilon_ion", [])
+
+    @property
+    def dielectric(self):
+        return self.dielectric_data['density']
+
+    @property
+    def optical_absorption_coeff(self):
+        """
+        Calculate the optical absorption coefficient
+        from the dielectric constants. Note that this method is only
+        implemented for optical properties calculated with GGA and BSE.
+        Returns:
+        optical absorption coefficient in list
+        """
+        if self.dielectric_data["density"]:
+            real_avg = [sum(self.dielectric_data["density"][1][i][0:3]) / 3
+                        for i in range(len(self.dielectric_data["density"][0]))]
+            imag_avg = [sum(self.dielectric_data["density"][2][i][0:3]) / 3
+                        for i in range(len(self.dielectric_data["density"][0]))]
+
+            def f(freq, real, imag):
+                """
+                The optical absorption coefficient calculated in terms of
+                equation
+                """
+                hbar = 6.582119514e-16  # eV/K
+                coeff = np.sqrt(
+                    np.sqrt(real ** 2 + imag ** 2) - real) * \
+                        np.sqrt(2) / hbar * freq
+                return coeff
+
+            absorption_coeff = [f(freq, real, imag) for freq, real, imag in
+                                zip(self.dielectric_data["density"][0],
+                                    real_avg, imag_avg)]
+        return absorption_coeff
 
     @property
     def lattice(self):
@@ -859,7 +902,7 @@ class Vasprun(MSONable):
     def update_charge_from_potcar(self, path):
         potcar = self.get_potcars(path)
 
-        if potcar:
+        if potcar and self.incar.get("ALGO", "") not in ["GW0", "G0W0", "GW", "BSE"]:
             nelect = self.parameters["NELECT"]
             potcar_nelect = int(round(sum([self.structures[0].composition.element_composition[
                                 ps.element] * ps.ZVAL for ps in potcar])))
@@ -1537,9 +1580,10 @@ class Outcar(MSONable):
         self.data = {}
 
         # Read the drift:
-        self.read_pattern({"drift":"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
-                          terminate_on_match=False,
-                          postprocess=float)        
+        self.read_pattern({
+            "drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
+            terminate_on_match=False,
+            postprocess=float)
         self.drift = self.data.get('drift',[])
            
 
@@ -1572,7 +1616,8 @@ class Outcar(MSONable):
             self.read_pseudo_zval()
 
         # Read electrostatic potential
-        self.read_pattern({'electrostatic': "average \(electrostatic\) potential at core"})
+        self.read_pattern({
+            'electrostatic': r"average \(electrostatic\) potential at core"})
         if self.data.get('electrostatic', []):
             self.read_electrostatic_potential()
 
@@ -1688,7 +1733,7 @@ class Outcar(MSONable):
         pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
         pots = "".join(itertools.chain.from_iterable(pots))
 
-        pots = re.findall("\s+\d+\s?([\.\-\d]+)+", pots)
+        pots = re.findall(r"\s+\d+\s?([\.\-\d]+)+", pots)
         pots = [float(f) for f in pots]
 
         self.electrostatic_potential = pots
@@ -1823,21 +1868,24 @@ class Outcar(MSONable):
                          r"\s+-{50,}$"
         first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
         row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"]*3)
-        unsym_footer_pattern = "^\s+SYMMETRIZED TENSORS\s+$"
+        unsym_footer_pattern = r"^\s+SYMMETRIZED TENSORS\s+$"
 
         with zopen(self.filename, 'rt') as f:
             text = f.read()
         unsym_table_pattern_text = header_pattern + first_part_pattern + \
                                    r"(?P<table_body>.+)" + unsym_footer_pattern
-        table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
+        table_pattern = re.compile(unsym_table_pattern_text,
+                                   re.MULTILINE | re.DOTALL)
         rp = re.compile(row_pattern)
         m = table_pattern.search(text)
         if m:
             table_text = m.group("table_body")
             micro_header_pattern = r"ion\s+\d+"
-            micro_table_pattern_text = micro_header_pattern + r"\s*^(?P<table_body>(?:\s*" + \
+            micro_table_pattern_text = micro_header_pattern + \
+                                       r"\s*^(?P<table_body>(?:\s*" + \
                                        row_pattern + r")+)\s+"
-            micro_table_pattern = re.compile(micro_table_pattern_text, re.MULTILINE | re.DOTALL)
+            micro_table_pattern = re.compile(micro_table_pattern_text,
+                                             re.MULTILINE | re.DOTALL)
             unsym_tensors = []
             for mt in micro_table_pattern.finditer(table_text):
                 table_body_text = mt.group("table_body")

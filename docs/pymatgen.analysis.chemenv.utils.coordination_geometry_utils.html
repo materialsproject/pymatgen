@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -302,19 +302,20 @@ largest_triangle is defined as the right triangle whose legs are the two smalles
 <dl class="function">
 <dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions">
 <code class="descname">diamond_functions</code><span class="sig-paren">(</span><em>xx</em>, <em>yy</em>, <em>y_x0</em>, <em>x_y0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.html#diamond_functions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Method that creates two upper and lower functions based on points xx and yy as well as intercepts defined by</dt>
-<dd>y_x0 and x_y0. The resulting functions form kind of a distorted diamond-like structure aligned from
-point xx to point yy.</dd>
-</dl>
+<dd><p>Method that creates two upper and lower functions based on points xx and yy
+as well as intercepts defined by y_x0 and x_y0. The resulting functions
+form kind of a distorted diamond-like structure aligned from
+point xx to point yy.</p>
 <p>Schematically :</p>
-<dl class="docutils">
-<dt>xx is symbolized by x, yy is symbolized by y, y_x0 is equal to the distance from x to a, x_y0 is equal to the</dt>
-<dd>distance from x to b, the lines a-p and b-q are parallel to the line x-y such that points p and q are
-obtained automatically.</dd>
-<dt>In case of an increasing diamond the lower function is x-b-q and the upper function is a-p-y while in case of a</dt>
-<dd><p class="first">decreasing diamond, the lower function is a-p-y and the upper function is x-b-q.</p>
-<blockquote class="last">
+<p>xx is symbolized by x, yy is symbolized by y, y_x0 is equal to the distance
+from x to a, x_y0 is equal to the distance from x to b, the lines a-p and
+b-q are parallel to the line x-y such that points p and q are
+obtained automatically.
+In case of an increasing diamond the lower function is x-b-q and the upper
+function is a-p-y while in case of a
+decreasing diamond, the lower function is a-p-y and the upper function is
+x-b-q.</p>
+<blockquote>
 <div><dl class="docutils">
 <dt>Increasing diamond      |     Decreasing diamond</dt>
 <dd><blockquote class="first">
@@ -332,8 +333,6 @@ x—-b                          p–y</p>
 </dd>
 </dl>
 </div></blockquote>
-</dd>
-</dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -591,7 +590,7 @@ defined by two functions f_lower and f_upper.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

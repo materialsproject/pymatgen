@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.phase_diagram &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.analysis.phase_diagram &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -84,8 +84,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="k">import</span> <span class="n">latexify</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="k">import</span> <span class="n">Reaction</span><span class="p">,</span> \
-            <span class="n">ReactionError</span>
-
+    <span class="n">ReactionError</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module defines tools to generate and analyze phase diagrams.</span>
@@ -296,24 +295,6 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_entry</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_entry</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">a</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="PDEntryIO"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDEntryIO">[docs]</a><span class="k">class</span> <span class="nc">PDEntryIO</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<div class="viewcode-block" id="PDEntryIO.to_csv"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDEntryIO.to_csv">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">to_csv</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;PDEntryIO.from_csv and PDEntryIO.to_csv has been moved to &quot;</span>
-            <span class="s2">&quot;PDEntry.from_csv and PDEntryIO.to_csv. This stub will be &quot;</span>
-            <span class="s2">&quot;removed in pmg 2018.01.01.&quot;</span><span class="p">)</span>
-        <span class="n">PDEntry</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="PDEntryIO.from_csv"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDEntryIO.from_csv">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_csv</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;PDEntryIO.from_csv and PDEntryIO.to_csv has been moved to &quot;</span>
-            <span class="s2">&quot;PDEntry.from_csv and PDEntryIO.to_csv. This stub will be &quot;</span>
-            <span class="s2">&quot;removed in pmg 2018.01.01.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">PDEntry</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="TransformedPDEntry"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.TransformedPDEntry">[docs]</a><span class="k">class</span> <span class="nc">TransformedPDEntry</span><span class="p">(</span><span class="n">PDEntry</span><span class="p">):</span>
@@ -729,10 +710,6 @@
         <span class="n">facet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_facet_and_simplex</span><span class="p">(</span><span class="n">comp</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_facet_chempots</span><span class="p">(</span><span class="n">facet</span><span class="p">)</span></div>
 
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">get_composition_chempots</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">get_facet_chempots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">facet</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_facet_chempots</span><span class="p">(</span><span class="n">facet</span><span class="p">)</span>
-
 <div class="viewcode-block" id="PhaseDiagram.get_transition_chempots"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_transition_chempots">[docs]</a>    <span class="k">def</span> <span class="nf">get_transition_chempots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the critical chemical potentials for an element in the Phase</span>
@@ -841,6 +818,8 @@
 <span class="sd">            [ {&#39;chempot&#39;: -10.487582010000001, &#39;evolution&#39;: -2.0,</span>
 <span class="sd">            &#39;reaction&#39;: Reaction Object], ...]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">element</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;get_transition_chempots can only be called with&quot;</span>
@@ -1230,25 +1209,6 @@
         <span class="k">return</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">qhull_data</span><span class="p">,</span> <span class="n">qhull_options</span><span class="o">=</span><span class="s2">&quot;Qt i&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">simplices</span></div>
 
 
-<div class="viewcode-block" id="PDAnalyzer"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">PDAnalyzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">PhaseDiagram</span><span class="p">,</span>
-                <span class="s2">&quot;All PDAnalyzer methods have been moved to PhaseDiagram itself.&quot;</span>
-                <span class="s2">&quot; E.g., PDAnalyzer.get_e_above_hull is now simply &quot;</span>
-                <span class="s2">&quot;PhaseDiagram.get_e_above_hull. This stub will be removed in &quot;</span>
-                <span class="s2">&quot;pymatgen 2018.1.1&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pd</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initializes analyzer with a PhaseDiagram.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            pd: Phase Diagram to analyze.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pd</span> <span class="o">=</span> <span class="n">pd</span>
-
-    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="PDPlotter"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDPlotter">[docs]</a><span class="k">class</span> <span class="nc">PDPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A plotter class for phase diagrams.</span>
@@ -1355,6 +1315,64 @@
                                     <span class="n">process_attributes</span><span class="o">=</span><span class="n">process_attributes</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_3d_plot</span><span class="p">(</span><span class="n">label_stable</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">plt</span></div>
+
+<div class="viewcode-block" id="PDPlotter.plot_element_profile"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDPlotter.plot_element_profile">[docs]</a>    <span class="k">def</span> <span class="nf">plot_element_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">show_label_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw the element profile plot for a composition varying different chemical</span>
+<span class="sd">        potential of an element.</span>
+<span class="sd">        X value is the negative value of the chemical potential reference to elemental</span>
+<span class="sd">        chemical potential. For example, if choose Element(&quot;Li&quot;), X= -(µLi-µLi0),</span>
+<span class="sd">        which corresponds to the voltage versus metal anode.</span>
+<span class="sd">        Y values represent for the number of element uptake in this composition</span>
+<span class="sd">        (unit: per atom). All reactions are printed to help choosing the profile steps</span>
+<span class="sd">        you want to show label in the plot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">         element (Element): An element of which the chemical potential is considered.</span>
+<span class="sd">         It also must be in the phase diagram.</span>
+<span class="sd">         comp (Composition): A composition.</span>
+<span class="sd">         show_label_index (list of integers): The labels for reaction products you</span>
+<span class="sd">         want to show in the plot. Default to None (not showing any annotation for</span>
+<span class="sd">         reaction products). For the profile steps you want to show the labels,</span>
+<span class="sd">         just add it to the show_label_index. The profile step counts from zero.</span>
+<span class="sd">         For example, you can set show_label_index=[0, 2, 5] to label profile step 0,2,5.</span>
+<span class="sd">         xlim (float): The max x value. x value is from 0 to xlim. Default to 5 eV.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Plot of element profile evolution by varying the chemical potential of an element.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="n">pd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pd</span>
+        <span class="n">evolution</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_element_profile</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
+        <span class="n">num_atoms</span> <span class="o">=</span> <span class="n">evolution</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;reaction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_atoms</span>
+        <span class="n">element_energy</span> <span class="o">=</span> <span class="n">evolution</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;chempot&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="p">):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;chempot&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">element_energy</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;index= </span><span class="si">%s</span><span class="s2">, -</span><span class="se">\u0394\u03BC</span><span class="s2">=</span><span class="si">%.4f</span><span class="s2">(eV),&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;reaction&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x2</span><span class="p">,</span> <span class="n">x2</span><span class="p">],</span> <span class="p">[</span><span class="n">y1</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;evolution&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">num_atoms</span><span class="p">],</span>
+                         <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="n">y1</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;evolution&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">num_atoms</span>
+
+            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">x2</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">evolution</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="s2">&quot;chempot&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">element_energy</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x2</span> <span class="o">=</span> <span class="mf">5.0</span>
+            <span class="k">if</span> <span class="n">show_label_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">show_label_index</span><span class="p">:</span>
+                <span class="n">products</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+)&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$_{\1}$&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;reaction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">products</span>
+                            <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">!=</span> <span class="n">element</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">products</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">v</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">y1</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">),</span>
+                             <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">],</span> <span class="p">[</span><span class="n">y1</span><span class="p">,</span> <span class="n">y1</span><span class="p">],</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">],</span> <span class="p">[</span><span class="n">y1</span><span class="p">,</span> <span class="n">y1</span><span class="p">],</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">xlim</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;-$\Delta{\mu}$ (eV)&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Uptake per atom&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">plt</span></div>
 
@@ -1984,7 +2002,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

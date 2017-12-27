@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2017.12.8 documentation</title>
+    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.8',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -114,6 +114,420 @@ and its weight.</p>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">siw (list of tuples (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site">Site</a>, array, float))</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.local_env.LocalStructOrderParas">
+<em class="property">class </em><code class="descname">LocalStructOrderParas</code><span class="sig-paren">(</span><em>types</em>, <em>parameters=None</em>, <em>cutoff=-10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class permits the calculation of various types of local
+structure order parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>types</strong> (<em>[</em><a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a><em>]</em>) – <p>list of strings representing the types of
+order parameters to be calculated. Note that multiple
+mentions of the same type may occur. Currently available
+types recognize following environments:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>”cn”: simple coordination number—normalized</dt>
+<dd>if desired;</dd>
+</dl>
+<p>”sgl_bd”: single bonds;
+“bent”: bent (angular) coordinations</p>
+<blockquote>
+<div>(Zimmermann &amp; Jain, in progress, 2017);</div></blockquote>
+<p>”T”: T-shape coordinations;
+“see_saw”: see saw-like coordinations;
+“tet”: tetrahedra</p>
+<blockquote>
+<div>(Zimmermann et al., submitted, 2017);</div></blockquote>
+<dl class="docutils">
+<dt>”oct”: octahedra</dt>
+<dd>(Zimmermann et al., submitted, 2017);</dd>
+<dt>”bcc”: body-centered cubic environments (Peters,</dt>
+<dd><ol class="first last upperalpha" start="10">
+<li>Chem. Phys., 131, 244103, 2009);</li>
+</ol>
+</dd>
+</dl>
+<p>”tri_plan”: trigonal planar environments;
+“sq_plan”: square planar environments;
+“pent_plan”: pentagonal planar environments;
+“tri_pyr”: trigonal pyramids (coordinated atom is in</p>
+<blockquote>
+<div>the center of the basal plane);</div></blockquote>
+<p>”sq_pyr”: square pyramids;
+“pent_pyr”: pentagonal pyramids;
+“hex_pyr”: hexagonal pyramids;
+“tri_bipyr”: trigonal bipyramids;
+“sq_bipyr”: square bipyramids;
+“pent_bipyr”: pentagonal bipyramids;
+“hex_bipyr”: hexagonal bipyramids;
+“cuboct”: cuboctahedra;
+“q2”: motif-unspecific bond orientational order</p>
+<blockquote>
+<div>parameter (BOOP) of weight l=2 (Steinhardt
+et al., Phys. Rev. B, 28, 784-805, 1983);</div></blockquote>
+<p>”q4”: BOOP of weight l=4;
+“q6”: BOOP of weight l=6.
+“reg_tri”: regular triangle with varying height</p>
+<blockquote>
+<div>to basal plane;</div></blockquote>
+<p>”sq”: square coordination (cf., “reg_tri”);
+“oct_legacy”: original Peters-style OP recognizing</p>
+<blockquote>
+<div>octahedral coordination environments
+(Zimmermann et al., J. Am. Chem. Soc.,
+137, 13352-13361, 2015) that can, however,
+produce small negative values sometimes.</div></blockquote>
+<p>”sq_pyr_legacy”: square pyramids (legacy);</p>
+</div></blockquote>
+</li>
+<li><strong>parameters</strong> (<em>[</em><em>dict</em><em>]</em>) – <p>list of dictionaries
+that store float-type parameters associated with the
+definitions of the different order parameters
+(length of list = number of OPs). If an entry
+is None, default values are used that are read from
+the op_paras.yaml file. With few exceptions, 9 different
+parameters are used across all OPs:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>”norm”: normalizing constant (used in “cn”</dt>
+<dd>(default value: 1)).</dd>
+<dt>”TA”: target angle (TA) in fraction of 180 degrees</dt>
+<dd>(“bent” (1), “tet” (0.6081734479693927),
+“tri_plan” (0.66666666667), “pent_plan” (0.6),
+“sq_pyr_legacy” (0.5)).</dd>
+<dt>”IGW_TA”: inverse Gaussian width (IGW) for penalizing</dt>
+<dd>angles away from the target angle in inverse
+fractions of 180 degrees to (“bent” and “tet” (15),
+“tri_plan” (13.5), “pent_plan” (18),
+“sq_pyr_legacy” (30)).</dd>
+<dt>”IGW_EP”: IGW for penalizing angles away from the</dt>
+<dd>equatorial plane (EP) at 90 degrees (“T”, “see_saw”,
+“oct”, “sq_plan”, “tri_pyr”, “sq_pyr”, “pent_pyr”,
+“hex_pyr”, “tri_bipyr”, “sq_bipyr”, “pent_bipyr”,
+“hex_bipyr”, and “oct_legacy” (18)).</dd>
+<dt>”fac_AA”: factor applied to azimuth angle (AA) in cosine</dt>
+<dd>term (“T”, “tri_plan”, and “sq_plan” (1), “tet”,
+“tri_pyr”, and “tri_bipyr” (1.5), “oct”, “sq_pyr”,
+“sq_bipyr”, and “oct_legacy” (2), “pent_pyr”
+and “pent_bipyr” (2.5), “hex_pyr” and
+“hex_bipyr” (3)).</dd>
+<dt>”exp_cos_AA”: exponent applied to cosine term of AA</dt>
+<dd>(“T”, “tet”, “oct”, “tri_plan”, “sq_plan”,
+“tri_pyr”, “sq_pyr”, “pent_pyr”, “hex_pyr”,
+“tri_bipyr”, “sq_bipyr”, “pent_bipyr”, “hex_bipyr”,
+and “oct_legacy” (2)).</dd>
+<dt>”min_SPP”: smallest angle (in radians) to consider</dt>
+<dd>a neighbor to be
+at South pole position (“see_saw”, “oct”, “bcc”,
+“sq_plan”, “tri_bipyr”, “sq_bipyr”, “pent_bipyr”,
+“hex_bipyr”, “cuboct”, and “oct_legacy”
+(2.792526803190927)).</dd>
+<dt>”IGW_SPP”: IGW for penalizing angles away from South</dt>
+<dd>pole position (“see_saw”, “oct”, “bcc”, “sq_plan”,
+“tri_bipyr”, “sq_bipyr”, “pent_bipyr”, “hex_bipyr”,
+“cuboct”, and “oct_legacy” (15)).</dd>
+<dt>”w_SPP”: weight for South pole position relative to</dt>
+<dd>equatorial positions (“see_saw” and “sq_plan” (1),
+“cuboct” (1.8), “tri_bipyr” (2), “oct”,
+“sq_bipyr”, and “oct_legacy” (3), “pent_bipyr” (4),
+“hex_bipyr” (5), “bcc” (6)).</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><strong>cutoff</strong> (<em>float</em>) – Cutoff radius to determine which nearest
+neighbors are supposed to contribute to the order
+parameters. If the value is negative the neighboring
+sites found by distance and cutoff radius are further
+pruned using the get_coordinated_sites method from the
+VoronoiCoordFinder class.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.LocalStructOrderParas.compute_trigonometric_terms">
+<code class="descname">compute_trigonometric_terms</code><span class="sig-paren">(</span><em>thetas</em>, <em>phis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParas.compute_trigonometric_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas.compute_trigonometric_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>”
+Computes trigonometric terms that are required to
+calculate bond orientational order parameters using
+internal variables.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>thetas</strong> (<em>[</em><em>float</em><em>]</em>) – polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em>[</em><em>float</em><em>]</em>) – azimuth angles of all neighbors in radians.
+The list of
+azimuth angles of all neighbors in radians.  The list of
+azimuth angles is expected to have the same size as the
+list of polar angles; otherwise, a ValueError is raised.
+Also, the two lists of angles have to be coherent in
+order. That is, it is expected that the order in the list
+of azimuth angles corresponds to a distinct sequence of
+neighbors. And, this sequence has to equal the sequence
+of neighbors in the list of polar angles.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.LocalStructOrderParas.get_order_parameters">
+<code class="descname">get_order_parameters</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em>, <em>indices_neighs=None</em>, <em>tol=0.0</em>, <em>target_spec=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParas.get_order_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas.get_order_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute all order parameters of site n.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
+<li><strong>n</strong> (<em>int</em>) – index of site in input structure,
+for which OPs are to be
+calculated.  Note that we do not use the sites iterator
+here, but directly access sites via struct[index].</li>
+<li><strong>indices_neighs</strong> (<em>[</em><em>int</em><em>]</em>) – list of indices of those neighbors
+in Structure object
+structure that are to be considered for OP computation.
+This optional argument overwrites the way neighbors are
+to be determined as defined in the constructor (i.e.,
+Voronoi coordination finder via negative cutoff radius
+vs constant cutoff radius if cutoff was positive).
+We do not use information about the underlying
+structure lattice if the neighbor indices are explicitly
+provided.  This has two important consequences.  First,
+the input Structure object can, in fact, be a
+simple list of Site objects.  Second, no nearest images
+of neighbors are determined when providing an index list.
+Note furthermore that this neighbor
+determination type ignores the optional target_spec
+argument.</li>
+<li><strong>tol</strong> (<em>float</em>) – threshold of weight
+(= solid angle / maximal solid angle)
+to determine if a particular pair is
+considered neighbors; this is relevant only in the case
+when Voronoi polyhedra are used to determine coordination</li>
+<li><strong>target_spec</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – target species to be considered
+when calculating the order
+parameters of site n; None includes all species of input
+structure.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">representing order parameters.  Should it not be
+possible to compute a given OP for a conceptual reason, the
+corresponding entry is None instead of a float.  For Steinhardt
+et al.’s bond orientational OPs and the other geometric OPs
+(“tet”, “oct”, “bcc”, etc.),
+this can happen if there is a single
+neighbor around site n in the structure because that
+does not permit calculation of angles between multiple
+neighbors.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">[floats]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.LocalStructOrderParas.get_parameters">
+<code class="descname">get_parameters</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParas.get_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of floats that represents
+the parameters associated with calculation of the order
+parameter that was defined at the index provided.
+Attention: the parameters do not need to equal those originally
+inputted because of processing out of efficiency reasons.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) – index of order parameter for which associated parameters
+are to be returned.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">parameters of a given OP.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">[float]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.LocalStructOrderParas.get_q2">
+<code class="descname">get_q2</code><span class="sig-paren">(</span><em>thetas=None</em>, <em>phis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParas.get_q2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas.get_q2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the value of the bond orientational order parameter of
+weight l=2.  If the function is called with non-empty lists of
+polar and azimuthal angles the corresponding trigonometric terms
+are computed afresh.  Otherwise, it is expected that the
+compute_trigonometric_terms function has been just called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>thetas</strong> (<em>[</em><em>float</em><em>]</em>) – polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em>[</em><em>float</em><em>]</em>) – azimuth angles of all neighbors in radians.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>bond orientational order parameter of weight l=2</dt>
+<dd><p class="first last">corresponding to the input angles thetas and phis.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.LocalStructOrderParas.get_q4">
+<code class="descname">get_q4</code><span class="sig-paren">(</span><em>thetas=None</em>, <em>phis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParas.get_q4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas.get_q4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the value of the bond orientational order parameter of
+weight l=4.  If the function is called with non-empty lists of
+polar and azimuthal angles the corresponding trigonometric terms
+are computed afresh.  Otherwise, it is expected that the
+compute_trigonometric_terms function has been just called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>thetas</strong> (<em>[</em><em>float</em><em>]</em>) – polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em>[</em><em>float</em><em>]</em>) – azimuth angles of all neighbors in radians.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>bond orientational order parameter of weight l=4</dt>
+<dd><p class="first last">corresponding to the input angles thetas and phis.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.LocalStructOrderParas.get_q6">
+<code class="descname">get_q6</code><span class="sig-paren">(</span><em>thetas=None</em>, <em>phis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParas.get_q6"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas.get_q6" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the value of the bond orientational order parameter of
+weight l=6.  If the function is called with non-empty lists of
+polar and azimuthal angles the corresponding trigonometric terms
+are computed afresh.  Otherwise, it is expected that the
+compute_trigonometric_terms function has been just called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>thetas</strong> (<em>[</em><em>float</em><em>]</em>) – polar angles of all neighbors in radians.</li>
+<li><strong>phis</strong> (<em>[</em><em>float</em><em>]</em>) – azimuth angles of all neighbors in radians.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>bond orientational order parameter of weight l=6</dt>
+<dd><p class="first last">corresponding to the input angles thetas and phis.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.LocalStructOrderParas.get_type">
+<code class="descname">get_type</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParas.get_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas.get_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return type of order parameter at the index provided and
+represented by a short string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) – index of order parameter for which type is
+to be returned.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">OP type.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.local_env.LocalStructOrderParas.last_nneigh">
+<code class="descname">last_nneigh</code><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas.last_nneigh" title="Permalink to this definition">¶</a></dt>
+<dd><p>”
+:returns:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>the number of neighbors encountered during the most</dt>
+<dd>recent order parameter calculation. A value of -1 indicates
+that no such calculation has yet been performed for this
+instance.</dd>
+</dl>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.local_env.LocalStructOrderParas.num_ops">
+<code class="descname">num_ops</code><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas.num_ops" title="Permalink to this definition">¶</a></dt>
+<dd><p>”
+:returns:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>the number of different order parameters that are targeted</dt>
+<dd>to be calculated.</dd>
+</dl>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
 </tr>
 </tbody>
 </table>
@@ -643,6 +1057,26 @@ provided in ‘Atoms Sizes and Bond Lengths in Molecules and Crystals’
 </dd></dl>
 
 <dl class="function">
+<dt id="pymatgen.analysis.local_env.gramschmidt">
+<code class="descname">gramschmidt</code><span class="sig-paren">(</span><em>vin</em>, <em>uin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#gramschmidt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.gramschmidt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns that part of the first input vector
+that is orthogonal to the second input vector.
+The output vector is not normalized.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>vin</strong> (<em>numpy array</em>) – first input vector</li>
+<li><strong>uin</strong> (<em>numpy array</em>) – second input vector</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pymatgen.analysis.local_env.site_is_of_motif_type">
 <code class="descname">site_is_of_motif_type</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>approach='min_dist'</em>, <em>delta=0.1</em>, <em>cutoff=10.0</em>, <em>thresh=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#site_is_of_motif_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.site_is_of_motif_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the motif type of the site with index n in structure struct;
@@ -736,7 +1170,7 @@ center.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

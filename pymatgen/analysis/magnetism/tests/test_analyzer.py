@@ -81,6 +81,11 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         self.NiO_unphysical = Structure(latt, species, coords,
                                         site_properties={'magmom': [-3, 0, 0, 0]})
 
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_get_representations(self):
 
         # tests to convert between storing magnetic moment information
@@ -223,6 +228,7 @@ Magmoms Sites
 -5.00   PeriodicSite: Ni (0.0000, 2.0850, -2.0850) [0.5000, 0.5000, 0.5000]"""
 
         self.assertEqual(str(msa), ref_msa_str)
+
 
 if __name__ == '__main__':
     unittest.main()

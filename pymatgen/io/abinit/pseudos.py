@@ -19,7 +19,7 @@ import six
 from collections import OrderedDict, defaultdict, namedtuple
 from monty.collections import AttrDict, Namespace
 from tabulate import tabulate
-from monty.dev import deprecated
+#from monty.dev import deprecated
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MSONable, MontyDecoder
@@ -310,7 +310,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
-        Returns a :class:`Hint` object with the suggensted value of ecut [Ha] and
+        Returns a :class:`Hint` object with the suggested value of ecut [Ha] and
         pawecutdg [Ha] for the given accuracy.
         ecut and pawecutdg are set to zero if no hint is available.
 
@@ -1672,7 +1672,8 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
     def as_dict(self, **kwargs):
         d = {}
         for p in self:
-            k, count = p.element, 1
+            k, count = p.element.name, 1
+            # k, count = p.element, 1
             # Handle multiple-pseudos with the same name!
             while k in d:
                 k += k.split("#")[0] + "#" + str(count)

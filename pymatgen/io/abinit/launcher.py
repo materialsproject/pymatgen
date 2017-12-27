@@ -577,16 +577,24 @@ class PyFlowScheduler(object):
                 work.set_manager(new_manager)
 
         nqjobs = 0
-        if self.contact_resource_manager:
-            # This call is expensive and therefore it's optional
+        if self.contact_resource_manager: # and flow.TaskManager.qadapter.QTYPE == "shell":
+            # This call is expensive and therefore it's optional (must be activate in manager.yml)
             nqjobs = flow.get_njobs_in_queue()
             if nqjobs is None:
                 nqjobs = 0
-                if flow.manager.has_queue: logger.warning('Cannot get njobs_inqueue')
+                if flow.manager.has_queue:
+                    logger.warning('Cannot get njobs_inqueue')
+        else:
+            # Here we just count the number of tasks in the flow who are running.
+            # This logic breaks down if there are multiple schedulers runnig
+            # but it's easy to implement without having to contact the resource manager.
+            nqjobs = (len(list(flow.iflat_tasks(status=flow.S_RUN))) +
+                      len(list(flow.iflat_tasks(status=flow.S_SUB))))
 
-            if nqjobs >= self.max_njobs_inqueue:
-                print("Too many jobs in the queue: %s, returning" % nqjobs)
-                return
+        if nqjobs >= self.max_njobs_inqueue:
+            print("Too many jobs in the queue: %s. No job will be submitted." % nqjobs)
+            flow.check_status(show=False)
+            return
 
         if self.max_nlaunches == -1:
             max_nlaunch = self.max_njobs_inqueue - nqjobs
@@ -601,7 +609,7 @@ class PyFlowScheduler(object):
         # Many sections of this code should be rewritten.
         #if self.max_ncores_used is not None and flow.ncores_used > self.max_ncores_used:
         if self.max_ncores_used is not None and flow.ncores_allocated > self.max_ncores_used:
-            print("Cannot exceed max_ncores_use:d %s" % self.max_ncores_used)
+            print("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
             return
 
         # Try to restart the unconverged tasks
@@ -639,9 +647,8 @@ class PyFlowScheduler(object):
         try:
             nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10)
             self.nlaunch += nlaunch
-
             if nlaunch:
-                print("[%s] Number of launches: %d" % (time.asctime(), nlaunch))
+                cprint("[%s] Number of launches: %d" % (time.asctime(), nlaunch), "yellow")
 
         except Exception:
             excs.append(straceback())
@@ -915,10 +922,15 @@ def sendmail(subject, text, mailto, sender=None):
     # sendmail works much better than the python interface.
     # Note that sendmail is available only on Unix-like OS.
     from subprocess import Popen, PIPE
+    import sys
 
     sendmail = which("sendmail")
     if sendmail is None: return -1
-    p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE)
+    if sys.version_info[0] < 3:
+        p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE)
+    else:
+        # msg is string not bytes so must use universal_newlines
+        p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE, universal_newlines=True)
 
     outdata, errdata = p.communicate(msg)
     return len(errdata)

@@ -138,7 +138,7 @@ class Element(Enum):
 
         True if element is a actinoid.
 
-    .. attribute:: name
+    .. attribute:: long_name
 
        Long name for element. E.g., "Hydrogen".
 
@@ -394,6 +394,7 @@ class Element(Enum):
         else:
             self.atomic_radius = Length(at_r, "ang")
         self.atomic_mass = Mass(d["Atomic mass"], "amu")
+        self.long_name = d["Name"]
         self._data = d
 
     @property
@@ -1105,7 +1106,11 @@ class DummySpecie(Specie):
 
     .. attribute:: Z
 
-        DummySpecie is always assigned an atomic number of 0.
+        DummySpecie is always assigned an atomic number equal to the hash
+        number of the symbol. Obviously, it makes no sense whatsoever to use
+        the atomic number of a Dummy specie for anything scientific. The purpose
+        of this is to ensure that for most use cases, a DummySpecie behaves no
+        differently from an Element or Specie.
 
     .. attribute:: X
 
@@ -1133,10 +1138,7 @@ class DummySpecie(Specie):
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
-        try:
-            return getattr(self._el, a)
-        except:
-            raise AttributeError(a)
+        raise AttributeError(a)
 
     def __hash__(self):
         return self.symbol.__hash__()
