@@ -100,6 +100,20 @@ class EwaldMinimizerTest(unittest.TestCase):
         self.assertEqual(len(e_min.best_m_list), 6,
                          "Returned wrong number of permutations")
 
+    def test_site(self):
+        """Test that uses an uncharged structure"""
+        filepath = os.path.join(test_dir, 'POSCAR')
+        p = Poscar.from_file(filepath, check_for_POTCAR=False)
+        original_s = p.structure
+        s = original_s.copy()
+        s.add_oxidation_state_by_element({"Li": 1, "Fe": 3,
+                                          "P": 5, "O": -2})
+
+        # Comparison to LAMMPS result
+        ham = EwaldSummation(s, compute_forces=True)
+        self.assertAlmostEquals(-1226.3335, ham.total_energy, 3)
+        self.assertAlmostEquals(-45.8338, ham.get_site_energy(0), 3)
+        self.assertAlmostEquals(-27.2978, ham.get_site_energy(8), 3)
 
 if __name__ == "__main__":
     unittest.main()
