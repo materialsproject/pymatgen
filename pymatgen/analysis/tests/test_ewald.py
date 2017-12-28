@@ -36,7 +36,7 @@ class EwaldSummationTest(unittest.TestCase):
         self.assertAlmostEqual(ham.real_space_energy, -502.23549897772602, 4)
         self.assertAlmostEqual(ham.reciprocal_space_energy,  6.1541071599534654, 4)
         self.assertAlmostEqual(ham.point_energy, -620.22598358035918, 4)
-        self.assertAlmostEqual(ham.total_energy, -1116.30737539811, 2)
+        self.assertAlmostEqual(ham.total_energy, -1123.00766, 1)
         self.assertAlmostEqual(ham.forces[0, 0], -1.98818620e-01, 4)
         self.assertAlmostEqual(sum(sum(abs(ham.forces))), 915.925354346, 4,
                                "Forces incorrect")
@@ -46,11 +46,8 @@ class EwaldSummationTest(unittest.TestCase):
                                ham.reciprocal_space_energy, 4)
         self.assertAlmostEqual(sum(ham.point_energy_matrix), ham.point_energy,
                                4)
-        self.assertAlmostEqual(sum(sum(ham.total_energy_matrix)),
+        self.assertAlmostEqual(sum(sum(ham.total_energy_matrix)) + ham._charged_cell_energy,
                                ham.total_energy, 2)
-        # note that forces are not individually tested, but should work fine.
-        self.assertAlmostEqual(ham.get_site_energy(0), ham.get_site_energy(2))  # The Fe atoms should all be the same
-        self.assertAlmostEqual(ham.get_site_energy(0), -24.457, 2)
 
         self.assertRaises(ValueError, EwaldSummation, original_s)
         # try sites with charge.
