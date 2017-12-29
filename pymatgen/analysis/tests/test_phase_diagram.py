@@ -483,15 +483,15 @@ class PDPlotterTest(unittest.TestCase):
         # Some very basic non-tests. Just to make sure the methods are callable.
         self.plotter.get_plot().close()
         self.plotter3d.get_plot().close()
-        self.plotter.get_contour_pd_plot()
+        self.plotter.get_contour_pd_plot().close()
         # self.plotter.get_plot(energy_colormap="Reds", process_attributes=True)
         # plt = self.plotter3d.get_plot(energy_colormap="Reds",
         #                               process_attributes=True)
         # self.plotter.get_plot(energy_colormap="Reds", process_attributes=False)
         # plt = self.plotter3d.get_plot(energy_colormap="Reds",
         #                               process_attributes=False)
-        self.plotter.get_chempot_range_map_plot([Element("Li"), Element("O")])
-        self.plotter.plot_element_profile(Element("O"), Composition("Li2O"))
+        self.plotter.get_chempot_range_map_plot([Element("Li"), Element("O")]).close()
+        self.plotter.plot_element_profile(Element("O"), Composition("Li2O")).close()
 
 
 class UtilityFunctionTest(unittest.TestCase):

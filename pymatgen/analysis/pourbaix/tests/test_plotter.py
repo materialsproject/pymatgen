@@ -33,7 +33,7 @@ class TestPourbaixPlotter(unittest.TestCase):
 
     def tearDown(self):
         warnings.resetwarnings()
-        
+
     def test_plot_pourbaix(self):
         # Default limits
         plt = self.plotter.get_pourbaix_plot()
@@ -44,6 +44,10 @@ class TestPourbaixPlotter(unittest.TestCase):
         plot_3d = self.plotter._get_plot()
         plot_3d_unstable = self.plotter._get_plot(label_unstable=True)
 
+        plt.close()
+        plot_3d.close()
+        plot_3d_unstable.close()
+
     def test_plot_entry_stability(self):
         entry = self.pd.all_entries[0]
         plt = self.plotter.plot_entry_stability(entry, limits=[[-2, 14], [-3, 3]])
@@ -53,8 +57,8 @@ class TestPourbaixPlotter(unittest.TestCase):
                                     comp_dict = {"Ag": 0.5, "Te": 0.5})
         binary_plotter = PourbaixPlotter(pd_binary)
         test_entry = pd_binary._unprocessed_entries[0]
-        binary_plotter.plot_entry_stability(test_entry)
-
+        plt = binary_plotter.plot_entry_stability(test_entry)
+        plt.close()
 
 if __name__ == '__main__':
     unittest.main()
