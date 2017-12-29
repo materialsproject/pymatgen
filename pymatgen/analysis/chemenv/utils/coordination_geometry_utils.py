@@ -700,13 +700,39 @@ class Plane(object):
     def distances_indices_sorted(self, points):
         """
         Computes the distances from the plane to each of the points. Positive distances are on the side of the
-        normal of the plane while negative distances are on the other side
+        normal of the plane while negative distances are on the other side. Indices sorting the points from closest
+        to furthest is also computed.
         :param points: Points for which distances are computed
         :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
                  negative values on the other side), as well as indices of the points from closest to furthest.
         """
         distances = [np.dot(self.normal_vector, pp) + self.d for pp in points]
         return distances, sorted(range(len(distances)), key=lambda k: np.abs(distances[k]))
+
+    def distances_indices_groups(self, points, delta=None, delta_factor=0.05):
+        """
+        Computes the distances from the plane to each of the points. Positive distances are on the side of the
+        normal of the plane while negative distances are on the other side. Indices sorting the points from closest
+        to furthest is also computed. Grouped indices are also given, for which indices of the distances that are
+        separated by less than delta are grouped together. The delta parameter is either set explictly or taken as
+        a fraction (using the delta_factor parameter) of the maximal point distance.
+        :param points: Points for which distances are computed
+        :param delta: Distance interval for which two points are considered in the same group.
+        :param delta_factor: If delta is None, the distance interval is taken as delta_factor times the maximal
+                             point distance.
+        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
+                 negative values on the other side), as well as indices of the points from closest to furthest and
+                 grouped indices of distances separated by less than delta.
+        """
+        distances, indices = self.distances_indices_sorted(points=points)
+        if delta is None:
+            delta = delta_factor*np.abs(distances[indices[-1]])
+        iends = [ii for ii, idist in enumerate(indices, start=1)
+                 if ii == len(distances) or (np.abs(distances[indices[ii]])-np.abs(distances[idist])>delta)]
+        grouped_indices = [indices[iends[ii-1]:iend]
+                           if ii>0 else indices[:iend]
+                           for ii, iend in enumerate(iends)]
+        return distances, indices, grouped_indices
 
     def projectionpoints(self, pps):
         """
