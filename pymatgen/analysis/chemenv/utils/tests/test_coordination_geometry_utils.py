@@ -8,6 +8,7 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 import numpy as np
 import itertools
 from pymatgen.util.testing import PymatgenTest
+import random
 
 class PlanesUtilsTest(PymatgenTest):
 
@@ -240,13 +241,28 @@ class PlanesUtilsTest(PymatgenTest):
         self.assertArrayAlmostEqual(distances, [0.5, -1.0, 2.5, 10.5])
         self.assertArrayEqual(indices_sorted, [0, 1, 2, 3])
         plist = [point_5, point_1, point_6, point_7]
-        distances, indices_sorted = plane.distances_indices_sorted(plist)
+        distances, indices_sorted, groups = plane.distances_indices_groups(plist)
         self.assertArrayAlmostEqual(distances, [-1.0, 0.5, 2.5, 10.5])
         self.assertArrayEqual(indices_sorted, [1, 0, 2, 3])
+        self.assertArrayEqual(groups, [[1, 0], [2], [3]])
         plist = [point_1, point_2, point_3, point_4, point_5, point_6, point_7, point_8]
         distances, indices_sorted = plane.distances_indices_sorted(plist)
         self.assertArrayAlmostEqual(distances, [0.5, 0.5, 0.5, 0.5, -1.0, 2.5, 10.5, 0.5])
         self.assertEqual(set(indices_sorted[:5]), {0, 1, 2, 3, 7})
+        # Plane z=0 (plane xy)
+        plane = Plane.from_coefficients(0, 0, 1, 0)
+        zzs = [0.1, -0.2, 0.7, -2.1, -1.85, 0.0, -0.71, -0.82, -6.5, 1.8]
+        plist = []
+        for zz in zzs:
+            plist.append([random.uniform(-20.0, 20.0), random.uniform(-20.0, 20.0), zz])
+        distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta=0.25)
+        self.assertArrayEqual(indices_sorted, [5, 0, 1, 2, 6, 7, 9, 4, 3, 8])
+        self.assertArrayEqual(groups, [[5, 0, 1], [2, 6, 7], [9, 4, 3], [8]])
+        self.assertArrayAlmostEqual(distances, zzs)
+        distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta_factor=0.1)
+        self.assertArrayEqual(indices_sorted, [5, 0, 1, 2, 6, 7, 9, 4, 3, 8])
+        self.assertArrayEqual(groups, [[5, 0, 1, 2, 6, 7], [9, 4, 3], [8]])
+        self.assertArrayAlmostEqual(distances, zzs)
 
     def test_projections(self):
         #Projections of points that are already on the plane
