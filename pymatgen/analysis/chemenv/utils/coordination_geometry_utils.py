@@ -682,10 +682,31 @@ class Plane(object):
     def distance_to_point(self, point):
         """
         Computes the absolute distance from the plane to the point
-        :param point:
-        :return:
+        :param point: Point for which distance is computed
+        :return: Distance between the plane and the point
         """
         return np.abs(np.dot(self.normal_vector, point) + self.d)
+
+    def distances(self, points):
+        """
+        Computes the distances from the plane to each of the points. Positive distances are on the side of the
+        normal of the plane while negative distances are on the other side
+        :param points: Points for which distances are computed
+        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
+                 negative values on the other side)
+        """
+        return [np.dot(self.normal_vector, pp) + self.d for pp in points]
+
+    def distances_indices_sorted(self, points):
+        """
+        Computes the distances from the plane to each of the points. Positive distances are on the side of the
+        normal of the plane while negative distances are on the other side
+        :param points: Points for which distances are computed
+        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
+                 negative values on the other side), as well as indices of the points from closest to furthest.
+        """
+        distances = [np.dot(self.normal_vector, pp) + self.d for pp in points]
+        return distances, sorted(range(len(distances)), key=lambda k: np.abs(distances[k]))
 
     def projectionpoints(self, pps):
         """
