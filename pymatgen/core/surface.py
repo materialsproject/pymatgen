@@ -90,7 +90,7 @@ class Slab(Structure):
 
     def __init__(self, lattice, species, coords, miller_index,
                  oriented_unit_cell, shift, scale_factor, reorient_lattice=True,
-                 validate_proximity=False, to_unit_cell=False,
+                 validate_proximity=False, to_unit_cell=False, reconstruction=None,
                  coords_are_cartesian=False, site_properties=None, energy=None):
         """
         Makes a Slab structure, a structure object with additional information
@@ -128,6 +128,8 @@ class Slab(Structure):
                 the c direction is the third vector of the lattice matrix
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
+            reconstruction (str): Type of reconstruction. Defaultst to None if
+                the slab is not reconstructed.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
@@ -139,6 +141,7 @@ class Slab(Structure):
         self.oriented_unit_cell = oriented_unit_cell
         self.miller_index = tuple(miller_index)
         self.shift = shift
+        self.reconstruction = reconstruction
         self.scale_factor = scale_factor
         self.energy = energy
         self.reorient_lattice = reorient_lattice
@@ -982,18 +985,18 @@ class SlabGenerator(object):
                              scale=False)
 
         new_slabs = []
-        original_formula = str(self.parent.composition.reduced_formula)
         for g in m.group_structures(slabs):
             # For each unique termination, symmetrize the
             # surfaces by removing sites from the bottom.
             if symmetrize:
-                slab = self.nonstoichiometric_symmetrized_slab(g[0])
-                if original_formula != str(slab.composition.reduced_formula):
-                    warnings.warn("WARNING: Stoichiometry is no longer the "
-                                  "same due to symmetrization")
-                new_slabs.append(slab)
+                slabs = self.nonstoichiometric_symmetrized_slab(g[0])
+                new_slabs.extend(slabs)
             else:
                 new_slabs.append(g[0])
+
+        match = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
+                                 scale=False)
+        new_slabs = [g[0] for g in match.group_structures(new_slabs)]
 
         return sorted(new_slabs, key=lambda s: s.energy)
 
@@ -1108,7 +1111,7 @@ class SlabGenerator(object):
                     init_slab.shift, init_slab.scale_factor,
                     energy=init_slab.energy)
 
-    def nonstoichiometric_symmetrized_slab(self, slab, tol=1e-3):
+    def nonstoichiometric_symmetrized_slab(self, init_slab, tol=1e-3):
 
         """
         This method checks whether or not the two surfaces of the slab are
@@ -1120,42 +1123,49 @@ class SlabGenerator(object):
         structures, the chemical potential will be needed to calculate surface energy.
 
         Arg:
-            slab (Structure): A single slab structure
+            init_slab (Structure): A single slab structure
             tol (float): Tolerance for SpaceGroupanalyzer.
 
         Returns:
             Slab (structure): A symmetrized Slab object.
         """
 
-        sg = SpacegroupAnalyzer(slab, symprec=tol)
+        sg = SpacegroupAnalyzer(init_slab, symprec=tol)
 
         if sg.is_laue():
-            return slab
-        else:
+            return [init_slab]
+
+        nonstoich_slabs = []
+        # Build an equivalent surface slab for each of the different surfaces
+        for top in [True, False]:
             asym = True
+            slab = init_slab.copy()
+            slab.energy = init_slab.energy
 
             while asym or (len(slab) < len(self.parent)):
-
                 # Keep removing sites from the bottom one by one until both
                 # surfaces are symmetric or the number of sites removed has
                 # exceeded 10 percent of the original slab
 
                 c_dir = [site[2] for i, site in enumerate(slab.frac_coords)]
 
-                slab.remove_sites([c_dir.index(min(c_dir))])
+                if top:
+                    slab.remove_sites([c_dir.index(max(c_dir))])
+                else:
+                    slab.remove_sites([c_dir.index(min(c_dir))])
 
                 # Check if the altered surface is symmetric
                 sg = SpacegroupAnalyzer(slab, symprec=tol)
-
                 if sg.is_laue():
                     asym = False
+
+                    nonstoich_slabs.append(slab)
 
         if len(slab) < len(self.parent):
             warnings.warn("Too many sites removed, please use a larger slab "
                           "size.")
 
-        return slab
-
+        return nonstoich_slabs
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(module_dir,
@@ -1330,6 +1340,7 @@ class ReconstructionGenerator(object):
         self.trans_matrix = recon_json["transformation_matrix"]
         self.reconstruction_json = recon_json
         self.termination = termination
+        self.name = reconstruction_name
 
     def build_slab(self):
 
@@ -1363,6 +1374,8 @@ class ReconstructionGenerator(object):
                 p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
                                                            top_site[2]+p[2]*d])[2]
                 slab = self.symmetrically_remove_atom(slab, p)
+
+        slab.reconstruction = self.name
 
         return slab
 
@@ -1515,7 +1528,8 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=1e-3, max_broken_bonds=0,
                        lll_reduce=False, center_slab=False, primitive=True,
-                       max_normal_search=None, symmetrize=False, repair=False):
+                       max_normal_search=None, symmetrize=False, repair=False,
+                       include_reconstructions=False):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -1567,6 +1581,8 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             slabs are equivalent.
         repair (bool): Whether to repair terminations with broken bonds
             or just omit them
+        include_reconstructions (bool): Whether to include reconstructed
+            slabs available in the reconstructions_archive.json file.
     """
     all_slabs = []
 
@@ -1578,9 +1594,29 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                             max_normal_search=max_normal_search)
         slabs = gen.get_slabs(bonds=bonds, tol=tol, symmetrize=symmetrize,
                               max_broken_bonds=max_broken_bonds, repair=repair)
+
         if len(slabs) > 0:
             logger.debug("%s has %d slabs... " % (miller, len(slabs)))
             all_slabs.extend(slabs)
+
+    if include_reconstructions:
+        sg = SpacegroupAnalyzer(structure)
+        symbol = sg.get_space_group_symbol()
+        # enumerate through all posisble reconstructions in the
+        # archive available for this particular structure (spacegroup)
+        for name, instructions in reconstructions_archive.items():
+            if "base_reconstruction" in instructions.keys():
+                instructions = reconstructions_archive[instructions["base_reconstruction"]]
+            if instructions["spacegroup"]["symbol"] == symbol:
+                # check if this reconstruction has a max index
+                # equal or less than the given max index
+                if max(instructions["miller_index"]) > max_index:
+                    continue
+                print("reconstruction to do", name)
+                recon = ReconstructionGenerator(structure, min_slab_size,
+                                                min_vacuum_size, name)
+                slab = recon.build_slab()
+                all_slabs.append(slab)
 
     return all_slabs
 

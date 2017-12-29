@@ -2947,7 +2947,7 @@ class BoltztrapPlotter(object):
                                  label=str(xyz) + ' ' + str(dop) + ' $cm^{-3}$')
             plt.title(dt + '-type', fontsize=20)
             if i == 0:
-                plt.ylabel("conductivity $\sigma$ (1/($\\Omega$ m))",
+                plt.ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))",
                            fontsize=30.0)
             plt.xlabel('Temperature (K)', fontsize=30.0)
 
@@ -3213,7 +3213,7 @@ class BoltztrapPlotter(object):
                                  marker='s', label=str(temp) + ' K')
             plt.title(dt + '-type', fontsize=20)
             if i == 0:
-                plt.ylabel("conductivity $\sigma$ (1/($\\Omega$ m))",
+                plt.ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))",
                            fontsize=30.0)
             plt.xlabel('Doping concentration ($cm^{-3}$)', fontsize=30.0)
             plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))

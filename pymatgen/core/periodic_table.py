@@ -138,7 +138,7 @@ class Element(Enum):
 
         True if element is a actinoid.
 
-    .. attribute:: name
+    .. attribute:: long_name
 
        Long name for element. E.g., "Hydrogen".
 
@@ -394,6 +394,7 @@ class Element(Enum):
         else:
             self.atomic_radius = Length(at_r, "ang")
         self.atomic_mass = Mass(d["Atomic mass"], "amu")
+        self.long_name = d["Name"]
         self._data = d
 
     @property

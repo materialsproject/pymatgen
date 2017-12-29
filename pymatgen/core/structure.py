@@ -359,7 +359,8 @@ class IStructure(SiteCollection, MSONable):
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of
                 each species.
-            charge (int): overall charge of the structure. Defaults to behavior in SiteCollection where total charge is the sum of the oxidation states
+            charge (int): overall charge of the structure. Defaults to behavior
+                in SiteCollection where total charge is the sum of the oxidation states
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing

@@ -18,7 +18,7 @@ __date__ = "Apr 28, 2012"
 
 import unittest
 import os
-
+import warnings
 from pymatgen.core.structure import Molecule
 from pymatgen.io.xyz import XYZ
 from pymatgen.io.babel import BabelMolAdaptor
@@ -44,6 +44,10 @@ class BabelMolAdaptorTest(unittest.TestCase):
                   [-0.513360, -0.889165, -0.363000],
                   [-0.513360, 0.889165, -0.363000]]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_init(self):
         adaptor = BabelMolAdaptor(self.mol)
@@ -72,6 +76,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         optmol = adaptor.pymatgen_mol
         for site in optmol[1:]:
             self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1314,7 +1314,7 @@ class PDPlotter(object):
                 plt.plot([x1, x2], [y1, y1], 'k', linewidth=2.5)
 
         plt.xlim((0, xlim))
-        plt.xlabel("-$\Delta{\mu}$ (eV)")
+        plt.xlabel("-$\\Delta{\\mu}$ (eV)")
         plt.ylabel("Uptake per atom")
 
         return plt

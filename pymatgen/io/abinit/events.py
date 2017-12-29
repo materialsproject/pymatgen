@@ -32,6 +32,11 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "EventsParser",
+    "get_event_handler_classes",
+    "ScfConvergenceWarning",
+    "NscfConvergenceWarning",
+    "RelaxConvergenceWarning",
+    "Correction"
 ]
 
 
@@ -564,14 +569,15 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         #@Guido this introspection is nice but it's not safe
         d = {}
         if hasattr(self, "__init__"):
-            for c in inspect.getargspec(self.__init__).args:
+            for c in inspect.getfullargspec(self.__init__).args:
                 if c != "self":
                     d[c] = self.__getattribute__(c)
         return d
 
     @classmethod
     def from_dict(cls, d):
-        kwargs = {k: v for k, v in d.items() if k in inspect.getargspec(cls.__init__).args}
+        kwargs = {k: v for k, v in d.items()
+                  if k in inspect.getfullargspec(cls.__init__).args}
         return cls(**kwargs)
 
     @classmethod
