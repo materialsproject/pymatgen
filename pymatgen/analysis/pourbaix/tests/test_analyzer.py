@@ -5,7 +5,7 @@
 from __future__ import unicode_literals
 
 import os
-
+import warnings
 from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
 from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO, PourbaixEntry
 from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
@@ -28,7 +28,11 @@ class TestPourbaixAnalyzer(PymatgenTest):
         self.pd = PourbaixDiagram(entries)
         self.analyzer = PourbaixAnalyzer(self.pd)
         self.multi_data = loadfn(os.path.join(test_dir, 'multicomp_pbx.json'))
-        
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_chempot_range_map(self):
         range_map = self.analyzer.get_chempot_range_map()
         range_map_dict = {}
