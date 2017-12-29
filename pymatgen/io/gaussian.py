@@ -11,6 +11,7 @@ import warnings
 from pymatgen.core.operations import SymmOp
 from pymatgen import Element, Molecule, Composition
 from monty.io import zopen
+from pymatgen.core.units import Ha_to_eV
 from pymatgen.util.coord import get_angle
 import scipy.constants as cst
 
@@ -29,8 +30,6 @@ __date__ = '8/1/15'
 
 float_patt = re.compile(r"\s*([+-]?\d+\.\d+)")
 
-HARTREE_TO_ELECTRON_VOLT = 1/cst.physical_constants["electron volt-hartree relationship"][0]
-
 
 def read_route_line(route):
     """
@@ -46,7 +45,7 @@ def read_route_line(route):
         route (dict) : dictionary of parameters
     """
     scrf_patt = re.compile(r"^([sS][cC][rR][fF])\s*=\s*(.+)")
-
+    multi_params_patt = re.compile("^([A-z]+[0-9]*)[\s=]+\((.*)\)$")
     functional = None
     basis_set = None
     route_params = {}
@@ -63,14 +62,24 @@ def read_route_line(route):
             if scrf_patt.match(tok):
                 m = scrf_patt.match(tok)
                 route_params[m.group(1)] = m.group(2)
-            elif "#" in tok:
+            elif tok.upper() in ["#", "#N", "#P", "#T"]:
                 # does not store # in route to avoid error in input
-                dieze_tag = tok
+                if tok == "#":
+                    dieze_tag = "#N"
+                else:
+                    dieze_tag = tok
                 continue
             else:
-                d = tok.split("=")
-                v = None if len(d) == 1 else d[1]
-                route_params[d[0]] = v
+                m = re.match(multi_params_patt, tok.strip("#"))
+                if m:
+                    pars = {}
+                    for par in m.group(2).split(","):
+                        p = par.split("=")
+                        pars[p[0]] = None if len(p) == 1 else p[1]
+                    route_params[m.group(1)] = pars
+                else:
+                    d = tok.strip("#").split("=")
+                    route_params[d[0]] = None if len(d) == 1 else d[1]
 
     return functional, basis_set, route_params, dieze_tag
 
@@ -104,9 +113,9 @@ class GaussianInput(object):
     """
 
     # Commonly used regex patterns
-    zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
-    xyz_patt = re.compile(r"^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
-                          r"([\d\.eE\-]+)[\-\.\s,\w.]*$")
+    _zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
+    _xyz_patt = re.compile(r"^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
+                           r"([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
     def __init__(self, mol, charge=None, spin_multiplicity=None, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
@@ -130,7 +139,7 @@ class GaussianInput(object):
         self.route_parameters = route_parameters if route_parameters else {}
         self.input_parameters = input_parameters if input_parameters else {}
         self.title = title if title else self._mol.composition.formula
-        self.dieze_tag = dieze_tag if dieze_tag[0] == "#" else "#P"
+        self.dieze_tag = dieze_tag if dieze_tag[0] == "#" else "#" + dieze_tag
         self.gen_basis = gen_basis
         if gen_basis is not None:
             self.basis_set = "Gen"
@@ -143,7 +152,7 @@ class GaussianInput(object):
         return self._mol
 
     @staticmethod
-    def parse_coords(coord_lines):
+    def _parse_coords(coord_lines):
         """
         Helper method to parse coordinates.
         """
@@ -152,7 +161,7 @@ class GaussianInput(object):
         for l in coord_lines:
             m = var_pattern.match(l.strip())
             if m:
-                paras[m.group(1)] = float(m.group(2))
+                paras[m.group(1).strip("=")] = float(m.group(2))
 
         species = []
         coords = []
@@ -163,15 +172,15 @@ class GaussianInput(object):
             l = l.strip()
             if not l:
                 break
-            if (not zmode) and GaussianInput.xyz_patt.match(l):
-                m = GaussianInput.xyz_patt.match(l)
+            if (not zmode) and GaussianInput._xyz_patt.match(l):
+                m = GaussianInput._xyz_patt.match(l)
                 species.append(m.group(1))
                 toks = re.split(r"[,\s]+", l.strip())
                 if len(toks) > 4:
                     coords.append([float(i) for i in toks[2:5]])
                 else:
                     coords.append([float(i) for i in toks[1:4]])
-            elif GaussianInput.zmat_patt.match(l):
+            elif GaussianInput._zmat_patt.match(l):
                 zmode = True
                 toks = re.split(r"[,\s]+", l.strip())
                 species.append(toks[0])
@@ -235,7 +244,7 @@ class GaussianInput(object):
                         coord = vec * bl / np.linalg.norm(vec) + coords1
                         coords.append(coord)
 
-        def parse_species(sp_str):
+        def _parse_species(sp_str):
             """
             The species specification can take many forms. E.g.,
             simple integers representing atomic numbers ("8"),
@@ -249,7 +258,7 @@ class GaussianInput(object):
                 sp = re.sub(r"\d", "", sp_str)
                 return sp.capitalize()
 
-        species = [parse_species(sp) for sp in species]
+        species = [_parse_species(sp) for sp in species]
 
         return Molecule(species, coords)
 
@@ -271,17 +280,19 @@ class GaussianInput(object):
         for i, l in enumerate(lines):
             if link0_patt.match(l):
                 m = link0_patt.match(l)
-                link0_dict[m.group(1)] = m.group(2)
+                link0_dict[m.group(1).strip("=")] = m.group(2)
 
         route_patt = re.compile(r"^#[sSpPnN]*.*")
-        route = None
+        route = ""
+        route_index = None
         for i, l in enumerate(lines):
             if route_patt.match(l):
-                route = l
+                route += " " + l
                 route_index = i
+            # This condition allows for route cards spanning multiple lines
+            elif (l == "" or l.isspace()) and route_index:
                 break
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
-
         ind = 2
         title = []
         while lines[route_index + ind].strip():
@@ -289,7 +300,7 @@ class GaussianInput(object):
             ind += 1
         title = ' '.join(title)
         ind += 1
-        toks = re.split(r"[\s,]", lines[route_index + ind])
+        toks = re.split(r"[,\s]+", lines[route_index + ind])
         charge = int(toks[0])
         spin_mult = int(toks[1])
         coord_lines = []
@@ -305,7 +316,7 @@ class GaussianInput(object):
                     input_paras[d[0]] = d[1]
             else:
                 coord_lines.append(lines[i].strip())
-        mol = GaussianInput.parse_coords(coord_lines)
+        mol = GaussianInput._parse_coords(coord_lines)
         mol.set_charge_and_spin(charge, spin_mult)
 
         return GaussianInput(mol, charge=charge, spin_multiplicity=spin_mult,
@@ -398,8 +409,16 @@ class GaussianInput(object):
 
         """
         def para_dict_to_string(para, joiner=" "):
-            para_str = ["{}={}".format(k, v) if v else k
-                        for k, v in sorted(para.items())]
+            para_str = []
+            # sorted is only done to make unittests work reliably
+            for par, val in sorted(para.items()):
+                if val is None or val == "":
+                    para_str.append(par)
+                elif isinstance(val, dict):
+                    val_str = para_dict_to_string(val, joiner=",")
+                    para_str.append("{}=({})".format(par, val_str))
+                else:
+                    para_str.append("{}={}".format(par, val))
             return joiner.join(para_str)
 
         output = []
@@ -564,7 +583,7 @@ class GaussianOutput(object):
 
         Charge for structure
 
-    .. attribute:: spin_mult
+    .. attribute:: spin_multiplicity
 
         Spin multiplicity for structure
 
@@ -614,6 +633,10 @@ class GaussianOutput(object):
 
         List of gaussian data resume given at the end of the output file before
         the quotation. The resumes are given as string.
+
+    .. attribute:: title
+
+        Title of the gaussian run.
 
     Methods:
 
@@ -711,6 +734,7 @@ class GaussianOutput(object):
         self.is_spin = False
         self.hessian = None
         self.resumes = []
+        self.title = None
 
         coord_txt = []
         read_coord = 0
@@ -726,6 +750,7 @@ class GaussianOutput(object):
         frequencies = []
         read_mo = False
         parse_hessian = False
+        routeline = ""
 
         with zopen(filename) as f:
             for line in f:
@@ -735,19 +760,28 @@ class GaussianOutput(object):
                     elif link0_patt.match(line):
                         m = link0_patt.match(line)
                         self.link0[m.group(1)] = m.group(2)
-                    elif route_patt.search(line):
-                        params = read_route_line(line)
-                        self.functional = params[0]
-                        self.basis_set = params[1]
-                        self.route = params[2]
-                        route_lower = {k.lower(): v for k, v in self.route.items()}
-                        self.dieze_tag = params[3]
-                        parse_stage = 1
+                    elif route_patt.search(line) or routeline != "":
+                        if set(line.strip()) == {"-"}:
+                            params = read_route_line(routeline)
+                            self.functional = params[0]
+                            self.basis_set = params[1]
+                            self.route_parameters = params[2]
+                            route_lower = {k.lower(): v
+                                           for k, v in
+                                           self.route_parameters.items()}
+                            self.dieze_tag = params[3]
+                            parse_stage = 1
+                        else:
+                            routeline += line.strip()
                 elif parse_stage == 1:
-                    if charge_mul_patt.search(line):
+                    if set(line.strip()) == {"-"} and self.title is None:
+                        self.title = ""
+                    elif self.title == "":
+                        self.title = line.strip()
+                    elif charge_mul_patt.search(line):
                         m = charge_mul_patt.search(line)
                         self.charge = int(m.group(1))
-                        self.spin_mult = int(m.group(2))
+                        self.spin_multiplicity = int(m.group(2))
                         parse_stage = 2
                 elif parse_stage == 2:
 
@@ -1058,9 +1092,9 @@ class GaussianOutput(object):
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
         d["charge"] = self.charge
-        d["spin_multiplicity"] = self.spin_mult
+        d["spin_multiplicity"] = self.spin_multiplicity
 
-        vin = {"route": self.route, "functional": self.functional,
+        vin = {"route": self.route_parameters, "functional": self.functional,
                "basis_set": self.basis_set,
                "nbasisfunctions": self.num_basis_func,
                "pcm_parameters": self.pcm}
@@ -1172,7 +1206,7 @@ class GaussianOutput(object):
         plt.ylabel("Energy (eV)")
 
         e_min = min(d["energies"])
-        y = [(e - e_min) * HARTREE_TO_ELECTRON_VOLT for e in d["energies"]]
+        y = [(e - e_min) * Ha_to_eV for e in d["energies"]]
 
         plt.plot(x, y, "ro--")
         return plt
@@ -1302,10 +1336,10 @@ class GaussianOutput(object):
             charge = self.charge
 
         if spin_multiplicity is None:
-            spin_multiplicity = self.spin_mult
+            spin_multiplicity = self.spin_multiplicity
 
         if not title:
-            title = "restart "
+            title = self.title
 
         if not functional:
             functional = self.functional
@@ -1314,7 +1348,7 @@ class GaussianOutput(object):
             basis_set = self.basis_set
 
         if not route_parameters:
-            route_parameters = self.route
+            route_parameters = self.route_parameters
 
         if not link0_parameters:
             link0_parameters = self.link0
