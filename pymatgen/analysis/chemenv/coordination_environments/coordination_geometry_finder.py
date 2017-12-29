@@ -261,18 +261,26 @@ def symmetry_measure(points_distorted, points_perfect):
     rot = find_rotation(points_distorted=points_distorted,
                         points_perfect=points_perfect)
     # Find the scaling factor between the distorted points and the perfect points in a least-square sense.
-    scaling_factor, rotated_coords = find_scaling_factor(
+    scaling_factor, frotated_coords, fpoints_perfect = find_scaling_factor(
         points_distorted=points_distorted,
         points_perfect=points_perfect,
         rot=rot)
+    # scaling_factor, rotated_coords = find_scaling_factor(
+    #     points_distorted=points_distorted,
+    #     points_perfect=points_perfect,
+    #     rot=rot)
     # Compute the continuous symmetry measure [see Eq. 1 in Pinsky et al., Inorganic Chemistry 37, 5575 (1998)]
-    num = 0.0
-    denom = 0.0
-    for ip, pp in enumerate(points_perfect):
-        rotated_coords[ip] = scaling_factor * rotated_coords[ip]
-        diff = (pp - rotated_coords[ip])
-        num += np.sum(diff * diff)
-        denom += np.sum(pp * pp)
+    frotated_coords = scaling_factor * frotated_coords
+    diff = fpoints_perfect - frotated_coords
+    num = np.dot(diff, diff)
+    denom = np.dot(fpoints_perfect, fpoints_perfect)
+    # num = 0.0
+    # denom = 0.0
+    # for ip, pp in enumerate(points_perfect):
+    #     rotated_coords[ip] = scaling_factor * rotated_coords[ip]
+    #     diff = (pp - rotated_coords[ip])
+    #     num += np.sum(diff * diff)
+    #     denom += np.sum(pp * pp)
     return {'symmetry_measure': num / denom * 100.0, 'scaling_factor': scaling_factor, 'rotation_matrix': rot}
 
 
@@ -312,10 +320,15 @@ def find_scaling_factor(points_distorted, points_perfect, rot):
     :return: The scaling factor between the two structures and the rotated set of (distorted) points.
     """
     rotated_coords = rotateCoords(points_distorted, rot)
-    num = np.sum([np.dot(rc, points_perfect[ii]) for ii, rc in
-                  enumerate(rotated_coords)])
-    denom = np.sum([np.dot(rc, rc) for rc in rotated_coords])
-    return num / denom, rotated_coords
+    frc = np.array(rotated_coords).flatten()
+    fpp = np.array(points_perfect).flatten()
+    num = np.dot(frc, fpp)
+    denom = np.dot(frc, frc)
+    # num = np.sum([np.dot(rc, points_perfect[ii]) for ii, rc in
+    #               enumerate(rotated_coords)])
+    # denom = np.sum([np.dot(rc, rc) for rc in rotated_coords])
+    return num / denom, frc, fpp
+    # return num / denom, rotated_coords
 
 
 class LocalGeometryFinder(object):
@@ -489,6 +502,9 @@ class LocalGeometryFinder(object):
                                        info=None,
                                        timelimit=None,
                                        initial_structure_environments=None,
+                                       get_from_hints=False,
+                                       voronoi_normalized_distance_tolerance=None,
+                                       voronoi_normalized_angle_tolerance=None,
                                        recompute=None):
         """
         Computes and returns the StructureEnvironments object containing all the information about the coordination
@@ -552,12 +568,22 @@ class LocalGeometryFinder(object):
 
         # Get the VoronoiContainer for the sites defined by their indices (sites_indices)
         logging.info('Getting DetailedVoronoiContainer')
+        if voronoi_normalized_distance_tolerance is None:
+            normalized_distance_tolerance = DetailedVoronoiContainer.default_normalized_distance_tolerance
+        else:
+            normalized_distance_tolerance = voronoi_normalized_distance_tolerance
+        if voronoi_normalized_angle_tolerance is None:
+            normalized_angle_tolerance = DetailedVoronoiContainer.default_normalized_angle_tolerance
+        else:
+            normalized_angle_tolerance = voronoi_normalized_angle_tolerance
         self.detailed_voronoi = DetailedVoronoiContainer(self.structure,
                                                          isites=sites_indices,
                                                          valences=self.valences,
                                                          maximum_distance_factor=maximum_distance_factor,
                                                          minimum_angle_factor=minimum_angle_factor,
-                                                         additional_conditions=additional_conditions)
+                                                         additional_conditions=additional_conditions,
+                                                         normalized_distance_tolerance=normalized_distance_tolerance,
+                                                         normalized_angle_tolerance=normalized_angle_tolerance)
         logging.info('DetailedVoronoiContainer has been set up')
 
         # Initialize the StructureEnvironments object (either from initial_structure_environments or from scratch)
@@ -613,18 +639,26 @@ class LocalGeometryFinder(object):
             se.init_neighbors_sets(isite=isite, additional_conditions=additional_conditions, valences=valences)
 
             to_add_from_hints = []
+            nb_sets_info = {}
 
             for cn, nb_sets in se.neighbors_sets[isite].items():
                 if cn not in all_cns:
                     continue
                 for inb_set, nb_set in enumerate(nb_sets):
                     logging.debug('    ... getting environments for nb_set ({:d}, {:d})'.format(cn, inb_set))
+                    tnbset1 = time.clock()
                     ce = self.update_nb_set_environments(se=se, isite=isite, cn=cn, inb_set=inb_set, nb_set=nb_set,
                                                          recompute=do_recompute)
-                    for cg_symbol, cg_dict in ce:
-                        cg = self.allcg[cg_symbol]
-                        # Get possibly missing neighbors sets
-                        if cg.neighbors_sets_hints is not None:
+                    tnbset2 = time.clock()
+                    if cn not in nb_sets_info:
+                        nb_sets_info[cn] = {}
+                    nb_sets_info[cn][inb_set] = {'time': tnbset2 - tnbset1}
+                    if get_from_hints:
+                        for cg_symbol, cg_dict in ce:
+                            cg = self.allcg[cg_symbol]
+                            # Get possibly missing neighbors sets
+                            if cg.neighbors_sets_hints is None:
+                                continue
                             logging.debug('       ... getting hints from cg with mp_symbol "{}" ...'.format(cg_symbol))
                             hints_info = {'csm': cg_dict['symmetry_measure'],
                                           'nb_set': nb_set,
@@ -669,12 +703,18 @@ class LocalGeometryFinder(object):
                 inew_nb_set = se.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
                 logging.debug('    ... getting environments for nb_set ({:d}, {:d}) - '
                               'from hints'.format(cn_new_nb_set, inew_nb_set))
+                tnbset1 = time.clock()
                 self.update_nb_set_environments(se=se,
                                                 isite=isite_new_nb_set,
                                                 cn=cn_new_nb_set,
                                                 inb_set=inew_nb_set,
                                                 nb_set=new_nb_set)
+                tnbset2 = time.clock()
+                if cn not in nb_sets_info:
+                    nb_sets_info[cn] = {}
+                nb_sets_info[cn][inew_nb_set] = {'time': tnbset2 - tnbset1}
             t2 = time.clock()
+            se.update_site_info(isite=isite, info_dict={'time': t2 - t1, 'nb_sets_info': nb_sets_info})
             if timelimit is not None:
                 time_elapsed = t2 - time_init
                 time_left = timelimit - time_elapsed
@@ -756,7 +796,8 @@ class LocalGeometryFinder(object):
                                        indices='RANDOM',
                                        random_translation='NONE',
                                        random_rotation='NONE',
-                                       random_scale='NONE'):
+                                       random_scale='NONE',
+                                       points=None):
         if symbol_type == 'IUPAC':
             cg = self.allcg.get_geometry_from_IUPAC_symbol(symbol)
         elif symbol_type == 'MP' or symbol_type == 'mp_symbol':
@@ -764,19 +805,23 @@ class LocalGeometryFinder(object):
         else:
             raise ValueError('Wrong mp_symbol to setup coordination geometry')
         neighb_coords = []
+        if points is not None:
+            mypoints = points
+        else:
+            mypoints = cg.points
         if randomness:
             rv = np.random.random_sample(3)
             while norm(rv) > 1.0:
                 rv = np.random.random_sample(3)
             coords = [np.zeros(3, np.float) + max_random_dist * rv]
-            for pp in cg.points:
+            for pp in mypoints:
                 rv = np.random.random_sample(3)
                 while norm(rv) > 1.0:
                     rv = np.random.random_sample(3)
                 neighb_coords.append(np.array(pp) + max_random_dist * rv)
         else:
             coords = [np.zeros(3, np.float)]
-            for pp in cg.points:
+            for pp in mypoints:
                 neighb_coords.append(np.array(pp))
         if indices == 'RANDOM':
             shuffle(neighb_coords)

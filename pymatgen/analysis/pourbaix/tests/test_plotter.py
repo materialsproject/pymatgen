@@ -7,17 +7,20 @@ from __future__ import unicode_literals
 import unittest
 import os
 from monty.serialization import loadfn
-
+import warnings
 from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
 from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO
 from pymatgen.analysis.pourbaix.plotter import PourbaixPlotter
-from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
 
-test_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..',
+                        'test_files')
+
 
 class TestPourbaixPlotter(unittest.TestCase):
 
     def setUp(self):
+        warnings.simplefilter("ignore")
+
         module_dir = os.path.dirname(os.path.abspath(__file__))
         (elements, entries) = PourbaixEntryIO.from_csv(os.path.join(module_dir,
                                                     "test_entries.csv"))
@@ -27,6 +30,9 @@ class TestPourbaixPlotter(unittest.TestCase):
         self.pd = PourbaixDiagram(entries)
         self.multi_data = loadfn(os.path.join(test_dir, 'multicomp_pbx.json'))
         self.plotter = PourbaixPlotter(self.pd)
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_plot_pourbaix(self):
         # Default limits
@@ -38,6 +44,10 @@ class TestPourbaixPlotter(unittest.TestCase):
         plot_3d = self.plotter._get_plot()
         plot_3d_unstable = self.plotter._get_plot(label_unstable=True)
 
+        plt.close()
+        plot_3d.close()
+        plot_3d_unstable.close()
+
     def test_plot_entry_stability(self):
         entry = self.pd.all_entries[0]
         plt = self.plotter.plot_entry_stability(entry, limits=[[-2, 14], [-3, 3]])
@@ -47,8 +57,8 @@ class TestPourbaixPlotter(unittest.TestCase):
                                     comp_dict = {"Ag": 0.5, "Te": 0.5})
         binary_plotter = PourbaixPlotter(pd_binary)
         test_entry = pd_binary._unprocessed_entries[0]
-        binary_plotter.plot_entry_stability(test_entry)
-
+        plt = binary_plotter.plot_entry_stability(test_entry)
+        plt.close()
 
 if __name__ == '__main__':
     unittest.main()
