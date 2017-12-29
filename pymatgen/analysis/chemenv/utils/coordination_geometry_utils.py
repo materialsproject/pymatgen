@@ -697,19 +697,25 @@ class Plane(object):
         """
         return [np.dot(self.normal_vector, pp) + self.d for pp in points]
 
-    def distances_indices_sorted(self, points):
+    def distances_indices_sorted(self, points, sign=False):
         """
         Computes the distances from the plane to each of the points. Positive distances are on the side of the
         normal of the plane while negative distances are on the other side. Indices sorting the points from closest
         to furthest is also computed.
         :param points: Points for which distances are computed
+        :param sign: Whether to add sign information in the indices sorting the points distances
         :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
-                 negative values on the other side), as well as indices of the points from closest to furthest.
+                 negative values on the other side), as well as indices of the points from closest to furthest. For
+                 the latter, when the sign parameter is True, items of the sorting list are given as tuples of
+                 (index, sign).
         """
         distances = [np.dot(self.normal_vector, pp) + self.d for pp in points]
-        return distances, sorted(range(len(distances)), key=lambda k: np.abs(distances[k]))
+        indices = sorted(range(len(distances)), key=lambda k: np.abs(distances[k]))
+        if sign:
+            indices = [(ii, int(np.sign(distances[ii]))) for ii in indices]
+        return distances, indices
 
-    def distances_indices_groups(self, points, delta=None, delta_factor=0.05):
+    def distances_indices_groups(self, points, delta=None, delta_factor=0.05, sign=False):
         """
         Computes the distances from the plane to each of the points. Positive distances are on the side of the
         normal of the plane while negative distances are on the other side. Indices sorting the points from closest
@@ -720,17 +726,21 @@ class Plane(object):
         :param delta: Distance interval for which two points are considered in the same group.
         :param delta_factor: If delta is None, the distance interval is taken as delta_factor times the maximal
                              point distance.
+                             :param sign: Whether to add sign information in the indices sorting the points distances
         :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
                  negative values on the other side), as well as indices of the points from closest to furthest and
-                 grouped indices of distances separated by less than delta.
+                 grouped indices of distances separated by less than delta. For the sorting list and the grouped
+                 indices, when the sign parameter is True, items are given as tuples of (index, sign).
         """
         distances, indices = self.distances_indices_sorted(points=points)
         if delta is None:
             delta = delta_factor*np.abs(distances[indices[-1]])
         iends = [ii for ii, idist in enumerate(indices, start=1)
                  if ii == len(distances) or (np.abs(distances[indices[ii]])-np.abs(distances[idist])>delta)]
-        grouped_indices = [indices[iends[ii-1]:iend]
-                           if ii>0 else indices[:iend]
+        if sign:
+            indices = [(ii, int(np.sign(distances[ii]))) for ii in indices]
+        grouped_indices = [indices[iends[ii - 1]:iend]
+                           if ii > 0 else indices[:iend]
                            for ii, iend in enumerate(iends)]
         return distances, indices, grouped_indices
 
