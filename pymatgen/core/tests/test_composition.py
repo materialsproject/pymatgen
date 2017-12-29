@@ -439,19 +439,19 @@ class CompositionTest(PymatgenTest):
         # Basic test: Get compositions where each element is in a single charge state
         decorated = Composition("H2O").add_charges_from_oxi_state_guesses()
         self.assertIn(Specie("H", 1), decorated)
-        self.assertEquals(2, decorated.get(Specie("H", 1)))
+        self.assertEqual(2, decorated.get(Specie("H", 1)))
 
         # Test: More than one charge state per element
         decorated = Composition("Fe3O4").add_charges_from_oxi_state_guesses()
-        self.assertEquals(1, decorated.get(Specie("Fe", 2)))
-        self.assertEquals(2, decorated.get(Specie("Fe", 3)))
-        self.assertEquals(4, decorated.get(Specie("O", -2)))
+        self.assertEqual(1, decorated.get(Specie("Fe", 2)))
+        self.assertEqual(2, decorated.get(Specie("Fe", 3)))
+        self.assertEqual(4, decorated.get(Specie("O", -2)))
 
         # Test: No possible charge states
         #   It should return an uncharged composition
         decorated = Composition("NiAl").add_charges_from_oxi_state_guesses()
-        self.assertEquals(1, decorated.get(Specie("Ni", 0)))
-        self.assertEquals(1, decorated.get(Specie("Al", 0)))
+        self.assertEqual(1, decorated.get(Specie("Ni", 0)))
+        self.assertEqual(1, decorated.get(Specie("Al", 0)))
 
 
 class ChemicalPotentialTest(unittest.TestCase):
