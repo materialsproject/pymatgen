@@ -39,6 +39,12 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class VasprunTest(unittest.TestCase):
 
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_multiple_dielectric(self):
         v = Vasprun(os.path.join(test_dir, "vasprun.GW0.xml"))
         self.assertEqual(len(v.other_dielectric), 3)
