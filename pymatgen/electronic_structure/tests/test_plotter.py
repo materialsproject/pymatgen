@@ -194,10 +194,8 @@ class PlotBZTest(unittest.TestCase):
     def test_bz_plot(self):
         fig, ax = plot_ellipsoid(self.hessian, self.center,
                                  lattice=self.rec_latt)
-        fig.close()
         fig = plot_brillouin_zone(self.rec_latt, lines=self.kpath, labels=self.labels,
                                   kpoints=self.points, ax=ax, show=False)
-        fig.close()
 
     def test_fold_point(self):
         self.assertTrue(
