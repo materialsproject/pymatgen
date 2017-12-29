@@ -417,51 +417,20 @@ class MagmomLdauTest(PymatgenTest):
         self.assertEqual(magmom, magmom_ans)
 
     def test_ln_magmom(self):
-        MAGMOM = {
-            'Ce': 5,
-            'Ce3+': 1.5,
-            'Co': 5,
-            'Co3+': 0.6,
-            'Co4+': 1,
-            'Cr': 5,
-            'Dy3+': 7.5,
-            'Er3+': 4.5,
-            'Eu': 10,
-            'Eu2+': 7,
-            'Eu3+': 9.0,
-            'Fe': 5,
-            'Gd3+': 10.5,
-            'Ho3+': 6.0,
-            'La3+': 0.6,
-            'Lu3+': 0.6,
-            'Mn': 5,
-            'Mn3+': 4,
-            'Mn4+': 3,
-            'Mo': 5,
-            'Nd3+': 4.5,
-            'Ni': 5,
-            'Pm3+': 6.0,
-            'Pr3+': 3.0,
-            'Sm3+': 7.5,
-            'Tb3+': 9.0,
-            'Tm3+': 3.0,
-            'V': 5,
-            'W': 5,
-            'Yb3+': 1.5
-        }
+        MAGMOM_SETTING = loadfn("../VASPIncarBase.yaml")["MAGMOM"]
         structure = Structure.from_file(os.path.join(test_dir, "La4Fe4O12.cif"))
         structure.add_oxidation_state_by_element({"La":+3, "Fe":+3, "O":-2})
-        for ion in MAGMOM:
+        for ion in MAGMOM_SETTING:
             s = structure.copy()
             s.replace_species({"La3+":ion})
             vis = MPRelaxSet(s)
             fe_pos = vis.poscar.comment.index("Fe")
             if fe_pos == 0:
-                magmom_ans =  [5] * 4 + [MAGMOM[ion]] * 4 + [0.6] * 12
+                magmom_ans =  [5] * 4 + [MAGMOM_SETTING[ion]] * 4 + [0.6] * 12
             else:
-                magmom_ans = [MAGMOM[ion]] * 4 + [5] * 4 + [0.6] * 12
+                magmom_ans = [MAGMOM_SETTING[ion]] * 4 + [5] * 4 + [0.6] * 12
 
-            self.assertEqual(vis.incar['MAGMOM'], magmom_ans)
+            self.assertEqual(vis.incar["MAGMOM"], magmom_ans)
 
 
 class MITMDSetTest(unittest.TestCase):
