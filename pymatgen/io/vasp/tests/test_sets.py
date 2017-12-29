@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import unittest
 import tempfile
 from monty.json import MontyDecoder
+from monty.serialization import loadfn
 
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Kpoints
@@ -417,16 +418,17 @@ class MagmomLdauTest(PymatgenTest):
         self.assertEqual(magmom, magmom_ans)
 
     def test_ln_magmom(self):
-        MAGMOM_SETTING = loadfn("../VASPIncarBase.yaml")["MAGMOM"]
+        YAML_PATH = os.path.join(os.path.dirname(__file__), "../VASPIncarBase.yaml")
+        MAGMOM_SETTING = loadfn(YAML_PATH)["MAGMOM"]
         structure = Structure.from_file(os.path.join(test_dir, "La4Fe4O12.cif"))
-        structure.add_oxidation_state_by_element({"La":+3, "Fe":+3, "O":-2})
+        structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
         for ion in MAGMOM_SETTING:
             s = structure.copy()
-            s.replace_species({"La3+":ion})
+            s.replace_species({"La3+": ion})
             vis = MPRelaxSet(s)
             fe_pos = vis.poscar.comment.index("Fe")
             if fe_pos == 0:
-                magmom_ans =  [5] * 4 + [MAGMOM_SETTING[ion]] * 4 + [0.6] * 12
+                magmom_ans = [5] * 4 + [MAGMOM_SETTING[ion]] * 4 + [0.6] * 12
             else:
                 magmom_ans = [MAGMOM_SETTING[ion]] * 4 + [5] * 4 + [0.6] * 12
 
