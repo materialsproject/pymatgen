@@ -506,6 +506,12 @@ def sort_separation(separation):
     return [sorted(separation[0]), sorted(separation[1]), sorted(separation[2])]
 
 
+def sort_separation_tuple(separation):
+    if len(separation[0]) > len(separation[2]):
+        return (tuple(sorted(separation[2])), tuple(sorted(separation[1])), tuple(sorted(separation[0])))
+    return (tuple(sorted(separation[0])), tuple(sorted(separation[1])), tuple(sorted(separation[2])))
+
+
 def separation_in_list(separation_indices, separation_indices_list):
     """
     Checks if the separation indices of a plane are already in the list
