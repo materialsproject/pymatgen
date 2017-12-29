@@ -3227,10 +3227,14 @@ class NscfTask(GsTask):
         (in principle, it's possible to interpolate inside Abinit but tests revealed some numerical noise
         Here we change the input file of the NSCF task to have the same FFT mesh.
         """
-        assert len(self.deps) == 1
-        dep = self.deps[0]
-        parent_task = dep.node
         # TODO: This won't work if parent_node is a file
+        for dep in self.deps:
+            if "DEN" in dep.exts:
+                parent_task = dep.node
+                break
+        else:
+            raise RuntimeError("Cannot find parent node producing DEN file")
+
         with parent_task.open_gsr() as gsr:
             den_mesh = 3 * [None]
             den_mesh[0] = gsr.reader.read_dimvalue("number_of_grid_points_vector1")
