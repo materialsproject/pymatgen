@@ -129,8 +129,8 @@ installation process is using `conda <http://conda.pydata.org>`_. The
 `Materials Virtual Lab`_ has started `materials.sh <http://materials.sh>`_,
 a community initiative to build a comprehensive collection of materials science
 software, where pymatgen is available. If you already have conda installed,
-pymatgen can be installed from the `matsci channel on Anaconda cloud <https://anaconda
-.org/matsci>`_ using the following one line command::
+pymatgen can be installed from the `matsci channel on Anaconda cloud
+<https://anaconda.org/matsci>`_ using the following one line command::
 
    conda install --channel matsci pymatgen
 
@@ -210,7 +210,8 @@ install. This guarantees the right version of python and all dependencies::
     source $HOME/.bash_profile
 
     # Install numpy and other pydata stack packages via conda.
-    conda install --yes pymatgen
+    conda install --yes numpy scipy pandas
+    conda install --yes --channel matsci pymatgen
 
 Usage
 =====
