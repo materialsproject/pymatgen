@@ -28,6 +28,11 @@ Ac:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 1.26, ionic_radius: 1.12}
   Superconduction temperature: no data K
   Thermal conductivity: 12 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -64,6 +69,43 @@ Ag:
   Reflectivity: 97 %
   Refractive index: no data
   Rigidity modulus: 30 GPa
+  Shannon radii:
+    1:
+      II:
+        ? ''
+        : {crystal_radius: 0.81, ionic_radius: 0.67}
+      IV:
+        ? ''
+        : {crystal_radius: 1.14, ionic_radius: 1.0}
+      IVSQ:
+        ? ''
+        : {crystal_radius: 1.16, ionic_radius: 1.02}
+      V:
+        ? ''
+        : {crystal_radius: 1.23, ionic_radius: 1.09}
+      VI:
+        ? ''
+        : {crystal_radius: 1.29, ionic_radius: 1.15}
+      VII:
+        ? ''
+        : {crystal_radius: 1.36, ionic_radius: 1.22}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.42, ionic_radius: 1.28}
+    2:
+      IVSQ:
+        ? ''
+        : {crystal_radius: 0.93, ionic_radius: 0.79}
+      VI:
+        ? ''
+        : {crystal_radius: 1.08, ionic_radius: 0.94}
+    3:
+      IVSQ:
+        ? ''
+        : {crystal_radius: 0.81, ionic_radius: 0.67}
+      VI:
+        ? ''
+        : {crystal_radius: 0.89, ionic_radius: 0.75}
   Superconduction temperature: no data K
   Thermal conductivity: 430 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.72
@@ -99,6 +141,17 @@ Al:
   Reflectivity: 71 %
   Refractive index: no data
   Rigidity modulus: 26 GPa
+  Shannon radii:
+    3:
+      IV:
+        ? ''
+        : {crystal_radius: 0.53, ionic_radius: 0.39}
+      V:
+        ? ''
+        : {crystal_radius: 0.62, ionic_radius: 0.48}
+      VI:
+        ? ''
+        : {crystal_radius: 0.675, ionic_radius: 0.535}
   Superconduction temperature: 1.175 K
   Thermal conductivity: 235 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.84
@@ -133,6 +186,31 @@ Am:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    2:
+      IX:
+        ? ''
+        : {crystal_radius: 1.45, ionic_radius: 1.31}
+      VII:
+        ? ''
+        : {crystal_radius: 1.35, ionic_radius: 1.21}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.4, ionic_radius: 1.26}
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 1.115, ionic_radius: 0.975}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.23, ionic_radius: 1.09}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.99, ionic_radius: 0.85}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.09, ionic_radius: 0.95}
   Superconduction temperature: 0.6 K
   Thermal conductivity: 10 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -202,6 +280,18 @@ As:
   Reflectivity: no data %
   Refractive index: '1.001552'
   Rigidity modulus: no data GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.72, ionic_radius: 0.58}
+    5:
+      IV:
+        ? ''
+        : {crystal_radius: 0.475, ionic_radius: 0.335}
+      VI:
+        ? ''
+        : {crystal_radius: 0.6, ionic_radius: 0.46}
   Superconduction temperature: no data K
   Thermal conductivity: 50 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.85
@@ -238,6 +328,11 @@ At:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    7:
+      VI:
+        ? ''
+        : {crystal_radius: 0.76, ionic_radius: 0.62}
   Superconduction temperature: no data K
   Thermal conductivity: 2 (estimate)W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.02
@@ -274,6 +369,22 @@ Au:
   Reflectivity: 95 %
   Refractive index: no data
   Rigidity modulus: 27 GPa
+  Shannon radii:
+    1:
+      VI:
+        ? ''
+        : {crystal_radius: 1.51, ionic_radius: 1.37}
+    3:
+      IVSQ:
+        ? ''
+        : {crystal_radius: 0.82, ionic_radius: 0.68}
+      VI:
+        ? ''
+        : {crystal_radius: 0.99, ionic_radius: 0.85}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.71, ionic_radius: 0.57}
   Superconduction temperature: no data K
   Thermal conductivity: 320 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.66
@@ -309,6 +420,17 @@ B:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    3:
+      III:
+        ? ''
+        : {crystal_radius: 0.15, ionic_radius: 0.01}
+      IV:
+        ? ''
+        : {crystal_radius: 0.25, ionic_radius: 0.11}
+      VI:
+        ? ''
+        : {crystal_radius: 0.41, ionic_radius: 0.27}
   Superconduction temperature: no data K
   Thermal conductivity: 27 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.92
@@ -346,6 +468,29 @@ Ba:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 4.9 GPa
+  Shannon radii:
+    2:
+      IX:
+        ? ''
+        : {crystal_radius: 1.61, ionic_radius: 1.47}
+      VI:
+        ? ''
+        : {crystal_radius: 1.49, ionic_radius: 1.35}
+      VII:
+        ? ''
+        : {crystal_radius: 1.52, ionic_radius: 1.38}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.56, ionic_radius: 1.42}
+      X:
+        ? ''
+        : {crystal_radius: 1.66, ionic_radius: 1.52}
+      XI:
+        ? ''
+        : {crystal_radius: 1.71, ionic_radius: 1.57}
+      XII:
+        ? ''
+        : {crystal_radius: 1.75, ionic_radius: 1.61}
   Superconduction temperature: no data K
   Thermal conductivity: 18 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.68
@@ -381,6 +526,17 @@ Be:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 132 GPa
+  Shannon radii:
+    2:
+      III:
+        ? ''
+        : {crystal_radius: 0.3, ionic_radius: 0.16}
+      IV:
+        ? ''
+        : {crystal_radius: 0.41, ionic_radius: 0.27}
+      VI:
+        ? ''
+        : {crystal_radius: 0.59, ionic_radius: 0.45}
   Superconduction temperature: 0.026 K
   Thermal conductivity: 190 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.53
@@ -418,6 +574,21 @@ Bi:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 12 GPa
+  Shannon radii:
+    3:
+      V:
+        ? ''
+        : {crystal_radius: 1.1, ionic_radius: 0.96}
+      VI:
+        ? ''
+        : {crystal_radius: 1.17, ionic_radius: 1.03}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.31, ionic_radius: 1.17}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.9, ionic_radius: 0.76}
   Superconduction temperature: no data K
   Thermal conductivity: 8 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.07
@@ -452,6 +623,18 @@ Bk:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 1.1, ionic_radius: 0.96}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.97, ionic_radius: 0.83}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.07, ionic_radius: 0.93}
   Superconduction temperature: no data K
   Thermal conductivity: 10 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -488,6 +671,26 @@ Br:
   Reflectivity: no data %
   Refractive index: '1.001132'
   Rigidity modulus: no data GPa
+  Shannon radii:
+    -1:
+      VI:
+        ? ''
+        : {crystal_radius: 1.82, ionic_radius: 1.96}
+    3:
+      IVSQ:
+        ? ''
+        : {crystal_radius: 0.73, ionic_radius: 0.59}
+    5:
+      IIIPY:
+        ? ''
+        : {crystal_radius: 0.45, ionic_radius: 0.31}
+    7:
+      IV:
+        ? ''
+        : {crystal_radius: 0.39, ionic_radius: 0.25}
+      VI:
+        ? ''
+        : {crystal_radius: 0.53, ionic_radius: 0.39}
   Superconduction temperature: no data K
   Thermal conductivity: 0.12 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.85
@@ -524,6 +727,17 @@ C:
   Reflectivity: 27 %
   Refractive index: 2.417 (diamond)(no units)
   Rigidity modulus: no data GPa
+  Shannon radii:
+    4:
+      III:
+        ? ''
+        : {crystal_radius: 0.06, ionic_radius: -0.08}
+      IV:
+        ? ''
+        : {crystal_radius: 0.29, ionic_radius: 0.15}
+      VI:
+        ? ''
+        : {crystal_radius: 0.3, ionic_radius: 0.16}
   Superconduction temperature: no data K
   Thermal conductivity: 140 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.7
@@ -560,6 +774,26 @@ Ca:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 7.4 GPa
+  Shannon radii:
+    2:
+      IX:
+        ? ''
+        : {crystal_radius: 1.32, ionic_radius: 1.18}
+      VI:
+        ? ''
+        : {crystal_radius: 1.14, ionic_radius: 1.0}
+      VII:
+        ? ''
+        : {crystal_radius: 1.2, ionic_radius: 1.06}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.26, ionic_radius: 1.12}
+      X:
+        ? ''
+        : {crystal_radius: 1.37, ionic_radius: 1.23}
+      XII:
+        ? ''
+        : {crystal_radius: 1.48, ionic_radius: 1.34}
   Superconduction temperature: no data K
   Thermal conductivity: 200 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.31
@@ -596,6 +830,26 @@ Cd:
   Reflectivity: 67 %
   Refractive index: no data
   Rigidity modulus: 19 GPa
+  Shannon radii:
+    2:
+      IV:
+        ? ''
+        : {crystal_radius: 0.92, ionic_radius: 0.78}
+      V:
+        ? ''
+        : {crystal_radius: 1.01, ionic_radius: 0.87}
+      VI:
+        ? ''
+        : {crystal_radius: 1.09, ionic_radius: 0.95}
+      VII:
+        ? ''
+        : {crystal_radius: 1.17, ionic_radius: 1.03}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.24, ionic_radius: 1.1}
+      XII:
+        ? ''
+        : {crystal_radius: 1.45, ionic_radius: 1.31}
   Superconduction temperature: 0.517 K
   Thermal conductivity: 97 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.58
@@ -633,6 +887,39 @@ Ce:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 14 GPa
+  Shannon radii:
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.336, ionic_radius: 1.196}
+      VI:
+        ? ''
+        : {crystal_radius: 1.15, ionic_radius: 1.01}
+      VII:
+        ? ''
+        : {crystal_radius: 1.21, ionic_radius: 1.07}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.283, ionic_radius: 1.143}
+      X:
+        ? ''
+        : {crystal_radius: 1.39, ionic_radius: 1.25}
+      XII:
+        ? ''
+        : {crystal_radius: 1.48, ionic_radius: 1.34}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 1.01, ionic_radius: 0.87}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.11, ionic_radius: 0.97}
+      X:
+        ? ''
+        : {crystal_radius: 1.21, ionic_radius: 1.07}
+      XII:
+        ? ''
+        : {crystal_radius: 1.28, ionic_radius: 1.14}
   Superconduction temperature: 0.022  (under pressure)K
   Thermal conductivity: 11 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -667,6 +954,18 @@ Cf:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 1.09, ionic_radius: 0.95}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.961, ionic_radius: 0.821}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.06, ionic_radius: 0.92}
   Superconduction temperature: no data K
   Thermal conductivity: no data W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -702,6 +1001,22 @@ Cl:
   Reflectivity: no data %
   Refractive index: '1.000773'
   Rigidity modulus: no data GPa
+  Shannon radii:
+    -1:
+      VI:
+        ? ''
+        : {crystal_radius: 1.67, ionic_radius: 1.81}
+    5:
+      IIIPY:
+        ? ''
+        : {crystal_radius: 0.26, ionic_radius: 0.12}
+    7:
+      IV:
+        ? ''
+        : {crystal_radius: 0.22, ionic_radius: 0.08}
+      VI:
+        ? ''
+        : {crystal_radius: 0.41, ionic_radius: 0.27}
   Superconduction temperature: no data K
   Thermal conductivity: 0.0089 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.75
@@ -736,6 +1051,18 @@ Cm:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 1.11, ionic_radius: 0.97}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.99, ionic_radius: 0.85}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.09, ionic_radius: 0.95}
   Superconduction temperature: no data K
   Thermal conductivity: 8.8 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -774,6 +1101,29 @@ Co:
   Reflectivity: 67 %
   Refractive index: no data
   Rigidity modulus: 75 GPa
+  Shannon radii:
+    2:
+      IV:
+        High Spin: {crystal_radius: 0.72, ionic_radius: 0.58}
+      V:
+        ? ''
+        : {crystal_radius: 0.81, ionic_radius: 0.67}
+      VI:
+        High Spin: {crystal_radius: 0.885, ionic_radius: 0.745}
+        Low Spin: {crystal_radius: 0.79, ionic_radius: 0.65}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.04, ionic_radius: 0.9}
+    3:
+      VI:
+        High Spin: {crystal_radius: 0.75, ionic_radius: 0.61}
+        Low Spin: {crystal_radius: 0.685, ionic_radius: 0.545}
+    4:
+      IV:
+        ? ''
+        : {crystal_radius: 0.54, ionic_radius: 0.4}
+      VI:
+        High Spin: {crystal_radius: 0.67, ionic_radius: 0.53}
   Superconduction temperature: no data K
   Thermal conductivity: 100 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -812,6 +1162,39 @@ Cr:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 115 GPa
+  Shannon radii:
+    2:
+      VI:
+        High Spin: {crystal_radius: 0.94, ionic_radius: 0.8}
+        Low Spin: {crystal_radius: 0.87, ionic_radius: 0.73}
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.755, ionic_radius: 0.615}
+    4:
+      IV:
+        ? ''
+        : {crystal_radius: 0.55, ionic_radius: 0.41}
+      VI:
+        ? ''
+        : {crystal_radius: 0.69, ionic_radius: 0.55}
+    5:
+      IV:
+        ? ''
+        : {crystal_radius: 0.485, ionic_radius: 0.345}
+      VI:
+        ? ''
+        : {crystal_radius: 0.63, ionic_radius: 0.49}
+      VIII:
+        ? ''
+        : {crystal_radius: 0.71, ionic_radius: 0.57}
+    6:
+      IV:
+        ? ''
+        : {crystal_radius: 0.4, ionic_radius: 0.26}
+      VI:
+        ? ''
+        : {crystal_radius: 0.58, ionic_radius: 0.44}
   Superconduction temperature: no data K
   Thermal conductivity: 94 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -849,6 +1232,26 @@ Cs:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    1:
+      IX:
+        ? ''
+        : {crystal_radius: 1.92, ionic_radius: 1.78}
+      VI:
+        ? ''
+        : {crystal_radius: 1.81, ionic_radius: 1.67}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.88, ionic_radius: 1.74}
+      X:
+        ? ''
+        : {crystal_radius: 1.95, ionic_radius: 1.81}
+      XI:
+        ? ''
+        : {crystal_radius: 1.99, ionic_radius: 1.85}
+      XII:
+        ? ''
+        : {crystal_radius: 2.02, ionic_radius: 1.88}
   Superconduction temperature: no data K
   Thermal conductivity: 36 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 3.43
@@ -885,6 +1288,33 @@ Cu:
   Reflectivity: 90 %
   Refractive index: no data
   Rigidity modulus: 48 GPa
+  Shannon radii:
+    1:
+      II:
+        ? ''
+        : {crystal_radius: 0.6, ionic_radius: 0.46}
+      IV:
+        ? ''
+        : {crystal_radius: 0.74, ionic_radius: 0.6}
+      VI:
+        ? ''
+        : {crystal_radius: 0.91, ionic_radius: 0.77}
+    2:
+      IV:
+        ? ''
+        : {crystal_radius: 0.71, ionic_radius: 0.57}
+      IVSQ:
+        ? ''
+        : {crystal_radius: 0.71, ionic_radius: 0.57}
+      V:
+        ? ''
+        : {crystal_radius: 0.79, ionic_radius: 0.65}
+      VI:
+        ? ''
+        : {crystal_radius: 0.87, ionic_radius: 0.73}
+    3:
+      VI:
+        Low Spin: {crystal_radius: 0.68, ionic_radius: 0.54}
   Superconduction temperature: no data K
   Thermal conductivity: 400 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.4
@@ -922,6 +1352,30 @@ Dy:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 25 GPa
+  Shannon radii:
+    2:
+      VI:
+        ? ''
+        : {crystal_radius: 1.21, ionic_radius: 1.07}
+      VII:
+        ? ''
+        : {crystal_radius: 1.27, ionic_radius: 1.13}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.33, ionic_radius: 1.19}
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.223, ionic_radius: 1.083}
+      VI:
+        ? ''
+        : {crystal_radius: 1.052, ionic_radius: 0.912}
+      VII:
+        ? ''
+        : {crystal_radius: 1.11, ionic_radius: 0.97}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.167, ionic_radius: 1.027}
   Superconduction temperature: no data K
   Thermal conductivity: 11 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -959,6 +1413,20 @@ Er:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 28 GPa
+  Shannon radii:
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.202, ionic_radius: 1.062}
+      VI:
+        ? ''
+        : {crystal_radius: 1.03, ionic_radius: 0.89}
+      VII:
+        ? ''
+        : {crystal_radius: 1.085, ionic_radius: 0.945}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.144, ionic_radius: 1.004}
   Superconduction temperature: no data K
   Thermal conductivity: 15 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1029,6 +1497,36 @@ Eu:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 7.9 GPa
+  Shannon radii:
+    2:
+      IX:
+        ? ''
+        : {crystal_radius: 1.44, ionic_radius: 1.3}
+      VI:
+        ? ''
+        : {crystal_radius: 1.31, ionic_radius: 1.17}
+      VII:
+        ? ''
+        : {crystal_radius: 1.34, ionic_radius: 1.2}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.39, ionic_radius: 1.25}
+      X:
+        ? ''
+        : {crystal_radius: 1.49, ionic_radius: 1.35}
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.26, ionic_radius: 1.12}
+      VI:
+        ? ''
+        : {crystal_radius: 1.087, ionic_radius: 0.947}
+      VII:
+        ? ''
+        : {crystal_radius: 1.15, ionic_radius: 1.01}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.206, ionic_radius: 1.066}
   Superconduction temperature: no data K
   Thermal conductivity: 14 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1064,6 +1562,24 @@ F:
   Reflectivity: no data %
   Refractive index: '1.000195'
   Rigidity modulus: no data GPa
+  Shannon radii:
+    -1:
+      II:
+        ? ''
+        : {crystal_radius: 1.145, ionic_radius: 1.285}
+      III:
+        ? ''
+        : {crystal_radius: 1.16, ionic_radius: 1.3}
+      IV:
+        ? ''
+        : {crystal_radius: 1.17, ionic_radius: 1.31}
+      VI:
+        ? ''
+        : {crystal_radius: 1.19, ionic_radius: 1.33}
+    7:
+      VI:
+        ? ''
+        : {crystal_radius: 0.22, ionic_radius: 0.08}
   Superconduction temperature: no data K
   Thermal conductivity: 0.0277 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.47
@@ -1102,6 +1618,36 @@ Fe:
   Reflectivity: 65 %
   Refractive index: no data
   Rigidity modulus: 82 GPa
+  Shannon radii:
+    2:
+      IV:
+        High Spin: {crystal_radius: 0.77, ionic_radius: 0.63}
+      IVSQ:
+        High Spin: {crystal_radius: 0.78, ionic_radius: 0.64}
+      VI:
+        High Spin: {crystal_radius: 0.92, ionic_radius: 0.78}
+        Low Spin: {crystal_radius: 0.75, ionic_radius: 0.61}
+      VIII:
+        High Spin: {crystal_radius: 1.06, ionic_radius: 0.92}
+    3:
+      IV:
+        High Spin: {crystal_radius: 0.63, ionic_radius: 0.49}
+      V:
+        ? ''
+        : {crystal_radius: 0.72, ionic_radius: 0.58}
+      VI:
+        High Spin: {crystal_radius: 0.785, ionic_radius: 0.645}
+        Low Spin: {crystal_radius: 0.69, ionic_radius: 0.55}
+      VIII:
+        High Spin: {crystal_radius: 0.92, ionic_radius: 0.78}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.725, ionic_radius: 0.585}
+    6:
+      IV:
+        ? ''
+        : {crystal_radius: 0.39, ionic_radius: 0.25}
   Superconduction temperature: no data K
   Thermal conductivity: 80 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1172,6 +1718,11 @@ Fr:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    1:
+      VI:
+        ? ''
+        : {crystal_radius: 1.94, ionic_radius: 1.8}
   Superconduction temperature: no data K
   Thermal conductivity: no data W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 3.48
@@ -1208,6 +1759,17 @@ Ga:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    3:
+      IV:
+        ? ''
+        : {crystal_radius: 0.61, ionic_radius: 0.47}
+      V:
+        ? ''
+        : {crystal_radius: 0.69, ionic_radius: 0.55}
+      VI:
+        ? ''
+        : {crystal_radius: 0.76, ionic_radius: 0.62}
   Superconduction temperature: 1.083 K
   Thermal conductivity: 29 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.87
@@ -1245,6 +1807,20 @@ Gd:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 22 GPa
+  Shannon radii:
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.247, ionic_radius: 1.107}
+      VI:
+        ? ''
+        : {crystal_radius: 1.078, ionic_radius: 0.938}
+      VII:
+        ? ''
+        : {crystal_radius: 1.14, ionic_radius: 1.0}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.193, ionic_radius: 1.053}
   Superconduction temperature: 1.083 K
   Thermal conductivity: 11 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1281,6 +1857,18 @@ Ge:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    2:
+      VI:
+        ? ''
+        : {crystal_radius: 0.87, ionic_radius: 0.73}
+    4:
+      IV:
+        ? ''
+        : {crystal_radius: 0.53, ionic_radius: 0.39}
+      VI:
+        ? ''
+        : {crystal_radius: 0.67, ionic_radius: 0.53}
   Superconduction temperature: no data K
   Thermal conductivity: 60 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.11
@@ -1315,6 +1903,14 @@ H:
   Reflectivity: no data %
   Refractive index: 1.000132 (gas; liquid 1.12)(no units)
   Rigidity modulus: no data GPa
+  Shannon radii:
+    1:
+      I:
+        ? ''
+        : {crystal_radius: -0.24, ionic_radius: -0.38}
+      II:
+        ? ''
+        : {crystal_radius: -0.04, ionic_radius: -0.18}
   Superconduction temperature: no data K
   Thermal conductivity: 0.1805 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.2
@@ -1384,6 +1980,20 @@ Hf:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 30 GPa
+  Shannon radii:
+    4:
+      IV:
+        ? ''
+        : {crystal_radius: 0.72, ionic_radius: 0.58}
+      VI:
+        ? ''
+        : {crystal_radius: 0.85, ionic_radius: 0.71}
+      VII:
+        ? ''
+        : {crystal_radius: 0.9, ionic_radius: 0.76}
+      VIII:
+        ? ''
+        : {crystal_radius: 0.97, ionic_radius: 0.83}
   Superconduction temperature: 0.128 K
   Thermal conductivity: 23 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1421,6 +2031,27 @@ Hg:
   Reflectivity: 73 %
   Refractive index: '1.000933'
   Rigidity modulus: no data GPa
+  Shannon radii:
+    1:
+      III:
+        ? ''
+        : {crystal_radius: 1.11, ionic_radius: 0.97}
+      VI:
+        ? ''
+        : {crystal_radius: 1.33, ionic_radius: 1.19}
+    2:
+      II:
+        ? ''
+        : {crystal_radius: 0.83, ionic_radius: 0.69}
+      IV:
+        ? ''
+        : {crystal_radius: 1.1, ionic_radius: 0.96}
+      VI:
+        ? ''
+        : {crystal_radius: 1.16, ionic_radius: 1.02}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.28, ionic_radius: 1.14}
   Superconduction temperature: 3.95 K
   Thermal conductivity: 8.3 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.55
@@ -1458,6 +2089,20 @@ Ho:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 26 GPa
+  Shannon radii:
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.212, ionic_radius: 1.072}
+      VI:
+        ? ''
+        : {crystal_radius: 1.041, ionic_radius: 0.901}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.155, ionic_radius: 1.015}
+      X:
+        ? ''
+        : {crystal_radius: 1.26, ionic_radius: 1.12}
   Superconduction temperature: no data K
   Thermal conductivity: 16 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1495,6 +2140,25 @@ I:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    -1:
+      VI:
+        ? ''
+        : {crystal_radius: 2.06, ionic_radius: 2.2}
+    5:
+      IIIPY:
+        ? ''
+        : {crystal_radius: 0.58, ionic_radius: 0.44}
+      VI:
+        ? ''
+        : {crystal_radius: 1.09, ionic_radius: 0.95}
+    7:
+      IV:
+        ? ''
+        : {crystal_radius: 0.56, ionic_radius: 0.42}
+      VI:
+        ? ''
+        : {crystal_radius: 0.67, ionic_radius: 0.53}
   Superconduction temperature: no data K
   Thermal conductivity: 0.449 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.98
@@ -1532,6 +2196,17 @@ In:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    3:
+      IV:
+        ? ''
+        : {crystal_radius: 0.76, ionic_radius: 0.62}
+      VI:
+        ? ''
+        : {crystal_radius: 0.94, ionic_radius: 0.8}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.06, ionic_radius: 0.92}
   Superconduction temperature: 3.41 K
   Thermal conductivity: 82 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.93
@@ -1569,6 +2244,19 @@ Ir:
   Reflectivity: 78 %
   Refractive index: no data
   Rigidity modulus: 210 GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.82, ionic_radius: 0.68}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.765, ionic_radius: 0.625}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.71, ionic_radius: 0.57}
   Superconduction temperature: 0.11 K
   Thermal conductivity: 150 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1605,6 +2293,29 @@ K:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 1.3 GPa
+  Shannon radii:
+    1:
+      IV:
+        ? ''
+        : {crystal_radius: 1.51, ionic_radius: 1.37}
+      IX:
+        ? ''
+        : {crystal_radius: 1.69, ionic_radius: 1.55}
+      VI:
+        ? ''
+        : {crystal_radius: 1.52, ionic_radius: 1.38}
+      VII:
+        ? ''
+        : {crystal_radius: 1.6, ionic_radius: 1.46}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.65, ionic_radius: 1.51}
+      X:
+        ? ''
+        : {crystal_radius: 1.73, ionic_radius: 1.59}
+      XII:
+        ? ''
+        : {crystal_radius: 1.78, ionic_radius: 1.64}
   Superconduction temperature: no data K
   Thermal conductivity: 100 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.75
@@ -1676,6 +2387,26 @@ La:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 14 GPa
+  Shannon radii:
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.356, ionic_radius: 1.216}
+      VI:
+        ? ''
+        : {crystal_radius: 1.172, ionic_radius: 1.032}
+      VII:
+        ? ''
+        : {crystal_radius: 1.24, ionic_radius: 1.1}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.3, ionic_radius: 1.16}
+      X:
+        ? ''
+        : {crystal_radius: 1.41, ionic_radius: 1.27}
+      XII:
+        ? ''
+        : {crystal_radius: 1.5, ionic_radius: 1.36}
   Superconduction temperature: 6.00 K
   Thermal conductivity: 13 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1711,6 +2442,17 @@ Li:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 4.2 GPa
+  Shannon radii:
+    1:
+      IV:
+        ? ''
+        : {crystal_radius: 0.73, ionic_radius: 0.59}
+      VI:
+        ? ''
+        : {crystal_radius: 0.9, ionic_radius: 0.76}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.06, ionic_radius: 0.92}
   Superconduction temperature: no data K
   Thermal conductivity: 85 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.82
@@ -1781,6 +2523,17 @@ Lu:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 27 GPa
+  Shannon radii:
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.172, ionic_radius: 1.032}
+      VI:
+        ? ''
+        : {crystal_radius: 1.001, ionic_radius: 0.861}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.117, ionic_radius: 0.977}
   Superconduction temperature: 0.022 K
   Thermal conductivity: 16 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1849,6 +2602,20 @@ Mg:
   Reflectivity: 74 %
   Refractive index: no data
   Rigidity modulus: 17 GPa
+  Shannon radii:
+    2:
+      IV:
+        ? ''
+        : {crystal_radius: 0.71, ionic_radius: 0.57}
+      V:
+        ? ''
+        : {crystal_radius: 0.8, ionic_radius: 0.66}
+      VI:
+        ? ''
+        : {crystal_radius: 0.86, ionic_radius: 0.72}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.03, ionic_radius: 0.89}
   Superconduction temperature: no data K
   Thermal conductivity: 160 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.73
@@ -1887,6 +2654,49 @@ Mn:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    2:
+      IV:
+        High Spin: {crystal_radius: 0.8, ionic_radius: 0.66}
+      V:
+        High Spin: {crystal_radius: 0.89, ionic_radius: 0.75}
+      VI:
+        High Spin: {crystal_radius: 0.97, ionic_radius: 0.83}
+        Low Spin: {crystal_radius: 0.81, ionic_radius: 0.67}
+      VII:
+        High Spin: {crystal_radius: 1.04, ionic_radius: 0.9}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.1, ionic_radius: 0.96}
+    3:
+      V:
+        ? ''
+        : {crystal_radius: 0.72, ionic_radius: 0.58}
+      VI:
+        High Spin: {crystal_radius: 0.785, ionic_radius: 0.645}
+        Low Spin: {crystal_radius: 0.72, ionic_radius: 0.58}
+    4:
+      IV:
+        ? ''
+        : {crystal_radius: 0.53, ionic_radius: 0.39}
+      VI:
+        ? ''
+        : {crystal_radius: 0.67, ionic_radius: 0.53}
+    5:
+      IV:
+        ? ''
+        : {crystal_radius: 0.47, ionic_radius: 0.33}
+    6:
+      IV:
+        ? ''
+        : {crystal_radius: 0.395, ionic_radius: 0.255}
+    7:
+      IV:
+        ? ''
+        : {crystal_radius: 0.39, ionic_radius: 0.25}
+      VI:
+        ? ''
+        : {crystal_radius: 0.6, ionic_radius: 0.46}
   Superconduction temperature: no data K
   Thermal conductivity: 7.8 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1923,6 +2733,35 @@ Mo:
   Reflectivity: 58 %
   Refractive index: no data
   Rigidity modulus: 20 GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.83, ionic_radius: 0.69}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.79, ionic_radius: 0.65}
+    5:
+      IV:
+        ? ''
+        : {crystal_radius: 0.6, ionic_radius: 0.46}
+      VI:
+        ? ''
+        : {crystal_radius: 0.75, ionic_radius: 0.61}
+    6:
+      IV:
+        ? ''
+        : {crystal_radius: 0.55, ionic_radius: 0.41}
+      V:
+        ? ''
+        : {crystal_radius: 0.64, ionic_radius: 0.5}
+      VI:
+        ? ''
+        : {crystal_radius: 0.73, ionic_radius: 0.59}
+      VII:
+        ? ''
+        : {crystal_radius: 0.87, ionic_radius: 0.73}
   Superconduction temperature: 0.915 K
   Thermal conductivity: 139 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -1958,6 +2797,22 @@ N:
   Reflectivity: no data %
   Refractive index: 1.000298 (gas; liquid 1.197)(no units)
   Rigidity modulus: no data GPa
+  Shannon radii:
+    -3:
+      IV:
+        ? ''
+        : {crystal_radius: 1.32, ionic_radius: 1.46}
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.3, ionic_radius: 0.16}
+    5:
+      III:
+        ? ''
+        : {crystal_radius: 0.044, ionic_radius: -0.104}
+      VI:
+        ? ''
+        : {crystal_radius: 0.27, ionic_radius: 0.13}
   Superconduction temperature: no data K
   Thermal conductivity: 0.02583 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.55
@@ -1993,6 +2848,29 @@ Na:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 3.3 GPa
+  Shannon radii:
+    1:
+      IV:
+        ? ''
+        : {crystal_radius: 1.13, ionic_radius: 0.99}
+      IX:
+        ? ''
+        : {crystal_radius: 1.38, ionic_radius: 1.24}
+      V:
+        ? ''
+        : {crystal_radius: 1.14, ionic_radius: 1.0}
+      VI:
+        ? ''
+        : {crystal_radius: 1.16, ionic_radius: 1.02}
+      VII:
+        ? ''
+        : {crystal_radius: 1.26, ionic_radius: 1.12}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.32, ionic_radius: 1.18}
+      XII:
+        ? ''
+        : {crystal_radius: 1.53, ionic_radius: 1.39}
   Superconduction temperature: no data K
   Thermal conductivity: 140 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.27
@@ -2029,6 +2907,31 @@ Nb:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 38 GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.86, ionic_radius: 0.72}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.82, ionic_radius: 0.68}
+      VIII:
+        ? ''
+        : {crystal_radius: 0.93, ionic_radius: 0.79}
+    5:
+      IV:
+        ? ''
+        : {crystal_radius: 0.62, ionic_radius: 0.48}
+      VI:
+        ? ''
+        : {crystal_radius: 0.78, ionic_radius: 0.64}
+      VII:
+        ? ''
+        : {crystal_radius: 0.83, ionic_radius: 0.69}
+      VIII:
+        ? ''
+        : {crystal_radius: 0.88, ionic_radius: 0.74}
   Superconduction temperature: 9.25 K
   Thermal conductivity: 54 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2066,6 +2969,27 @@ Nd:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 16 GPa
+  Shannon radii:
+    2:
+      IX:
+        ? ''
+        : {crystal_radius: 1.49, ionic_radius: 1.35}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.43, ionic_radius: 1.29}
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.303, ionic_radius: 1.163}
+      VI:
+        ? ''
+        : {crystal_radius: 1.123, ionic_radius: 0.983}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.249, ionic_radius: 1.109}
+      XII:
+        ? ''
+        : {crystal_radius: 1.41, ionic_radius: 1.27}
   Superconduction temperature: no data K
   Thermal conductivity: 17 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2136,6 +3060,27 @@ Ni:
   Reflectivity: 72 %
   Refractive index: no data
   Rigidity modulus: 76 GPa
+  Shannon radii:
+    2:
+      IV:
+        ? ''
+        : {crystal_radius: 0.69, ionic_radius: 0.55}
+      IVSQ:
+        ? ''
+        : {crystal_radius: 0.63, ionic_radius: 0.49}
+      V:
+        ? ''
+        : {crystal_radius: 0.77, ionic_radius: 0.63}
+      VI:
+        ? ''
+        : {crystal_radius: 0.83, ionic_radius: 0.69}
+    3:
+      VI:
+        High Spin: {crystal_radius: 0.74, ionic_radius: 0.6}
+        Low Spin: {crystal_radius: 0.7, ionic_radius: 0.56}
+    4:
+      VI:
+        Low Spin: {crystal_radius: 0.62, ionic_radius: 0.48}
   Superconduction temperature: no data K
   Thermal conductivity: 91 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.63
@@ -2169,6 +3114,11 @@ Ni:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    2:
+      VI:
+        ? ''
+        : {crystal_radius: 1.24, ionic_radius: 1.1}
   Superconduction temperature: no data K
   Thermal conductivity: no data W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2203,6 +3153,34 @@ Np:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    2:
+      VI:
+        ? ''
+        : {crystal_radius: 1.24, ionic_radius: 1.1}
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 1.15, ionic_radius: 1.01}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 1.01, ionic_radius: 0.87}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.12, ionic_radius: 0.98}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.89, ionic_radius: 0.75}
+    6:
+      VI:
+        ? ''
+        : {crystal_radius: 0.86, ionic_radius: 0.72}
+    7:
+      VI:
+        ? ''
+        : {crystal_radius: 0.85, ionic_radius: 0.71}
   Superconduction temperature: no data K
   Thermal conductivity: 6 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2238,6 +3216,23 @@ O:
   Reflectivity: no data %
   Refractive index: 1.000271 (gas; liquid 1.221)(no units)
   Rigidity modulus: no data GPa
+  Shannon radii:
+    -2:
+      II:
+        ? ''
+        : {crystal_radius: 1.21, ionic_radius: 1.35}
+      III:
+        ? ''
+        : {crystal_radius: 1.22, ionic_radius: 1.36}
+      IV:
+        ? ''
+        : {crystal_radius: 1.24, ionic_radius: 1.38}
+      VI:
+        ? ''
+        : {crystal_radius: 1.26, ionic_radius: 1.4}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.28, ionic_radius: 1.42}
   Superconduction temperature: no data K
   Thermal conductivity: 0.02658 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.52
@@ -2274,6 +3269,30 @@ Os:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 222 GPa
+  Shannon radii:
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.77, ionic_radius: 0.63}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.715, ionic_radius: 0.575}
+    6:
+      V:
+        ? ''
+        : {crystal_radius: 0.63, ionic_radius: 0.49}
+      VI:
+        ? ''
+        : {crystal_radius: 0.685, ionic_radius: 0.545}
+    7:
+      VI:
+        ? ''
+        : {crystal_radius: 0.665, ionic_radius: 0.525}
+    8:
+      IV:
+        ? ''
+        : {crystal_radius: 0.53, ionic_radius: 0.39}
   Superconduction temperature: 0.66 K
   Thermal conductivity: 88 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2309,6 +3328,21 @@ P:
   Reflectivity: no data %
   Refractive index: '1.001212'
   Rigidity modulus: no data GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.58, ionic_radius: 0.44}
+    5:
+      IV:
+        ? ''
+        : {crystal_radius: 0.31, ionic_radius: 0.17}
+      V:
+        ? ''
+        : {crystal_radius: 0.43, ionic_radius: 0.29}
+      VI:
+        ? ''
+        : {crystal_radius: 0.52, ionic_radius: 0.38}
   Superconduction temperature: no data K
   Thermal conductivity: 0.236 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.8
@@ -2346,6 +3380,28 @@ Pa:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 1.18, ionic_radius: 1.04}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 1.04, ionic_radius: 0.9}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.15, ionic_radius: 1.01}
+    5:
+      IX:
+        ? ''
+        : {crystal_radius: 1.09, ionic_radius: 0.95}
+      VI:
+        ? ''
+        : {crystal_radius: 0.92, ionic_radius: 0.78}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.05, ionic_radius: 0.91}
   Superconduction temperature: 1.4 K
   Thermal conductivity: 47 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2383,6 +3439,45 @@ Pb:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 5.6 GPa
+  Shannon radii:
+    2:
+      IVPY:
+        ? ''
+        : {crystal_radius: 1.12, ionic_radius: 0.98}
+      IX:
+        ? ''
+        : {crystal_radius: 1.49, ionic_radius: 1.35}
+      VI:
+        ? ''
+        : {crystal_radius: 1.33, ionic_radius: 1.19}
+      VII:
+        ? ''
+        : {crystal_radius: 1.37, ionic_radius: 1.23}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.43, ionic_radius: 1.29}
+      X:
+        ? ''
+        : {crystal_radius: 1.54, ionic_radius: 1.4}
+      XI:
+        ? ''
+        : {crystal_radius: 1.59, ionic_radius: 1.45}
+      XII:
+        ? ''
+        : {crystal_radius: 1.63, ionic_radius: 1.49}
+    4:
+      IV:
+        ? ''
+        : {crystal_radius: 0.79, ionic_radius: 0.65}
+      V:
+        ? ''
+        : {crystal_radius: 0.87, ionic_radius: 0.73}
+      VI:
+        ? ''
+        : {crystal_radius: 0.915, ionic_radius: 0.775}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.08, ionic_radius: 0.94}
   Superconduction temperature: 7.2 K
   Thermal conductivity: 35 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.02
@@ -2419,6 +3514,26 @@ Pd:
   Reflectivity: 72 %
   Refractive index: no data
   Rigidity modulus: 44 GPa
+  Shannon radii:
+    1:
+      II:
+        ? ''
+        : {crystal_radius: 0.73, ionic_radius: 0.59}
+    2:
+      IVSQ:
+        ? ''
+        : {crystal_radius: 0.78, ionic_radius: 0.64}
+      VI:
+        ? ''
+        : {crystal_radius: 1.0, ionic_radius: 0.86}
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.9, ionic_radius: 0.76}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.755, ionic_radius: 0.615}
   Superconduction temperature: no data K
   Thermal conductivity: 72 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.63
@@ -2455,6 +3570,17 @@ Pm:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 18 GPa
+  Shannon radii:
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.284, ionic_radius: 1.144}
+      VI:
+        ? ''
+        : {crystal_radius: 1.11, ionic_radius: 0.97}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.233, ionic_radius: 1.093}
   Superconduction temperature: no data K
   Thermal conductivity: 15 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2491,6 +3617,18 @@ Po:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 1.08, ionic_radius: 0.94}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.22, ionic_radius: 1.08}
+    6:
+      VI:
+        ? ''
+        : {crystal_radius: 0.81, ionic_radius: 0.67}
   Superconduction temperature: no data K
   Thermal conductivity: 20 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.97
@@ -2528,6 +3666,24 @@ Pr:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 15 GPa
+  Shannon radii:
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.319, ionic_radius: 1.179}
+      VI:
+        ? ''
+        : {crystal_radius: 1.13, ionic_radius: 0.99}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.266, ionic_radius: 1.126}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.99, ionic_radius: 0.85}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.1, ionic_radius: 0.96}
   Superconduction temperature: no data K
   Thermal conductivity: 13 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2564,6 +3720,22 @@ Pt:
   Reflectivity: 73 %
   Refractive index: no data
   Rigidity modulus: 61 GPa
+  Shannon radii:
+    2:
+      IVSQ:
+        ? ''
+        : {crystal_radius: 0.74, ionic_radius: 0.6}
+      VI:
+        ? ''
+        : {crystal_radius: 0.94, ionic_radius: 0.8}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.765, ionic_radius: 0.625}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.71, ionic_radius: 0.57}
   Superconduction temperature: no data K
   Thermal conductivity: 72 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.75
@@ -2598,6 +3770,26 @@ Pu:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 43 GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 1.14, ionic_radius: 1.0}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 1.0, ionic_radius: 0.86}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.1, ionic_radius: 0.96}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.88, ionic_radius: 0.74}
+    6:
+      VI:
+        ? ''
+        : {crystal_radius: 0.85, ionic_radius: 0.71}
   Superconduction temperature: no data K
   Thermal conductivity: 6 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2635,6 +3827,14 @@ Ra:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    2:
+      VIII:
+        ? ''
+        : {crystal_radius: 1.62, ionic_radius: 1.48}
+      XII:
+        ? ''
+        : {crystal_radius: 1.84, ionic_radius: 1.7}
   Superconduction temperature: no data K
   Thermal conductivity: 19 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.83
@@ -2671,6 +3871,32 @@ Rb:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    1:
+      IX:
+        ? ''
+        : {crystal_radius: 1.77, ionic_radius: 1.63}
+      VI:
+        ? ''
+        : {crystal_radius: 1.66, ionic_radius: 1.52}
+      VII:
+        ? ''
+        : {crystal_radius: 1.7, ionic_radius: 1.56}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.75, ionic_radius: 1.61}
+      X:
+        ? ''
+        : {crystal_radius: 1.8, ionic_radius: 1.66}
+      XI:
+        ? ''
+        : {crystal_radius: 1.83, ionic_radius: 1.69}
+      XII:
+        ? ''
+        : {crystal_radius: 1.86, ionic_radius: 1.72}
+      XIV:
+        ? ''
+        : {crystal_radius: 1.97, ionic_radius: 1.83}
   Superconduction temperature: no data K
   Thermal conductivity: 58 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 3.03
@@ -2708,6 +3934,26 @@ Re:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 178 GPa
+  Shannon radii:
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.77, ionic_radius: 0.63}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.72, ionic_radius: 0.58}
+    6:
+      VI:
+        ? ''
+        : {crystal_radius: 0.69, ionic_radius: 0.55}
+    7:
+      IV:
+        ? ''
+        : {crystal_radius: 0.52, ionic_radius: 0.38}
+      VI:
+        ? ''
+        : {crystal_radius: 0.67, ionic_radius: 0.53}
   Superconduction temperature: 1.70 K
   Thermal conductivity: 48 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2744,6 +3990,19 @@ Rh:
   Reflectivity: 84 %
   Refractive index: no data
   Rigidity modulus: 150 GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.805, ionic_radius: 0.665}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.74, ionic_radius: 0.6}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.69, ionic_radius: 0.55}
   Superconduction temperature: no data K
   Thermal conductivity: 150 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2815,6 +4074,27 @@ Ru:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 173 GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.82, ionic_radius: 0.68}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.76, ionic_radius: 0.62}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.705, ionic_radius: 0.565}
+    7:
+      IV:
+        ? ''
+        : {crystal_radius: 0.52, ionic_radius: 0.38}
+    8:
+      IV:
+        ? ''
+        : {crystal_radius: 0.5, ionic_radius: 0.36}
   Superconduction temperature: 0.49 K
   Thermal conductivity: 120 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -2850,6 +4130,22 @@ S:
   Reflectivity: no data %
   Refractive index: '1.001111'
   Rigidity modulus: no data GPa
+  Shannon radii:
+    -2:
+      VI:
+        ? ''
+        : {crystal_radius: 1.7, ionic_radius: 1.84}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.51, ionic_radius: 0.37}
+    6:
+      IV:
+        ? ''
+        : {crystal_radius: 0.26, ionic_radius: 0.12}
+      VI:
+        ? ''
+        : {crystal_radius: 0.43, ionic_radius: 0.29}
   Superconduction temperature: no data K
   Thermal conductivity: 0.205 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.8
@@ -2887,6 +4183,21 @@ Sb:
   Reflectivity: 55 %
   Refractive index: no data
   Rigidity modulus: 20 GPa
+  Shannon radii:
+    3:
+      IVPY:
+        ? ''
+        : {crystal_radius: 0.9, ionic_radius: 0.76}
+      V:
+        ? ''
+        : {crystal_radius: 0.94, ionic_radius: 0.8}
+      VI:
+        ? ''
+        : {crystal_radius: 0.9, ionic_radius: 0.76}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.74, ionic_radius: 0.6}
   Superconduction temperature: no data K
   Thermal conductivity: 24 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.06
@@ -2923,6 +4234,14 @@ Sc:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 29 GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.885, ionic_radius: 0.745}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.01, ionic_radius: 0.87}
   Superconduction temperature: 0.05  (under pressure)K
   Thermal conductivity: 16 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.11
@@ -2959,6 +4278,22 @@ Se:
   Reflectivity: no data %
   Refractive index: '1.000895'
   Rigidity modulus: 3.7 GPa
+  Shannon radii:
+    -2:
+      VI:
+        ? ''
+        : {crystal_radius: 1.84, ionic_radius: 1.98}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.64, ionic_radius: 0.5}
+    6:
+      IV:
+        ? ''
+        : {crystal_radius: 0.42, ionic_radius: 0.28}
+      VI:
+        ? ''
+        : {crystal_radius: 0.56, ionic_radius: 0.42}
   Superconduction temperature: no data K
   Thermal conductivity: 0.52 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.9
@@ -2994,6 +4329,14 @@ Si:
   Reflectivity: 28 %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    4:
+      IV:
+        ? ''
+        : {crystal_radius: 0.4, ionic_radius: 0.26}
+      VI:
+        ? ''
+        : {crystal_radius: 0.54, ionic_radius: 0.4}
   Superconduction temperature: no data K
   Thermal conductivity: 150 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.1
@@ -3031,6 +4374,33 @@ Sm:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 20 GPa
+  Shannon radii:
+    2:
+      IX:
+        ? ''
+        : {crystal_radius: 1.46, ionic_radius: 1.32}
+      VII:
+        ? ''
+        : {crystal_radius: 1.36, ionic_radius: 1.22}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.41, ionic_radius: 1.27}
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.272, ionic_radius: 1.132}
+      VI:
+        ? ''
+        : {crystal_radius: 1.098, ionic_radius: 0.958}
+      VII:
+        ? ''
+        : {crystal_radius: 1.16, ionic_radius: 1.02}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.219, ionic_radius: 1.079}
+      XII:
+        ? ''
+        : {crystal_radius: 1.38, ionic_radius: 1.24}
   Superconduction temperature: no data K
   Thermal conductivity: 13 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3068,6 +4438,23 @@ Sn:
   Reflectivity: 54 %
   Refractive index: no data
   Rigidity modulus: 18 GPa
+  Shannon radii:
+    4:
+      IV:
+        ? ''
+        : {crystal_radius: 0.69, ionic_radius: 0.55}
+      V:
+        ? ''
+        : {crystal_radius: 0.76, ionic_radius: 0.62}
+      VI:
+        ? ''
+        : {crystal_radius: 0.83, ionic_radius: 0.69}
+      VII:
+        ? ''
+        : {crystal_radius: 0.89, ionic_radius: 0.75}
+      VIII:
+        ? ''
+        : {crystal_radius: 0.95, ionic_radius: 0.81}
   Superconduction temperature: 3.72 K
   Thermal conductivity: 67 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.17
@@ -3104,6 +4491,26 @@ Sr:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 6.1 GPa
+  Shannon radii:
+    2:
+      IX:
+        ? ''
+        : {crystal_radius: 1.45, ionic_radius: 1.31}
+      VI:
+        ? ''
+        : {crystal_radius: 1.32, ionic_radius: 1.18}
+      VII:
+        ? ''
+        : {crystal_radius: 1.35, ionic_radius: 1.21}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.4, ionic_radius: 1.26}
+      X:
+        ? ''
+        : {crystal_radius: 1.5, ionic_radius: 1.36}
+      XII:
+        ? ''
+        : {crystal_radius: 1.58, ionic_radius: 1.44}
   Superconduction temperature: no data K
   Thermal conductivity: 35 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.49
@@ -3141,6 +4548,25 @@ Ta:
   Reflectivity: 78 %
   Refractive index: no data
   Rigidity modulus: 69 GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.86, ionic_radius: 0.72}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.82, ionic_radius: 0.68}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.78, ionic_radius: 0.64}
+      VII:
+        ? ''
+        : {crystal_radius: 0.83, ionic_radius: 0.69}
+      VIII:
+        ? ''
+        : {crystal_radius: 0.88, ionic_radius: 0.74}
   Superconduction temperature: 4.47 K
   Thermal conductivity: 57 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3178,6 +4604,27 @@ Tb:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 22 GPa
+  Shannon radii:
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.235, ionic_radius: 1.095}
+      VI:
+        ? ''
+        : {crystal_radius: 1.063, ionic_radius: 0.923}
+      VII:
+        ? ''
+        : {crystal_radius: 1.12, ionic_radius: 0.98}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.18, ionic_radius: 1.04}
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.9, ionic_radius: 0.76}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.02, ionic_radius: 0.88}
   Superconduction temperature: no data K
   Thermal conductivity: 11 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3213,6 +4660,22 @@ Tc:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: no data GPa
+  Shannon radii:
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.785, ionic_radius: 0.645}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.74, ionic_radius: 0.6}
+    7:
+      IV:
+        ? ''
+        : {crystal_radius: 0.51, ionic_radius: 0.37}
+      VI:
+        ? ''
+        : {crystal_radius: 0.7, ionic_radius: 0.56}
   Superconduction temperature: 7.8 K
   Thermal conductivity: 51 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3250,6 +4713,28 @@ Te:
   Reflectivity: 50 %
   Refractive index: '1.000991'
   Rigidity modulus: 16 GPa
+  Shannon radii:
+    -2:
+      VI:
+        ? ''
+        : {crystal_radius: 2.07, ionic_radius: 2.21}
+    4:
+      III:
+        ? ''
+        : {crystal_radius: 0.66, ionic_radius: 0.52}
+      IV:
+        ? ''
+        : {crystal_radius: 0.8, ionic_radius: 0.66}
+      VI:
+        ? ''
+        : {crystal_radius: 1.11, ionic_radius: 0.97}
+    6:
+      IV:
+        ? ''
+        : {crystal_radius: 0.57, ionic_radius: 0.43}
+      VI:
+        ? ''
+        : {crystal_radius: 0.7, ionic_radius: 0.56}
   Superconduction temperature: no data K
   Thermal conductivity: 3 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.06
@@ -3288,6 +4773,26 @@ Th:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 31 GPa
+  Shannon radii:
+    4:
+      IX:
+        ? ''
+        : {crystal_radius: 1.23, ionic_radius: 1.09}
+      VI:
+        ? ''
+        : {crystal_radius: 1.08, ionic_radius: 0.94}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.19, ionic_radius: 1.05}
+      X:
+        ? ''
+        : {crystal_radius: 1.27, ionic_radius: 1.13}
+      XI:
+        ? ''
+        : {crystal_radius: 1.32, ionic_radius: 1.18}
+      XII:
+        ? ''
+        : {crystal_radius: 1.35, ionic_radius: 1.21}
   Superconduction temperature: 1.38 K
   Thermal conductivity: 54 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3324,6 +4829,28 @@ Ti:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 44 GPa
+  Shannon radii:
+    2:
+      VI:
+        ? ''
+        : {crystal_radius: 1.0, ionic_radius: 0.86}
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.81, ionic_radius: 0.67}
+    4:
+      IV:
+        ? ''
+        : {crystal_radius: 0.56, ionic_radius: 0.42}
+      V:
+        ? ''
+        : {crystal_radius: 0.65, ionic_radius: 0.51}
+      VI:
+        ? ''
+        : {crystal_radius: 0.745, ionic_radius: 0.605}
+      VIII:
+        ? ''
+        : {crystal_radius: 0.88, ionic_radius: 0.74}
   Superconduction temperature: 0.40 K
   Thermal conductivity: 22 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3361,6 +4888,27 @@ Tl:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 2.8 GPa
+  Shannon radii:
+    1:
+      VI:
+        ? ''
+        : {crystal_radius: 1.64, ionic_radius: 1.5}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.73, ionic_radius: 1.59}
+      XII:
+        ? ''
+        : {crystal_radius: 1.84, ionic_radius: 1.7}
+    3:
+      IV:
+        ? ''
+        : {crystal_radius: 0.89, ionic_radius: 0.75}
+      VI:
+        ? ''
+        : {crystal_radius: 1.025, ionic_radius: 0.885}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.12, ionic_radius: 0.98}
   Superconduction temperature: 2.38 K
   Thermal conductivity: 46 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.96
@@ -3398,6 +4946,24 @@ Tm:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 31 GPa
+  Shannon radii:
+    2:
+      VI:
+        ? ''
+        : {crystal_radius: 1.17, ionic_radius: 1.03}
+      VII:
+        ? ''
+        : {crystal_radius: 1.23, ionic_radius: 1.09}
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.192, ionic_radius: 1.052}
+      VI:
+        ? ''
+        : {crystal_radius: 1.02, ionic_radius: 0.88}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.134, ionic_radius: 0.994}
   Superconduction temperature: no data K
   Thermal conductivity: 17 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3436,6 +5002,50 @@ U:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 111 GPa
+  Shannon radii:
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 1.165, ionic_radius: 1.025}
+    4:
+      IX:
+        ? ''
+        : {crystal_radius: 1.19, ionic_radius: 1.05}
+      VI:
+        ? ''
+        : {crystal_radius: 1.03, ionic_radius: 0.89}
+      VII:
+        ? ''
+        : {crystal_radius: 1.09, ionic_radius: 0.95}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.14, ionic_radius: 1.0}
+      XII:
+        ? ''
+        : {crystal_radius: 1.31, ionic_radius: 1.17}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.9, ionic_radius: 0.76}
+      VII:
+        ? ''
+        : {crystal_radius: 0.98, ionic_radius: 0.84}
+    6:
+      II:
+        ? ''
+        : {crystal_radius: 0.59, ionic_radius: 0.45}
+      IV:
+        ? ''
+        : {crystal_radius: 0.66, ionic_radius: 0.52}
+      VI:
+        ? ''
+        : {crystal_radius: 0.87, ionic_radius: 0.73}
+      VII:
+        ? ''
+        : {crystal_radius: 0.95, ionic_radius: 0.81}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.0, ionic_radius: 0.86}
   Superconduction temperature: 0.2 K
   Thermal conductivity: 27 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.86
@@ -3472,6 +5082,35 @@ V:
   Reflectivity: 61 %
   Refractive index: no data
   Rigidity modulus: 47 GPa
+  Shannon radii:
+    2:
+      VI:
+        ? ''
+        : {crystal_radius: 0.93, ionic_radius: 0.79}
+    3:
+      VI:
+        ? ''
+        : {crystal_radius: 0.78, ionic_radius: 0.64}
+    4:
+      V:
+        ? ''
+        : {crystal_radius: 0.67, ionic_radius: 0.53}
+      VI:
+        ? ''
+        : {crystal_radius: 0.72, ionic_radius: 0.58}
+      VIII:
+        ? ''
+        : {crystal_radius: 0.86, ionic_radius: 0.72}
+    5:
+      IV:
+        ? ''
+        : {crystal_radius: 0.495, ionic_radius: 0.355}
+      V:
+        ? ''
+        : {crystal_radius: 0.6, ionic_radius: 0.46}
+      VI:
+        ? ''
+        : {crystal_radius: 0.68, ionic_radius: 0.54}
   Superconduction temperature: 5.40 K
   Thermal conductivity: 31 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3509,6 +5148,25 @@ W:
   Reflectivity: 62 %
   Refractive index: no data
   Rigidity modulus: 161 GPa
+  Shannon radii:
+    4:
+      VI:
+        ? ''
+        : {crystal_radius: 0.8, ionic_radius: 0.66}
+    5:
+      VI:
+        ? ''
+        : {crystal_radius: 0.76, ionic_radius: 0.62}
+    6:
+      IV:
+        ? ''
+        : {crystal_radius: 0.56, ionic_radius: 0.42}
+      V:
+        ? ''
+        : {crystal_radius: 0.65, ionic_radius: 0.51}
+      VI:
+        ? ''
+        : {crystal_radius: 0.74, ionic_radius: 0.6}
   Superconduction temperature: 0.015 K
   Thermal conductivity: 170 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3545,6 +5203,14 @@ Xe:
   Reflectivity: no data %
   Refractive index: '1.000702'
   Rigidity modulus: no data GPa
+  Shannon radii:
+    8:
+      IV:
+        ? ''
+        : {crystal_radius: 0.54, ionic_radius: 0.4}
+      VI:
+        ? ''
+        : {crystal_radius: 0.62, ionic_radius: 0.48}
   Superconduction temperature: no data K
   Thermal conductivity: 0.00565 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 2.16
@@ -3581,6 +5247,20 @@ Y:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 26 GPa
+  Shannon radii:
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.215, ionic_radius: 1.075}
+      VI:
+        ? ''
+        : {crystal_radius: 1.04, ionic_radius: 0.9}
+      VII:
+        ? ''
+        : {crystal_radius: 1.1, ionic_radius: 0.96}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.159, ionic_radius: 1.019}
   Superconduction temperature: 1.3  (under pressure)K
   Thermal conductivity: 17 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3618,6 +5298,30 @@ Yb:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 9.9 GPa
+  Shannon radii:
+    2:
+      VI:
+        ? ''
+        : {crystal_radius: 1.16, ionic_radius: 1.02}
+      VII:
+        ? ''
+        : {crystal_radius: 1.22, ionic_radius: 1.08}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.28, ionic_radius: 1.14}
+    3:
+      IX:
+        ? ''
+        : {crystal_radius: 1.182, ionic_radius: 1.042}
+      VI:
+        ? ''
+        : {crystal_radius: 1.008, ionic_radius: 0.868}
+      VII:
+        ? ''
+        : {crystal_radius: 1.065, ionic_radius: 0.925}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.125, ionic_radius: 0.985}
   Superconduction temperature: no data K
   Thermal conductivity: 39 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data
@@ -3654,6 +5358,20 @@ Zn:
   Reflectivity: 80 %
   Refractive index: '1.002050'
   Rigidity modulus: 43 GPa
+  Shannon radii:
+    2:
+      IV:
+        ? ''
+        : {crystal_radius: 0.74, ionic_radius: 0.6}
+      V:
+        ? ''
+        : {crystal_radius: 0.82, ionic_radius: 0.68}
+      VI:
+        ? ''
+        : {crystal_radius: 0.88, ionic_radius: 0.74}
+      VIII:
+        ? ''
+        : {crystal_radius: 1.04, ionic_radius: 0.9}
   Superconduction temperature: 0.85 K
   Thermal conductivity: 120 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: 1.39
@@ -3690,6 +5408,26 @@ Zr:
   Reflectivity: no data %
   Refractive index: no data
   Rigidity modulus: 33 GPa
+  Shannon radii:
+    4:
+      IV:
+        ? ''
+        : {crystal_radius: 0.73, ionic_radius: 0.59}
+      IX:
+        ? ''
+        : {crystal_radius: 1.03, ionic_radius: 0.89}
+      V:
+        ? ''
+        : {crystal_radius: 0.8, ionic_radius: 0.66}
+      VI:
+        ? ''
+        : {crystal_radius: 0.86, ionic_radius: 0.72}
+      VII:
+        ? ''
+        : {crystal_radius: 0.92, ionic_radius: 0.78}
+      VIII:
+        ? ''
+        : {crystal_radius: 0.98, ionic_radius: 0.84}
   Superconduction temperature: 0.61 K
   Thermal conductivity: 23 W m<sup>-1</sup> K<sup>-1</sup>
   Van der waals radius: no data

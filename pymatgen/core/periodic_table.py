@@ -205,7 +205,7 @@ class Element(Enum):
         {'1s': -1.0, '2s': -0.1}
         Data is obtained from
         https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
-        The LDA values for neutral atoms are used    
+        The LDA values for neutral atoms are used
 
     .. attribute:: thermal_conductivity
 
@@ -1009,6 +1009,59 @@ class Specie(MSONable):
         for p, v in self._properties.items():
             output += ",%s=%s" % (p, v)
         return output
+
+    def get_shannon_radius(self, cn, spin="", radius_type="ionic"):
+        """
+        Get the local environment specific ionic radius for species.
+
+        Args:
+            cn (str): Coordination using roman letters. Supported values are
+                I-IX, as well as IIIPY, IVPY and IVSQ.
+            spin (str): Some species have different radii for different
+                spins. You can get specific values using "High Spin" or
+                "Low Spin". Leave it as "" if not available. If only one spin
+                data is available, it is returned and this spin parameter is
+                ignored.
+            radius_type (str): Either "crystal" or "ionic" (default).
+
+        Returns:
+            Shannon radius for specie in the specified environment.
+        """
+        radii = self._el.data["Shannon radii"]
+        # if cn == 1:
+        #     cn_str = "I"
+        # elif cn == 2:
+        #     cn_str = "II"
+        # elif cn == 3:
+        #     cn_str = "III"
+        # elif cn == 4:
+        #     cn_str = "IV"
+        # elif cn == 5:
+        #     cn_str = "V"
+        # elif cn == 6:
+        #     cn_str = "VI"
+        # elif cn == 7:
+        #     cn_str = "VII"
+        # elif cn == 8:
+        #     cn_str = "VIII"
+        # elif cn == 9:
+        #     cn_str = "IX"
+        # else:
+        #     raise ValueError("Invalid coordination number")
+
+        if len(radii[str(self._oxi_state)][cn]) == 1:
+            k, data = list(radii[str(self._oxi_state)][cn].items())[0]
+            if k != spin:
+                warnings.warn(
+                    "Specified spin state of %s not consistent with database "
+                    "spin of %s. Because there is only one spin data available, "
+                    "that value is returned." % (spin, k)
+                )
+        else:
+            data = radii[str(self._oxi_state)][cn][spin]
+        return data["%s_radius" % radius_type]
+
+
 
     def get_crystal_field_spin(self, coordination="oct", spin_config="high"):
         """
