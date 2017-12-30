@@ -322,8 +322,10 @@ class GaussianInput(object):
 
         return GaussianInput(mol, charge=charge, spin_multiplicity=spin_mult,
                              title=title, functional=functional,
-                             basis_set=basis_set, route_parameters=route_paras,
-                             input_parameters=input_paras,link0_parameters=link0_dict,
+                             basis_set=basis_set,
+                             route_parameters=route_paras,
+                             input_parameters=input_paras,
+                             link0_parameters=link0_dict,
                              dieze_tag=dieze_tag)
 
     @staticmethod
@@ -390,8 +392,10 @@ class GaussianInput(object):
         """
         Return the cartesian coordinates of the molecule
         """
+        def to_s(x):
+            return "%0.6f" % x
+
         outs = []
-        to_s = lambda x: "%0.6f" % x
         for i, site in enumerate(self._mol):
             outs.append(" ".join([site.species_string,
                                   " ".join([to_s(j) for j in site.coords])]))
@@ -399,7 +403,6 @@ class GaussianInput(object):
 
     def __str__(self):
         return self.to_string()
-
 
     def to_string(self, cart_coords=False):
         """
@@ -448,7 +451,7 @@ class GaussianInput(object):
         output.append("\n")
         return "\n".join(output)
 
-    def write_file(self, filename,cart_coords=False):
+    def write_file(self, filename, cart_coords=False):
         """
         Write the input string into a file
 
@@ -625,8 +628,8 @@ class GaussianOutput(object):
     .. attribute:: atom_basis_labels
 
         Labels of AO for each atoms. These labels are those used in the output
-        of molecular orbital coefficients (POP=Full) and in the molecular_orbital
-        array dict.
+        of molecular orbital coefficients (POP=Full) and in the
+        molecular_orbital array dict.
 
         atom_basis_labels[iatom] = [AO_k, AO_k, ...]
 
@@ -808,13 +811,15 @@ class GaussianOutput(object):
                                 for l in coord_txt[2:]:
                                     toks = l.split()
                                     sp.append(Element.from_Z(int(toks[1])))
-                                    coords.append([float(i) for i in toks[3:6]])
+                                    coords.append([float(i)
+                                                   for i in toks[3:6]])
                                 self.structures.append(Molecule(sp, coords))
 
                     if parse_forces:
                         m = forces_patt.search(line)
                         if m:
-                            forces.extend([float(_v) for _v in m.groups()[2:5]])
+                            forces.extend([float(_v)
+                                           for _v in m.groups()[2:5]])
                         elif forces_off_patt.search(line):
                             self.cart_forces.append(forces)
                             forces = []
@@ -848,7 +853,8 @@ class GaussianOutput(object):
 
                         mat_mo = {}
                         for spin in all_spin:
-                            mat_mo[spin] = np.zeros((self.num_basis_func, self.num_basis_func))
+                            mat_mo[spin] = np.zeros((self.num_basis_func,
+                                                     self.num_basis_func))
                             nMO = 0
                             end_mo = False
                             while nMO < self.num_basis_func and not end_mo:
@@ -868,7 +874,8 @@ class GaussianOutput(object):
                                         self.atom_basis_labels[iat].append(m.group(4))
 
                                     # MO coefficients
-                                    coeffs = [float(c) for c in float_patt.findall(line)]
+                                    coeffs = [float(c) for c in
+                                              float_patt.findall(line)]
                                     for j in range(len(coeffs)):
                                         mat_mo[spin][i, nMO + j] = coeffs[j]
 
@@ -932,7 +939,8 @@ class GaussianOutput(object):
                                     for ifreq, f_const in zip(ifreqs, f_consts):
                                         frequencies[ifreq]["f_constant"] = f_const
                                 elif "IR Inten    --" in line:
-                                    IR_intens = map(float, float_patt.findall(line))
+                                    IR_intens = map(float,
+                                                    float_patt.findall(line))
                                     for ifreq, intens in zip(ifreqs, IR_intens):
                                         frequencies[ifreq]["IR_intensity"] = intens
                                 else:
