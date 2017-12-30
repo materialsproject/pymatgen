@@ -37,7 +37,8 @@ __all__ = [
     "NscfConvergenceWarning",
     "RelaxConvergenceWarning",
     "Correction",
-    "DilatmxError"
+    "DilatmxError",
+    "DilatmxErrorHandler"
 ]
 
 
