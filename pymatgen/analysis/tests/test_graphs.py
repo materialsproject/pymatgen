@@ -6,9 +6,8 @@ from __future__ import division, unicode_literals
 
 import unittest
 import os
+import warnings
 
-from pymatgen import MPRester
-from pymatgen import Structure, Lattice
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.analysis.graphs import *
 from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
@@ -78,6 +77,12 @@ class StructureGraphTest(unittest.TestCase):
         coords = [[0, 0, 0],
                   [0.5, 0.5, 0.5]]
         self.NiO = Structure.from_spacegroup(225, latt, species, coords).get_primitive_structure()
+
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
 
     def test_properties(self):
 
@@ -284,6 +289,7 @@ from    to  to_image
 
         molecules = self.mos2_sg.get_subgraphs_as_molecules()
         self.assertEqual(len(molecules), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

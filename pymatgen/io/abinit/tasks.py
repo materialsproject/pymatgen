@@ -18,7 +18,7 @@ import numpy as np
 from pprint import pprint
 from itertools import product
 from six.moves import map, zip, StringIO
-from monty.dev import deprecated
+#from monty.dev import deprecated
 from monty.string import is_string, list_strings
 from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
@@ -973,7 +973,7 @@ batch_adapter:
             args = args[:]
             args.append("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
             kwargs["exec_args"] = args
-            logger.info("Will pass timelimit option to abinit %s:" % args)
+            #logger.info("Will pass timelimit option to abinit %s:" % args)
 
         # Write the submission script
         script_file = self.write_jobfile(task, **kwargs)
@@ -1456,10 +1456,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """Return the value of the ABINIT variable varname, None if not present."""
         return self.input.get(varname, default)
 
-    @deprecated(message="_set_inpvars is deprecated. Use set_vars")
-    def _set_inpvars(self, *args, **kwargs):
-        return self.set_vars(*args, **kwargs)
-
     def set_vars(self, *args, **kwargs):
         """
         Set the values of the ABINIT variables in the input file. Return dict with old values.
@@ -1516,6 +1512,21 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         except AttributeError:
             # Attach a fake process so that we can poll it.
             return FakeProcess()
+
+    @property
+    def is_abinit_task(self):
+        """True if this task is a subclass of AbinitTask."""
+        return isinstance(self, AbinitTask)
+
+    @property
+    def is_anaddb_task(self):
+        """True if this task is a subclass of OpticTask."""
+        return isinstance(self, AnaddbTask)
+
+    @property
+    def is_optic_task(self):
+        """True if this task is a subclass of OpticTask."""
+        return isinstance(self, OpticTask)
 
     @property
     def is_completed(self):
@@ -3208,7 +3219,7 @@ class NscfTask(GsTask):
         events.NscfConvergenceWarning,
     ]
 
-    color_rgb = np.array((255, 122, 122)) / 255
+    color_rgb = np.array((160, 82, 45)) / 255
 
     def setup(self):
         """
@@ -3216,16 +3227,19 @@ class NscfTask(GsTask):
         (in principle, it's possible to interpolate inside Abinit but tests revealed some numerical noise
         Here we change the input file of the NSCF task to have the same FFT mesh.
         """
-        assert len(self.deps) == 1
-        dep = self.deps[0]
-        parent_task = dep.node
         # TODO: This won't work if parent_node is a file
+        for dep in self.deps:
+            if "DEN" in dep.exts:
+                parent_task = dep.node
+                break
+        else:
+            raise RuntimeError("Cannot find parent node producing DEN file")
+
         with parent_task.open_gsr() as gsr:
             den_mesh = 3 * [None]
             den_mesh[0] = gsr.reader.read_dimvalue("number_of_grid_points_vector1")
             den_mesh[1] = gsr.reader.read_dimvalue("number_of_grid_points_vector2")
             den_mesh[2] = gsr.reader.read_dimvalue("number_of_grid_points_vector3")
-            #print("den_mesh", den_mesh)
             if self.ispaw:
                 self.set_vars(ngfftdg=den_mesh)
             else:
@@ -4057,10 +4071,6 @@ class OpticTask(Task):
         super(OpticTask, self).set_workdir(workdir, chroot=chroot)
         # Small hack: the log file of optics is actually the main output file.
         self.output_file = self.log_file
-
-    @deprecated(message="_set_inpvars is deprecated. Use set_vars")
-    def _set_inpvars(self, *args, **kwargs):
-        return self.set_vars(*args, **kwargs)
 
     def set_vars(self, *args, **kwargs):
         """

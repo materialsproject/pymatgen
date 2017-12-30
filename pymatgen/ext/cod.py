@@ -82,7 +82,7 @@ class COD(object):
         text = self.query(sql).split("\n")
         cod_ids = []
         for l in text:
-            m = re.search("(\d+)", l)
+            m = re.search(r"(\d+)", l)
             if m:
                 cod_ids.append(int(m.group(1)))
         return cod_ids

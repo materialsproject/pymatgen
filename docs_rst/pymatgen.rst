@@ -16,12 +16,8 @@ Subpackages
     pymatgen.entries
     pymatgen.ext
     pymatgen.io
-    pymatgen.matproj
     pymatgen.optimization
-    pymatgen.phasediagram
     pymatgen.phonon
-    pymatgen.serializers
-    pymatgen.structure_prediction
     pymatgen.symmetry
     pymatgen.transformations
     pymatgen.util

@@ -318,6 +318,22 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertArrayAlmostEqual(data[:, -1], d.mscd)
             os.remove("test.csv")
 
+    def test_from_structure_NPT( self ):
+        from pymatgen import Structure, Lattice
+        coords1 = np.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]] )
+        coords2 = np.array([[0.0, 0.0, 0.0], [0.6, 0.6, 0.6]] )
+        coords3 = np.array([[0.0, 0.0, 0.0], [0.7, 0.7, 0.7]] )
+        lattice1 = Lattice.from_parameters(a=2.0, b=2.0, c=2.0, alpha=90, beta=90, gamma=90)
+        lattice2 = Lattice.from_parameters(a=2.1, b=2.1, c=2.1, alpha=90, beta=90, gamma=90)
+        lattice3 = Lattice.from_parameters(a=2.0, b=2.0, c=2.0, alpha=90, beta=90, gamma=90)
+        s1 = Structure(coords=coords1, lattice=lattice1, species=['F', 'Li'])
+        s2 = Structure(coords=coords2, lattice=lattice2, species=['F', 'Li'])
+        s3 = Structure(coords=coords3, lattice=lattice3, species=['F', 'Li'])
+        structures = [s1, s2, s3]
+        d = DiffusionAnalyzer.from_structures( structures, specie='Li', temperature=500.0, time_step=2.0, step_skip=1, smoothed=None )    
+        self.assertArrayAlmostEqual(d.disp[1], np.array([[0.,    0.,    0.  ],
+                                                         [0.21,  0.21,  0.21],
+                                                         [0.40,  0.40,  0.40]]))
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,6 +4,7 @@
 
 from __future__ import division, unicode_literals, print_function
 
+import json
 import glob
 import itertools
 import logging
@@ -385,6 +386,7 @@ class Vasprun(MSONable):
 
             if parse_potcar_file:
                 self.update_potcar_spec(parse_potcar_file)
+                self.update_charge_from_potcar(parse_potcar_file)
 
         if self.incar.get("ALGO", "") != "BSE" and (not self.converged):
             msg = "%s is an unconverged VASP run.\n" % filename
@@ -397,6 +399,7 @@ class Vasprun(MSONable):
         self.efermi = None
         self.eigenvalues = None
         self.projected_eigenvalues = None
+        self.dielectric_data = {}
         self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
@@ -443,11 +446,20 @@ class Vasprun(MSONable):
                         elem)
                 elif tag == "dielectricfunction":
                     if ("comment" not in elem.attrib) or \
-                       elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                        self.dielectric = self._parse_diel(elem)
+                        elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
+                        if not 'density' in self.dielectric_data:
+                            self.dielectric_data['density'] = self._parse_diel(elem)
+                            # "velocity-velocity" is also named "current-current"
+                            # in OUTCAR
+                        elif not 'velocity' in self.dielectric_data:    
+                            self.dielectric_data['velocity'] = self._parse_diel(elem)
+                        else:
+                            raise NotImplementedError('This vasprun.xml has >2 unlabelled dielectric functions')
                     else:
                         comment = elem.attrib["comment"]
                         self.other_dielectric[comment] = self._parse_diel(elem)
+                elif tag == "varray" and elem.attrib.get("name") == 'opticaltransitions':
+                    self.optical_transition = np.array(_parse_varray(elem))
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
                     self.final_structure = self._parse_structure(elem)
@@ -498,6 +510,41 @@ class Vasprun(MSONable):
         Property only available for DFPT calculations and when IBRION=5, 6, 7 or 8.
         """
         return self.ionic_steps[-1].get("epsilon_ion", [])
+
+    @property
+    def dielectric(self):
+        return self.dielectric_data['density']
+
+    @property
+    def optical_absorption_coeff(self):
+        """
+        Calculate the optical absorption coefficient
+        from the dielectric constants. Note that this method is only
+        implemented for optical properties calculated with GGA and BSE.
+        Returns:
+        optical absorption coefficient in list
+        """
+        if self.dielectric_data["density"]:
+            real_avg = [sum(self.dielectric_data["density"][1][i][0:3]) / 3
+                        for i in range(len(self.dielectric_data["density"][0]))]
+            imag_avg = [sum(self.dielectric_data["density"][2][i][0:3]) / 3
+                        for i in range(len(self.dielectric_data["density"][0]))]
+
+            def f(freq, real, imag):
+                """
+                The optical absorption coefficient calculated in terms of
+                equation
+                """
+                hbar = 6.582119514e-16  # eV/K
+                coeff = np.sqrt(
+                    np.sqrt(real ** 2 + imag ** 2) - real) * \
+                        np.sqrt(2) / hbar * freq
+                return coeff
+
+            absorption_coeff = [f(freq, real, imag) for freq, real, imag in
+                                zip(self.dielectric_data["density"][0],
+                                    real_avg, imag_avg)]
+        return absorption_coeff
 
     @property
     def lattice(self):
@@ -818,7 +865,7 @@ class Vasprun(MSONable):
                         cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    def update_potcar_spec(self, path):
+    def get_potcars(self, path):
         def get_potcar_in_path(p):
             for fn in os.listdir(os.path.abspath(p)):
                 if fn.startswith('POTCAR'):
@@ -842,11 +889,28 @@ class Vasprun(MSONable):
         else:
             potcar = None
 
+        return potcar
+
+    def update_potcar_spec(self, path):
+        potcar = self.get_potcars(path)
         if potcar:
             self.potcar_spec = [{"titel": sym, "hash": ps.get_potcar_hash()}
                                 for sym in self.potcar_symbols
                                 for ps in potcar if
                                 ps.symbol == sym.split()[1]]
+
+    def update_charge_from_potcar(self, path):
+        potcar = self.get_potcars(path)
+
+        if potcar and self.incar.get("ALGO", "") not in ["GW0", "G0W0", "GW", "BSE"]:
+            nelect = self.parameters["NELECT"]
+            potcar_nelect = int(round(sum([self.structures[0].composition.element_composition[
+                                ps.element] * ps.ZVAL for ps in potcar])))
+            charge = nelect - potcar_nelect
+
+            if charge:
+                for s in self.structures:
+                    s._charge = charge
 
     def as_dict(self):
         """
@@ -1015,6 +1079,15 @@ class Vasprun(MSONable):
         elem.clear()
         return [e[0] for e in imag], \
                [e[1:] for e in real], [e[1:] for e in imag]
+
+    def _parse_optical_transition(self, elem):
+        for va in elem.findall("varray"):
+            if va.attrib.get("name") == "opticaltransitions":
+                # opticaltransitions array contains oscillator strength and probability of transition
+                oscillator_strength = np.array(_parse_varray(va))[0:,]
+                probability_transition = np.array(_parse_varray(va))[0:,1]
+        return oscillator_strength, probability_transition
+
 
     def _parse_chemical_shift_calculation(self, elem):
         calculation = []
@@ -1507,9 +1580,10 @@ class Outcar(MSONable):
         self.data = {}
 
         # Read the drift:
-        self.read_pattern({"drift":"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
-                          terminate_on_match=False,
-                          postprocess=float)        
+        self.read_pattern({
+            "drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
+            terminate_on_match=False,
+            postprocess=float)
         self.drift = self.data.get('drift',[])
            
 
@@ -1542,7 +1616,8 @@ class Outcar(MSONable):
             self.read_pseudo_zval()
 
         # Read electrostatic potential
-        self.read_pattern({'electrostatic': "average \(electrostatic\) potential at core"})
+        self.read_pattern({
+            'electrostatic': r"average \(electrostatic\) potential at core"})
         if self.data.get('electrostatic', []):
             self.read_electrostatic_potential()
 
@@ -1658,7 +1733,7 @@ class Outcar(MSONable):
         pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
         pots = "".join(itertools.chain.from_iterable(pots))
 
-        pots = re.findall("\s+\d+\s?([\.\-\d]+)+", pots)
+        pots = re.findall(r"\s+\d+\s?([\.\-\d]+)+", pots)
         pots = [float(f) for f in pots]
 
         self.electrostatic_potential = pots
@@ -1793,21 +1868,24 @@ class Outcar(MSONable):
                          r"\s+-{50,}$"
         first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
         row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"]*3)
-        unsym_footer_pattern = "^\s+SYMMETRIZED TENSORS\s+$"
+        unsym_footer_pattern = r"^\s+SYMMETRIZED TENSORS\s+$"
 
         with zopen(self.filename, 'rt') as f:
             text = f.read()
         unsym_table_pattern_text = header_pattern + first_part_pattern + \
                                    r"(?P<table_body>.+)" + unsym_footer_pattern
-        table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
+        table_pattern = re.compile(unsym_table_pattern_text,
+                                   re.MULTILINE | re.DOTALL)
         rp = re.compile(row_pattern)
         m = table_pattern.search(text)
         if m:
             table_text = m.group("table_body")
             micro_header_pattern = r"ion\s+\d+"
-            micro_table_pattern_text = micro_header_pattern + r"\s*^(?P<table_body>(?:\s*" + \
+            micro_table_pattern_text = micro_header_pattern + \
+                                       r"\s*^(?P<table_body>(?:\s*" + \
                                        row_pattern + r")+)\s+"
-            micro_table_pattern = re.compile(micro_table_pattern_text, re.MULTILINE | re.DOTALL)
+            micro_table_pattern = re.compile(micro_table_pattern_text,
+                                             re.MULTILINE | re.DOTALL)
             unsym_tensors = []
             for mt in micro_table_pattern.finditer(table_text):
                 table_body_text = mt.group("table_body")
@@ -2670,8 +2748,10 @@ class VolumetricData(object):
                     read_dataset = True
                     dataset = np.zeros(dim)
                 else:
-                    # store any extra lines that were not part of the volumetric data
-                    key = len(all_dataset)-1  # so we know which set of data the extra lines are associated with
+                    # store any extra lines that were not part of the
+                    # volumetric data so we know which set of data the extra
+                    # lines are associated with
+                    key = len(all_dataset) - 1
                     if key not in all_dataset_aug:
                         all_dataset_aug[key] = []
                     all_dataset_aug[key].append(original_line)
@@ -2679,16 +2759,20 @@ class VolumetricData(object):
 
                 data = {"total": all_dataset[0], "diff_x": all_dataset[1],
                         "diff_y": all_dataset[2], "diff_z": all_dataset[3]}
-                data_aug = {"total": all_dataset_aug.get(0, None), "diff_x": all_dataset_aug.get(1, None),
-                            "diff_y": all_dataset_aug.get(2, None), "diff_z": all_dataset_aug.get(3, None)}
+                data_aug = {"total": all_dataset_aug.get(0, None),
+                            "diff_x": all_dataset_aug.get(1, None),
+                            "diff_y": all_dataset_aug.get(2, None),
+                            "diff_z": all_dataset_aug.get(3, None)}
 
                 # construct a "diff" dict for scalar-like magnetization density,
                 # referenced to an arbitrary direction (using same method as
                 # pymatgen.electronic_structure.core.Magmom, see
                 # Magmom documentation for justification for this)
-                # TODO: re-examine this, and also similar behavior in Magmom - @mkhorton
+                # TODO: re-examine this, and also similar behavior in
+                # Magmom - @mkhorton
                 # TODO: does CHGCAR change with different SAXIS?
-                diff_xyz = np.array([data["diff_x"], data["diff_y"], data["diff_z"]])
+                diff_xyz = np.array([data["diff_x"], data["diff_y"],
+                                     data["diff_z"]])
                 diff_xyz = diff_xyz.reshape((3, dim[0]*dim[1]*dim[2]))
                 ref_direction = np.array([1.01, 1.02, 1.03])
                 ref_sign = np.sign(np.dot(ref_direction, diff_xyz))
@@ -2697,7 +2781,8 @@ class VolumetricData(object):
 
             elif len(all_dataset) == 2:
                 data = {"total": all_dataset[0], "diff": all_dataset[1]}
-                data_aug = {"total": all_dataset_aug.get(0, None), "diff": all_dataset_aug.get(1, None)}
+                data_aug = {"total": all_dataset_aug.get(0, None),
+                            "diff": all_dataset_aug.get(1, None)}
             else:
                 data = {"total": all_dataset[0]}
                 data_aug = {"total": all_dataset_aug.get(0, None)}
@@ -2713,20 +2798,19 @@ class VolumetricData(object):
         """
 
         def _print_fortran_float(f):
-            '''
+            """
             Fortran codes print floats with a leading zero in scientific
             notation. When writing CHGCAR files, we adopt this convention
             to ensure written CHGCAR files are byte-to-byte identical to
             their input files as far as possible.
             :param f: float
             :return: str
-            '''
+            """
             s = "{:.10E}".format(f)
             if f > 0:
                 return "0."+s[0]+s[2:12]+'E'+"{:+03}".format(int(s[13:])+1)
             else:
                 return "-."+s[1]+s[3:13]+'E'+"{:+03}".format(int(s[14:])+1)
-
 
         with zopen(file_name, "wt") as f:
             p = Poscar(self.structure)
@@ -2754,7 +2838,8 @@ class VolumetricData(object):
                 lines = []
                 count = 0
                 f.write("   {}   {}   {}\n".format(a[0], a[1], a[2]))
-                for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])),
+                for (k, j, i) in itertools.product(list(range(a[2])),
+                                                   list(range(a[1])),
                                                    list(range(a[0]))):
                     lines.append(_print_fortran_float(self.data[data_type][i, j, k]))
                     count += 1
@@ -2852,6 +2937,52 @@ class VolumetricData(object):
             total = np.sum(np.sum(m, axis=0), 0)
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
+    def to_hdf5(self, filename):
+        """
+        Writes the VolumetricData to a HDF5 format, which is a highly optimized
+        format for reading storing large data. The mapping of the VolumetricData
+        to this file format is as follows:
+
+        VolumetricData.data -> f["vdata"]
+        VolumetricData.structure ->
+            f["Z"]: Sequence of atomic numbers
+            f["fcoords"]: Fractional coords
+            f["lattice"]: Lattice in the pymatgen.core.lattice.Lattice matrix
+                format
+            f.attrs["structure_json"]: String of json representation
+
+        Args:
+            filename (str): Filename to output to.
+        """
+        import h5py
+        with h5py.File(filename, "w") as f:
+            ds = f.create_dataset("lattice", (3, 3), dtype='float')
+            ds[...] = self.structure.lattice.matrix
+            ds = f.create_dataset("Z", (len(self.structure.species), ),
+                                  dtype="i")
+            ds[...] = np.array([sp.Z for sp in self.structure.species])
+            ds = f.create_dataset("fcoords", self.structure.frac_coords.shape,
+                                  dtype='float')
+            ds[...] = self.structure.frac_coords
+            dt = h5py.special_dtype(vlen=str)
+            ds = f.create_dataset("species", (len(self.structure.species), ),
+                                  dtype=dt)
+            ds[...] = [str(sp) for sp in self.structure.species]
+            grp = f.create_group("vdata")
+            for k, v in self.data.items():
+                ds = grp.create_dataset(k, self.data[k].shape, dtype='float')
+                ds[...] = self.data[k]
+            f.attrs["name"] = self.name
+            f.attrs["structure_json"] = json.dumps(self.structure.as_dict())
+
+    @classmethod
+    def from_hdf5(cls, filename):
+        import h5py
+        with h5py.File(filename, "r") as f:
+            data = {k: np.array(v) for k, v in f["vdata"].items()}
+            structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
+            return VolumetricData(structure, data)
+
 
 class Locpot(VolumetricData):
     """
@@ -2912,7 +3043,8 @@ class Procar(object):
         but all indices are converted to 0-based here.::
 
             {
-                spin: nd.array accessed with (k-point index, band index, ion index, orbital index)
+                spin: nd.array accessed with (k-point index, band index,
+                                              ion index, orbital index)
             }
 
     .. attribute:: weights
@@ -2924,7 +3056,8 @@ class Procar(object):
 
         Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
         {
-            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
+            spin: complex nd.array accessed with (k-point index, band index,
+                                                  ion index, orbital index)
         }
 
     ..attribute:: nbands

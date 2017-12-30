@@ -5,17 +5,18 @@
 from __future__ import division, unicode_literals
 
 from collections import defaultdict, OrderedDict
+import re
 
 import numpy as np
 
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen import Orbital, Spin
+from pymatgen import Orbital, Spin, Element
 from pymatgen.electronic_structure.dos import Dos, CompleteDos
 from pymatgen.io.feff import Header, Potential, Tags
 
-__author__ = "Alan Dozier, Kiran Mathew"
+__author__ = "Alan Dozier, Kiran Mathew, Chen Zheng"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0.3"
@@ -40,6 +41,7 @@ class LDos(MSONable):
         charge_transfer (dict): computed charge transfer between atoms
             dictionary
     """
+
     def __init__(self, complete_dos, charge_transfer):
         self.complete_dos = complete_dos
         self.charge_transfer = charge_transfer
@@ -59,9 +61,40 @@ class LDos(MSONable):
         header = Header.from_string(header_str)
         structure = header.struct
         nsites = structure.num_sites
-        pot_string = Potential.pot_string_from_file(feff_inp_file)
-        dicts = Potential.pot_dict_from_string(pot_string)
-        pot_dict = dicts[0]
+        parameters = Tags.from_file(feff_inp_file)
+
+        if "RECIPROCAL" in parameters:
+            pot_dict = dict()
+            pot_readstart = re.compile('.*iz.*lmaxsc.*xnatph.*xion.*folp.*')
+            pot_readend = re.compile('.*ExternalPot.*switch.*')
+            pot_inp = re.sub(r'feff.inp', r'pot.inp', feff_inp_file)
+            dos_index = 1
+            begin = 0
+
+            with zopen(pot_inp, "r") as potfile:
+                for line in potfile:
+                    if len(pot_readend.findall(line)) > 0:
+                        break
+
+                    if begin == 1:
+                        begin += 1
+                        continue
+
+                    if begin == 2:
+                        z_number = int(line.strip().split()[0])
+                        ele_name = Element.from_Z(z_number).name
+                        if ele_name not in pot_dict:
+                            pot_dict[ele_name] = dos_index
+                        else:
+                            pot_dict[ele_name] = min(dos_index, pot_dict[ele_name])
+                        dos_index += 1
+
+                    if len(pot_readstart.findall(line)) > 0:
+                        begin = 1
+        else:
+            pot_string = Potential.pot_string_from_file(feff_inp_file)
+            dicts = Potential.pot_dict_from_string(pot_string)
+            pot_dict = dicts[0]
 
         with zopen(ldos_file + "00.dat", "r") as fobject:
             f = fobject.readlines()
@@ -137,9 +170,44 @@ class LDos(MSONable):
             ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
         """
         cht = OrderedDict()
-        pot_string = Potential.pot_string_from_file(feff_inp_file)
-        dicts = Potential.pot_dict_from_string(pot_string)
-        pot_dict = dicts[1]
+        parameters = Tags.from_file(feff_inp_file)
+
+        if 'RECIPROCAL' in parameters:
+            dicts = [dict()]
+            pot_dict = dict()
+            dos_index = 1
+            begin = 0
+            pot_inp = re.sub(r'feff.inp', r'pot.inp', feff_inp_file)
+            pot_readstart = re.compile('.*iz.*lmaxsc.*xnatph.*xion.*folp.*')
+            pot_readend = re.compile('.*ExternalPot.*switch.*')
+            with zopen(pot_inp, "r") as potfile:
+                for line in potfile:
+                    if len(pot_readend.findall(line)) > 0:
+                        break
+                    if begin == 1:
+                        z_number = int(line.strip().split()[0])
+                        ele_name = Element.from_Z(z_number).name
+                        if len(pot_dict) == 0:
+                            pot_dict[0] = ele_name
+                        elif len(pot_dict) > 0:
+                            pot_dict[max(pot_dict.keys()) + 1] = ele_name
+                        begin += 1
+                        continue
+                    if begin == 2:
+                        z_number = int(line.strip().split()[0])
+                        ele_name = Element.from_Z(z_number).name
+                        dicts[0][ele_name] = dos_index
+                        dos_index += 1
+                        if len(pot_dict) == 0:
+                            pot_dict[0] = ele_name
+                        elif len(pot_dict) > 0:
+                            pot_dict[max(pot_dict.keys()) + 1] = ele_name
+                    if len(pot_readstart.findall(line)) > 0:
+                        begin = 1
+        else:
+            pot_string = Potential.pot_string_from_file(feff_inp_file)
+            dicts = Potential.pot_dict_from_string(pot_string)
+            pot_dict = dicts[1]
 
         for i in range(0, len(dicts[0]) + 1):
             if len(str(i)) == 1:
@@ -153,7 +221,7 @@ class LDos(MSONable):
                     tot = float(f[1].split()[4])
                     cht[str(i)] = {pot_dict[i]: {'s': s, 'p': p, 'd': d,
                                                  'f': f1,
-                                   'tot': tot}}
+                                                 'tot': tot}}
             else:
                 with zopen(ldos_file + str(i) + ".dat", "rt") as fid:
                     f = fid.readlines()
@@ -164,7 +232,7 @@ class LDos(MSONable):
                     tot = float(f[1].split()[4])
                     cht[str(i)] = {pot_dict[i]: {'s': s, 'p': p, 'd': d,
                                                  'f': f1,
-                                   'tot': tot}}
+                                                 'tot': tot}}
 
         return cht
 

@@ -19,7 +19,7 @@ import six
 from collections import OrderedDict, defaultdict, namedtuple
 from monty.collections import AttrDict, Namespace
 from tabulate import tabulate
-from monty.dev import deprecated
+#from monty.dev import deprecated
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MSONable, MontyDecoder

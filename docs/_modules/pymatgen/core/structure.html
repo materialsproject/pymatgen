@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2017.11.30 documentation</title>
+    <title>pymatgen.core.structure &#8212; pymatgen 2017.12.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.11.30',
+        VERSION:     '2017.12.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.11.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -392,7 +392,7 @@
 <span class="sd">    structure is equivalent to going through the sites in sequence.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -416,6 +416,7 @@
 <span class="sd">                    disordered structures.</span>
 <span class="sd">            coords (Nx3 array): list of fractional/cartesian coordinates of</span>
 <span class="sd">                each species.</span>
+<span class="sd">            charge (int): overall charge of the structure. Defaults to behavior in SiteCollection where total charge is the sum of the oxidation states</span>
 <span class="sd">            validate_proximity (bool): Whether to check if there are sites</span>
 <span class="sd">                that are less than 0.01 Ang apart. Defaults to False.</span>
 <span class="sd">            coords_are_cartesian (bool): Set to True if you are providing</span>
@@ -451,9 +452,10 @@
         <span class="k">if</span> <span class="n">validate_proximity</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">StructureError</span><span class="p">((</span><span class="s2">&quot;Structure contains sites that are &quot;</span><span class="p">,</span>
                                   <span class="s2">&quot;less than 0.01 Angstrom apart!&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">=</span> <span class="n">charge</span>
 
 <div class="viewcode-block" id="IStructure.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_sites">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_sites</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">from_sites</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience constructor to make a Structure from a list of sites.</span>
@@ -480,7 +482,7 @@
             <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
                 <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span> <span class="o">!=</span> <span class="n">lattice</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sites must belong to the same lattice&quot;</span><span class="p">)</span>
-            <span class="n">s_copy</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lattice</span><span class="o">=</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">[],</span> <span class="n">coords</span><span class="o">=</span><span class="p">[])</span>
+            <span class="n">s_copy</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lattice</span><span class="o">=</span><span class="n">lattice</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">[],</span> <span class="n">coords</span><span class="o">=</span><span class="p">[])</span>
             <span class="n">s_copy</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">s_copy</span>
         <span class="n">prop_keys</span> <span class="o">=</span> <span class="p">[]</span>
@@ -502,6 +504,7 @@
                               <span class="s2">&quot;are set to None.&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">],</span>
                    <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">],</span>
+                   <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
                    <span class="n">site_properties</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
                    <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
                    <span class="n">to_unit_cell</span><span class="o">=</span><span class="n">to_unit_cell</span><span class="p">)</span></div>
@@ -697,6 +700,16 @@
                     <span class="n">site_properties</span><span class="o">=</span><span class="n">all_site_properties</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overall charge of the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">IStructure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">charge</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">distance_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the distance matrix between all sites in the structure. For</span>
@@ -825,7 +838,8 @@
                                  <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="n">new_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span>
+        <span class="n">new_charge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">scale_matrix</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">,</span><span class="n">charge</span><span class="o">=</span><span class="n">new_charge</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1023,7 +1037,7 @@
 <span class="sd">                as if each comparison were reversed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IStructure.get_reduced_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_reduced_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reduction_algo</span><span class="o">=</span><span class="s2">&quot;niggli&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1045,7 +1059,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">reduced_latt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
                                   <span class="bp">self</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span>
                                   <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                  <span class="n">site_properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span>
+                                  <span class="n">site_properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
@@ -1076,7 +1090,7 @@
             <span class="c1"># the site_properties or sanitizing, initializing an empty</span>
             <span class="c1"># structure and setting _sites to be sites is much faster (~100x)</span>
             <span class="c1"># than doing the full initialization.</span>
-            <span class="n">s_copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">lattice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">s_copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">lattice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">[],</span> <span class="n">charge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">,</span>
                                     <span class="n">coords</span><span class="o">=</span><span class="p">[])</span>
             <span class="n">s_copy</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">s_copy</span>
@@ -1087,6 +1101,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span>
                                   <span class="bp">self</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
                                   <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                                  <span class="n">charge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">,</span>
                                   <span class="n">site_properties</span><span class="o">=</span><span class="n">props</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">reduced_latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_lll_reduced_lattice</span><span class="p">()</span>
@@ -1101,7 +1116,7 @@
                                               <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                               <span class="n">properties</span><span class="o">=</span><span class="n">site_props</span><span class="p">))</span>
             <span class="n">new_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IStructure.interpolate"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.interpolate">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_structure</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                     <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autosort_tol</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
@@ -1388,6 +1403,11 @@
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Structure Summary&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Overall Charge: +</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Overall Charge: -</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
@@ -1401,6 +1421,11 @@
                                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">]))</span>
         <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;angles: &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">to_s</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
                                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Overall Charge: +</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Overall Charge: -</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">))</span>
         <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Sites (</span><span class="si">{i}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">props</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span>
@@ -1447,6 +1472,7 @@
 
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
              <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;charge&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">,</span>
              <span class="s2">&quot;lattice&quot;</span><span class="p">:</span> <span class="n">latt_dict</span><span class="p">,</span> <span class="s2">&quot;sites&quot;</span><span class="p">:</span> <span class="p">[]}</span>
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">site_dict</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="n">verbosity</span><span class="p">)</span>
@@ -1474,7 +1500,8 @@
 
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;lattice&quot;</span><span class="p">])</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">PeriodicSite</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="n">lattice</span><span class="p">)</span> <span class="k">for</span> <span class="n">sd</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]]</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span></div>
+        <span class="n">charge</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;charge&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IStructure.to"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1579,7 +1606,8 @@
             <span class="n">parser</span> <span class="o">=</span> <span class="n">CifParser</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_structures</span><span class="p">(</span><span class="n">primitive</span><span class="o">=</span><span class="n">primitive</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;poscar&quot;</span><span class="p">:</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">structure</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> 
+                                   <span class="n">read_velocities</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">structure</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;cssr&quot;</span><span class="p">:</span>
             <span class="n">cssr</span> <span class="o">=</span> <span class="n">Cssr</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">cssr</span><span class="o">.</span><span class="n">structure</span>
@@ -1631,6 +1659,7 @@
                 <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">s</span>
 
+        <span class="kn">from</span> <span class="nn">pymatgen.io.lmto</span> <span class="k">import</span> <span class="n">LMTOCtrl</span>
         <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Chgcar</span>
         <span class="kn">from</span> <span class="nn">pymatgen.io.exciting</span> <span class="k">import</span> <span class="n">ExcitingInput</span>
         <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
@@ -1674,6 +1703,8 @@
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;mcsqs&quot;</span><span class="p">,</span>
                                 <span class="n">primitive</span><span class="o">=</span><span class="n">primitive</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">,</span>
                                 <span class="n">merge_tol</span><span class="o">=</span><span class="n">merge_tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;CTRL*&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">LMTOCtrl</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">structure</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized file extension!&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
@@ -2278,7 +2309,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            target_sites ([Site]): List of initial sites to nucleate cluster.</span>
-<span class="sd">            \*\*kwargs: kwargs passed through to CovalentBond.is_bonded.</span>
+<span class="sd">            \\*\\*kwargs: kwargs passed through to CovalentBond.is_bonded.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (Molecule) Cluster of atoms.</span>
@@ -2306,7 +2337,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="fm">__hash__</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2338,6 +2369,7 @@
 <span class="sd">                fractional_coords. Defaults to None for no properties.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Structure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
+                                        <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
                                         <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
                                         <span class="n">to_unit_cell</span><span class="o">=</span><span class="n">to_unit_cell</span><span class="p">,</span>
                                         <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="n">coords_are_cartesian</span><span class="p">,</span>
@@ -3476,7 +3508,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.11.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

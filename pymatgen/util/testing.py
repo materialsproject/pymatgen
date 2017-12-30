@@ -91,7 +91,8 @@ class PymatgenTest(unittest.TestCase):
         """
         # Use the python version so that we get the traceback in case of errors
         import pickle as pickle
-        from pymatgen.util.serialization import pmg_pickle_load, pmg_pickle_dump
+        from pymatgen.util.serialization import pmg_pickle_load, \
+            pmg_pickle_dump
 
         # Build a list even when we receive a single object.
         got_single_object = False
