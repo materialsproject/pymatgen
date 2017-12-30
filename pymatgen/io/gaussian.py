@@ -1064,9 +1064,9 @@ class GaussianOutput(object):
                             for line in mulliken_txt:
                                 if mulliken_charge_patt.search(line):
                                     m = mulliken_charge_patt.search(line)
-                                    dict = {int(m.group(1)):
-                                            [m.group(2), float(m.group(3))]}
-                                    mulliken_charges.update(dict)
+                                    dic = {int(m.group(1)):
+                                           [m.group(2), float(m.group(3))]}
+                                    mulliken_charges.update(dic)
                             read_mulliken = False
                             self.Mulliken_charges = mulliken_charges
 
