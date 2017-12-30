@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.eos module &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.analysis.eos module &#8212; pymatgen 2017.12.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.16',
+        VERSION:     '2017.12.30',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -272,6 +272,54 @@ supported keys: style, color, text, label</li>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.eos.EOSBase.plot_ax">
+<code class="descname">plot_ax</code><span class="sig-paren">(</span><em>ax=None</em>, <em>fontsize=12</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#EOSBase.plot_ax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.plot_ax" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Plot the equation of state on axis <cite>ax</cite></p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.
+fontsize: Legend fontsize.
+color (str): plot color.
+label (str): Plot label
+text (str): Legend text (options)</dd>
+<dt>Returns:</dt>
+<dd>Matplotlib figure object.</dd>
+</dl>
+</div></blockquote>
+<p>keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+example: size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>tight_layout</td>
+<td>True to call fig.tight_layout (default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.eos.EOSBase.results">
 <code class="descname">results</code><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.results" title="Permalink to this definition">¶</a></dt>
@@ -477,7 +525,7 @@ this.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 

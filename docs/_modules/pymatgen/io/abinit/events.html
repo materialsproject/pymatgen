@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.events &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.io.abinit.events &#8212; pymatgen 2017.12.30 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.16',
+        VERSION:     '2017.12.30',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -89,6 +89,11 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;EventsParser&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_event_handler_classes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ScfConvergenceWarning&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NscfConvergenceWarning&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RelaxConvergenceWarning&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Correction&quot;</span>
 <span class="p">]</span>
 
 
@@ -267,19 +272,19 @@
 <span class="c1"># Warnings triggering restart #</span>
 <span class="c1">###############################</span>
 
-<span class="k">class</span> <span class="nc">ScfConvergenceWarning</span><span class="p">(</span><span class="n">AbinitCriticalWarning</span><span class="p">):</span>
+<div class="viewcode-block" id="ScfConvergenceWarning"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.ScfConvergenceWarning">[docs]</a><span class="k">class</span> <span class="nc">ScfConvergenceWarning</span><span class="p">(</span><span class="n">AbinitCriticalWarning</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Warning raised when the GS SCF cycle did not converge.&quot;&quot;&quot;</span>
-    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s1">&#39;!ScfConvergenceWarning&#39;</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s1">&#39;!ScfConvergenceWarning&#39;</span></div>
 
 
-<span class="k">class</span> <span class="nc">NscfConvergenceWarning</span><span class="p">(</span><span class="n">AbinitCriticalWarning</span><span class="p">):</span>
+<div class="viewcode-block" id="NscfConvergenceWarning"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.NscfConvergenceWarning">[docs]</a><span class="k">class</span> <span class="nc">NscfConvergenceWarning</span><span class="p">(</span><span class="n">AbinitCriticalWarning</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Warning raised when the GS NSCF cycle did not converge.&quot;&quot;&quot;</span>
-    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s1">&#39;!NscfConvergenceWarning&#39;</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s1">&#39;!NscfConvergenceWarning&#39;</span></div>
 
 
-<span class="k">class</span> <span class="nc">RelaxConvergenceWarning</span><span class="p">(</span><span class="n">AbinitCriticalWarning</span><span class="p">):</span>
+<div class="viewcode-block" id="RelaxConvergenceWarning"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.RelaxConvergenceWarning">[docs]</a><span class="k">class</span> <span class="nc">RelaxConvergenceWarning</span><span class="p">(</span><span class="n">AbinitCriticalWarning</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Warning raised when the structural relaxation did not converge.&quot;&quot;&quot;</span>
-    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s1">&#39;!RelaxConvergenceWarning&#39;</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s1">&#39;!RelaxConvergenceWarning&#39;</span></div>
 
 
 <span class="c1"># TODO: for the time being we don&#39;t discern between GS and PhononCalculations.</span>
@@ -621,14 +626,15 @@
         <span class="c1">#@Guido this introspection is nice but it&#39;s not safe</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__init__&quot;</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;self&quot;</span><span class="p">:</span>
                     <span class="n">d</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">}</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                  <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">}</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
@@ -672,7 +678,7 @@
         <span class="k">return</span> <span class="n">log_diff</span>
 
 
-<span class="k">class</span> <span class="nc">Correction</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+<div class="viewcode-block" id="Correction"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.Correction">[docs]</a><span class="k">class</span> <span class="nc">Correction</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">handler</span> <span class="o">=</span> <span class="n">handler</span>
@@ -680,15 +686,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">event</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span> <span class="o">=</span> <span class="n">reset</span>
 
-    <span class="nd">@pmg_serialize</span>
+<div class="viewcode-block" id="Correction.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.Correction.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
     <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">handler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">actions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">reset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">handler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">actions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">reset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Correction.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.Correction.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">handler</span><span class="o">=</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;handler&#39;</span><span class="p">]),</span> <span class="n">actions</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;actions&#39;</span><span class="p">],</span>
-                   <span class="n">event</span><span class="o">=</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]),</span> <span class="n">reset</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;reset&#39;</span><span class="p">])</span>
+                   <span class="n">event</span><span class="o">=</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]),</span> <span class="n">reset</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;reset&#39;</span><span class="p">])</span></div></div>
 
 
 <span class="c1">#class WarningHandler(EventHandler):</span>
@@ -727,10 +733,10 @@
     <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_event_handler_classes</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="get_event_handler_classes"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.get_event_handler_classes">[docs]</a><span class="k">def</span> <span class="nf">get_event_handler_classes</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return the list of handler classes.&quot;&quot;&quot;</span>
     <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">all_subclasses</span><span class="p">(</span><span class="n">EventHandler</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_ABC_EVHANDLER_CLASSES</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">classes</span>
+    <span class="k">return</span> <span class="n">classes</span></div>
 
 
 <span class="k">def</span> <span class="nf">as_event_class</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
@@ -940,7 +946,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
