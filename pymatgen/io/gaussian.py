@@ -83,6 +83,7 @@ def read_route_line(route):
 
     return functional, basis_set, route_params, dieze_tag
 
+
 class GaussianInput(object):
     """
     An object representing a Gaussian input file.
@@ -875,21 +876,25 @@ class GaussianOutput(object):
                                 line = f.readline()
                                 # manage pop=regular case (not all MO)
                                 if nMO < self.num_basis_func and \
-                                    ("Density Matrix:" in line or mo_coeff_patt.search(line)):
+                                    ("Density Matrix:" in line or
+                                     mo_coeff_patt.search(line)):
                                     end_mo = True
-                                    warnings.warn("POP=regular case, matrix coefficients not complete")
+                                    warnings.warn("POP=regular case, matrix "
+                                                  "coefficients not complete")
                             f.readline()
 
                         self.eigenvectors = mat_mo
                         read_mo = False
 
-                        # build a more convenient array dict with MO coefficient of
-                        # each atom in each MO.
-                        # mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }
+                        # build a more convenient array dict with MO
+                        # coefficient of each atom in each MO.
+                        # mo[Spin][OM j][atom i] =
+                        # {AO_k: coeff, AO_k: coeff ... }
                         mo = {}
                         for spin in all_spin:
-                            mo[spin] = [[{} for iat in range(len(self.atom_basis_labels))]
-                                                for j in range(self.num_basis_func)]
+                            mo[spin] = [[{} for iat in
+                                         range(len(self.atom_basis_labels))]
+                                        for j in range(self.num_basis_func)]
                             for j in range(self.num_basis_func):
                                 i = 0
                                 for iat in range(len(self.atom_basis_labels)):
@@ -900,7 +905,7 @@ class GaussianOutput(object):
                         self.molecular_orbital = mo
 
                     elif parse_freq:
-                        while line.strip() != "": # blank line
+                        while line.strip() != "":  #  blank line
                             ifreqs = [int(val) - 1 for val in line.split()]
                             for ifreq in ifreqs:
                                 frequencies.append({"frequency": None,
@@ -912,15 +917,18 @@ class GaussianOutput(object):
                             # read freq, intensity, masses, symmetry ...
                             while "Atom  AN" not in line:
                                 if "Frequencies --" in line:
-                                    freqs = map(float, float_patt.findall(line))
+                                    freqs = map(float,
+                                                float_patt.findall(line))
                                     for ifreq, freq in zip(ifreqs, freqs):
                                         frequencies[ifreq]["frequency"] = freq
                                 elif "Red. masses --" in line:
-                                    r_masses = map(float, float_patt.findall(line))
+                                    r_masses = map(float,
+                                                   float_patt.findall(line))
                                     for ifreq, r_mass in zip(ifreqs, r_masses):
                                         frequencies[ifreq]["r_mass"] = r_mass
                                 elif "Frc consts  --" in line:
-                                    f_consts = map(float, float_patt.findall(line))
+                                    f_consts = map(float,
+                                                   float_patt.findall(line))
                                     for ifreq, f_const in zip(ifreqs, f_consts):
                                         frequencies[ifreq]["f_constant"] = f_const
                                 elif "IR Inten    --" in line:
@@ -933,11 +941,13 @@ class GaussianOutput(object):
                                         frequencies[ifreq]["symmetry"] = sym
                                 line = f.readline()
 
-                            # read normal modes
+                            #  read normal modes
                             line = f.readline()
                             while normal_mode_patt.search(line):
-                                values = list(map(float, float_patt.findall(line)))
-                                for i, ifreq in zip(range(0, len(values), 3), ifreqs):
+                                values = list(map(float,
+                                                  float_patt.findall(line)))
+                                for i, ifreq in zip(range(0, len(values), 3),
+                                                    ifreqs):
                                     frequencies[ifreq]["mode"].extend(values[i:i+3])
                                 line = f.readline()
 
@@ -946,8 +956,8 @@ class GaussianOutput(object):
                         frequencies = []
 
                     elif parse_hessian:
-                        # read Hessian matrix under "Force constants in Cartesian coordinates"
-                        # Hessian matrix is in the input orientation framework
+                        #  read Hessian matrix under "Force constants in Cartesian coordinates"
+                        #  Hessian matrix is in the input  orientation framework
                         # WARNING : need #P in the route line
                         parse_hessian = False
                         ndf = 3 * len(self.structures[0])
@@ -958,7 +968,8 @@ class GaussianOutput(object):
                             for i in range(jndf, ndf):
                                 line = f.readline()
                                 vals = re.findall(r"\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
-                                vals = [float(val.replace("D", "E")) for val in vals]
+                                vals = [float(val.replace("D", "E"))
+                                        for val in vals]
                                 for jval, val in enumerate(vals):
                                     j = j_indices[jval]
                                     self.hessian[i, j] = val
@@ -1029,7 +1040,8 @@ class GaussianOutput(object):
                         while not resume_end_patt.search(line):
                             resume.append(line)
                             line = f.readline()
-                            if line == "\n": # security if \\@ not in one line !
+                            #  security if \\@ not in one line !
+                            if line == "\n":
                                 break
                         resume.append(line)
                         resume = "".join([r.strip() for r in resume])
@@ -1044,16 +1056,15 @@ class GaussianOutput(object):
                             for line in mulliken_txt:
                                 if mulliken_charge_patt.search(line):
                                     m = mulliken_charge_patt.search(line)
-                                    dict = {int(m.group(1)): [m.group(2), float(m.group(3))]}
+                                    dict = {int(m.group(1)):
+                                            [m.group(2), float(m.group(3))]}
                                     mulliken_charges.update(dict)
                             read_mulliken = False
                             self.Mulliken_charges = mulliken_charges
 
-
         if not terminated:
-            #raise IOError("Bad Gaussian output file.")
-            warnings.warn("\n" + self.filename + \
-                ": Termination error or bad Gaussian output file !")
+            warnings.warn("\n" + self.filename +
+                          ": Termination error or bad Gaussian output file !")
 
     def _check_pcm(self, line):
         energy_patt = re.compile(r"(Dispersion|Cavitation|Repulsion) energy"
@@ -1114,7 +1125,7 @@ class GaussianOutput(object):
 
         d['output'] = vout
         d["@module"] = self.__class__.__module__
-        d["@class"] =  self.__class__.__name__
+        d["@class"] = self.__class__.__name__
 
         return d
 
@@ -1169,7 +1180,8 @@ class GaussianOutput(object):
 
                 elif scan_patt.match(line):
                     line = f.readline()
-                    data["coords"] = {icname: list() for icname in line.split()[1:-1]}
+                    data["coords"] = {icname: list()
+                                      for icname in line.split()[1:-1]}
                     f.readline()
                     line = f.readline()
                     while not re.search(r"^\s-+", line):
@@ -1211,7 +1223,8 @@ class GaussianOutput(object):
         plt.plot(x, y, "ro--")
         return plt
 
-    def save_scan_plot(self, filename="scan.pdf", img_format="pdf", coords=None):
+    def save_scan_plot(self, filename="scan.pdf",
+                       img_format="pdf", coords=None):
         """
         Save matplotlib plot of the potential energy surface to a file.
 
@@ -1277,8 +1290,9 @@ class GaussianOutput(object):
         maxval = max([val[0] for val in transitions]) + 5.0 * sigma
         npts = int((maxval - minval) / step) + 1
 
-        eneval = np.linspace(minval, maxval, npts) # in eV
-        lambdaval = [cst.h * cst.c / (val * cst.e) * 1.e9 for val in eneval] # in nm
+        eneval = np.linspace(minval, maxval, npts)  # in eV
+        lambdaval = [cst.h * cst.c / (val * cst.e) * 1.e9
+                     for val in eneval]  # in nm
 
         # sum of gaussian functions
         spectre = np.zeros(npts)
@@ -1290,10 +1304,10 @@ class GaussianOutput(object):
         data = {"energies": eneval, "lambda": lambdaval, "xas": spectre}
 
         # plot transitions as vlines
-        plt.vlines([val[1] for val in transitions], \
-                   0., \
-                   [val[2] for val in transitions], \
-                   color="blue", \
+        plt.vlines([val[1] for val in transitions],
+                   0.,
+                   [val[2] for val in transitions],
+                   color="blue",
                    label="transitions",
                    linewidth=2)
 
@@ -1317,14 +1331,14 @@ class GaussianOutput(object):
         d, plt = self.get_spectre_plot(sigma, step)
         plt.savefig(filename, format=img_format)
 
-    def to_input(self, filename, mol=None,  charge=None,
+    def to_input(self, mol=None,  charge=None,
                  spin_multiplicity=None, title=None, functional=None,
                  basis_set=None, route_parameters=None, input_parameters=None,
                  link0_parameters=None, dieze_tag=None, cart_coords=False):
         """
-        Write a new input file using by default the last geometry read in the output
-        file and with the same calculation parameters. Arguments are the same as
-        GaussianInput class.
+        Create a new input object using by default the last geometry read in
+        the output file and with the same calculation parameters. Arguments
+        are the same as GaussianInput class.
 
         Returns
             gaunip (GaussianInput) : the gaussian input object
@@ -1356,17 +1370,13 @@ class GaussianOutput(object):
         if not dieze_tag:
             dieze_tag = self.dieze_tag
 
-        gauinp = GaussianInput(mol=mol,
-                               charge=charge,
-                               spin_multiplicity=spin_multiplicity,
-                               title=title,
-                               functional=functional,
-                               basis_set=basis_set,
-                               route_parameters=route_parameters,
-                               input_parameters=input_parameters,
-                               link0_parameters=link0_parameters,
-                               dieze_tag=dieze_tag)
-
-        gauinp.write_file(filename, cart_coords=cart_coords)
-
-        return gauinp
+        return GaussianInput(mol=mol,
+                             charge=charge,
+                             spin_multiplicity=spin_multiplicity,
+                             title=title,
+                             functional=functional,
+                             basis_set=basis_set,
+                             route_parameters=route_parameters,
+                             input_parameters=input_parameters,
+                             link0_parameters=link0_parameters,
+                             dieze_tag=dieze_tag)
