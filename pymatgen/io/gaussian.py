@@ -845,7 +845,12 @@ class GaussianOutput(object):
                             eigen_txt = []
 
                     # read molecular orbital coefficients
-                    if read_mo:
+                    if (not num_basis_found) and \
+                            num_basis_func_patt.search(line):
+                        m = num_basis_func_patt.search(line)
+                        self.num_basis_func = int(m.group(1))
+                        num_basis_found = True
+                    elif read_mo:
                         # build a matrix with all coefficients
                         all_spin = [Spin.up]
                         if self.is_spin:
@@ -999,11 +1004,6 @@ class GaussianOutput(object):
                         }
                         m = error_patt.search(line)
                         self.errors.append(error_defs[m.group(1)])
-                    elif (not num_basis_found) and \
-                            num_basis_func_patt.search(line):
-                        m = num_basis_func_patt.search(line)
-                        self.num_basis_func = int(m.group(1))
-                        num_basis_found = True
                     elif num_elec_patt.search(line):
                         m = num_elec_patt.search(line)
                         self.electrons = (int(m.group(1)), int(m.group(2)))
