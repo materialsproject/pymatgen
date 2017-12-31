@@ -6,6 +6,7 @@ from __future__ import division, unicode_literals
 
 import unittest
 import pickle
+import warnings
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
@@ -224,6 +225,26 @@ class SpecieTestCase(PymatgenTest):
 
         s = Specie("Co", 3).get_crystal_field_spin("tet", spin_config="low")
         self.assertEqual(s, 2)
+
+    def test_get_shannon_radius(self):
+        self.assertEqual(Specie("Li", 1).get_shannon_radius("IV"), 0.59)
+        mn2 = Specie("Mn", 2)
+        self.assertEqual(mn2.get_shannon_radius("IV", "High Spin"), 0.66)
+        self.assertEqual(mn2.get_shannon_radius("V", "High Spin"), 0.75)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            r = mn2.get_shannon_radius("V")
+            # Verify some things
+            self.assertEqual(len(w), 1)
+            self.assertIs(w[-1].category, UserWarning)
+            self.assertEqual(r, 0.75)
+
+        self.assertEqual(mn2.get_shannon_radius("VI", "Low Spin"), 0.67)
+        self.assertEqual(mn2.get_shannon_radius("VI", "High Spin"), 0.83)
+        self.assertEqual(mn2.get_shannon_radius("VII", "High Spin"), 0.9)
+        self.assertEqual(mn2.get_shannon_radius("VIII"), 0.96)
 
     def test_sort(self):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
