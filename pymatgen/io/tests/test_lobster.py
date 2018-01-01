@@ -122,7 +122,7 @@ class CohpcarTest(PymatgenTest):
         self.assertIsNone(self.coop_fe.orb_res_cohp)
         self.assertIsNone(self.orb_notot.cohp_data["Ga1-As2"]["COHP"])
         self.assertIsNone(self.orb_notot.cohp_data["Ga1-As2"]["ICOHP"])
-        for o, orbs in enumerate(self.orb.orb_res_cohp["Ga1-As2"]):
+        for orbs in self.orb.orb_res_cohp["Ga1-As2"]:
             orb_set = self.orb.orb_res_cohp["Ga1-As2"][orbs]["orbitals"]
             self.assertEqual(orb_set[0][0], 4)
             self.assertEqual(orb_set[1][0], 4)

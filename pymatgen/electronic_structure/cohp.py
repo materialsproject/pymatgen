@@ -4,17 +4,14 @@
 
 from __future__ import division, unicode_literals
 
-import re
 import six
 import warnings
 import numpy as np
 
-from monty.io import zopen
 from monty.json import MSONable
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
-from pymatgen.core.units import Ry_to_eV
 from pymatgen.io.lmto import LMTOCopl
 from pymatgen.io.lobster import Cohpcar
 from pymatgen.util.num import round_to_sigfigs
@@ -91,7 +88,6 @@ class Cohp(MSONable):
         Returns a string that can be easily plotted (e.g. using gnuplot).
         """
         cohpstring = "COOP" if self.are_coops else "COHP"
-        spins = {Spin.up: "Up", Spin.down: "Down"}
         header = ["Energy", cohpstring + "Up"]
         data = [self.energies, self.cohp[Spin.up]]
         if Spin.down in self.cohp:
@@ -150,7 +146,7 @@ class Cohp(MSONable):
         elif spin is None:
             return populations
         else:
-            if type(spin) == int:
+            if isinstance(spin, six.integer_types):
                 spin = Spin(spin)
             elif isinstance(spin, six.string_types):
                 s = {"up": 1, "down": -1}[spin.lower()]
@@ -384,14 +380,14 @@ class CompleteCohp(Cohp):
         """
         if self.orb_res_cohp is None:
             return None
-        elif type(orbitals) in [list, tuple]:
+        elif isinstance(orbitals, list) or isinstance(orbitals, tuple):
             cohp_orbs = [d["orbitals"] for d in
                          self.orb_res_cohp[label].values()]
             orbs = []
             for orbital in orbitals:
-                if type(orbital[1]) is int:
+                if isinstance(orbital[1], int):
                     orbs.append(tuple((orbital[0], Orbital(orbital[1]))))
-                elif type(orbital[1]) is Orbital:
+                elif isinstance(orbital[1], Orbital):
                     orbs.append(tuple((orbital[0], orbital[1])))
                 elif isinstance(orbital[1], six.string_types):
                     orbs.append(tuple((orbital[0], Orbital[orbital[1]])))
