@@ -118,8 +118,11 @@ Please review the `coding guidelines </contributing>`_.
 
 :doc:`Older versions </change_log>`
 
-Getting pymatgen via conda (recommended)
-========================================
+Getting pymatgen
+================
+
+Via conda (recommended)
+~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are absolutely new to Python and/or are using Windows, the easiest
 installation process is using `conda <http://conda.pydata.org>`_. The
@@ -134,8 +137,8 @@ pymatgen can be installed from the `matsci channel on Anaconda cloud
 Step-by-step instructions for all platforms are available at the
 :doc:`installation page </installation>`.
 
-Getting pymatgen via pip
-========================
+Via pip
+~~~~~~~
 
 .. note:: Preparation
 
@@ -191,7 +194,7 @@ For an always up-to-date list of extras, consult the `setup.py's extras_require
    installation
 
 Shared cluster installation
-===========================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
 or NERSC resources in the US, the best way is to use conda to perform a local
@@ -230,7 +233,7 @@ manipulation or analyses.
 .. _quick_start:
 
 Quick start
-===========
+~~~~~~~~~~~
 
 Useful aliases for commonly used objects are now provided. Supported objects
 include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
@@ -370,13 +373,13 @@ strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below)
    usage
 
 API documentation
-=================
+~~~~~~~~~~~~~~~~~
 
 For detailed documentation of all modules and classes, please refer to the
 :doc:`API docs </modules>`.
 
 More resources
-==============
+~~~~~~~~~~~~~~
 
 The founder and maintainer of pymatgen, Shyue Ping Ong, has conducted several
 workshops (together with Anubhav Jain) on how to effectively use pymatgen (as
@@ -385,7 +388,7 @@ workflow software. The slides for these workshops are available on the
 `Materials Virtual Lab`_.
 
 pmg - Command line tool
-=======================
+~~~~~~~~~~~~~~~~~~~~~~~
 
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
@@ -444,7 +447,7 @@ Here are a few examples of typical usages::
     pmg generate --potcar Li_sv O --functional PBE
 
 Add-ons
-=======
+~~~~~~~
 
 Some add-ons are available for pymatgen today:
 
