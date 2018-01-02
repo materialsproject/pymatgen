@@ -138,7 +138,7 @@ class Element(Enum):
 
         True if element is a actinoid.
 
-    .. attribute:: name
+    .. attribute:: long_name
 
        Long name for element. E.g., "Hydrogen".
 
@@ -205,7 +205,7 @@ class Element(Enum):
         {'1s': -1.0, '2s': -0.1}
         Data is obtained from
         https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
-        The LDA values for neutral atoms are used    
+        The LDA values for neutral atoms are used
 
     .. attribute:: thermal_conductivity
 
@@ -394,6 +394,7 @@ class Element(Enum):
         else:
             self.atomic_radius = Length(at_r, "ang")
         self.atomic_mass = Mass(d["Atomic mass"], "amu")
+        self.long_name = d["Name"]
         self._data = d
 
     @property
@@ -1009,6 +1010,59 @@ class Specie(MSONable):
             output += ",%s=%s" % (p, v)
         return output
 
+    def get_shannon_radius(self, cn, spin="", radius_type="ionic"):
+        """
+        Get the local environment specific ionic radius for species.
+
+        Args:
+            cn (str): Coordination using roman letters. Supported values are
+                I-IX, as well as IIIPY, IVPY and IVSQ.
+            spin (str): Some species have different radii for different
+                spins. You can get specific values using "High Spin" or
+                "Low Spin". Leave it as "" if not available. If only one spin
+                data is available, it is returned and this spin parameter is
+                ignored.
+            radius_type (str): Either "crystal" or "ionic" (default).
+
+        Returns:
+            Shannon radius for specie in the specified environment.
+        """
+        radii = self._el.data["Shannon radii"]
+        # if cn == 1:
+        #     cn_str = "I"
+        # elif cn == 2:
+        #     cn_str = "II"
+        # elif cn == 3:
+        #     cn_str = "III"
+        # elif cn == 4:
+        #     cn_str = "IV"
+        # elif cn == 5:
+        #     cn_str = "V"
+        # elif cn == 6:
+        #     cn_str = "VI"
+        # elif cn == 7:
+        #     cn_str = "VII"
+        # elif cn == 8:
+        #     cn_str = "VIII"
+        # elif cn == 9:
+        #     cn_str = "IX"
+        # else:
+        #     raise ValueError("Invalid coordination number")
+
+        if len(radii[str(self._oxi_state)][cn]) == 1:
+            k, data = list(radii[str(self._oxi_state)][cn].items())[0]
+            if k != spin:
+                warnings.warn(
+                    "Specified spin state of %s not consistent with database "
+                    "spin of %s. Because there is only one spin data available, "
+                    "that value is returned." % (spin, k)
+                )
+        else:
+            data = radii[str(self._oxi_state)][cn][spin]
+        return data["%s_radius" % radius_type]
+
+
+
     def get_crystal_field_spin(self, coordination="oct", spin_config="high"):
         """
         Calculate the crystal field spin based on coordination and spin
@@ -1105,7 +1159,11 @@ class DummySpecie(Specie):
 
     .. attribute:: Z
 
-        DummySpecie is always assigned an atomic number of 0.
+        DummySpecie is always assigned an atomic number equal to the hash
+        number of the symbol. Obviously, it makes no sense whatsoever to use
+        the atomic number of a Dummy specie for anything scientific. The purpose
+        of this is to ensure that for most use cases, a DummySpecie behaves no
+        differently from an Element or Specie.
 
     .. attribute:: X
 
@@ -1133,10 +1191,7 @@ class DummySpecie(Specie):
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
-        try:
-            return getattr(self._el, a)
-        except:
-            raise AttributeError(a)
+        raise AttributeError(a)
 
     def __hash__(self):
         return self.symbol.__hash__()

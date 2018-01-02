@@ -8,7 +8,7 @@ import re
 import numpy as np
 
 from monty.io import zopen
-from pymatgen.electronic_structure.core import Spin
+from pymatgen.electronic_structure.core import Spin, Orbital
 
 """
 Module for reading Lobster output files. For more information
@@ -17,10 +17,10 @@ on LOBSTER see www.cohp.de.
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
-__version__ = "0.1"
+__version__ = "0.2"
 __maintainer__ = "Marco Esters"
 __email__ = "esters@uoregon.edu"
-__date__ = "Nov 30, 2017"
+__date__ = "Dec 13, 2017"
 
 
 class Cohpcar(object):
@@ -88,15 +88,33 @@ class Cohpcar(object):
                                           for s, spin in enumerate(spins)},
                                  "ICOHP": {spin: data[2+2*s*(num_bonds+1)]
                                            for s, spin in enumerate(spins)}}}
+        orb_cohp = {}
         for bond in range(num_bonds):
-            label, length, sites = self._get_bond_data(contents[3+bond])
+            bond_data = self._get_bond_data(contents[3+bond])
+            label = bond_data["label"]
+            orbs = bond_data["orbitals"]
             cohp = {spin: data[2*(bond+s*(num_bonds+1))+3]
                     for s, spin in enumerate(spins)}
             icohp = {spin: data[2*(bond+s*(num_bonds+1))+4]
                      for s, spin in enumerate(spins)}
-            cohp_data[label] = {"COHP": cohp, "ICOHP": icohp,
-                                "length": length,
-                                "sites": sites}
+            if orbs is None:
+                cohp_data[label] = {"COHP": cohp, "ICOHP": icohp,
+                                    "length": bond_data["length"],
+                                    "sites": bond_data["sites"]}
+            elif label in orb_cohp:
+                orb_cohp[label].update({bond_data["orb_label"]:
+                                        {"COHP": cohp, "ICOHP": icohp,
+                                         "orbitals": orbs}})
+            else:
+                if label not in cohp_data:
+                    cohp_data[label] = {"COHP": None, "ICOHP": None,
+                                        "length": bond_data["length"],
+                                        "sites": bond_data["sites"]}
+                orb_cohp[label] = {bond_data["orb_label"]: {"COHP": cohp,
+                                                            "ICOHP": icohp,
+                                                            "orbitals": orbs}}
+
+        self.orb_res_cohp = orb_cohp if orb_cohp else None
         self.cohp_data = cohp_data
 
     @staticmethod
@@ -107,25 +125,44 @@ class Cohpcar(object):
         can be easily used with a Structure object.
 
         Example header line: No.4:Fe1->Fe9(2.4524893531900283)
+        Example header line for orbtial-resolved COHP:
+            No.1:Fe1[3p_x]->Fe2[3d_x^2-y^2](2.456180552772262)
 
         Args:
             line: line in the COHPCAR header describing the bond.
 
         Returns:
-            The bond label, the bond length and a tuple of the site
-            indices.
+            Dict with the bond label, the bond length, a tuple of the site
+            indices, a tuple containing the orbitals (if orbital-resolved),
+            and a label for the orbitals (if orbital-resolved).
         """
+
+        orb_labs = ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
+                    "d_xz", "d_x^2-y^2", "4f_y(3x^2-y^2)", "4f_xyz",
+                    "4f_yz^2", "4f_z^3", "4f_xz^2", "4f_z(x^2-y^2)"]
 
         line = line.split("(")
         length = float(line[-1][:-1])
         # Replacing "->" with ":" makes splitting easier
         sites = line[0].replace("->", ":").split(":")[1:3]
-        site_indices = tuple(int(re.split("\D+", site)[1]) - 1
+        site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1
                              for site in sites)
-        species = tuple(re.split("\d+", site)[0] for site in sites)
+        species = tuple(re.split(r"\d+", site)[0] for site in sites)
+        if "[" in sites[0]:
+            orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
+            orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:]))))
+                        for orb in orbs]
+            orb_label = "%d%s-%d%s" % (orbitals[0][0], orbitals[0][1].name,
+                                       orbitals[1][0], orbitals[1][1].name)
+        else:
+            orbitals = None
+            orb_label = None
+
         label = "%s%d-%s%d" % (species[0], site_indices[0] + 1,
                                species[1], site_indices[1] + 1)
-        return label, length, site_indices
+        bond_data = {"label": label, "length": length, "sites": site_indices,
+                     "orbitals": orbitals, "orb_label": orb_label}
+        return bond_data
 
 
 class Icohplist(object):
@@ -141,6 +178,7 @@ class Icohplist(object):
 
 
     .. attribute: are_coops
+
          Boolean to indicate if the populations are COOPs or COHPs.
 
     .. attribute: is_spin_polarized
@@ -165,10 +203,15 @@ class Icohplist(object):
         with zopen(filename) as f:
             data = f.read().split("\n")[1:-1]
 
+        if len(data) == 0:
+            raise IOError("ICOHPLIST file contains no data.")
+
         # If the calculation is spin polarized, the line in the middle
         # of the file will be another header line.
         if "distance" in data[len(data)//2]:
             num_bonds = len(data)//2
+            if num_bonds == 0:
+                raise IOError("ICOHPLIST file contains no data.")
             self.is_spin_polarized = True
         else:
             num_bonds = len(data)

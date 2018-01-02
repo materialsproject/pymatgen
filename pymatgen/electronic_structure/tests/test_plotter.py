@@ -11,13 +11,14 @@ from io import open
 
 import matplotlib
 matplotlib.use("pdf")  # Use non-graphical display backend during test.
-
+from monty.os.path import which
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.cohp import CompleteCohp
 from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
 from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, \
     plot_ellipsoid, fold_point, plot_brillouin_zone, BSPlotterProjected, \
-    BSDOSPlotter, CohpPlotter
+    BSDOSPlotter, CohpPlotter, BoltztrapPlotter
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
@@ -38,6 +39,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 import scipy
+import warnings
 
 
 class DosPlotterTest(unittest.TestCase):
@@ -46,6 +48,10 @@ class DosPlotterTest(unittest.TestCase):
                   encoding='utf-8') as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_add_dos_dict(self):
         d = self.plotter.get_dos_dict()
@@ -83,6 +89,10 @@ class BSPlotterTest(unittest.TestCase):
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotter(self.bs)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_bs_plot_data(self):
         self.assertEqual(len(self.plotter.bs_plot_data()['distances'][0]), 16,
@@ -122,20 +132,31 @@ class BSPlotterProjectedTest(unittest.TestCase):
             d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotterProjected(self.bs)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
-        self.plotter.get_elt_projected_plots()
-        self.plotter.get_elt_projected_plots_color()
+        self.plotter.get_elt_projected_plots().close()
+        self.plotter.get_elt_projected_plots_color().close()
         self.plotter.get_projected_plots_dots({'Cu': ['d', 's'], 'O': ['p']})
-        # self.plotter.get_projected_plots_dots_patom_pmorb(
-        #     {'Cu': ['dxy', 's', 'px'], 'O': ['px', 'py', 'pz']},
-        #     {'Cu': [3, 5], 'O': [1]}
-        # )
+        self.plotter.get_projected_plots_dots_patom_pmorb(
+            {'Cu': ['dxy', 's', 'px'], 'O': ['px', 'py', 'pz']},
+            {'Cu': [3, 5], 'O': [1]}
+        )
 
 
 class BSDOSPlotterTest(unittest.TestCase):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
@@ -143,9 +164,11 @@ class BSDOSPlotterTest(unittest.TestCase):
         p = BSDOSPlotter()
         plt = p.get_plot(v.get_band_structure(
             kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")))
+        plt.close()
         plt = p.get_plot(v.get_band_structure(
             kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")),
             v.complete_dos)
+        plt.close()
 
 
 class PlotBZTest(unittest.TestCase):
@@ -163,12 +186,16 @@ class PlotBZTest(unittest.TestCase):
                         [-4.77845607, 6.75776076, 12.12987493]]
         self.center = [0.41, 0., 0.41]
         self.points = [[0., 0., 0.], [0.5, 0.5, 0.5]]
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_bz_plot(self):
         fig, ax = plot_ellipsoid(self.hessian, self.center,
                                  lattice=self.rec_latt)
-        plot_brillouin_zone(self.rec_latt, lines=self.kpath, labels=self.labels,
-                            kpoints=self.points, ax=ax, show=False)
+        fig = plot_brillouin_zone(self.rec_latt, lines=self.kpath, labels=self.labels,
+                                  kpoints=self.points, ax=ax, show=False)
 
     def test_fold_point(self):
         self.assertTrue(
@@ -177,6 +204,44 @@ class PlotBZTest(unittest.TestCase):
         self.assertTrue(
             scipy.allclose(fold_point([0.1, -0.6, 0.2], lattice=self.rec_latt),
                            self.rec_latt.get_cartesian_coords([0.1, 0.4, 0.2])))
+
+
+x_trans = which("x_trans")
+
+@unittest.skipIf(not x_trans, "No x_trans.")
+class BoltztrapPlotterTest(unittest.TestCase):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_plots(self):
+        bz = BoltztrapAnalyzer.from_files(
+            os.path.join(test_dir, "boltztrap/transp/"))
+        plotter = BoltztrapPlotter(bz)
+        plotter.plot_seebeck_eff_mass_mu().close()
+        plotter.plot_complexity_factor_mu().close()
+        plotter.plot_conductivity_mu().close()
+        plotter.plot_power_factor_mu().close()
+        plotter.plot_zt_mu().close()
+        plotter.plot_dos().close()
+
+        # TODO: These tests fail. Whoever is responsible for the
+        # BoltztrapPlotter needs to fix these. The fact that there are not tests
+        # for the plotter is atrocious. I will reject all future additions to
+        # the plotter until these are fixed.
+        # plotter.plot_seebeck_temp()
+        # plotter.plot_seebeck_dop()
+        # plotter.plot_carriers()
+        # plotter.plot_conductivity_dop()
+        # plotter.plot_conductivity_temp()
+        # plotter.plot_power_factor_dop()
+        # plotter.plot_power_factor_temp()
+        # plotter.plot_eff_mass_dop()
+        # plotter.plot_zt_dop()
+        # plotter.plot_zt_temp()
 
 
 class CohpPlotterTest(PymatgenTest):
@@ -189,6 +254,10 @@ class CohpPlotterTest(PymatgenTest):
             self.coop = CompleteCohp.from_dict(json.load(f))
         self.cohp_plot = CohpPlotter(zero_at_efermi=False)
         self.coop_plot = CohpPlotter(are_coops=True)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_attributes(self):
         self.assertFalse(self.cohp_plot.are_coops)
@@ -251,6 +320,7 @@ class CohpPlotterTest(PymatgenTest):
                                         -cohp_fe_fe.cohp[spin])
             self.assertArrayAlmostEqual(lines.get_ydata(), self.cohp.energies)
             self.assertEqual(lines.get_linestyle(), linestyles[spin])
+        plt_cohp.close()
 
         plt_cohp = self.cohp_plot.get_plot(invert_axes=False,
                                            plot_negative=False)
@@ -262,6 +332,8 @@ class CohpPlotterTest(PymatgenTest):
             self.assertArrayAlmostEqual(lines.get_xdata(), self.cohp.energies)
             self.assertArrayAlmostEqual(lines.get_ydata(),
                                         cohp_fe_fe.cohp[spin])
+        plt_cohp.close()
+
 
         plt_cohp = self.cohp_plot.get_plot(integrated=True)
         ax_cohp = plt_cohp.gca()
@@ -283,12 +355,17 @@ class CohpPlotterTest(PymatgenTest):
         coop_bi_bi = self.coop.all_cohps["Bi5-Bi6"].cohp[Spin.up]
         self.assertArrayAlmostEqual(lines_coop.get_xdata(), coop_bi_bi)
 
+        # Cleanup.
+        plt_cohp.close()
+        plt_coop.close()
+
     def test_save_plot(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
         plt_cohp = self.cohp_plot.get_plot()
         self.cohp_plot.save_plot("cohpplot.png")
         self.assertTrue(os.path.isfile("cohpplot.png"))
         os.remove("cohpplot.png")
+        plt_cohp.close()
 
 
 if __name__ == "__main__":

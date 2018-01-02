@@ -4,6 +4,7 @@
 
 from __future__ import division, unicode_literals, print_function
 
+import warnings
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
@@ -1091,6 +1092,10 @@ class MoleculeTest(PymatgenTest):
                   [-0.513360, -0.889165, -0.363000],
                   [-0.513360, 0.889165, -0.363000]]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_mutable_sequence_methods(self):
         s = self.mol

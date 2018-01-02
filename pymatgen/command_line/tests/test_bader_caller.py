@@ -25,6 +25,13 @@ __date__ = "Jul 22, 2012"
 @unittest.skipIf(not which('bader'), "bader executable not present.")
 class BaderAnalysisTest(unittest.TestCase):
 
+    def setUp(self):
+        warnings.catch_warnings()
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_init(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 'test_files')

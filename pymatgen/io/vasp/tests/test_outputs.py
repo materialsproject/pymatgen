@@ -16,7 +16,8 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning
+    Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
+    Wavecar
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
@@ -26,7 +27,7 @@ from pymatgen.util.testing import PymatgenTest
 Created on Jul 16, 2012
 """
 
-__author__ = "Shyue Ping Ong, Stephen Dacek"
+__author__ = "Shyue Ping Ong, Stephen Dacek, Mark Turiansky"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -39,9 +40,37 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class VasprunTest(unittest.TestCase):
 
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_multiple_dielectric(self):
         v = Vasprun(os.path.join(test_dir, "vasprun.GW0.xml"))
         self.assertEqual(len(v.other_dielectric), 3)
+
+    def test_charge_charge_dielectric(self):
+        """
+        VASP 5.4.4 writes out two dielectric functions to vasprun.xml
+        These are the "density-density" and "velocity-velocity" linear response functions.
+        See the comments in `linear_optics.F` for details.
+        """ 
+        v = Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric_5.4.4"), 
+                    parse_potcar_file=False)
+        self.assertEqual( v.dielectric is not None, True )
+        self.assertEqual( 'density' in v.dielectric_data, True )
+        self.assertEqual( 'velocity' in v.dielectric_data, True )
+
+    def test_optical_absorption_coeff(self):
+        v = Vasprun(os.path.join(test_dir, "vasprun.BSE.xml.gz"))
+        absorption_coeff = v.optical_absorption_coeff
+        self.assertEqual(absorption_coeff[1], 24966408728.917931)
+
+    def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
+        with self.assertRaises(NotImplementedError):
+            Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric_bad"),
+                    parse_potcar_file=False)
 
     def test_bad_vasprun(self):
         self.assertRaises(ET.ParseError,
@@ -346,10 +375,11 @@ class VasprunTest(unittest.TestCase):
 
     def test_sc_step_overflow(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            vasprun = Vasprun(filepath)
-            self.assertEqual(len(w), 3)
+        # with warnings.catch_warnings(record=True) as w:
+        #     warnings.simplefilter("always")
+        #     vasprun = Vasprun(filepath)
+        #     self.assertEqual(len(w), 3)
+        vasprun = Vasprun(filepath)
         estep = vasprun.ionic_steps[0]['electronic_steps'][29]
         self.assertTrue(np.isnan(estep['e_wo_entrp']))
 
@@ -984,6 +1014,110 @@ class DynmatTest(unittest.TestCase):
             d.data[4][2]['dynmat'][3], [0.055046, -0.298080, 0.]
         ))
         # TODO: test get_phonon_frequencies once cross-checked
+
+
+class WavecarTest(unittest.TestCase):
+
+    def setUp(self):
+        self.w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2'))
+        self.a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0],
+                          [0.0, 0.0, 10.0]])
+        self.vol = np.dot(self.a[0, :], np.cross(self.a[1, :], self.a[2, :]))
+        self.b = np.array([np.cross(self.a[1, :], self.a[2, :]),
+                          np.cross(self.a[2, :], self.a[0, :]),
+                          np.cross(self.a[0, :], self.a[1, :])])
+        self.b = 2*np.pi*self.b/self.vol
+
+    def test_init(self):
+        self.assertEqual(self.w.filename, os.path.join(test_dir, 'WAVECAR.N2'))
+        self.assertAlmostEqual(self.w.efermi, -5.7232, places=4)
+        self.assertEqual(self.w.encut, 25)
+        self.assertEqual(self.w.nb, 9)
+        self.assertEqual(self.w.nk, 1)
+        self.assertTrue(np.allclose(self.w.a, self.a))
+        self.assertTrue(np.allclose(self.w.b, self.b))
+        self.assertAlmostEqual(self.w.vol, self.vol)
+        self.assertEqual(len(self.w.kpoints), self.w.nk)
+        self.assertEqual(len(self.w.coeffs), self.w.nk)
+        self.assertEqual(len(self.w.coeffs[0]), self.w.nb)
+        self.assertEqual(len(self.w.band_energy), self.w.nk)
+        self.assertEqual(self.w.band_energy[0].shape, (self.w.nb, 3))
+        self.assertLessEqual(len(self.w.Gpoints[0]), 257)
+        for k in range(self.w.nk):
+            for b in range(self.w.nb):
+                self.assertEqual(len(self.w.coeffs[k][b]),
+                                 len(self.w.Gpoints[k]))
+
+        with self.assertRaises(ValueError):
+            Wavecar(os.path.join(test_dir, 'WAVECAR.N2.malformed'))
+
+        import sys
+        from io import StringIO
+        saved_stdout = sys.stdout
+        try:
+            out = StringIO()
+            sys.stdout = out
+            Wavecar(os.path.join(test_dir, 'WAVECAR.N2'), verbose=True)
+            self.assertNotEqual(out.getvalue().strip(), '')
+        finally:
+            sys.stdout = saved_stdout
+
+        self.w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2.45210'))
+        self.assertEqual(self.w.filename, os.path.join(test_dir,
+                                                       'WAVECAR.N2.45210'))
+        self.assertAlmostEqual(self.w.efermi, -5.7232, places=4)
+        self.assertEqual(self.w.encut, 25)
+        self.assertEqual(self.w.nb, 9)
+        self.assertEqual(self.w.nk, 1)
+        self.assertTrue(np.allclose(self.w.a, self.a))
+        self.assertTrue(np.allclose(self.w.b, self.b))
+        self.assertAlmostEqual(self.w.vol, self.vol)
+        self.assertEqual(len(self.w.kpoints), self.w.nk)
+        self.assertEqual(len(self.w.coeffs), self.w.nk)
+        self.assertEqual(len(self.w.coeffs[0]), self.w.nb)
+        self.assertEqual(len(self.w.band_energy), self.w.nk)
+        self.assertEqual(self.w.band_energy[0].shape, (self.w.nb, 3))
+        self.assertLessEqual(len(self.w.Gpoints[0]), 257)
+
+        with self.assertRaises(ValueError):
+            Wavecar(os.path.join(test_dir, 'WAVECAR.N2.spin'))
+
+        temp_ggp = Wavecar._generate_G_points
+        try:
+            Wavecar._generate_G_points = lambda x, y: []
+            with self.assertRaises(ValueError):
+                Wavecar(os.path.join(test_dir, 'WAVECAR.N2'))
+        finally:
+            Wavecar._generate_G_points = temp_ggp
+
+    def test__generate_nbmax(self):
+        self.w._generate_nbmax()
+        self.assertEqual(self.w._nbmax.tolist(), [5, 5, 5])
+
+    def test__generate_G_points(self):
+        for k in range(self.w.nk):
+            kp = self.w.kpoints[k]
+            self.assertLessEqual(len(self.w._generate_G_points(kp)), 257)
+
+    def test_evaluate_wavefunc(self):
+        self.w.Gpoints.append(np.array([0, 0, 0]))
+        self.w.kpoints.append(np.array([0, 0, 0]))
+        self.w.coeffs.append([[1+1j]])
+        self.assertAlmostEqual(self.w.evaluate_wavefunc(-1, -1, [0, 0, 0]),
+                               (1+1j)/np.sqrt(self.vol), places=4)
+        self.assertAlmostEqual(self.w.evaluate_wavefunc(0, 0, [0, 0, 0]),
+                               np.sum(self.w.coeffs[0][0])/np.sqrt(self.vol),
+                               places=4)
+
+    def test_fft_mesh(self):
+        mesh = self.w.fft_mesh(0, 5)
+        ind = np.argmax(np.abs(mesh))
+        self.assertEqual(np.unravel_index(ind, mesh.shape), (14, 1, 1))
+        self.assertEqual(mesh[tuple((self.w.ng/2).astype(np.int))], 0j)
+        mesh = self.w.fft_mesh(0, 5, shift=False)
+        ind = np.argmax(np.abs(mesh))
+        self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))
+        self.assertEqual(mesh[0, 0, 0], 0j)
 
 
 if __name__ == "__main__":

@@ -1,8 +1,10 @@
 Change log
 ==========
 
-v2017.12.8
-----------
-* Pymatgen no longer depends on pyhull.
-* MPRester method to get interface reaction kinks between two reactants.
-* Misc improvements.
+v2017.12.30
+-----------
+* Added detailed Shannon radii information and method.
+* Magoms for lanthanides (Weike Ye)
+* Chemenv improvements (David Waroquiers)
+* Ewald summation improvements (Logan Ward)
+* Update to ABINIT support (G Matteo)
