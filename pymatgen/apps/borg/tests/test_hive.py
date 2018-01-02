@@ -95,7 +95,8 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
     def test_assimilate(self):
         test_file = os.path.join(self.test_dir, "methane.log")
         entry = self.drone.assimilate(test_file)
-        for p in ["functional", "basis_set", "charge", "spin_mult", 'route']:
+        for p in ["functional", "basis_set", "charge",
+                  "spin_multiplicity", "route_parameters"]:
             self.assertIn(p, entry.parameters)
         for p in ["corrections"]:
             self.assertIn(p, entry.data)

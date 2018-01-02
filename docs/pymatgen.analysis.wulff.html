@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.wulff module &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.analysis.wulff module &#8212; pymatgen 2017.12.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.16',
+        VERSION:     '2017.12.30',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -238,6 +238,21 @@ The ideal sphere is 0.</p>
 <dd><p><a href="#id1"><span class="problematic" id="id2">**</span></a>Returns* – (dict)* – {hkl: area_hkl/total area on wulff}</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.analysis.wulff.WulffShape.effective_radius">
+<code class="descname">effective_radius</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.effective_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Radius of the Wulffshape when the
+Wulffshape is approximated as a sphere.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) radius.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.get_plot">
 <code class="descname">get_plot</code><span class="sig-paren">(</span><em>color_set='PuBu'</em>, <em>grid_off=True</em>, <em>axis_off=True</em>, <em>show_area=False</em>, <em>alpha=1</em>, <em>off_color='red'</em>, <em>direction=None</em>, <em>bar_pos=(0.75</em>, <em>0.15</em>, <em>0.05</em>, <em>0.65)</em>, <em>bar_on=False</em>, <em>legend_on=True</em>, <em>aspect_ratio=(8</em>, <em>8)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/wulff.html#WulffShape.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plot" title="Permalink to this definition">¶</a></dt>
@@ -323,6 +338,20 @@ See Ballufi, R. W., Allen, S. M. &amp; Carter, W. C. Kinetics</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pymatgen.analysis.wulff.WulffShape.total_surface_energy">
+<code class="descname">total_surface_energy</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.total_surface_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total surface energy of the Wulff shape.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) sum(surface_energy_hkl * area_hkl)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pymatgen.analysis.wulff.WulffShape.volume">
 <code class="descname">volume</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.volume" title="Permalink to this definition">¶</a></dt>
 <dd><p>Volume of the Wulff shape</p>
@@ -399,7 +428,7 @@ Agrs:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
