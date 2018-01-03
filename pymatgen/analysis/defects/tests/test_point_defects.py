@@ -4,14 +4,13 @@
 
 from __future__ import unicode_literals
 
-#import unittest
 import unittest
 import sys
 import numpy as np
 from math import fabs
 
 from pymatgen.analysis.defects.point_defects \
-        import StructureMotifInterstitial
+        import StructureMotifInterstitial, VoronoiInterstitial
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.defects.point_defects import *
 from pymatgen.core import PeriodicSite
@@ -626,14 +625,33 @@ class StructureMotifInterstitialTest(PymatgenTest):
         del self.cscl
 
 
+class VoronoiInterstitialTest(PymatgenTest):
+
+    def setUp(self):
+        self.copper = Structure(
+                Lattice.from_lengths_and_angles(
+                        [3.61, 3.61, 3.61],
+                        [90.0, 90.0, 90.0]),
+                ["Cu", "Cu", "Cu", "Cu"],
+                [[0, 0, 0], [0, 0.5, 0.5], [0.5, 0, 0.5], [0.5, 0.5, 0]],
+                validate_proximity=False, to_unit_cell=False,
+                coords_are_cartesian=False, site_properties=None)
+        self.vi = VoronoiInterstitial(self.copper)
+
+    def test_all(self):
+        self.assertIsInstance(self.vi, VoronoiInterstitial)
+        self.assertEqual(len(self.vi.enumerate_defectsites()), 1)
+        self.assertIsInstance(self.vi.enumerate_defectsites()[0], PeriodicSite)
+        self.assertEqual("X0+", self.vi.enumerate_defectsites()[0].species_string)
+        l = list(self.vi.enumerate_defectsites()[0].frac_coords)
+        self.assertAlmostEqual(l[0], 0)
+        self.assertAlmostEqual(l[1], 0)
+        self.assertAlmostEqual(l[2], 0.5)
+
+    def tearDown(self):
+        del self.vi
+        del self.copper
+
+
 if __name__ == "__main__":
     unittest.main()
-    # suite = unittest.TestLoader().loadTestsFromTestCase(
-    # ValenceIonicRadiusEvaluatorTest)
-    # suite = unittest.TestLoader().loadTestsFromTestCase(InterstitialTest)
-    # suite = unittest.TestLoader().loadTestsFromTestCase(VacancyTest)
-    # suite = unittest.TestLoader().loadTestsFromTestCase(
-    # VacancyFormationEnergyTest)
-    # suite = unittest.TestLoader().loadTestsFromTestCase(
-    # InterstitialAnalyzerTest)
-    # unittest.TextTestRunner(verbosity=3).run(suite)

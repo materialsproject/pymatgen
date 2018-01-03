@@ -414,6 +414,15 @@ class LocalStructOrderParasTest(PymatgenTest):
             [-1.90877, -2.24389, 0], [0, -3.6307, 0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.hexagonal_planar = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]),
+            ["H", "C", "C", "C", "C", "C", "C"],
+            [[0, 0, 0], [0.71, 1.2298, 0],
+            [-0.71, 1.2298, 0], [0.71, -1.2298, 0], [-0.71, -1.2298, 0],
+            [1.4199, 0, 0], [-1.4199, 0, 0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
         self.hexagonal_pyramid = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]), \
@@ -476,12 +485,12 @@ class LocalStructOrderParasTest(PymatgenTest):
             "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd", \
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
-            "see_saw"]
+            "see_saw", "hex_plan"]
         op_paras = [None, {'TA': 1, 'IGW_TA': 1./0.0667}, \
                     {'TA': 45./180, 'IGW_TA': 1./0.0667}, None, \
                     None, None, None, None, None, None, None, None, None, \
                     None, None, None, None, None, None, None, None, None, \
-                    None, None, None, None]
+                    None, None, None, None, None]
         ops_044 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.44)
         ops_071 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.71)
         ops_087 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.87)
@@ -643,6 +652,11 @@ class LocalStructOrderParasTest(PymatgenTest):
         op_vals = ops_101.get_order_parameters(
             self.see_saw, 0, indices_neighs=[i for i in range(1, 5)])
         self.assertAlmostEqual(int(op_vals[25] * 1000 + 0.5), 1000)
+
+        # Hexagonal planar motif.
+        op_vals = ops_101.get_order_parameters(
+            self.hexagonal_planar, 0, indices_neighs=[1,2,3,4,5,6])
+        self.assertAlmostEqual(int(op_vals[26] * 1000 + 0.5), 1000)   
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[1])

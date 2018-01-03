@@ -8,10 +8,10 @@ from __future__ import division, unicode_literals
 This module defines classes for point defects.
 """
 
-__author__ = "Bharat Medasani, Nils E. R. Zimmermann"
+__author__ = "Bharat Medasani, Nils E. R. Zimmermann, Guodong Li"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
-__maintainer__ = "Bharat Medasani, Nils E. R. Zimmermann"
+__maintainer__ = "Bharat Medasani, Nils E. R. Zimmermann, Guodong Li"
 __email__ = "mbkumar@gmail.com, n.zimmermann@tuhh.de"
 __status__ = "Production"
 __date__ = "Nov 28, 2016"
@@ -24,14 +24,16 @@ import numpy as np
 from bisect import bisect_left
 import time
 from math import sqrt, pow, fabs
+from scipy.spatial import Voronoi, ConvexHull
+from scipy.spatial.qhull import QhullError
 import warnings
 
-from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.core.periodic_table import Specie, Element, DummySpecie
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.analysis.local_env import LocalStructOrderParas
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
-    SpacegroupOperations
+    SpacegroupOperations, PointGroupAnalyzer
 from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
@@ -42,6 +44,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpeciesComparator
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.local_env import MinimumDistanceNN
+
 
 import six
 from six.moves import filter
@@ -1524,10 +1527,13 @@ class StructureMotifInterstitial(Defect):
     Subclass of Defect to generate interstitial sites at positions
     where the interstitialcy is coordinated by nearest neighbors
     in a way that resembles basic structure motifs
-    (e.g., tetrahedra, octahedra).  The algorithm will be formally
-    introducted in an upcoming publication
-    by Nils E. R. Zimmermann, Anubhav Jain, and Maciej Haranczyk,
-    and it is already used by the Python Charged Defect Toolkit
+    (e.g., tetrahedra, octahedra).  This Intersitial Finding Tool
+    (InFiT) was introducted in "Assessing Local Structure Motifs Using
+    Order Parameters for Motif Recognition, Interstitial Identification,
+    and Diffusion Path Characterization", N. E. R. Zimmermann,
+    M. K. Horton, A. Jain, and M. Haranczyk, Front. Mater.,
+    DOI 10.3389/fmats.2017.00034, 2017, and
+    it is used by the Python Charged Defect Toolkit
     (PyCDT, https://arxiv.org/abs/1611.07481).
     """
 
@@ -1855,3 +1861,278 @@ class StructureMotifInterstitial(Defect):
         return scs
 
 
+class VoronoiInterstitial(Defect):
+
+    """
+    Interstitial finding using the symmetically distinct vertices from
+    Voronoi decomposition.
+    """
+
+    def __init__(self, struct, dis_bar=2):
+        """
+        Generates interstitials from Voronoi decomposition.
+
+        Args:
+            struct (Structure): input Pymatgen Structure object.
+            dis_bar (float): distance cutoff for tentative interstitial
+                             sites.
+        """
+        self._struct = struct.copy()
+        self._dis_bar = dis_bar
+        self._defect_sites = []
+        for f in self.get_interstitial_frac_coords(self._struct):
+            self._defect_sites.append(PeriodicSite(
+                    'X', f, self._struct.lattice))
+
+    def struct_with_voronoi_verts(self, structure):
+        lat = structure.lattice.matrix
+        struct = structure.copy()
+        sites_cart=struct.cart_coords
+        s=[]
+        for x in sites_cart:
+            for i in range(-2,4):
+                for j in range(-2,4):
+                    for k in range(-2,4):
+                        s.append(x+i*lat[0]+j*lat[1]+k*lat[2])
+        vor=Voronoi(s)
+        verts=vor.vertices
+        inters=[]
+        for i in verts:
+            fracs= struct.lattice.get_fractional_coords(i)
+            inbox=True
+            for j in fracs:
+                if j<0 or j>=1.0:
+                    inbox = False
+                    break
+            if inbox:
+                inters.append(list(fracs)) 
+                struct.append(DummySpecie(),fracs)
+        return struct, inters
+    
+    def get_inter_sites_after_symmetry(self, struct_with_voronoi_vects):
+        spa=SpacegroupAnalyzer(struct_with_voronoi_vects,symprec=0.001, angle_tolerance=1)
+        stru=spa.get_symmetrized_structure()
+        eqs=stru.equivalent_sites
+        re_inters=[]
+        for i in eqs:
+            if i[0].specie==DummySpecie():
+                re_inters.append(list(i[0].frac_coords))
+        re_inters.sort()
+        return re_inters
+    
+    def polyhedral_largest(self, frac_cord, struct):
+        cart = struct.lattice.get_cartesian_coords(frac_cord)
+        neigs_mess = struct.get_neighbors_in_shell(cart,0,10,include_index=True)
+        neigs = sorted(neigs_mess,key=lambda i:(i[1],i[0].specie.symbol))
+        k=0
+        OK = False
+        while not OK:
+            sites = neigs[0:3+k]
+            k+=1
+            inds = [i[2] for i in sites]
+            dis = [round(i[1],1) for i in sites]
+            species = [i[0].specie.symbol for i in sites]
+            dis_ = [dis[0]]
+            for i in dis[1:]:
+                equ = False
+                for j in dis_:
+                    if abs(i-j)<=0.2:
+                        dis_.append(j)
+                        equ = True
+                        break
+                if not equ:
+                    dis_.append(i)
+            pts = [i[0].coords for i in sites]
+            try:
+                poly = ConvexHull(pts)
+            except QhullError:
+                d3 = False
+                continue
+            else:
+                if len(sites) == len(poly.vertices):
+                    poly_out = poly
+                    inds_out = inds
+                    dis_out = dis_
+                    species_out = species
+                    d3 = True
+                elif len(sites) != len(poly.vertices) and d3:
+                    OK = True
+                    if d3:
+                        poly={}
+                        molecule = Molecule(species_out,poly_out.points)
+                        pga = PointGroupAnalyzer(molecule)
+                        nsymmop = len(pga.symmops)
+                        poly['frac_coord']=frac_cord
+                        poly['poly']=poly_out
+                        poly['species'] = species_out
+                        poly['site_ind']=  self.inds_after_sym(inds_out,struct)
+                        poly['dist'] = dis_out
+                        poly['nsymmop'] = nsymmop
+                        poly['struct'] = struct
+                        return poly
+                    else:
+                        return 
+    
+    def inds_after_sym(self, p_inds,stru):
+        spa = SpacegroupAnalyzer(stru,symprec=0.5)
+        se = spa.get_symmetrized_structure()    
+        equ_inds = se.equivalent_indices
+        ind_dict ={}
+        for i in range(len(equ_inds)):
+            ind_dict[i]=equ_inds[i]
+        out = []
+        for i in p_inds:
+            for j in ind_dict:
+                if i in ind_dict[j]:
+                    out.append(j)
+                    break
+        return out
+    
+    def polyhedral_cut(self, poly):
+        out={}
+        out['frac_coord']=poly['frac_coord']
+        dist_n = {}
+        dis = [i for i in poly['dist']]
+        for i in dis:
+            if i not in dist_n:
+                dist_n[i]=0
+            dist_n[i]+=1
+        dis = list(set(dis))
+        dis.sort()
+        n=0
+        for i in range(len(dis)):
+            if abs(dis[i]-dis[0])<=0.5:
+                n+=dist_n[dis[i]]
+        pts = poly['poly'].points[0:n]
+        try:
+            convex = ConvexHull(pts)
+            verts = list(convex.vertices)
+        except QhullError:
+            return
+        else:
+            card=poly['struct'].lattice.get_cartesian_coords(poly['frac_coord'])
+            pts_add = np.array(list(pts)+[card])
+            conv_ = ConvexHull(pts_add)
+            if conv_.volume > convex.volume:
+                return
+            else:
+                out['poly']=convex
+                out['species'] = poly['species'][0:n]
+                out['dist'] = poly['dist'][0:n]
+                out['site_ind']=poly['site_ind'][0:n]
+                mole = Molecule(out['species'],pts)
+                pga = PointGroupAnalyzer(mole)
+                nsymmop = len(pga.symmops)
+                out['nsymmop']=nsymmop
+                return out
+    
+    def distance(self, frac1, frac2, stru):
+        dis = stru.lattice.get_distance_and_image(frac1, frac2)
+        return dis[0]
+    
+    def screen_polys_dist(self, polys,stru,dis_bar=2.0):
+        ref=[polys[0]]
+        for i in polys[1:]:
+            match = False
+            for j in range(len(ref)):
+                if self.distance(i['frac_coord'],ref[j]['frac_coord'],stru)<=dis_bar:
+                    match = True
+                    if i['nsymmop'] >1 and ref[j]['nsymmop']==1:
+                        ref[j]=i
+                    elif i['poly'].volume > ref[j]['poly'].volume:
+                        ref[j]=i
+                    break
+            if not match:
+                ref.append(i)
+        return ref
+    
+    def screen_polys(self, polys,num,screen_criteria='symmetry'):
+        """
+        num: the total number of interstial sites 
+        screen_criteria: symmetry or distance, which means the site with high symmetry(distance to neighbors) has the higher priority
+                                              
+        """
+        ref = [polys[0]]
+        for i in polys[1:]:
+            match = False
+            for j in ref:
+                    check = abs(i['poly'].volume-j['poly'].volume) < 0.1 and abs(i['poly'].area-j['poly'].area)< 0.1
+                    if check:
+                        if i['poly'].volume > j['poly'].volume:
+                            ref[ref.index(j)] = i 
+                        match =True
+                        break
+            if not match:
+                ref.append(i)  
+        out_symm = sorted(ref,key=lambda i:(i['nsymmop'],min(i['dist'])),reverse=True)
+        out_dist = sorted(ref,key=lambda i:min(i['dist']),reverse=True)
+        
+        if num == 'all' or num >=len(out_symm):
+            return out_symm
+        elif num <= 2:
+            if out_symm[0] != out_dist[0]:
+                return [out_symm[0],out_dist[0]]
+            else:
+                return out_symm[0:num]
+        else:
+            out = [out_symm[0],out_dist[0]]
+            for i in range(1,len(out_symm)):
+                if len(out) == num:
+                    return out
+                if out_symm[i] not in out:
+                    out.append(out_symm[i])
+
+    def get_interstitial_frac_coords(self, struct):
+        struct_orig = struct.copy()
+
+        struct_withvv, inters =  self.struct_with_voronoi_verts(struct)
+        try:
+            inters_sym = get_inter_sites_after_symmetry(struct_withvv,)
+        except:
+            inters_sym = inters    
+        
+        polys_all = [self.polyhedral_largest(i,struct_orig) for i in inters_sym]
+        polys_cut = [self.polyhedral_cut(i) for i in polys_all if i]
+        polys = [i for i in polys_cut if i]
+        OK = False
+        while not OK:
+            polys_dis = self.screen_polys_dist(polys,struct_orig, self._dis_bar)
+            if polys == polys_dis:
+                OK = True
+            else:
+                polys = polys_dis
+        
+        num = 30
+        inter_sites =  [i['frac_coord'] for i in self.screen_polys(polys_dis,num)]
+        return inter_sites
+    
+    def returntransfile(self, pinput):
+        dict_transf = {'defect_type': 'inter_1_H', 
+                        'defect_site': pinput.sites[0], 
+                        'defect_supercell_site': pinput.sites[0],
+                        'charge': 0, 'supercell': [4,4,4]}
+        return dict_transf
+
+    def enumerate_defectsites(self):
+        """
+        Enumerate all the symmetrically distinct interstitial sites.
+        The defect site has "X" as occupied specie.
+        """
+        return self._defect_sites
+
+    def make_supercells_with_defects(self, scaling_matrix, element):
+        """
+        Returns sequence of supercells in pymatgen.core.structure.Structure
+        format, with each supercell containing an interstitial.
+        First supercell has no defects.
+        """
+        sc_list_with_interstitial = []
+        sc = self._struct.copy()
+        sc.make_supercell(scaling_matrix)
+        sc_list_with_interstitial.append(sc)
+        for defect_site in self.enumerate_defectsites():
+            tmp_sc = sc.copy()
+            tmp_sc.append(element, defect_site.coords, \
+                coords_are_cartesian=True)
+            sc_list_with_interstitial.append(tmp_sc.copy())
+        return sc_list_with_interstitial
