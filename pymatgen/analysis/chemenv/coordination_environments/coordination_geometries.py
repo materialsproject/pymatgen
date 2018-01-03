@@ -154,6 +154,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         self._ref_separation_perm.extend(list(self.point_groups[1]))
         self._argsorted_ref_separation_perm = list(
             np.argsort(self._ref_separation_perm))
+        self.separation = (len(point_groups[0]), len(plane_points), len(point_groups[1]))
 
     @property
     def ordered_indices(self):
@@ -314,6 +315,8 @@ class CoordinationGeometry(object):
     """
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
+    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0 # Default value of continuous symmetry measure below which no further
+                                          #  search is performed for the separation plane algorithms
 
     class NeighborsSetsHints(object):
 
@@ -549,6 +552,10 @@ class CoordinationGeometry(object):
     def set_permutations_safe_override(self, permutations_safe_override):
         self.permutations_safe_override = permutations_safe_override
         # self.setup_permutations()
+
+    @property
+    def csm_skip_algo(self):
+        return self.CSM_SKIP_SEPARATION_PLANE_ALGO
 
     @property
     def distfactor_max(self):
