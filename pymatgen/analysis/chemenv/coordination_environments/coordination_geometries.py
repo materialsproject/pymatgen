@@ -808,6 +808,25 @@ class AllCoordinationGeometries(dict):
             for cg in self.cg_list:
                 cg.set_permutations_safe_override(True)
 
+        self.minpoints = {}
+        self.maxpoints = {}
+        self.separations_cg = {}
+        for cn in range(6, 14):
+            self.minpoints[cn] = 1000
+            self.maxpoints[cn] = 0
+            self.separations_cg[cn] = {}
+            for cg in self.get_implemented_geometries(coordination=cn):
+                for algo in cg.algorithms:
+                    sep = (len(algo.point_groups[0]),
+                           len(algo.plane_points),
+                           len(algo.point_groups[1]))
+                    if sep not in self.separations_cg[cn]:
+                        self.separations_cg[cn][sep] = []
+                    self.separations_cg[cn][sep].append(cg.mp_symbol)
+                    self.minpoints[cn] = min(self.minpoints[cn], algo.minimum_number_of_points)
+                    self.maxpoints[cn] = max(self.maxpoints[cn], algo.maximum_number_of_points)
+        self.maxpoints_inplane = {cn: max([sep[1] for sep in seps.keys()]) for cn, seps in self.separations_cg.items()}
+
     def __getitem__(self, key):
         return self.get_geometry_from_mp_symbol(key)
 
