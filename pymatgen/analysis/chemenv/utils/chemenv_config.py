@@ -60,7 +60,7 @@ class ChemEnvConfig():
             print(' <1> + <ENTER> : configuration of the package options (strategy, ...)')
             print(' <q> + <ENTER> : quit without saving configuration')
             test = input(' <S> + <ENTER> : save configuration and quit\n ... ')
-	    if test == '1':
+        if test == '1':
                 self.setup_package_options()
             elif test == 'q':
                 break
