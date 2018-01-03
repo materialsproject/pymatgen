@@ -2532,7 +2532,6 @@ class Outcar(MSONable):
         if self.lepsilon:
             d.update({'piezo_tensor': self.piezo_tensor,
                       'dielectric_tensor': self.dielectric_tensor,
-                      'born_ion': self.born_ion,
                       'born': self.born})
             if self.dfpt:
                 d.update({'piezo_ionic_tensor': self.piezo_ionic_tensor,
