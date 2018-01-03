@@ -170,8 +170,7 @@ def compute_environments(chemenv_configuration):
                       'mp': {'string': 'the Materials Project database',
                              'regexp': r'mp-[0-9]+$'}}
     questions = {'c': 'cif'}
-    if chemenv_configuration.has_materials_project_access:
-        questions['m'] = 'mp'
+    questions['m'] = 'mp'
     lgf = LocalGeometryFinder()
     lgf.setup_parameters()
     allcg = AllCoordinationGeometries()
