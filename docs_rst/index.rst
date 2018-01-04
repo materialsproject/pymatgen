@@ -135,7 +135,7 @@ pymatgen can be installed from the `matsci channel on Anaconda cloud
    conda install --channel matsci pymatgen
 
 Pymatgen is under active development, and new features are added regularly. To
-upgrade pymatgen, use the following command::
+upgrade pymatgen to the latest version, use the following command::
 
    conda upgrade pymatgen
 
