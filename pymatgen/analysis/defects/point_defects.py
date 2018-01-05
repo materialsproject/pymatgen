@@ -1877,7 +1877,7 @@ class TopographyAnalyzer(object):
     methods are available to perform aggregation and elimination of nodes. A
     typical use is something like::
 
-        a = TopologyAnalyzer(structure, ["O"], ["P"])
+        a = TopographyAnalyzer(structure, ["O"], ["P"])
         a.cluster_nodes()
         a.remove_collisions()
     """
@@ -1961,7 +1961,7 @@ class TopographyAnalyzer(object):
                 shifted = site.frac_coords + shift
                 coords.append(lattice.get_cartesian_coords(shifted))
 
-        # Perform the voronoi tesselation.
+        # Perform the voronoi tessellation.
         voro = Voronoi(coords)
 
         # Store a mapping of each voronoi node to a set of points.
