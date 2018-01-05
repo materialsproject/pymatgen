@@ -629,7 +629,7 @@ class TopographyAnalyzerTest(unittest.TestCase):
         feo4.remove_oxidation_states()
         self.feo4 = feo4
 
-    def test_topographanalyzer(self):
+    def test_topography_analyzer(self):
         # check interstitial sites for FePO4 using Voronoi Tessellation
         vor_feo4 = TopographyAnalyzer(self.feo4,
                                       framework_ions=["O"],
