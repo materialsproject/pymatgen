@@ -2162,7 +2162,7 @@ class TopographyAnalyzer(object):
 
     def vtk(self):
         if StructureVis is None:
-            raise NotImplemented("vtk must be present to view.")
+            raise NotImplementedError("vtk must be present to view.")
         lattice = self.structure.lattice
         vis = StructureVis()
         vis.set_structure(Structure.from_sites(self.structure))
