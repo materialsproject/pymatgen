@@ -46,12 +46,6 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.util.coord import pbc_diff
 from pymatgen.vis.structure_vtk import StructureVis
 
-# TODO: change import
-from pyhull.voronoi import VoronoiTess
-# from pyhull.convex_hull import ConvexHull
-# from scipy.spatial import Voronoi  # TODO: fix this
-from scipy.spatial import ConvexHull  # TODO: Wrong
-
 import six
 from six.moves import filter
 from six.moves import map
@@ -1936,13 +1930,14 @@ class TopographyAnalyzer(object):
         # lattice = structure.lattice
 
         # We could constrain the region where we want to dope/explore by setting
-        # the value of constrained_c_frac and thickness.
-        # The default mode is mapping all sites to the standard unit cell
+        # the value of constrained_c_frac and thickness. The default mode is
+        # mapping all sites to the standard unit cell
         s = structure.copy()
         constrained_sites = []
         for i, site in enumerate(s):
             if site.frac_coords[2] >= constrained_c_frac - thickness and \
-                    site.frac_coords[2] <= constrained_c_frac + thickness:
+                            site.frac_coords[
+                                2] <= constrained_c_frac + thickness:
                 constrained_sites.append(site)
         structure = Structure.from_sites(sites=constrained_sites)
         lattice = structure.lattice
@@ -1967,11 +1962,11 @@ class TopographyAnalyzer(object):
                 coords.append(lattice.get_cartesian_coords(shifted))
 
         # Perform the voronoi tesselation.
-        voro = VoronoiTess(coords)
+        voro = Voronoi(coords)
 
         # Store a mapping of each voronoi node to a set of points.
         node_points_map = defaultdict(set)
-        for pts, vs in voro.ridges.items():
+        for pts, vs in voro.ridge_dict.items():
             for v in vs:
                 node_points_map[v].update(pts)
 
