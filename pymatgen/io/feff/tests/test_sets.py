@@ -215,8 +215,8 @@ TITLE sites: 4
         output_mole = Atoms.cluster_from_file(os.path.join('.', 'feff_dist_regen/feff.inp'))
         original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
         output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
-        original_mole_shell = [x.species_stringforxinorigin_mole]
-        output_mole_shell = [x.species_stringforxinoutput_mole]
+        original_mole_shell = [x.species_string for x in origin_mole]
+        output_mole_shell = [x.species_string for x in output_mole]
 
         self.assertTrue(np.allclose(original_mole_dist, output_mole_dist))
         self.assertTrue(origin_tags == output_tags)
