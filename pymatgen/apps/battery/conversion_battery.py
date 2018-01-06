@@ -360,7 +360,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
         working_ion_entry = step1["element_reference"]
         working_ion = working_ion_entry.composition.elements[0].symbol
         working_ion_valence = max(Element(working_ion).oxidation_states)
-        voltage = -step1["chempot"] + working_ion_entry.energy_per_atom/working_ion_valence
+        voltage = (-step1["chempot"] + working_ion_entry.energy_per_atom)/working_ion_valence
         mAh = (step2["evolution"] - step1["evolution"]) \
             * Charge(1, "e").to("C") * Time(1, "s").to("h") * N_A * 1000*working_ion_valence
         licomp = Composition(working_ion)
