@@ -286,9 +286,10 @@ class FEFFDictSet(AbstractFeffInputSet):
                                        radius=radius)
                     site_distance = np.array(site_atoms.get_lines())[:, 5].astype(np.float64)
                     site_shell_species = np.array(site_atoms.get_lines())[:, 4]
+                    shell_overlap = min(shell_species.shape[0], site_shell_species.shape[0])
 
-                    if np.allclose(distance_matrix, site_distance) and \
-                            np.all(site_shell_species == shell_species):
+                    if np.allclose(distance_matrix[:shell_overlap], site_distance[:shell_overlap]) and \
+                            np.all(site_shell_species[:shell_overlap] == shell_species[:shell_overlap]):
                         absorber_index.append(site_index)
 
         if "RECIPROCAL" in sub_d["parameters"]:
