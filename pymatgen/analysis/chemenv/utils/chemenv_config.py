@@ -57,13 +57,10 @@ class ChemEnvConfig():
             for key, val in self.package_options.items():
                 print('     {}   :   {}'.format(str(key), str(val)))
             print('\nChoose in the following :')
-            print(' <1> + <ENTER> : setup of the access to the materials project database')
-            print(' <2> + <ENTER> : configuration of the package options (strategy, ...)')
+            print(' <1> + <ENTER> : configuration of the package options (strategy, ...)')
             print(' <q> + <ENTER> : quit without saving configuration')
             test = input(' <S> + <ENTER> : save configuration and quit\n ... ')
             if test == '1':
-                self.setup_materials_project_configuration()
-            elif test == '2':
                 self.setup_package_options()
             elif test == 'q':
                 break

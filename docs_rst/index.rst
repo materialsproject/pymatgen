@@ -134,6 +134,11 @@ pymatgen can be installed from the `matsci channel on Anaconda cloud
 
    conda install --channel matsci pymatgen
 
+Pymatgen is under active development, and new features are added regularly. To
+upgrade pymatgen to the latest version, use the following command::
+
+   conda upgrade pymatgen
+
 Step-by-step instructions for all platforms are available at the
 :doc:`installation page </installation>`.
 
@@ -162,7 +167,10 @@ any system is to use pip::
 
     pip install pymatgen
 
-Wheels for Mac and Windows have been built for convenience.
+Wheels for Mac and Windows have been built for convenience. To upgrade pymatgen
+via pip::
+
+    pip install --upgrade pymatgen
 
 The bleeding edge developmental version is at the pymatgen `Github repo
 <https://github.com/materialsproject/pymatgen>`_. The developmental

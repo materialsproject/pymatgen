@@ -46,6 +46,7 @@ class LammpsDataTest(unittest.TestCase):
                                        [-2.456700, 4.255129, 0],
                                        [0, 0, 5.405200]])
         self.assertEqual(quartz_box.formula, "Si3 O6")
+        self.assertNotIn("molecule-ID", self.quartz.atoms.columns)
 
         ethane_box = self.ethane.structure
         np.testing.assert_array_equal(ethane_box.lattice.matrix,
