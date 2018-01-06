@@ -15,7 +15,6 @@ import ruamel.yaml as yaml
 import six
 import abc
 import logging
-import inspect
 import numpy as np
 
 from monty.string import indent, is_string, list_strings
