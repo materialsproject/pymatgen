@@ -1142,7 +1142,7 @@ class SlabGenerator(object):
             slab = init_slab.copy()
             slab.energy = init_slab.energy
 
-            while asym or (len(slab) < len(self.parent)):
+            while asym:
                 # Keep removing sites from the bottom one by one until both
                 # surfaces are symmetric or the number of sites removed has
                 # exceeded 10 percent of the original slab
@@ -1153,12 +1153,13 @@ class SlabGenerator(object):
                     slab.remove_sites([c_dir.index(max(c_dir))])
                 else:
                     slab.remove_sites([c_dir.index(min(c_dir))])
+                if len(slab) <= len(self.parent):
+                    break
 
                 # Check if the altered surface is symmetric
                 sg = SpacegroupAnalyzer(slab, symprec=tol)
                 if sg.is_laue():
                     asym = False
-
                     nonstoich_slabs.append(slab)
 
         if len(slab) < len(self.parent):
