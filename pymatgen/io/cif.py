@@ -1138,7 +1138,7 @@ class CifWriter(object):
         block["_symmetry_Int_Tables_number"] = spacegroup[1]
         block["_chemical_formula_structural"] = no_oxi_comp.reduced_formula
         block["_chemical_formula_sum"] = no_oxi_comp.formula
-        block["_cell_volume"] = latt.volume.__str__()
+        block["_cell_volume"] = "%.8f" % latt.volume
 
         reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
         block["_cell_formula_units_Z"] = str(int(fu))

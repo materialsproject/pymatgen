@@ -499,7 +499,7 @@ _cell_angle_gamma   90.00000000
 _symmetry_Int_Tables_number   225
 _chemical_formula_structural   Li2O
 _chemical_formula_sum   'Li8 O4'
-_cell_volume   101.119255769
+_cell_volume   101.11925577
 _cell_formula_units_Z   4
 loop_
  _symmetry_equiv_pos_site_id
@@ -738,7 +738,7 @@ _cell_angle_gamma   60.00000914
 _symmetry_Int_Tables_number   1
 _chemical_formula_structural   Si1.5N0.5
 _chemical_formula_sum   'Si1.5 N0.5'
-_cell_volume   40.0447946443
+_cell_volume   40.04479464
 _cell_formula_units_Z   1
 loop_
 _symmetry_equiv_pos_site_id
@@ -785,7 +785,7 @@ _cell_angle_gamma   60.00000914
 _symmetry_Int_Tables_number   1
 _chemical_formula_structural   X1.5Si1.5
 _chemical_formula_sum   'X1.5 Si1.5'
-_cell_volume   40.0447946443
+_cell_volume   40.04479464
 _cell_formula_units_Z   1
 loop_
   _symmetry_equiv_pos_site_id
@@ -1067,7 +1067,7 @@ _cell_angle_gamma   90.00000000
 _symmetry_Int_Tables_number   1
 _chemical_formula_structural   GdB4
 _chemical_formula_sum   'Gd4 B16'
-_cell_volume   206.007290027
+_cell_volume   206.00729003
 _cell_formula_units_Z   4
 loop_
  _symmetry_equiv_pos_site_id
@@ -1114,6 +1114,7 @@ loop_
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
 
         cw = CifWriter(s_ncl, write_magmoms=True)
+        print(cw.__str__())
         self.assertEqual(cw.__str__(), cw_ref_string)
 
         # from list-type magmoms
@@ -1141,7 +1142,7 @@ _cell_angle_gamma   90.00000000
 _symmetry_Int_Tables_number   1
 _chemical_formula_structural   GdB4
 _chemical_formula_sum   'Gd4 B16'
-_cell_volume   206.007290027
+_cell_volume   206.00729003
 _cell_formula_units_Z   4
 loop_
  _symmetry_equiv_pos_site_id
@@ -1180,10 +1181,10 @@ loop_
  _atom_site_moment_crystalaxis_x
  _atom_site_moment_crystalaxis_y
  _atom_site_moment_crystalaxis_z
-  Gd1  0.0  0.0  7.14177848998
-  Gd2  0.0  0.0  7.14177848998
-  Gd3  0.0  0.0  -7.14177848998
-  Gd4  0.0  0.0  -7.14177848998
+  Gd1  0.0  0.0  7.14177848998413
+  Gd2  0.0  0.0  7.14177848998413
+  Gd3  0.0  0.0  -7.14177848998413
+  Gd4  0.0  0.0  -7.14177848998413
 """
 
         self.assertEqual(cw.__str__(), cw_ref_string_magnitudes)
