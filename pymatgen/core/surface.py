@@ -1162,7 +1162,7 @@ class SlabGenerator(object):
                     asym = False
                     nonstoich_slabs.append(slab)
 
-        if len(slab) < len(self.parent):
+        if len(slab) <= len(self.parent):
             warnings.warn("Too many sites removed, please use a larger slab "
                           "size.")
 
