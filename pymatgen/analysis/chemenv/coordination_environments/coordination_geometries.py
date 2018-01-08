@@ -316,7 +316,7 @@ class CoordinationGeometry(object):
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
     CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0 # Default value of continuous symmetry measure below which no further
-                                          #  search is performed for the separation plane algorithms
+                                        #  search is performed for the separation plane algorithms
 
     class NeighborsSetsHints(object):
 
@@ -819,10 +819,13 @@ class AllCoordinationGeometries(dict):
         self.maxpoints = {}
         self.separations_cg = {}
         for cn in range(6, 14):
-            self.minpoints[cn] = 1000
-            self.maxpoints[cn] = 0
-            self.separations_cg[cn] = {}
             for cg in self.get_implemented_geometries(coordination=cn):
+                if only_symbols is not None and cg.ce_symbol not in only_symbols:
+                    continue
+                if cn not in self.separations_cg:
+                    self.minpoints[cn] = 1000
+                    self.maxpoints[cn] = 0
+                    self.separations_cg[cn] = {}
                 for algo in cg.algorithms:
                     sep = (len(algo.point_groups[0]),
                            len(algo.plane_points),
