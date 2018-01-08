@@ -1208,9 +1208,9 @@ class CifWriter(object):
                             magmom, latt)
                         atom_site_moment_label.append(
                             "{}{}".format(sp.symbol, count))
-                        atom_site_moment_crystalaxis_x.append(moment[0])
-                        atom_site_moment_crystalaxis_y.append(moment[1])
-                        atom_site_moment_crystalaxis_z.append(moment[2])
+                        atom_site_moment_crystalaxis_x.append("%.5f" % moment[0])
+                        atom_site_moment_crystalaxis_y.append("%.5f" % moment[1])
+                        atom_site_moment_crystalaxis_z.append("%.5f" % moment[2])
 
                     count += 1
         else:

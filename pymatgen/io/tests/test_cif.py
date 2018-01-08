@@ -1106,15 +1106,14 @@ loop_
  _atom_site_moment_crystalaxis_x
  _atom_site_moment_crystalaxis_y
  _atom_site_moment_crystalaxis_z
-  Gd1  5.05  5.05  0.0
-  Gd2  -5.05  5.05  0.0
-  Gd3  5.05  -5.05  0.0
-  Gd4  -5.05  -5.05  0.0
+  Gd1  5.05000  5.05000  0.00000
+  Gd2  -5.05000  5.05000  0.00000
+  Gd3  5.05000  -5.05000  0.00000
+  Gd4  -5.05000  -5.05000  0.00000
 """
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
 
         cw = CifWriter(s_ncl, write_magmoms=True)
-        print(cw.__str__())
         self.assertEqual(cw.__str__(), cw_ref_string)
 
         # from list-type magmoms
@@ -1181,12 +1180,11 @@ loop_
  _atom_site_moment_crystalaxis_x
  _atom_site_moment_crystalaxis_y
  _atom_site_moment_crystalaxis_z
-  Gd1  0.0  0.0  7.14177848998413
-  Gd2  0.0  0.0  7.14177848998413
-  Gd3  0.0  0.0  -7.14177848998413
-  Gd4  0.0  0.0  -7.14177848998413
+  Gd1  0.00000  0.00000  7.14178
+  Gd2  0.00000  0.00000  7.14178
+  Gd3  0.00000  0.00000  -7.14178
+  Gd4  0.00000  0.00000  -7.14178
 """
-
         self.assertEqual(cw.__str__(), cw_ref_string_magnitudes)
 
         # test we're getting correct magmoms in ncl case
