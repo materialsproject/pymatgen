@@ -42,12 +42,7 @@ class TestPourbaixAnalyzer(PymatgenTest):
             self.assertEqual(len(range_map_dict[entry]), self.num_simplices[entry])
         ZnO2_entry = [e for e in self.pd.all_entries if e.name == "ZnO2(s)"][0]
         test_vertices = self.analyzer.pourbaix_domain_vertices[ZnO2_entry]
-        self.assertArrayAlmostEqual(test_vertices[0], [13.13028765, 1.5378])
-
-        # ensure consistent sorting
-        for vertices in self.analyzer.pourbaix_domain_vertices.values():
-            sorted_vertices = sorted(vertices, key=lambda x: (x[1], x[0]))
-            self.assertArrayEqual(sorted_vertices[0], vertices[0])
+        self.assertArrayAlmostEqual(test_vertices[0], [16, 4])
 
     def test_get_decomp(self):
         for entry in [entry for entry in self.pd.all_entries
