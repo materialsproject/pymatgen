@@ -383,7 +383,9 @@ class Slab(Structure):
         """
         Calculates the surface area of the slab
         """
-        proj_height
+        m = s.lattice.matrix
+        return np.linalg.norm(np.cross(m[0], m[1]))
+
     @property
     def center_of_mass(self):
         """
