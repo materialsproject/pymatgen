@@ -776,8 +776,12 @@ class SlabGenerator(object):
         single = initial_structure.copy()
         single.make_supercell(slab_scale_factor)
 
-        self.oriented_unit_cell = Structure.from_sites(single,
-                                                       to_unit_cell=True)
+        # When getting the OUC, lets return the most reduced
+        # structure as possible to reduce calculations
+        ouc = Structure.from_sites(single, to_unit_cell=True)
+        self.oriented_unit_cell = \
+            ouc.get_primitive_structure(constrain_latt=[False, False, True,
+                                                        False, False, False])
         self.parent = initial_structure
         self.lll_reduce = lll_reduce
         self.center_slab = center_slab

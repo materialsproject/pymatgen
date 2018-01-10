@@ -1345,7 +1345,8 @@ class IStructure(SiteCollection, MSONable):
 
                     # Default behavior
                     p = s.get_primitive_structure(
-                        tolerance=tolerance, use_site_props=use_site_props
+                        tolerance=tolerance, use_site_props=use_site_props,
+                        constrain_latt=constrain_latt
                     ).get_reduced_structure()
                     if not any(constrain_latt):
                         return p
