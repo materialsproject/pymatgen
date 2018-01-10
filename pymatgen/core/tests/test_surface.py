@@ -199,6 +199,22 @@ class SlabTest(PymatgenTest):
             sg = SpacegroupAnalyzer(slab)
             self.assertTrue(sg.is_laue())
 
+    def test_oriented_unit_cell(self):
+
+        # Check to see if we get the fully reduced oriented unit
+        # cell. This will also ensure that the constrain_latt
+        # parameter for get_primitive_structure is working properly
+
+        def surface_area(s):
+            m = s.lattice.matrix
+            return np.linalg.norm(np.cross(m[0], m[1]))
+
+        all_slabs = generate_all_slabs(self.agfcc, 3, 10, 10, max_normal_search=3)
+        for slab in all_slabs:
+            ouc = slab.oriented_unit_cell
+            self.assertAlmostEqual(surface_area(slab), surface_area(ouc))
+            self.assertGreaterEqual(len(slab), len(ouc))
+
 
 class SlabGeneratorTest(PymatgenTest):
 

@@ -383,9 +383,7 @@ class Slab(Structure):
         """
         Calculates the surface area of the slab
         """
-        m = self.lattice.matrix
-        return np.linalg.norm(np.cross(m[0], m[1]))
-
+        proj_height
     @property
     def center_of_mass(self):
         """
@@ -778,10 +776,8 @@ class SlabGenerator(object):
 
         # When getting the OUC, lets return the most reduced
         # structure as possible to reduce calculations
-        ouc = Structure.from_sites(single, to_unit_cell=True)
-        self.oriented_unit_cell = \
-            ouc.get_primitive_structure(constrain_latt=[False, False, True,
-                                                        False, False, False])
+        self.oriented_unit_cell = Structure.from_sites(single,
+                                                       to_unit_cell=True)
         self.parent = initial_structure
         self.lll_reduce = lll_reduce
         self.center_slab = center_slab
@@ -857,9 +853,13 @@ class SlabGenerator(object):
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
-                    self.oriented_unit_cell, shift,
-                    scale_factor, site_properties=slab.site_properties,
-                    energy=energy, reorient_lattice=self.reorient_lattice)
+                    self.oriented_unit_cell.\
+                    get_primitive_structure(constrain_latt=[False, False,
+                                                            True, False,
+                                                            False, False]),
+                    shift, scale_factor, energy=energy,
+                    site_properties=slab.site_properties,
+                    reorient_lattice=self.reorient_lattice)
 
     def _calculate_possible_shifts(self, tol=0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
