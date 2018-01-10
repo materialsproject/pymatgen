@@ -383,7 +383,7 @@ class Slab(Structure):
         """
         Calculates the surface area of the slab
         """
-        m = s.lattice.matrix
+        m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
     @property
