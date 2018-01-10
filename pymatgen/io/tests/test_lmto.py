@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 import os
 from pymatgen.core.structure import Structure
-from pymatgen.core.units import bohr_to_angstrom, Ry_to_eV
+from pymatgen.core.units import Ry_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lmto import LMTOCtrl, LMTOCopl
 from pymatgen.util.num import round_to_sigfigs

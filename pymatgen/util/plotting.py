@@ -385,19 +385,21 @@ def add_fig_kwargs(func):
         return fig
 
     # Add docstring to the decorated method.
-    s = "\n" + """\
-    keyword arguments controlling the display of the figure:
+    s = "\n\n" + """\
+        Keyword arguments controlling the display of the figure:
 
-    ================  ====================================================
-    kwargs            Meaning
-    ================  ====================================================
-    title             Title of the plot (Default: None).
-    show              True to show the figure (default: True).
-    savefig           'abc.png' or 'abc.eps' to save the figure to a file.
-    size_kwargs       Dictionary with options passed to fig.set_size_inches
-                      example: size_kwargs=dict(w=3, h=4)
-    tight_layout      True to call fig.tight_layout (default: False)
-    ================  ===================================================="""
+        ================  ====================================================
+        kwargs            Meaning
+        ================  ====================================================
+        title             Title of the plot (Default: None).
+        show              True to show the figure (default: True).
+        savefig           "abc.png" or "abc.eps" to save the figure to a file.
+        size_kwargs       Dictionary with options passed to fig.set_size_inches
+                          e.g. size_kwargs=dict(w=3, h=4)
+        tight_layout      True to call fig.tight_layout (default: False)
+        ================  ====================================================
+
+"""
 
     if wrapper.__doc__ is not None:
         # Add s at the end of the docstring.

@@ -133,21 +133,19 @@ class PourbaixAnalyzer(object):
         pourbaix_domains = {k: v for k, v in pourbaix_domains.items() if v}
         pourbaix_domain_vertices = {}
 
-        # Post-process boundary points, sorting isn't strictly necessary
-        # but useful for some plotting tools (e.g. highcharts)
         for entry, points in pourbaix_domains.items():
             points = np.array(points)[:, :2]
+            # Initial sort to ensure consistency
+            points = points[np.lexsort(np.transpose(points))]
             center = np.average(points, axis=0)
             points_centered = points - center
 
             # Sort points by cross product of centered points,
-            # then roll by min sum to to ensure consistency
+            # isn't strictly necessary but useful for plotting tools
             point_comparator = lambda x, y: x[0]*y[1] - x[1]*y[0]
             points_centered = sorted(points_centered,
                                      key=cmp_to_key(point_comparator))
             points = points_centered + center
-            shift = -np.lexsort(np.transpose(points))[0]
-            points = np.roll(points, shift, axis=0)
 
             # Create simplices corresponding to pourbaix boundary
             simplices = [Simplex(points[indices]) 

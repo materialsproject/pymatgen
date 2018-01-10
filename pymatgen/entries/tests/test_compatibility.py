@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
+import warnings
 """
 Created on Mar 19, 2012
 """
@@ -67,6 +67,10 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
         self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
         self.ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_process_entry(self):
         #Correct parameters
@@ -95,7 +99,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertIsNotNone(self.compat.process_entry(entry))
 
     def test_correction_values(self):
-        #test_corrections
+        # test_corrections
         self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction,
                                - 2.733 * 2 - 0.70229 * 3)
 
@@ -237,8 +241,11 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
 
 class MITCompatibilityTest(unittest.TestCase):
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def setUp(self):
+        warnings.simplefilter("ignore")
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.ggacompat = MITCompatibility("GGA", check_potcar_hash=True)
         self.entry_O = ComputedEntry(

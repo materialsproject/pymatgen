@@ -329,8 +329,8 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     def __init__(self, inc_structure=False, parameters=None, data=None,
                  file_extensions=(".log",)):
         self._inc_structure = inc_structure
-        self._parameters = {"functional", "basis_set", "charge", "spin_mult",
-                            "route"}
+        self._parameters = {"functional", "basis_set", "charge",
+                            "spin_multiplicity", "route_parameters"}
 
         if parameters:
             self._parameters.update(parameters)
