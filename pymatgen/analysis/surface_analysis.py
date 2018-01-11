@@ -442,7 +442,9 @@ class SurfaceEnergyPlotter(object):
             u_dict (Dict): Dictionary of the chemical potentials to be set as 
                 constant. Note the key should be a sympy Symbol object of the 
                 format: Symbol("delu_el") where el is the name of the element.
-            u_default (float): Default value for all unset chemical potentials 
+            u_default (float): Default value for all unset chemical potentials
+            no_doped (bool): Consider stability of clean slabs only.
+            no_clean (bool): Consider stability of doped slabs only.
 
         Returns:
             SlabEntry, surface_energy (float)
@@ -477,6 +479,8 @@ class SurfaceEnergyPlotter(object):
                 format: Symbol("delu_el") where el is the name of the element.
             u_default (float): Default value for all unset chemical potentials 
             symprec (float): See WulffShape.
+            no_doped (bool): Consider stability of clean slabs only.
+            no_clean (bool): Consider stability of doped slabs only.
 
         Returns:
             (WulffShape): The WulffShape at u_ref and u_ads.
