@@ -8,7 +8,7 @@ from __future__ import division, unicode_literals
 This module defines classes for point defects.
 """
 
-__author__ = "Bharat Medasani, Nils E. R. Zimmermann"
+__author__ = "Bharat Medasani, Nils E. R. Zimmermann, Danny Broberg, Shyam Dwaraknath, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Bharat Medasani, Nils E. R. Zimmermann"
@@ -219,7 +219,7 @@ class ValenceIonicRadiusEvaluator(object):
 
 class Defect(six.with_metaclass(abc.ABCMeta, object)):
     """
-    Abstract class for point defects
+    [Current version in pymatgen] Abstract class for point defects
     """
 
     @abc.abstractmethod
@@ -2234,3 +2234,107 @@ def calculate_vol(coords):
             c.append(center)
             vol += calculate_vol(c)
         return vol
+
+
+"""
+New additions from Danny and Shyam related to PyCDT merge
+"""
+
+
+class SingleDefect(six.with_metaclass(abc.ABCMeta, object)):
+    """
+    Abstract class for ISOLATED point defects
+    """
+    @property
+    def structure(self):
+        """
+        Returns the structure without any defects.
+        """
+        return self.structure
+
+    @property
+    def defectsite(self):
+        """
+        Returns the defect position as a site object
+        """
+        return self.defectsite
+
+    @property
+    def charge(self):
+        """
+        Returns the charge of a defect
+        """
+        return self.charge
+
+
+
+class SingleVacancy(SingleDefect):
+    """
+    Subclass of SingleDefect to capture essential information for a single defect structure.
+
+    Args:
+        structure: non-defective pymatgen.core.structure.Structure
+        defectsite: pymatgen Site object
+        charge: defect charge (0 is default,
+                meaning no change to NELECT after defect is created in the structure)
+        supercell_size:
+            Size of the supercell in terms of unit cell (just for storage of information)
+        multiplicity: multiplicity of defect within the structure
+
+    """
+    def __init__(self, structure, defectsite, charge=0., supercell_size=(1, 1, 1), multiplicity=None, name=None):
+        self.structure = structure
+        self.defectsite = defectsite
+        self.charge = charge
+        self.supercell_size = supercell_size
+        self.multiplicity = multiplicity
+        self.name = name
+
+    @property
+    def defect_structure(self):
+        """
+        Returns Defective Vacancy structure, decorated with charge
+        """
+
+        #if defect site isnt perfectly matched in structure, better to find closest site in structure
+        poss_deflist = self.structure.get_sites_in_sphere(self.defectsite, 2, include_index=True)
+        defindex = poss_deflist[0][2] #index for defect
+        defect_structure = self.structure.copy()
+        defect_structure.remove_sites([defindex])
+        defect_structure.charge = self.charge
+        return defect_structure
+
+    @staticmethod
+    def generate_defects_from_structure(structure, scaling_matrix=1):
+        """
+        [note, structure similar to ChargeDefectsStructures of PyCDT]
+        A static method which does symmetry analysis and returns all
+        symmetrically distinct vacancies for a structure
+
+        Args:
+            structure: non-defective pymatgen.core.structure.Structure
+            scaling_matrix: if a supercell of the structure is desired, can provide supercell scaling factor
+                    (ex. scaling_matrix = 2, scales supercell to 2x2x2 version of structure )
+                    (ex. scaling_matrix = [2,1,3] scales supercell to 2x1x3 version of structure )
+
+        returns: list of SingleVacancy objects (all with charge = 0)
+        """
+        vacancies = []
+        structure.make_supercell(scaling_matrix)
+        if type(scaling_matrix) in [int, float]:
+            supercell_size = [scaling_matrix, scaling_matrix, scaling_matrix]
+        else:
+            supercell_size = scaling_matrix
+
+        vac = Vacancy(structure, {}, {})
+        for defectsite, sitemult in zip(vac._defect_sites, vac._defect_site_multiplicity):
+            #TODO: make names out of the iteration procedure from Vacancy... for
+            vacancies.append( SingleVacancy(structure, defectsite, 0., supercell_size, multiplicity=sitemult))
+
+        return vacancies
+
+
+
+
+
+
