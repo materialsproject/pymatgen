@@ -199,6 +199,22 @@ class SlabTest(PymatgenTest):
             sg = SpacegroupAnalyzer(slab)
             self.assertTrue(sg.is_laue())
 
+    def test_oriented_unit_cell(self):
+
+        # Check to see if we get the fully reduced oriented unit
+        # cell. This will also ensure that the constrain_latt
+        # parameter for get_primitive_structure is working properly
+
+        def surface_area(s):
+            m = s.lattice.matrix
+            return np.linalg.norm(np.cross(m[0], m[1]))
+
+        all_slabs = generate_all_slabs(self.agfcc, 3, 10, 10, max_normal_search=3)
+        for slab in all_slabs:
+            ouc = slab.oriented_unit_cell
+            self.assertAlmostEqual(surface_area(slab), surface_area(ouc))
+            self.assertGreaterEqual(len(slab), len(ouc))
+
 
 class SlabGeneratorTest(PymatgenTest):
 
@@ -214,8 +230,21 @@ class SlabGeneratorTest(PymatgenTest):
                        [0.00000, 0.00000, 0.50000],
                        [0.00000, 0.50000, 0.00000]]
         species = ['Mg', 'Mg', 'Mg', 'Mg', 'O', 'O', 'O', 'O']
-        MgO = Structure(lattice, species, frac_coords)
-        self.MgO = MgO.add_oxidation_state_by_element({"Mg": 2, "O": -6})
+        self.MgO = Structure(lattice, species, frac_coords)
+        self.MgO.add_oxidation_state_by_element({"Mg": 2, "O": -6})
+
+        lattice_Dy = Lattice.hexagonal(3.58, 25.61)
+        frac_coords_Dy = [[0.00000, 0.00000, 0.00000],
+                       [0.66667, 0.33333, 0.11133],
+                       [0.00000, 0.00000, 0.222],
+                       [0.66667, 0.33333, 0.33333],
+                       [0.33333, 0.66666, 0.44467],
+                       [0.66667, 0.33333, 0.55533],
+                       [0.33333, 0.66667, 0.66667],
+                       [0.00000, 0.00000, 0.778],
+                       [0.33333, 0.66667, 0.88867]]
+        species_Dy = ['Dy', 'Dy', 'Dy', 'Dy', 'Dy', 'Dy', 'Dy', 'Dy', 'Dy']
+        self.Dy = Structure(lattice_Dy, species_Dy, frac_coords_Dy)
 
     def test_get_slab(self):
         s = self.get_structure("LiFePO4")
@@ -354,7 +383,7 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertAlmostEqual(norm_slab.lattice.angles[0], 90)
         self.assertAlmostEqual(norm_slab.lattice.angles[1], 90)
 
-    def get_tasker2_slabs(self):
+    def test_get_tasker2_slabs(self):
         # The uneven distribution of ions on the (111) facets of Halite
         # type slabs are typical examples of Tasker 3 structures. We
         # will test this algo to generate a Tasker 2 structure instead
@@ -373,7 +402,7 @@ class SlabGeneratorTest(PymatgenTest):
             self.assertTrue(slab.is_symmetric())
             self.assertFalse(slab.is_polar())
 
-    def nonstoichiometric_symmetrized_slab(self):
+    def test_nonstoichiometric_symmetrized_slab(self):
         # For the (111) halite slab, sometimes a nonstoichiometric
         # system is preferred over the stoichiometric Tasker 2.
         slabgen = SlabGenerator(self.MgO, (1,1,1), 10, 10,
@@ -385,6 +414,15 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertEqual(len(slabs), 2)
         for slab in slabs:
             self.assertTrue(slab.is_symmetric())
+
+        # For a low symmetry elemental system such as
+        # R-3m, there should be some nonsymmetric slabs
+        # without using nonstoichiometric_symmetrized_slab
+        slabs = generate_all_slabs(self.Dy, 1, 30, 30,
+                                   center_slab=True, symmetrize=True)
+        for s in slabs:
+            self.assertTrue(s.is_symmetric())
+            self.assertGreater(len(s), len(self.Dy))
 
     def test_move_to_other_side(self):
 

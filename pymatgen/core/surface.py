@@ -776,6 +776,8 @@ class SlabGenerator(object):
         single = initial_structure.copy()
         single.make_supercell(slab_scale_factor)
 
+        # When getting the OUC, lets return the most reduced
+        # structure as possible to reduce calculations
         self.oriented_unit_cell = Structure.from_sites(single,
                                                        to_unit_cell=True)
         self.parent = initial_structure
@@ -853,9 +855,13 @@ class SlabGenerator(object):
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
-                    self.oriented_unit_cell, shift,
-                    scale_factor, site_properties=slab.site_properties,
-                    energy=energy, reorient_lattice=self.reorient_lattice)
+                    self.oriented_unit_cell.\
+                    get_primitive_structure(constrain_latt=[False, False,
+                                                            True, False,
+                                                            False, False]),
+                    shift, scale_factor, energy=energy,
+                    site_properties=slab.site_properties,
+                    reorient_lattice=self.reorient_lattice)
 
     def _calculate_possible_shifts(self, tol=0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
@@ -1142,7 +1148,7 @@ class SlabGenerator(object):
             slab = init_slab.copy()
             slab.energy = init_slab.energy
 
-            while asym or (len(slab) < len(self.parent)):
+            while asym:
                 # Keep removing sites from the bottom one by one until both
                 # surfaces are symmetric or the number of sites removed has
                 # exceeded 10 percent of the original slab
@@ -1153,15 +1159,16 @@ class SlabGenerator(object):
                     slab.remove_sites([c_dir.index(max(c_dir))])
                 else:
                     slab.remove_sites([c_dir.index(min(c_dir))])
+                if len(slab) <= len(self.parent):
+                    break
 
                 # Check if the altered surface is symmetric
                 sg = SpacegroupAnalyzer(slab, symprec=tol)
                 if sg.is_laue():
                     asym = False
-
                     nonstoich_slabs.append(slab)
 
-        if len(slab) < len(self.parent):
+        if len(slab) <= len(self.parent):
             warnings.warn("Too many sites removed, please use a larger slab "
                           "size.")
 
