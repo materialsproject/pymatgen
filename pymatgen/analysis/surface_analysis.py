@@ -429,7 +429,8 @@ class SurfaceEnergyPlotter(object):
 
         return all_u_dict
 
-    def get_stable_entry_at_u(self, miller_index, u_dict={}, u_default=0):
+    def get_stable_entry_at_u(self, miller_index, u_dict={}, u_default=0,
+                              no_doped=False, no_clean=False):
         """
         Returns the entry corresponding to the most stable slab for a particular
             facet at a specific chempot. We assume that surface energy is constant
@@ -441,7 +442,9 @@ class SurfaceEnergyPlotter(object):
             u_dict (Dict): Dictionary of the chemical potentials to be set as 
                 constant. Note the key should be a sympy Symbol object of the 
                 format: Symbol("delu_el") where el is the name of the element.
-            u_default (float): Default value for all unset chemical potentials 
+            u_default (float): Default value for all unset chemical potentials
+            no_doped (bool): Consider stability of clean slabs only.
+            no_clean (bool): Consider stability of doped slabs only.
 
         Returns:
             SlabEntry, surface_energy (float)
@@ -452,18 +455,21 @@ class SurfaceEnergyPlotter(object):
             all_u_dict = self.set_all_variables(entry, u_dict, u_default)
             gamma = entry.surface_energy(self.ucell_entry,
                                          ref_entries=self.ref_entries)
-            all_entries.append(entry)
-            all_gamma.append(gamma.subs(all_u_dict))
+            if not no_clean:
+                all_entries.append(entry)
+                all_gamma.append(gamma.subs(all_u_dict))
             for ads_entry in self.entry_dict[miller_index][entry]:
                 all_u_dict = self.set_all_variables(ads_entry, u_dict, u_default)
                 gamma = ads_entry.surface_energy(self.ucell_entry,
                                                  ref_entries=self.ref_entries)
-                all_entries.append(ads_entry)
-                all_gamma.append(gamma.subs(all_u_dict))
+                if not no_doped:
+                    all_entries.append(ads_entry)
+                    all_gamma.append(gamma.subs(all_u_dict))
 
         return all_entries[all_gamma.index(min(all_gamma))], float(min(all_gamma))
 
-    def wulff_from_chempot(self, u_dict={}, u_default=0, symprec=1e-5):
+    def wulff_from_chempot(self, u_dict={}, u_default=0, symprec=1e-5,
+                           no_clean=False, no_doped=False):
         """
         Method to get the Wulff shape at a specific chemical potential.
         
@@ -473,6 +479,8 @@ class SurfaceEnergyPlotter(object):
                 format: Symbol("delu_el") where el is the name of the element.
             u_default (float): Default value for all unset chemical potentials 
             symprec (float): See WulffShape.
+            no_doped (bool): Consider stability of clean slabs only.
+            no_clean (bool): Consider stability of doped slabs only.
 
         Returns:
             (WulffShape): The WulffShape at u_ref and u_ads.
@@ -488,13 +496,10 @@ class SurfaceEnergyPlotter(object):
             # function of u. Use the lowest surface energy (corresponds
             # to the most stable slab termination at that particular u)
             entry, gamma = self.get_stable_entry_at_u(hkl, u_dict=u_dict,
-                                                      u_default=u_default)
+                                                      u_default=u_default,
+                                                      no_clean=no_clean,
+                                                      no_doped=no_doped)
             e_surf_list.append(gamma)
-        print(self.ucell_entry.composition)
-        print(miller_list)
-        print(e_surf_list)
-        print(latt)
-        print(u_default)
 
         return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
 
@@ -601,8 +606,8 @@ class SurfaceEnergyPlotter(object):
             return soln
         return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
 
-    def stable_u_range_dict(self, chempot_range, ref_delu, clean_only=True,
-                            u_dict={}, miller_index=()):
+    def stable_u_range_dict(self, chempot_range, ref_delu, no_doped=True,
+                            no_clean=False, u_dict={}, miller_index=()):
         """
         Creates a dictionary where each entry is a key pointing to a
         chemical potential range where the surface of that entry is stable.
@@ -616,8 +621,9 @@ class SurfaceEnergyPlotter(object):
                 on the chempot range of this chempot. Should be a sympy Symbol
                 object of the format: Symbol("delu_el") where el is the name of
                 the element
-            clean_only (bool): Consider stability of clean slabs only.
-            u_dict (Dict): Dictionary of the chemical potentials to be set as 
+            no_doped (bool): Consider stability of clean slabs only.
+            no_clean (bool): Consider stability of doped slabs only.
+            u_dict (Dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the 
                 format: Symbol("delu_el") where el is the name of the element.
             miller_index (list): Miller index for a specific facet to get a
@@ -634,7 +640,7 @@ class SurfaceEnergyPlotter(object):
                 continue
 
             entries_in_hkl = [clean for clean in self.entry_dict[hkl]]
-            if not clean_only:
+            if not no_doped:
                 for entry in self.entry_dict[hkl]:
                     entries_in_hkl.extend([ads_entry for ads_entry in
                                            self.entry_dict[hkl][entry]])
@@ -779,7 +785,8 @@ class SurfaceEnergyPlotter(object):
 
     def chempot_vs_gamma(self, ref_delu, chempot_range, miller_index=(),
                          u_dict={}, u_default=0, JPERM2=False,
-                         show_unstable=False, ylim=[], clean_only=False):
+                         show_unstable=False, ylim=[],
+                         no_clean=False, no_doped=False):
         """
         Plots the surface energy as a function of chemical potential.
             Each facet will be associated with its own distinct colors.
@@ -804,7 +811,8 @@ class SurfaceEnergyPlotter(object):
             show_unstable (bool): Whether or not to show parts of the surface
                 energy plot outside the region of stability.
             ylim ([ymax, ymin]): Range of y axis
-            clean_only (bool): Whether to plot for the clean slabs only.
+            no_doped (bool): Whether to plot for the clean slabs only.
+            no_clean (bool): Whether to plot for the doped slabs only.
 
         Returns:
             (Plot): Plot of surface energy vs chempot for all entries.
@@ -820,7 +828,8 @@ class SurfaceEnergyPlotter(object):
             # want to show the region where each slab is stable
             if not show_unstable:
                 stable_u_range_dict = self.stable_u_range_dict(chempot_range, ref_delu,
-                                                               clean_only=clean_only,
+                                                               no_doped=no_doped,
+                                                               no_clean=no_clean,
                                                                u_dict=u_dict,
                                                                miller_index=hkl)
 
@@ -837,12 +846,12 @@ class SurfaceEnergyPlotter(object):
                         label = None
                     else:
                         already_labelled.append(label)
-
-                    plt = self.chempot_vs_gamma_plot_one(plt, clean_entry, ref_delu,
-                                                         urange, u_dict=u_dict,
-                                                         u_default=u_default,
-                                                         label=label, JPERM2=JPERM2)
-                if not clean_only:
+                    if not no_clean:
+                        plt = self.chempot_vs_gamma_plot_one(plt, clean_entry, ref_delu,
+                                                             urange, u_dict=u_dict,
+                                                             u_default=u_default,
+                                                             label=label, JPERM2=JPERM2)
+                if not no_doped:
                     for ads_entry in self.entry_dict[hkl][clean_entry]:
                         # Plot the adsorbed slabs
                         # Generate a label for the type of slab
