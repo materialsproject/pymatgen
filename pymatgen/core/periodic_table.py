@@ -8,6 +8,7 @@ import os
 import re
 import json
 import warnings
+import numpy as np
 from io import open
 from enum import Enum
 
@@ -15,6 +16,8 @@ from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
+from itertools import product, combinations
+from collections import Counter
 
 """
 Module contains classes presenting Element and Specie (Element + oxidation
@@ -553,6 +556,85 @@ class Element(Enum):
             sym = data[0].replace("[", "").replace("]", "")
             data = Element(sym).full_electronic_structure + data[1:]
         return data
+
+    @property
+    def term_symbols(self):
+        """
+        Generate Russell-Saunders term symbol for
+        element's electron configuration
+
+        Returns:
+            All possible term symbols associated with given
+            electron configuration.
+            eg. L = 1, n_e = 2 (s2)
+            returns
+               [['1D2'], ['3P0', '3P1', '3P2'], ['1S0']]
+
+        """
+        L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
+        inc_J = True
+
+        # From full electron config obtain valence subshell
+        # angular moment (L) and number of valence e- (n_e)
+        full_electron_config = self.full_electronic_structure
+        for _, l_symbol, ne in full_electron_config:
+            l = L_symbols.lower().index(l_symbol)
+            if ne < (2 * l + 1) * 2:
+                n_e = ne
+                L = l
+
+        # for one electron in subshell L
+        ml = list(range(-L, L + 1))
+        ms = [1 / 2, -1 / 2]
+        # all possible configurations of ml,ms for one e in subshell L
+        ml_ms = list(product(ml, ms))
+
+        # Number of possible configurations for r electrons in subshell L.
+        n = (2 * L + 1) * 2
+        # the combination of n_e electrons configurations
+        # C^{n}_{n_e}
+        e_config_combs = list(combinations(range(n), n_e))
+
+        # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
+        TL = [sum([ml_ms[comb[e]][0] for e in range(n_e)])
+              for comb in e_config_combs]
+        TS = [sum([ml_ms[comb[e]][1] for e in range(n_e)])
+              for comb in e_config_combs]
+
+        comb_counter = Counter([r for r in zip(TL, TS)])
+
+        term_symbols = []
+
+        while sum(comb_counter.values()) > 0:
+            # Start from the lowest freq combination,
+            # which corresponds to largest abs(L) and smallest abs(S)
+            L, S = min(comb_counter)
+
+            if inc_J:
+                J = list(np.arange(abs(L - S), abs(L) + abs(S) + 1))
+                term_symbols.append([str(int(2 * (abs(S)) + 1)) \
+                                     + L_symbols[abs(L)] \
+                                     + str(j) for j in J])
+            else:
+                term_symbols.append(str(int(2 * (abs(S)) + 1)) \
+                                    + L_symbols[abs(L)])
+
+            # Delete all configurations included in this term
+            for ML in range(-L, L - 1, -1):
+                for MS in np.arange(S, -S + 1, 1):
+                    if (ML, MS) in comb_counter:
+
+                        comb_counter[(ML, MS)] -= 1
+                        if comb_counter[(ML, MS)] == 0:
+                            del comb_counter[(ML, MS)]
+        return term_symbols
+
+
+    # Todo: find ground state term symbols based on Hund's Rule
+    #@property
+    #def ground_state_term_symbol(self):
+
+
 
     def __eq__(self, other):
         return isinstance(other, Element) and self.Z == other.Z
@@ -1112,6 +1194,7 @@ class Specie(MSONable):
                     return nelectrons - 4
                 else:
                     return 10 - nelectrons
+
 
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state, self._properties)
