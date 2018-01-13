@@ -51,6 +51,17 @@ class ElementTestCase(PymatgenTest):
         for k, v in testsets.items():
             self.assertEqual(Element(k).full_electronic_structure, v)
 
+
+    def test_valence(self):
+        testsets = {"O": (1, 4),
+                    "Fe": (2, 6),
+                    "Li":  (0, 1)}
+        for k, v in testsets.items():
+            self.assertEqual(Element(k).valence, v)
+
+        with self.assertRaises(ValueError):
+            Element("U").valence
+
     def test_term_symbols(self):
         testsets = {"Li": [['2S0.5']], # s1
                     "C": [['1D2.0'],
@@ -81,6 +92,15 @@ class ElementTestCase(PymatgenTest):
                     }
         for k,v in testsets.items():
             self.assertEqual(Element(k).term_symbols, v)
+
+    def test_ground_state_term_symbol(self):
+        testsets = {"Li": '2S0.5', # s1
+                    "C": '3P0.0',  # p2
+                    "O": '3P2.0',  # p4
+                    "Ti": '3F2.0', # d2
+                    "Pr": '4I4.5'}  # f3
+        for k,v in testsets.items():
+            self.assertEqual(Element(k).ground_state_term_symbol, v)
 
     def test_attributes(self):
         is_true = {("Xe", "Kr"): "is_noble_gas",
