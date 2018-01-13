@@ -1734,6 +1734,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.set_status(self.S_INIT, msg="Reset on %s" % time.asctime())
         self.set_qjob(None)
 
+        # Reset finalized flags.
+        self.work.finalized = False
+        self.flow.finalized = False
+
         return 0
 
     @property
