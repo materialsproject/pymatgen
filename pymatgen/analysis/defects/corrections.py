@@ -11,11 +11,30 @@ __date__ = "January 11, 2018"
 import logging
 import sys
 import numpy as np
-from scipy import stats #for statistical uncertainties of
+from scipy import stats #for statistical uncertainties of pot alignment
 
 from pymatgen.io.vasp.outputs import Locpot
 from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared
 # from pymatgen.analysis.defects.utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared
+
+class OtherCorrection(object):
+    #TODO: ask Shyam if this should be a formal pymatgen Correction class? Not using any ComputedEntries...
+    """
+    An abstract class for other types of Corrections (Shallow level etc...)
+
+    """
+    def __init__(self, **kwargs):
+        self.corr = kwargs.get('corr', 0.)
+        self.metadata = kwargs.get('metadata', dict())
+
+    @property
+    def correction(self):
+        """
+        Total correction to be applied to Formation energy
+        """
+        return self.corr
+
+
 
 class ChargeCorrection(object):
     #TODO: ask Shyam if this should be a formal pymatgen Correction class? Not using any ComputedEntries...
@@ -24,10 +43,11 @@ class ChargeCorrection(object):
 
     All charge corrections have two parts: Electrostatic correction and Potential alignment correction
     """
-    def __init__(self, es_corr=0., pot_corr=0., metadata={}):
-        self.es_corr = es_corr
-        self.pot_corr = pot_corr
-        self.metadata = metadata
+    def __init__(self, **kwargs):
+                 # es_corr=0., pot_corr=0., metadata={}):
+        self.es_corr = kwargs.get('es_corr', 0.)
+        self.pot_corr = kwargs.get('pot_corr', 0.)
+        self.metadata = kwargs.get('metadata', dict())
 
     @property
     def correction(self):
@@ -87,8 +107,8 @@ class FreysoldtCorrection(ChargeCorrection):
     """
     A class for FreysoldtCorrection class. Largely adapated from PyCDT code
     """
-    def __init__(self):
-        super(self.__class__, self).__init__()
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**kwargs)
 
     @staticmethod
     def retrieve_correction_from_locpot_files(pure_locpot, defect_locpot, lattice, dielectricconst, q,
@@ -415,7 +435,6 @@ class FreysoldtCorrection(ChargeCorrection):
                 plotter.to_datafile(fname)
 
         return
-
 
 class FreysoldtCorrPlotter(object):
     def __init__(self, x, v_R, dft_diff, final_shift, check):

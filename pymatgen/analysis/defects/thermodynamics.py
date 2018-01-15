@@ -11,6 +11,7 @@ __date__ = "January 11, 2018"
 
 from monty.json import MSONable
 
+from pymatgen.analysis.defects.corrections import ChargeCorrection, OtherCorrection
 
 class BulkEntry(object):
     """
@@ -82,7 +83,19 @@ class DefectEntry(object):
             correction (float):
                 New correction to be applied for defect
         """
-        self.charge_correction = correction
+        #first check if other charge correction already exists; delete all that exist
+        c_corrindexlist = []
+        for cindex, c in enumerate(self.corrections):
+            if issubclass(type(c), ChargeCorrection):
+                print('ChargeCorrection:',type(c),' already exists...will delete.')
+                c_corrindexlist.append(cindex)
+
+        for delcindex in sorted(c_corrindexlist, reverse=True):
+            del c.corrections[delcindex]
+
+        new_cc = ChargeCorrection(es_corr=correction) #note this does not contain information of correction...
+        print('Adding Charge Correction: ',new_cc)
+        c.corrections.append(new_cc)
 
     def add_other_correction(self, correction):
         """
@@ -91,7 +104,13 @@ class DefectEntry(object):
             correction (float):
                 New correction to be applied for defect
         """
-        self.other_correction = correction
+        for cindex, c in enumerate(self.corrections):
+            if issubclass(type(c), OtherCorrection):
+                print('Note OtherCorrection exists:',type(c),'=',c.correction)
+
+        new_oc = OtherCorrection(corr=correction) #note this does not contain information of correction...
+        print('Adding Additional Other Correction: ',new_oc)
+        c.corrections.append(new_oc)
 
     def get_formation_energy(self, mu_elts, ef=0.0):
         """
