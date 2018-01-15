@@ -128,10 +128,14 @@ class DefectEntry(object):
             el = elt.symbol
             sum_mus += mu_needed_coeffs[elt] * mu_elts[el]
 
+        total_corrections = 0.
+        for c in self.corrections:
+            total_corrections += c.correction
+
         self.e_fermi = ef
         self.formation_energy = self.energy - self.bulk.energy + \
                         sum_mus + self.charge*(self.e_vbm + ef) + \
-                        self.charge_correction + self.other_correction
+                        total_corrections
 
     def add_other_correct_bg_simple(self, vbm_correct, cbm_correct):
         #TODO: note that this shift is available in the bulk entry that has been created
@@ -150,7 +154,6 @@ class DefectEntry(object):
         """
         self.band_gap = self.band_gap + cbm_correct + vbm_correct
         self.e_vbm = self._e_vbm - vbm_correct
-        self.compute_form_en()
 
 
 class DefectPhaseDiagram(MSONable):
