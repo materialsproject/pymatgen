@@ -221,7 +221,7 @@ class ReconstructBandStructureTest(PymatgenTest):
 
     def test_reconstruct_band_structure(self):
         bs = get_reconstructed_band_structure([self.bs_cu, self.bs_cu2])
-	self.assertEqual(bs.bands[Spin.up].shape, (20, 700), "wrong number of bands or kpoints")
+        self.assertEqual(bs.bands[Spin.up].shape, (20, 700), "wrong number of bands or kpoints")
 
 if __name__ == '__main__':
     unittest.main()
