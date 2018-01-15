@@ -38,6 +38,9 @@ class PhononDosPlotterTest(unittest.TestCase):
             self.assertIn(el, d)
 
     def test_plot(self):
+        # Disabling latex for testing.
+        from matplotlib import rc
+        rc('text', usetex=False)
         self.plotter.add_dos("Total", self.dos)
         self.plotter.get_plot(units="mev")
 
@@ -64,6 +67,9 @@ class PhononBSPlotterTest(unittest.TestCase):
                          8, "wrong number of tick labels")
 
     def test_plot(self):
+        # Disabling latex for testing.
+        from matplotlib import rc
+        rc('text', usetex=False)
         self.plotter.get_plot(units="mev")
 
 
@@ -75,6 +81,9 @@ class ThermoPlotterTest(unittest.TestCase):
             self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
     def test_plot_functions(self):
+        # Disabling latex for testing.
+        from matplotlib import rc
+        rc('text', usetex=False)
         self.plotter.plot_cv(5, 100, 5, show=False)
         self.plotter.plot_entropy(5, 100, 5, show=False)
         self.plotter.plot_internal_energy(5, 100, 5, show=False)

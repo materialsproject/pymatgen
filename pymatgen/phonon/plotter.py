@@ -329,13 +329,6 @@ class PhononBSPlotter(object):
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
         plt = pretty_plot(12, 8)
-        from matplotlib import rc
-        import scipy.interpolate as scint
-        try:
-            rc('text', usetex=True)
-        except:
-            # Fall back on non Tex if errored.
-            rc('text', usetex=False)
 
         band_linewidth = 1
 
