@@ -4353,6 +4353,7 @@ class OpticTask(Task):
         retcode = process.wait()
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
         process.stderr.close()
+        #process.stdout.close()
 
         # Remove the variables added for the automatic parallelization
         self.input.remove_vars(list(autoparal_vars.keys()))
@@ -4364,8 +4365,15 @@ class OpticTask(Task):
         try:
             pconfs = parser.parse(self.output_file.path)
         except parser.Error:
-            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
-            return 2
+            # In principle Abinit should have written a complete log file
+            # because we called .wait() but sometimes the Yaml doc is incomplete and
+            # the parser raises. Let's wait 5 secs and then try again.
+            time.sleep(5)
+            try:
+                pconfs = parser.parse(self.output_file.path)
+            except parser.Error:
+                logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
+                return 2
 
         ######################################################
         # Select the optimal configuration according to policy
