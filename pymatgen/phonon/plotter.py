@@ -125,14 +125,15 @@ class PhononDosPlotter(object):
             ylim: Specifies the y-axis limits.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        import prettyplotlib as ppl
-        from prettyplotlib import brewer2mpl
 
         u = freq_units(units)
 
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
-        colors = brewer2mpl.get_map('Set1', 'qualitative', ncolors).mpl_colors
+        
+        import palettable
+
+        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         y = None
         alldensities = []
