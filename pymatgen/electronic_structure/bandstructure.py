@@ -960,17 +960,17 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
 def get_reconstructed_band_structure(list_bs, efermi=None):
     """
-    This method takes a list of band structures
-    and reconstruct one band structure object from all of them
+    This method takes a list of band structures and reconstructs
+    one band structure object from all of them.
 
-    this is typically very useful when you split non self consistent
+    This is typically very useful when you split non self consistent
     band structure runs in several independent jobs and want to merge back
     the results
 
     Args:
-        list_bs: A list of BandStructure
-        efermi: The fermi energy of the reconstructed band structure. If
-            None is assigned an average of all the fermi energy in each
+        list_bs: A list of BandStructure or BandStructureSymmLine objects.
+        efermi: The Fermi energy of the reconstructed band structure. If
+            None is assigned an average of all the Fermi energy in each
             object in the list_bs is used.
 
     Returns:
@@ -985,38 +985,27 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
     rec_lattice = list_bs[0].lattice_rec
     nb_bands = min([list_bs[i].nb_bands for i in range(len(list_bs))])
 
-    for bs in list_bs:
-        for k in bs.kpoints:
-            kpoints.append(k.frac_coords)
-        for k, v in bs.labels_dict.items():
-            labels_dict[k] = v.frac_coords
-    eigenvals = {Spin.up: [list_bs[0].bands[Spin.up][i]
-                           for i in range(nb_bands)]}
-    for i in range(nb_bands):
-        for bs in list_bs[1:]:
-            for e in bs.bands[Spin.up][i]:
-                eigenvals[Spin.up][i].append(e)
+    kpoints = np.concatenate([[k.frac_coords for k in bs.kpoints]
+                              for bs in list_bs])
+    dicts = [bs.labels_dict for bs in list_bs]
+    labels_dict = {k: v.frac_coords for d in dicts for k, v in d.items()}
+
+    eigenvals = {}
+    eigenvals[Spin.up] = np.concatenate([bs.bands[Spin.up][:nb_bands]
+                                         for bs in list_bs], axis=1)
+
     if list_bs[0].is_spin_polarized:
-        eigenvals[Spin.down] = [list_bs[0].bands[Spin.down][i]
-                                for i in range(nb_bands)]
-        for i in range(nb_bands):
-            for bs in list_bs[1:]:
-                for e in bs.bands[Spin.down][i]:
-                    eigenvals[Spin.down][i].append(e)
+        eigenvals[Spin.down] = np.concatenate([bs.bands[Spin.down][:nb_bands]
+                                               for bs in list_bs], axis=1)
+
     projections = {}
     if len(list_bs[0].projections) != 0:
-        projections = {Spin.up: [list_bs[0].projections[Spin.up][i]
-                                 for i in range(nb_bands)]}
-        for i in range(nb_bands):
-            for bs in list_bs[1:]:
-                projections[Spin.up][i].extend(bs.projections[Spin.up][i])
+        projs = [bs.projections[Spin.up][:nb_bands] for bs in list_bs]
+        projections[Spin.up] = np.concatenate(projs, axis=1)
+
         if list_bs[0].is_spin_polarized:
-            projections[Spin.down] = [list_bs[0].projections[Spin.down][i]
-                                      for i in range(nb_bands)]
-            for i in range(nb_bands):
-                for bs in list_bs[1:]:
-                    projections[Spin.down][i].extend(
-                        bs.projections[Spin.down][i])
+            projs = [bs.projections[Spin.down][:nb_bands] for bs in list_bs]
+            projections[Spin.down] = np.concatenate(projs, axis=1)
 
     if isinstance(list_bs[0], BandStructureSymmLine):
         return BandStructureSymmLine(kpoints, eigenvals, rec_lattice,
