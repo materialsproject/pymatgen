@@ -1163,8 +1163,8 @@ class AbinitBuild(object):
         self.has_mpi, self.has_mpiio = False, False
 
         def yesno2bool(line):
-            ans = line.split()[-1]
-            return dict(yes=True, no=False)[ans]
+            ans = line.split()[-1].lower()
+            return dict(yes=True, no=False, auto=True)[ans]
 
         # Parse info.
         for line in self.info.splitlines():
