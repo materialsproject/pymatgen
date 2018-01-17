@@ -6,8 +6,6 @@ from __future__ import division, unicode_literals
 import math
 import numpy as np
 
-from monty.dev import deprecated
-
 from pymatgen.core.periodic_table import Element
 
 """
@@ -74,12 +72,6 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None,
     ax.set_ylabel(ax.get_ylabel(), size=labelsize)
 
     return plt
-
-
-@deprecated(pretty_plot, "get_publication_quality_plot has been renamed "
-                         "pretty_plot. This stub will be removed in pmg 2018.01.01.")
-def get_publication_quality_plot(*args, **kwargs):
-    return pretty_plot(*args, **kwargs)
 
 
 def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
@@ -220,7 +212,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
 
     if max_row <= 0:
         raise ValueError("The input argument 'max_row' must be positive!")
-    
+
     value_table = np.empty((max_row, 18)) * np.nan
     blank_value = min_val - 0.01
 
@@ -380,7 +372,12 @@ def add_fig_kwargs(func):
         if savefig:
             fig.savefig(savefig)
         if tight_layout:
-            fig.tight_layout()
+            try:
+                fig.tight_layout()
+            except Exception as exc:
+                # For some unknown reason, this problem shows up only on travis.
+                # https://stackoverflow.com/questions/22708888/valueerror-when-using-matplotlib-tight-layout
+                print("Ignoring Exception raised by fig.tight_layout\n", str(exc))
         if show:
             import matplotlib.pyplot as plt
             plt.show()
@@ -388,19 +385,21 @@ def add_fig_kwargs(func):
         return fig
 
     # Add docstring to the decorated method.
-    s = "\n" + """\
-    keyword arguments controlling the display of the figure:
+    s = "\n\n" + """\
+        Keyword arguments controlling the display of the figure:
 
-    ================  ====================================================
-    kwargs            Meaning
-    ================  ====================================================
-    title             Title of the plot (Default: None).
-    show              True to show the figure (default: True).
-    savefig           'abc.png' or 'abc.eps' to save the figure to a file.
-    size_kwargs       Dictionary with options passed to fig.set_size_inches
-                      example: size_kwargs=dict(w=3, h=4)
-    tight_layout      True if to call fig.tight_layout (default: False)
-    ================  ===================================================="""
+        ================  ====================================================
+        kwargs            Meaning
+        ================  ====================================================
+        title             Title of the plot (Default: None).
+        show              True to show the figure (default: True).
+        savefig           "abc.png" or "abc.eps" to save the figure to a file.
+        size_kwargs       Dictionary with options passed to fig.set_size_inches
+                          e.g. size_kwargs=dict(w=3, h=4)
+        tight_layout      True to call fig.tight_layout (default: False)
+        ================  ====================================================
+
+"""
 
     if wrapper.__doc__ is not None:
         # Add s at the end of the docstring.

@@ -8,6 +8,7 @@ import math
 import itertools
 import warnings
 from collections import OrderedDict
+import six
 
 import numpy as np
 
@@ -1533,7 +1534,7 @@ class BSPlotterProjected(BSPlotter):
                            'd': ['dxy', 'dyz', 'dxz', 'dx2', 'dz2'],
                            'f': ['f_3', 'f_2', 'f_1', 'f0', 'f1', 'f2', 'f3']}
 
-        if (not isinstance(dictio, dict)):
+        if not isinstance(dictio, dict):
             raise TypeError(
                 "The invalid type of 'dictio' was bound. It should be dict type.")
         elif len(dictio.keys()) == 0:
@@ -1546,7 +1547,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(
                                 "The dictio[%s] is empty. We cannot do anything" % elt)
                         for orb in dictio[elt]:
-                            if not isinstance(orb, str):
+                            if not isinstance(orb, six.string_types):
                                 raise ValueError(
                                     "The invalid format of orbitals is in 'dictio[%s]': %s. "
                                     "They should be string." % (elt, str(orb)))
@@ -1559,10 +1560,6 @@ class BSPlotterProjected(BSPlotter):
                                             individual_orbs[orb])) != 0:
                                         raise ValueError(
                                             "The 'dictio[%s]' contains orbitals repeated." % elt)
-                                    else:
-                                        pass
-                                else:
-                                    pass
                         nelems = Counter(dictio[elt]).values()
                         if sum(nelems) > len(nelems):
                             raise ValueError(
@@ -1577,7 +1574,7 @@ class BSPlotterProjected(BSPlotter):
 
         if sum_morbs is None:
             print("You do not want to sum projection over orbitals.")
-        elif (not isinstance(sum_morbs, dict)):
+        elif not isinstance(sum_morbs, dict):
             raise TypeError(
                 "The invalid type of 'sum_orbs' was bound. It should be dict or 'None' type.")
         elif len(sum_morbs.keys()) == 0:
@@ -1587,7 +1584,7 @@ class BSPlotterProjected(BSPlotter):
                 if Element.is_valid_symbol(elt):
                     if isinstance(sum_morbs[elt], list):
                         for orb in sum_morbs[elt]:
-                            if not isinstance(orb, str):
+                            if not isinstance(orb, six.string_types):
                                 raise TypeError(
                                     "The invalid format of orbitals is in 'sum_morbs[%s]': %s. "
                                     "They should be string." % (elt, str(orb)))
@@ -1600,10 +1597,6 @@ class BSPlotterProjected(BSPlotter):
                                             individual_orbs[orb])) != 0:
                                         raise ValueError(
                                             "The 'sum_morbs[%s]' contains orbitals repeated." % elt)
-                                    else:
-                                        pass
-                                else:
-                                    pass
                         nelems = Counter(sum_morbs[elt]).values()
                         if sum(nelems) > len(nelems):
                             raise ValueError(
@@ -1627,8 +1620,6 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(
                             "You cannot sum projection over one individual orbital '%s' of '%s'." %
                             (dictio[elt][0], elt))
-                    else:
-                        pass
                 else:
                     if sum_morbs is None:
                         pass
@@ -1645,10 +1636,8 @@ class BSPlotterProjected(BSPlotter):
                                     raise ValueError(
                                         "The invalid orbital '%s' was put into 'sum_morbs[%s]'." %
                                         (orb, elt))
-                                else:
-                                    pass
                         else:
-                            if (orb == 's' or len(orb) > 1):
+                            if orb == 's' or len(orb) > 1:
                                 raise ValueError(
                                     "The invalid orbital '%s' was put into sum_orbs['%s']." % (
                                     orb, elt))
@@ -1662,8 +1651,6 @@ class BSPlotterProjected(BSPlotter):
                         duplicate.remove(orb)
                         for o in individual_orbs[orb]:
                             duplicate.append(o)
-                    else:
-                        pass
                 dictio[elt] = copy.deepcopy(duplicate)
 
                 if sum_morbs is None:
@@ -1695,8 +1682,6 @@ class BSPlotterProjected(BSPlotter):
                                 duplicate.remove(orb)
                                 for o in individual_orbs[orb]:
                                     duplicate.append(o)
-                            else:
-                                pass
                         sum_morbs[elt] = copy.deepcopy(duplicate)
 
                     for orb in sum_morbs[elt]:
@@ -2554,7 +2539,7 @@ class BSDOSPlotter(object):
 
 
 class BoltztrapPlotter(object):
-    #TODO: We need a unittest for this. Come one folks.
+    # TODO: We need a unittest for this. Come on folks.
     """
     class containing methods to plot the data from Boltztrap.
 
@@ -2962,7 +2947,7 @@ class BoltztrapPlotter(object):
                                  label=str(xyz) + ' ' + str(dop) + ' $cm^{-3}$')
             plt.title(dt + '-type', fontsize=20)
             if i == 0:
-                plt.ylabel("conductivity $\sigma$ (1/($\\Omega$ m))",
+                plt.ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))",
                            fontsize=30.0)
             plt.xlabel('Temperature (K)', fontsize=30.0)
 
@@ -3228,7 +3213,7 @@ class BoltztrapPlotter(object):
                                  marker='s', label=str(temp) + ' K')
             plt.title(dt + '-type', fontsize=20)
             if i == 0:
-                plt.ylabel("conductivity $\sigma$ (1/($\\Omega$ m))",
+                plt.ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))",
                            fontsize=30.0)
             plt.xlabel('Doping concentration ($cm^{-3}$)', fontsize=30.0)
             plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
@@ -3458,6 +3443,221 @@ class BoltztrapPlotter(object):
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
         return plt
+
+
+class CohpPlotter(object):
+    """
+    Class for plotting crystal orbital Hamilton populations (COHPs) or
+    crystal orbital overlap populations (COOPs). It is modeled after the
+    DosPlotter object.
+
+    Args/attributes:
+        zero_at_efermi: Whether to shift all populations to have zero
+            energy at the Fermi level. Defaults to True.
+
+        are_coops: Switch to indicate that these are COOPs, not COHPs.
+            Defaults to False for COHPs.
+
+    """
+    def __init__(self, zero_at_efermi=True, are_coops=False):
+        self.zero_at_efermi = zero_at_efermi
+        self.are_coops = are_coops
+        self._cohps = OrderedDict()
+
+    def add_cohp(self, label, cohp):
+        """
+        Adds a COHP for plotting.
+
+        Args:
+            label: Label for the COHP. Must be unique.
+
+            cohp: COHP object.
+        """
+        energies = cohp.energies - cohp.efermi if self.zero_at_efermi \
+            else cohp.energies
+        populations = cohp.get_cohp()
+        int_populations = cohp.get_icohp()
+        self._cohps[label] = {"energies": energies, "COHP": populations,
+                              "ICOHP": int_populations, "efermi": cohp.efermi}
+
+    def add_cohp_dict(self, cohp_dict, key_sort_func=None):
+        """
+        Adds a dictionary of COHPs with an optional sorting function
+        for the keys.
+
+        Args:
+            cohp_dict: dict of the form {label: Cohp}
+
+            key_sort_func: function used to sort the cohp_dict keys.
+        """
+        if key_sort_func:
+            keys = sorted(cohp_dict.keys(), key=key_sort_func)
+        else:
+            keys = cohp_dict.keys()
+        for label in keys:
+            self.add_cohp(label, cohp_dict[label])
+
+    def get_cohp_dict(self):
+        """
+        Returns the added COHPs as a json-serializable dict. Note that if you
+        have specified smearing for the COHP plot, the populations returned
+        will be the smeared and not the original populations.
+
+        Returns:
+            Dict of COHP data of the form {label: {"efermi": efermi,
+            "energies": ..., "COHP": {Spin.up: ...}, "ICOHP": ...}}.
+        """
+        return jsanitize(self._cohps)
+
+    def get_plot(self, xlim=None, ylim=None, plot_negative=None,
+                 integrated=False, invert_axes=True):
+        """
+        Get a matplotlib plot showing the COHP.
+
+        Args:
+            xlim: Specifies the x-axis limits. Defaults to None for
+                automatic determination.
+
+            ylim: Specifies the y-axis limits. Defaults to None for
+                automatic determination.
+
+            plot_negative: It is common to plot -COHP(E) so that the
+                sign means the same for COOPs and COHPs. Defaults to None
+                for automatic determination: If are_coops is True, this
+                will be set to False, else it will be set to True.
+
+            integrated: Switch to plot ICOHPs. Defaults to False.
+
+            invert_axes: Put the energies onto the y-axis, which is
+                common in chemistry.
+
+        Returns: a matplotlib object.
+        """
+        if self.are_coops:
+            cohp_label = "COOP"
+        else:
+            cohp_label = "COHP"
+
+        if plot_negative is None:
+            plot_negative = True if not self.are_coops else False
+
+        if integrated:
+            cohp_label = "I" + cohp_label + " (eV)"
+
+        if plot_negative:
+            cohp_label = "-" + cohp_label
+
+        if self.zero_at_efermi:
+            energy_label = "$E - E_f$ (eV)"
+        else:
+            energy_label = "$E$ (eV)"
+
+        ncolors = max(3, len(self._cohps))
+        ncolors = min(9, ncolors)
+
+        import palettable
+
+        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
+
+        plt = pretty_plot(12, 8)
+
+        allpts = []
+        keys = self._cohps.keys()
+        for i, key in enumerate(keys):
+            energies = self._cohps[key]["energies"]
+            if not integrated:
+                populations = self._cohps[key]["COHP"]
+            else:
+                populations = self._cohps[key]["ICOHP"]
+            for spin in [Spin.up, Spin.down]:
+                if spin in populations:
+                    if invert_axes:
+                        x = -populations[spin] if plot_negative \
+                            else populations[spin]
+                        y = energies
+                    else:
+                        x = energies
+                        y = -populations[spin] if plot_negative \
+                            else populations[spin]
+                    allpts.extend(list(zip(x, y)))
+                    if spin == Spin.up:
+                        plt.plot(x, y, color=colors[i % ncolors],
+                                 linestyle='-', label=str(key), linewidth=3)
+                    else:
+                        plt.plot(x, y, color=colors[i % ncolors],
+                                 linestyle='--', linewidth=3)
+
+        if xlim:
+            plt.xlim(xlim)
+        if ylim:
+            plt.ylim(ylim)
+        else:
+            xlim = plt.xlim()
+            relevanty = [p[1] for p in allpts if xlim[0] < p[0] < xlim[1]]
+            plt.ylim((min(relevanty), max(relevanty)))
+
+        xlim = plt.xlim()
+        ylim = plt.ylim()
+        if not invert_axes:
+            plt.plot(xlim, [0, 0], "k-", linewidth=2)
+            if self.zero_at_efermi:
+                plt.plot([0, 0], ylim, "k--", linewidth=2)
+            else:
+                plt.plot([self._cohps[key]['efermi'],
+                         self._cohps[key]['efermi']], ylim,
+                         color=colors[i % ncolors],
+                         linestyle='--', linewidth=2)
+        else:
+            plt.plot([0, 0], ylim, "k-", linewidth=2)
+            if self.zero_at_efermi:
+                plt.plot(xlim, [0, 0], "k--", linewidth=2)
+            else:
+                plt.plot(xlim, [self._cohps[key]['efermi'],
+                         self._cohps[key]['efermi']],
+                         color=colors[i % ncolors],
+                         linestyle='--', linewidth=2)
+
+        if invert_axes:
+            plt.xlabel(cohp_label)
+            plt.ylabel(energy_label)
+        else:
+            plt.xlabel(energy_label)
+            plt.ylabel(cohp_label)
+
+        plt.legend()
+        leg = plt.gca().get_legend()
+        ltext = leg.get_texts()
+        plt.setp(ltext, fontsize=30)
+        plt.tight_layout()
+        return plt
+
+    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
+        """
+        Save matplotlib plot to a file.
+
+        Args:
+            filename: File name to write to.
+            img_format: Image format to use. Defaults to EPS.
+            xlim: Specifies the x-axis limits. Defaults to None for
+                automatic determination.
+            ylim: Specifies the y-axis limits. Defaults to None for
+                automatic determination.
+        """
+        plt = self.get_plot(xlim, ylim)
+        plt.savefig(filename, format=img_format)
+
+    def show(self, xlim=None, ylim=None):
+        """
+        Show the plot using matplotlib.
+
+        Args:
+            xlim: Specifies the x-axis limits. Defaults to None for
+                automatic determination.
+            ylim: Specifies the y-axis limits. Defaults to None for
+                automatic determination.
+        """
+        plt = self.get_plot(xlim, ylim)
+        plt.show()
 
 
 def plot_fermi_surface(data, structure, cbm, energy_levels=[],

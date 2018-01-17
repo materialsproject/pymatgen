@@ -179,6 +179,23 @@ H 0
                             title="Test")
         self.assertEqual(gau.to_string(cart_coords=False), gau_str)
 
+    def test_multiple_paramaters(self):
+        """
+        This test makes sure that input files with multi-parameter keywords
+        and route cards with multiple lines can be parsed accurately.
+        """
+        filepath = os.path.join(test_dir, "l-cysteine.inp")
+        route = {"test": None, "integral": {"grid": "UltraFine"},
+                 "opt": {"Z-Matrix": None, "maxcycles": "80", "tight": None}}
+        gin = GaussianInput.from_file(filepath)
+        self.assertEqual(gin.dieze_tag, "#n")
+        self.assertEqual(gin.functional, "B3LYP")
+        self.assertEqual(gin.basis_set, "6-31+G**")
+        self.assertEqual(gin.route_parameters, route)
+        self.assertEqual(gin.title, "L-cysteine neutral")
+        self.assertEqual(gin.charge, 0)
+        self.assertEqual(gin.spin_multiplicity, 1)
+
 
 class GaussianOutputTest(unittest.TestCase):
     # todo: Add unittest for PCM type output.
@@ -205,7 +222,7 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(len(gau.structures), 4)
         for mol in gau.structures:
             self.assertEqual(mol.formula, 'H4 C1')
-        self.assertIn("opt", gau.route)
+        self.assertIn("opt", gau.route_parameters)
         self.assertEqual("Minimum", gau.stationary_type)
         self.assertEqual("hf", gau.functional)
         self.assertEqual("3-21G", gau.basis_set)
@@ -302,6 +319,24 @@ class GaussianOutputTest(unittest.TestCase):
         transitions = gau.read_excitation_energies()
         self.assertEqual(len(transitions), 4)
         self.assertAlmostEqual(transitions[0], (3.9281, 315.64, 0.0054))
+
+    def test_multiple_paramaters(self):
+        """
+        This test makes sure that input files with multi-parameter keywords
+        and route cards with multiple lines can be parsed accurately.
+        """
+        filepath = os.path.join(test_dir, "l-cysteine.out")
+        route = {"test": None, "integral": {"grid": "UltraFine"},
+                 "opt": {"Z-Matrix": None, "maxcycles": "80", "tight": None}}
+        gout = GaussianOutput(filepath)
+        self.assertEqual(gout.dieze_tag, "#n")
+        self.assertEqual(gout.functional, "B3LYP")
+        self.assertEqual(gout.basis_set, "6-31+G**")
+        self.assertEqual(gout.route_parameters, route)
+        self.assertEqual(gout.title, "L-cysteine neutral")
+        self.assertEqual(gout.charge, 0)
+        self.assertEqual(gout.spin_multiplicity, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

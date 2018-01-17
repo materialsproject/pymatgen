@@ -6,7 +6,7 @@ from __future__ import division, unicode_literals
 
 import unittest
 import os
-
+import warnings
 from pymatgen import SETTINGS
 from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
@@ -16,7 +16,10 @@ from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.analysis.pourbaix.entry import PourbaixEntry
+from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
 from pymatgen.analysis.wulff import WulffShape
+from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
 
 """
@@ -41,7 +44,11 @@ class MPResterTest(unittest.TestCase):
 
     def setUp(self):
         self.rester = MPRester()
+        warnings.simplefilter("ignore")
 
+    def tearDown(self):
+        warnings.resetwarnings()
+        
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
@@ -183,6 +190,33 @@ class MPResterTest(unittest.TestCase):
         for e in self.rester.get_entries("CdO2", inc_structure=False):
             self.assertIsNotNone(e.data["oxide_type"])
 
+        # test if it will retrieve the conventional unit cell of Ni
+        entry = self.rester.get_entry_by_material_id("mp-23", inc_structure="Final",
+                                                     conventional_unit_cell=True)
+        Ni = entry.structure
+        self.assertEqual(Ni.lattice.a, Ni.lattice.b)
+        self.assertEqual(Ni.lattice.a, Ni.lattice.c)
+        self.assertEqual(Ni.lattice.alpha, 90)
+        self.assertEqual(Ni.lattice.beta, 90)
+        self.assertEqual(Ni.lattice.gamma, 90)
+        Ni = self.rester.get_structure_by_material_id("mp-23",
+                                                      conventional_unit_cell=True)
+        self.assertEqual(Ni.lattice.a, Ni.lattice.b)
+        self.assertEqual(Ni.lattice.a, Ni.lattice.c)
+        self.assertEqual(Ni.lattice.alpha, 90)
+        self.assertEqual(Ni.lattice.beta, 90)
+        self.assertEqual(Ni.lattice.gamma, 90)
+
+    def test_get_pourbaix_entries(self):
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
+        for pbx_entry in pbx_entries:
+            self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
+        # Ensure entries are pourbaix compatible
+        pbx = PourbaixDiagram(pbx_entries)
+        # Try binary system
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        pbx = PourbaixDiagram(pbx_entries)
+
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
@@ -250,6 +284,18 @@ class MPResterTest(unittest.TestCase):
     def test_get_wulff_shape(self):
         ws = self.rester.get_wulff_shape("mp-126")
         self.assertTrue(isinstance(ws, WulffShape))
+
+    def test_get_interface_reactions(self):
+        kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
+        self.assertTrue(len(kinks) > 0)
+        kink = kinks[0]
+        self.assertIn("energy", kink)
+        self.assertIn("ratio", kink)
+        self.assertIn("rxn", kink)
+        self.assertTrue(isinstance(kink['rxn'], Reaction))
+        kinks_open_O = self.rester.get_interface_reactions(
+            "LiCoO2", "Li3PS4", open_el="O", relative_mu=-1)
+        self.assertTrue(len(kinks_open_O) > 0)
 
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")

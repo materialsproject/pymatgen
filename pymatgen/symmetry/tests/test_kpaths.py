@@ -61,6 +61,11 @@ class HighSymmKpathTest(PymatgenTest):
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
             kpath = HighSymmKpath(struct) #Throws error if something doesn't work, causing test to fail.
 
+        struct_file_path = os.path.join(test_dir_structs, 'ICSD_170.cif')
+        struct = Structure.from_file(struct_file_path)
+        hkp = HighSymmKpath(struct)
+        self.assertEqual(hkp.name, 'MCLC5')
+
     def test_kpath_acentered(self):
         species = ['K', 'La', 'Ti']
         coords = [[.345, 5, .77298], [.1345, 5.1, .77298], [.7, .8, .9]]

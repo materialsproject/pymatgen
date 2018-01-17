@@ -9,7 +9,7 @@ import unittest
 import os
 
 from pymatgen import Structure
-from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet, FEFFDictSet
+from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet, FEFFDictSet, MPEXAFSSet
 from pymatgen.io.feff.inputs import Potential, Tags, Atoms, Header
 from pymatgen.io.cif import CifParser, CifFile
 import shutil
@@ -131,6 +131,17 @@ TITLE sites: 4
         os.remove("feff.inp")
         os.remove("Co2O2.cif")
 
+    def test_small_system_EXAFS(self):
+        exafs_settings = MPEXAFSSet(self.absorbing_atom, self.structure)
+        self.assertFalse(exafs_settings.small_system)
+        self.assertTrue('RECIPROCAL' not in exafs_settings.tags)
+
+        user_tag_settings = {"RECIPROCAL": ""}
+        exafs_settings_2 = MPEXAFSSet(self.absorbing_atom, self.structure, nkpts=1000,
+                                      user_tag_settings=user_tag_settings)
+        self.assertFalse(exafs_settings_2.small_system)
+        self.assertTrue('RECIPROCAL' not in exafs_settings_2.tags)
+
     def test_number_of_kpoints(self):
         user_tag_settings = {"RECIPROCAL": ""}
         elnes = MPELNESSet(self.absorbing_atom, self.structure, nkpts=1000,
@@ -191,6 +202,27 @@ TITLE sites: 4
 
         shutil.rmtree(os.path.join('.', 'Dup_reci'))
         shutil.rmtree(os.path.join('.', 'xanes_reci'))
+
+    def test_post_distdiff(self):
+        feff_dict_input = FEFFDictSet.from_directory(os.path.join(test_dir, 'feff_dist_test'))
+        self.assertTrue(feff_dict_input.tags == Tags.from_file(os.path.join(test_dir, 'feff_dist_test/feff.inp')))
+        self.assertTrue(
+            str(feff_dict_input.header()) == str(Header.from_file(os.path.join(test_dir, 'feff_dist_test/HEADER'))))
+        feff_dict_input.write_input('feff_dist_regen')
+        origin_tags = Tags.from_file(os.path.join(test_dir, 'feff_dist_test/PARAMETERS'))
+        output_tags = Tags.from_file(os.path.join('.', 'feff_dist_regen/PARAMETERS'))
+        origin_mole = Atoms.cluster_from_file(os.path.join(test_dir, 'feff_dist_test/feff.inp'))
+        output_mole = Atoms.cluster_from_file(os.path.join('.', 'feff_dist_regen/feff.inp'))
+        original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
+        output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
+        original_mole_shell = [x.species_string for x in origin_mole]
+        output_mole_shell = [x.species_string for x in output_mole]
+
+        self.assertTrue(np.allclose(original_mole_dist, output_mole_dist))
+        self.assertTrue(origin_tags == output_tags)
+        self.assertTrue(original_mole_shell == output_mole_shell)
+
+        shutil.rmtree(os.path.join('.', 'feff_dist_regen'))
 
 
 if __name__ == '__main__':

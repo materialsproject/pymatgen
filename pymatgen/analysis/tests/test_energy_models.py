@@ -10,6 +10,7 @@ from pymatgen.core.structure import Structure
 
 import os
 import unittest
+import warnings
 
 """
 TODO: Modify module doc.
@@ -29,6 +30,11 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 
 class EwaldElectrostaticModelTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_get_energy(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5],
@@ -44,7 +50,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 
         m = EwaldElectrostaticModel()
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
-        self.assertAlmostEqual(m.get_energy(s), -59.322817600353616, 4)
+        self.assertAlmostEqual(m.get_energy(s), -264.66364858, 2)  # Result from GULP
         s2 = Structure.from_file(os.path.join(test_dir, "Li2O.cif"))
         self.assertAlmostEqual(m.get_energy(s2), -145.39050015844839, 4)
 

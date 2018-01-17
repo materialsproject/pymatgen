@@ -166,11 +166,11 @@ def thankyou():
 
 
 def compute_environments(chemenv_configuration):
-    string_sources = {'cif': {'string': 'a Cif file', 'regexp': '.*\.cif$'},
-                      'mp': {'string': 'the Materials Project database', 'regexp': 'mp-[0-9]+$'}}
+    string_sources = {'cif': {'string': 'a Cif file', 'regexp': r'.*\.cif$'},
+                      'mp': {'string': 'the Materials Project database',
+                             'regexp': r'mp-[0-9]+$'}}
     questions = {'c': 'cif'}
-    if chemenv_configuration.has_materials_project_access:
-        questions['m'] = 'mp'
+    questions['m'] = 'mp'
     lgf = LocalGeometryFinder()
     lgf.setup_parameters()
     allcg = AllCoordinationGeometries()
