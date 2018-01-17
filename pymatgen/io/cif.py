@@ -37,7 +37,11 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 
-from pybtex.database import BibliographyData, Entry
+try:
+    from pybtex.database import BibliographyData, Entry
+except ImportError:
+    warnings.warn("Please install optional dependency pybtex if you"
+                  "want to extract references from CIF files.")
 
 """
 Wrapper classes for Cif input and output from Structures.
