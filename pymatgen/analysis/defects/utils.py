@@ -16,6 +16,7 @@ norm = np.linalg.norm
 hart_to_ev = 27.2114
 ang_to_bohr = 1.8897
 invang_to_ev = 3.80986
+kb = 8.6173324e-5 #eV / K
 
 
 def eV_to_k(energy):
