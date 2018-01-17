@@ -16,6 +16,7 @@ from scipy import integrate
 from utils import kb
 
 from pymatgen.analysis.defects.corrections import ChargeCorrection, OtherCorrection
+from pymatgen.analysis.defects.chemical_potentials import ChemPotAnalyzer, MPChemPotAnalyzer
 
 class BulkEntry(object):
     """
@@ -26,6 +27,7 @@ class BulkEntry(object):
     def __init__(self, structure, energy, supercell_size=(1, 1, 1), vbm=None, gap=None, bandedge_shifts=(0., 0.),
                  plnr_avg_esp=None, atomic_site_avg_esp=None, bulk_eigenvalues=None):
         self.structure = structure
+        self.composition = structure.composition
         self.energy = energy
         self.supercell_size = supercell_size
         self.vbm = vbm
@@ -463,9 +465,61 @@ class GrandCanonicalDefectPhaseDiagram(DefectPhaseDiagram):
         self.mu_elts = mu_elts
         self.T = T
         self._ef = None
+        self._all_possible_mu_elts = None
 
-    def generate_gcdpd_from_pda(self, dentries, pda, T=298.15):
-        pass
+    @staticmethod
+    def generate_gcdpd_from_pda(dentries, pda, T=298.15):
+        """
+        A static method for instantiating a GrandCanonicalDefectPhaseDiagram from a DefectEntry list
+        and a PhaseDiagramAnalyzer object from MaterialsProject
+        """
+        #use bulk_entry object from first dentry to find the composition
+        #    that one requires chemical potentials from...
+        CPA = ChemPotAnalyzer(bulk_ce=dentries[0].bulk)
+        all_possible_mu_elts = CPA.get_chempots_from_pda( pda)
+        print('Generated following possible regions for defining '
+              'chemical potentials: ',all_possible_mu_elts.keys())
+        mu_region, mu_elts = all_possible_mu_elts.items()[0]
+        print('Proceeding with chemical potentials from ',mu_region,'\n',mu_elts)
+
+        gcdpd = GrandCanonicalDefectPhaseDiagram(mu_elts, T=T, dentries=dentries)
+        gcdpd.all_possible_mu_elts = all_possible_mu_elts
+
+        return gcdpd
+
+    @staticmethod
+    def generate_gcdpd_from_MP(dentries, mpid=None, composition=None, T=298.15, mapi_key=None):
+        """
+        A static method for instantiating a GrandCanonicalDefectPhaseDiagram
+        from either a mpid string or a pymatgen Composition object
+            [If both are provided, defaults to use of mpid]
+            [If neither are provided, uses bulk_entry of first DefectEntry to generate the composition objectt]
+
+        Uses the MaterialsProject database to create a phase diagram
+        """
+        all_species = set([elt  for dfct in dentries  for elt in dfct._structure.composition.elements])
+        bulk_species = set(dentries[0].bulk.composition.elements)
+        sub_species = all_species - bulk_species
+
+        if mpid:
+            MPcpa = MPChemPotAnalyzer(sub_species=sub_species, mpid=mpid, mapi_key=mapi_key)
+            all_possible_mu_elts = MPcpa.analyze_GGA_chempots()
+        else:
+            if not composition:
+                composition = dentries[0].bulk.composition
+            MPcpa = MPChemPotAnalyzer(sub_species=sub_species, mapi_key=mapi_key)
+            all_possible_mu_elts = MPcpa.get_chempots_from_composition(composition)
+
+        print('Generated following possible regions for defining '
+              'chemical potentials: ',all_possible_mu_elts.keys())
+        mu_region, mu_elts = all_possible_mu_elts.items()[0]
+        print('Proceeding with chemical potentials from ',mu_region,'\n',mu_elts)
+
+        gcdpd = GrandCanonicalDefectPhaseDiagram(mu_elts, T=T, dentries=dentries)
+        gcdpd.all_possible_mu_elts = all_possible_mu_elts
+
+        return gcdpd
+
 
     def set_T(self, T):
         self.T = T
