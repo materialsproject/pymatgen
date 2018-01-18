@@ -20,7 +20,6 @@ This module implements plotter for DOS and band structure.
 
 logger = logging.getLogger(__name__)
 
-
 FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
 
 
@@ -31,11 +30,11 @@ def freq_units(units):
     """
 
     d = {"thz": FreqUnits(1, "THz"),
-         "ev": FreqUnits(const.value("hertz-electron volt relationship")*const.tera, "eV"),
-         "mev": FreqUnits(const.value("hertz-electron volt relationship")*const.tera/const.milli, "meV"),
-         "ha": FreqUnits(const.value("hertz-hartree relationship")*const.tera, "Ha"),
-         "cm-1": FreqUnits(const.value("hertz-inverse meter relationship")*const.tera*const.centi, "cm$^{-1}$"),
-         'cm^-1': FreqUnits(const.value("hertz-inverse meter relationship")*const.tera*const.centi, "cm$^{-1}$")
+         "ev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera, "eV"),
+         "mev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera / const.milli, "meV"),
+         "ha": FreqUnits(const.value("hertz-hartree relationship") * const.tera, "Ha"),
+         "cm-1": FreqUnits(const.value("hertz-inverse meter relationship") * const.tera * const.centi, "cm$^{-1}$"),
+         'cm^-1': FreqUnits(const.value("hertz-inverse meter relationship") * const.tera * const.centi, "cm$^{-1}$")
          }
     try:
         return d[units.lower().strip()]
@@ -130,7 +129,7 @@ class PhononDosPlotter(object):
 
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
-        
+
         import palettable
 
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
@@ -329,6 +328,9 @@ class PhononBSPlotter(object):
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
+
+        u = freq_units(units)
+
         plt = pretty_plot(12, 8)
 
         band_linewidth = 1
@@ -337,10 +339,9 @@ class PhononBSPlotter(object):
         for d in range(len(data['distances'])):
             for i in range(self._nb_bands):
                 plt.plot(data['distances'][d],
-                         [data['frequency'][d][i][j]
+                         [data['frequency'][d][i][j] * u.factor
                           for j in range(len(data['distances'][d]))], 'b-',
                          linewidth=band_linewidth)
-
 
         self._maketicks(plt)
 
@@ -349,7 +350,7 @@ class PhononBSPlotter(object):
 
         # Main X and Y Labels
         plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
-        ylabel = r'$\mathrm{Frequency\ (THz)}$'
+        ylabel = r'Frequency ({})'.format(u.label)
         plt.ylabel(ylabel, fontsize=30)
 
         # X range (K)
