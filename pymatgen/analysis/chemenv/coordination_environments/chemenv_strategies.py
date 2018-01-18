@@ -128,7 +128,7 @@ class AdditionalConditionInt(int, StrategyOption):
         allowed_values += ' - {:d} for "{}"\n'.format(integer, description)
 
     def __new__(cls, integer):
-        if int(integer) != integer:
+        if str(int(integer)) != str(integer):
             raise ValueError("Additional condition {} is not an integer".format(str(integer)))
         intger = int.__new__(cls, integer)
         if intger not in AdditionalConditions.ALL:
