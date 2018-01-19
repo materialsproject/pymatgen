@@ -1198,17 +1198,15 @@ loop_
 
     def test_bibtex(self):
 
-        ref_bibtex_string = """@article{Blanco:2006,
-    author = {Blanco, J.A.},
-    title = {?},
-    journal = {PHYSICAL REVIEW B},
-    year = {2006},
-    volume = {73},
-    number = {?},
-    pages = {?--?},
-    doi = {10.1103/PhysRevB.73.212411}
-}"""
-        self.assertEqual(self.mcif_ncl.get_bibtex_strings()[0], ref_bibtex_string)
+        ref_bibtex_string = """@article{cif-reference-0,
+    author = "Blanco, J.A.",
+    journal = "PHYSICAL REVIEW B",
+    volume = "73",
+    year = "2006",
+    pages = "?--?"
+}
+"""
+        self.assertEqual(self.mcif_ncl.get_bibtex_string(), ref_bibtex_string)
 
 if __name__ == '__main__':
     unittest.main()
