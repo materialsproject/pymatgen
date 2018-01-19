@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.events &#8212; pymatgen 2017.12.30 documentation</title>
+    <title>pymatgen.io.abinit.events &#8212; pymatgen 2018.1.19 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.30',
+        VERSION:     '2018.1.19',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.19 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -72,7 +72,6 @@
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">monty.string</span> <span class="k">import</span> <span class="n">indent</span><span class="p">,</span> <span class="n">is_string</span><span class="p">,</span> <span class="n">list_strings</span>
@@ -93,7 +92,9 @@
     <span class="s2">&quot;ScfConvergenceWarning&quot;</span><span class="p">,</span>
     <span class="s2">&quot;NscfConvergenceWarning&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RelaxConvergenceWarning&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Correction&quot;</span>
+    <span class="s2">&quot;Correction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DilatmxError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DilatmxErrorHandler&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -623,19 +624,20 @@
 
     <span class="nd">@pmg_serialize</span>
     <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1">#@Guido this introspection is nice but it&#39;s not safe</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Basic implementation of as_dict if __init__ has no arguments. Subclasses may need to overwrite.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__init__&quot;</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;self&quot;</span><span class="p">:</span>
-                    <span class="n">d</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                  <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">}</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Basic implementation of from_dict if __init__ has no arguments. Subclasses may need to overwrite.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">()</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">compare_inputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">new_input</span><span class="p">,</span> <span class="n">old_input</span><span class="p">):</span>
@@ -758,15 +760,15 @@
 <span class="c1">########## Concrete classes ################</span>
 <span class="c1">############################################</span>
 
-<span class="k">class</span> <span class="nc">DilatmxError</span><span class="p">(</span><span class="n">AbinitError</span><span class="p">):</span>
+<div class="viewcode-block" id="DilatmxError"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.DilatmxError">[docs]</a><span class="k">class</span> <span class="nc">DilatmxError</span><span class="p">(</span><span class="n">AbinitError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This Error occurs in variable cell calculations when the increase in the</span>
 <span class="sd">    unit cell volume is too large.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s1">&#39;!DilatmxError&#39;</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s1">&#39;!DilatmxError&#39;</span></div>
 
 
-<span class="k">class</span> <span class="nc">DilatmxErrorHandler</span><span class="p">(</span><span class="n">ErrorHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="DilatmxErrorHandler"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.DilatmxErrorHandler">[docs]</a><span class="k">class</span> <span class="nc">DilatmxErrorHandler</span><span class="p">(</span><span class="n">ErrorHandler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Handle DilatmxError. Abinit produces a netcdf file with the last structure before aborting</span>
 <span class="sd">    The handler changes the structure in the input with the last configuration and modify the value of dilatmx.</span>
@@ -778,7 +780,15 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_dilatmx</span><span class="o">=</span><span class="mf">1.3</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_dilatmx</span> <span class="o">=</span> <span class="n">max_dilatmx</span>
 
-    <span class="k">def</span> <span class="nf">handle_task_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="DilatmxErrorHandler.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.DilatmxErrorHandler.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;max_dilatmx&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_dilatmx</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="DilatmxErrorHandler.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.DilatmxErrorHandler.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">max_dilatmx</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;max_dilatmx&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="DilatmxErrorHandler.handle_task_event"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.DilatmxErrorHandler.handle_task_event">[docs]</a>    <span class="k">def</span> <span class="nf">handle_task_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="c1"># Read the last structure dumped by ABINIT before aborting.</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DILATMX_STRUCT.nc&quot;</span><span class="p">)</span>
         <span class="n">last_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
@@ -796,9 +806,9 @@
         <span class="c1"># Note that we change the structure but we don&#39;t try restart from the previous WFK|DEN file</span>
         <span class="c1"># because Abinit called mpi_abort and therefore no final WFK|DEN file has been produced.</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIXED</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIXED</span></div>
 
-    <span class="k">def</span> <span class="nf">handle_input_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abiinput</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="DilatmxErrorHandler.handle_input_event"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.DilatmxErrorHandler.handle_input_event">[docs]</a>    <span class="k">def</span> <span class="nf">handle_input_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abiinput</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">old_abiinput</span> <span class="o">=</span> <span class="n">abiinput</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">()</span>
             <span class="c1"># Read the last structure dumped by ABINIT before aborting.</span>
@@ -810,7 +820,7 @@
             <span class="c1"># return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, event=False)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Error while trying to apply the handler </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)),</span> <span class="n">exc</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="kc">None</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">TolSymError</span><span class="p">(</span><span class="n">AbinitError</span><span class="p">):</span>
@@ -833,6 +843,14 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_nfixes</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_nfixes</span> <span class="o">=</span> <span class="n">max_nfixes</span>
+
+    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;max_nfixes&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_nfixes</span><span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">max_nfixes</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;max_nfixes&#39;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">handle_task_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="c1"># TODO: Add limit on the number of fixes one can do for the same error</span>
@@ -946,7 +964,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.19 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -954,7 +972,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

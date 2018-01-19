@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2017.12.30 documentation</title>
+    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2018.1.19 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.30',
+        VERSION:     '2018.1.19',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.19 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1159,6 +1159,7 @@
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while executing </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">script_file</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;stderr:&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="c1">#print(&quot;stdout:&quot;, process.stdout.read())</span>
 
         <span class="c1"># To avoid: ResourceWarning: unclosed file &lt;_io.BufferedReader name=87&gt; in py3k</span>
         <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -1219,8 +1220,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">has_mpi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_mpiio</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
 
         <span class="k">def</span> <span class="nf">yesno2bool</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
-            <span class="n">ans</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">yes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">no</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="n">ans</span><span class="p">]</span>
+            <span class="n">ans</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">yes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">no</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">ans</span><span class="p">]</span>
 
         <span class="c1"># Parse info.</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
@@ -1790,6 +1791,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_INIT</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Reset on </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_qjob</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Reset finalized flags.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">finalized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">finalized</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="mi">0</span>
 
@@ -3284,10 +3289,14 @@
 <span class="sd">        (in principle, it&#39;s possible to interpolate inside Abinit but tests revealed some numerical noise</span>
 <span class="sd">        Here we change the input file of the NSCF task to have the same FFT mesh.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-        <span class="n">dep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">parent_task</span> <span class="o">=</span> <span class="n">dep</span><span class="o">.</span><span class="n">node</span>
         <span class="c1"># TODO: This won&#39;t work if parent_node is a file</span>
+        <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;DEN&quot;</span> <span class="ow">in</span> <span class="n">dep</span><span class="o">.</span><span class="n">exts</span><span class="p">:</span>
+                <span class="n">parent_task</span> <span class="o">=</span> <span class="n">dep</span><span class="o">.</span><span class="n">node</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot find parent node producing DEN file&quot;</span><span class="p">)</span>
+
         <span class="k">with</span> <span class="n">parent_task</span><span class="o">.</span><span class="n">open_gsr</span><span class="p">()</span> <span class="k">as</span> <span class="n">gsr</span><span class="p">:</span>
             <span class="n">den_mesh</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
             <span class="n">den_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsr</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read_dimvalue</span><span class="p">(</span><span class="s2">&quot;number_of_grid_points_vector1&quot;</span><span class="p">)</span>
@@ -4401,6 +4410,7 @@
         <span class="n">retcode</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="c1"># To avoid: ResourceWarning: unclosed file &lt;_io.BufferedReader name=87&gt; in py3k</span>
         <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c1">#process.stdout.close()</span>
 
         <span class="c1"># Remove the variables added for the automatic parallelization</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">remove_vars</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">autoparal_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
@@ -4412,8 +4422,15 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">pconfs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">parser</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while parsing Autoparal section:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">())</span>
-            <span class="k">return</span> <span class="mi">2</span>
+            <span class="c1"># In principle Abinit should have written a complete log file</span>
+            <span class="c1"># because we called .wait() but sometimes the Yaml doc is incomplete and</span>
+            <span class="c1"># the parser raises. Let&#39;s wait 5 secs and then try again.</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pconfs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">parser</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while parsing Autoparal section:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">())</span>
+                <span class="k">return</span> <span class="mi">2</span>
 
         <span class="c1">######################################################</span>
         <span class="c1"># Select the optimal configuration according to policy</span>
@@ -4640,7 +4657,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.19 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4648,7 +4665,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

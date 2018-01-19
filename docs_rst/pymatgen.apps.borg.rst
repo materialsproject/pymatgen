@@ -1,12 +1,6 @@
 pymatgen\.apps\.borg package
 ============================
 
-Subpackages
------------
-
-.. toctree::
-
-
 Submodules
 ----------
 
