@@ -2347,8 +2347,8 @@ class SingleVacancy(SingleDefect):
 
         vac = Vacancy(structure, {}, {})
         for vac_cnt, (defectsite, sitemult) in enumerate(zip(vac._defect_sites, vac._defect_site_multiplicity)):
-            vacancies.append( SingleVacancy(structure, defectsite, 0., supercell_size,
-                                            multiplicity=sitemult,
+            vacancies.append( SingleVacancy(structure, defectsite, 0., multiplicity=sitemult,
+                                            supercell_size=supercell_size,
                                             name="vac_{}_{}".format(vac_cnt+1, defectsite.specie.symbol)))
 
         return vacancies
@@ -2416,11 +2416,13 @@ class SingleAntisite(SingleDefect):
 
         vac = Vacancy(structure, {}, {}) #even though it is called Vacancy, it is also useful for finding antisites + subs...
 
-        for defectsite, sitemult in zip(vac._defect_sites, vac._defect_site_multiplicity):
-            #TODO: make names out of the iteration procedure from Vacancy class...
+        for as_cnt, (defectsite, sitemult) in enumerate(zip(vac._defect_sites, vac._defect_site_multiplicity)):
             for as_specie in set(struct_species)-set([vac._defect_sites]):
                 as_defectsite = PeriodicSite( as_specie, defectsite.frac_coords, structure.lattice, coords_are_cartesian=False)
-                antisites.append( SingleAntisite(structure, as_defectsite, 0., supercell_size, multiplicity=sitemult))
+                antisites.append( SingleAntisite(structure, as_defectsite, 0., multiplicity=sitemult,
+                                                 supercell_size=supercell_size,
+                                                 name="as_{}_{}_on_{}".format(as_cnt+1, as_specie.symbol,
+                                                                              defectsite.specie.symbol)))
 
         return antisites
 
@@ -2491,6 +2493,18 @@ class SingleSubstitution(SingleDefect):
             #TODO: make names out of the iteration procedure from Vacancy class...
             sub_defectsite = PeriodicSite( sub_elt, defectsite.frac_coords, structure.lattice, coords_are_cartesian=False)
             substitutions.append( SingleSubstitution(structure, sub_defectsite, 0., supercell_size, multiplicity=sitemult))
+
+        if type(sub_elt) == Element:
+            sub_sym = sub_elt.symbol
+        else:
+            sub_sym = sub_elt
+
+        for sub_cnt, (defectsite, sitemult) in enumerate(zip(vac._defect_sites, vac._defect_site_multiplicity)):
+            sub_defectsite = PeriodicSite( sub_elt, defectsite.frac_coords, structure.lattice, coords_are_cartesian=False)
+            substitutions.append( SingleSubstitution(structure, sub_defectsite, 0., multiplicity=sitemult,
+                                                     supercell_size=supercell_size,
+                                                     name="sub_{}_{}_on_{}".format(sub_cnt+1, sub_sym,
+                                                                                   defectsite.specie.symbol)))
 
         return substitutions
 
@@ -2597,7 +2611,8 @@ class SingleInterstitial(SingleDefect):
                         Element(inter_elt), site.coords, sc_structure.lattice,
                         coords_are_cartesian=True)
 
-                interstitials.append( SingleInterstitial(sc_structure, site_sc, 0., supercell_size, multiplicity=sitemult, name=name))
+                interstitials.append( SingleInterstitial(sc_structure, site_sc, 0., supercell_size,
+                                                         multiplicity=sitemult, name=name))
         else:
             #TODO: add ability to run VoronoiSite method? [Nils used my previous code for this somewhere in pymatgen]
             pass
