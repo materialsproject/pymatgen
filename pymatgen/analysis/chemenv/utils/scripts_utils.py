@@ -53,8 +53,8 @@ __date__ = "Feb 20, 2016"
 
 strategies_class_lookup = OrderedDict()
 strategies_class_lookup['SimplestChemenvStrategy'] = SimplestChemenvStrategy
-strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
-strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
+#strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
+#strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
 
 
 def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
@@ -269,11 +269,24 @@ def compute_environments(chemenv_configuration):
                                 mystring += '{} : {:.2f}       '.format(mingeom[0], csm)
                     print(mystring)
             if test == 'g':
-                test = input('Enter index of site(s) for which you want to see the grid of parameters : ')
-                indices = list(map(int, test.split()))
-                print(indices)
-                for isite in indices:
-                    se.plot_environments(isite, additional_condition=se.AC.ONLY_ACB)
+                while True:
+                    test = input('Enter index of site(s) (e.g. 0 1 2, separated by spaces) for which you want to see the grid of parameters : ')
+                    try:
+                         indices = list(map(int, test.split()))
+                         print(indices)
+                         for isite in indices:
+                             se.plot_environments(isite, additional_condition=se.AC.ONLY_ACB)
+                         break
+                    except:
+                         try:
+                             indices = int(test)
+                             for isite in indices:
+                                 se.plot_environments(isite, additional_condition=se.AC.ONLY_ACB)
+                             break
+                         except:
+                             print('This is not a valid site')
+                             pass
+
             if no_vis:
                 test = input('Go to next structure ? ("y" to do so)')
                 if test == 'y':
@@ -283,12 +296,21 @@ def compute_environments(chemenv_configuration):
             if test in ['y', 'm']:
                 if test == 'm':
                     mydeltas = []
-                    test = input('Enter multiplicity (e.g. 3 2 2) : ')
-                    nns = test.split()
-                    for i0 in range(int(nns[0])):
-                        for i1 in range(int(nns[1])):
-                            for i2 in range(int(nns[2])):
-                                mydeltas.append(np.array([1.0*i0, 1.0*i1, 1.0*i2], np.float))
+
+                    while True:
+                        try:
+                            test = input('Enter multiplicity (e.g. 3 2 2) : ')
+                            nns = test.split()
+                            for i0 in range(int(nns[0])):
+                                for i1 in range(int(nns[1])):
+                                    for i2 in range(int(nns[2])):
+                                        mydeltas.append(np.array([1.0*i0, 1.0*i1, 1.0*i2], np.float))
+                            break
+
+                        except:
+                            print('Not a valid multiplicity')
+                            pass
+
                 else:
                     mydeltas = [np.zeros(3, np.float)]
                 if firsttime:
