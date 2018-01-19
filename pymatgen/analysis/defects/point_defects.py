@@ -2341,7 +2341,7 @@ class SingleVacancy(SingleDefect):
         vacancies = []
         structure.make_supercell(scaling_matrix)
         if type(scaling_matrix) in [int, float]:
-            supercell_size = [scaling_matrix, scaling_matrix, scaling_matrix]
+            supercell_size = (scaling_matrix, scaling_matrix, scaling_matrix)
         else:
             supercell_size = scaling_matrix
 
@@ -2388,7 +2388,7 @@ class SingleAntisite(SingleDefect):
         defect_structure = self.structure.copy()
 
         defect_structure.remove_sites([defindex])
-        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.coords, coords_are_cartesian=False)
+        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.coords, coords_are_cartesian=True)
         defect_structure._charge = self.charge
         return defect_structure
 
@@ -2411,14 +2411,14 @@ class SingleAntisite(SingleDefect):
         struct_species = structure.types_of_specie
         structure.make_supercell(scaling_matrix)
         if type(scaling_matrix) in [int, float]:
-            supercell_size = [scaling_matrix, scaling_matrix, scaling_matrix]
+            supercell_size = (scaling_matrix, scaling_matrix, scaling_matrix)
         else:
             supercell_size = scaling_matrix
 
         vac = Vacancy(structure, {}, {}) #even though it is called Vacancy, it is also useful for finding antisites + subs...
 
         for as_cnt, (defectsite, sitemult) in enumerate(zip(vac._defect_sites, vac._defect_site_multiplicity)):
-            for as_specie in set(struct_species)-set([vac._defect_sites]):
+            for as_specie in set(struct_species)-set([defectsite.specie]):
                 as_defectsite = PeriodicSite( as_specie, defectsite.frac_coords, structure.lattice, coords_are_cartesian=False)
                 antisites.append( SingleAntisite(structure, as_defectsite, 0., multiplicity=sitemult,
                                                  supercell_size=supercell_size,
@@ -2462,7 +2462,7 @@ class SingleSubstitution(SingleDefect):
         defect_structure = self.structure.copy()
 
         defect_structure.remove_sites([defindex])
-        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.coords, coords_are_cartesian=False)
+        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.frac_coords, coords_are_cartesian=False)
         defect_structure._charge = self.charge
         return defect_structure
 
@@ -2485,16 +2485,11 @@ class SingleSubstitution(SingleDefect):
         substitutions = []
         structure.make_supercell(scaling_matrix)
         if type(scaling_matrix) in [int, float]:
-            supercell_size = [scaling_matrix, scaling_matrix, scaling_matrix]
+            supercell_size = (scaling_matrix, scaling_matrix, scaling_matrix)
         else:
             supercell_size = scaling_matrix
 
         vac = Vacancy(structure, {}, {}) #even though it is called Vacancy, it is also useful for finding antisites + subs...
-
-        for defectsite, sitemult in zip(vac._defect_sites, vac._defect_site_multiplicity):
-            #TODO: make names out of the iteration procedure from Vacancy class...
-            sub_defectsite = PeriodicSite( sub_elt, defectsite.frac_coords, structure.lattice, coords_are_cartesian=False)
-            substitutions.append( SingleSubstitution(structure, sub_defectsite, 0., supercell_size, multiplicity=sitemult))
 
         if type(sub_elt) == Element:
             sub_sym = sub_elt.symbol
@@ -2539,7 +2534,7 @@ class SingleInterstitial(SingleDefect):
         Returns Defective Interstitial structure, decorated with charge
         """
         defect_structure = self.structure.copy()
-        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.coords, coords_are_cartesian=False)
+        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.frac_coords, coords_are_cartesian=False)
         defect_structure._charge = self.charge
         return defect_structure
 
@@ -2562,7 +2557,7 @@ class SingleInterstitial(SingleDefect):
         """
         interstitials = []
         if type(scaling_matrix) in [int, float]:
-            supercell_size = [scaling_matrix, scaling_matrix, scaling_matrix]
+            supercell_size = (scaling_matrix, scaling_matrix, scaling_matrix)
         else:
             supercell_size = scaling_matrix
 
