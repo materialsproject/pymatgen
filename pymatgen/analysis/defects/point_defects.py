@@ -2387,7 +2387,8 @@ class SingleAntisite(SingleDefect):
         defindex = poss_deflist[0][2] #index for defect
         defect_structure = self.structure.copy()
 
-        defect_structure[defindex] = self.defectsite.specie.symbol
+        defect_structure.remove_sites([defindex])
+        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.coords, coords_are_cartesian=False)
         defect_structure._charge = self.charge
         return defect_structure
 
@@ -2460,7 +2461,8 @@ class SingleSubstitution(SingleDefect):
         defindex = poss_deflist[0][2] #index for defect
         defect_structure = self.structure.copy()
 
-        defect_structure[defindex] = self.defectsite.specie.symbol
+        defect_structure.remove_sites([defindex])
+        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.coords, coords_are_cartesian=False)
         defect_structure._charge = self.charge
         return defect_structure
 
@@ -2537,7 +2539,7 @@ class SingleInterstitial(SingleDefect):
         Returns Defective Interstitial structure, decorated with charge
         """
         defect_structure = self.structure.copy()
-        defect_structure.insert( 0, self.defectsite.specie.symbol, self.defectsite.coords, validate_proximity=True)
+        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.coords, coords_are_cartesian=False)
         defect_structure._charge = self.charge
         return defect_structure
 
