@@ -2244,27 +2244,47 @@ New additions from Danny and Shyam related to PyCDT merge
 class SingleDefect(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class for ISOLATED point defects
+
+    Args:
+        structure: Pymatgen Structure without any defects
+        defectsite: Pymatgen Site object for defect
+        charge: (int or float) defect charge
+                default is zero, meaning no change to NELECT after defect is created in the structure
     """
     @property
     def structure(self):
         """
         Returns the structure without any defects.
         """
-        return self.structure
+        return self._structure
 
     @property
     def defectsite(self):
         """
         Returns the defect position as a site object
         """
-        return self.defectsite
+        return self._defectsite
 
     @property
     def charge(self):
         """
         Returns the charge of a defect
         """
-        return self.charge
+        return self._charge
+
+    @property
+    def multiplicity(self):
+        """
+        Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
+        """
+        return self._multiplicity
+
+    @property
+    def defect_structure(self):
+        """
+        Given structure and defectsite (and type of defect) should return a defect_structure that is charged
+        """
+        raise NotImplementedError
 
 
 
@@ -2282,12 +2302,12 @@ class SingleVacancy(SingleDefect):
         multiplicity: multiplicity of defect within the structure
 
     """
-    def __init__(self, structure, defectsite, charge=0., supercell_size=(1, 1, 1), multiplicity=None, name=None):
-        self.structure = structure
-        self.defectsite = defectsite
-        self.charge = charge
+    def __init__(self, structure, defectsite, charge=0., multiplicity=None, supercell_size=(1, 1, 1), name=None):
+        self._structure = structure
+        self._defectsite = defectsite
+        self._charge = charge
+        self._multiplicity = multiplicity
         self.supercell_size = supercell_size
-        self.multiplicity = multiplicity
         self.name = name
 
     @property
@@ -2295,13 +2315,12 @@ class SingleVacancy(SingleDefect):
         """
         Returns Defective Vacancy structure, decorated with charge
         """
-
         #if defect site isnt perfectly matched in structure, better to find closest site in structure
-        poss_deflist = self.structure.get_sites_in_sphere(self.defectsite, 2, include_index=True)
+        poss_deflist = self.structure.get_sites_in_sphere(self.defectsite.coords, 2, include_index=True)
         defindex = poss_deflist[0][2] #index for defect
         defect_structure = self.structure.copy()
         defect_structure.remove_sites([defindex])
-        defect_structure.charge = self.charge
+        defect_structure._charge = self.charge
         return defect_structure
 
     @staticmethod
@@ -2327,9 +2346,10 @@ class SingleVacancy(SingleDefect):
             supercell_size = scaling_matrix
 
         vac = Vacancy(structure, {}, {})
-        for defectsite, sitemult in zip(vac._defect_sites, vac._defect_site_multiplicity):
-            #TODO: make names out of the iteration procedure from Vacancy... for
-            vacancies.append( SingleVacancy(structure, defectsite, 0., supercell_size, multiplicity=sitemult))
+        for vac_cnt, (defectsite, sitemult) in enumerate(zip(vac._defect_sites, vac._defect_site_multiplicity)):
+            vacancies.append( SingleVacancy(structure, defectsite, 0., supercell_size,
+                                            multiplicity=sitemult,
+                                            name="vac_{}_{}".format(vac_cnt+1, defectsite.specie.symbol)))
 
         return vacancies
 
@@ -2348,12 +2368,12 @@ class SingleAntisite(SingleDefect):
         multiplicity: multiplicity of defect within the structure
 
     """
-    def __init__(self, structure, defectsite, charge=0., supercell_size=(1, 1, 1), multiplicity=None, name=None):
-        self.structure = structure
-        self.defectsite = defectsite
-        self.charge = charge
+    def __init__(self, structure, defectsite, charge=0., multiplicity=None, supercell_size=(1, 1, 1), name=None):
+        self._structure = structure
+        self._defectsite = defectsite
+        self._charge = charge
+        self._multiplicity = multiplicity
         self.supercell_size = supercell_size
-        self.multiplicity = multiplicity
         self.name = name
 
     @property
@@ -2363,12 +2383,12 @@ class SingleAntisite(SingleDefect):
         """
 
         #if defect site isnt perfectly matched in structure, better to find closest site in structure
-        poss_deflist = self.structure.get_sites_in_sphere(self.defectsite, 2, include_index=True)
+        poss_deflist = self.structure.get_sites_in_sphere(self.defectsite.coords, 2, include_index=True)
         defindex = poss_deflist[0][2] #index for defect
         defect_structure = self.structure.copy()
 
         defect_structure[defindex] = self.defectsite.specie.symbol
-        defect_structure.charge = self.charge
+        defect_structure._charge = self.charge
         return defect_structure
 
     @staticmethod
@@ -2419,12 +2439,12 @@ class SingleSubstitution(SingleDefect):
         multiplicity: multiplicity of defect within the structure
 
     """
-    def __init__(self, structure, defectsite, charge=0., supercell_size=(1, 1, 1), multiplicity=None, name=None):
-        self.structure = structure
-        self.defectsite = defectsite
-        self.charge = charge
+    def __init__(self, structure, defectsite, charge=0., multiplicity=None, supercell_size=(1, 1, 1), name=None):
+        self._structure = structure
+        self._defectsite = defectsite
+        self._charge = charge
+        self._multiplicity = multiplicity
         self.supercell_size = supercell_size
-        self.multiplicity = multiplicity
         self.name = name
 
     @property
@@ -2434,12 +2454,12 @@ class SingleSubstitution(SingleDefect):
         """
 
         #if defect site isnt perfectly matched in structure, better to find closest site in structure
-        poss_deflist = self.structure.get_sites_in_sphere(self.defectsite, 2, include_index=True)
+        poss_deflist = self.structure.get_sites_in_sphere(self.defectsite.coords, 2, include_index=True)
         defindex = poss_deflist[0][2] #index for defect
         defect_structure = self.structure.copy()
 
         defect_structure[defindex] = self.defectsite.specie.symbol
-        defect_structure.charge = self.charge
+        defect_structure._charge = self.charge
         return defect_structure
 
     @staticmethod
@@ -2484,17 +2504,17 @@ class SingleInterstitial(SingleDefect):
         defectsite: pymatgen Site object [with correct specie type to use for defect]
         charge: defect charge (0 is default,
                 meaning no change to NELECT after defect is created in the structure)
+        multiplicity: multiplicity of defect within the structure
         supercell_size:
             Size of the supercell in terms of unit cell (just for storage of information)
-        multiplicity: multiplicity of defect within the structure
 
     """
-    def __init__(self, structure, defectsite, charge=0., supercell_size=(1, 1, 1), multiplicity=None, name=None):
-        self.structure = structure
-        self.defectsite = defectsite
-        self.charge = charge
+    def __init__(self, structure, defectsite, charge=0., multiplicity=None,  supercell_size=(1, 1, 1),name=None):
+        self._structure = structure
+        self._defectsite = defectsite
+        self._charge = charge
+        self._multiplicity = multiplicity
         self.supercell_size = supercell_size
-        self.multiplicity = multiplicity
         self.name = name
 
     @property
@@ -2504,7 +2524,7 @@ class SingleInterstitial(SingleDefect):
         """
         defect_structure = self.structure.copy()
         defect_structure.insert( 0, self.defectsite.specie.symbol, self.defectsite.coords, validate_proximity=True)
-        defect_structure.charge = self.charge
+        defect_structure._charge = self.charge
         return defect_structure
 
     @staticmethod
