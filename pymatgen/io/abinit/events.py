@@ -37,7 +37,7 @@ __all__ = [
     "RelaxConvergenceWarning",
     "Correction",
     "DilatmxError",
-    "DilatmxErrorHandler"
+    "DilatmxErrorHandler",
 ]
 
 
