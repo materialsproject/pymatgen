@@ -306,12 +306,10 @@ def compute_environments(chemenv_configuration):
                                         mydeltas.append(np.array([1.0*i0, 1.0*i1, 1.0*i2], np.float))
                             break
 
-                        except ValueError:
+                        except ValueError and IndexError:
                             print('Not a valid multiplicity')
                             pass
-                        except IndexError:
-                            print('Not a valid multiplicity')
-                            pass
+
                 else:
                     mydeltas = [np.zeros(3, np.float)]
                 if firsttime:
@@ -339,6 +337,5 @@ def compute_environments(chemenv_configuration):
                 vis.show()
             test = input('Go to next structure ? ("y" to do so) : ')
             if test == 'y':
-                vis
                 break
         print('')
