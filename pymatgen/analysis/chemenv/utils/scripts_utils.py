@@ -281,7 +281,6 @@ def compute_environments(chemenv_configuration):
                          break
                     except ValueError:
                          print('This is not a valid site')
-                         pass
                     except IndexError:
                          print('This site is out of the site range')
 
@@ -306,9 +305,10 @@ def compute_environments(chemenv_configuration):
                                         mydeltas.append(np.array([1.0*i0, 1.0*i1, 1.0*i2], np.float))
                             break
 
-                        except ValueError and IndexError:
+                        except ValueError:
                             print('Not a valid multiplicity')
-                            pass
+                        except IndexError:
+                            print('Not a valid multiplicity')
 
                 else:
                     mydeltas = [np.zeros(3, np.float)]
