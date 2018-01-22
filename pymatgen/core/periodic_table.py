@@ -439,7 +439,7 @@ class Element(Enum):
                                 base_power = re.findall(r'([+-]?\d+)', toks[1])
                                 factor = "e" + base_power[1]
                                 if toks[0] in ["&gt;", "high"]:
-                                    toks[0] = "1" # return the border value
+                                    toks[0] = "1"  # return the border value
                                 toks[0] += factor
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
@@ -983,7 +983,7 @@ class Specie(MSONable):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search(r"([A-Z][a-z]*)([0-9\.]*)([\+\-])(.*)", species_string)
+        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-])(.*)", species_string)
         if m:
             sym = m.group(1)
             oxi = 1 if m.group(2) == "" else float(m.group(2))
@@ -1060,8 +1060,6 @@ class Specie(MSONable):
         else:
             data = radii[str(self._oxi_state)][cn][spin]
         return data["%s_radius" % radius_type]
-
-
 
     def get_crystal_field_spin(self, coordination="oct", spin_config="high"):
         """

@@ -263,7 +263,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             analyzer = self.Oads_analyzer_dict[el]
 
         stable_u_range = analyzer.stable_u_range_dict([-1,0], Symbol("delu_O"),
-                                                      clean_only=False)
+                                                      no_doped=False)
         all_u = []
         for entry in stable_u_range.keys():
             all_u.extend(stable_u_range[entry])

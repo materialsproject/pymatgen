@@ -4,13 +4,14 @@
 
 from __future__ import division, unicode_literals, print_function
 import logging
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 import numpy as np
+import scipy.constants as const
 
 from monty.json import jsanitize
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-from pymatgen.util.plotting import pretty_plot
+from pymatgen.util.plotting import pretty_plot, add_fig_kwargs, get_ax_fig_plt
 from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 
 """
@@ -18,6 +19,27 @@ This module implements plotter for DOS and band structure.
 """
 
 logger = logging.getLogger(__name__)
+
+FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
+
+
+def freq_units(units):
+    """
+    Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
+    Accepted values: thz, ev, mev, ha, cm-1, cm^-1
+    """
+
+    d = {"thz": FreqUnits(1, "THz"),
+         "ev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera, "eV"),
+         "mev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera / const.milli, "meV"),
+         "ha": FreqUnits(const.value("hertz-hartree relationship") * const.tera, "Ha"),
+         "cm-1": FreqUnits(const.value("hertz-inverse meter relationship") * const.tera * const.centi, "cm$^{-1}$"),
+         'cm^-1': FreqUnits(const.value("hertz-inverse meter relationship") * const.tera * const.centi, "cm$^{-1}$")
+         }
+    try:
+        return d[units.lower().strip()]
+    except KeyError:
+        raise KeyError('Value for units `{}` unknown\nPossible values are:\n {}'.format(units, list(d.keys())))
 
 
 class PhononDosPlotter(object):
@@ -92,7 +114,7 @@ class PhononDosPlotter(object):
         """
         return jsanitize(self._doses)
 
-    def get_plot(self, xlim=None, ylim=None):
+    def get_plot(self, xlim=None, ylim=None, units="thz"):
         """
         Get a matplotlib plot showing the DOS.
 
@@ -100,13 +122,17 @@ class PhononDosPlotter(object):
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        import prettyplotlib as ppl
-        from prettyplotlib import brewer2mpl
+
+        u = freq_units(units)
 
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
-        colors = brewer2mpl.get_map('Set1', 'qualitative', ncolors).mpl_colors
+
+        import palettable
+
+        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         y = None
         alldensities = []
@@ -116,7 +142,7 @@ class PhononDosPlotter(object):
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
         for key, dos in self._doses.items():
-            frequencies = dos['frequencies']
+            frequencies = dos['frequencies'] * u.factor
             densities = dos['densities']
             if y is None:
                 y = np.zeros(frequencies.shape)
@@ -155,7 +181,7 @@ class PhononDosPlotter(object):
         ylim = plt.ylim()
         plt.plot([0, 0], ylim, 'k--', linewidth=2)
 
-        plt.xlabel('Frequencies (THz)')
+        plt.xlabel('Frequencies ({})'.format(u.label))
         plt.ylabel('Density of states')
 
         plt.legend()
@@ -165,7 +191,7 @@ class PhononDosPlotter(object):
         plt.tight_layout()
         return plt
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
+    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, units="thz"):
         """
         Save matplotlib plot to a file.
 
@@ -175,11 +201,12 @@ class PhononDosPlotter(object):
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1
         """
-        plt = self.get_plot(xlim, ylim)
+        plt = self.get_plot(xlim, ylim, units=units)
         plt.savefig(filename, format=img_format)
 
-    def show(self, xlim=None, ylim=None):
+    def show(self, xlim=None, ylim=None, units="thz"):
         """
         Show the plot using matplotlib.
 
@@ -187,8 +214,9 @@ class PhononDosPlotter(object):
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        plt = self.get_plot(xlim, ylim)
+        plt = self.get_plot(xlim, ylim, units=units)
         plt.show()
 
 
@@ -291,22 +319,19 @@ class PhononBSPlotter(object):
         return {'ticks': ticks, 'distances': distance, 'frequency': frequency,
                 'lattice': self._bs.lattice_rec.as_dict()}
 
-    def get_plot(self, ylim=None):
+    def get_plot(self, ylim=None, units="thz"):
         """
         Get a matplotlib object for the bandstructure plot.
 
         Args:
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.
+            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
+
+        u = freq_units(units)
+
         plt = pretty_plot(12, 8)
-        from matplotlib import rc
-        import scipy.interpolate as scint
-        try:
-            rc('text', usetex=True)
-        except:
-            # Fall back on non Tex if errored.
-            rc('text', usetex=False)
 
         band_linewidth = 1
 
@@ -314,10 +339,9 @@ class PhononBSPlotter(object):
         for d in range(len(data['distances'])):
             for i in range(self._nb_bands):
                 plt.plot(data['distances'][d],
-                         [data['frequency'][d][i][j]
+                         [data['frequency'][d][i][j] * u.factor
                           for j in range(len(data['distances'][d]))], 'b-',
                          linewidth=band_linewidth)
-
 
         self._maketicks(plt)
 
@@ -326,7 +350,7 @@ class PhononBSPlotter(object):
 
         # Main X and Y Labels
         plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
-        ylabel = r'$\mathrm{Frequency\ (THz)}$'
+        ylabel = r'Frequency ({})'.format(u.label)
         plt.ylabel(ylabel, fontsize=30)
 
         # X range (K)
@@ -341,18 +365,19 @@ class PhononBSPlotter(object):
 
         return plt
 
-    def show(self, ylim=None):
+    def show(self, ylim=None, units="thz"):
         """
         Show the plot using matplotlib.
 
         Args:
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.
+            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        plt = self.get_plot(ylim)
+        plt = self.get_plot(ylim, units=units)
         plt.show()
 
-    def save_plot(self, filename, img_format="eps", ylim=None):
+    def save_plot(self, filename, img_format="eps", ylim=None, units="thz"):
         """
         Save matplotlib plot to a file.
 
@@ -360,8 +385,9 @@ class PhononBSPlotter(object):
             filename: Filename to write to.
             img_format: Image format to use. Defaults to EPS.
             ylim: Specifies the y-axis limits.
+            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        plt = self.get_plot(ylim=ylim)
+        plt = self.get_plot(ylim=ylim, units=units)
         plt.savefig(filename, format=img_format)
         plt.close()
 
@@ -454,3 +480,193 @@ class PhononBSPlotter(object):
 
         plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
 
+
+class ThermoPlotter(object):
+    """
+    Plotter for thermodynamic properties obtained from phonon DOS.
+    If the structure corresponding to the DOS, it will be used to extract the forumla unit and provide
+    the plots in units of mol instead of mole-cell
+    """
+
+    def __init__(self, dos, structure=None):
+        """
+        Args:
+            dos: A PhononDos object.
+            structure: A Structure object corresponding to the structure used for the calculation.
+        """
+        self.dos = dos
+        self.structure = structure
+
+    def _plot_thermo(self, func, temperatures, factor=1, ax=None, ylabel=None, label=None, ylim=None, **kwargs):
+        """
+        Plots a thermodynamic property for a generic function from a PhononDos instance.
+
+        Args:
+            func: the thermodynamic function to be used to calculate the property
+            temperatures: a list of temperatures
+            factor: a multiplicative factor applied to the thermodynamic property calculated. Used to change
+                the units.
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ylabel: label for the y axis
+            label: label of the plot
+            ylim: tuple specifying the y-axis limits.
+            kwargs: kwargs passed to the matplotlib function 'plot'.
+        Returns:
+            matplotlib figure
+        """
+
+        ax, fig, plt = get_ax_fig_plt(ax)
+
+        values = []
+
+        for t in temperatures:
+            values.append(func(t, structure=self.structure) * factor)
+
+        ax.plot(temperatures, values, label=label, **kwargs)
+
+        if ylim:
+            ax.set_ylim(ylim)
+
+        ax.set_xlim((np.min(temperatures), np.max(temperatures)))
+        ylim = plt.ylim()
+        if ylim[0] < 0 < ylim[1]:
+            plt.plot(plt.xlim(), [0, 0], 'k-', linewidth=1)
+
+        ax.set_xlabel(r"$T$ (K)")
+        if ylabel:
+            ax.set_ylabel(ylabel)
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_cv(self, tmin, tmax, ntemp, ylim=None, **kwargs):
+        """
+        Plots the constant volume specific heat C_v in a temperature range.
+
+        Args:
+            tmin: minimum temperature
+            tmax: maximum temperature
+            ntemp: number of steps
+            ylim: tuple specifying the y-axis limits.
+            kwargs: kwargs passed to the matplotlib function 'plot'.
+        Returns:
+            matplotlib figure
+        """
+        temperatures = np.linspace(tmin, tmax, ntemp)
+
+        if self.structure:
+            ylabel = r"$C_v$ (J/K/mol)"
+        else:
+            ylabel = r"$C_v$ (J/K/mol-c)"
+
+        fig = self._plot_thermo(self.dos.cv, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_entropy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
+        """
+        Plots the vibrational entrpy in a temperature range.
+
+        Args:
+            tmin: minimum temperature
+            tmax: maximum temperature
+            ntemp: number of steps
+            ylim: tuple specifying the y-axis limits.
+            kwargs: kwargs passed to the matplotlib function 'plot'.
+        Returns:
+            matplotlib figure
+        """
+        temperatures = np.linspace(tmin, tmax, ntemp)
+
+        if self.structure:
+            ylabel = r"$S$ (J/K/mol)"
+        else:
+            ylabel = r"$S$ (J/K/mol-c)"
+
+        fig = self._plot_thermo(self.dos.entropy, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_internal_energy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
+        """
+        Plots the vibrational internal energy in a temperature range.
+
+        Args:
+            tmin: minimum temperature
+            tmax: maximum temperature
+            ntemp: number of steps
+            ylim: tuple specifying the y-axis limits.
+            kwargs: kwargs passed to the matplotlib function 'plot'.
+        Returns:
+            matplotlib figure
+        """
+        temperatures = np.linspace(tmin, tmax, ntemp)
+
+        if self.structure:
+            ylabel = r"$\Delta E$ (kJ/K/mol)"
+        else:
+            ylabel = r"$\Delta E$ (kJ/K/mol-c)"
+
+        fig = self._plot_thermo(self.dos.internal_energy, temperatures, ylabel=ylabel, ylim=ylim,
+                                factor=1e-3, **kwargs)
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_helmholtz_free_energy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
+        """
+        Plots the vibrational contribution to the Helmoltz free energy in a temperature range.
+
+        Args:
+            tmin: minimum temperature
+            tmax: maximum temperature
+            ntemp: number of steps
+            ylim: tuple specifying the y-axis limits.
+            kwargs: kwargs passed to the matplotlib function 'plot'.
+        Returns:
+            matplotlib figure
+        """
+        temperatures = np.linspace(tmin, tmax, ntemp)
+
+        if self.structure:
+            ylabel = r"$\Delta F$ (kJ/K/mol)"
+        else:
+            ylabel = r"$\Delta F$ (kJ/K/mol-c)"
+
+        fig = self._plot_thermo(self.dos.helmholtz_free_energy, temperatures, ylabel=ylabel, ylim=ylim,
+                                factor=1e-3, **kwargs)
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_thermodynamic_properties(self, tmin, tmax, ntemp, ylim=None, **kwargs):
+        """
+        Plots all the thermodynamic properties in a temperature range.
+
+        Args:
+            tmin: minimum temperature
+            tmax: maximum temperature
+            ntemp: number of steps
+            ylim: tuple specifying the y-axis limits.
+            kwargs: kwargs passed to the matplotlib function 'plot'.
+        Returns:
+            matplotlib figure
+        """
+        temperatures = np.linspace(tmin, tmax, ntemp)
+
+        mol = "" if self.structure else "-c"
+
+        fig = self._plot_thermo(self.dos.cv, temperatures, ylabel="Thermodynamic properties", ylim=ylim,
+                                label=r"$C_v$ (J/K/mol{})".format(mol), **kwargs)
+        self._plot_thermo(self.dos.entropy, temperatures, ylim=ylim, ax=fig.axes[0],
+                          label=r"$S$ (J/K/mol{})".format(mol), **kwargs)
+        self._plot_thermo(self.dos.internal_energy, temperatures, ylim=ylim, ax=fig.axes[0], factor=1e-3,
+                          label=r"$\Delta E$ (kJ/K/mol{})".format(mol), **kwargs)
+        self._plot_thermo(self.dos.helmholtz_free_energy, temperatures, ylim=ylim, ax=fig.axes[0], factor=1e-3,
+                          label=r"$\Delta F$ (kJ/K/mol{})".format(mol), **kwargs)
+
+        fig.axes[0].legend(loc="best")
+
+        return fig
