@@ -294,7 +294,6 @@ def compute_environments(chemenv_configuration):
             if test in ['y', 'm']:
                 if test == 'm':
                     mydeltas = []
-
                     while True:
                         try:
                             test = input('Enter multiplicity (e.g. 3 2 2) : ')
@@ -305,11 +304,8 @@ def compute_environments(chemenv_configuration):
                                         mydeltas.append(np.array([1.0*i0, 1.0*i1, 1.0*i2], np.float))
                             break
 
-                        except ValueError:
+                        except (ValueError,IndexError)
                             print('Not a valid multiplicity')
-                        except IndexError:
-                            print('Not a valid multiplicity')
-
                 else:
                     mydeltas = [np.zeros(3, np.float)]
                 if firsttime:
