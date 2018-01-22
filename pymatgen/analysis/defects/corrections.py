@@ -24,7 +24,7 @@ class OtherCorrection(object):
 
     """
     def __init__(self, **kwargs):
-        self.corr = kwargs.get('corr', 0.)
+        self._correction = kwargs.get('correction', 0.)
         self.metadata = kwargs.get('metadata', dict())
 
     @property
@@ -32,7 +32,7 @@ class OtherCorrection(object):
         """
         Total correction to be applied to Formation energy
         """
-        return self.corr
+        return self._correction
 
 
 
