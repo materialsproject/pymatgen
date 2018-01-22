@@ -30,9 +30,8 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
 from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy
-
+#from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
+#from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy
 from pymatgen.core.structure import Molecule
 from collections import OrderedDict
 import numpy as np
@@ -53,6 +52,7 @@ __date__ = "Feb 20, 2016"
 
 strategies_class_lookup = OrderedDict()
 strategies_class_lookup['SimplestChemenvStrategy'] = SimplestChemenvStrategy
+
 #strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
 #strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
 
@@ -272,20 +272,19 @@ def compute_environments(chemenv_configuration):
                 while True:
                     test = input('Enter index of site(s) (e.g. 0 1 2, separated by spaces) for which you want to see the grid of parameters : ')
                     try:
-                         indices = list(map(int, test.split()))
-                         print(indices)
+                         indices=[int(x) for x in test.split()]
+                         print(str(indices))
                          for isite in indices:
+                             if isite <0:
+                                 raise IndexError
                              se.plot_environments(isite, additional_condition=se.AC.ONLY_ACB)
                          break
-                    except:
-                         try:
-                             indices = int(test)
-                             for isite in indices:
-                                 se.plot_environments(isite, additional_condition=se.AC.ONLY_ACB)
-                             break
-                         except:
-                             print('This is not a valid site')
-                             pass
+                    except ValueError:
+                         print('This is not a valid site')
+                         pass
+                    except IndexError:
+                         print('This site is out of the site range')
+
 
             if no_vis:
                 test = input('Go to next structure ? ("y" to do so)')
@@ -307,10 +306,12 @@ def compute_environments(chemenv_configuration):
                                         mydeltas.append(np.array([1.0*i0, 1.0*i1, 1.0*i2], np.float))
                             break
 
-                        except:
+                        except ValueError:
                             print('Not a valid multiplicity')
                             pass
-
+                        except IndexError:
+                            print('Not a valid multiplicity')
+                            pass
                 else:
                     mydeltas = [np.zeros(3, np.float)]
                 if firsttime:
@@ -338,5 +339,6 @@ def compute_environments(chemenv_configuration):
                 vis.show()
             test = input('Go to next structure ? ("y" to do so) : ')
             if test == 'y':
+                vis
                 break
         print('')
