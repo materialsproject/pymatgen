@@ -439,7 +439,7 @@ class Element(Enum):
                                 base_power = re.findall(r'([+-]?\d+)', toks[1])
                                 factor = "e" + base_power[1]
                                 if toks[0] in ["&gt;", "high"]:
-                                    toks[0] = "1" # return the border value
+                                    toks[0] = "1"  # return the border value
                                 toks[0] += factor
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"

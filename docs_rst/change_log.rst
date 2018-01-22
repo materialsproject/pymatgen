@@ -1,6 +1,13 @@
 Change log
 ==========
 
+v2018.1.19
+----------
+* Phonon plotting and analysis improvements (Guido Petretto).
+* Voronoi site finder (Hanmei Tang)
+* Some bug fixes for Gaussian (Marco Esters)
+* Misc improvements.
+
 v2017.12.30
 -----------
 * Added detailed Shannon radii information and method.

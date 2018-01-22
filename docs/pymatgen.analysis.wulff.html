@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.wulff module &#8212; pymatgen 2017.12.30 documentation</title>
+    <title>pymatgen.analysis.wulff module &#8212; pymatgen 2018.1.19 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.30',
+        VERSION:     '2018.1.19',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.19 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -255,7 +255,7 @@ Wulffshape is approximated as a sphere.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>color_set='PuBu'</em>, <em>grid_off=True</em>, <em>axis_off=True</em>, <em>show_area=False</em>, <em>alpha=1</em>, <em>off_color='red'</em>, <em>direction=None</em>, <em>bar_pos=(0.75</em>, <em>0.15</em>, <em>0.05</em>, <em>0.65)</em>, <em>bar_on=False</em>, <em>legend_on=True</em>, <em>aspect_ratio=(8</em>, <em>8)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/wulff.html#WulffShape.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_plot</code><span class="sig-paren">(</span><em>color_set='PuBu'</em>, <em>grid_off=True</em>, <em>axis_off=True</em>, <em>show_area=False</em>, <em>alpha=1</em>, <em>off_color='red'</em>, <em>direction=None</em>, <em>bar_pos=(0.75</em>, <em>0.15</em>, <em>0.05</em>, <em>0.65)</em>, <em>bar_on=False</em>, <em>legend_on=True</em>, <em>aspect_ratio=(8</em>, <em>8)</em>, <em>custom_colors={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/wulff.html#WulffShape.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Wulff shape plot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -267,12 +267,17 @@ Wulffshape is approximated as a sphere.</p>
 <li><strong>axis_off</strong> (<em>bool</em>) – default is Ture</li>
 <li><strong>show_area</strong> (<em>bool</em>) – default is False</li>
 <li><strong>alpha</strong> (<em>float</em>) – chosen from 0 to 1 (float), default is 1</li>
-<li><strong>off_color</strong> – color_legend for off_wulff facets on show_area legend</li>
+<li><strong>off_color</strong> – Default color for facets not present on the Wulff shape.</li>
 <li><strong>direction</strong> – default is (1, 1, 1)</li>
 <li><strong>bar_pos</strong> – default is [0.75, 0.15, 0.05, 0.65]</li>
 <li><strong>bar_on</strong> (<em>bool</em>) – default is False</li>
 <li><strong>legend_on</strong> (<em>bool</em>) – default is True</li>
 <li><strong>aspect_ratio</strong> – default is (8, 8)</li>
+<li><strong>(</strong><strong>{</strong><strong>(</strong><strong>h</strong><strong>,</strong><strong>k</strong><strong>,</strong><strong>l}</strong> (<em>custom_colors</em>) – [r,g,b,alpha}): Customize color of each
+facet with a dictionary. The key is the corresponding Miller
+index and value is the color. Undefined facets will use default
+color site. Note: If you decide to set your own colors, it
+probably won’t make any sense to have the color bar on.</li>
 </ul>
 </td>
 </tr>
@@ -428,13 +433,13 @@ Agrs:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.19 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
