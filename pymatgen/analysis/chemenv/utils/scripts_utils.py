@@ -304,7 +304,7 @@ def compute_environments(chemenv_configuration):
                                         mydeltas.append(np.array([1.0*i0, 1.0*i1, 1.0*i2], np.float))
                             break
 
-                        except (ValueError,IndexError)
+                        except (ValueError,IndexError):
                             print('Not a valid multiplicity')
                 else:
                     mydeltas = [np.zeros(3, np.float)]
