@@ -11,12 +11,10 @@ Subpackages
     pymatgen.analysis.defects
     pymatgen.analysis.diffraction
     pymatgen.analysis.elasticity
-    pymatgen.analysis.ferroelectricity
     pymatgen.analysis.hhi
     pymatgen.analysis.magnetism
     pymatgen.analysis.pourbaix
     pymatgen.analysis.structure_prediction
-    pymatgen.analysis.xas
 
 Submodules
 ----------
