@@ -24,8 +24,12 @@ class InterfaceReactionTest(unittest.TestCase):
                         ComputedEntry(Composition('Mn2O4'), -60),
                         ComputedEntry(Composition('MnO3'), 20),
                         ComputedEntry(Composition('Li2O'), -10),
+<<<<<<< HEAD
                         ComputedEntry(Composition('Li2O2'), -8),
                         ComputedEntry(Composition('LiMnO2'), -30)
+=======
+                        ComputedEntry(Composition('LiMnO2'), -30),
+>>>>>>> master
                         ]
         self.pd = PhaseDiagram(self.entries)
         chempots = {'Li': -3}
@@ -34,6 +38,7 @@ class InterfaceReactionTest(unittest.TestCase):
         self.ir.append(
             InterfacialReactivity(Composition('O2'), Composition('Mn'), self.pd,
                                   norm=0, include_no_mixing_energy=0,
+<<<<<<< HEAD
                                   pd_non_grand=None, use_hull_energy=False))
         self.ir.append(
             InterfacialReactivity(Composition('MnO2'), Composition('Mn'),
@@ -66,6 +71,32 @@ class InterfaceReactionTest(unittest.TestCase):
         with self.assertRaises(Exception) as context1:
             self.ir.append(
                 InterfacialReactivity(Composition('Li2O2'), Composition('Li'),
+=======
+                                  pd_non_grand=None))
+        self.ir.append(
+            InterfacialReactivity(Composition('MnO2'), Composition('Mn'),
+                                  self.gpd, norm=0, include_no_mixing_energy=1,
+                                  pd_non_grand=self.pd))
+        self.ir.append(
+            InterfacialReactivity(Composition('Mn'), Composition('O2'),
+                                  self.gpd, norm=1, include_no_mixing_energy=1,
+                                  pd_non_grand=self.pd))
+        self.ir.append(
+            InterfacialReactivity(Composition('Li2O'), Composition('Mn'),
+                                  self.gpd, norm=0, include_no_mixing_energy=1,
+                                  pd_non_grand=self.pd))
+        self.ir.append(
+            InterfacialReactivity(Composition('Mn'), Composition('O2'),
+                                  self.gpd, norm=1, include_no_mixing_energy=0,
+                                  pd_non_grand=self.pd))
+        self.ir.append(
+            InterfacialReactivity(Composition('Mn'), Composition('Li2O'),
+                                  self.gpd, norm=1, include_no_mixing_energy=1,
+                                  pd_non_grand=self.pd))
+        with self.assertRaises(Exception) as context1:
+            self.ir.append(
+                InterfacialReactivity(Composition('O2'), Composition('Mn'),
+>>>>>>> master
                                       self.pd, norm=0,
                                       include_no_mixing_energy=1,
                                       pd_non_grand=None))
@@ -86,6 +117,7 @@ class InterfaceReactionTest(unittest.TestCase):
     def test_get_entry_energy(self):
         # Test warning message.
         comp = Composition('MnO3')
+<<<<<<< HEAD
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             energy = self.ir[0]._get_entry_energy(self.pd, comp)
@@ -98,6 +130,13 @@ class InterfaceReactionTest(unittest.TestCase):
         self.assertTrue(test1,
                         '_get_entry_energy: energy for {} is wrong!'.format(
                             comp.reduced_formula))
+=======
+        with self.assertRaises(Exception) as context1:
+            energy = self.ir[0]._get_entry_energy(self.pd, comp)
+        self.assertTrue(
+            'The reactant MnO3 has no matching entry with negative formation energy!' == str(
+                context1.exception))
+>>>>>>> master
         # Test normal functionality
         comp = Composition('MnO2')
         test2 = np.isclose(self.ir[0]._get_entry_energy(self.pd, comp), -30,
@@ -123,6 +162,7 @@ class InterfaceReactionTest(unittest.TestCase):
     def test_get_energy(self):
         test1 = (np.isclose(self.ir[0]._get_energy(0.5), -15, atol=1e-03))
         self.assertTrue(test1, '_get_energy: phase diagram gets error!')
+<<<<<<< HEAD
 
         test2 = (
         np.isclose(self.ir[3]._get_energy(0.6666666), -7.333333, atol=1e-03))
@@ -138,6 +178,13 @@ class InterfaceReactionTest(unittest.TestCase):
         np.isclose(self.ir[7]._get_energy(0.3333333), -4, atol=1e-03))
         self.assertTrue(test4,
                         '_get_energy: gets error. ')
+=======
+
+        test2 = (
+        np.isclose(self.ir[3]._get_energy(0.6666666), -7.333333, atol=1e-03))
+        self.assertTrue(test2,
+                        '_get_energy: grand canonical phase diagram gets error!')
+>>>>>>> master
 
     def test_get_reaction(self):
         test1 = str(self.ir[0]._get_reaction(0.5)) == 'O2 + Mn -> MnO2'
@@ -203,6 +250,11 @@ class InterfaceReactionTest(unittest.TestCase):
                         'get_kinks:reaction kinks gets error for {0} and {1} reaction!'.format(
                             ir.c1_original.reduced_formula,
                             ir.c2_original.reduced_formula))
+<<<<<<< HEAD
+=======
+
+        ir = self.ir[4]
+>>>>>>> master
 
     def test_labels(self):
         ir = self.ir[0]
@@ -227,9 +279,13 @@ class InterfaceReactionTest(unittest.TestCase):
             (0.3333333, -10),
             (0.6666666, -7.333333),
             (0.3333333, -7.333333),
+<<<<<<< HEAD
             (0.1428571, -7.333333),
             (0.3333333, -3.333333),
             (0.3333333, -4.0),
+=======
+            (0.1428571, -7.333333)
+>>>>>>> master
         ]
         for i, j in zip(self.ir, answer):
             self.assertTrue(np.allclose(i.minimum(), j),

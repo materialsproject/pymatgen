@@ -1744,7 +1744,18 @@ class TestQcOutput(PymatgenTest):
     "hf_xygjos.qcout": {
         "SCF": -2724.0769973875713,
         "XYGJ-OS": -2726.3447230967517
-    }
+    },
+    "hf_wb97xd_gen_scfman.qcout": {
+        "GEN_SCFMAN": -30051.134375112342,
+        "GEN_SCFMAN": -30051.296918174274,
+        "GEN_SCFMAN": -30051.395763612905,
+        "GEN_SCFMAN": -30051.458839496852,
+        "GEN_SCFMAN": -30051.487970700582,
+        "GEN_SCFMAN": -30051.490764186092,
+        "GEN_SCFMAN": -30051.491278372443,
+        "GEN_SCFMAN": -30051.491359704556,
+        "GEN_SCFMAN": -30051.491369799976
+    } 
 }'''
         ref_energies = json.loads(ref_energies_text)
         parsed_energies = dict()

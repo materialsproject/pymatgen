@@ -81,6 +81,10 @@ class EOSTest(PymatgenTest):
         np.testing.assert_almost_equal(birch_eos_fit.func(birch_eos_fit.v0),
                                        birch_eos_fit.e0, decimal=6)
 
+        # TODO: Reactivate
+        #fig = birch_eos_fit.plot_ax(ax=None, show=False, fontsize=8, title="birch eos")
+        #self.assertTrue(hasattr(fig, "savefig"))
+
     def test_eos_func_call(self):
         # eos_fit_obj.func(volume) == eos_fit_obj(volume)
         np.testing.assert_almost_equal(self.num_eos_fit.func(0.),

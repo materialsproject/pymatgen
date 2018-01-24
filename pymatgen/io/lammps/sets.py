@@ -18,13 +18,17 @@ For the ease of management we divide LAMMPS input into 2 files:
             afore-mentioned data file and the job control parameters such as
             the ensemble type(NVT, NPT etc), max number of iterations etc.
 """
+
 import os
 import six
 
 from monty.json import MSONable, MontyDecoder
 
-from pymatgen.io.lammps.data import LammpsForceFieldData, LammpsData
+from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.input import LammpsInput
+
+__author__ = "Kiran Mathew"
+__email__ = "kmathew@lbl.gov"
 
 
 class LammpsInputSet(MSONable):
@@ -72,35 +76,30 @@ class LammpsInputSet(MSONable):
         self.lammps_input.write_file(input_filename)
         # write the data file if present
         if self.lammps_data:
-            self.lammps_data.write_data_file(filename=self.data_filename)
+            self.lammps_data.write_file(filename=self.data_filename)
 
     @classmethod
     def from_file(cls, name, input_template, user_settings,
-                  lammps_data=None, data_filename="in.data",
-                  is_forcefield=False):
+                  lammps_data=None, data_filename="in.data"):
         """
         Returns LammpsInputSet from  input file template and input data.
 
         Args:
+            name (str)
             input_template (string): path to the input template file.
             user_settings (dict): User lammps settings, the keys must
                 correspond to the keys in the template.
-            lammps_data (string/LammpsData/LammpsForceFieldData): path to the
+            lammps_data (string/LammpsData): path to the
                 data file or an appropriate object
             data_filename (string): name of the the lammps data file.
-            is_forcefield (bool): whether the data file has forcefield and
-                topology info in it. This is required only if lammps_data is
-                a path to the data file instead of a data object.
 
         Returns:
             LammpsInputSet
         """
+        user_settings["data_file"] = data_filename
         lammps_input = LammpsInput.from_file(input_template, user_settings)
         if isinstance(lammps_data, six.string_types):
-            if is_forcefield:
-                lammps_data = LammpsForceFieldData.from_file(lammps_data)
-            else:
-                lammps_data = LammpsData.from_file(lammps_data)
+            lammps_data = LammpsData.from_file(lammps_data)
         return cls(name, lammps_input, lammps_data=lammps_data,
                    data_filename=data_filename)
 

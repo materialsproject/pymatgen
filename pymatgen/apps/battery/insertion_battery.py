@@ -9,7 +9,6 @@ This module is used for analysis of materials with potential application as
 intercalation batteries.
 """
 
-
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -22,8 +21,8 @@ import itertools
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.units import Charge, Time
-from pymatgen.phasediagram.maker import PhaseDiagram
-from pymatgen.phasediagram.entries import PDEntry
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
     AbstractVoltagePair
 from pymatgen.core.periodic_table import Element
@@ -54,34 +53,34 @@ class InsertionElectrode(AbstractElectrode):
         self._working_ion = working_ion_entry.composition.elements[0]
         self._working_ion_entry = working_ion_entry
 
-        #Prepare to make phase diagram: determine elements and set their energy
-        #to be very high
+        # Prepare to make phase diagram: determine elements and set their energy
+        # to be very high
         elements = set()
         for entry in entries:
             elements.update(entry.composition.elements)
 
-        #Set an artificial energy for each element for convex hull generation
+        # Set an artificial energy for each element for convex hull generation
         element_energy = max([entry.energy_per_atom for entry in entries]) + 10
 
         pdentries = []
         pdentries.extend(entries)
-        pdentries.extend([PDEntry(Composition({el:1}), element_energy)
+        pdentries.extend([PDEntry(Composition({el: 1}), element_energy)
                           for el in elements])
 
-        #Make phase diagram to determine which entries are stable vs. unstable
+        # Make phase diagram to determine which entries are stable vs. unstable
         pd = PhaseDiagram(pdentries)
 
         lifrac = lambda e: e.composition.get_atomic_fraction(self._working_ion)
 
-        #stable entries ordered by amount of Li asc
+        # stable entries ordered by amount of Li asc
         self._stable_entries = tuple(sorted([e for e in pd.stable_entries
                                              if e in entries], key=lifrac))
 
-        #unstable entries ordered by amount of Li asc
+        # unstable entries ordered by amount of Li asc
         self._unstable_entries = tuple(sorted([e for e in pd.unstable_entries
                                                if e in entries], key=lifrac))
 
-        #create voltage pairs
+        # create voltage pairs
         self._vpairs = tuple([InsertionVoltagePair(self._stable_entries[i],
                                                    self._stable_entries[i + 1],
                                                    working_ion_entry)
@@ -147,7 +146,7 @@ class InsertionElectrode(AbstractElectrode):
         """
         all_entries = list(self.get_stable_entries())
         all_entries.extend(self.get_unstable_entries())
-        #sort all entries by amount of working ion ASC
+        # sort all entries by amount of working ion ASC
         fsrt = lambda e: e.composition.get_atomic_fraction(self.working_ion)
         all_entries = sorted([e for e in all_entries],
                              key=fsrt)
@@ -347,11 +346,11 @@ class InsertionElectrode(AbstractElectrode):
         chg_form = self.fully_charged_entry.composition.reduced_formula
         dischg_form = self.fully_discharged_entry.composition.reduced_formula
         output.append("InsertionElectrode with endpoints at {} and {}".format(
-                      chg_form, dischg_form))
+            chg_form, dischg_form))
         output.append("Avg. volt. = {} V".format(self.get_average_voltage()))
         output.append("Grav. cap. = {} mAh/g".format(self.get_capacity_grav()))
         output.append("Vol. cap. = {}".format(self.get_capacity_vol()))
-        return  "\n".join(output)
+        return "\n".join(output)
 
     @classmethod
     def from_dict(cls, d):
@@ -379,7 +378,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
     """
 
     def __init__(self, entry1, entry2, working_ion_entry):
-        #initialize some internal variables
+        # initialize some internal variables
         working_element = working_ion_entry.composition.elements[0]
 
         entry_charge = entry1
@@ -400,37 +399,36 @@ class InsertionVoltagePair(AbstractVoltagePair):
                                             for el in comp_discharge
                                             if el.symbol != ion_sym})
 
-        #Data validation
+        # Data validation
 
-        #check that the ion is just a single element
+        # check that the ion is just a single element
         if not working_ion_entry.composition.is_element:
             raise ValueError("VoltagePair: The working ion specified must be "
                              "an element")
 
-        #check that at least one of the entries contains the working element
+        # check that at least one of the entries contains the working element
         if not comp_charge.get_atomic_fraction(working_element) > 0 and \
                 not comp_discharge.get_atomic_fraction(working_element) > 0:
             raise ValueError("VoltagePair: The working ion must be present in "
                              "one of the entries")
 
-        #check that the entries do not contain the same amount of the workin
-        #element
+        # check that the entries do not contain the same amount of the workin
+        # element
         if comp_charge.get_atomic_fraction(working_element) == \
                 comp_discharge.get_atomic_fraction(working_element):
             raise ValueError("VoltagePair: The working ion atomic percentage "
                              "cannot be the same in both the entries")
 
-        #check that the frameworks of the entries are equivalent
+        # check that the frameworks of the entries are equivalent
         if not frame_charge_comp.reduced_formula == \
                 frame_discharge_comp.reduced_formula:
             raise ValueError("VoltagePair: the specified entries must have the"
                              " same compositional framework")
 
-        #Initialize normalization factors, charged and discharged entries
+        # Initialize normalization factors, charged and discharged entries
 
         valence_list = Element(ion_sym).oxidation_states
-        working_ion_valence = max(valence_list)
-
+        working_ion_valence = abs(max(valence_list))
 
         (self.framework,
          norm_charge) = frame_charge_comp.get_reduced_composition_and_factor()
@@ -439,7 +437,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         self._working_ion_entry = working_ion_entry
 
-        #Initialize normalized properties
+        # Initialize normalized properties
         self._vol_charge = entry_charge.structure.volume / norm_charge
         self._vol_discharge = entry_discharge.structure.volume / norm_discharge
 
@@ -455,12 +453,12 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         self._voltage = \
             (((entry_charge.energy / norm_charge) -
-             (entry_discharge.energy / norm_discharge)) / \
-            self._num_ions_transferred + working_ion_entry.energy_per_atom) / working_ion_valence
+              (entry_discharge.energy / norm_discharge)) / \
+             self._num_ions_transferred + working_ion_entry.energy_per_atom) / working_ion_valence
         self._mAh = self._num_ions_transferred * Charge(1, "e").to("C") * \
-            Time(1, "s").to("h") * N_A * 1000 * working_ion_valence
+                    Time(1, "s").to("h") * N_A * 1000 * working_ion_valence
 
-        #Step 4: add (optional) hull and muO2 data
+        # Step 4: add (optional) hull and muO2 data
         self.decomp_e_charge = \
             entry_charge.data.get("decomposition_energy", None)
         self.decomp_e_discharge = \
@@ -515,14 +513,14 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
     def __repr__(self):
         output = ["Insertion voltage pair with working ion {}"
-                  .format(self._working_ion_entry.composition.reduced_formula),
+                      .format(self._working_ion_entry.composition.reduced_formula),
                   "V = {}, mAh = {}".format(self.voltage, self.mAh),
                   "mass_charge = {}, mass_discharge = {}"
-                  .format(self.mass_charge, self.mass_discharge),
+                      .format(self.mass_charge, self.mass_discharge),
                   "vol_charge = {}, vol_discharge = {}"
-                  .format(self.vol_charge, self.vol_discharge),
+                      .format(self.vol_charge, self.vol_discharge),
                   "frac_charge = {}, frac_discharge = {}"
-                  .format(self.frac_charge, self.frac_discharge)]
+                      .format(self.frac_charge, self.frac_discharge)]
         return "\n".join(output)
 
     def __str__(self):

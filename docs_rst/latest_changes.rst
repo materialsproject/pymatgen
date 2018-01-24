@@ -1,6 +1,9 @@
 Change log
 ==========
 
-v2017.8.14
+v2018.1.19
 ----------
-* Fixes and minor improvements to elastic, bader and defect analyses.
+* Phonon plotting and analysis improvements (Guido Petretto).
+* Voronoi site finder (Hanmei Tang)
+* Some bug fixes for Gaussian (Marco Esters)
+* Misc improvements.

@@ -4,7 +4,10 @@
 
 from __future__ import division
 
+<<<<<<< HEAD
 import warnings
+=======
+>>>>>>> master
 import numpy as np
 import matplotlib.pylab as plt
 
@@ -44,6 +47,7 @@ class InterfacialReactivity:
             not a GrandPotentialPhaseDiagram object, this param is False.
         pd_non_grand (PhaseDiagram): PhaseDiagram object but not
             GrandPotentialPhaseDiagram object built from elements in c1 and c2.
+<<<<<<< HEAD
         use_hull_energy (bool): Whether or not use the convex hull energy for
             a given composition for reaction energy calculation. If false, the
             energy of ground state structure will be used instead. Note that
@@ -53,6 +57,12 @@ class InterfacialReactivity:
 
     def __init__(self, c1, c2, pd, norm=True, include_no_mixing_energy=False,
                  pd_non_grand=None, use_hull_energy=False):
+=======
+    """
+
+    def __init__(self, c1, c2, pd, norm=True, include_no_mixing_energy=False,
+                 pd_non_grand=None):
+>>>>>>> master
         self.grand = isinstance(pd, GrandPotentialPhaseDiagram)
 
         # if include_no_mixing_energy is True, pd should be a
@@ -79,8 +89,11 @@ class InterfacialReactivity:
         if pd_non_grand:
             self.pd_non_grand = pd_non_grand
 
+<<<<<<< HEAD
         self.use_hull_energy = use_hull_energy
 
+=======
+>>>>>>> master
         # Factor is the compositional ratio between composition self.c1 and
         # processed composition self.comp1. E.g., factor for
         # Composition('SiO2') and Composition('O') is 2.0. This factor will
@@ -133,8 +146,12 @@ class InterfacialReactivity:
     def _get_entry_energy(self, pd, composition):
         """
         Finds the lowest entry energy for entries matching the composition.
+<<<<<<< HEAD
         Entries with non-negative formation energies are excluded. If no
         entry is found, use the convex hull energy for the composition.
+=======
+        Entries with non-negative formation energies are excluded.
+>>>>>>> master
 
         Args:
             pd (PhaseDiagram): PhaseDiagram object.
@@ -147,6 +164,7 @@ class InterfacialReactivity:
         candidate = [i.energy_per_atom for i in pd.qhull_entries if
                      i.composition.fractional_composition ==
                      composition.fractional_composition]
+<<<<<<< HEAD
 
         if not candidate:
             warnings.warn("The reactant " + composition.reduced_formula +
@@ -158,6 +176,13 @@ class InterfacialReactivity:
         else:
             min_entry_energy = min(candidate)
             return min_entry_energy * composition.num_atoms
+=======
+        assert candidate != [], 'The reactant {} has no matching entry with ' \
+                                'negative formation energy!'.format(
+                                    composition.reduced_formula)
+        min_entry_energy = min(candidate)
+        return min_entry_energy * composition.num_atoms
+>>>>>>> master
 
     def _get_grand_potential(self, composition):
         """

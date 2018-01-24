@@ -7,8 +7,10 @@ from __future__ import unicode_literals
 import unittest
 import os
 import json
-from pymatgen.electronic_structure.bandstructure import  BandStructure
-from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer, BoltztrapRunner
+import warnings
+from pymatgen.electronic_structure.bandstructure import BandStructure
+from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer, \
+    BoltztrapRunner
 from pymatgen.electronic_structure.core import Spin, OrbitalType
 from monty.serialization import loadfn
 from monty.os.path import which
@@ -44,10 +46,15 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.bz_fermi = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/fermi/"))
 
-        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"), "rt") as f:
+        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"),
+                  "rt") as f:
             d = json.load(f)
             self.bs = BandStructure.from_dict(d)
             self.btr = BoltztrapRunner(self.bs, 1)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_properties(self):
         self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)
@@ -105,39 +112,48 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
     def test_get_seebeck_eff_mass(self):
         ref = [1.956090529381193, 2.0339311618566343, 1.1529383757896965]
         ref2 = [4258.4072823354145, 4597.0351887125289, 4238.1262696392705]
-        sbk_mass_tens_mu = self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=False, 
-                                         temp=300)[3]
-        sbk_mass_tens_dop = self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=True,
-                                         temp=300)['n'][2]
-        sbk_mass_avg_mu = self.bz.get_seebeck_eff_mass(output='average', doping_levels=False, 
-                                         temp=300)[3]
-        sbk_mass_avg_dop = self.bz.get_seebeck_eff_mass(output='average', doping_levels=True,
-                                         temp=300)['n'][2]
-        
+        sbk_mass_tens_mu = \
+        self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=False,
+                                     temp=300)[3]
+        sbk_mass_tens_dop = \
+        self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=True,
+                                     temp=300)['n'][2]
+        sbk_mass_avg_mu = \
+        self.bz.get_seebeck_eff_mass(output='average', doping_levels=False,
+                                     temp=300)[3]
+        sbk_mass_avg_dop = \
+        self.bz.get_seebeck_eff_mass(output='average', doping_levels=True,
+                                     temp=300)['n'][2]
+
         for i in range(0, 3):
             self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 1)
             self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i], 4)
-        
+
         self.assertAlmostEqual(sbk_mass_avg_mu, 4361.4744008038842, 1)
         self.assertAlmostEqual(sbk_mass_avg_dop, 1.661553842105382, 4)
 
     @unittest.skipIf(not fdint, "No FDINT")
     def test_get_complexity_factor(self):
         ref = [2.7658776815227828, 2.9826088215568403, 0.28881335881640308]
-        ref2 = [0.0112022048620205, 0.0036001049607186602, 0.0083028947173193028]
-        sbk_mass_tens_mu = self.bz.get_complexity_factor(output='tensor', doping_levels=False, 
-                                         temp=300)[3]
-        sbk_mass_tens_dop = self.bz.get_complexity_factor(output='tensor', doping_levels=True,
-                                         temp=300)['n'][2]
-        sbk_mass_avg_mu = self.bz.get_complexity_factor(output='average', doping_levels=False, 
-                                         temp=300)[3]
-        sbk_mass_avg_dop = self.bz.get_complexity_factor(output='average', doping_levels=True,
-                                         temp=300)['n'][2]
-        
+        ref2 = [0.0112022048620205, 0.0036001049607186602,
+                0.0083028947173193028]
+        sbk_mass_tens_mu = \
+        self.bz.get_complexity_factor(output='tensor', doping_levels=False,
+                                      temp=300)[3]
+        sbk_mass_tens_dop = \
+        self.bz.get_complexity_factor(output='tensor', doping_levels=True,
+                                      temp=300)['n'][2]
+        sbk_mass_avg_mu = \
+        self.bz.get_complexity_factor(output='average', doping_levels=False,
+                                      temp=300)[3]
+        sbk_mass_avg_dop = \
+        self.bz.get_complexity_factor(output='average', doping_levels=True,
+                                      temp=300)['n'][2]
+
         for i in range(0, 3):
             self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 4)
             self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i], 4)
-        
+
         self.assertAlmostEqual(sbk_mass_avg_mu, 0.00628677029221, 4)
         self.assertAlmostEqual(sbk_mass_avg_dop, 1.12322832119, 4)
 

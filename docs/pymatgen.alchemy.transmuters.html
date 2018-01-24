@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.alchemy.transmuters module &#8212; pymatgen 2017.8.14 documentation</title>
+    <title>pymatgen.alchemy.transmuters module &#8212; pymatgen 2018.1.19 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.8.14',
+        VERSION:     '2018.1.19',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.19 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -351,19 +351,7 @@ output_dir, following the format output_dir/{formula}_{number}.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vasp_input_set</strong> – pymatgen.io.vaspio_set.VaspInputSet to create
-vasp input files from structures</li>
-<li><strong>output_dir</strong> – Directory to output files</li>
-<li><strong>create_directory</strong> (<em>bool</em>) – Create the directory if not present.
-Defaults to True.</li>
-<li><strong>subfolder</strong> – Callable to create subdirectory name from
-transformed_structure. e.g.,
-lambda x: x.other_parameters[“tags”][0] to use the first tag.</li>
-<li><strong>include_cif</strong> (<em>bool</em>) – Whether to output a CIF as well. CIF files
-are generally better supported in visualization programs.</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> – All kwargs supported by batch_write_vasp_input.</td>
 </tr>
 </tbody>
 </table>
@@ -439,13 +427,13 @@ programs.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.19 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

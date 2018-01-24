@@ -22,7 +22,7 @@ from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from monty.json import MSONable
-from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
+from pymatgen.util.serialization import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_extensions
 
 
@@ -461,6 +461,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     S_ABICRITICAL = Status.from_string("AbiCritical")
     S_QCRITICAL = Status.from_string("QCritical")
     S_UNCONVERGED = Status.from_string("Unconverged")
+    #S_CANCELLED = Status.from_string("Cancelled")
     S_ERROR = Status.from_string("Error")
     S_OK = Status.from_string("Completed")
 
@@ -474,6 +475,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         S_ABICRITICAL,
         S_QCRITICAL,
         S_UNCONVERGED,
+        #S_CANCELLED,
         S_ERROR,
         S_OK,
     ]
@@ -516,7 +518,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         try:
             return "<%s, node_id=%s, workdir=%s>" % (
                 self.__class__.__name__, self.node_id, self.relworkdir)
-
         except AttributeError:
             # this usually happens when workdir has not been initialized
             return "<%s, node_id=%s, workdir=None>" % (self.__class__.__name__, self.node_id)
@@ -525,6 +526,20 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     #    if self.in_spectator_mode:
     #        raise RuntimeError("You should not call __setattr__ in spectator_mode")
     #    return super(Node, self).__setattr__(name,value)
+
+    def isinstance(self, class_or_string):
+        """
+        Check whether the node is a instance of `class_or_string`.
+        Unlinke the standard isinstance builtin, the method accepts either a class or a string.
+        In the later case, the string is compared with self.__class__.__name__ (case insensitive).
+        """
+        if class_or_string is None:
+            return False
+        import inspect
+        if inspect.isclass(class_or_string):
+            return isinstance(self, class_or_string)
+        else:
+            return self.__class__.__name__.lower() == class_or_string.lower()
 
     @classmethod
     def as_node(cls, obj):
