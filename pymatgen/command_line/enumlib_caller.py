@@ -143,7 +143,6 @@ class EnumlibAdaptor(object):
             else:
                 raise EnumError("Unable to enumerate structure.")
 
-
     def _gen_input_file(self):
         """
         Generate the necessary struct_enum.in file for enumlib. See enumlib
@@ -213,7 +212,7 @@ class EnumlibAdaptor(object):
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         sgnum = get_sg_info(curr_sites)
         ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
-        logger.debug("Disordered sites has sgnum %d" % (sgnum))
+        logger.debug("Disordered sites has sg # %d" % (sgnum))
         self.ordered_sites = []
 
         if self.check_ordered_symmetry:
@@ -222,14 +221,11 @@ class EnumlibAdaptor(object):
                 temp_sites = list(curr_sites) + sites
                 new_sgnum = get_sg_info(temp_sites)
                 if sgnum != new_sgnum:
-                    logger.debug("Adding {} to sites to be ordered. "
-                                 "New sgnum {}"
-                                 .format(sites, new_sgnum))
+                    logger.debug("Adding %s in enum. New sg # %d"
+                                 % (sites[0].specie, new_sgnum))
                     index_species.append(sites[0].specie)
                     index_amounts.append(len(sites))
                     sp_label = len(index_species) - 1
-                    logger.debug(
-                        "{} sites are included in enum.".format(sites[0].specie))
                     for site in sites:
                         coord_str.append("{} {}".format(
                             coord_format.format(*site.coords),
@@ -252,8 +248,8 @@ class EnumlibAdaptor(object):
         output = [self.structure.formula, "bulk"]
         for vec in lattice.matrix:
             output.append(coord_format.format(*vec))
-        output.append("{}".format(len(index_species)))
-        output.append("{}".format(len(coord_str)))
+        output.append("%d" % len(index_species))
+        output.append("%d" % len(coord_str))
         output.extend(coord_str)
 
         output.append("{} {}".format(self.min_cell_size, self.max_cell_size))

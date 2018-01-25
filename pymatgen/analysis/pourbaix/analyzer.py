@@ -8,10 +8,10 @@ import numpy as np
 
 from pymatgen.util.coord import Simplex
 from functools import cmp_to_key
-from pyhull.halfspace import Halfspace, HalfspaceIntersection
-from pyhull.convex_hull import ConvexHull
+from scipy.spatial import HalfspaceIntersection, ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry
 from six.moves import zip
+import warnings
 
 """
 Class for analyzing Pourbaix Diagrams. Similar to PDAnalyzer
@@ -69,16 +69,23 @@ class PourbaixAnalyzer(object):
         """
         Returns a chemical potential range map for each stable entry.
 
+        This function works by using scipy's HalfspaceIntersection
+        function to construct all of the 2-D polygons that form the
+        boundaries of the planes corresponding to individual entry
+        gibbs free energies as a function of pH and V. Hyperplanes
+        of the form a*pH + b*V + 1 - g(0, 0) are constructed and
+        supplied to HalfspaceIntersection, which then finds the
+        boundaries of each pourbaix region using the intersection
+        points.
+
         Args:
-            elements: Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges of
-                all Li-Co-O phases wrt to uLi and uO, you will supply
-                [Element("Li"), Element("O")]
+            limits ([[float]]): limits in which to do the pourbaix
+                analysis
 
         Returns:
-            Returns a dict of the form {entry: [simplices]}. The list of
-            simplices are the sides of the N-1 dim polytope bounding the
-            allowable chemical potential range of each entry.
+            Returns a dict of the form {entry: [boundary_points]}. 
+            The list of boundary points are the sides of the N-1 
+            dim polytope bounding the allowable ph-V range of each entry.
         """
         tol = PourbaixAnalyzer.numerical_tol
         all_chempots = []
@@ -90,81 +97,64 @@ class PourbaixAnalyzer(object):
             chempots["1"] = chempots["1"]
             all_chempots.append([chempots[el] for el in self._keys])
 
-        basis_vecs = []
-        on_plane_points = []
-        # Create basis vectors
-        for entry in self._pd.stable_entries:
-            ie = self._pd.qhull_entries.index(entry)
-            row = self._pd._qhull_data[ie]
-            on_plane_points.append([0, 0, row[2]])
-            this_basis_vecs = []
-            norm_vec = [-0.0591 * row[0], -1 * row[1], 1]
-            if abs(norm_vec[0]) > tol:
-                this_basis_vecs.append([-norm_vec[2]/norm_vec[0], 0, 1])
-            if abs(norm_vec[1]) > tol:
-                this_basis_vecs.append([0, -norm_vec[2]/norm_vec[1], 1])
-            if len(this_basis_vecs) == 0:
-                basis_vecs.append([[1, 0, 0], [0, 1, 0]])
-            elif len(this_basis_vecs) == 1:
-                if abs(this_basis_vecs[0][0]) < tol:
-                    this_basis_vecs.append([1, 0, 0])
-                else:
-                    this_basis_vecs.append([0, 1, 0])
-                basis_vecs.append(this_basis_vecs)
-            else:
-                basis_vecs.append(this_basis_vecs)
+        # Get hyperplanes corresponding to G as function of pH and V
+        halfspaces = []
+        qhull_data = np.array(self._pd._qhull_data)
+        stable_entries = self._pd.stable_entries
+        stable_indices = [self._pd.qhull_entries.index(e)
+                          for e in stable_entries]
+        qhull_data = np.array(self._pd._qhull_data)
+        hyperplanes = np.vstack([-0.0591 * qhull_data[:, 0], -qhull_data[:, 1],
+                                 np.ones(len(qhull_data)), -qhull_data[:, 2]])
+        hyperplanes = np.transpose(hyperplanes)
+        max_contribs = np.max(np.abs(hyperplanes), axis=0)
+        g_max = np.dot(-max_contribs, [limits[0][1], limits[1][1], 0, 1])
 
-        # Find point in half-space in which optimization is desired
-        ph_max_contrib = -1 * max([abs(0.0591 * row[0])
-                                    for row in self._pd._qhull_data]) * limits[0][1]
-        V_max_contrib = -1 * max([abs(row[1]) for row in self._pd._qhull_data]) * limits[1][1]
-        g_max = (-1 * max([abs(pt[2]) for pt in on_plane_points])
-                  + ph_max_contrib + V_max_contrib) - 10
-        point_in_region = [7, 0, g_max]
+        # Add border hyperplanes and generate HalfspaceIntersection
+        border_hyperplanes = [[-1, 0, 0, limits[0][0]],
+                              [1, 0, 0, -limits[0][1]],
+                              [0, -1, 0, limits[1][0]],
+                              [0, 1, 0, -limits[1][1]],
+                              [0, 0, -1, 2 * g_max]]
+        hs_hyperplanes = np.vstack([hyperplanes[stable_indices],
+                                    border_hyperplanes])
+        interior_point = np.average(limits, axis=1).tolist() + [g_max]
+        hs_int = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
 
-        # Append border hyperplanes along limits
-        for i in range(len(limits)):
-            for j in range(len(limits[i])):
-                basis_vec_1 = [0.0] * 3
-                basis_vec_2 = [0.0] * 3
-                point = [0.0] * 3
-                basis_vec_1[2] = 1.0
-                basis_vec_2[2] = 0.0
-                for axis in range(len(limits)):
-                    if axis is not i:
-                        basis_vec_1[axis] = 0.0
-                        basis_vec_2[axis] = 1.0
-                basis_vecs.append([basis_vec_1, basis_vec_2])
-                point[i] = limits[i][j]
-                on_plane_points.append(point)
+        # organize the boundary points by entry
+        pourbaix_domains = {entry: [] for entry in stable_entries}
+        for intersection, facet in zip(hs_int.intersections, 
+                                       hs_int.dual_facets):
+            for v in facet:
+                if v < len(stable_entries):
+                    pourbaix_domains[stable_entries[v]].append(intersection)
 
-        # Hyperplane enclosing the very bottom
-        basis_vecs.append([[1, 0, 0], [0, 1, 0]])
-        on_plane_points.append([0, 0, 2 * g_max])
-        hyperplane_list = [Halfspace.from_hyperplane(basis_vecs[i], on_plane_points[i], point_in_region)
-                            for i in range(len(basis_vecs))]
-        hs_int = HalfspaceIntersection(hyperplane_list, point_in_region)
-        int_points = hs_int.vertices
-        pourbaix_domains = {}
-        self.pourbaix_domain_vertices = {}
+        # Remove entries with no pourbaix region
+        pourbaix_domains = {k: v for k, v in pourbaix_domains.items() if v}
+        pourbaix_domain_vertices = {}
 
-        for i in range(len(self._pd.stable_entries)):
-            vertices = [[int_points[vert][0], int_points[vert][1]] for vert in
-                         hs_int.facets_by_halfspace[i]]
-            if len(vertices) < 1:
-                continue
-            pourbaix_domains[self._pd.stable_entries[i]] = ConvexHull(vertices).simplices
+        for entry, points in pourbaix_domains.items():
+            points = np.array(points)[:, :2]
+            # Initial sort to ensure consistency
+            points = points[np.lexsort(np.transpose(points))]
+            center = np.average(points, axis=0)
+            points_centered = points - center
 
-            # Need to order vertices for highcharts area plot
-            cx = sum([vert[0] for vert in vertices]) / len(vertices)
-            cy = sum([vert[1] for vert in vertices]) / len(vertices)
-            point_comp = lambda x, y: x[0]*y[1] - x[1]*y[0]
-            vert_center = [[v[0] - cx, v[1] - cy] for v in vertices]
-            vert_center.sort(key=cmp_to_key(point_comp))
-            self.pourbaix_domain_vertices[self._pd.stable_entries[i]] =\
-             [[v[0] + cx, v[1] + cy] for v in vert_center]
+            # Sort points by cross product of centered points,
+            # isn't strictly necessary but useful for plotting tools
+            point_comparator = lambda x, y: x[0]*y[1] - x[1]*y[0]
+            points_centered = sorted(points_centered,
+                                     key=cmp_to_key(point_comparator))
+            points = points_centered + center
+
+            # Create simplices corresponding to pourbaix boundary
+            simplices = [Simplex(points[indices]) 
+                         for indices in ConvexHull(points).simplices]
+            pourbaix_domains[entry] = simplices
+            pourbaix_domain_vertices[entry] = points
 
         self.pourbaix_domains = pourbaix_domains
+        self.pourbaix_domain_vertices = pourbaix_domain_vertices
         return pourbaix_domains
 
     def _in_facet(self, facet, entry):
@@ -252,13 +242,13 @@ class PourbaixAnalyzer(object):
         decomp_entries, hull_energies, decomp_species, entries = [], [], [], []
 
         # for all entries where the material is the only solid
-        if not isinstance(self._pd.all_entries[0], MultiEntry):
+        if not self._pd._multielement:
            possible_entries = [e for e in self._pd.all_entries
-                             if single_entry == e]
+                               if single_entry == e]
         else:
            possible_entries = [e for e in self._pd.all_entries
-                         if e.phases.count("Solid") == 1
-                         and single_entry in e.entrylist]
+                               if e.phases.count("Solid") == 1
+                               and single_entry in e.entrylist]
         
         for possible_entry in possible_entries:
             # Find the decomposition details if the material
@@ -334,6 +324,7 @@ class PourbaixAnalyzer(object):
         """
         return self.get_decomp_and_e_above_hull(entry)[1]
 
+    # TODO: we might want to rename this, still a bit ambiguous
     def get_gibbs_free_energy(self, pH, V):
         """
         Provides the gibbs free energy of the Pourbaix stable entry
@@ -352,6 +343,38 @@ class PourbaixAnalyzer(object):
             data.update({entry.name: self.g(entry, pH, V)})
         gibbs_energy = min(data.values())
         stable_entry = [k for k, v in data.items() if v == gibbs_energy]
-
         return (gibbs_energy, stable_entry)
 
+    def _min_multientry_from_single_entry(self, single_entry):
+        """
+        Gives lowest energy multi-entry from single entry
+
+        Args:
+            single_entry (PourbaixEntry): pourbaix entry to find valid
+                multientries from
+        """
+        de, ehulls, entries = self.get_all_decomp_and_e_above_hull(single_entry)
+        if not ehulls:
+            raise ValueError("No entries where {} is the only solid".format(
+                             single_entry.name))
+        return entries[np.argmin(ehulls)]
+
+    def get_entry_stability(self, entry, pH, V):
+        """
+        Get the energy difference between an entry and the
+        most stable decomposition product (i.e. the pourbaix-stable
+        entry) at a given pH and voltage.
+
+        Args:
+            entry (PourbaixEntry): Pourbaix entry or MultiEntry
+                corresponding to the stability to be calculated
+            pH (float): pH at which to calculate stability of entry
+            V (float): voltage at which to calculate stability of entry
+        """
+        if self._pd._multielement and not isinstance(entry, MultiEntry):
+            _, _, entries = self.get_all_decomp_and_e_above_hull(entry)
+            warnings.warn("{} is not a multi-entry, calculating stability of "
+                          "representative {} multientry")
+            gs = [self.g(e, pH, V) for e in entries]
+            return min(gs) - self.get_gibbs_free_energy(pH, V)[0]
+        return self.g(entry, pH, V) - self.get_gibbs_free_energy(pH, V)[0]

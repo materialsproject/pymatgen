@@ -7,7 +7,7 @@ import scipy
 from io import open
 
 from pymatgen.phonon.dos import CompletePhononDos
-from pymatgen.phonon.plotter import PhononDosPlotter, PhononBSPlotter
+from pymatgen.phonon.plotter import PhononDosPlotter, PhononBSPlotter, ThermoPlotter
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 
 
@@ -37,6 +37,13 @@ class PhononDosPlotterTest(unittest.TestCase):
         for el in ["Na", "Cl"]:
             self.assertIn(el, d)
 
+    def test_plot(self):
+        # Disabling latex for testing.
+        from matplotlib import rc
+        rc('text', usetex=False)
+        self.plotter.add_dos("Total", self.dos)
+        self.plotter.get_plot(units="mev")
+
 
 class PhononBSPlotterTest(unittest.TestCase):
 
@@ -58,6 +65,30 @@ class PhononBSPlotterTest(unittest.TestCase):
                          "wrong tick label")
         self.assertEqual(len(self.plotter.bs_plot_data()['ticks']['label']),
                          8, "wrong number of tick labels")
+
+    def test_plot(self):
+        # Disabling latex for testing.
+        from matplotlib import rc
+        rc('text', usetex=False)
+        self.plotter.get_plot(units="mev")
+
+
+class ThermoPlotterTest(unittest.TestCase):
+
+    def setUp(self):
+        with open(os.path.join(test_dir, "NaCl_complete_ph_dos.json"), "r") as f:
+            self.dos = CompletePhononDos.from_dict(json.load(f))
+            self.plotter = ThermoPlotter(self.dos, self.dos.structure)
+
+    def test_plot_functions(self):
+        # Disabling latex for testing.
+        from matplotlib import rc
+        rc('text', usetex=False)
+        self.plotter.plot_cv(5, 100, 5, show=False)
+        self.plotter.plot_entropy(5, 100, 5, show=False)
+        self.plotter.plot_internal_energy(5, 100, 5, show=False)
+        self.plotter.plot_helmholtz_free_energy(5, 100, 5, show=False)
+        self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False)
 
 
 if __name__ == "__main__":

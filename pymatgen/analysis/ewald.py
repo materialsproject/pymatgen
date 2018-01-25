@@ -11,9 +11,7 @@ from warnings import warn
 import bisect
 
 import numpy as np
-from scipy.special import erfc
-from scipy.misc import comb
-
+from scipy.special import erfc, comb
 import scipy.constants as constants
 
 """
@@ -113,6 +111,10 @@ class EwaldSummation(object):
             self._calc_real_and_point()
         if self._compute_forces:
             self._forces = recip_forces + real_point_forces
+
+        # Compute the correction for a charged cell
+        self._charged_cell_energy = - EwaldSummation.CONV_FACT / 2 * np.pi / \
+                                    structure.volume / self._eta * structure.charge ** 2
 
     def compute_partial_energy(self, removed_indices):
         """
@@ -223,17 +225,16 @@ class EwaldSummation(object):
         """
         The total energy.
         """
-        if self._charged:
-            warn('Charged structures not supported in EwaldSummation, but '
-                 'charged input structures can be used for '
-                 'EwaldSummation.compute_sub_structure')
-        return sum(sum(self._recip)) + sum(sum(self._real)) + sum(self._point)
+        return sum(sum(self._recip)) + sum(sum(self._real)) + sum(self._point) + self._charged_cell_energy
 
     @property
     def total_energy_matrix(self):
         """
         The total energy matrix. Each matrix element (i, j) corresponds to the
         total interaction energy between site i and site j.
+
+        Note that this does not include the charged-cell energy, which is only important
+        when the simulation cell is not charge balanced.
         """
         totalenergy = self._recip + self._real
         for i in range(len(self._point)):
@@ -250,6 +251,18 @@ class EwaldSummation(object):
             raise AttributeError(
                 "Forces are available only if compute_forces is True!")
         return self._forces
+        
+    def get_site_energy(self, site_index):
+        """Compute the energy for a single site in the structure
+        
+        Args:
+            site_index (int): Index of site
+        ReturnS:
+            (float) - Energy of that site"""
+        if self._charged:
+            warn('Per atom energies for charged structures not supported in EwaldSummation')
+        return np.sum(self._recip[:,site_index]) + np.sum(self._real[:,site_index]) \
+            + self._point[site_index]
 
     def _calc_recip(self):
         """
@@ -311,8 +324,6 @@ class EwaldSummation(object):
     def _calc_real_and_point(self):
         """
         Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2
-
-        If cell is charged a compensating background is added (i.e. a G=0 term)
         """
         fcoords = self._s.frac_coords
         forcepf = 2.0 * self._sqrt_eta / sqrt(pi)

@@ -91,7 +91,7 @@ class PymatgenTest(unittest.TestCase):
         """
         # Use the python version so that we get the traceback in case of errors
         import pickle as pickle
-        from pymatgen.serializers.pickle_coders import pmg_pickle_load, \
+        from pymatgen.util.serialization import pmg_pickle_load, \
             pmg_pickle_dump
 
         # Build a list even when we receive a single object.
@@ -163,7 +163,7 @@ class PymatgenTest(unittest.TestCase):
         Tests if obj is MSONable and tries to verify whether the contract is
         fulfilled.
 
-        By default, the method tests whether obj is an instance of MSONable. 
+        By default, the method tests whether obj is an instance of MSONable.
         This check can be deactivated by setting test_if_subclass to False.
         """
         if test_if_subclass:

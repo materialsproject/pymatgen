@@ -237,6 +237,10 @@ class ElasticTensorExpansionTest(PymatgenTest):
         self.exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
         cu_c4 = Tensor.from_voigt(self.data_dict["Cu_fourth_order"])
         self.exp_cu_4 = ElasticTensorExpansion([cu_c2, cu_c3, cu_c4])
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_init(self):
         cijkl = Tensor.from_voigt(self.c2)

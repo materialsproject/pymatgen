@@ -17,9 +17,8 @@ import pandas as pd
 from ruamel.yaml import YAML
 from pymatgen import Molecule, Element, Lattice, Structure
 
-from pymatgen.io.lammps.data import LammpsData, Topology, ForceField,\
+from pymatgen.io.lammps.data import LammpsData, Topology, ForceField, \
     structure_2_lmpdata
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
@@ -39,6 +38,22 @@ class LammpsDataTest(unittest.TestCase):
         cls.virus = LammpsData.\
             from_file(filename=os.path.join(test_dir, "virus.data"),
                       atom_style="angle")
+
+    def test_structure(self):
+        quartz_box = self.quartz.structure
+        np.testing.assert_array_equal(quartz_box.lattice.matrix,
+                                      [[4.913400, 0, 0],
+                                       [-2.456700, 4.255129, 0],
+                                       [0, 0, 5.405200]])
+        self.assertEqual(quartz_box.formula, "Si3 O6")
+        self.assertNotIn("molecule-ID", self.quartz.atoms.columns)
+
+        ethane_box = self.ethane.structure
+        np.testing.assert_array_equal(ethane_box.lattice.matrix,
+                                      np.diag([10.0] * 3))
+        box_lbounds = np.array(self.ethane.box_bounds)[:, 0]
+        coords = self.ethane.atoms[["x", "y", "z"]].values - box_lbounds
+        np.testing.assert_array_equal(ethane_box.cart_coords, coords)
 
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
@@ -620,10 +635,8 @@ class FuncTest(unittest.TestCase):
                  + np.random.rand(3, 3) * 0.2 - 0.1
         latt = Lattice(matrix)
         frac_coords = np.random.rand(10, 3)
-        random_structure = Structure(latt, ["H"] * 10, frac_coords)
-        oxi_states = np.random.rand(10) - 0.5
-        random_structure.add_oxidation_state_by_site(oxi_states)
-        ld = structure_2_lmpdata(random_structure)
+        structure = Structure(latt, ["H"] * 10, frac_coords)
+        ld = structure_2_lmpdata(structure=structure)
         box_tilt = [0.0, 0.0, 0.0] if not ld.box_tilt else ld.box_tilt
         box_bounds = np.array(ld.box_bounds)
         np.testing.assert_array_equal(box_bounds[:, 0], np.zeros(3))
@@ -640,6 +653,12 @@ class FuncTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(new_structure.frac_coords,
                                              frac_coords)
         self.assertEqual(len(ld.masses), 1)
+        # test additional elements
+        ld_elements = structure_2_lmpdata(structure=structure,
+                                          ff_elements=["C", "H"])
+        self.assertEqual(len(ld_elements.masses), 2)
+        np.testing.assert_array_almost_equal(ld_elements.masses["mass"],
+                                             [1.00794, 12.01070])
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,9 +17,9 @@ install:
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
-  - python setup.py develop
+  - python setup.py --quiet develop
 # command to run tests, e.g. python setup.py test
-script: travis_wait 3600 "nosetests -v pymatgen"
+script: travis_wait 7200 "nosetests -v pymatgen"
 notifications:
   email:
     recipients:

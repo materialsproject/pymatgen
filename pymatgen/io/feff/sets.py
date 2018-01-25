@@ -172,7 +172,8 @@ class FEFFDictSet(AbstractFeffInputSet):
             del self.config_dict["_del"]
         # k-space feff only for small systems. The hardcoded system size in
         # feff is around 14 atoms.
-        self.small_system = True if len(self.structure) < 14 else False
+        self.small_system = True if (len(self.structure) < 14 and \
+                                     'EXAFS' not in self.config_dict) else False
 
     def header(self, source='', comment=''):
         """
@@ -209,7 +210,8 @@ class FEFFDictSet(AbstractFeffInputSet):
                     mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
                     self.config_dict["KMESH"] = [int(round(mult / l)) for l in abc]
             else:
-                logger.warning("Large system(>=14 atoms), removing K-space settings")
+                logger.warning("Large system(>=14 atoms) or EXAFS calculation, \
+                                removing K-space settings")
                 del self.config_dict["RECIPROCAL"]
                 self.config_dict.pop("CIF", None)
                 self.config_dict.pop("TARGET", None)
@@ -284,9 +286,10 @@ class FEFFDictSet(AbstractFeffInputSet):
                                        radius=radius)
                     site_distance = np.array(site_atoms.get_lines())[:, 5].astype(np.float64)
                     site_shell_species = np.array(site_atoms.get_lines())[:, 4]
+                    shell_overlap = min(shell_species.shape[0], site_shell_species.shape[0])
 
-                    if np.allclose(distance_matrix, site_distance) and \
-                            np.all(site_shell_species == shell_species):
+                    if np.allclose(distance_matrix[:shell_overlap], site_distance[:shell_overlap]) and \
+                            np.all(site_shell_species[:shell_overlap] == shell_species[:shell_overlap]):
                         absorber_index.append(site_index)
 
         if "RECIPROCAL" in sub_d["parameters"]:

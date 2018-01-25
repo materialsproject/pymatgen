@@ -8,11 +8,13 @@ import unittest
 import os
 import json
 from io import open
+import warnings
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import (BandStructureSymmLine,
+                                                         get_reconstructed_band_structure)
 from pymatgen.util.testing import PymatgenTest
 
 from monty.serialization import loadfn
@@ -50,6 +52,10 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.bs_cbm0 = loadfn(os.path.join(test_dir, "InN_22205_bandstructure.json"))
         self.bs_cu = loadfn(os.path.join(test_dir, "Cu_30_bandstructure.json"))
         self.bs_diff_spins = loadfn(os.path.join(test_dir, "VBr2_971787_bandstructure.json"))
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_basic(self):
         self.assertArrayAlmostEqual(self.bs.projections[Spin.up][10][12][0],
@@ -176,10 +182,10 @@ class BandStructureSymmLine_test(PymatgenTest):
         bs = self.bs2
         cbm_k = bs.get_cbm()['kpoint'].frac_coords
         vbm_k = bs.get_vbm()['kpoint'].frac_coords
-        self.assertEquals(bs.get_kpoint_degeneracy(cbm_k), None)
+        self.assertEqual(bs.get_kpoint_degeneracy(cbm_k), None)
         bs.structure = loadfn(os.path.join(test_dir, "CaO_2605_structure.json"))
-        self.assertEquals(bs.get_kpoint_degeneracy(cbm_k), 3)
-        self.assertEquals(bs.get_kpoint_degeneracy(vbm_k), 1)
+        self.assertEqual(bs.get_kpoint_degeneracy(cbm_k), 3)
+        self.assertEqual(bs.get_kpoint_degeneracy(vbm_k), 1)
         cbm_eqs = bs.get_sym_eq_kpoints(cbm_k)
         self.assertTrue([0.5, 0., 0.5] in cbm_eqs)
         self.assertTrue([0., 0.5, 0.5] in cbm_eqs)
@@ -202,6 +208,20 @@ class BandStructureSymmLine_test(PymatgenTest):
             bs_old = BandStructureSymmLine.from_dict(d)
             self.assertEqual(bs_old.get_projection_on_elements()[
                                  Spin.up][0][0]['Zn'], 0.0971)
+
+class ReconstructBandStructureTest(PymatgenTest):
+
+    def setUp(self):
+        self.bs_cu = loadfn(os.path.join(test_dir, "Cu_30_bandstructure.json"))
+        self.bs_cu2 = loadfn(os.path.join(test_dir, "Cu_30_bandstructure.json"))
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_reconstruct_band_structure(self):
+        bs = get_reconstructed_band_structure([self.bs_cu, self.bs_cu2])
+        self.assertEqual(bs.bands[Spin.up].shape, (20, 700), "wrong number of bands or kpoints")
 
 if __name__ == '__main__':
     unittest.main()

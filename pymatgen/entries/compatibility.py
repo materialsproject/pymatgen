@@ -252,7 +252,7 @@ class AnionCorrection(Correction):
                                       comp["O"]
                 else:
                     warnings.warn(
-                        "No structure or oxide_type parameter present. Note"
+                        "No structure or oxide_type parameter present. Note "
                         "that peroxide/superoxide corrections are not as "
                         "reliable and relies only on detection of special"
                         "formulas, e.g., Li2O2.")
