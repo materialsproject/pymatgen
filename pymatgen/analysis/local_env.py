@@ -94,7 +94,7 @@ class ValenceIonicRadiusEvaluator(object):
         If valence is zero, atomic radius is used.
         """
         radii = []
-        vnn = VoronoiNN() # self._structure)
+        vnn = VoronoiNN()
 
         def nearest_key(sorted_vals, key):
             i = bisect_left(sorted_vals, key)
@@ -999,8 +999,8 @@ class LocalStructOrderParas(object):
                 neighbors are supposed to contribute to the order
                 parameters. If the value is negative the neighboring
                 sites found by distance and cutoff radius are further
-                pruned using the get_coordinated_sites method from the
-                VoronoiCoordFinder class.
+                pruned using the get_nn method from the
+                VoronoiNN class.
         """
         for t in types:
             if t not in LocalStructOrderParas.__supported_types:
@@ -1582,13 +1582,13 @@ class LocalStructOrderParas(object):
 
         # Find central site and its neighbors.
         # Note that we adopt the same way of accessing sites here as in
-        # VoronoiCoordFinder; that is, not via the sites iterator.
+        # VoronoiNN; that is, not via the sites iterator.
         centsite = structure[n]
         if indices_neighs is not None:
             neighsites = [structure[index] for index in indices_neighs]
         elif self._voroneigh:
-            vorocf = VoronoiCoordFinder(structure)
-            neighsites = vorocf.get_coordinated_sites(n, tol, target_spec)
+            vnn = VoronoiNN(tol=tol, targets=target_spec)
+            neighsites = vnn.get_nn(structure, n)
         else:
             # Structure.get_sites_in_sphere --> also other periodic images
             neighsitestmp = [i[0] for i in structure.get_sites_in_sphere(
