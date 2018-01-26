@@ -1,3 +1,9 @@
+"""
+Pyinvoke tasks.py file for automating releases and admin stuff.
+Author: Shyue Ping Ong
+"""
+
+
 from invoke import task
 import glob
 import os
@@ -12,11 +18,6 @@ from monty.os import cd
 from pymatgen import __version__ as CURRENT_VER
 
 NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
-
-
-"""
-pyinvoke tasks.py file for automating releases.
-"""
 
 
 @task
