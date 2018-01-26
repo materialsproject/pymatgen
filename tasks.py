@@ -14,6 +14,11 @@ from pymatgen import __version__ as CURRENT_VER
 NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
 
 
+"""
+pyinvoke tasks.py file for automating releases.
+"""
+
+
 @task
 def make_doc(ctx):
     with open("CHANGES.rst") as f:
