@@ -6,7 +6,6 @@ from __future__ import division
 
 import warnings
 import numpy as np
-import matplotlib.pylab as plt
 
 from pymatgen import Composition
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram
@@ -344,6 +343,7 @@ class InterfacialReactivity:
             Pylab object that plots reaction energy as a function of
             mixing ratio x.
         """
+        import matplotlib.pylab as plt
         plt.rcParams['xtick.major.pad'] = '6'
         plt.rcParams['ytick.major.pad'] = '6'
         plt.rcParams['axes.linewidth'] = 2
