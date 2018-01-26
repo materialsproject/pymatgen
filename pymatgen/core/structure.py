@@ -1353,7 +1353,7 @@ class IStructure(SiteCollection, MSONable):
 
                     # Only return primitive structures that
                     # satisfy the restriction condition
-                    p_l, s_l = p.lattice, self.lattice
+                    p_l, s_l = p._lattice, self._lattice
                     p_latt = [p_l.a, p_l.b, p_l.c, p_l.alpha, p_l.beta, p_l.gamma]
                     s_latt = [s_l.a, s_l.b, s_l.c, s_l.alpha, s_l.beta, s_l.gamma]
                     if all([p_latt[i] == s_latt[i] for i, b in enumerate(constrain_latt) if b]):
