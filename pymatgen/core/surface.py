@@ -780,6 +780,7 @@ class SlabGenerator(object):
         # structure as possible to reduce calculations
         self.oriented_unit_cell = Structure.from_sites(single,
                                                        to_unit_cell=True)
+        self.max_normal_search = max_normal_search
         self.parent = initial_structure
         self.lll_reduce = lll_reduce
         self.center_slab = center_slab
@@ -853,13 +854,16 @@ class SlabGenerator(object):
                 energy = prim.volume / slab.volume * energy
             slab = prim
 
+        # Reorient the lattice to get the correct reduced cell
+        ouc = self.oriented_unit_cell.copy()
+        if self.primitive and self.max_normal_search:
+            ouc = ouc.get_primitive_structure(constrain_latt=[False, False,
+                                                              True, False,
+                                                              False, False])
+
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
-                    self.oriented_unit_cell.\
-                    get_primitive_structure(constrain_latt=[False, False,
-                                                            True, False,
-                                                            False, False]),
-                    shift, scale_factor, energy=energy,
+                    ouc, shift, scale_factor, energy=energy,
                     site_properties=slab.site_properties,
                     reorient_lattice=self.reorient_lattice)
 
