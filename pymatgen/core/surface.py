@@ -660,7 +660,8 @@ class SlabGenerator(object):
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
                  min_vacuum_size, lll_reduce=False, center_slab=False,
-                 primitive=True, max_normal_search=None, reorient_lattice=True):
+                 in_unit_planes=False, primitive=True, max_normal_search=None,
+                 reorient_lattice=True):
         """
         Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
@@ -675,12 +676,21 @@ class SlabGenerator(object):
                 surface. Note that this is referenced to the input structure. If
                 you need this to be based on the conventional cell,
                 you should supply the conventional structure.
-            min_slab_size (float): In Angstroms
-            min_vacuum_size (float): In Angstroms
+            min_slab_size (float): In Angstroms or number of hkl planes
+            min_vacuum_size (float): In Angstroms or number of hkl planes
             lll_reduce (bool): Whether to perform an LLL reduction on the
                 eventual structure.
             center_slab (bool): Whether to center the slab in the cell with
                 equal vacuum spacing from the top and bottom.
+            in_unit_planes (bool): Whether to set min_slab_size and min_vac_size in
+                units of hkl planes (True) or Angstrom (False/default). Setting in
+                units of planes is useful for ensuring some slabs have a certain
+                nlayer of atoms. e.g. for Cs (100), a 10 Ang slab will result in a
+                slab with only 2 layer of atoms, whereas Fe (100) will have more layer
+                of atoms. By using units of hkl planes instead, we ensure both slabs
+                have the same number of atoms. The slab thickness will be in
+                min_slab_size/math.ceil(self._proj_height/dhkl)
+                multiples of oriented unit cells.
             primitive (bool): Whether to reduce any generated slabs to a
                 primitive cell (this does **not** mean the slab is generated
                 from a primitive cell, it simply means that after slab
@@ -788,6 +798,7 @@ class SlabGenerator(object):
         self.miller_index = miller_index
         self.min_vac_size = min_vacuum_size
         self.min_slab_size = min_slab_size
+        self.in_unit_planes = in_unit_planes
         self.primitive = primitive
         self._normal = normal
         a, b, c = self.oriented_unit_cell.lattice.matrix
@@ -812,8 +823,13 @@ class SlabGenerator(object):
         """
 
         h = self._proj_height
-        nlayers_slab = int(math.ceil(self.min_slab_size / h))
-        nlayers_vac = int(math.ceil(self.min_vac_size / h))
+        p = h/self.parent.lattice.d_hkl(self.miller_index)
+        if self.in_unit_planes:
+            nlayers_slab = int(math.ceil(self.min_slab_size / p))
+            nlayers_vac = int(math.ceil(self.min_vac_size / p))
+        else:
+            nlayers_slab = int(math.ceil(self.min_slab_size / h))
+            nlayers_vac = int(math.ceil(self.min_vac_size / h))
         nlayers = nlayers_slab + nlayers_vac
 
         species = self.oriented_unit_cell.species_and_occu
@@ -1101,8 +1117,13 @@ class SlabGenerator(object):
         # Determine what fraction the slab is of the total cell size
         # in the c direction. Round to nearest rational number.
         h = self._proj_height
-        nlayers_slab = int(math.ceil(self.min_slab_size / h))
-        nlayers_vac = int(math.ceil(self.min_vac_size / h))
+        p = h/self.parent.lattice.d_hkl(self.miller_index)
+        if self.in_unit_planes:
+            nlayers_slab = int(math.ceil(self.min_slab_size / p))
+            nlayers_vac = int(math.ceil(self.min_vac_size / p))
+        else:
+            nlayers_slab = int(math.ceil(self.min_slab_size / h))
+            nlayers_vac = int(math.ceil(self.min_vac_size / h))
         nlayers = nlayers_slab + nlayers_vac
         slab_ratio = nlayers_slab / nlayers
 
