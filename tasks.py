@@ -14,17 +14,6 @@ from pymatgen import __version__ as CURRENT_VER
 NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
 
 
-"""
-Deployment file to facilitate releases of pymatgen.
-Note that this file is meant to be run from the root directory of the pymatgen
-repo.
-"""
-
-__author__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 1, 2014"
-
-
 @task
 def make_doc(ctx):
     with open("CHANGES.rst") as f:
