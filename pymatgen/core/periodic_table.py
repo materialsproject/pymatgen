@@ -1167,7 +1167,7 @@ class Specie(MSONable):
                     "spin of %s. Because there is only one spin data available, "
                     "that value is returned." % (spin, k)
                 )
-        else:
+        else: 
             data = radii[str(int(self._oxi_state))][cn][spin]
         return data["%s_radius" % radius_type]
 
