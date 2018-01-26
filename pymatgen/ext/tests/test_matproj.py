@@ -199,6 +199,12 @@ class MPResterTest(unittest.TestCase):
         self.assertEqual(Ni.lattice.alpha, 90)
         self.assertEqual(Ni.lattice.beta, 90)
         self.assertEqual(Ni.lattice.gamma, 90)
+
+        # Ensure energy per atom is same
+        primNi = self.rester.get_entry_by_material_id("mp-23", inc_structure="Final",
+                                                      conventional_unit_cell=False)
+        self.assertEqual(primNi.energy_per_atom, entry.energy_per_atom)
+
         Ni = self.rester.get_structure_by_material_id("mp-23",
                                                       conventional_unit_cell=True)
         self.assertEqual(Ni.lattice.a, Ni.lattice.b)
@@ -206,6 +212,7 @@ class MPResterTest(unittest.TestCase):
         self.assertEqual(Ni.lattice.alpha, 90)
         self.assertEqual(Ni.lattice.beta, 90)
         self.assertEqual(Ni.lattice.gamma, 90)
+
 
     def test_get_pourbaix_entries(self):
         pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
