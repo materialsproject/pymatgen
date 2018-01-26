@@ -13,7 +13,8 @@ import warnings
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import (BandStructureSymmLine,
+                                                         get_reconstructed_band_structure)
 from pymatgen.util.testing import PymatgenTest
 
 from monty.serialization import loadfn
@@ -207,6 +208,20 @@ class BandStructureSymmLine_test(PymatgenTest):
             bs_old = BandStructureSymmLine.from_dict(d)
             self.assertEqual(bs_old.get_projection_on_elements()[
                                  Spin.up][0][0]['Zn'], 0.0971)
+
+class ReconstructBandStructureTest(PymatgenTest):
+
+    def setUp(self):
+        self.bs_cu = loadfn(os.path.join(test_dir, "Cu_30_bandstructure.json"))
+        self.bs_cu2 = loadfn(os.path.join(test_dir, "Cu_30_bandstructure.json"))
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_reconstruct_band_structure(self):
+        bs = get_reconstructed_band_structure([self.bs_cu, self.bs_cu2])
+        self.assertEqual(bs.bands[Spin.up].shape, (20, 700), "wrong number of bands or kpoints")
 
 if __name__ == '__main__':
     unittest.main()

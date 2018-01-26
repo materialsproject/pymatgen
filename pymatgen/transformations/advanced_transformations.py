@@ -283,12 +283,13 @@ class EnumerateStructureTransformation(AbstractTransformation):
             this parameter.
         sort_criteria (str): Sort by Ewald energy ("ewald", must have oxidation
             states and slow) or by number of sites ("nsites", much faster).
+        timeout (float): timeout in minutes to pass to EnumlibAdaptor
     """
 
     def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1,
                  refine_structure=False, enum_precision_parameter=0.001,
                  check_ordered_symmetry=True, max_disordered_sites=None,
-                 sort_criteria="ewald"):
+                 sort_criteria="ewald", timeout=None):
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
@@ -297,6 +298,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.check_ordered_symmetry = check_ordered_symmetry
         self.max_disordered_sites = max_disordered_sites
         self.sort_criteria = sort_criteria
+        self.timeout = timeout
 
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and "
@@ -362,7 +364,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 max_cell_size=max_cell_size,
                 symm_prec=self.symm_prec, refine_structure=False,
                 enum_precision_parameter=self.enum_precision_parameter,
-                check_ordered_symmetry=self.check_ordered_symmetry)
+                check_ordered_symmetry=self.check_ordered_symmetry,
+                timeout=self.timeout)
             try:
                 adaptor.run()
             except EnumError:

@@ -1,12 +1,6 @@
 pymatgen\.analysis\.xas package
 ===============================
 
-Subpackages
------------
-
-.. toctree::
-
-
 Submodules
 ----------
 
