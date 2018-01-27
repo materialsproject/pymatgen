@@ -1079,7 +1079,8 @@ class SlabTransformation(AbstractTransformation):
 
     """
     def __init__(self, miller_index, min_slab_size, min_vacuum_size,
-                 lll_reduce=False, center_slab=False, primitive=True,
+                 lll_reduce=False, center_slab=False,
+                 in_unit_planes=False, primitive=True,
                  max_normal_search=None, shift=0, tol=0.1):
         """
         Args:
@@ -1100,6 +1101,7 @@ class SlabTransformation(AbstractTransformation):
         self.min_vacuum_size = min_vacuum_size
         self.lll_reduce = lll_reduce
         self.center_slab = center_slab
+        self.in_unit_planes = in_unit_planes
         self.primitive = primitive
         self.max_normal_search = max_normal_search
         self.shift = shift
@@ -1108,8 +1110,8 @@ class SlabTransformation(AbstractTransformation):
     def apply_transformation(self, structure):
         sg = SlabGenerator(structure, self.miller_index, self.min_slab_size,
                            self.min_vacuum_size, self.lll_reduce,
-                           self.center_slab, self.primitive,
-                           self.max_normal_search)
+                           self.center_slab, self.in_unit_planes,
+                           self.primitive, self.max_normal_search)
         slab = sg.get_slab(self.shift, self.tol)
         return slab
 

@@ -607,7 +607,7 @@ class SurfaceEnergyPlotter(object):
         return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
 
     def stable_u_range_dict(self, chempot_range, ref_delu, no_doped=True,
-                            no_clean=False, u_dict={}, miller_index=()):
+                            u_dict={}, miller_index=()):
         """
         Creates a dictionary where each entry is a key pointing to a
         chemical potential range where the surface of that entry is stable.
@@ -639,9 +639,9 @@ class SurfaceEnergyPlotter(object):
             if miller_index and hkl != tuple(miller_index):
                 continue
 
-            entries_in_hkl = [clean for clean in self.entry_dict[hkl]]
+            entries_in_hkl = [clean for clean in self.entry_dict[hkl].keys()]
             if not no_doped:
-                for entry in self.entry_dict[hkl]:
+                for entry in self.entry_dict[hkl].keys():
                     entries_in_hkl.extend([ads_entry for ads_entry in
                                            self.entry_dict[hkl][entry]])
 
@@ -829,7 +829,6 @@ class SurfaceEnergyPlotter(object):
             if not show_unstable:
                 stable_u_range_dict = self.stable_u_range_dict(chempot_range, ref_delu,
                                                                no_doped=no_doped,
-                                                               no_clean=no_clean,
                                                                u_dict=u_dict,
                                                                miller_index=hkl)
 
@@ -847,6 +846,7 @@ class SurfaceEnergyPlotter(object):
                     else:
                         already_labelled.append(label)
                     if not no_clean:
+                        print("urange", urange)
                         plt = self.chempot_vs_gamma_plot_one(plt, clean_entry, ref_delu,
                                                              urange, u_dict=u_dict,
                                                              u_default=u_default,
@@ -858,6 +858,7 @@ class SurfaceEnergyPlotter(object):
                         urange = stable_u_range_dict[ads_entry] \
                             if not show_unstable else chempot_range
                         if urange != []:
+
                             plt = self.chempot_vs_gamma_plot_one(plt, ads_entry,
                                                                  ref_delu, urange,
                                                                  u_dict=u_dict,
