@@ -98,23 +98,7 @@ def publish(ctx):
 
 @task
 def set_ver(ctx):
-    lines = []
-    with open("pymatgen/__init__.py", "rt") as f:
-        for l in f:
-            if "__version__" in l:
-                lines.append('__version__ = "%s"' % NEW_VER)
-            else:
-                lines.append(l.rstrip())
-    with open("pymatgen/__init__.py", "wt") as f:
-        f.write("\n".join(lines))
-
-    lines = []
-    with open("setup.py", "rt") as f:
-        for l in f:
-            lines.append(re.sub(r'version=([^,]+),', 'version="%s",' % NEW_VER,
-                                l.rstrip()))
-    with open("setup.py", "wt") as f:
-        f.write("\n".join(lines))
+    ctx.run("sed -i '' 's/__version__ = .*/__version__ = \"%s\"/' pymatgen/__init__.py" % NEW_VER)
 
 
 @task
