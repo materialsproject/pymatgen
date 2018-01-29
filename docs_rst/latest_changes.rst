@@ -1,9 +1,8 @@
 Change log
 ==========
 
-v2018.1.19
+v2018.1.29
 ----------
-* Phonon plotting and analysis improvements (Guido Petretto).
-* Voronoi site finder (Hanmei Tang)
-* Some bug fixes for Gaussian (Marco Esters)
-* Misc improvements.
+* Improvements to local_env (Nils)
+* Term symbols for Element (Weike Ye).
+* Timeout for enumlib (Horton).

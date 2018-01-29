@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.surface &#8212; pymatgen 2018.1.19 documentation</title>
+    <title>pymatgen.core.surface &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2018.1.19',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.19 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -524,10 +524,10 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the surface sites and their indices in a dictionary. The</span>
 <span class="sd">        oriented unit cell of the slab will determine the coordination number</span>
-<span class="sd">        of a typical site. We use VoronoiCoordFinder to determine the</span>
+<span class="sd">        of a typical site. We use VoronoiNN to determine the</span>
 <span class="sd">        coordination number of bulk sites and slab sites. Due to the</span>
 <span class="sd">        pathological error resulting from some surface sites in the</span>
-<span class="sd">        VoronoiCoordFinder, we assume any site that has this error is a surface</span>
+<span class="sd">        VoronoiNN, we assume any site that has this error is a surface</span>
 <span class="sd">        site as well. This will work for elemental systems only for now. Useful</span>
 <span class="sd">        for analysis involving broken bonds and for finding adsorption sites.</span>
 
@@ -546,14 +546,14 @@
 <span class="sd">            unequivalent sites. This will allow us to use this for compound systems.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_analyzer</span> <span class="k">import</span> <span class="n">VoronoiCoordFinder</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">VoronoiNN</span>
 
         <span class="c1"># Get a dictionary of coordination numbers</span>
         <span class="c1"># for each distinct site in the structure</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="p">)</span>
         <span class="n">ucell</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
         <span class="n">cn_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">VoronoiCoordFinder</span><span class="p">(</span><span class="n">ucell</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">VoronoiNN</span><span class="p">()</span>
         <span class="n">unique_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">equ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">equ</span> <span class="ow">in</span> <span class="n">ucell</span><span class="o">.</span><span class="n">equivalent_indices</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">unique_indices</span><span class="p">:</span>
@@ -564,12 +564,12 @@
             <span class="c1"># slightest difference in cn will indicate a different environment for a</span>
             <span class="c1"># species, eg. bond distance of each neighbor or neighbor species. The</span>
             <span class="c1"># decimal place to get some cn to be equal.</span>
-            <span class="n">cn</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">cn</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">get_cn</span><span class="p">(</span><span class="n">ucell</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">cn</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.5f</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">cn</span><span class="p">,</span> <span class="mi">5</span><span class="p">)))</span>
             <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cn_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]:</span>
                 <span class="n">cn_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cn</span><span class="p">)</span>
 
-        <span class="n">v</span> <span class="o">=</span> <span class="n">VoronoiCoordFinder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">VoronoiNN</span><span class="p">()</span>
 
         <span class="n">surf_sites_dict</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="p">[]},</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -579,7 +579,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># A site is a surface site, if its environment does</span>
                 <span class="c1"># not fit the environment of other sites</span>
-                <span class="n">cn</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.5f</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="mi">5</span><span class="p">)))</span>
+                <span class="n">cn</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.5f</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get_cn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mi">5</span><span class="p">)))</span>
                 <span class="k">if</span> <span class="n">cn</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">cn_dict</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">]):</span>
                     <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;top&quot;</span> <span class="k">if</span> <span class="n">top</span> <span class="k">else</span> <span class="s2">&quot;bottom&quot;</span>
@@ -717,7 +717,8 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_structure</span><span class="p">,</span> <span class="n">miller_index</span><span class="p">,</span> <span class="n">min_slab_size</span><span class="p">,</span>
                  <span class="n">min_vacuum_size</span><span class="p">,</span> <span class="n">lll_reduce</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">center_slab</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_normal_search</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reorient_lattice</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                 <span class="n">in_unit_planes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_normal_search</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">reorient_lattice</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the slab scale factor and uses it to generate a unit cell</span>
 <span class="sd">        of the initial structure that has been oriented by its miller index.</span>
@@ -732,12 +733,21 @@
 <span class="sd">                surface. Note that this is referenced to the input structure. If</span>
 <span class="sd">                you need this to be based on the conventional cell,</span>
 <span class="sd">                you should supply the conventional structure.</span>
-<span class="sd">            min_slab_size (float): In Angstroms</span>
-<span class="sd">            min_vacuum_size (float): In Angstroms</span>
+<span class="sd">            min_slab_size (float): In Angstroms or number of hkl planes</span>
+<span class="sd">            min_vacuum_size (float): In Angstroms or number of hkl planes</span>
 <span class="sd">            lll_reduce (bool): Whether to perform an LLL reduction on the</span>
 <span class="sd">                eventual structure.</span>
 <span class="sd">            center_slab (bool): Whether to center the slab in the cell with</span>
 <span class="sd">                equal vacuum spacing from the top and bottom.</span>
+<span class="sd">            in_unit_planes (bool): Whether to set min_slab_size and min_vac_size in</span>
+<span class="sd">                units of hkl planes (True) or Angstrom (False/default). Setting in</span>
+<span class="sd">                units of planes is useful for ensuring some slabs have a certain</span>
+<span class="sd">                nlayer of atoms. e.g. for Cs (100), a 10 Ang slab will result in a</span>
+<span class="sd">                slab with only 2 layer of atoms, whereas Fe (100) will have more layer</span>
+<span class="sd">                of atoms. By using units of hkl planes instead, we ensure both slabs</span>
+<span class="sd">                have the same number of atoms. The slab thickness will be in</span>
+<span class="sd">                min_slab_size/math.ceil(self._proj_height/dhkl)</span>
+<span class="sd">                multiples of oriented unit cells.</span>
 <span class="sd">            primitive (bool): Whether to reduce any generated slabs to a</span>
 <span class="sd">                primitive cell (this does **not** mean the slab is generated</span>
 <span class="sd">                from a primitive cell, it simply means that after slab</span>
@@ -837,6 +847,7 @@
         <span class="c1"># structure as possible to reduce calculations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">single</span><span class="p">,</span>
                                                        <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_normal_search</span> <span class="o">=</span> <span class="n">max_normal_search</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">initial_structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lll_reduce</span> <span class="o">=</span> <span class="n">lll_reduce</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">center_slab</span> <span class="o">=</span> <span class="n">center_slab</span>
@@ -844,6 +855,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span> <span class="o">=</span> <span class="n">miller_index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">=</span> <span class="n">min_vacuum_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">=</span> <span class="n">min_slab_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_unit_planes</span> <span class="o">=</span> <span class="n">in_unit_planes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">primitive</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_normal</span> <span class="o">=</span> <span class="n">normal</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
@@ -868,8 +880,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proj_height</span>
-        <span class="n">nlayers_slab</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">h</span><span class="p">))</span>
-        <span class="n">nlayers_vac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">/</span> <span class="n">h</span><span class="p">))</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">h</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">d_hkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_unit_planes</span><span class="p">:</span>
+            <span class="n">nlayers_slab</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
+            <span class="n">nlayers_vac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nlayers_slab</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">h</span><span class="p">))</span>
+            <span class="n">nlayers_vac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">/</span> <span class="n">h</span><span class="p">))</span>
         <span class="n">nlayers</span> <span class="o">=</span> <span class="n">nlayers_slab</span> <span class="o">+</span> <span class="n">nlayers_vac</span>
 
         <span class="n">species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="o">.</span><span class="n">species_and_occu</span>
@@ -910,13 +927,16 @@
                 <span class="n">energy</span> <span class="o">=</span> <span class="n">prim</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> <span class="n">slab</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">energy</span>
             <span class="n">slab</span> <span class="o">=</span> <span class="n">prim</span>
 
+        <span class="c1"># Reorient the lattice to get the correct reduced cell</span>
+        <span class="n">ouc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_normal_search</span><span class="p">:</span>
+            <span class="n">ouc</span> <span class="o">=</span> <span class="n">ouc</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">(</span><span class="n">constrain_latt</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                                                              <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                                                              <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+
         <span class="k">return</span> <span class="n">Slab</span><span class="p">(</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">slab</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
                     <span class="n">slab</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="o">.</span>\
-                    <span class="n">get_primitive_structure</span><span class="p">(</span><span class="n">constrain_latt</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
-                                                            <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
-                                                            <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]),</span>
-                    <span class="n">shift</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">energy</span><span class="p">,</span>
+                    <span class="n">ouc</span><span class="p">,</span> <span class="n">shift</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">energy</span><span class="p">,</span>
                     <span class="n">site_properties</span><span class="o">=</span><span class="n">slab</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span>
                     <span class="n">reorient_lattice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reorient_lattice</span><span class="p">)</span></div>
 
@@ -1154,8 +1174,13 @@
         <span class="c1"># Determine what fraction the slab is of the total cell size</span>
         <span class="c1"># in the c direction. Round to nearest rational number.</span>
         <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proj_height</span>
-        <span class="n">nlayers_slab</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">h</span><span class="p">))</span>
-        <span class="n">nlayers_vac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">/</span> <span class="n">h</span><span class="p">))</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">h</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">d_hkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_unit_planes</span><span class="p">:</span>
+            <span class="n">nlayers_slab</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
+            <span class="n">nlayers_vac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nlayers_slab</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">h</span><span class="p">))</span>
+            <span class="n">nlayers_vac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">/</span> <span class="n">h</span><span class="p">))</span>
         <span class="n">nlayers</span> <span class="o">=</span> <span class="n">nlayers_slab</span> <span class="o">+</span> <span class="n">nlayers_vac</span>
         <span class="n">slab_ratio</span> <span class="o">=</span> <span class="n">nlayers_slab</span> <span class="o">/</span> <span class="n">nlayers</span>
 
@@ -1723,7 +1748,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.19 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
