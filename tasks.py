@@ -100,7 +100,7 @@ def publish(ctx):
 
 @task
 def set_ver(ctx):
-    ctx.run("sed -i '' 's/__version__ = .*/__version__ = \"%s\"/' %s/__init__.py" % (NEW_VER, PKG))
+    ctx.run("sed -i '' 's/__version__ = .*/__version__ = \"%s\"/' pymatgen/__init__.py" % NEW_VER)
 
 
 @task
