@@ -1,3 +1,10 @@
+"""
+Pyinvoke tasks.py file for automating releases and admin stuff.
+
+Author: Shyue Ping Ong
+"""
+
+
 from invoke import task
 import glob
 import os
@@ -13,16 +20,7 @@ from pymatgen import __version__ as CURRENT_VER
 
 NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
 
-
-"""
-Deployment file to facilitate releases of pymatgen.
-Note that this file is meant to be run from the root directory of the pymatgen
-repo.
-"""
-
-__author__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 1, 2014"
+PKG = "pymatgen"
 
 
 @task
@@ -46,9 +44,9 @@ def make_doc(ctx):
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
-        ctx.run("rm pymatgen*.tests.*rst")
+        ctx.run("rm %s*.tests.*rst" % PKG)
         for f in glob.glob("*.rst"):
-            if f.startswith('pymatgen') and f.endswith('rst'):
+            if f.startswith(PKG) and f.endswith('rst'):
                 newoutput = []
                 suboutput = []
                 subpackage = False
@@ -62,7 +60,7 @@ def make_doc(ctx):
                         else:
                             if not clean.endswith("tests"):
                                 suboutput.append(line)
-                            if clean.startswith("pymatgen") and not clean.endswith("tests"):
+                            if clean.startswith(PKG) and not clean.endswith("tests"):
                                 newoutput.extend(suboutput)
                                 subpackage = False
                                 suboutput = []
@@ -96,29 +94,13 @@ def update_doc(ctx):
 @task
 def publish(ctx):
     ctx.run("rm dist/*.*", warn=True)
-    ctx.run("python setup.py register sdist bdist_wheel")
+    ctx.run("python setup.py sdist bdist_wheel")
     ctx.run("twine upload dist/*")
 
 
 @task
 def set_ver(ctx):
-    lines = []
-    with open("pymatgen/__init__.py", "rt") as f:
-        for l in f:
-            if "__version__" in l:
-                lines.append('__version__ = "%s"' % NEW_VER)
-            else:
-                lines.append(l.rstrip())
-    with open("pymatgen/__init__.py", "wt") as f:
-        f.write("\n".join(lines))
-
-    lines = []
-    with open("setup.py", "rt") as f:
-        for l in f:
-            lines.append(re.sub(r'version=([^,]+),', 'version="%s",' % NEW_VER,
-                                l.rstrip()))
-    with open("setup.py", "wt") as f:
-        f.write("\n".join(lines))
+    ctx.run("sed -i '' 's/__version__ = .*/__version__ = \"%s\"/' %s/__init__.py" % (NEW_VER, PKG))
 
 
 @task
@@ -165,7 +147,6 @@ def release_github(ctx):
 
 @task
 def update_changelog(ctx):
-
     output = subprocess.check_output(["git", "log", "--pretty=format:%s",
                                       "v%s..HEAD" % CURRENT_VER])
     lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]
@@ -189,7 +170,7 @@ def log_ver(ctx):
 
 @task
 def release(ctx, notest=False):
-    ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
+    ctx.run("rm -r dist build %s.egg-info" % PKG, warn=True)
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")

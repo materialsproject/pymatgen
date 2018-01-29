@@ -359,6 +359,18 @@ class SlabGeneratorTest(PymatgenTest):
         slabs = gen.get_slabs()
         self.assertEqual(len(slabs), 1)
 
+        # Test whether using units of hkl planes instead of Angstroms for
+        # min_slab_size and min_vac_size will give us the same number of atoms
+        natoms = []
+        for a in [1, 1.4, 2.5, 3.6]:
+            s = Structure.from_spacegroup("Im-3m", Lattice.cubic(a), ["Fe"], [[0,0,0]])
+            slabgen = SlabGenerator(s, (1,1,1), 10, 10, in_unit_planes=True,
+                                    max_normal_search=2)
+            natoms.append(len(slabgen.get_slab()))
+        n = natoms[0]
+        for i in natoms:
+            self.assertEqual(n, i)
+
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
         # Miller indices are used because it is easier to identify which
