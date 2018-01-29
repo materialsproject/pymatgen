@@ -1496,7 +1496,8 @@ class LocalStructOrderParas(object):
 
         """
         Returns list of floats that represents
-        the parameters associated with calculation of the order
+        the parameters associated
+        with calculation of the order
         parameter that was defined at the index provided.
         Attention: the parameters do not need to equal those originally
         inputted because of processing out of efficiency reasons.
