@@ -614,8 +614,8 @@ class Element(Enum):
             L, S = min(comb_counter)
 
             J = list(np.arange(abs(L - S), abs(L) + abs(S) + 1))
-            term_symbols.append([str(int(2 * (abs(S)) + 1)) \
-                                 + L_symbols[abs(L)] \
+            term_symbols.append([str(int(2 * (abs(S)) + 1))
+                                 + L_symbols[abs(L)]
                                  + str(j) for j in J])
             # Without J
             # term_symbols.append(str(int(2 * (abs(S)) + 1)) \
@@ -643,18 +643,18 @@ class Element(Enum):
         term_symbols = self.term_symbols
         term_symbol_flat = {term: {"multiplicity": int(term[0]),
                                    "L": L_symbols.index(term[1]),
-                                   "J": float(term[2:])} \
+                                   "J": float(term[2:])}
                             for term in sum(term_symbols, [])}
 
-        multi = [int(item['multiplicity']) \
+        multi = [int(item['multiplicity'])
                  for terms, item in term_symbol_flat.items()]
-        max_multi_terms = {symbol: item \
-                           for symbol, item in term_symbol_flat.items() \
+        max_multi_terms = {symbol: item
+                           for symbol, item in term_symbol_flat.items()
                            if item['multiplicity'] == max(multi)}
 
         Ls = [item['L'] for terms, item in max_multi_terms.items()]
-        max_L_terms = {symbol: item \
-                       for symbol, item in term_symbol_flat.items() \
+        max_L_terms = {symbol: item
+                       for symbol, item in term_symbol_flat.items()
                        if item['L'] == max(Ls)}
 
         J_sorted_terms = sorted(max_L_terms.items(),
