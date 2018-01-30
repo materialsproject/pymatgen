@@ -788,7 +788,8 @@ class SurfaceEnergyPlotter(object):
     def chempot_vs_gamma(self, ref_delu, chempot_range, miller_index=(),
                          u_dict={}, u_default=0, JPERM2=False,
                          show_unstable=False, ylim=[], plt=None,
-                         no_clean=False, no_doped=False):
+                         no_clean=False, no_doped=False,
+                         use_entry_labels=False, no_label=False):
         """
         Plots the surface energy as a function of chemical potential.
             Each facet will be associated with its own distinct colors.
@@ -815,6 +816,9 @@ class SurfaceEnergyPlotter(object):
             ylim ([ymax, ymin]): Range of y axis
             no_doped (bool): Whether to plot for the clean slabs only.
             no_clean (bool): Whether to plot for the doped slabs only.
+            use_entry_labels (bool): If True, will label each slab configuration
+                according to their given label in the SlabEntry object.
+            no_label (bool): Option to turn off labels.
 
         Returns:
             (Plot): Plot of surface energy vs chempot for all entries.
@@ -851,6 +855,10 @@ class SurfaceEnergyPlotter(object):
                     else:
                         already_labelled.append(label)
                     if not no_clean:
+                        if use_entry_labels:
+                            label = clean_entry.label
+                        if no_label:
+                            label = ""
                         plt = self.chempot_vs_gamma_plot_one(plt, clean_entry, ref_delu,
                                                              urange, u_dict=u_dict,
                                                              u_default=u_default,
@@ -862,6 +870,10 @@ class SurfaceEnergyPlotter(object):
                         urange = stable_u_range_dict[ads_entry] \
                             if not show_unstable else chempot_range
                         if urange != []:
+                            if use_entry_labels:
+                                label = ads_entry.label
+                            if no_label:
+                                label = ""
                             plt = self.chempot_vs_gamma_plot_one(plt, ads_entry,
                                                                  ref_delu, urange,
                                                                  u_dict=u_dict,
