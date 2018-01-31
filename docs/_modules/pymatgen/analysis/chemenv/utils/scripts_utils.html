@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.scripts_utils &#8212; pymatgen 2018.1.19 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.scripts_utils &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../../',
-        VERSION:     '2018.1.19',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.1.19 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -87,9 +87,8 @@
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="k">import</span> <span class="n">rotateCoords</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="k">import</span> <span class="n">chemenv_citations</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies</span> <span class="k">import</span> <span class="n">SimplestChemenvStrategy</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies</span> <span class="k">import</span> <span class="n">SimpleAbundanceChemenvStrategy</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies</span> <span class="k">import</span> <span class="n">TargettedPenaltiedAbundanceChemenvStrategy</span>
-
+<span class="c1">#from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy</span>
+<span class="c1">#from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -110,8 +109,9 @@
 
 <span class="n">strategies_class_lookup</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
 <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimplestChemenvStrategy</span>
-<span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimpleAbundanceChemenvStrategy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimpleAbundanceChemenvStrategy</span>
-<span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;TargettedPenaltiedAbundanceChemenvStrategy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TargettedPenaltiedAbundanceChemenvStrategy</span>
+
+<span class="c1">#strategies_class_lookup[&#39;SimpleAbundanceChemenvStrategy&#39;] = SimpleAbundanceChemenvStrategy</span>
+<span class="c1">#strategies_class_lookup[&#39;TargettedPenaltiedAbundanceChemenvStrategy&#39;] = TargettedPenaltiedAbundanceChemenvStrategy</span>
 
 
 <div class="viewcode-block" id="draw_cg"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.scripts_utils.html#pymatgen.analysis.chemenv.utils.scripts_utils.draw_cg">[docs]</a><span class="k">def</span> <span class="nf">draw_cg</span><span class="p">(</span><span class="n">vis</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">,</span> <span class="n">cg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">perfect2local_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -326,11 +326,22 @@
                                 <span class="n">mystring</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> : </span><span class="si">{:.2f}</span><span class="s1">       &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mingeom</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">csm</span><span class="p">)</span>
                     <span class="nb">print</span><span class="p">(</span><span class="n">mystring</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">test</span> <span class="o">==</span> <span class="s1">&#39;g&#39;</span><span class="p">:</span>
-                <span class="n">test</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter index of site(s) for which you want to see the grid of parameters : &#39;</span><span class="p">)</span>
-                <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
-                    <span class="n">se</span><span class="o">.</span><span class="n">plot_environments</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">additional_condition</span><span class="o">=</span><span class="n">se</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">)</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">test</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter index of site(s) (e.g. 0 1 2, separated by spaces) for which you want to see the grid of parameters : &#39;</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                         <span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+                         <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
+                         <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+                             <span class="k">if</span> <span class="n">isite</span> <span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+                                 <span class="k">raise</span> <span class="ne">IndexError</span>
+                             <span class="n">se</span><span class="o">.</span><span class="n">plot_environments</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">additional_condition</span><span class="o">=</span><span class="n">se</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">)</span>
+                         <span class="k">break</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This is not a valid site&#39;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This site is out of the site range&#39;</span><span class="p">)</span>
+
+
             <span class="k">if</span> <span class="n">no_vis</span><span class="p">:</span>
                 <span class="n">test</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Go to next structure ? (&quot;y&quot; to do so)&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">test</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
@@ -340,12 +351,18 @@
             <span class="k">if</span> <span class="n">test</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="n">test</span> <span class="o">==</span> <span class="s1">&#39;m&#39;</span><span class="p">:</span>
                     <span class="n">mydeltas</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="n">test</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter multiplicity (e.g. 3 2 2) : &#39;</span><span class="p">)</span>
-                    <span class="n">nns</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">i0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nns</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
-                        <span class="k">for</span> <span class="n">i1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nns</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
-                            <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nns</span><span class="p">[</span><span class="mi">2</span><span class="p">])):</span>
-                                <span class="n">mydeltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="o">*</span><span class="n">i0</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">i1</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">i2</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">))</span>
+                    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">test</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter multiplicity (e.g. 3 2 2) : &#39;</span><span class="p">)</span>
+                            <span class="n">nns</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                            <span class="k">for</span> <span class="n">i0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nns</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+                                <span class="k">for</span> <span class="n">i1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nns</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+                                    <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nns</span><span class="p">[</span><span class="mi">2</span><span class="p">])):</span>
+                                        <span class="n">mydeltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="o">*</span><span class="n">i0</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">i1</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">i2</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">))</span>
+                            <span class="k">break</span>
+
+                        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span><span class="ne">IndexError</span><span class="p">):</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Not a valid multiplicity&#39;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">mydeltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)]</span>
                 <span class="k">if</span> <span class="n">firsttime</span><span class="p">:</span>
@@ -405,7 +422,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.1.19 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
