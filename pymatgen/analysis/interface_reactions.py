@@ -57,14 +57,15 @@ class InterfacialReactivity:
 
         # if include_no_mixing_energy is True, pd should be a
         # GrandPotentialPhaseDiagram object and pd_non_grand should be given.
-        assert not (include_no_mixing_energy and not self.grand), \
-            'Please provide grand phase diagram to compute no_mixing_energy!'
-        assert not (include_no_mixing_energy and not pd_non_grand),\
-            'Please provide non-grand phase diagram to compute ' \
-            'no_mixing_energy!'
-        assert not (self.grand and use_hull_energy and not pd_non_grand), \
-            'Please provide non-grand phase diagram if you want to use ' \
-            'convex hull energy.'
+        if (include_no_mixing_energy and not self.grand):
+            raise ValueError('Please provide grand phase diagram to compute'
+                             ' no_mixing_energy!')
+        if (include_no_mixing_energy and not pd_non_grand):
+            raise ValueError('Please provide non-grand phase diagram to '
+                             'compute no_mixing_energy!')
+        if (self.grand and use_hull_energy and not pd_non_grand):
+            raise ValueError('Please provide non-grand phase diagram if'
+                             ' you want to use convex hull energy.')
 
         # Keeps copy of original compositions.
         self.c1_original = c1
