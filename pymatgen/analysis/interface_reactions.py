@@ -62,6 +62,9 @@ class InterfacialReactivity:
         assert not (include_no_mixing_energy and not pd_non_grand),\
             'Please provide non-grand phase diagram to compute ' \
             'no_mixing_energy!'
+        assert not (self.grand and use_hull_energy and not pd_non_grand), \
+            'Please provide non-grand phase diagram if you want to use ' \
+            'convex hull energy.'
 
         # Keeps copy of original compositions.
         self.c1_original = c1
@@ -76,9 +79,7 @@ class InterfacialReactivity:
 
         self.norm = norm
         self.pd = pd
-        if pd_non_grand:
-            self.pd_non_grand = pd_non_grand
-
+        self.pd_non_grand = pd_non_grand
         self.use_hull_energy = use_hull_energy
 
         # Factor is the compositional ratio between composition self.c1 and
@@ -163,7 +164,6 @@ class InterfacialReactivity:
         """
         Computes the grand potential Phi at a given composition and
         chemical potential(s).
-         E.g., Phi[c, mu_{Li}]= E_{hull}[c] - n_{Li}[c]mu_{Li}.
 
         Args:
             composition (Composition): Composition object.
