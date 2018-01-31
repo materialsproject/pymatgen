@@ -330,9 +330,7 @@ class StructureGraph(MSONable):
         :param n: index of site
         :return (int):
         """
-        #return self.graph.degree(n)
-        print(str(self.get_connected_sites(n)))
-        return len(self.get_connected_sites(n))
+        return self.graph.degree(n)
 
     def get_local_order_parameters(self, n):
         """

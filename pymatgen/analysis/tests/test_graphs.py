@@ -78,6 +78,10 @@ class StructureGraphTest(unittest.TestCase):
                   [0.5, 0.5, 0.5]]
         self.NiO = Structure.from_spacegroup(225, latt, species, coords).get_primitive_structure()
 
+        # BCC example.
+        self.bcc = Structure(Lattice.cubic(5.0), ['He', 'He'], [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -217,6 +221,18 @@ from    to  to_image
 
         for n in range(len(nio_sg)):
             self.assertEqual(nio_sg.get_coordination_of_site(n), 6)
+            ops = nio_sg.get_local_order_parameters(n)
+
+        # BCC
+        bcc_sg = StructureGraph.with_local_env_strategy(self.bcc, MinimumDistanceNN())
+        for n in range(len(bcc_sg)):
+            self.assertEqual(bcc_sg.get_coordination_of_site(n), 8)
+            ops = bcc_sg.get_local_order_parameters(n)
+            self.assertTrue(any(t in list(ops.keys()) for t in (
+                    'body-centered cubic', 'hexagonal bipyramidal')))
+            self.assertAlmostEqual(ops['body-centered cubic'], 1)
+            self.assertAlmostEqual(ops['hexagonal bipyramidal'], \
+                    0.43331263572418355)
 
     @unittest.skipIf(not (which('neato') and which('fdp')), "graphviz executables not present")
     def test_draw(self):
