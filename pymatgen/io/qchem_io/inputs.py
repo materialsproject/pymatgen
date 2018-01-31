@@ -20,7 +20,7 @@ __email__ = "b.wood@berkeley.edu"
 logger = logging.getLogger(__name__)
 
 
-class QcJob(MSONable):
+class QCJob(MSONable):
     """
     An object representing a qchem job
     """
