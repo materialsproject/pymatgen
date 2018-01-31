@@ -56,6 +56,11 @@ class QCCalc(MSONable):
         if self.data.get('unrestricted',[]):
             self.read_pattern({"S2": r"<S\^2>\s=\s+([\d\-\.]+)"})
 
+        # Check if the calculation is a geometry optimization. If so, parse the relevant output
+        self.read_pattern({"optimization": r"\s+jobtype = opt"}, terminate_on_match=True)
+        if self.data.get('optimization',[]):
+            self.read_pattern({'energy_trajectory': r"\sEnergy\sis\s+([\d\-\.]+)"})
+
 
 
 
