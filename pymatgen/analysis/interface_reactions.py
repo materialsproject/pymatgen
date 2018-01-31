@@ -6,6 +6,7 @@ from __future__ import division
 
 import warnings
 import numpy as np
+import matplotlib.pylab as plt
 
 from pymatgen import Composition
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram
@@ -170,16 +171,19 @@ class InterfacialReactivity:
         Returns:
             Grand potential at a given composition at chemical potential(s).
         """
-        grand_potential = self._get_entry_energy(self.pd_non_grand,
-                                                 composition)
+        if self.use_hull_energy:
+            grand_potential = self.pd_non_grand.get_hull_energy(composition)
+        else:
+            grand_potential = self._get_entry_energy(self.pd_non_grand,
+                                                     composition)
         grand_potential -= sum([composition[e] * mu
                                 for e, mu in self.pd.chempots.items()])
         if self.norm:
             # Normalizes energy to the composition excluding element(s)
             # from reservoir.
-            grand_potential /= \
-                (1 - sum([composition.get_atomic_fraction(e.symbol)
-                          for e, mu in self.pd.chempots.items()]))
+            grand_potential /= sum([composition[el]
+                                    for el in composition
+                                    if el not in self.pd.chempots])
         return grand_potential
 
     def _get_energy(self, x):
@@ -343,7 +347,6 @@ class InterfacialReactivity:
             Pylab object that plots reaction energy as a function of
             mixing ratio x.
         """
-        import matplotlib.pylab as plt
         plt.rcParams['xtick.major.pad'] = '6'
         plt.rcParams['ytick.major.pad'] = '6'
         plt.rcParams['axes.linewidth'] = 2
