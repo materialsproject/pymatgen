@@ -688,8 +688,8 @@ class Interstitial(Defect):
         struct = self._structure.copy()
         struct.append(site.specie.symbol, site.frac_coords)
         vnn = VoronoiNN()
-        coord_no = vnn.get_cn(-1, struct, use_weights=True)
-        coord_sites = vnn.get_nn(-1, struct)
+        coord_no = vnn.get_cn(struct, -1, use_weights=True)
+        coord_sites = vnn.get_nn(struct, -1)
 
         # In some cases coordination sites to interstitials include
         # interstitials also. Filtering them.
