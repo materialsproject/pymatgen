@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2018.1.19 documentation</title>
+    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.1.19',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.19 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -1118,6 +1118,13 @@ E.g., The electronic structure for Fe is represented as:
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.ground_state_term_symbol">
+<code class="descname">ground_state_term_symbol</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.ground_state_term_symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ground state term symbol
+Selected based on Hund’s Rule</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt>
 <code class="descname">group</code></dt>
 <dd><p>Returns the periodic table group of the element.</p>
@@ -1258,6 +1265,23 @@ table containing only elements with electronegativity &gt; 2.</td>
 <dt>
 <code class="descname">row</code></dt>
 <dd><p>Returns the periodic table row of the element.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.term_symbols">
+<code class="descname">term_symbols</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.term_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>All possible  Russell-Saunders term symbol of the Element
+eg. L = 1, n_e = 2 (s2)
+returns</p>
+<blockquote>
+<div>[[‘1D2’], [‘3P0’, ‘3P1’, ‘3P2’], [‘1S0’]]</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.valence">
+<code class="descname">valence</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.valence" title="Permalink to this definition">¶</a></dt>
+<dd><p># From full electron config obtain valence subshell
+# angular moment (L) and number of valence e- (v_e)</p>
 </dd></dl>
 
 </dd></dl>
@@ -1482,7 +1506,7 @@ that can be determined.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.19 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 

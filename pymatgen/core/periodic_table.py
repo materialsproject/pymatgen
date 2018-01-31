@@ -8,6 +8,7 @@ import os
 import re
 import json
 import warnings
+import numpy as np
 from io import open
 from enum import Enum
 
@@ -15,12 +16,13 @@ from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
+from itertools import product, combinations
+from collections import Counter
 
 """
 Module contains classes presenting Element and Specie (Element + oxidation
 state) and PeriodicTable.
 """
-
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -29,7 +31,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
-
 
 # Loads element data from json file
 with open(os.path.join(os.path.dirname(__file__),
@@ -420,7 +421,8 @@ class Element(Enum):
                     "mineral_hardness", "vickers_hardness",
                     "density_of_solid", "atomic_radius_calculated",
                     "van_der_waals_radius", "atomic_orbitals",
-                    "coefficient_of_linear_thermal_expansion"]:
+                    "coefficient_of_linear_thermal_expansion",
+                    "ground_state_term_symbol", "valence"]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
@@ -444,8 +446,8 @@ class Element(Enum):
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
                                 elif (
-                                    item ==
-                                    "coefficient_of_linear_thermal_expansion"
+                                        item ==
+                                        "coefficient_of_linear_thermal_expansion"
                                 ):
                                     unit = "K^-1"
                                 else:
@@ -553,6 +555,115 @@ class Element(Enum):
             sym = data[0].replace("[", "").replace("]", "")
             data = Element(sym).full_electronic_structure + data[1:]
         return data
+
+    @property
+    def valence(self):
+        """
+        # From full electron config obtain valence subshell
+        # angular moment (L) and number of valence e- (v_e)
+
+        """
+        L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
+        valence = []
+        full_electron_config = self.full_electronic_structure
+        for _, l_symbol, ne in full_electron_config[::-1]:
+            l = L_symbols.lower().index(l_symbol)
+            if ne < (2 * l + 1) * 2:
+                valence.append((l, ne))
+        if len(valence) > 1:
+            raise ValueError("Ambiguous valence")
+
+        return valence[0]
+
+    @property
+    def term_symbols(self):
+        """
+        All possible  Russell-Saunders term symbol of the Element
+        eg. L = 1, n_e = 2 (s2)
+        returns
+           [['1D2'], ['3P0', '3P1', '3P2'], ['1S0']]
+
+        """
+        L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
+
+        L, v_e = self.valence
+
+        # for one electron in subshell L
+        ml = list(range(-L, L + 1))
+        ms = [1 / 2, -1 / 2]
+        # all possible configurations of ml,ms for one e in subshell L
+        ml_ms = list(product(ml, ms))
+
+        # Number of possible configurations for r electrons in subshell L.
+        n = (2 * L + 1) * 2
+        # the combination of n_e electrons configurations
+        # C^{n}_{n_e}
+        e_config_combs = list(combinations(range(n), v_e))
+
+        # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
+        TL = [sum([ml_ms[comb[e]][0] for e in range(v_e)])
+              for comb in e_config_combs]
+        TS = [sum([ml_ms[comb[e]][1] for e in range(v_e)])
+              for comb in e_config_combs]
+        comb_counter = Counter([r for r in zip(TL, TS)])
+
+        term_symbols = []
+        while sum(comb_counter.values()) > 0:
+            # Start from the lowest freq combination,
+            # which corresponds to largest abs(L) and smallest abs(S)
+            L, S = min(comb_counter)
+
+            J = list(np.arange(abs(L - S), abs(L) + abs(S) + 1))
+            term_symbols.append([str(int(2 * (abs(S)) + 1))
+                                 + L_symbols[abs(L)]
+                                 + str(j) for j in J])
+            # Without J
+            # term_symbols.append(str(int(2 * (abs(S)) + 1)) \
+            #                     + L_symbols[abs(L)])
+
+            # Delete all configurations included in this term
+            for ML in range(-L, L - 1, -1):
+                for MS in np.arange(S, -S + 1, 1):
+                    if (ML, MS) in comb_counter:
+
+                        comb_counter[(ML, MS)] -= 1
+                        if comb_counter[(ML, MS)] == 0:
+                            del comb_counter[(ML, MS)]
+        return term_symbols
+
+    @property
+    def ground_state_term_symbol(self):
+        """
+        Ground state term symbol
+        Selected based on Hund's Rule
+
+        """
+        L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
+
+        term_symbols = self.term_symbols
+        term_symbol_flat = {term: {"multiplicity": int(term[0]),
+                                   "L": L_symbols.index(term[1]),
+                                   "J": float(term[2:])}
+                            for term in sum(term_symbols, [])}
+
+        multi = [int(item['multiplicity'])
+                 for terms, item in term_symbol_flat.items()]
+        max_multi_terms = {symbol: item
+                           for symbol, item in term_symbol_flat.items()
+                           if item['multiplicity'] == max(multi)}
+
+        Ls = [item['L'] for terms, item in max_multi_terms.items()]
+        max_L_terms = {symbol: item
+                       for symbol, item in term_symbol_flat.items()
+                       if item['L'] == max(Ls)}
+
+        J_sorted_terms = sorted(max_L_terms.items(),
+                                key=lambda k: k[1]['J'])
+        L, v_e = self.valence
+        if v_e <= (2 * L + 1):
+            return J_sorted_terms[0][0]
+        else:
+            return J_sorted_terms[-1][0]
 
     def __eq__(self, other):
         return isinstance(other, Element) and self.Z == other.Z
@@ -827,7 +938,6 @@ class Element(Enum):
 
 
 class Specie(MSONable):
-
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Specie should be "idealized"
@@ -898,8 +1008,8 @@ class Specie(MSONable):
         exactly the same.
         """
         return isinstance(other, Specie) and self.symbol == other.symbol \
-            and self.oxi_state == other.oxi_state \
-            and self._properties == other._properties
+               and self.oxi_state == other.oxi_state \
+               and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -990,7 +1100,7 @@ class Specie(MSONable):
             oxi = -oxi if m.group(3) == "-" else oxi
             properties = None
             if m.group(4):
-                toks = m.group(4).replace(",","").split("=")
+                toks = m.group(4).replace(",", "").split("=")
                 properties = {toks[0]: float(toks[1])}
             return Specie(sym, oxi, properties)
         else:
@@ -1049,16 +1159,16 @@ class Specie(MSONable):
         # else:
         #     raise ValueError("Invalid coordination number")
 
-        if len(radii[str(self._oxi_state)][cn]) == 1:
-            k, data = list(radii[str(self._oxi_state)][cn].items())[0]
+        if len(radii[str(int(self._oxi_state))][cn]) == 1:
+            k, data = list(radii[str(int(self._oxi_state))][cn].items())[0]
             if k != spin:
                 warnings.warn(
                     "Specified spin state of %s not consistent with database "
                     "spin of %s. Because there is only one spin data available, "
                     "that value is returned." % (spin, k)
                 )
-        else:
-            data = radii[str(self._oxi_state)][cn][spin]
+        else: 
+            data = radii[str(int(self._oxi_state))][cn][spin]
         return data["%s_radius" % radius_type]
 
     def get_crystal_field_spin(self, coordination="oct", spin_config="high"):
@@ -1090,7 +1200,7 @@ class Specie(MSONable):
         if nelectrons < 0 or nelectrons > 10:
             raise AttributeError(
                 "Invalid oxidation state {} for element {}"
-                .format(self.oxi_state, self.symbol))
+                    .format(self.oxi_state, self.symbol))
         if spin_config == "high":
             return nelectrons if nelectrons <= 5 else 10 - nelectrons
         elif spin_config == "low":
@@ -1202,8 +1312,8 @@ class DummySpecie(Specie):
         if not isinstance(other, DummySpecie):
             return False
         return isinstance(other, Specie) and self.symbol == other.symbol \
-            and self.oxi_state == other.oxi_state \
-            and self._properties == other._properties
+               and self.oxi_state == other.oxi_state \
+               and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)

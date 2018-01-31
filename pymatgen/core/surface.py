@@ -467,10 +467,10 @@ class Slab(Structure):
         """
         Returns the surface sites and their indices in a dictionary. The
         oriented unit cell of the slab will determine the coordination number
-        of a typical site. We use VoronoiCoordFinder to determine the
+        of a typical site. We use VoronoiNN to determine the
         coordination number of bulk sites and slab sites. Due to the
         pathological error resulting from some surface sites in the
-        VoronoiCoordFinder, we assume any site that has this error is a surface
+        VoronoiNN, we assume any site that has this error is a surface
         site as well. This will work for elemental systems only for now. Useful
         for analysis involving broken bonds and for finding adsorption sites.
 
@@ -489,14 +489,14 @@ class Slab(Structure):
             unequivalent sites. This will allow us to use this for compound systems.
         """
 
-        from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
+        from pymatgen.analysis.local_env import VoronoiNN
 
         # Get a dictionary of coordination numbers
         # for each distinct site in the structure
         a = SpacegroupAnalyzer(self.oriented_unit_cell)
         ucell = a.get_symmetrized_structure()
         cn_dict = {}
-        v = VoronoiCoordFinder(ucell)
+        v = VoronoiNN()
         unique_indices = [equ[0] for equ in ucell.equivalent_indices]
 
         for i in unique_indices:
@@ -507,12 +507,12 @@ class Slab(Structure):
             # slightest difference in cn will indicate a different environment for a
             # species, eg. bond distance of each neighbor or neighbor species. The
             # decimal place to get some cn to be equal.
-            cn = v.get_coordination_number(i)
+            cn = v.get_cn(ucell, i, use_weights=True)
             cn = float('%.5f' %(round(cn, 5)))
             if cn not in cn_dict[el]:
                 cn_dict[el].append(cn)
 
-        v = VoronoiCoordFinder(self)
+        v = VoronoiNN()
 
         surf_sites_dict, properties = {"top": [], "bottom": []}, []
         for i, site in enumerate(self):
@@ -522,7 +522,7 @@ class Slab(Structure):
             try:
                 # A site is a surface site, if its environment does
                 # not fit the environment of other sites
-                cn = float('%.5f' %(round(v.get_coordination_number(i), 5)))
+                cn = float('%.5f' %(round(v.get_cn(self, i, use_weights=True), 5)))
                 if cn < min(cn_dict[site.species_string]):
                     properties.append(True)
                     key = "top" if top else "bottom"
@@ -660,7 +660,8 @@ class SlabGenerator(object):
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
                  min_vacuum_size, lll_reduce=False, center_slab=False,
-                 primitive=True, max_normal_search=None, reorient_lattice=True):
+                 in_unit_planes=False, primitive=True, max_normal_search=None,
+                 reorient_lattice=True):
         """
         Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
@@ -675,12 +676,21 @@ class SlabGenerator(object):
                 surface. Note that this is referenced to the input structure. If
                 you need this to be based on the conventional cell,
                 you should supply the conventional structure.
-            min_slab_size (float): In Angstroms
-            min_vacuum_size (float): In Angstroms
+            min_slab_size (float): In Angstroms or number of hkl planes
+            min_vacuum_size (float): In Angstroms or number of hkl planes
             lll_reduce (bool): Whether to perform an LLL reduction on the
                 eventual structure.
             center_slab (bool): Whether to center the slab in the cell with
                 equal vacuum spacing from the top and bottom.
+            in_unit_planes (bool): Whether to set min_slab_size and min_vac_size in
+                units of hkl planes (True) or Angstrom (False/default). Setting in
+                units of planes is useful for ensuring some slabs have a certain
+                nlayer of atoms. e.g. for Cs (100), a 10 Ang slab will result in a
+                slab with only 2 layer of atoms, whereas Fe (100) will have more layer
+                of atoms. By using units of hkl planes instead, we ensure both slabs
+                have the same number of atoms. The slab thickness will be in
+                min_slab_size/math.ceil(self._proj_height/dhkl)
+                multiples of oriented unit cells.
             primitive (bool): Whether to reduce any generated slabs to a
                 primitive cell (this does **not** mean the slab is generated
                 from a primitive cell, it simply means that after slab
@@ -780,6 +790,7 @@ class SlabGenerator(object):
         # structure as possible to reduce calculations
         self.oriented_unit_cell = Structure.from_sites(single,
                                                        to_unit_cell=True)
+        self.max_normal_search = max_normal_search
         self.parent = initial_structure
         self.lll_reduce = lll_reduce
         self.center_slab = center_slab
@@ -787,6 +798,7 @@ class SlabGenerator(object):
         self.miller_index = miller_index
         self.min_vac_size = min_vacuum_size
         self.min_slab_size = min_slab_size
+        self.in_unit_planes = in_unit_planes
         self.primitive = primitive
         self._normal = normal
         a, b, c = self.oriented_unit_cell.lattice.matrix
@@ -811,8 +823,13 @@ class SlabGenerator(object):
         """
 
         h = self._proj_height
-        nlayers_slab = int(math.ceil(self.min_slab_size / h))
-        nlayers_vac = int(math.ceil(self.min_vac_size / h))
+        p = h/self.parent.lattice.d_hkl(self.miller_index)
+        if self.in_unit_planes:
+            nlayers_slab = int(math.ceil(self.min_slab_size / p))
+            nlayers_vac = int(math.ceil(self.min_vac_size / p))
+        else:
+            nlayers_slab = int(math.ceil(self.min_slab_size / h))
+            nlayers_vac = int(math.ceil(self.min_vac_size / h))
         nlayers = nlayers_slab + nlayers_vac
 
         species = self.oriented_unit_cell.species_and_occu
@@ -853,13 +870,16 @@ class SlabGenerator(object):
                 energy = prim.volume / slab.volume * energy
             slab = prim
 
+        # Reorient the lattice to get the correct reduced cell
+        ouc = self.oriented_unit_cell.copy()
+        if self.primitive and self.max_normal_search:
+            ouc = ouc.get_primitive_structure(constrain_latt=[False, False,
+                                                              True, False,
+                                                              False, False])
+
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
-                    self.oriented_unit_cell.\
-                    get_primitive_structure(constrain_latt=[False, False,
-                                                            True, False,
-                                                            False, False]),
-                    shift, scale_factor, energy=energy,
+                    ouc, shift, scale_factor, energy=energy,
                     site_properties=slab.site_properties,
                     reorient_lattice=self.reorient_lattice)
 
@@ -1097,8 +1117,13 @@ class SlabGenerator(object):
         # Determine what fraction the slab is of the total cell size
         # in the c direction. Round to nearest rational number.
         h = self._proj_height
-        nlayers_slab = int(math.ceil(self.min_slab_size / h))
-        nlayers_vac = int(math.ceil(self.min_vac_size / h))
+        p = h/self.parent.lattice.d_hkl(self.miller_index)
+        if self.in_unit_planes:
+            nlayers_slab = int(math.ceil(self.min_slab_size / p))
+            nlayers_vac = int(math.ceil(self.min_vac_size / p))
+        else:
+            nlayers_slab = int(math.ceil(self.min_slab_size / h))
+            nlayers_vac = int(math.ceil(self.min_vac_size / h))
         nlayers = nlayers_slab + nlayers_vac
         slab_ratio = nlayers_slab / nlayers
 

@@ -26,6 +26,7 @@ from pymatgen.core.periodic_table import DummySpecie
 from monty.os.path import which
 from monty.dev import requires
 from monty.tempfile import ScratchDir
+from threading import Timer
 
 """
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
@@ -84,7 +85,8 @@ class EnumlibAdaptor(object):
 
     def __init__(self, structure, min_cell_size=1, max_cell_size=1,
                  symm_prec=0.1, enum_precision_parameter=0.001,
-                 refine_structure=False, check_ordered_symmetry=True):
+                 refine_structure=False, check_ordered_symmetry=True,
+                 timeout=None):
         """
         Initializes the adapter with a structure and some parameters.
 
@@ -113,6 +115,10 @@ class EnumlibAdaptor(object):
                 structures. But sometimes including ordered sites
                 slows down enumeration to the point that it cannot be
                 completed. Switch to False in those cases. Defaults to True.
+            timeout (float): If specified, will kill enumlib after specified
+                time in minutes. This can be useful for gracefully handling
+                enumerations in a high-throughput context, for some enumerations
+                which will not terminate in a realistic length of time.
         """
         if refine_structure:
             finder = SpacegroupAnalyzer(structure, symm_prec)
@@ -125,6 +131,7 @@ class EnumlibAdaptor(object):
         self.enum_precision_parameter = enum_precision_parameter
         self.check_ordered_symmetry = check_ordered_symmetry
         self.structures = None
+        self.timeout = timeout
 
     def run(self):
         """
@@ -284,10 +291,31 @@ class EnumlibAdaptor(object):
             f.write("\n".join(output))
 
     def _run_multienum(self):
+
         p = subprocess.Popen([enum_cmd],
                              stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, close_fds=True)
-        output = p.communicate()[0].decode("utf-8")
+
+        if self.timeout:
+
+            timed_out = False
+            timer = Timer(self.timeout*60, lambda p: p.kill(), [p])
+
+            try:
+                timer.start()
+                output = p.communicate()[0].decode("utf-8")
+            finally:
+                if not timer.is_alive():
+                    timed_out = True
+                timer.cancel()
+
+            if timed_out:
+                raise TimeoutError('Enumeration took too long.')
+
+        else:
+
+            output = p.communicate()[0].decode("utf-8")
+
         count = 0
         start_count = False
         for line in output.strip().split("\n"):

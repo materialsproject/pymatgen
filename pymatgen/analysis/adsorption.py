@@ -27,7 +27,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.analyzer import generate_full_symmops
 from pymatgen.util.coord import in_coord_list, in_coord_list_pbc
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
+from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
@@ -118,8 +118,8 @@ class AdsorbateSiteFinder(object):
         """
         # TODO: for some reason this works poorly with primitive cells
         #       may want to switch the coordination algorithm eventually
-        vcf_bulk = VoronoiCoordFinder(structure)
-        bulk_coords = [len(vcf_bulk.get_coordinated_sites(n, tol=0.05))
+        vnn_bulk = VoronoiNN(tol=0.05)
+        bulk_coords = [len(vnn_bulk.get_nn(structure, n))
                        for n in range(len(structure))]
         struct = structure.copy(site_properties={'bulk_coordinations': bulk_coords})
         slabs = generate_all_slabs(struct, max_index=max(miller_index),
@@ -135,7 +135,7 @@ class AdsorbateSiteFinder(object):
 
         this_slab = slab_dict[miller_index]
 
-        vcf_surface = VoronoiCoordFinder(this_slab, allow_pathological=True)
+        vnn_surface = VoronoiNN(tol=0.05, allow_pathological=True)
 
         surf_props, undercoords = [], []
         this_mi_vec = get_mi_vec(this_slab)
@@ -143,7 +143,7 @@ class AdsorbateSiteFinder(object):
         average_mi_mag = np.average(mi_mags)
         for n, site in enumerate(this_slab):
             bulk_coord = this_slab.site_properties['bulk_coordinations'][n]
-            slab_coord = len(vcf_surface.get_coordinated_sites(n, tol=0.05))
+            slab_coord = len(vnn_surface.get_nn(this_slab, n))
             mi_mag = np.dot(this_mi_vec, site.coords)
             undercoord = (bulk_coord - slab_coord) / bulk_coord
             undercoords += [undercoord]
