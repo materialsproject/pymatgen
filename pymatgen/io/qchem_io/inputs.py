@@ -4,7 +4,9 @@
 #import re
 #from monty.io import zopen
 #from monty.re import regrep
+import logging
 from monty.json import MSONable
+from pymatgen.io.qchem_io.templates import *
 
 """
 Classes for reading/manipulating/writing QChem ouput files.
