@@ -966,21 +966,6 @@ class Specie(MSONable):
         Properties are now checked when comparing two Species for equality.
     """
 
-    cache = {}
-
-    def __new__(cls, *args, **kwargs):
-        key = (cls,) + args + tuple(kwargs.items())
-        try:
-            inst = Specie.cache.get(key, None)
-        except TypeError:
-            # Can't cache this set of arguments
-            inst = key = None
-        if inst is None:
-            inst = object.__new__(cls)
-            if key is not None:
-                Specie.cache[key] = inst
-        return inst
-
     supported_properties = ("spin",)
 
     def __init__(self, symbol, oxidation_state=None, properties=None):

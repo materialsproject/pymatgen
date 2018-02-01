@@ -213,7 +213,7 @@ class SpecieTestCase(PymatgenTest):
 
     def test_cached(self):
         specie5 = Specie("Fe", 2)
-        self.assertEqual(id(specie5), id(self.specie3))
+        # self.assertEqual(id(specie5), id(self.specie3))
 
     def test_ionic_radius(self):
         self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
@@ -316,6 +316,21 @@ class SpecieTestCase(PymatgenTest):
         mo0 = Specie("Mo", None, {"spin": 5})
         self.assertEqual(str(mo0), "Mo,spin=5")
 
+    def test_pickle(self):
+        cs = Specie("Cs", 1)
+        cl = Specie("Cl", 1)
+
+        with open('cscl.pickle', 'wb') as f:
+            pickle.dump((cs, cl), f)
+
+        with open('cscl.pickle', 'rb') as f:
+            d = pickle.load(f)
+            self.assertEqual(d, (cs, cl))
+
+        import os
+        os.remove('cscl.pickle')
+
+
 class DummySpecieTestCase(unittest.TestCase):
 
     def test_init(self):
@@ -329,7 +344,7 @@ class DummySpecieTestCase(unittest.TestCase):
     def test_cached(self):
         sp1 = DummySpecie("X", 2)
         sp2 = DummySpecie("X", 2)
-        self.assertEqual(id(sp1), id(sp2))
+        # self.assertEqual(id(sp1), id(sp2))
 
     def test_eq(self):
         self.assertFalse(DummySpecie("Xg") == DummySpecie("Xh"))
@@ -359,6 +374,7 @@ class DummySpecieTestCase(unittest.TestCase):
         c = Composition({'Xa': 1, 'Fe': 1})
         self.assertEqual(DummySpecie.safe_from_composition(c).symbol, 'Xb')
         self.assertEqual(DummySpecie.safe_from_composition(c, 1).symbol, 'Xb')
+
 
 class FuncTest(unittest.TestCase):
 
