@@ -54,8 +54,8 @@ def average_coordination_number(structures, freq=10):
         Dictionary of elements as keys and average coordination numbers as values.
     """
     coordination_numbers = {}
-    for el in structures[0].composition.elements:
-        coordination_numbers[el.name] = 0.0
+    for spec in structures[0].composition.as_dict().keys():
+        coordination_numbers[spec] = 0.0
     count = 0
     for t in range(len(structures)):
         if t % freq != 0:
