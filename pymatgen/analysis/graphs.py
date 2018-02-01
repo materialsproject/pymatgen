@@ -124,7 +124,7 @@ class StructureGraph(MSONable):
         return cls(structure, graph_data=graph_data)
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy, decorate=False):
+    def with_local_env_strategy(structure, strategy, decorate=True):
         """
         Constructor for StructureGraph, using a strategy
         from  :Class: `pymatgen.analysis.local_env`.
