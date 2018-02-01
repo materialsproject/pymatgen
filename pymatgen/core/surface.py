@@ -1653,6 +1653,39 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     return all_slabs
 
 
+def reduce_miller_index(miller_index):
+    md = [fractions.Fraction(n).limit_denominator(12).denominator \
+          for i, n in enumerate(miller_index)]
+    miller_index *= reduce(lambda x, y: x * y, md)
+    round_miller_index = np.array([np.round(i, 1) for i in miller_index])
+    if any([i > 1e-6 for i in abs(miller_index - round_miller_index)]):
+        warnings.warn("Non-integer encountered in Miller index")
+
+    return miller_index / np.abs(reduce(fractions.gcd, round_miller_index))
+
+
+def miller_index_from_sites(supercell_matrix, coords):
+    """
+    Get the Miller index of a plane from two vectors formed from three
+    cartesian coordinates. If you use this module, please consider
+    citing the following work::
+        Sun, W., & Ceder, G. (2018). A topological screening heuristic
+        for low-energy , high-index surfaces. Surface Science, 669(October
+        2017), 50–56. https://doi.org/10.1016/j.susc.2017.11.007
+    Args:
+        supercell_matrix: 3x3 matrix describing the supercell or unit cell
+        coords: List of three (numpy arrays) points as cartesian coordinates
+            in the corresponding cell
+    Returns:
+        The Miller index
+    """
+
+    v1 = np.dot(npl.inv(np.transpose(supercell_matrix)), coords[0] - coords[1])
+    v2 = np.dot(npl.inv(np.transpose(basis)), coords[0] - coords[2])
+
+    return reduce_miller_index(np.transpose(np.cross(v1, v2)))
+
+
 def reduce_vector(vector):
 
     # small function to reduce vectors
@@ -1661,3 +1694,4 @@ def reduce_vector(vector):
     vector = tuple([int(i / d) for i in vector])
 
     return vector
+

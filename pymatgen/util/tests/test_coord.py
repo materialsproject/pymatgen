@@ -227,31 +227,6 @@ class CoordUtilsTest(PymatgenTest):
         self.assertAlmostEqual(get_angle(v1, v2, units="radians"),
                                0.9553166181245092)
 
-    def test_miller_index_from_sites(self):
-        # test on a cubic system
-        m = Lattice.cubic(1).matrix
-        s1 = np.array([0.5, -1.5, 3])
-        s2 = np.array([0.5, 3.,-1.5])
-        s3 = np.array([2.5, 1.5,-4.])
-        self.assertEqual(tuple(miller_index_from_sites(m, [s1, s2, s3])),
-                         (-2,-1,-1))
-
-        # test on a hexagonal system
-        l = Lattice.hexagonal(2.319, 3.626)
-        s1 = l.get_cartesian_coords([1/3, 2/3, 5/4])
-        s2 = l.get_cartesian_coords([2/3, 1/3, 3/4])
-        s3 = l.get_cartesian_coords([2/3, 4/3, -1/4])
-        s1 = np.array([1/3, 2/3, 5/4])
-        s2 = np.array([2/3, 1/3, 3/4])
-        s3 = np.array([2/3, 4/3, -1/4])
-        print(s1,s2,s3)
-        self.assertEqual(tuple(miller_index_from_sites(l.matrix, [s1, s2, s3])),
-                         (-2,-1,-1))
-
-
-
-
-
 class SimplexTest(PymatgenTest):
 
     def setUp(self):
