@@ -1652,6 +1652,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
 
     return all_slabs
 
+import fractions
 
 def get_integer_index(miller_index):
     """
@@ -1683,9 +1684,9 @@ def miller_index_from_sites(supercell_matrix, coords):
         The Miller index
     """
 
-    v1 = np.dot(npl.inv(np.transpose(supercell_matrix)),
+    v1 = np.dot(np.linalg.inv(np.transpose(supercell_matrix)),
                 coords[0] - coords[1])
-    v2 = np.dot(npl.inv(np.transpose(basis)),
+    v2 = np.dot(np.linalg.inv(np.transpose(supercell_matrix)),
                 coords[0] - coords[2])
     return get_integer_index(np.transpose(np.cross(v1, v2)))
 

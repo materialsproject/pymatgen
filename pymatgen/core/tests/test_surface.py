@@ -640,16 +640,15 @@ class MillerIndexFinderTests(PymatgenTest):
                          (-2,-1,-1))
 
         # test on a hexagonal system
-        l = Lattice.hexagonal(2.319, 3.626)
-        s1 = l.get_cartesian_coords([1/3, 2/3, 5/4])
-        s2 = l.get_cartesian_coords([2/3, 1/3, 3/4])
-        s3 = l.get_cartesian_coords([2/3, 4/3, -1/4])
-        s1 = np.array([1/3, 2/3, 5/4])
-        s2 = np.array([2/3, 1/3, 3/4])
-        s3 = np.array([2/3, 4/3, -1/4])
-        print(s1,s2,s3)
-        self.assertEqual(tuple(miller_index_from_sites(l.matrix, [s1, s2, s3])),
-                         (-2,-1,-1))
+        m = np.array([[2.319, -4.01662582, 0.],
+                      [2.319, 4.01662582, 0.],
+                      [0., 0., 7.252]])
+
+        s1 = np.array([2.319, 1.33887527, 6.3455])
+        s2 = np.array([1.1595, 0.66943764, 4.5325])
+        s3 = np.array([1.1595, 0.66943764, 0.9065])
+        hkl = [np.round(i, 6) for i in miller_index_from_sites(m, [s1, s2, s3])]
+        self.assertEqual(tuple(hkl), (2, -1, 0))
 
 
 if __name__ == "__main__":
