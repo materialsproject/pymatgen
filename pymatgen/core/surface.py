@@ -1654,6 +1654,9 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
 
 
 def get_integer_index(miller_index):
+    """
+    Converts a vector of floats to whole numbers
+    """
     md = [fractions.Fraction(n).limit_denominator(12).denominator \
           for i, n in enumerate(miller_index)]
     miller_index *= reduce(lambda x, y: x * y, md)
@@ -1680,9 +1683,10 @@ def miller_index_from_sites(supercell_matrix, coords):
         The Miller index
     """
 
-    v1 = np.dot(npl.inv(np.transpose(supercell_matrix)), coords[0] - coords[1])
-    v2 = np.dot(npl.inv(np.transpose(basis)), coords[0] - coords[2])
-
+    v1 = np.dot(npl.inv(np.transpose(supercell_matrix)),
+                coords[0] - coords[1])
+    v2 = np.dot(npl.inv(np.transpose(basis)),
+                coords[0] - coords[2])
     return get_integer_index(np.transpose(np.cross(v1, v2)))
 
 
