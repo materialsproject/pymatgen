@@ -677,7 +677,7 @@ class MinimumVIRENN(NearNeighbors):
                 siw.append({'site': s,
                             'image': self._get_image(s.frac_coords),
                             'weight': w,
-                            'site_index': self._get_original_site(structure, s)})
+                            'site_index': self._get_original_site(vire.structure, s)})
 
         return siw
 

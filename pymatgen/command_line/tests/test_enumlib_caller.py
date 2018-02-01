@@ -131,13 +131,11 @@ class EnumlibAdaptorTest(PymatgenTest):
             self.assertEqual(s.formula, 'Ca12 Al8 Si4 Ge8 O48')
 
     def test_timeout(self):
-
         s = Structure.from_file(filename=os.path.join(test_dir, "garnet.cif"))
         a = SpacegroupAnalyzer(s, 0.1)
-        prim = a.find_primitive()
-        s = prim.copy()
         s["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01, timeout=0.000001)
+        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01,
+                                 timeout=0.000001)
         self.assertRaises(TimeoutError, adaptor._run_multienum)
 
 
