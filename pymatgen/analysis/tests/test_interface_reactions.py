@@ -63,6 +63,17 @@ class InterfaceReactionTest(unittest.TestCase):
             InterfacialReactivity(Composition('Li2O2'), Composition('Li'), self.pd,
                                   norm=0, include_no_mixing_energy=0,
                                   pd_non_grand=None, use_hull_energy=False))
+
+        self.ir.append(
+            InterfacialReactivity(Composition('Li2O2'), Composition('MnO2'), self.gpd,
+                                  norm=0, include_no_mixing_energy=0,
+                                  pd_non_grand=self.pd, use_hull_energy=True))
+
+        self.ir.append(
+            InterfacialReactivity(Composition('Li2O2'), Composition('MnO2'), self.gpd,
+                                  norm=0, include_no_mixing_energy=0,
+                                  pd_non_grand=self.pd, use_hull_energy=False))
+
         with self.assertRaises(Exception) as context1:
             self.ir.append(
                 InterfacialReactivity(Composition('Li2O2'), Composition('Li'),
@@ -115,10 +126,23 @@ class InterfaceReactionTest(unittest.TestCase):
                         '_get_grand_potential: Non-normalized case gets error!')
 
         # Test normalized case
-        test2 = np.isclose(self.ir[2]._get_grand_potential(comp), -36,
+        test2 = np.isclose(self.ir[2]._get_grand_potential(comp), -9,
                            atol=1e-03)
         self.assertTrue(test2,
                         '_get_grand_potential: Normalized case gets error!')
+
+        comp2 = Composition('Li2O2')
+        # Test use_hull_energy option.
+        test3 = np.isclose(self.ir[8]._get_grand_potential(comp2), -4,
+                           atol=1e-03)
+        self.assertTrue(test3,
+                        '_get_grand_potential: get hull energy gets error!')
+
+        test4 = np.isclose(self.ir[9]._get_grand_potential(comp2), -2,
+                           atol=1e-03)
+        self.assertTrue(test4,
+                        '_get_grand_potential: gets error for {}!'.format(
+                            comp2.reduced_formula))
 
     def test_get_energy(self):
         test1 = (np.isclose(self.ir[0]._get_energy(0.5), -15, atol=1e-03))
@@ -263,7 +287,7 @@ class InterfaceReactionTest(unittest.TestCase):
             self.assertTrue(name_lst(i) == name_lst(j),
                             'get_no_mixing_energy: names get error, {0} expected but gets {1}'.format(
                                 name_lst(j), name_lst(i)))
-            self.assertTrue(energy_lst(i) == energy_lst(j),
+            self.assertTrue(np.allclose(energy_lst(i), energy_lst(j)),
                             'get_no_mixing_energy: no_mixing energies get error, {0} expected but gets {1}'.format(
                                 energy_lst(j), energy_lst(i)))
 
