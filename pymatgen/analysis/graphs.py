@@ -124,7 +124,7 @@ class StructureGraph(MSONable):
         return cls(structure, graph_data=graph_data)
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy):
+    def with_local_env_strategy(structure, strategy, decorate=False):
         """
         Constructor for StructureGraph, using a strategy
         from  :Class: `pymatgen.analysis.local_env`.
@@ -133,6 +133,8 @@ class StructureGraph(MSONable):
         :param strategy: an instance of a
          :Class: `pymatgen.analysis.local_env.NearNeighbors`
          object
+        :param decorate: flag to indicate whether or not to decorate
+         all sites with coordination environment information.
         :return:
         """
 
@@ -154,6 +156,8 @@ class StructureGraph(MSONable):
                             to_jimage=neighbor['image'],
                             weight=neighbor['weight'],
                             warn_duplicates=False)
+        if decorate:
+            sg.decorate_structure_with_ce_info()
 
         return sg
 
@@ -369,6 +373,18 @@ class StructureGraph(MSONable):
             return d
         else:
             return None
+
+    def decorate_structure_with_ce_info(self):
+        """
+        Decorate all sites in the underlying structure
+        with site properties that provides information on the
+        coordination number and coordination pattern based
+        on the (current) structure of this graph.
+        """
+        l = []
+        for i in range(len(self.structure.sites)):
+            l.append(self.get_local_order_parameters(i))
+        self.structure.add_site_property('ce_info', l)
 
     def draw_graph_to_file(self, filename="graph",
                            diff=None,
