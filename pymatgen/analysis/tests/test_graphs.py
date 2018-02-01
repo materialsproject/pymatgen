@@ -35,6 +35,8 @@ class StructureGraphTest(unittest.TestCase):
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(0, 1, 0))
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(0, -1, 0))
+        #TODO: decorating still fails because the structure graph gives a CN of 8 for this square lattice
+        # self.square_sg.decorate_structure_with_ce_info()
 
         # body-centered square lattice for testing
         structure = Structure(Lattice.tetragonal(5.0, 50.0), ['H', 'He'], [[0, 0, 0], [0.5, 0.5, 0.5]])
@@ -206,17 +208,19 @@ from    to  to_image
         sq_sg_1 = sq_sg_1*(2, 2, 1)
         sq_sg_2 = self.square_sg*(4, 4, 1)
         self.assertEqual(sq_sg_1.graph.number_of_edges(), sq_sg_2.graph.number_of_edges())
+        #TODO: the below test still gives 8 != 4
+        #self.assertEqual(self.square_sg.get_coordination_of_site(0), 4)
 
         mos2_sg_mul = self.mos2_sg * (3, 3, 1)
         for idx in mos2_sg_mul.structure.indices_from_symbol("Mo"):
             self.assertEqual(mos2_sg_mul.get_coordination_of_site(idx), 6)
 
-        mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure*(3, 3, 1), MinimumDistanceNN())
+        mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure*(3, 3, 1), MinimumDistanceNN(), decorate=False)
         self.assertTrue(mos2_sg_mul == mos2_sg_premul)
 
         # test 3D Structure
 
-        nio_sg = StructureGraph.with_local_env_strategy(self.NiO, MinimumDistanceNN())
+        nio_sg = StructureGraph.with_local_env_strategy(self.NiO, MinimumDistanceNN(), decorate=False)
         nio_sg = nio_sg*3
 
         for n in range(len(nio_sg)):
@@ -224,14 +228,25 @@ from    to  to_image
             ops = nio_sg.get_local_order_parameters(n)
 
         # BCC
-        bcc_sg = StructureGraph.with_local_env_strategy(self.bcc, MinimumDistanceNN())
+        bcc_sg = StructureGraph.with_local_env_strategy(
+                self.bcc, MinimumDistanceNN(), decorate=False)
+        bcc_sg_dec = StructureGraph.with_local_env_strategy(
+                self.bcc, MinimumDistanceNN())
         for n in range(len(bcc_sg)):
             self.assertEqual(bcc_sg.get_coordination_of_site(n), 8)
+            self.assertEqual(bcc_sg.get_coordination_of_site(n), \
+                             bcc_sg_dec.get_coordination_of_site(n))
             ops = bcc_sg.get_local_order_parameters(n)
             self.assertTrue(any(t in list(ops.keys()) for t in (
                     'body-centered cubic', 'hexagonal bipyramidal')))
+            sprops = bcc_sg_dec.structure.sites[n].properties['ce_info']
+            self.assertTrue(any(t in list(sprops) \
+                    for t in ('body-centered cubic', 'hexagonal bipyramidal')))
             self.assertAlmostEqual(ops['body-centered cubic'], 1)
+            self.assertAlmostEqual(sprops['body-centered cubic'], 1)
             self.assertAlmostEqual(ops['hexagonal bipyramidal'], \
+                    0.43331263572418355)
+            self.assertAlmostEqual(sprops['hexagonal bipyramidal'], \
                     0.43331263572418355)
 
     @unittest.skipIf(not (which('neato') and which('fdp')), "graphviz executables not present")
@@ -248,7 +263,7 @@ from    to  to_image
         mos2_sg_2.draw_graph_to_file('MoS2_twice_mul.pdf', algo='neato', hide_image_edges=True)
 
         # draw MoS2 graph that's generated from a pre-multiplied Structure
-        mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure*(3, 3, 1), MinimumDistanceNN())
+        mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure*(3, 3, 1), MinimumDistanceNN(), decorate=False)
         mos2_sg_premul.draw_graph_to_file('MoS2_premul.pdf', algo='neato', hide_image_edges=True)
 
         # draw graph for a square lattice
@@ -274,12 +289,12 @@ from    to  to_image
 
     def test_from_local_env_and_equality_and_diff(self):
         nn = MinimumDistanceNN()
-        sg = StructureGraph.with_local_env_strategy(self.structure, nn)
+        sg = StructureGraph.with_local_env_strategy(self.structure, nn, decorate=False)
         
         self.assertEqual(sg.graph.number_of_edges(), 6)
 
         nn2 = MinimumOKeeffeNN()
-        sg2 = StructureGraph.with_local_env_strategy(self.structure, nn2)
+        sg2 = StructureGraph.with_local_env_strategy(self.structure, nn2, decorate=False)
 
         self.assertTrue(sg == sg2)
         self.assertTrue(sg == self.mos2_sg)
@@ -296,7 +311,7 @@ from    to  to_image
         s = Structure.from_file(structure_file)
 
         nn = MinimumOKeeffeNN()
-        sg = StructureGraph.with_local_env_strategy(s, nn)
+        sg = StructureGraph.with_local_env_strategy(s, nn, decorate=False)
 
         molecules = sg.get_subgraphs_as_molecules()
 
