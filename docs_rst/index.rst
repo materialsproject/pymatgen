@@ -46,7 +46,7 @@ Py3k-only with effect from 2019.1.1
 
 Pymatgen has supported both Python 2.7 as well as Python 3.x from version 3.0.
 With increasing support by most standard libraries for Py3k, it no longer makes
-sense to maintain this dual support going foward. Dual support imposes costs in
+sense to maintain this dual support going forward. Dual support imposes costs in
 terms of developmental effort, and also forces compromises in code quality and
 efficiency. Though some legacy clusters may only come with Py2k installed by
 default, the recommended approach in any case is to create an isolated Py3k
