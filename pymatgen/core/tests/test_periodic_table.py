@@ -249,6 +249,18 @@ class SpecieTestCase(PymatgenTest):
         self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
         for i in range(1, 5):
             self.serialize_with_pickle(getattr(self, "specie%d" % i) , test_eq=True)
+        cs = Specie("Cs", 1)
+        cl = Specie("Cl", 1)
+
+        with open('cscl.pickle', 'wb') as f:
+            pickle.dump((cs, cl), f)
+
+        with open('cscl.pickle', 'rb') as f:
+            d = pickle.load(f)
+            self.assertEqual(d, (cs, cl))
+
+        import os
+        os.remove('cscl.pickle')
 
     def test_get_crystal_field_spin(self):
         self.assertEqual(Specie("Fe", 2).get_crystal_field_spin(), 4)
@@ -315,20 +327,6 @@ class SpecieTestCase(PymatgenTest):
     def test_no_oxidation_state(self):
         mo0 = Specie("Mo", None, {"spin": 5})
         self.assertEqual(str(mo0), "Mo,spin=5")
-
-    def test_pickle(self):
-        cs = Specie("Cs", 1)
-        cl = Specie("Cl", 1)
-
-        with open('cscl.pickle', 'wb') as f:
-            pickle.dump((cs, cl), f)
-
-        with open('cscl.pickle', 'rb') as f:
-            d = pickle.load(f)
-            self.assertEqual(d, (cs, cl))
-
-        import os
-        os.remove('cscl.pickle')
 
 
 class DummySpecieTestCase(unittest.TestCase):
