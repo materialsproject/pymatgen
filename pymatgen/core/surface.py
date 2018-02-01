@@ -1653,7 +1653,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     return all_slabs
 
 
-def reduce_miller_index(miller_index):
+def get_integer_index(miller_index):
     md = [fractions.Fraction(n).limit_denominator(12).denominator \
           for i, n in enumerate(miller_index)]
     miller_index *= reduce(lambda x, y: x * y, md)
@@ -1683,7 +1683,7 @@ def miller_index_from_sites(supercell_matrix, coords):
     v1 = np.dot(npl.inv(np.transpose(supercell_matrix)), coords[0] - coords[1])
     v2 = np.dot(npl.inv(np.transpose(basis)), coords[0] - coords[2])
 
-    return reduce_miller_index(np.transpose(np.cross(v1, v2)))
+    return get_integer_index(np.transpose(np.cross(v1, v2)))
 
 
 def reduce_vector(vector):
