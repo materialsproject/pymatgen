@@ -9,6 +9,8 @@ import itertools
 import numpy as np
 import math
 from . import coord_cython as cuc
+from functools import reduce
+import fractions
 
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
@@ -356,6 +358,37 @@ def get_angle(v1, v2, units="degrees"):
         return angle
     else:
         raise ValueError("Invalid units {}".format(units))
+
+
+def miller_index_from_sites(supercell_matrix, coords):
+    """
+    Get the Miller index of a plane from two vectors formed from three
+    cartesian coordinates. If you use this module, please consider
+    citing the following work::
+
+        Sun, W., & Ceder, G. (2018). A topological screening heuristic
+        for low-energy , high-index surfaces. Surface Science, 669(October
+        2017), 50–56. https://doi.org/10.1016/j.susc.2017.11.007
+
+    Args:
+        supercell_matrix: 3x3 matrix describing the supercell or unit cell
+        coords: List of three (numpy arrays) points as cartesian coordinates
+            in the corresponding cell
+
+    Returns:
+        The Miller index
+    """
+
+    v1 = np.dot(np.linalg.inv(np.transpose(supercell_matrix)),
+                coords[0] - coords[1])
+    v2 = np.dot(np.linalg.inv(np.transpose(supercell_matrix)),
+                coords[0] - coords[2])
+    miller_index = np.transpose(np.cross(v1, v2))
+
+    lcm = abs(reduce(fractions.gcd, [np.round(i, decimals=6)
+                                     for i in miller_index]))
+
+    return miller_index / lcm
 
 
 class Simplex(object):
