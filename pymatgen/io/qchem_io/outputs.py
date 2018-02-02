@@ -32,7 +32,7 @@ class QCCalc(MSONable):
         self.data = {}
 
         # Check if calculation is unrestricted
-        self.read_pattern({"unrestricted": r"A\sunrestricted\sSCF\scalculation\swill\sbe"}, terminate_on_match=True)
+        self.read_pattern({"unrestricted": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"}, terminate_on_match=True)
 
         # Check if calculation uses GEN_SCFMAN
         self.read_pattern({"using_GEN_SCFMAN": r"\s+GEN_SCFMAN: A general SCF calculation manager"}, terminate_on_match=True)
@@ -57,9 +57,10 @@ class QCCalc(MSONable):
             self.read_pattern({"S2": r"<S\^2>\s=\s+([\d\-\.]+)"})
 
         # Check if the calculation is a geometry optimization. If so, parse the relevant output
-        self.read_pattern({"optimization": r"\s+jobtype = opt"}, terminate_on_match=True)
+        self.read_pattern({"optimization": r"(?i)\s*job(?:_)*type\s+=\s+opt"}, terminate_on_match=True)
         if self.data.get('optimization',[]):
             self.read_pattern({'energy_trajectory': r"\sEnergy\sis\s+([\d\-\.]+)"})
+            self._read_optimized_geometry()
 
 
 
@@ -93,9 +94,9 @@ class QCCalc(MSONable):
         """
         Parses all old-style SCFs
         """
-        header_pattern = r"\-+\s+Cycle\s+Energy\s+DIIS Error\s+\-+"
-        table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.]+)(?:\sConvergence criterion met)*"
-        footer_pattern = r"\-+\n\sSCF\stime:\s+CPU [\d\-\.]+ s\s+wall\s+[\d\-\.]+ s"
+        header_pattern = r"\s*\-+\s+Cycle\s+Energy\s+DIIS Error\s+\-+"
+        table_pattern = r"\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.]+)(?:\s*\n\s*cpu.*\n.*tauTot is\:[\d\-\.]+)*(?:\sConvergence criterion met)*"
+        footer_pattern = r"\s*\-+(?:\s*<S\^2> = [\d\-\.]+)*\s+SCF\stime:\s+CPU [\d\-\.]+ s\s+wall\s+[\d\-\.]+ s"
 
         self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="SCF")
         return self.data["SCF"]
@@ -105,7 +106,7 @@ class QCCalc(MSONable):
         """
         Parses Mulliken charges given a restricted SCF.
         """
-        header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a.u.\)\s+\-+"
+        header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+\-+"
         table_pattern = r"\s+\d+\s(\w+)\s+([\d\-\.]+)"
         footer_pattern = r"\s\s\-+\s+Sum of atomic charges"
 
@@ -117,12 +118,24 @@ class QCCalc(MSONable):
         """
         Parses Mulliken charges and spins given an unrestricted SCF. 
         """
-        header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a.u.\)\s+Spin\s\(a.u.\)\s+\-+"
+        header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+Spin\s\(a\.u\.\)\s+\-+"
         table_pattern = r"\s+\d+\s(\w+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer_pattern = r"\s\s\-+\s+Sum of atomic charges"
 
         self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="unrestricted_Mulliken")
         return self.data["unrestricted_Mulliken"]
+
+
+    def _read_optimized_geometry(self):
+        """
+        Parses optimized XYZ coordinates
+        """
+        header_pattern = r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+        table_pattern = r"\s+\d+\s+(\w+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+        footer_pattern = r"\s+Z-matrix Print:"
+
+        self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="optimized_geometry")
+        return self.data["optimized_geometry"]
 
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
@@ -204,9 +217,7 @@ class QCCalc(MSONable):
         for mt in table_pattern.finditer(text):
             table_body_text = mt.group("table_body")
             table_contents = []
-            for line in table_body_text.split("\n"):
-                # print line
-                ml = rp.search(line)
+            for ml in rp.finditer(table_body_text):
                 d = ml.groupdict()
                 if len(d) > 0:
                     processed_line = {k: postprocess(v) for k, v in d.items()}
