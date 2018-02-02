@@ -164,7 +164,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
 
         for el in self.Oads_analyzer_dict.keys():
             plotter = self.Oads_analyzer_dict[el]
-            for hkl in plotter.entry_dict.keys():
+            for hkl in plotter.all_slab_entries.keys():
                 # Test that the surface energy is clean for specific range of chempot
                 entry1, gamma1 = \
                     plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -7})
@@ -268,6 +268,18 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         for entry in stable_u_range.keys():
             all_u.extend(stable_u_range[entry])
         self.assertGreater(len(all_u), 1)
+
+    def test_entry_dict_from_list(self):
+
+        # Plug in a list of entries to see if it works
+        all_Pt_slab_entries = []
+        Pt_entries = self.Pt_analyzer.all_slab_entries
+        for hkl in Pt_entries.keys():
+            for clean in Pt_entries[hkl].keys():
+                all_Pt_slab_entries.append(clean)
+                all_Pt_slab_entries.extend(Pt_entries[hkl][clean])
+        a = SurfaceEnergyPlotter(all_Pt_slab_entries,
+                                 self.Pt_analyzer.ucell_entry)
 
     # def test_monolayer_vs_BE(self):
     #     for el in self.Oads_analyzer_dict.keys():
