@@ -337,7 +337,7 @@ class SurfaceEnergyPlotter(object):
         phases diagrams of two parameters to determine stability of configurations
         (future release), and Wulff shapes.
 
-    .. attribute:: entry_dict
+    .. attribute:: all_slab_entries
 
         Nested dictionary containing a list of entries for slab calculations as
             items and the corresponding Miller index of the slab as the key.
@@ -356,7 +356,7 @@ class SurfaceEnergyPlotter(object):
             where clean_entry1 can be a pristine surface and clean_entry2 can be a
             reconstructed surface while ads_entry1 can be adsorption at site 1 with
             a 2x2 coverage while ads_entry2 can have a 3x3 coverage. If adsorption
-            entries are present (i.e. if entry_dict[(h,k,l)][clean_entry1]), we
+            entries are present (i.e. if all_slab_entries[(h,k,l)][clean_entry1]), we
             consider adsorption in all plots and analysis for this particular facet.
 
     ..attribute:: color_dict
@@ -378,12 +378,12 @@ class SurfaceEnergyPlotter(object):
         Randomly generated dictionary of colors associated with each facet.
     """
 
-    def __init__(self, entry_dict, ucell_entry, ref_entries=[]):
+    def __init__(self, all_slab_entries, ucell_entry, ref_entries=[]):
         """
         Object for plotting surface energy in different ways for clean and
             adsorbed surfaces.
         Args:
-            entry_dict (dict): Dictionary containing a list of entries
+            all_slab_entries (dict): Dictionary containing a list of entries
                 for slab calculations. See attributes.
             ucell_entry (ComputedStructureEntry): ComputedStructureEntry
                 of the bulk reference for this particular material.
@@ -399,7 +399,7 @@ class SurfaceEnergyPlotter(object):
 
         self.ucell_entry = ucell_entry
         self.ref_entries = ref_entries
-        self.entry_dict = entry_dict
+        self.all_slab_entries = all_slab_entries
         self.color_dict = self.color_palette_dict()
 
     def set_all_variables(self, entry, u_dict, u_default):
@@ -450,14 +450,14 @@ class SurfaceEnergyPlotter(object):
         """
 
         all_entries, all_gamma = [], []
-        for entry in self.entry_dict[miller_index].keys():
+        for entry in self.all_slab_entries[miller_index].keys():
             all_u_dict = self.set_all_variables(entry, u_dict, u_default)
             gamma = entry.surface_energy(self.ucell_entry,
                                          ref_entries=self.ref_entries)
             if not no_clean:
                 all_entries.append(entry)
                 all_gamma.append(gamma.subs(all_u_dict))
-            for ads_entry in self.entry_dict[miller_index][entry]:
+            for ads_entry in self.all_slab_entries[miller_index][entry]:
                 all_u_dict = self.set_all_variables(ads_entry, u_dict, u_default)
                 gamma = ads_entry.surface_energy(self.ucell_entry,
                                                  ref_entries=self.ref_entries)
@@ -488,7 +488,7 @@ class SurfaceEnergyPlotter(object):
         latt = SpacegroupAnalyzer(self.ucell_entry.structure). \
             get_conventional_standard_structure().lattice
 
-        miller_list = self.entry_dict.keys()
+        miller_list = self.all_slab_entries.keys()
         e_surf_list = []
         for hkl in miller_list:
             # For all configurations, calculate surface energy as a
@@ -530,7 +530,7 @@ class SurfaceEnergyPlotter(object):
 
         # initialize a dictionary of lists of fractional areas for each hkl
         hkl_area_dict = {}
-        for hkl in self.entry_dict.keys():
+        for hkl in self.all_slab_entries.keys():
             hkl_area_dict[hkl] = []
 
         # Get plot points for each Miller index
@@ -546,8 +546,8 @@ class SurfaceEnergyPlotter(object):
         plt = pretty_plot(width=8, height=7)
         axes = plt.gca()
 
-        for i, hkl in enumerate(self.entry_dict.keys()):
-            clean_entry = list(self.entry_dict[hkl].keys())[0]
+        for i, hkl in enumerate(self.all_slab_entries.keys()):
+            clean_entry = list(self.all_slab_entries[hkl].keys())[0]
             # Ignore any facets that never show up on the
             # Wulff shape regardless of chemical potential
             if all([a == 0 for a in hkl_area_dict[hkl]]):
@@ -633,17 +633,17 @@ class SurfaceEnergyPlotter(object):
         all_intesects_dict, stable_urange_dict = {}, {}
 
         # Get all entries for a specific facet
-        for hkl in self.entry_dict.keys():
+        for hkl in self.all_slab_entries.keys():
 
             # Skip this facet if this is not the facet we want
             if miller_index and hkl != tuple(miller_index):
                 continue
 
-            entries_in_hkl = [clean for clean in self.entry_dict[hkl]]
+            entries_in_hkl = [clean for clean in self.all_slab_entries[hkl]]
             if not no_doped:
-                for entry in self.entry_dict[hkl]:
+                for entry in self.all_slab_entries[hkl]:
                     entries_in_hkl.extend([ads_entry for ads_entry in
-                                           self.entry_dict[hkl][entry]])
+                                           self.all_slab_entries[hkl][entry]])
 
             for entry in entries_in_hkl:
                 stable_urange_dict[entry] = []
@@ -704,7 +704,7 @@ class SurfaceEnergyPlotter(object):
         """
 
         color_dict = {}
-        for hkl in self.entry_dict.keys():
+        for hkl in self.all_slab_entries.keys():
             rgb_indices = [0, 1, 2]
             color = [0, 0, 0, 1]
             random.shuffle(rgb_indices)
@@ -714,14 +714,14 @@ class SurfaceEnergyPlotter(object):
                 color[ind] = np.random.uniform(0, 1)
 
             # Get the clean (solid) colors first
-            clean_list = np.linspace(0, 1, len(self.entry_dict[hkl]))
-            for i, clean in enumerate(self.entry_dict[hkl].keys()):
+            clean_list = np.linspace(0, 1, len(self.all_slab_entries[hkl]))
+            for i, clean in enumerate(self.all_slab_entries[hkl].keys()):
                 c = copy.copy(color)
                 c[rgb_indices[2]] = clean_list[i]
                 color_dict[clean] = c
 
                 # Now get the adsorbed (transparent) colors
-                for ads_entry in self.entry_dict[hkl][clean]:
+                for ads_entry in self.all_slab_entries[hkl][clean]:
                     c_ads = copy.copy(c)
                     c_ads[3] = alpha
                     color_dict[ads_entry] = c_ads
@@ -829,7 +829,7 @@ class SurfaceEnergyPlotter(object):
         plt = pretty_plot(width=8, height=7) if not plt else plt
         axes = plt.gca()
 
-        for hkl in self.entry_dict.keys():
+        for hkl in self.all_slab_entries.keys():
             if miller_index and hkl != tuple(miller_index):
                 continue
             # Get the chempot range of each surface if we only
@@ -842,7 +842,7 @@ class SurfaceEnergyPlotter(object):
 
             already_labelled = []
             label = ''
-            for clean_entry in self.entry_dict[hkl]:
+            for clean_entry in self.all_slab_entries[hkl]:
 
                 urange = stable_u_range_dict[clean_entry] if \
                     not show_unstable else chempot_range
@@ -864,7 +864,7 @@ class SurfaceEnergyPlotter(object):
                                                              u_default=u_default,
                                                              label=label, JPERM2=JPERM2)
                 if not no_doped:
-                    for ads_entry in self.entry_dict[hkl][clean_entry]:
+                    for ads_entry in self.all_slab_entries[hkl][clean_entry]:
                         # Plot the adsorbed slabs
                         # Generate a label for the type of slab
                         urange = stable_u_range_dict[ads_entry] \
@@ -904,11 +904,11 @@ class SurfaceEnergyPlotter(object):
         """
 
         plt = pretty_plot(width=8, height=7)
-        for hkl in self.entry_dict.keys():
+        for hkl in self.all_slab_entries.keys():
             ml_be_dict = {}
-            for clean_entry in self.entry_dict[hkl].keys():
-                if self.entry_dict[hkl][clean_entry]:
-                    for ads_entry in self.entry_dict[hkl][clean_entry]:
+            for clean_entry in self.all_slab_entries[hkl].keys():
+                if self.all_slab_entries[hkl][clean_entry]:
+                    for ads_entry in self.all_slab_entries[hkl][clean_entry]:
                         if ads_entry.get_monolayer not in ml_be_dict.keys():
                             ml_be_dict[ads_entry.get_monolayer] = 1000
                         be = ads_entry.gibbs_binding_energy(eads=plot_eads)
@@ -992,15 +992,15 @@ class SurfaceEnergyPlotter(object):
         """
 
         plt = pretty_plot(width=8, height=7)
-        for hkl in self.entry_dict.keys():
-            for clean_entry in self.entry_dict[hkl].keys():
+        for hkl in self.all_slab_entries.keys():
+            for clean_entry in self.all_slab_entries[hkl].keys():
                 all_u_dict = self.set_all_variables(clean_entry, u_dict, u_default)
-                if self.entry_dict[hkl][clean_entry]:
+                if self.all_slab_entries[hkl][clean_entry]:
 
                     clean_se = clean_entry.surface_energy(self.ucell_entry,
                                                           ref_entries=self.ref_entries)
                     se = clean_se.subs(all_u_dict)
-                    for ads_entry in self.entry_dict[hkl][clean_entry]:
+                    for ads_entry in self.all_slab_entries[hkl][clean_entry]:
                         ml = ads_entry.get_monolayer
                         be = ads_entry.gibbs_binding_energy(eads=plot_eads)
 
