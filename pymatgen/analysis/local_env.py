@@ -305,7 +305,7 @@ class NearNeighbors(object):
                 images[j] = int(f)
             else:
                 images[j] = int(f - 1)
-                if -f % 1 == 0:
+                if f % 1 == 0:
                     images[j] += 1
         return images
 
