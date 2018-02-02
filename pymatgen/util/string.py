@@ -63,7 +63,7 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
 
 def latexify(formula):
     """
-    Generates a latex formatted formula. E.g., Fe2O3 is transformed to
+    Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
 
     Args:
@@ -74,6 +74,37 @@ def latexify(formula):
     """
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1$_{\2}$", formula)
 
+
+def htmlify(formula):
+    """
+    Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
+    Fe<sub>2</sub>O</sub>3</sub>
+
+    :param formula:
+    :return:
+    """
+    return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
+
+
+
+def unicodeify(formula):
+    """
+    Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
+    to
+    :param formula:
+    :return:
+    """
+
+    if '.' in formula:
+        raise ValueError('No unicode character exists for subscript period.')
+
+    subscript_unicode_map = {0: '₀', 1: '₁', 2: '₂', 3: '₃', 4: '₄',
+                             5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉'}
+
+    for original_subscript, subscript_unicode in subscript_unicode_map.items():
+        formula = formula.replace(str(original_subscript), subscript_unicode)
+
+    return formula
 
 def latexify_spacegroup(spacegroup_symbol):
     """
