@@ -339,7 +339,9 @@ class SurfaceEnergyPlotter(object):
 
     .. attribute:: all_slab_entries
 
-        Nested dictionary containing a list of entries for slab calculations as
+        Either a list of SlabEntry objects (note for a list, the SlabEntry must
+            have the adsorbates and clean_entry parameter pulgged in) or a Nested
+            dictionary containing a list of entries for slab calculations as
             items and the corresponding Miller index of the slab as the key.
             To account for adsorption, each value is a sub-dictionary with the
             entry of a clean slab calculation as the sub-key and a list of
@@ -383,8 +385,8 @@ class SurfaceEnergyPlotter(object):
         Object for plotting surface energy in different ways for clean and
             adsorbed surfaces.
         Args:
-            all_slab_entries (dict): Dictionary containing a list of entries
-                for slab calculations. See attributes.
+            all_slab_entries (dict or list): Dictionary or list containing
+                all entries for slab calculations. See attributes.
             ucell_entry (ComputedStructureEntry): ComputedStructureEntry
                 of the bulk reference for this particular material.
             ref_entries ([ComputedStructureEntries]): A list of entries for
