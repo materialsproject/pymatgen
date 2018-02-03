@@ -4,6 +4,7 @@
 
 import re
 import logging
+import os
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -19,7 +20,7 @@ __version__ = "0.1"
 logger = logging.getLogger(__name__)
 
 
-class QCCalc(MSONable):
+class QCOutput(MSONable):
     """
     Data in a single QChem Calculations
 
@@ -30,6 +31,13 @@ class QCCalc(MSONable):
     def __init__(self, filename):
         self.filename = filename
         self.data = {}
+
+        # Check if output file contains multiple output files. If so, print an error message and exit
+        self.read_pattern({"multiple_outputs": r"Job\s+\d+\s+of\s+(\d+)\s+"}, terminate_on_match=True)
+        if not (self.data.get('multiple_outputs') == [] or self.data.get('multiple_outputs') == [['1']]):
+            print "ERROR: multiple calculation outputs found in file "+filename+". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"+filename+"')"
+            print "Exiting..."
+            exit()
 
         # Check if calculation is unrestricted
         self.read_pattern({"unrestricted": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"}, terminate_on_match=True)
@@ -62,7 +70,12 @@ class QCCalc(MSONable):
             self.read_pattern({'energy_trajectory': r"\sEnergy\sis\s+([\d\-\.]+)"})
             self._read_optimized_geometry()
 
-
+        # Check if the calculation is a frequency analysis. If so, parse the relevant output
+        self.read_pattern({"frequency_job": r"(?i)\s*job(?:_)*type\s+=\s+freq"}, terminate_on_match=True)
+        if self.data.get('frequency_job',[]):
+            self.read_pattern({"frequencies": r"\s*Frequency:\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)",
+                               "enthalpy": r"\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
+                               "entropy": r"\s*Total Entropy:\s+([\d\-\.]+)\s+cal/mol\.K"})
 
 
     @staticmethod
@@ -75,16 +88,27 @@ class QCCalc(MSONable):
                 b.) Make seperate output sub-files
             2.) Creates seperate QCCalcs for each one from the sub-files
         """
-        pass
-
+        to_return = []
+        with zopen(filename, 'rt') as f:
+            text = re.split('Job\s+\d+\s+of\s+\d+\s+',f.read())
+        for ii in range(len(text)):
+            temp = open(filename+'.'+str(ii), 'w')
+            temp.write(text[ii])
+            temp.close()
+            tempOutput = cls(filename+'.'+str(ii))
+            to_return.append(tempOutput)
+            if not keep_sub_files:
+                os.remove(filename+'.'+str(ii))
+        return to_return
+        
 
     def _read_GEN_SCFMAN(self):
         """
         Parses all GEN_SCFMANs
         """
-        header_pattern = r"\s*\-+\s+Cycle\s+Energy\s+Error\s+\-+\s+\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+\-+\s+\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+\-+"
-        table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+BFGS Step)*(?:\s+LineSearch Step)*"
-        footer_pattern = r"\-+\n\sSCF\stime:\s+CPU\s[\d\-\.]+s\s+wall\s+[\d\-\.]+s"
+        header_pattern = r"\s*\-+\s+Cycle\s+Energy\s+(?:DIIS)*\s+[Ee]rror\s+\-+\s*(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+\-+\s*)*"
+        table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+BFGS Step)*(?:\s+LineSearch Step)*"
+        footer_pattern = r"\s*\-+"
 
         self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="GEN_SCFMAN")
         return self.data["GEN_SCFMAN"]
@@ -96,7 +120,7 @@ class QCCalc(MSONable):
         """
         header_pattern = r"\s*\-+\s+Cycle\s+Energy\s+DIIS Error\s+\-+"
         table_pattern = r"\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.]+)(?:\s*\n\s*cpu.*\n.*tauTot is\:[\d\-\.]+)*(?:\sConvergence criterion met)*"
-        footer_pattern = r"\s*\-+(?:\s*<S\^2> = [\d\-\.]+)*\s+SCF\stime:\s+CPU [\d\-\.]+ s\s+wall\s+[\d\-\.]+ s"
+        footer_pattern = r"\s*\-+"
 
         self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="SCF")
         return self.data["SCF"]
