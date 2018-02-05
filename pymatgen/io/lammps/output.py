@@ -344,7 +344,7 @@ class LammpsRun(MSONable):
         structures = []
         mass_to_symbol = dict(
             (round(y["Atomic mass"], 1), x) for x, y in _pt_data.items())
-        unique_atomic_masses = np.array([d["mass"] for d in self.lammps_data.masses])
+        unique_atomic_masses = self.lammps_data.masses["mass"].values
         for step in range(self.timesteps.size):
             begin = step * self.natoms
             end = (step + 1) * self.natoms
@@ -379,7 +379,7 @@ class LammpsRun(MSONable):
                            [0, 0, self.box_lengths[2]]])
         mass_to_symbol = dict(
             (round(y["Atomic mass"], 1), x) for x, y in _pt_data.items())
-        unique_atomic_masses = np.array([d["mass"] for d in self.lammps_data.masses])
+        unique_atomic_masses = self.lammps_data.masses["mass"].values
         frac_coords = []
         for step in range(self.timesteps.size):
             begin = step * self.natoms
