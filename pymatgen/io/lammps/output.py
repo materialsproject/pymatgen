@@ -325,8 +325,7 @@ class LammpsRun(MSONable):
         end = (step + 1) * self.natoms
         mol_vector_structured = \
             self.trajectory[begin:end][self.mol_config[mol_id]][param]
-        new_shape = mol_vector_structured.shape + (-1,)
-        mol_vector = mol_vector_structured.view(np.float64).reshape(new_shape)
+        mol_vector = np.array(mol_vector_structured.tolist())
         return mol_vector.copy()
 
     # TODO: remove this and use only get_displacements(an order of magnitude faster)
@@ -350,9 +349,7 @@ class LammpsRun(MSONable):
             end = (step + 1) * self.natoms
             mol_vector_structured = \
                 self.trajectory[begin:end][:][["x", "y", "z"]]
-            new_shape = mol_vector_structured.shape + (-1,)
-            mol_vector = mol_vector_structured.view(np.float64).reshape(
-                new_shape)
+            mol_vector = np.array(mol_vector_structured.tolist())
             coords = mol_vector.copy()
             species = [mass_to_symbol[round(unique_atomic_masses[atype - 1], 1)]
                        for atype in self.trajectory[begin:end][:]["atom_type"]]
@@ -386,9 +383,7 @@ class LammpsRun(MSONable):
             end = (step + 1) * self.natoms
             mol_vector_structured = \
                 self.trajectory[begin:end][:][["x", "y", "z"]]
-            new_shape = mol_vector_structured.shape + (-1,)
-            mol_vector = mol_vector_structured.view(np.float64).reshape(
-                new_shape)
+            mol_vector = np.array(mol_vector_structured.tolist())
             coords = mol_vector.copy()
             if step == 0:
                 species = [
