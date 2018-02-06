@@ -90,9 +90,26 @@ Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pymatgen.util.string.htmlify">
+<code class="descname">htmlify</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#htmlify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.htmlify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
+Fe&lt;sub&gt;2&lt;/sub&gt;O&lt;/sub&gt;3&lt;/sub&gt;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pymatgen.util.string.latexify">
 <code class="descname">latexify</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#latexify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.latexify" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates a latex formatted formula. E.g., Fe2O3 is transformed to
+<dd><p>Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
 Fe$_{2}$O$_{3}$.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -165,6 +182,15 @@ d,e,f
 :param c: optional additional character to print (used for magmoms)
 :param delim: delimiter
 :return: xyz string</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.string.unicodeify">
+<code class="descname">unicodeify</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#unicodeify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
+to
+:param formula:
+:return:</p>
 </dd></dl>
 
 </div>

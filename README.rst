@@ -42,8 +42,8 @@ but pymatgen offer several advantages:
    `CircleCI <https://circleci.com>`_ and `Appveyor <https://www.appveyor.com/>`_
    for continuous integration on the Linux and Windows platforms,
    respectively, which ensures that every commit passes a comprehensive suite
-   of unittests. The coverage of the unittests can be seen at
-   `here <coverage/index.html>`_.
+   of unittests. The coverage of the unittests can be seen on
+   `coveralls.io <https://coveralls.io/github/materialsproject/pymatgen>`_.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means

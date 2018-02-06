@@ -63,6 +63,7 @@
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Composition</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">GrandPotentialPhaseDiagram</span>
@@ -113,11 +114,15 @@
 
         <span class="c1"># if include_no_mixing_energy is True, pd should be a</span>
         <span class="c1"># GrandPotentialPhaseDiagram object and pd_non_grand should be given.</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">include_no_mixing_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">grand</span><span class="p">),</span> \
-            <span class="s1">&#39;Please provide grand phase diagram to compute no_mixing_energy!&#39;</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">include_no_mixing_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd_non_grand</span><span class="p">),</span>\
-            <span class="s1">&#39;Please provide non-grand phase diagram to compute &#39;</span> \
-            <span class="s1">&#39;no_mixing_energy!&#39;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">include_no_mixing_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">grand</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please provide grand phase diagram to compute&#39;</span>
+                             <span class="s1">&#39; no_mixing_energy!&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">include_no_mixing_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd_non_grand</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please provide non-grand phase diagram to &#39;</span>
+                             <span class="s1">&#39;compute no_mixing_energy!&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grand</span> <span class="ow">and</span> <span class="n">use_hull_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd_non_grand</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please provide non-grand phase diagram if&#39;</span>
+                             <span class="s1">&#39; you want to use convex hull energy.&#39;</span><span class="p">)</span>
 
         <span class="c1"># Keeps copy of original compositions.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span> <span class="o">=</span> <span class="n">c1</span>
@@ -132,9 +137,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">norm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pd</span> <span class="o">=</span> <span class="n">pd</span>
-        <span class="k">if</span> <span class="n">pd_non_grand</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pd_non_grand</span> <span class="o">=</span> <span class="n">pd_non_grand</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">pd_non_grand</span> <span class="o">=</span> <span class="n">pd_non_grand</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_hull_energy</span> <span class="o">=</span> <span class="n">use_hull_energy</span>
 
         <span class="c1"># Factor is the compositional ratio between composition self.c1 and</span>
@@ -219,7 +222,6 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the grand potential Phi at a given composition and</span>
 <span class="sd">        chemical potential(s).</span>
-<span class="sd">         E.g., Phi[c, mu_{Li}]= E_{hull}[c] - n_{Li}[c]mu_{Li}.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            composition (Composition): Composition object.</span>
@@ -227,16 +229,19 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Grand potential at a given composition at chemical potential(s).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">grand_potential</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_entry_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pd_non_grand</span><span class="p">,</span>
-                                                 <span class="n">composition</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hull_energy</span><span class="p">:</span>
+            <span class="n">grand_potential</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd_non_grand</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">grand_potential</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_entry_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pd_non_grand</span><span class="p">,</span>
+                                                     <span class="n">composition</span><span class="p">)</span>
         <span class="n">grand_potential</span> <span class="o">-=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">composition</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">*</span> <span class="n">mu</span>
                                 <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">mu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">chempots</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">:</span>
             <span class="c1"># Normalizes energy to the composition excluding element(s)</span>
             <span class="c1"># from reservoir.</span>
-            <span class="n">grand_potential</span> <span class="o">/=</span> \
-                <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">([</span><span class="n">composition</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
-                          <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">mu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">chempots</span><span class="o">.</span><span class="n">items</span><span class="p">()]))</span>
+            <span class="n">grand_potential</span> <span class="o">/=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+                                    <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">composition</span>
+                                    <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">chempots</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">grand_potential</span>
 
     <span class="k">def</span> <span class="nf">_get_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
@@ -400,7 +405,6 @@
 <span class="sd">            Pylab object that plots reaction energy as a function of</span>
 <span class="sd">            mixing ratio x.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.pad&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;6&#39;</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.pad&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;6&#39;</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.linewidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
