@@ -9,6 +9,9 @@ import os
 from monty.io import zopen
 from monty.json import MSONable
 from monty.re import regrep
+
+from temp_utils import new_read_table_pattern
+
 """
 Classes for reading/manipulating/writing QChem ouput files.
 """
@@ -31,6 +34,9 @@ class QCOutput(MSONable):
     def __init__(self, filename):
         self.filename = filename
         self.data = {}
+        self.text=""
+        with zopen(filename, 'rt') as f:
+            self.text = f.read()
 
         # Check if output file contains multiple output files. If so, print an error message and exit
         self.read_pattern({"multiple_outputs": r"Job\s+\d+\s+of\s+(\d+)\s+"}, terminate_on_match=True)
@@ -38,6 +44,11 @@ class QCOutput(MSONable):
             print "ERROR: multiple calculation outputs found in file "+filename+". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"+filename+"')"
             print "Exiting..."
             exit()
+
+        # Check if calculation finished. If not, proceed with caution
+        self.read_pattern({"completion": r"Thank you very much for using Q-Chem.\s+Have a nice day."})
+        if not self.data.get('completion'):
+            print "WARNING: calculation did not reach successful completion"
 
         # Check if calculation is unrestricted
         self.read_pattern({"unrestricted": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"}, terminate_on_match=True)
@@ -106,24 +117,27 @@ class QCOutput(MSONable):
         """
         Parses all GEN_SCFMANs
         """
-        header_pattern = r"\s*\-+\s+Cycle\s+Energy\s+(?:DIIS)*\s+[Ee]rror\s+\-+\s*(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+\-+\s*)*"
-        table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+BFGS Step)*(?:\s+LineSearch Step)*"
-        footer_pattern = r"\s*\-+"
+        header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+\-+)*\n"
+        table_pattern = r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Descent step)*" 
+        footer_pattern = r"^\s*\-+\n"
+        self.data["GEN_SCFMAN"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
-        self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="GEN_SCFMAN")
-        return self.data["GEN_SCFMAN"]
 
 
     def _read_SCF(self):
         """
         Parses all old-style SCFs
         """
-        header_pattern = r"\s*\-+\s+Cycle\s+Energy\s+DIIS Error\s+\-+"
-        table_pattern = r"\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.]+)(?:\s*\n\s*cpu.*\n.*tauTot is\:[\d\-\.]+)*(?:\sConvergence criterion met)*"
-        footer_pattern = r"\s*\-+"
-
-        self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="SCF")
-        return self.data["SCF"]
+        #Check if the SCF failed to converge and set the footer accordingly
+        self.read_pattern({"failed_to_converge": r"SCF failed to converge"}, terminate_on_match=True)
+        if self.data.get("failed_to_converge",[]):
+            footer_pattern = r"^\s*\d+\s+[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
+        else:
+            footer_pattern = r"^\s*\-+\n"
+        header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+DIIS Error\s+\-+\n"
+        table_pattern = r"\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.]+)(?:\s*\n\s*cpu\s+[\d\-\.]+\swall\s+[\d\-\.]+)*(?:\nin dftxc\.C, eleTot sum is:[\d\-\.]+, tauTot is\:[\d\-\.]+)*(?:\s+Convergence criterion met)*(?:\s+Done RCA\. Switching to DIIS)*"
+        
+        self.data["SCF"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
 
     def _read_restricted_mulliken(self):
@@ -134,8 +148,7 @@ class QCOutput(MSONable):
         table_pattern = r"\s+\d+\s(\w+)\s+([\d\-\.]+)"
         footer_pattern = r"\s\s\-+\s+Sum of atomic charges"
 
-        self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="restricted_Mulliken")
-        return self.data["restricted_Mulliken"]
+        self.data["restricted_Mulliken"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
 
     def _read_unrestricted_mulliken(self):
@@ -146,8 +159,7 @@ class QCOutput(MSONable):
         table_pattern = r"\s+\d+\s(\w+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer_pattern = r"\s\s\-+\s+Sum of atomic charges"
 
-        self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="unrestricted_Mulliken")
-        return self.data["unrestricted_Mulliken"]
+        self.data["unrestricted_Mulliken"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
 
     def _read_optimized_geometry(self):
@@ -158,8 +170,7 @@ class QCOutput(MSONable):
         table_pattern = r"\s+\d+\s+(\w+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer_pattern = r"\s+Z-matrix Print:"
 
-        self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="optimized_geometry")
-        return self.data["optimized_geometry"]
+        self.data["optimized_geometry"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
@@ -189,70 +200,3 @@ class QCOutput(MSONable):
         # print matches
         for k in patterns.keys():
             self.data[k] = [i[0] for i in matches.get(k, [])]
-
-
-    def read_table_pattern(self,
-                           header_pattern,
-                           row_pattern,
-                           footer_pattern,
-                           postprocess=str,
-                           attribute_name=None,
-                           last_one_only=False):
-        """
-        Parse table-like data. A table composes of three parts: header,
-        main body, footer. All the data matches "row pattern" in the main body
-        will be returned.
-
-        Args:
-            header_pattern (str): The regular expression pattern matches the
-                table header. This pattern should match all the text
-                immediately before the main body of the table. For multiple
-                sections table match the text until the section of
-                interest. MULTILINE and DOTALL options are enforced, as a
-                result, the "." meta-character will also match "\n" in this
-                section.
-            row_pattern (str): The regular expression matches a single line in
-                the table. Capture interested field using regular expression
-                groups.
-            footer_pattern (str): The regular expression matches the end of the
-                table. E.g. a long dash line.
-            postprocess (callable): A post processing function to convert all
-                matches. Defaults to str, i.e., no change.
-            attribute_name (str): Name of this table. If present the parsed data
-                will be attached to "data. e.g. self.data["efg"] = [...]
-            last_one_only (bool): All the tables will be parsed, if this option
-                is set to True, only the last table will be returned. The
-                enclosing list will be removed. i.e. Only a single table will
-                be returned. Default to be True.
-
-        Returns:
-            List of tables. 1) A table is a list of rows. 2) A row if either a list of
-            attribute values in case the the capturing group is defined without name in
-            row_pattern, or a dict in case that named capturing groups are defined by
-            row_pattern.
-        """
-        with zopen(self.filename, 'rt') as f:
-            text = f.read()
-
-        table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
-        table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
-        rp = re.compile(row_pattern)
-        tables = []
-        for mt in table_pattern.finditer(text):
-            table_body_text = mt.group("table_body")
-            table_contents = []
-            for ml in rp.finditer(table_body_text):
-                d = ml.groupdict()
-                if len(d) > 0:
-                    processed_line = {k: postprocess(v) for k, v in d.items()}
-                else:
-                    processed_line = [postprocess(v) for v in ml.groups()]
-                table_contents.append(processed_line)
-            tables.append(table_contents)
-        if last_one_only:
-            retained_data = tables[-1]
-        else:
-            retained_data = tables
-        if attribute_name is not None:
-            self.data[attribute_name] = retained_data
-        return retained_data
