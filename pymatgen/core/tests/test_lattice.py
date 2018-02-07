@@ -70,6 +70,12 @@ class LatticeTestCase(PymatgenTest):
         fcoord = self.tetragonal.get_fractional_coords(coord)
         self.assertArrayAlmostEqual(fcoord, rand_coord)
 
+    def test_d_hkl(self):
+        cubic_copy = self.cubic.copy()
+        hkl = (1,2,3)
+        dhkl = ((hkl[0]**2 + hkl[1]**2 + hkl[2]**2)/(cubic_copy.a**2))**(-1/2)
+        self.assertEqual(dhkl, cubic_copy.d_hkl(hkl))
+
     def test_reciprocal_lattice(self):
         recip_latt = self.lattice.reciprocal_lattice
         self.assertArrayAlmostEqual(recip_latt.matrix,

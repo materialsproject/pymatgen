@@ -57,11 +57,15 @@ class InterfacialReactivity:
 
         # if include_no_mixing_energy is True, pd should be a
         # GrandPotentialPhaseDiagram object and pd_non_grand should be given.
-        assert not (include_no_mixing_energy and not self.grand), \
-            'Please provide grand phase diagram to compute no_mixing_energy!'
-        assert not (include_no_mixing_energy and not pd_non_grand),\
-            'Please provide non-grand phase diagram to compute ' \
-            'no_mixing_energy!'
+        if (include_no_mixing_energy and not self.grand):
+            raise ValueError('Please provide grand phase diagram to compute'
+                             ' no_mixing_energy!')
+        if (include_no_mixing_energy and not pd_non_grand):
+            raise ValueError('Please provide non-grand phase diagram to '
+                             'compute no_mixing_energy!')
+        if (self.grand and use_hull_energy and not pd_non_grand):
+            raise ValueError('Please provide non-grand phase diagram if'
+                             ' you want to use convex hull energy.')
 
         # Keeps copy of original compositions.
         self.c1_original = c1
@@ -76,9 +80,7 @@ class InterfacialReactivity:
 
         self.norm = norm
         self.pd = pd
-        if pd_non_grand:
-            self.pd_non_grand = pd_non_grand
-
+        self.pd_non_grand = pd_non_grand
         self.use_hull_energy = use_hull_energy
 
         # Factor is the compositional ratio between composition self.c1 and
@@ -163,7 +165,6 @@ class InterfacialReactivity:
         """
         Computes the grand potential Phi at a given composition and
         chemical potential(s).
-         E.g., Phi[c, mu_{Li}]= E_{hull}[c] - n_{Li}[c]mu_{Li}.
 
         Args:
             composition (Composition): Composition object.
@@ -171,16 +172,19 @@ class InterfacialReactivity:
         Returns:
             Grand potential at a given composition at chemical potential(s).
         """
-        grand_potential = self._get_entry_energy(self.pd_non_grand,
-                                                 composition)
+        if self.use_hull_energy:
+            grand_potential = self.pd_non_grand.get_hull_energy(composition)
+        else:
+            grand_potential = self._get_entry_energy(self.pd_non_grand,
+                                                     composition)
         grand_potential -= sum([composition[e] * mu
                                 for e, mu in self.pd.chempots.items()])
         if self.norm:
             # Normalizes energy to the composition excluding element(s)
             # from reservoir.
-            grand_potential /= \
-                (1 - sum([composition.get_atomic_fraction(e.symbol)
-                          for e, mu in self.pd.chempots.items()]))
+            grand_potential /= sum([composition[el]
+                                    for el in composition
+                                    if el not in self.pd.chempots])
         return grand_potential
 
     def _get_energy(self, x):

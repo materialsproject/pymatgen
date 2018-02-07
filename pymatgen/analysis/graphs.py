@@ -9,6 +9,7 @@ import subprocess
 import numpy as np
 import os.path
 
+from pymatgen.analysis.local_env import LocalStructOrderParas
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
@@ -18,6 +19,7 @@ from monty.os.path import which
 from operator import itemgetter
 from collections import namedtuple
 from scipy.spatial import KDTree
+import yaml
 
 try:
     import networkx as nx
@@ -39,6 +41,12 @@ __status__ = "Beta"
 __date__ = "August 2017"
 
 ConnectedSite = namedtuple('ConnectedSite', 'periodic_site, jimage, index, weight, dist')
+
+cn_opt_paras = {}
+with open(os.path.join(os.path.dirname(
+        __file__), 'cn_opt_paras.yaml'), 'r') as f:
+    cn_opt_paras = yaml.safe_load(f)
+    f.close()
 
 class StructureGraph(MSONable):
 
@@ -116,7 +124,7 @@ class StructureGraph(MSONable):
         return cls(structure, graph_data=graph_data)
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy):
+    def with_local_env_strategy(structure, strategy, decorate=True):
         """
         Constructor for StructureGraph, using a strategy
         from  :Class: `pymatgen.analysis.local_env`.
@@ -125,6 +133,8 @@ class StructureGraph(MSONable):
         :param strategy: an instance of a
          :Class: `pymatgen.analysis.local_env.NearNeighbors`
          object
+        :param decorate: flag to indicate whether or not to decorate
+         all sites with coordination environment information.
         :return:
         """
 
@@ -146,6 +156,8 @@ class StructureGraph(MSONable):
                             to_jimage=neighbor['image'],
                             weight=neighbor['weight'],
                             warn_duplicates=False)
+        if decorate:
+            sg.decorate_structure_with_ce_info()
 
         return sg
 
@@ -323,6 +335,56 @@ class StructureGraph(MSONable):
         :return (int):
         """
         return self.graph.degree(n)
+
+    def get_local_order_parameters(self, n):
+        """
+        Calculate those local structure order parameters for 
+        the given site whose ideal CN corresponds to the
+        underlying motif (e.g., CN=4, then calculate the
+        square planar, tetrahedral, see-saw-like,
+        rectangular see-saw-like order paramters).
+
+        Args:
+            n (integer): site index.
+
+        Returns:
+            A dict of order parameters (values) and the
+            underlying motif type (keys; for example, tetrahedral).
+
+        """
+        cn = self.get_coordination_of_site(n)
+        if cn in [int(k_cn) for k_cn in cn_opt_paras.keys()]:
+            names = [k for k in cn_opt_paras[cn].keys()]
+            types = []
+            paras = []
+            for name in names:
+                types.append(cn_opt_paras[cn][name][0])
+                tmp = cn_opt_paras[cn][name][1] if len(cn_opt_paras[cn][name]) > 1 else None
+                paras.append(tmp)
+            lostops = LocalStructOrderParas(types, parameters=paras)
+            sites = [self.structure[n]]
+            for s in self.get_connected_sites(n):
+                sites.append(s.periodic_site)
+            lostop_vals = lostops.get_order_parameters(
+                    sites, 0, indices_neighs=[i for i in range(1, cn+1)])
+            d = {}
+            for i, lostop in enumerate(lostop_vals):
+                d[names[i]] = lostop
+            return d
+        else:
+            return None
+
+    def decorate_structure_with_ce_info(self):
+        """
+        Decorate all sites in the underlying structure
+        with site properties that provides information on the
+        coordination number and coordination pattern based
+        on the (current) structure of this graph.
+        """
+        l = []
+        for i in range(len(self.structure.sites)):
+            l.append(self.get_local_order_parameters(i))
+        self.structure.add_site_property('ce_info', l)
 
     def draw_graph_to_file(self, filename="graph",
                            diff=None,

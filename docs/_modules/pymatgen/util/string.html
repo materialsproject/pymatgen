@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.string &#8212; pymatgen 2018.1.19 documentation</title>
+    <title>pymatgen.util.string &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2018.1.19',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.19 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -120,7 +120,7 @@
 
 <div class="viewcode-block" id="latexify"><a class="viewcode-back" href="../../../pymatgen.util.string.html#pymatgen.util.string.latexify">[docs]</a><span class="k">def</span> <span class="nf">latexify</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generates a latex formatted formula. E.g., Fe2O3 is transformed to</span>
+<span class="sd">    Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to</span>
 <span class="sd">    Fe$_{2}$O$_{3}$.</span>
 
 <span class="sd">    Args:</span>
@@ -131,6 +131,37 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-Za-z\(\)])([\d\.]+)&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\1$_{\2}$&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="htmlify"><a class="viewcode-back" href="../../../pymatgen.util.string.html#pymatgen.util.string.htmlify">[docs]</a><span class="k">def</span> <span class="nf">htmlify</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a HTML formatted formula, e.g. Fe2O3 is transformed to</span>
+<span class="sd">    Fe&lt;sub&gt;2&lt;/sub&gt;O&lt;/sub&gt;3&lt;/sub&gt;</span>
+
+<span class="sd">    :param formula:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-Za-z\(\)])([\d\.]+)&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\1&lt;sub&gt;\2&lt;/sub&gt;&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="unicodeify"><a class="viewcode-back" href="../../../pymatgen.util.string.html#pymatgen.util.string.unicodeify">[docs]</a><span class="k">def</span> <span class="nf">unicodeify</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed</span>
+<span class="sd">    to</span>
+<span class="sd">    :param formula:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">formula</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No unicode character exists for subscript period.&#39;</span><span class="p">)</span>
+
+    <span class="n">subscript_unicode_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;₀&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;₁&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;₂&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;₃&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;₄&#39;</span><span class="p">,</span>
+                             <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;₅&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s1">&#39;₆&#39;</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="s1">&#39;₇&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;₈&#39;</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="s1">&#39;₉&#39;</span><span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">original_subscript</span><span class="p">,</span> <span class="n">subscript_unicode</span> <span class="ow">in</span> <span class="n">subscript_unicode_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="n">formula</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">original_subscript</span><span class="p">),</span> <span class="n">subscript_unicode</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">formula</span></div>
 
 <div class="viewcode-block" id="latexify_spacegroup"><a class="viewcode-back" href="../../../pymatgen.util.string.html#pymatgen.util.string.latexify_spacegroup">[docs]</a><span class="k">def</span> <span class="nf">latexify_spacegroup</span><span class="p">(</span><span class="n">spacegroup_symbol</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -256,7 +287,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.19 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

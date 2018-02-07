@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2018.1.19 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.1.19',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.19 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -154,7 +154,7 @@ i.e., min_cell_size, etc.</li>
 
 <dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation">
-<em class="property">class </em><code class="descname">EnumerateStructureTransformation</code><span class="sig-paren">(</span><em>min_cell_size=1</em>, <em>max_cell_size=1</em>, <em>symm_prec=0.1</em>, <em>refine_structure=False</em>, <em>enum_precision_parameter=0.001</em>, <em>check_ordered_symmetry=True</em>, <em>max_disordered_sites=None</em>, <em>sort_criteria='ewald'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">EnumerateStructureTransformation</code><span class="sig-paren">(</span><em>min_cell_size=1</em>, <em>max_cell_size=1</em>, <em>symm_prec=0.1</em>, <em>refine_structure=False</em>, <em>enum_precision_parameter=0.001</em>, <em>check_ordered_symmetry=True</em>, <em>max_disordered_sites=None</em>, <em>sort_criteria='ewald'</em>, <em>timeout=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Order a disordered structure using enumlib. For complete orderings, this
 generally produces fewer structures that the OrderDisorderedStructure
@@ -195,6 +195,7 @@ max_disordered_sites. Must set max_cell_size to None when using
 this parameter.</li>
 <li><strong>sort_criteria</strong> (<em>str</em>) – Sort by Ewald energy (“ewald”, must have oxidation
 states and slow) or by number of sites (“nsites”, much faster).</li>
+<li><strong>timeout</strong> (<em>float</em>) – timeout in minutes to pass to EnumlibAdaptor</li>
 </ul>
 </td>
 </tr>
@@ -391,7 +392,7 @@ the structure using that specie.</li>
 
 <dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.SlabTransformation">
-<em class="property">class </em><code class="descname">SlabTransformation</code><span class="sig-paren">(</span><em>miller_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>shift=0</em>, <em>tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SlabTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SlabTransformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SlabTransformation</code><span class="sig-paren">(</span><em>miller_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>in_unit_planes=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>shift=0</em>, <em>tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SlabTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SlabTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>A transformation that creates a slab from a structure.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -546,7 +547,7 @@ added to the full list. Defaults to 1, i.e., only best structure.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.19 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
