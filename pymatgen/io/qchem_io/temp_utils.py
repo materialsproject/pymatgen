@@ -5,11 +5,12 @@ import os
 from monty.io import zopen
 from monty.json import MSONable
 from monty.re import regrep
+from collections import defaultdict
 
-def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
-    
+def new_read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
+
     compiled = {key: re.compile(pattern, re.MULTILINE | re.DOTALL) for key, pattern in patterns.items()}
-    matches = collections.defaultdict(list)
+    matches = defaultdict(list)
     for key, pattern in compiled.items():
         for match in pattern.finditer(text_str):
             matches[key].append([postprocess(i) for i in match.groups()])

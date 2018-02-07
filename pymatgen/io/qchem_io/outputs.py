@@ -11,6 +11,7 @@ from monty.json import MSONable
 from monty.re import regrep
 
 from temp_utils import new_read_table_pattern
+from temp_utils import new_read_pattern
 
 """
 Classes for reading/manipulating/writing QChem ouput files.
@@ -39,22 +40,22 @@ class QCOutput(MSONable):
             self.text = f.read()
 
         # Check if output file contains multiple output files. If so, print an error message and exit
-        self.read_pattern({"multiple_outputs": r"Job\s+\d+\s+of\s+(\d+)\s+"}, terminate_on_match=True)
-        if not (self.data.get('multiple_outputs') == [] or self.data.get('multiple_outputs') == [['1']]):
+        self.data["multiple_outputs"] = new_read_pattern(self.text,{"key": r"Job\s+\d+\s+of\s+(\d+)\s+"}, terminate_on_match=True).get('key')
+        if not (self.data.get('multiple_outputs') == None or self.data.get('multiple_outputs') == [['1']]):
             print "ERROR: multiple calculation outputs found in file "+filename+". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"+filename+"')"
             print "Exiting..."
             exit()
 
         # Check if calculation finished. If not, proceed with caution
-        self.read_pattern({"completion": r"Thank you very much for using Q-Chem.\s+Have a nice day."})
+        self.data["completion"] = new_read_pattern(self.text,{"key": r"Thank you very much for using Q-Chem.\s+Have a nice day."}).get('key')
         if not self.data.get('completion'):
             print "WARNING: calculation did not reach successful completion"
 
         # Check if calculation is unrestricted
-        self.read_pattern({"unrestricted": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"}, terminate_on_match=True)
+        self.data["unrestricted"] = new_read_pattern(self.text,{"key": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"}, terminate_on_match=True).get('key')
 
         # Check if calculation uses GEN_SCFMAN
-        self.read_pattern({"using_GEN_SCFMAN": r"\s+GEN_SCFMAN: A general SCF calculation manager"}, terminate_on_match=True)
+        self.data["using_GEN_SCFMAN"] = new_read_pattern(self.text,{"key": r"\s+GEN_SCFMAN: A general SCF calculation manager"}, terminate_on_match=True).get('key')
 
         # Parse the SCF
         if self.data.get('using_GEN_SCFMAN',[]):
@@ -69,24 +70,26 @@ class QCOutput(MSONable):
             self._read_restricted_mulliken()
 
         # Parse the final energy
-        self.read_pattern({"final_energy": r"Final\senergy\sis\s+([\d\-\.]+)"})
+        self.data["final_energy"] = new_read_pattern(self.text,{"key": r"Final\senergy\sis\s+([\d\-\.]+)"}).get('key')
 
         # Parse the S2 values in the case of an unrestricted calculation
         if self.data.get('unrestricted',[]):
-            self.read_pattern({"S2": r"<S\^2>\s=\s+([\d\-\.]+)"})
+            self.data["S2"] = new_read_pattern(self.text,{"key": r"<S\^2>\s=\s+([\d\-\.]+)"}).get('key')
 
         # Check if the calculation is a geometry optimization. If so, parse the relevant output
-        self.read_pattern({"optimization": r"(?i)\s*job(?:_)*type\s+=\s+opt"}, terminate_on_match=True)
+        self.data["optimization"] = new_read_pattern(self.text,{"key": r"(?i)\s*job(?:_)*type\s+=\s+opt"}).get('key')
         if self.data.get('optimization',[]):
-            self.read_pattern({'energy_trajectory': r"\sEnergy\sis\s+([\d\-\.]+)"})
+            self.data["energy_trajectory"] = new_read_pattern(self.text,{"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get('key')
             self._read_optimized_geometry()
 
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
-        self.read_pattern({"frequency_job": r"(?i)\s*job(?:_)*type\s+=\s+freq"}, terminate_on_match=True)
+        self.data["frequency_job"] = new_read_pattern(self.text,{"key": r"(?i)\s*job(?:_)*type\s+=\s+freq"}, terminate_on_match=True).get('key')
         if self.data.get('frequency_job',[]):
-            self.read_pattern({"frequencies": r"\s*Frequency:\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)",
-                               "enthalpy": r"\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
-                               "entropy": r"\s*Total Entropy:\s+([\d\-\.]+)\s+cal/mol\.K"})
+            temp_dict = new_read_pattern(self.text,{"frequencies": r"\s*Frequency:\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)",
+                                                    "enthalpy": r"\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
+                                                    "entropy": r"\s*Total Entropy:\s+([\d\-\.]+)\s+cal/mol\.K"})
+            for key in temp_dict:
+                self.data[key] = temp_dict.get(key)
 
 
     @staticmethod
@@ -129,7 +132,7 @@ class QCOutput(MSONable):
         Parses all old-style SCFs
         """
         #Check if the SCF failed to converge and set the footer accordingly
-        self.read_pattern({"failed_to_converge": r"SCF failed to converge"}, terminate_on_match=True)
+        self.data["failed_to_converge"] = new_read_pattern(self.text,{"key": r"SCF failed to converge"}, terminate_on_match=True).get('key')
         if self.data.get("failed_to_converge",[]):
             footer_pattern = r"^\s*\d+\s+[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
         else:
@@ -172,31 +175,3 @@ class QCOutput(MSONable):
 
         self.data["optimized_geometry"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
-
-    def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
-        """
-        General pattern reading. Uses monty's regrep method. Takes the same
-        arguments.
-
-        Args:
-            patterns (dict): A dict of patterns, e.g.,
-                {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
-            reverse (bool): Read files in reverse. Defaults to false. Useful for
-                large files, esp OUTCARs, especially when used with
-                terminate_on_match.
-            terminate_on_match (bool): Whether to terminate when there is at
-                least one match in each key in pattern.
-            postprocess (callable): A post processing function to convert all
-                matches. Defaults to str, i.e., no change.
-
-        Renders accessible:
-            Any attribute in patterns. For example,
-            {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"} will set the
-            value of self.data["energy"] = [[-1234], [-3453], ...], to the
-            results from regex and postprocess. Note that the returned values
-            are lists of lists, because you can grep multiple items on one line.
-        """
-        matches = regrep(self.filename, patterns, reverse=reverse, terminate_on_match=terminate_on_match, postprocess=postprocess)
-        # print matches
-        for k in patterns.keys():
-            self.data[k] = [i[0] for i in matches.get(k, [])]
