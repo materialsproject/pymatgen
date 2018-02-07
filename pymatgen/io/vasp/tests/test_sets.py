@@ -615,6 +615,8 @@ class MVLSlabSetTest(PymatgenTest):
         poscar_bulk = self.d_bulk["POSCAR"]
 
         self.assertEqual(incar_bulk["ISIF"], 3)
+        self.assertEqual(incar_bulk["EDIFF"], 1e-4)
+        self.assertEqual(incar_bulk["EDIFFG"], -0.02)
         self.assertEqual(poscar_bulk.structure.formula,
                          self.bulk.formula)
 

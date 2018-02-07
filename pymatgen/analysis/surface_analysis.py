@@ -1114,7 +1114,7 @@ class NanoscaleStability(object):
         self.symprec = symprec
 
     def solve_equilibrium_point(self, analyzer1, analyzer2,
-                                u_dict={}, u_default=0):
+                                u_dict={}, u_default=0, units="nanometers"):
         """
         Gives the radial size of two particles where equilibrium is reached
             between both particles. NOTE: the solution here is not the same
@@ -1131,6 +1131,7 @@ class NanoscaleStability(object):
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             u_default (float): Default value for all unset chemical potentials
+            units (str): Can be nanometers or Angstrom
 
         Returns:
             Particle radius in nm
@@ -1151,11 +1152,12 @@ class NanoscaleStability(object):
         # Now calculate r
         delta_gamma = wulff1.weighted_surface_energy - wulff2.weighted_surface_energy
         delta_E = (len(s1) / s1.lattice.volume) * E1 - (len(s2) / s2.lattice.volume) * E2
+        r = ((-3 * delta_gamma) / (delta_E))
 
-        return ((-3 * delta_gamma) / (delta_E)) / 10
+        return r / 10 if units == "nanometers" else r
 
-    def wulff_gform_and_r(self, wulffshape, bulk_entry,
-                          r, from_sphere_area=False):
+    def wulff_gform_and_r(self, wulffshape, bulk_entry, r, from_sphere_area=False,
+                          r_units="nanometers", e_units="keV", normalize=False):
         """
         Calculates the formation energy of the particle with arbitrary radius r.
 
@@ -1166,9 +1168,12 @@ class NanoscaleStability(object):
             from_sphere_area (bool): There are two ways to calculate the bulk
                 formation energy. Either by treating the volume and thus surface
                 area of the particle as a perfect sphere, or as a Wulff shape.
+            r_units (str): Can be nanometers or Angstrom
+            e_units (str): Can be keV or eV
+            normalize (str): Whether or not to normalize energy by volume
 
         Returns:
-            particle formation energy (float in keV), effective radius (float in nm)
+            particle formation energy (float in keV), effective radius
         """
 
         # Set up
@@ -1192,7 +1197,12 @@ class NanoscaleStability(object):
             Ebulk = self.bulk_gform(bulk_entry) * wulff_v
             new_r = r
 
-        return (Ebulk + tot_wulff_se) / 1000, new_r / 10
+        new_r = new_r / 10 if r_units == "nanometers" else new_r
+        e = (Ebulk + tot_wulff_se)
+        e = e / 1000 if e_units == "keV" else e
+        e = e / ((4/3)*np.pi*new_r**3) if normalize else e
+
+        return e, new_r
 
     def bulk_gform(self, bulk_entry):
         """
@@ -1235,7 +1245,8 @@ class NanoscaleStability(object):
 
     def plot_one_stability_map(self, analyzer, max_r, u_dict={}, label="",
                                increments=50, u_default=0, plt=None,
-                               from_sphere_area=False):
+                               from_sphere_area=False, e_units="keV",
+                               r_units="nanometers", normalize=False):
         """
         Returns the plot of the formation energy of a particle against its
             effect radius
@@ -1254,6 +1265,9 @@ class NanoscaleStability(object):
             from_sphere_area (bool): There are two ways to calculate the bulk
                 formation energy. Either by treating the volume and thus surface
                 area of the particle as a perfect sphere, or as a Wulff shape.
+            r_units (str): Can be nanometers or Angstrom
+            e_units (str): Can be keV or eV
+            normalize (str): Whether or not to normalize energy by volume
         """
 
         plt = plt if plt else pretty_plot(width=8, height=7)
@@ -1266,11 +1280,16 @@ class NanoscaleStability(object):
         for r in np.linspace(1e-6, max_r, increments):
             gform, r = self.wulff_gform_and_r(wulffshape,
                                               analyzer.ucell_entry, r,
-                                              from_sphere_area=from_sphere_area)
+                                              from_sphere_area=from_sphere_area,
+                                              r_units=r_units, e_units=e_units,
+                                              normalize=normalize)
             gform_list.append(gform)
             r_list.append(r)
-        plt.xlabel("Particle radius (nm)")
-        plt.ylabel(r"$\Delta \bar{G}_{form}$ (keV)")
+
+        ru = "nm" if r_units == "nanometers" else "\AA"
+        plt.xlabel(r"Particle radius ($%s$)" %(ru))
+        eu = "$%s/%s^3$" %(e_units, ru)
+        plt.ylabel(r"$\Delta \bar{G}_{form}$ (%s)" %(eu))
 
         plt.plot(r_list, gform_list, label=label)
 
@@ -1278,7 +1297,8 @@ class NanoscaleStability(object):
 
     def plot_all_stability_map(self, max_r, increments=50, u_dict={},
                                u_default=0, plt=None, labels=[],
-                               from_sphere_area=False):
+                               from_sphere_area=False, e_units="keV",
+                               r_units="nanometers", normalize=False):
         """
         Returns the plot of the formation energy of a particles
             of different polymorphs against its effect radius
@@ -1306,7 +1326,9 @@ class NanoscaleStability(object):
                                               label=label, plt=plt,
                                               increments=increments,
                                               u_default=u_default,
-                                              from_sphere_area=from_sphere_area)
+                                              from_sphere_area=from_sphere_area,
+                                              e_units=e_units, r_units=r_units,
+                                              normalize=normalize)
 
         return plt
 
