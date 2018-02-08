@@ -48,8 +48,8 @@ class QCOutput(MSONable):
 
         # Check if calculation finished. If not, proceed with caution
         self.data["completion"] = new_read_pattern(self.text,{"key": r"Thank you very much for using Q-Chem.\s+Have a nice day."}).get('key')
-        if not self.data.get('completion'):
-            print "WARNING: calculation did not reach successful completion"
+        # if not self.data.get('completion'):
+        #     print "WARNING: calculation did not reach successful completion"
 
         # Check if calculation is unrestricted
         self.data["unrestricted"] = new_read_pattern(self.text,{"key": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"}, terminate_on_match=True).get('key')
@@ -104,7 +104,9 @@ class QCOutput(MSONable):
         """
         to_return = []
         with zopen(filename, 'rt') as f:
-            text = re.split('Job\s+\d+\s+of\s+\d+\s+',f.read())
+            text = re.split('\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+',f.read())
+        if text[0] == '':
+            text = text[1:]
         for ii in range(len(text)):
             temp = open(filename+'.'+str(ii), 'w')
             temp.write(text[ii])
@@ -120,7 +122,7 @@ class QCOutput(MSONable):
         """
         Parses all GEN_SCFMANs
         """
-        header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+\-+)*\n"
+        header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
         table_pattern = r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Descent step)*" 
         footer_pattern = r"^\s*\-+\n"
         self.data["GEN_SCFMAN"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
@@ -129,11 +131,10 @@ class QCOutput(MSONable):
 
     def _read_SCF(self):
         """
-        Parses all old-style SCFs
+        Parses all old-style SCFs. Starts by checking if the SCF failed to converge and setting the footer accordingly.
         """
-        #Check if the SCF failed to converge and set the footer accordingly
-        self.data["failed_to_converge"] = new_read_pattern(self.text,{"key": r"SCF failed to converge"}, terminate_on_match=True).get('key')
-        if self.data.get("failed_to_converge",[]):
+        self.data["SCF_failed_to_converge"] = new_read_pattern(self.text,{"key": r"SCF failed to converge"}, terminate_on_match=True).get('key')
+        if self.data.get("SCF_failed_to_converge",[]):
             footer_pattern = r"^\s*\d+\s+[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
         else:
             footer_pattern = r"^\s*\-+\n"
@@ -167,11 +168,18 @@ class QCOutput(MSONable):
 
     def _read_optimized_geometry(self):
         """
-        Parses optimized XYZ coordinates
+        Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
         """
         header_pattern = r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
         table_pattern = r"\s+\d+\s+(\w+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer_pattern = r"\s+Z-matrix Print:"
 
         self.data["optimized_geometry"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
+
+        if self.data.get('optimized_geometry') == []:
+            header_pattern = r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
+            table_pattern = r"\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*"
+            footer_pattern = r"^\$end\n"
+
+            self.data["optimized_zmat"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
