@@ -10,8 +10,8 @@ from monty.io import zopen
 from monty.json import MSONable
 from monty.re import regrep
 
-from temp_utils import new_read_table_pattern
-from temp_utils import new_read_pattern
+from .temp_utils import new_read_table_pattern
+from .temp_utils import new_read_pattern
 
 """
 Classes for reading/manipulating/writing QChem ouput files.
@@ -42,14 +42,14 @@ class QCOutput(MSONable):
         # Check if output file contains multiple output files. If so, print an error message and exit
         self.data["multiple_outputs"] = new_read_pattern(self.text,{"key": r"Job\s+\d+\s+of\s+(\d+)\s+"}, terminate_on_match=True).get('key')
         if not (self.data.get('multiple_outputs') == None or self.data.get('multiple_outputs') == [['1']]):
-            print "ERROR: multiple calculation outputs found in file "+filename+". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"+filename+"')"
-            print "Exiting..."
+            print("ERROR: multiple calculation outputs found in file "+filename+". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"+filename+"')")
+            print("Exiting...")
             exit()
 
         # Check if calculation finished. If not, proceed with caution
         self.data["completion"] = new_read_pattern(self.text,{"key": r"Thank you very much for using Q-Chem.\s+Have a nice day."}).get('key')
         # if not self.data.get('completion'):
-        #     print "WARNING: calculation did not reach successful completion"
+        #     print("WARNING: calculation did not reach successful completion")
 
         # Check if calculation is unrestricted
         self.data["unrestricted"] = new_read_pattern(self.text,{"key": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"}, terminate_on_match=True).get('key')
@@ -125,7 +125,7 @@ class QCOutput(MSONable):
         header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
         table_pattern = r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Descent step)*" 
         footer_pattern = r"^\s*\-+\n"
-        
+
         self.data["GEN_SCFMAN"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
 

@@ -88,7 +88,7 @@ class TestQCOutput(PymatgenTest):
     single_job_dict = {}
     for file in single_job_out_names:
       single_job_dict[file]=QCOutput(os.path.join(test_dir,file)).data
-    print single_job_dict
+    print(single_job_dict)
 
   def generate_multi_job_dict(self):
     multi_job_dict = {}
@@ -98,7 +98,7 @@ class TestQCOutput(PymatgenTest):
       for ii in range(len(temp)):
         data.append(temp[ii].data)
       multi_job_dict[file] = data
-    print multi_job_dict
+    print(multi_job_dict)
 
   def _test_property(self, key):
     for file in single_job_out_names:
@@ -110,7 +110,7 @@ class TestQCOutput(PymatgenTest):
 
   def test_all(self):
     for key in property_list:
-      print 'Testing ',key
+      print('Testing ',key)
       self._test_property(key)
 
 if __name__ == "__main__":
