@@ -1,45 +1,61 @@
 2:
   "L-shaped":
     - "bent"
-    - [0.5, 15.15]
+    -
+      "TA": 0.5
+      "IGW_TA": 15.15
   "water-like":
     - "bent"
-    - [0.5802777777777778, 13.95]
+    -
+      "TA": 0.5802777777777778
+      "IGW_TA": 13.95
   "bent 120 degrees":
     - "bent"
-    - [0.666666666667, 13.25]
+    -
+      "TA": 0.666666666667
+      "IGW_TA": 13.25
   "bent 150 degrees":
     - "bent"
-    - [0.833333333333333, 12.45]
+    -
+      "TA": 0.833333333333333
+      "IGW_TA": 12.45
   "linear":
     - "bent"
-    - [1, 8.667]
+    -
+      "TA": 1
+      "IGW_TA": 8.667
 3:
   "trigonal planar":
-    - "tri_plan"
+    - "tri_plan_max"
   "trigonal non-coplanar":
-    - "tet"
+    - "tet_max"
   "T-shaped":
     - "T"
 4:
   "square co-planar":
-    - "sq_plan"
+    - "sq_plan_max"
   "tetrahedral":
-    - "tet"
+    - "tet_max"
   "rectangular see-saw-like":
     - "see_saw_rect"
-  "rectangular see-saw-like":
+  "see-saw-like":
     - "tri_bipyr"
+    -
+      "min_SPP": 2.356194490192345
+      "IGW_EP": 15.75
+      "IGW_SPP": 12.75
   "trigonal pyramidal":
     - "tri_pyr"
 5:
   "pentagonal planar":
-    - "pent_plan"
+    - "pent_plan_max"
   "square pyramidal":
     - "sq_pyr"
   "trigonal bipyramidal":
     - "tri_bipyr"
 6:
+  "hexagonal planar":
+    - "hex_plan_max"
   "octahedral":
     - "oct_max"
   "pentagonal pyramidal":
@@ -56,4 +72,4 @@
     - "hex_bipyr"
 12:
   "cuboctahedral":
-    - "cuboct"
+    - "cuboct_max"
