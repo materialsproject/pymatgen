@@ -132,7 +132,8 @@ class COD(object):
                     structures.append({"structure": s, "cod_id": int(cod_id),
                                        "sg": sg})
                 except Exception:
-                    print("Structure.from_str failed while parsing CIF file:\n", r.text)
+                    import warnings
+                    warnings.warn("\nStructure.from_str failed while parsing CIF file:\n%s" % r.text)
                     raise
 
         return structures
