@@ -1615,7 +1615,7 @@ class Flow(Node, NodeContainer, MSONable):
                        "This means that you are trying to build a new flow in a directory already used by another flow.\n"
                        "Possible solutions:\n"
                        "   1) Change the workdir of the new flow.\n"
-                       "   2) remove the old directory either with `rm -rf` or by calling the method flow.rmtree()\n"
+                       "   2) remove the old directory either with `rm -r` or by calling the method flow.rmtree()\n"
                         % (node_id, nodeid_path, self.node_id))
                 raise RuntimeError(msg)
 
