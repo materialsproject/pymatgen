@@ -85,7 +85,7 @@ class QCOutput(MSONable):
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = new_read_pattern(self.text,{"key": r"(?i)\s*job(?:_)*type\s+=\s+freq"}, terminate_on_match=True).get('key')
         if self.data.get('frequency_job',[]):
-            temp_dict = new_read_pattern(self.text,{"frequencies": r"\s*Frequency:\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)",
+            temp_dict = new_read_pattern(self.text,{"frequencies": r"\s*Frequency:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
                                                     "enthalpy": r"\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
                                                     "entropy": r"\s*Total Entropy:\s+([\d\-\.]+)\s+cal/mol\.K"})
             for key in temp_dict:
@@ -125,8 +125,8 @@ class QCOutput(MSONable):
         header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
         table_pattern = r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Descent step)*" 
         footer_pattern = r"^\s*\-+\n"
+        
         self.data["GEN_SCFMAN"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
-
 
 
     def _read_SCF(self):
@@ -135,11 +135,11 @@ class QCOutput(MSONable):
         """
         self.data["SCF_failed_to_converge"] = new_read_pattern(self.text,{"key": r"SCF failed to converge"}, terminate_on_match=True).get('key')
         if self.data.get("SCF_failed_to_converge",[]):
-            footer_pattern = r"^\s*\d+\s+[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
+            footer_pattern = r"^\s*\d+\s*[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
         else:
             footer_pattern = r"^\s*\-+\n"
         header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+DIIS Error\s+\-+\n"
-        table_pattern = r"\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.]+)(?:\s*\n\s*cpu\s+[\d\-\.]+\swall\s+[\d\-\.]+)*(?:\nin dftxc\.C, eleTot sum is:[\d\-\.]+, tauTot is\:[\d\-\.]+)*(?:\s+Convergence criterion met)*(?:\s+Done RCA\. Switching to DIIS)*"
+        table_pattern = r"\s*\d+\s*([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.\+]+)(?:\s*\n\s*cpu\s+[\d\-\.]+\swall\s+[\d\-\.]+)*(?:\nin dftxc\.C, eleTot sum is:[\d\-\.]+, tauTot is\:[\d\-\.]+)*(?:\s+Convergence criterion met)*(?:\s+Done RCA\. Switching to DIIS)*(?:\n\s*Warning: not using a symmetric Q)*(?:\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+(?:\s*\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+)*)*"
         
         self.data["SCF"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
