@@ -12881,21 +12881,21 @@
         [
           [
             "Cd",
-            "null",
-            "null",
-            "null",
-            "null",
-            "null",
-            "null"
+            "None",
+            "None",
+            "None",
+            "None",
+            "None",
+            "None"
           ],
           [
             "Br",
             "1",
             "2.453720",
-            "null",
-            "null",
-            "null",
-            "null"
+            "None",
+            "None",
+            "None",
+            "None"
           ],
           [
             "Br",
@@ -12903,8 +12903,8 @@
             "2.453720",
             "2",
             "180.000000",
-            "null",
-            "null"
+            "None",
+            "None"
           ]
         ]
       ],
@@ -13034,8 +13034,8 @@
         ],
         [
           "311.74",
-          "null",
-          "null"
+          "None",
+          "None"
         ]
       ],
       "SCF_failed_to_converge": null,
@@ -14156,21 +14156,21 @@
         [
           [
             "Mg",
-            "null",
-            "null",
-            "null",
-            "null",
-            "null",
-            "null"
+            "None",
+            "None",
+            "None",
+            "None",
+            "None",
+            "None"
           ],
           [
             "O",
             "1",
             "1.930970",
-            "null",
-            "null",
-            "null",
-            "null"
+            "None",
+            "None",
+            "None",
+            "None"
           ],
           [
             "C",
@@ -14178,8 +14178,8 @@
             "1.389970",
             "1",
             "111.445336",
-            "null",
-            "null"
+            "None",
+            "None"
           ],
           [
             "H",

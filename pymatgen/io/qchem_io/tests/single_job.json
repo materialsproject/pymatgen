@@ -5481,21 +5481,21 @@
       [
         [
           "S",
-          "null",
-          "null",
-          "null",
-          "null",
-          "null",
-          "null"
+          "None",
+          "None",
+          "None",
+          "None",
+          "None",
+          "None"
         ],
         [
           "C",
           "1",
           "1.768687",
-          "null",
-          "null",
-          "null",
-          "null"
+          "None",
+          "None",
+          "None",
+          "None"
         ],
         [
           "H",
@@ -5503,8 +5503,8 @@
           "1.082890",
           "1",
           "120.269288",
-          "null",
-          "null"
+          "None",
+          "None"
         ],
         [
           "C",
@@ -17098,21 +17098,21 @@
       [
         [
           "N",
-          "null",
-          "null",
-          "null",
-          "null",
-          "null",
-          "null"
+          "None",
+          "None",
+          "None",
+          "None",
+          "None",
+          "None"
         ],
         [
           "H",
           "1",
           "1.017999",
-          "null",
-          "null",
-          "null",
-          "null"
+          "None",
+          "None",
+          "None",
+          "None"
         ],
         [
           "H",
@@ -17120,8 +17120,8 @@
           "1.018008",
           "2",
           "107.683165",
-          "null",
-          "null"
+          "None",
+          "None"
         ],
         [
           "H",
@@ -17368,8 +17368,8 @@
     "frequencies": [
       [
         "397.50",
-        "null",
-        "null"
+        "None",
+        "None"
       ]
     ],
     "SCF_failed_to_converge": null,
