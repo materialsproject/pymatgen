@@ -32,6 +32,8 @@
     -
       "TA": 0.6081734479693927
       "IGW_TA": 18.33
+      "fac_AA": 1.5
+      "exp_cos_AA": 2
   "T-shaped":
     - "T"
 4:
@@ -47,6 +49,9 @@
       "min_SPP": 2.356194490192345
       "IGW_EP": 15.75
       "IGW_SPP": 12.75
+      "fac_AA": 1.5
+      "exp_cos_AA": 2
+      "w_SPP": 1
   "trigonal pyramidal":
     - "tri_pyr"
 5:
