@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.bandstructure module &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.electronic_structure.bandstructure module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -613,9 +613,9 @@ pymatgen.core.lattice.Lattice object</p>
 <dl class="function">
 <dt id="pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure">
 <code class="descname">get_reconstructed_band_structure</code><span class="sig-paren">(</span><em>list_bs</em>, <em>efermi=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#get_reconstructed_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method takes a list of band structures
-and reconstruct one band structure object from all of them</p>
-<p>this is typically very useful when you split non self consistent
+<dd><p>This method takes a list of band structures and reconstructs
+one band structure object from all of them.</p>
+<p>This is typically very useful when you split non self consistent
 band structure runs in several independent jobs and want to merge back
 the results</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -623,9 +623,9 @@ the results</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>list_bs</strong> – A list of BandStructure</li>
-<li><strong>efermi</strong> – The fermi energy of the reconstructed band structure. If
-None is assigned an average of all the fermi energy in each
+<li><strong>list_bs</strong> – A list of BandStructure or BandStructureSymmLine objects.</li>
+<li><strong>efermi</strong> – The Fermi energy of the reconstructed band structure. If
+None is assigned an average of all the Fermi energy in each
 object in the list_bs is used.</li>
 </ul>
 </td>
@@ -676,13 +676,13 @@ the type of the list_bs objects)</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

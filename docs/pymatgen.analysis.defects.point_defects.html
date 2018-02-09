@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.defects.point_defects module &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.analysis.defects.point_defects module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -900,6 +900,127 @@ to transform the lattice vectors.</td>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.analysis.defects.point_defects.TopographyAnalyzer">
+<em class="property">class </em><code class="descname">TopographyAnalyzer</code><span class="sig-paren">(</span><em>structure</em>, <em>framework_ions</em>, <em>cations</em>, <em>tol=0.0001</em>, <em>max_cell_range=1</em>, <em>check_volume=True</em>, <em>constrained_c_frac=0.5</em>, <em>thickness=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#TopographyAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.TopographyAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This is a generalized module to perform topological analyses of a crystal
+structure using Voronoi tessellations. It can be used for finding potential
+interstitial sites. Applications including using these sites for
+inserting additional atoms or for analyzing diffusion pathways.</p>
+<p>Note that you typically want to do some preliminary postprocessing after
+the initial construction. The initial construction will create a lot of
+points, especially for determining potential insertion sites. Some helper
+methods are available to perform aggregation and elimination of nodes. A
+typical use is something like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">TopographyAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;P&quot;</span><span class="p">])</span>
+<span class="n">a</span><span class="o">.</span><span class="n">cluster_nodes</span><span class="p">()</span>
+<span class="n">a</span><span class="o">.</span><span class="n">remove_collisions</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Init.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – An initial structure.</li>
+<li><strong>framework_ions</strong> (<em>[</em><em>str</em><em>]</em>) – A list of ions to be considered as a
+framework. Typically, this would be all anion species. E.g.,
+[“O”, “S”].</li>
+<li><strong>cations</strong> (<em>[</em><em>str</em><em>]</em>) – A list of ions to be considered as non-migrating
+cations. E.g., if you are looking at Li3PS4 as a Li
+conductor, Li is a mobile species. Your cations should be [
+“P”]. The cations are used to exclude polyhedra from
+diffusion analysis since those polyhedra are already occupied.</li>
+<li><strong>tol</strong> (<em>float</em>) – A tolerance distance for the analysis, used to
+determine if something are actually periodic boundary images of
+each other. Default is usually fine.</li>
+<li><strong>max_cell_range</strong> (<em>int</em>) – This is the range of periodic images to
+construct the Voronoi tesselation. A value of 1 means that we
+include all points from (x +- 1, y +- 1, z+- 1) in the
+voronoi construction. This is because the Voronoi poly
+extends beyond the standard unit cell because of PBC.
+Typically, the default value of 1 works fine for most
+structures and is fast. But for really small unit
+cells with high symmetry, you may need to increase this to 2
+or higher.</li>
+<li><strong>check_volume</strong> (<em>bool</em>) – Set False when ValueError always happen after
+tuning tolerance.</li>
+<li><strong>constrained_c_frac</strong> (<em>float</em>) – Constraint the region where users want
+to do Topology analysis the default value is 0.5, which is the
+fractional coordinate of the cell</li>
+<li><strong>thickness</strong> (<em>float</em>) – Along with constrained_c_frac, limit the
+thickness of the regions where we want to explore. Default is
+0.5, which is mapping all the site of the unit cell.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.defects.point_defects.TopographyAnalyzer.analyze_symmetry">
+<code class="descname">analyze_symmetry</code><span class="sig-paren">(</span><em>tol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#TopographyAnalyzer.analyze_symmetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.TopographyAnalyzer.analyze_symmetry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.point_defects.TopographyAnalyzer.check_volume">
+<code class="descname">check_volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#TopographyAnalyzer.check_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.TopographyAnalyzer.check_volume" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.point_defects.TopographyAnalyzer.cluster_nodes">
+<code class="descname">cluster_nodes</code><span class="sig-paren">(</span><em>tol=0.2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#TopographyAnalyzer.cluster_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.TopographyAnalyzer.cluster_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster nodes that are too close together using a tol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol</strong> (<em>float</em>) – A distance tolerance. PBC is taken into account.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.point_defects.TopographyAnalyzer.get_structure_with_nodes">
+<code class="descname">get_structure_with_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#TopographyAnalyzer.get_structure_with_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.TopographyAnalyzer.get_structure_with_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the modified structure with the voronoi nodes inserted. The
+species is set as a DummySpecie X.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.point_defects.TopographyAnalyzer.print_stats">
+<code class="descname">print_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#TopographyAnalyzer.print_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.TopographyAnalyzer.print_stats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.point_defects.TopographyAnalyzer.remove_collisions">
+<code class="descname">remove_collisions</code><span class="sig-paren">(</span><em>min_dist=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#TopographyAnalyzer.remove_collisions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.TopographyAnalyzer.remove_collisions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove vnodes that are too close to existing atoms in the structure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>min_dist</strong> (<em>float</em>) – The minimum distance that a vertex needs to be
+from existing atoms.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.point_defects.TopographyAnalyzer.vtk">
+<code class="descname">vtk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#TopographyAnalyzer.vtk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.TopographyAnalyzer.vtk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.point_defects.TopographyAnalyzer.write_topology">
+<code class="descname">write_topology</code><span class="sig-paren">(</span><em>fname='Topo.cif'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#TopographyAnalyzer.write_topology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.TopographyAnalyzer.write_topology" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.Vacancy">
 <em class="property">class </em><code class="descname">Vacancy</code><span class="sig-paren">(</span><em>structure</em>, <em>valences</em>, <em>radii</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#Vacancy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.Vacancy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.point_defects.Defect" title="pymatgen.analysis.defects.point_defects.Defect"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.defects.point_defects.Defect</span></code></a></p>
@@ -1081,6 +1202,33 @@ analyzer</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="pymatgen.analysis.defects.point_defects.VoronoiPolyhedron">
+<em class="property">class </em><code class="descname">VoronoiPolyhedron</code><span class="sig-paren">(</span><em>lattice</em>, <em>frac_coords</em>, <em>polyhedron_indices</em>, <em>all_coords</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#VoronoiPolyhedron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.VoronoiPolyhedron" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Convenience container for a voronoi point in PBC and its associated polyhedron.</p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.defects.point_defects.VoronoiPolyhedron.coordination">
+<code class="descname">coordination</code><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.VoronoiPolyhedron.coordination" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.point_defects.VoronoiPolyhedron.is_image">
+<code class="descname">is_image</code><span class="sig-paren">(</span><em>poly</em>, <em>tol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#VoronoiPolyhedron.is_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.VoronoiPolyhedron.is_image" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.defects.point_defects.VoronoiPolyhedron.volume">
+<code class="descname">volume</code><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.VoronoiPolyhedron.volume" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.point_defects.calculate_vol">
+<code class="descname">calculate_vol</code><span class="sig-paren">(</span><em>coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#calculate_vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.calculate_vol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.analysis.defects.point_defects.symmetry_reduced_voronoi_nodes">
 <code class="descname">symmetry_reduced_voronoi_nodes</code><span class="sig-paren">(</span><em>structure</em>, <em>rad_dict</em>, <em>high_accuracy_flag=False</em>, <em>symm_flag=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#symmetry_reduced_voronoi_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.symmetry_reduced_voronoi_nodes" title="Permalink to this definition">¶</a></dt>
@@ -1143,13 +1291,13 @@ pymatgen.symmetry.finder.SpacegroupAnalyzer</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

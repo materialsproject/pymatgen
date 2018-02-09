@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.periodic_table &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.core.periodic_table &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -65,6 +65,7 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="nb">open</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
 
@@ -72,12 +73,13 @@
     <span class="n">SUPPORTED_UNIT_NAMES</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="k">import</span> <span class="n">formula_double_format</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">product</span><span class="p">,</span> <span class="n">combinations</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module contains classes presenting Element and Specie (Element + oxidation</span>
 <span class="sd">state) and PeriodicTable.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Michael Kocher&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
@@ -86,7 +88,6 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
-
 
 <span class="c1"># Loads element data from json file</span>
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
@@ -195,7 +196,7 @@
 
 <span class="sd">        True if element is a actinoid.</span>
 
-<span class="sd">    .. attribute:: name</span>
+<span class="sd">    .. attribute:: long_name</span>
 
 <span class="sd">       Long name for element. E.g., &quot;Hydrogen&quot;.</span>
 
@@ -262,7 +263,7 @@
 <span class="sd">        {&#39;1s&#39;: -1.0, &#39;2s&#39;: -0.1}</span>
 <span class="sd">        Data is obtained from</span>
 <span class="sd">        https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations</span>
-<span class="sd">        The LDA values for neutral atoms are used    </span>
+<span class="sd">        The LDA values for neutral atoms are used</span>
 
 <span class="sd">    .. attribute:: thermal_conductivity</span>
 
@@ -451,6 +452,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">atomic_radius</span> <span class="o">=</span> <span class="n">Length</span><span class="p">(</span><span class="n">at_r</span><span class="p">,</span> <span class="s2">&quot;ang&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="o">=</span> <span class="n">Mass</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;Atomic mass&quot;</span><span class="p">],</span> <span class="s2">&quot;amu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">d</span>
 
     <span class="nd">@property</span>
@@ -476,7 +478,8 @@
                     <span class="s2">&quot;mineral_hardness&quot;</span><span class="p">,</span> <span class="s2">&quot;vickers_hardness&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;density_of_solid&quot;</span><span class="p">,</span> <span class="s2">&quot;atomic_radius_calculated&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;van_der_waals_radius&quot;</span><span class="p">,</span> <span class="s2">&quot;atomic_orbitals&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;coefficient_of_linear_thermal_expansion&quot;</span><span class="p">]:</span>
+                    <span class="s2">&quot;coefficient_of_linear_thermal_expansion&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ground_state_term_symbol&quot;</span><span class="p">,</span> <span class="s2">&quot;valence&quot;</span><span class="p">]:</span>
             <span class="n">kstr</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
             <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kstr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;no data&quot;</span><span class="p">):</span>
@@ -495,13 +498,13 @@
                                 <span class="n">base_power</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;([+-]?\d+)&#39;</span><span class="p">,</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                                 <span class="n">factor</span> <span class="o">=</span> <span class="s2">&quot;e&quot;</span> <span class="o">+</span> <span class="n">base_power</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                                 <span class="k">if</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;&amp;gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">]:</span>
-                                    <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span> <span class="c1"># return the border value</span>
+                                    <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>  <span class="c1"># return the border value</span>
                                 <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">factor</span>
                                 <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="s2">&quot;electrical_resistivity&quot;</span><span class="p">:</span>
                                     <span class="n">unit</span> <span class="o">=</span> <span class="s2">&quot;ohm m&quot;</span>
                                 <span class="k">elif</span> <span class="p">(</span>
-                                    <span class="n">item</span> <span class="o">==</span>
-                                    <span class="s2">&quot;coefficient_of_linear_thermal_expansion&quot;</span>
+                                        <span class="n">item</span> <span class="o">==</span>
+                                        <span class="s2">&quot;coefficient_of_linear_thermal_expansion&quot;</span>
                                 <span class="p">):</span>
                                     <span class="n">unit</span> <span class="o">=</span> <span class="s2">&quot;K^-1&quot;</span>
                                 <span class="k">else</span><span class="p">:</span>
@@ -609,6 +612,115 @@
             <span class="n">sym</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span><span class="o">.</span><span class="n">full_electronic_structure</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="k">return</span> <span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">valence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        # From full electron config obtain valence subshell</span>
+<span class="sd">        # angular moment (L) and number of valence e- (v_e)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">L_symbols</span> <span class="o">=</span> <span class="s1">&#39;SPDFGHIKLMNOQRTUVWXYZ&#39;</span>
+        <span class="n">valence</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">full_electron_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_electronic_structure</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">l_symbol</span><span class="p">,</span> <span class="n">ne</span> <span class="ow">in</span> <span class="n">full_electron_config</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">L_symbols</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">l_symbol</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ne</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">l</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">valence</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">l</span><span class="p">,</span> <span class="n">ne</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valence</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Ambiguous valence&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">valence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">term_symbols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        All possible  Russell-Saunders term symbol of the Element</span>
+<span class="sd">        eg. L = 1, n_e = 2 (s2)</span>
+<span class="sd">        returns</span>
+<span class="sd">           [[&#39;1D2&#39;], [&#39;3P0&#39;, &#39;3P1&#39;, &#39;3P2&#39;], [&#39;1S0&#39;]]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">L_symbols</span> <span class="o">=</span> <span class="s1">&#39;SPDFGHIKLMNOQRTUVWXYZ&#39;</span>
+
+        <span class="n">L</span><span class="p">,</span> <span class="n">v_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">valence</span>
+
+        <span class="c1"># for one electron in subshell L</span>
+        <span class="n">ml</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">L</span><span class="p">,</span> <span class="n">L</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">ms</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># all possible configurations of ml,ms for one e in subshell L</span>
+        <span class="n">ml_ms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="n">ml</span><span class="p">,</span> <span class="n">ms</span><span class="p">))</span>
+
+        <span class="c1"># Number of possible configurations for r electrons in subshell L.</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">L</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="c1"># the combination of n_e electrons configurations</span>
+        <span class="c1"># C^{n}_{n_e}</span>
+        <span class="n">e_config_combs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">v_e</span><span class="p">))</span>
+
+        <span class="c1"># Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)</span>
+        <span class="n">TL</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">([</span><span class="n">ml_ms</span><span class="p">[</span><span class="n">comb</span><span class="p">[</span><span class="n">e</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v_e</span><span class="p">)])</span>
+              <span class="k">for</span> <span class="n">comb</span> <span class="ow">in</span> <span class="n">e_config_combs</span><span class="p">]</span>
+        <span class="n">TS</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">([</span><span class="n">ml_ms</span><span class="p">[</span><span class="n">comb</span><span class="p">[</span><span class="n">e</span><span class="p">]][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v_e</span><span class="p">)])</span>
+              <span class="k">for</span> <span class="n">comb</span> <span class="ow">in</span> <span class="n">e_config_combs</span><span class="p">]</span>
+        <span class="n">comb_counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">([</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">TL</span><span class="p">,</span> <span class="n">TS</span><span class="p">)])</span>
+
+        <span class="n">term_symbols</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="nb">sum</span><span class="p">(</span><span class="n">comb_counter</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Start from the lowest freq combination,</span>
+            <span class="c1"># which corresponds to largest abs(L) and smallest abs(S)</span>
+            <span class="n">L</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">comb_counter</span><span class="p">)</span>
+
+            <span class="n">J</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">L</span> <span class="o">-</span> <span class="n">S</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">L</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">S</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">term_symbols</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">S</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                                 <span class="o">+</span> <span class="n">L_symbols</span><span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">L</span><span class="p">)]</span>
+                                 <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">J</span><span class="p">])</span>
+            <span class="c1"># Without J</span>
+            <span class="c1"># term_symbols.append(str(int(2 * (abs(S)) + 1)) \</span>
+            <span class="c1">#                     + L_symbols[abs(L)])</span>
+
+            <span class="c1"># Delete all configurations included in this term</span>
+            <span class="k">for</span> <span class="n">ML</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">L</span><span class="p">,</span> <span class="n">L</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">MS</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="o">-</span><span class="n">S</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">ML</span><span class="p">,</span> <span class="n">MS</span><span class="p">)</span> <span class="ow">in</span> <span class="n">comb_counter</span><span class="p">:</span>
+
+                        <span class="n">comb_counter</span><span class="p">[(</span><span class="n">ML</span><span class="p">,</span> <span class="n">MS</span><span class="p">)]</span> <span class="o">-=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">comb_counter</span><span class="p">[(</span><span class="n">ML</span><span class="p">,</span> <span class="n">MS</span><span class="p">)]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="k">del</span> <span class="n">comb_counter</span><span class="p">[(</span><span class="n">ML</span><span class="p">,</span> <span class="n">MS</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">term_symbols</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ground_state_term_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ground state term symbol</span>
+<span class="sd">        Selected based on Hund&#39;s Rule</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">L_symbols</span> <span class="o">=</span> <span class="s1">&#39;SPDFGHIKLMNOQRTUVWXYZ&#39;</span>
+
+        <span class="n">term_symbols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">term_symbols</span>
+        <span class="n">term_symbol_flat</span> <span class="o">=</span> <span class="p">{</span><span class="n">term</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;multiplicity&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">term</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                   <span class="s2">&quot;L&quot;</span><span class="p">:</span> <span class="n">L_symbols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">term</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                                   <span class="s2">&quot;J&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">term</span><span class="p">[</span><span class="mi">2</span><span class="p">:])}</span>
+                            <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">sum</span><span class="p">(</span><span class="n">term_symbols</span><span class="p">,</span> <span class="p">[])}</span>
+
+        <span class="n">multi</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;multiplicity&#39;</span><span class="p">])</span>
+                 <span class="k">for</span> <span class="n">terms</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">term_symbol_flat</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="n">max_multi_terms</span> <span class="o">=</span> <span class="p">{</span><span class="n">symbol</span><span class="p">:</span> <span class="n">item</span>
+                           <span class="k">for</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">term_symbol_flat</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                           <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;multiplicity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">multi</span><span class="p">)}</span>
+
+        <span class="n">Ls</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;L&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">terms</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">max_multi_terms</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="n">max_L_terms</span> <span class="o">=</span> <span class="p">{</span><span class="n">symbol</span><span class="p">:</span> <span class="n">item</span>
+                       <span class="k">for</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">term_symbol_flat</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                       <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;L&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">Ls</span><span class="p">)}</span>
+
+        <span class="n">J_sorted_terms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">max_L_terms</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+                                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;J&#39;</span><span class="p">])</span>
+        <span class="n">L</span><span class="p">,</span> <span class="n">v_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">valence</span>
+        <span class="k">if</span> <span class="n">v_e</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">L</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">J_sorted_terms</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">J_sorted_terms</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Element</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">Z</span>
@@ -883,7 +995,6 @@
 
 
 <div class="viewcode-block" id="Specie"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie">[docs]</a><span class="k">class</span> <span class="nc">Specie</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
-
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An extension of Element with an oxidation state and other optional</span>
 <span class="sd">    properties. Properties associated with Specie should be &quot;idealized&quot;</span>
@@ -912,21 +1023,6 @@
 <span class="sd">        Properties are now checked when comparing two Species for equality.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="bp">cls</span><span class="p">,)</span> <span class="o">+</span> <span class="n">args</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">inst</span> <span class="o">=</span> <span class="n">Specie</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-            <span class="c1"># Can&#39;t cache this set of arguments</span>
-            <span class="n">inst</span> <span class="o">=</span> <span class="n">key</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">inst</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">inst</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">Specie</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">inst</span>
-        <span class="k">return</span> <span class="n">inst</span>
-
     <span class="n">supported_properties</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;spin&quot;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">oxidation_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -954,8 +1050,8 @@
 <span class="sd">        exactly the same.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Specie</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span> \
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">oxi_state</span> \
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_properties</span>
+               <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">oxi_state</span> \
+               <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_properties</span>
 
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
@@ -1039,14 +1135,14 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError if species_string cannot be intepreted.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-Z][a-z]*)([0-9\.]*)([\+\-])(.*)&quot;</span><span class="p">,</span> <span class="n">species_string</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-Z][a-z]*)([0-9.]*)([+\-])(.*)&quot;</span><span class="p">,</span> <span class="n">species_string</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
             <span class="n">sym</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">oxi</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
             <span class="n">oxi</span> <span class="o">=</span> <span class="o">-</span><span class="n">oxi</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="k">else</span> <span class="n">oxi</span>
             <span class="n">properties</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
-                <span class="n">toks</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+                <span class="n">toks</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
                 <span class="n">properties</span> <span class="o">=</span> <span class="p">{</span><span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="nb">float</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])}</span>
             <span class="k">return</span> <span class="n">Specie</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="n">oxi</span><span class="p">,</span> <span class="n">properties</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1065,6 +1161,57 @@
         <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;,</span><span class="si">%s</span><span class="s2">=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output</span>
+
+<div class="viewcode-block" id="Specie.get_shannon_radius"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie.get_shannon_radius">[docs]</a>    <span class="k">def</span> <span class="nf">get_shannon_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cn</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">radius_type</span><span class="o">=</span><span class="s2">&quot;ionic&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the local environment specific ionic radius for species.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cn (str): Coordination using roman letters. Supported values are</span>
+<span class="sd">                I-IX, as well as IIIPY, IVPY and IVSQ.</span>
+<span class="sd">            spin (str): Some species have different radii for different</span>
+<span class="sd">                spins. You can get specific values using &quot;High Spin&quot; or</span>
+<span class="sd">                &quot;Low Spin&quot;. Leave it as &quot;&quot; if not available. If only one spin</span>
+<span class="sd">                data is available, it is returned and this spin parameter is</span>
+<span class="sd">                ignored.</span>
+<span class="sd">            radius_type (str): Either &quot;crystal&quot; or &quot;ionic&quot; (default).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Shannon radius for specie in the specified environment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">radii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_el</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Shannon radii&quot;</span><span class="p">]</span>
+        <span class="c1"># if cn == 1:</span>
+        <span class="c1">#     cn_str = &quot;I&quot;</span>
+        <span class="c1"># elif cn == 2:</span>
+        <span class="c1">#     cn_str = &quot;II&quot;</span>
+        <span class="c1"># elif cn == 3:</span>
+        <span class="c1">#     cn_str = &quot;III&quot;</span>
+        <span class="c1"># elif cn == 4:</span>
+        <span class="c1">#     cn_str = &quot;IV&quot;</span>
+        <span class="c1"># elif cn == 5:</span>
+        <span class="c1">#     cn_str = &quot;V&quot;</span>
+        <span class="c1"># elif cn == 6:</span>
+        <span class="c1">#     cn_str = &quot;VI&quot;</span>
+        <span class="c1"># elif cn == 7:</span>
+        <span class="c1">#     cn_str = &quot;VII&quot;</span>
+        <span class="c1"># elif cn == 8:</span>
+        <span class="c1">#     cn_str = &quot;VIII&quot;</span>
+        <span class="c1"># elif cn == 9:</span>
+        <span class="c1">#     cn_str = &quot;IX&quot;</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     raise ValueError(&quot;Invalid coordination number&quot;)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">radii</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span><span class="p">))][</span><span class="n">cn</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">k</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">radii</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span><span class="p">))][</span><span class="n">cn</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">spin</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Specified spin state of </span><span class="si">%s</span><span class="s2"> not consistent with database &quot;</span>
+                    <span class="s2">&quot;spin of </span><span class="si">%s</span><span class="s2">. Because there is only one spin data available, &quot;</span>
+                    <span class="s2">&quot;that value is returned.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spin</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="n">data</span> <span class="o">=</span> <span class="n">radii</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span><span class="p">))][</span><span class="n">cn</span><span class="p">][</span><span class="n">spin</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_radius&quot;</span> <span class="o">%</span> <span class="n">radius_type</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Specie.get_crystal_field_spin"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie.get_crystal_field_spin">[docs]</a>    <span class="k">def</span> <span class="nf">get_crystal_field_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordination</span><span class="o">=</span><span class="s2">&quot;oct&quot;</span><span class="p">,</span> <span class="n">spin_config</span><span class="o">=</span><span class="s2">&quot;high&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1095,7 +1242,7 @@
         <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">nelectrons</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
                 <span class="s2">&quot;Invalid oxidation state </span><span class="si">{}</span><span class="s2"> for element </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">spin_config</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">nelectrons</span> <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="k">else</span> <span class="mi">10</span> <span class="o">-</span> <span class="n">nelectrons</span>
         <span class="k">elif</span> <span class="n">spin_config</span> <span class="o">==</span> <span class="s2">&quot;low&quot;</span><span class="p">:</span>
@@ -1207,8 +1354,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Specie</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span> \
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">oxi_state</span> \
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_properties</span>
+               <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">oxi_state</span> \
+               <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_properties</span>
 
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
@@ -1413,7 +1560,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1421,7 +1568,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

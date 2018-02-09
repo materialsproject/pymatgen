@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../../',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -318,18 +318,26 @@
     <span class="n">rot</span> <span class="o">=</span> <span class="n">find_rotation</span><span class="p">(</span><span class="n">points_distorted</span><span class="o">=</span><span class="n">points_distorted</span><span class="p">,</span>
                         <span class="n">points_perfect</span><span class="o">=</span><span class="n">points_perfect</span><span class="p">)</span>
     <span class="c1"># Find the scaling factor between the distorted points and the perfect points in a least-square sense.</span>
-    <span class="n">scaling_factor</span><span class="p">,</span> <span class="n">rotated_coords</span> <span class="o">=</span> <span class="n">find_scaling_factor</span><span class="p">(</span>
+    <span class="n">scaling_factor</span><span class="p">,</span> <span class="n">frotated_coords</span><span class="p">,</span> <span class="n">fpoints_perfect</span> <span class="o">=</span> <span class="n">find_scaling_factor</span><span class="p">(</span>
         <span class="n">points_distorted</span><span class="o">=</span><span class="n">points_distorted</span><span class="p">,</span>
         <span class="n">points_perfect</span><span class="o">=</span><span class="n">points_perfect</span><span class="p">,</span>
         <span class="n">rot</span><span class="o">=</span><span class="n">rot</span><span class="p">)</span>
+    <span class="c1"># scaling_factor, rotated_coords = find_scaling_factor(</span>
+    <span class="c1">#     points_distorted=points_distorted,</span>
+    <span class="c1">#     points_perfect=points_perfect,</span>
+    <span class="c1">#     rot=rot)</span>
     <span class="c1"># Compute the continuous symmetry measure [see Eq. 1 in Pinsky et al., Inorganic Chemistry 37, 5575 (1998)]</span>
-    <span class="n">num</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">denom</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">for</span> <span class="n">ip</span><span class="p">,</span> <span class="n">pp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">points_perfect</span><span class="p">):</span>
-        <span class="n">rotated_coords</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaling_factor</span> <span class="o">*</span> <span class="n">rotated_coords</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span>
-        <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">pp</span> <span class="o">-</span> <span class="n">rotated_coords</span><span class="p">[</span><span class="n">ip</span><span class="p">])</span>
-        <span class="n">num</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diff</span> <span class="o">*</span> <span class="n">diff</span><span class="p">)</span>
-        <span class="n">denom</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pp</span> <span class="o">*</span> <span class="n">pp</span><span class="p">)</span>
+    <span class="n">frotated_coords</span> <span class="o">=</span> <span class="n">scaling_factor</span> <span class="o">*</span> <span class="n">frotated_coords</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">fpoints_perfect</span> <span class="o">-</span> <span class="n">frotated_coords</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
+    <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fpoints_perfect</span><span class="p">,</span> <span class="n">fpoints_perfect</span><span class="p">)</span>
+    <span class="c1"># num = 0.0</span>
+    <span class="c1"># denom = 0.0</span>
+    <span class="c1"># for ip, pp in enumerate(points_perfect):</span>
+    <span class="c1">#     rotated_coords[ip] = scaling_factor * rotated_coords[ip]</span>
+    <span class="c1">#     diff = (pp - rotated_coords[ip])</span>
+    <span class="c1">#     num += np.sum(diff * diff)</span>
+    <span class="c1">#     denom += np.sum(pp * pp)</span>
     <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;symmetry_measure&#39;</span><span class="p">:</span> <span class="n">num</span> <span class="o">/</span> <span class="n">denom</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s1">&#39;scaling_factor&#39;</span><span class="p">:</span> <span class="n">scaling_factor</span><span class="p">,</span> <span class="s1">&#39;rotation_matrix&#39;</span><span class="p">:</span> <span class="n">rot</span><span class="p">}</span></div>
 
 
@@ -369,10 +377,15 @@
 <span class="sd">    :return: The scaling factor between the two structures and the rotated set of (distorted) points.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rotated_coords</span> <span class="o">=</span> <span class="n">rotateCoords</span><span class="p">(</span><span class="n">points_distorted</span><span class="p">,</span> <span class="n">rot</span><span class="p">)</span>
-    <span class="n">num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rc</span><span class="p">,</span> <span class="n">points_perfect</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">rc</span> <span class="ow">in</span>
-                  <span class="nb">enumerate</span><span class="p">(</span><span class="n">rotated_coords</span><span class="p">)])</span>
-    <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rc</span><span class="p">,</span> <span class="n">rc</span><span class="p">)</span> <span class="k">for</span> <span class="n">rc</span> <span class="ow">in</span> <span class="n">rotated_coords</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">num</span> <span class="o">/</span> <span class="n">denom</span><span class="p">,</span> <span class="n">rotated_coords</span></div>
+    <span class="n">frc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rotated_coords</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">fpp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points_perfect</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">frc</span><span class="p">,</span> <span class="n">fpp</span><span class="p">)</span>
+    <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">frc</span><span class="p">,</span> <span class="n">frc</span><span class="p">)</span>
+    <span class="c1"># num = np.sum([np.dot(rc, points_perfect[ii]) for ii, rc in</span>
+    <span class="c1">#               enumerate(rotated_coords)])</span>
+    <span class="c1"># denom = np.sum([np.dot(rc, rc) for rc in rotated_coords])</span>
+    <span class="k">return</span> <span class="n">num</span> <span class="o">/</span> <span class="n">denom</span><span class="p">,</span> <span class="n">frc</span><span class="p">,</span> <span class="n">fpp</span></div>
+    <span class="c1"># return num / denom, rotated_coords</span>
 
 
 <div class="viewcode-block" id="LocalGeometryFinder"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder">[docs]</a><span class="k">class</span> <span class="nc">LocalGeometryFinder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -546,6 +559,9 @@
                                        <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                        <span class="n">timelimit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                        <span class="n">initial_structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                       <span class="n">get_from_hints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">voronoi_normalized_distance_tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                       <span class="n">voronoi_normalized_angle_tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                        <span class="n">recompute</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes and returns the StructureEnvironments object containing all the information about the coordination</span>
@@ -609,12 +625,22 @@
 
         <span class="c1"># Get the VoronoiContainer for the sites defined by their indices (sites_indices)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Getting DetailedVoronoiContainer&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">voronoi_normalized_distance_tolerance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">normalized_distance_tolerance</span> <span class="o">=</span> <span class="n">DetailedVoronoiContainer</span><span class="o">.</span><span class="n">default_normalized_distance_tolerance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">normalized_distance_tolerance</span> <span class="o">=</span> <span class="n">voronoi_normalized_distance_tolerance</span>
+        <span class="k">if</span> <span class="n">voronoi_normalized_angle_tolerance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">normalized_angle_tolerance</span> <span class="o">=</span> <span class="n">DetailedVoronoiContainer</span><span class="o">.</span><span class="n">default_normalized_angle_tolerance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">normalized_angle_tolerance</span> <span class="o">=</span> <span class="n">voronoi_normalized_angle_tolerance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">detailed_voronoi</span> <span class="o">=</span> <span class="n">DetailedVoronoiContainer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
                                                          <span class="n">isites</span><span class="o">=</span><span class="n">sites_indices</span><span class="p">,</span>
                                                          <span class="n">valences</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">valences</span><span class="p">,</span>
                                                          <span class="n">maximum_distance_factor</span><span class="o">=</span><span class="n">maximum_distance_factor</span><span class="p">,</span>
                                                          <span class="n">minimum_angle_factor</span><span class="o">=</span><span class="n">minimum_angle_factor</span><span class="p">,</span>
-                                                         <span class="n">additional_conditions</span><span class="o">=</span><span class="n">additional_conditions</span><span class="p">)</span>
+                                                         <span class="n">additional_conditions</span><span class="o">=</span><span class="n">additional_conditions</span><span class="p">,</span>
+                                                         <span class="n">normalized_distance_tolerance</span><span class="o">=</span><span class="n">normalized_distance_tolerance</span><span class="p">,</span>
+                                                         <span class="n">normalized_angle_tolerance</span><span class="o">=</span><span class="n">normalized_angle_tolerance</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;DetailedVoronoiContainer has been set up&#39;</span><span class="p">)</span>
 
         <span class="c1"># Initialize the StructureEnvironments object (either from initial_structure_environments or from scratch)</span>
@@ -670,18 +696,26 @@
             <span class="n">se</span><span class="o">.</span><span class="n">init_neighbors_sets</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">additional_conditions</span><span class="o">=</span><span class="n">additional_conditions</span><span class="p">,</span> <span class="n">valences</span><span class="o">=</span><span class="n">valences</span><span class="p">)</span>
 
             <span class="n">to_add_from_hints</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">nb_sets_info</span> <span class="o">=</span> <span class="p">{}</span>
 
             <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">nb_sets</span> <span class="ow">in</span> <span class="n">se</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_cns</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="k">for</span> <span class="n">inb_set</span><span class="p">,</span> <span class="n">nb_set</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nb_sets</span><span class="p">):</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    ... getting environments for nb_set (</span><span class="si">{:d}</span><span class="s1">, </span><span class="si">{:d}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cn</span><span class="p">,</span> <span class="n">inb_set</span><span class="p">))</span>
+                    <span class="n">tnbset1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
                     <span class="n">ce</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_nb_set_environments</span><span class="p">(</span><span class="n">se</span><span class="o">=</span><span class="n">se</span><span class="p">,</span> <span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">cn</span><span class="o">=</span><span class="n">cn</span><span class="p">,</span> <span class="n">inb_set</span><span class="o">=</span><span class="n">inb_set</span><span class="p">,</span> <span class="n">nb_set</span><span class="o">=</span><span class="n">nb_set</span><span class="p">,</span>
                                                          <span class="n">recompute</span><span class="o">=</span><span class="n">do_recompute</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">cg_symbol</span><span class="p">,</span> <span class="n">cg_dict</span> <span class="ow">in</span> <span class="n">ce</span><span class="p">:</span>
-                        <span class="n">cg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allcg</span><span class="p">[</span><span class="n">cg_symbol</span><span class="p">]</span>
-                        <span class="c1"># Get possibly missing neighbors sets</span>
-                        <span class="k">if</span> <span class="n">cg</span><span class="o">.</span><span class="n">neighbors_sets_hints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">tnbset2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nb_sets_info</span><span class="p">:</span>
+                        <span class="n">nb_sets_info</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">nb_sets_info</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">inb_set</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">tnbset2</span> <span class="o">-</span> <span class="n">tnbset1</span><span class="p">}</span>
+                    <span class="k">if</span> <span class="n">get_from_hints</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">cg_symbol</span><span class="p">,</span> <span class="n">cg_dict</span> <span class="ow">in</span> <span class="n">ce</span><span class="p">:</span>
+                            <span class="n">cg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allcg</span><span class="p">[</span><span class="n">cg_symbol</span><span class="p">]</span>
+                            <span class="c1"># Get possibly missing neighbors sets</span>
+                            <span class="k">if</span> <span class="n">cg</span><span class="o">.</span><span class="n">neighbors_sets_hints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="k">continue</span>
                             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;       ... getting hints from cg with mp_symbol &quot;</span><span class="si">{}</span><span class="s1">&quot; ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cg_symbol</span><span class="p">))</span>
                             <span class="n">hints_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;csm&#39;</span><span class="p">:</span> <span class="n">cg_dict</span><span class="p">[</span><span class="s1">&#39;symmetry_measure&#39;</span><span class="p">],</span>
                                           <span class="s1">&#39;nb_set&#39;</span><span class="p">:</span> <span class="n">nb_set</span><span class="p">,</span>
@@ -726,12 +760,18 @@
                 <span class="n">inew_nb_set</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite_new_nb_set</span><span class="p">][</span><span class="n">cn_new_nb_set</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">new_nb_set</span><span class="p">)</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    ... getting environments for nb_set (</span><span class="si">{:d}</span><span class="s1">, </span><span class="si">{:d}</span><span class="s1">) - &#39;</span>
                               <span class="s1">&#39;from hints&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cn_new_nb_set</span><span class="p">,</span> <span class="n">inew_nb_set</span><span class="p">))</span>
+                <span class="n">tnbset1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update_nb_set_environments</span><span class="p">(</span><span class="n">se</span><span class="o">=</span><span class="n">se</span><span class="p">,</span>
                                                 <span class="n">isite</span><span class="o">=</span><span class="n">isite_new_nb_set</span><span class="p">,</span>
                                                 <span class="n">cn</span><span class="o">=</span><span class="n">cn_new_nb_set</span><span class="p">,</span>
                                                 <span class="n">inb_set</span><span class="o">=</span><span class="n">inew_nb_set</span><span class="p">,</span>
                                                 <span class="n">nb_set</span><span class="o">=</span><span class="n">new_nb_set</span><span class="p">)</span>
+                <span class="n">tnbset2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nb_sets_info</span><span class="p">:</span>
+                    <span class="n">nb_sets_info</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">nb_sets_info</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">inew_nb_set</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">tnbset2</span> <span class="o">-</span> <span class="n">tnbset1</span><span class="p">}</span>
             <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">update_site_info</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">info_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">,</span> <span class="s1">&#39;nb_sets_info&#39;</span><span class="p">:</span> <span class="n">nb_sets_info</span><span class="p">})</span>
             <span class="k">if</span> <span class="n">timelimit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">time_elapsed</span> <span class="o">=</span> <span class="n">t2</span> <span class="o">-</span> <span class="n">time_init</span>
                 <span class="n">time_left</span> <span class="o">=</span> <span class="n">timelimit</span> <span class="o">-</span> <span class="n">time_elapsed</span>
@@ -813,7 +853,8 @@
                                        <span class="n">indices</span><span class="o">=</span><span class="s1">&#39;RANDOM&#39;</span><span class="p">,</span>
                                        <span class="n">random_translation</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span><span class="p">,</span>
                                        <span class="n">random_rotation</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span><span class="p">,</span>
-                                       <span class="n">random_scale</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span><span class="p">):</span>
+                                       <span class="n">random_scale</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span><span class="p">,</span>
+                                       <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">symbol_type</span> <span class="o">==</span> <span class="s1">&#39;IUPAC&#39;</span><span class="p">:</span>
             <span class="n">cg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allcg</span><span class="o">.</span><span class="n">get_geometry_from_IUPAC_symbol</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">symbol_type</span> <span class="o">==</span> <span class="s1">&#39;MP&#39;</span> <span class="ow">or</span> <span class="n">symbol_type</span> <span class="o">==</span> <span class="s1">&#39;mp_symbol&#39;</span><span class="p">:</span>
@@ -821,19 +862,23 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Wrong mp_symbol to setup coordination geometry&#39;</span><span class="p">)</span>
         <span class="n">neighb_coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mypoints</span> <span class="o">=</span> <span class="n">points</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mypoints</span> <span class="o">=</span> <span class="n">cg</span><span class="o">.</span><span class="n">points</span>
         <span class="k">if</span> <span class="n">randomness</span><span class="p">:</span>
             <span class="n">rv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
             <span class="k">while</span> <span class="n">norm</span><span class="p">(</span><span class="n">rv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
                 <span class="n">rv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">+</span> <span class="n">max_random_dist</span> <span class="o">*</span> <span class="n">rv</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">cg</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">mypoints</span><span class="p">:</span>
                 <span class="n">rv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
                 <span class="k">while</span> <span class="n">norm</span><span class="p">(</span><span class="n">rv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
                     <span class="n">rv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
                 <span class="n">neighb_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span> <span class="o">+</span> <span class="n">max_random_dist</span> <span class="o">*</span> <span class="n">rv</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)]</span>
-            <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">cg</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">mypoints</span><span class="p">:</span>
                 <span class="n">neighb_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pp</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">indices</span> <span class="o">==</span> <span class="s1">&#39;RANDOM&#39;</span><span class="p">:</span>
             <span class="n">shuffle</span><span class="p">(</span><span class="n">neighb_coords</span><span class="p">)</span>
@@ -1494,7 +1539,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1502,7 +1547,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

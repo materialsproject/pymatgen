@@ -6,23 +6,34 @@ bent:
   TA:
     1
   IGW_TA:
-    15
+    8.667
 T:
   IGW_EP:
-    18
+    15.5
   fac_AA:
     1
   exp_cos_AA:
     2
-see_saw:
+see_saw_rect:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
-    15
+    11.5
   IGW_EP:
-    18
-  w_SPP:
-    1
+    27
+  fac_AA:
+    2
+  exp_cos_AA:
+    2
+tet_max:
+  IGW_TA:
+    18.5
+  TA:
+    0.6081734479693927
+  fac_AA:
+    1.5
+  exp_cos_AA:
+    2
 tet:
   IGW_TA:
     15
@@ -30,6 +41,19 @@ tet:
     0.6081734479693927
   fac_AA:
     1.5
+  exp_cos_AA:
+    2
+oct_max:
+  min_SPP:
+    2.356194490192345
+  IGW_SPP:
+    15
+  IGW_EP:
+    18
+  w_SPP:
+    1
+  fac_AA:
+    2
   exp_cos_AA:
     2
 oct:
@@ -47,7 +71,7 @@ oct:
     2
 bcc:
   min_SPP:
-    2.792526803190927
+    2.5261129449194057
   IGW_SPP:
     15
   w_SPP:
@@ -55,6 +79,15 @@ bcc:
 tri_plan:
   IGW_TA:
     13.5
+  TA:
+    0.66666666667
+  fac_AA:
+    1
+  exp_cos_AA:
+    2
+tri_plan_max:
+  IGW_TA:
+    17.5
   TA:
     0.66666666667
   fac_AA:
@@ -74,55 +107,73 @@ sq_plan:
     1
   exp_cos_AA:
     2
+sq_plan_max:
+  min_SPP:
+    2.356194490192345
+  IGW_SPP:
+    13.5
+  IGW_EP:
+    17.7
+  w_SPP:
+    1
+  fac_AA:
+    1
+  exp_cos_AA:
+    2
 pent_plan:
   TA:
     0.6
   IGW_TA:
     18
+pent_plan_max:
+  TA:
+    0.6
+  IGW_TA:
+    19.333
 tri_pyr:
   IGW_EP:
-    18
+    15.5
   fac_AA:
     1.5
   exp_cos_AA:
     2
 sq_pyr:
   IGW_EP:
-    18
+    14.9
   fac_AA:
     2
   exp_cos_AA:
     2
 pent_pyr:
   IGW_EP:
-    18
+    13.8
   fac_AA:
     2.5
   exp_cos_AA:
     2
 hex_pyr:
   IGW_EP:
-    18
+    12.5
   fac_AA:
     3
   exp_cos_AA:
     2
 tri_bipyr:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
-    15
+    12
   IGW_EP:
-    18
+    16.6
   fac_AA:
     1.5
   exp_cos_AA:
     2
   w_SPP:
-    2
+    1
 sq_bipyr:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
     15
   IGW_EP:
@@ -132,33 +183,33 @@ sq_bipyr:
   exp_cos_AA:
     2
   w_SPP:
-    3
+    1
 pent_bipyr:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
-    15
+    12.5
   IGW_EP:
-    18
+    14.75
   fac_AA:
     2.5
   exp_cos_AA:
     2
   w_SPP:
-    4
+    1
 hex_bipyr:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
-    15
+    14.1
   IGW_EP:
-    18
+    13.6
   fac_AA:
     3
   exp_cos_AA:
     2
   w_SPP:
-    5
+    1
 cuboct:
   min_SPP:
     2.792526803190927
@@ -174,6 +225,21 @@ cuboct:
     18
   6:
     18
+cuboct_max:
+  min_SPP:
+    2.792526803190927
+  IGW_SPP:
+    28.75
+  2:
+    1.8325957145940461
+  w_SPP:
+    1.8
+  4:
+    1.3089969389957472
+  5:
+    25.5
+  6:
+    31.25
 q2:
 q4:
 q6:
@@ -207,3 +273,17 @@ sq_pyr_legacy:
     30
   2:
     10
+hex_plan_max:
+  min_SPP:
+    2.6179938779914944
+  IGW_SPP:
+    15
+  w_SPP:
+    1
+  fac_AA:
+    1
+  exp_cos_AA:
+    2
+  IGW_TA:
+    20
+  TA: 0.16666667

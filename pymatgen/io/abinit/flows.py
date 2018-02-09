@@ -1615,7 +1615,7 @@ class Flow(Node, NodeContainer, MSONable):
                        "This means that you are trying to build a new flow in a directory already used by another flow.\n"
                        "Possible solutions:\n"
                        "   1) Change the workdir of the new flow.\n"
-                       "   2) remove the old directory either with `rm -rf` or by calling the method flow.rmtree()\n"
+                       "   2) remove the old directory either with `rm -r` or by calling the method flow.rmtree()\n"
                         % (node_id, nodeid_path, self.node_id))
                 raise RuntimeError(msg)
 
@@ -2563,7 +2563,7 @@ class PhononFlow(Flow):
             raise ValueError("ph_ngqpt %s should be a sub-mesh of scf_ngkpt %s" % (ph_ngqpt, scf_ngkpt))
 
         # Get the q-points in the IBZ from Abinit
-        qpoints = scf_input.abiget_ibz(ngkpt=ph_ngqpt, shiftk=(0,0,0), kptopt=1).points
+        qpoints = scf_input.abiget_ibz(ngkpt=ph_ngqpt, shiftk=(0, 0, 0), kptopt=1).points
 
         # Create a PhononWork for each q-point. Add DDK and E-field if q == Gamma and with_becs.
         for qpt in qpoints:

@@ -1,6 +1,27 @@
 Change log
 ==========
 
+v2018.1.29
+----------
+* Improvements to local_env (Nils)
+* Term symbols for Element (Weike Ye).
+* Timeout for enumlib (Horton).
+
+v2018.1.19
+----------
+* Phonon plotting and analysis improvements (Guido Petretto).
+* Voronoi site finder (Hanmei Tang)
+* Some bug fixes for Gaussian (Marco Esters)
+* Misc improvements.
+
+v2017.12.30
+-----------
+* Added detailed Shannon radii information and method.
+* Magoms for lanthanides (Weike Ye)
+* Chemenv improvements (David Waroquiers)
+* Ewald summation improvements (Logan Ward)
+* Update to ABINIT support (G Matteo)
+
 v2017.12.16
 -----------
 * Add optical absorption coefficient method
@@ -11,7 +32,7 @@ v2017.12.15
 * Deprecated methods cleanup for 2018. Note that this may break some legacy
   code. Please make sure you update your code!
 * Better dielectric parsing for VASP 5.4.4 to include both density-density and
-  velocity-velocity functions. 
+  velocity-velocity functions.
 * Orbital-resolved COHPs support (Macro Esters)
 * Convenient plot_element_profile method in PDPlotter.
 * Input set for SCAN functional calculations.
@@ -85,7 +106,7 @@ v2017.9.23
 
 v2017.9.3
 ---------
-* VDW support (Marco Esters) 
+* VDW support (Marco Esters)
 * Bug fix release.
 
 v2017.9.1
@@ -140,21 +161,21 @@ v2017.8.4
 
 v2017.7.21
 ----------
-* Misc bug fixes to elastic (J. Montaya), 
-* Decrease default symprec in SpacegroupAnalyzer to 0.01, which should be 
+* Misc bug fixes to elastic (J. Montaya),
+* Decrease default symprec in SpacegroupAnalyzer to 0.01, which should be
   sufficiently flexible for a lot of non-DFT applications.
 
 v2017.7.4
 ---------
 * Bug fixes for oxide corrections for MP queried entries, and pickling of Potcars.
-* Default to LPEAD=T for LEPSILON=T. 
+* Default to LPEAD=T for LEPSILON=T.
 
 v2017.6.24
 ----------
 * New package pymatgen.ext supporting external interfaces. Materials Project
   REST interface has been moved to pymatgen.ext.matproj. Backwards compatibility
   will be maintained until 2018.
-* Two new interfaces have been added: i) Support for John Hopkin's Mueller 
+* Two new interfaces have been added: i) Support for John Hopkin's Mueller
   group's efficient k-point servelet (J Montaya). ii) Support for
   Crystallography Open Database structure queries and downloads. (S. P. Ong).
   See the examples page for usage in getting structures from online sources.
@@ -513,7 +534,7 @@ v3.3.6
 * Update to use enum.x instead of multienum.x.
 * Minor robustness fixes to VaspInputSet serialization.
 * Add a reciprocal density parameter to vasp sets.
-* Minor bug fixes to Vasprun parsing. 
+* Minor bug fixes to Vasprun parsing.
 
 v3.3.5
 ------
@@ -621,12 +642,12 @@ v3.2.4
 
 v3.2.3
 ------
-* Massive update to abinit support. Note that pymatgen.io.abinitio has 
+* Massive update to abinit support. Note that pymatgen.io.abinitio has
   been refactored to pymatgen.io.abinit. (Matteo, Setten)
-* NwOutput now supports parsing of Hessian matrices (contributed by Xin 
+* NwOutput now supports parsing of Hessian matrices (contributed by Xin
   Chen)
 * Gaussian support now has the ability to read potential energy surface
-  and electronic transitions computed with TD-DFT (Germain Salvato 
+  and electronic transitions computed with TD-DFT (Germain Salvato
   Vallverdu)
 * Bug fixes for CifWriter with symmetry.
 * Bug fixes for surface generation and reactions.
@@ -636,7 +657,7 @@ v3.2.1
 ------
 * Fix wrong U value for Ce and Eu.
 * Properly handle empty multiline strings in Cif
-* Add ability to get specific data in MPRester.get_entries. Make all get_entry 
+* Add ability to get specific data in MPRester.get_entries. Make all get_entry
   methods consistent  in kwargs.
 
 v3.2.0
@@ -659,12 +680,12 @@ v3.1.6
 ------
 * Rudimentary PWSCF output reading.
 * Fix ASE support.
-* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml. 
+* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml.
   (Miguel Dias Costa)
 
 v3.1.5
 ------
-* Move vasp.vasp*put to vasp.*puts. Also, maintain backwards compatibility with 
+* Move vasp.vasp*put to vasp.*puts. Also, maintain backwards compatibility with
   vaspio.vasp_*put
 
 v3.1.4
@@ -681,7 +702,7 @@ v3.1.3
   removed in pymatgen 4.0. Pls migrate code when you see the deprecation
   messages.
 * Make Composition.anonymized_formula truly chemistry independent (No A2B2
-  for peroxides or A2 for diatomic gasses) 
+  for peroxides or A2 for diatomic gasses)
 * Allowing CIF data_* header to be prefixed with spaces and tabulations.
 
 v3.1.2
@@ -737,7 +758,7 @@ v3.0.9
 ------
 * Major bug fixes for CIF parsing (Will Richards).
 * Support for {Li,Na} syntax in parse_criteria for MPRester.
-* Additional example notebook for ordering and enumeration. 
+* Additional example notebook for ordering and enumeration.
 * More robust checking for oxidation states in EnumerateStructureTRansformation.
 * Improvements to Slab polarity checking.
 

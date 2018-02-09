@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -101,7 +101,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, &quot;</span> <span class="o">+</span> \
-    <span class="s2">&quot;Vincent L Chevrier, Ioannis Petousis, Stephen Dacek&quot;</span>
+    <span class="s2">&quot;Vincent L Chevrier, Ioannis Petousis, Stephen Dacek, Mark Turiansky&quot;</span>
 <span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Anubhav Jain&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.2&quot;</span>
@@ -1127,10 +1127,10 @@
         <span class="k">return</span> <span class="n">struct</span>
 
     <span class="k">def</span> <span class="nf">_parse_diel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">):</span>
-        <span class="n">imag</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+        <span class="n">imag</span> <span class="o">=</span> <span class="p">[[</span><span class="n">_vasprun_float</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
                 <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;imag&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;array&quot;</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;set&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)]</span>
-        <span class="n">real</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+        <span class="n">real</span> <span class="o">=</span> <span class="p">[[</span><span class="n">_vasprun_float</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
                 <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;real&quot;</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;array&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;set&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)]</span>
         <span class="n">elem</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
@@ -3765,6 +3765,353 @@
     <span class="k">return</span> <span class="n">efermi</span></div>
 
 
+<div class="viewcode-block" id="Wavecar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar">[docs]</a><span class="k">class</span> <span class="nc">Wavecar</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a class that contains the (pseudo-) wavefunctions from VASP.</span>
+
+<span class="sd">    Coefficients are read from the given WAVECAR file and the corresponding</span>
+<span class="sd">    G-vectors are generated using the algorithm developed in WaveTrans (see</span>
+<span class="sd">    acknowledgments below). To understand how the wavefunctions are evaluated,</span>
+<span class="sd">    please see the evaluate_wavefunc docstring.</span>
+
+<span class="sd">    It should be noted that the pseudopotential augmentation is not included in</span>
+<span class="sd">    the WAVECAR file. As a result, some caution should be exercised when</span>
+<span class="sd">    deriving value from this information.</span>
+
+<span class="sd">    The usefulness of this class is to allow the user to do projections or band</span>
+<span class="sd">    unfolding style manipulations of the wavefunction. An example of this can</span>
+<span class="sd">    be seen in the work of Shen et al. 2017</span>
+<span class="sd">    (https://doi.org/10.1103/PhysRevMaterials.1.065001).</span>
+
+<span class="sd">    .. attribute:: filename</span>
+
+<span class="sd">        String of the input file (usually WAVECAR)</span>
+
+<span class="sd">    .. attribute:: nk</span>
+
+<span class="sd">        Number of k-points from the WAVECAR</span>
+
+<span class="sd">    .. attribute:: nb</span>
+
+<span class="sd">        Number of bands per k-point</span>
+
+<span class="sd">    .. attribute:: encut</span>
+
+<span class="sd">        Energy cutoff (used to define G_{cut})</span>
+
+<span class="sd">    .. attribute:: efermi</span>
+
+<span class="sd">        Fermi energy</span>
+
+<span class="sd">    .. attribute:: a</span>
+
+<span class="sd">        Primitive lattice vectors of the cell (e.g. a_1 = self.a[0, :])</span>
+
+<span class="sd">    .. attribute:: b</span>
+
+<span class="sd">        Reciprocal lattice vectors of the cell (e.g. b_1 = self.b[0, :])</span>
+
+<span class="sd">    .. attribute:: vol</span>
+
+<span class="sd">        The volume of the unit cell in real space</span>
+
+<span class="sd">    .. attribute:: kpoints</span>
+
+<span class="sd">        The list of k-points read from the WAVECAR file</span>
+
+<span class="sd">    .. attribute:: band_energy</span>
+
+<span class="sd">        The list of band eigenenergies (and corresponding occupancies) for</span>
+<span class="sd">        each kpoint, where the first index corresponds to the index of the</span>
+<span class="sd">        k-point (e.g. self.band_energy[kp])</span>
+
+<span class="sd">    .. attribute:: Gpoints</span>
+
+<span class="sd">        The list of generated G-points for each k-point (a double list), which</span>
+<span class="sd">        are used with the coefficients for each k-point and band to recreate</span>
+<span class="sd">        the wavefunction (e.g. self.Gpoints[kp] is the list of G-points for</span>
+<span class="sd">        k-point kp). The G-points depend on the k-point and reciprocal lattice</span>
+<span class="sd">        and therefore are identical for each band at the same k-point. Each</span>
+<span class="sd">        G-point is represented by integer multipliers (e.g. assuming</span>
+<span class="sd">        Gpoints[kp][n] == [n_1, n_2, n_3], then</span>
+<span class="sd">        G_n = n_1*b_1 + n_2*b_2 + n_3*b_3)</span>
+
+<span class="sd">    .. attribute:: coeffs</span>
+
+<span class="sd">        The list of coefficients for each k-point and band for reconstructing</span>
+<span class="sd">        the wavefunction. The first index corresponds to the kpoint and the</span>
+<span class="sd">        second corresponds to the band (e.g. self.coeffs[kp][b] corresponds</span>
+<span class="sd">        to k-point kp and band b).</span>
+
+<span class="sd">    Acknowledgments:</span>
+<span class="sd">        This code is based upon the Fortran program, WaveTrans, written by</span>
+<span class="sd">        R. M. Feenstra and M. Widom from the Dept. of Physics at Carnegie</span>
+<span class="sd">        Mellon University. To see the original work, please visit:</span>
+<span class="sd">        https://www.andrew.cmu.edu/user/feenstra/wavetrans/</span>
+
+<span class="sd">    Author: Mark Turiansky</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;WAVECAR&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Information is extracted from the given WAVECAR</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): input file (default: WAVECAR)</span>
+<span class="sd">            verbose (bool): determines whether processing information is shown</span>
+<span class="sd">            precision (str): determines how fine the fft mesh is (normal or</span>
+<span class="sd">                             accurate), only the first letter matters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="c1"># c = 0.26246582250210965422</span>
+        <span class="c1"># 2m/hbar^2 in agreement with VASP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_C</span> <span class="o">=</span> <span class="mf">0.262465831</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="c1"># read the header information</span>
+            <span class="n">recl</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">rtag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> \
+                                 <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;recl=</span><span class="si">{}</span><span class="s1">, spin=</span><span class="si">{}</span><span class="s1">, rtag=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">recl</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">rtag</span><span class="p">))</span>
+            <span class="n">recl8</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">recl</span><span class="o">/</span><span class="mi">8</span><span class="p">)</span>
+
+            <span class="c1"># check that ISPIN wasn&#39;t set to 2</span>
+            <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;spin polarization not currently supported&#39;</span><span class="p">)</span>
+
+            <span class="c1"># check to make sure we have precision correct</span>
+            <span class="k">if</span> <span class="n">rtag</span> <span class="o">!=</span> <span class="mi">45200</span> <span class="ow">and</span> <span class="n">rtag</span> <span class="o">!=</span> <span class="mi">45210</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid rtag of </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rtag</span><span class="p">))</span>
+
+            <span class="c1"># padding</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="p">(</span><span class="n">recl8</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span>
+
+            <span class="c1"># extract kpoint, bands, energy, and lattice information</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                                                       <span class="n">count</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;kpoints = </span><span class="si">{}</span><span class="s1">, bands = </span><span class="si">{}</span><span class="s1">, energy cutoff = </span><span class="si">{}</span><span class="s1">, fermi &#39;</span>
+                      <span class="s1">&#39;energy= </span><span class="si">{:.04f}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encut</span><span class="p">,</span>
+                                                 <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;primitive lattice vectors = </span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span>
+                              <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]))</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;volume = </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
+
+            <span class="c1"># calculate reciprocal lattice</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]),</span>
+                          <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]),</span>
+                          <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])])</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">b</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">vol</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;reciprocal lattice vectors = </span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;reciprocal lattice vector magnitudes = </span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+
+            <span class="c1"># calculate maximum number of b vectors in each direction</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_generate_nbmax</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;max number of G values = </span><span class="si">{}</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="n">precision</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span> <span class="k">else</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span> <span class="o">*</span> <span class="mi">4</span>
+
+            <span class="c1"># padding</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">recl8</span><span class="o">-</span><span class="mi">13</span><span class="p">)</span>
+
+            <span class="c1"># reading records</span>
+            <span class="c1"># np.set_printoptions(precision=7, suppress=True)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span> <span class="o">=</span> <span class="p">[[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">)]</span>
+                           <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">band_energy</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ispin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">spin</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;reading spin </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ispin</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">ink</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">):</span>
+                    <span class="c1"># information for this kpoint</span>
+                    <span class="n">nplane</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">kpoint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kpoint</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;kpoint </span><span class="si">{: 4}</span><span class="s1"> with </span><span class="si">{: 5}</span><span class="s1"> plane waves at </span><span class="si">{}</span><span class="s1">&#39;</span>
+                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ink</span><span class="p">,</span> <span class="n">nplane</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">))</span>
+
+                    <span class="c1"># energy and occupation information</span>
+                    <span class="n">enocc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                                        <span class="n">count</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">band_energy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">enocc</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">enocc</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+
+                    <span class="c1"># padding</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="p">(</span><span class="n">recl8</span><span class="o">-</span><span class="mi">4</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">))</span>
+
+                    <span class="c1"># generate G integers</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_G_points</span><span class="p">(</span><span class="n">kpoint</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">])</span> <span class="o">!=</span> <span class="n">nplane</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;failed to generate the correct &#39;</span>
+                                         <span class="s1">&#39;number of G points&#39;</span><span class="p">)</span>
+
+                    <span class="c1"># extract coefficients</span>
+                    <span class="k">for</span> <span class="n">inb</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">rtag</span> <span class="o">==</span> <span class="mi">45200</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">ink</span><span class="p">][</span><span class="n">inb</span><span class="p">]</span> <span class="o">=</span> \
+                                    <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">,</span>
+                                                <span class="n">count</span><span class="o">=</span><span class="n">nplane</span><span class="p">)</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                                        <span class="n">count</span><span class="o">=</span><span class="n">recl8</span><span class="o">-</span><span class="n">nplane</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">rtag</span> <span class="o">==</span> <span class="mi">45210</span><span class="p">:</span>
+                            <span class="c1"># this should handle double precision coefficients</span>
+                            <span class="c1"># but I don&#39;t have a WAVECAR to test it with</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">ink</span><span class="p">][</span><span class="n">inb</span><span class="p">]</span> <span class="o">=</span> \
+                                    <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">,</span>
+                                                <span class="n">count</span><span class="o">=</span><span class="n">nplane</span><span class="p">)</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                                        <span class="n">count</span><span class="o">=</span><span class="n">recl8</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">nplane</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_generate_nbmax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function that determines maximum number of b vectors for</span>
+<span class="sd">        each direction.</span>
+
+<span class="sd">        This algorithm is adapted from WaveTrans (see Class docstring). There</span>
+<span class="sd">        should be no reason for this function to be called outside of</span>
+<span class="sd">        initialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bmag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span>
+
+        <span class="c1"># calculate maximum integers in each direction for G</span>
+        <span class="n">phi12</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span><span class="o">/</span><span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">bmag</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">sphi123</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">/</span> \
+            <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])))</span>
+        <span class="n">nbmaxA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encut</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_C</span><span class="p">)</span> <span class="o">/</span> <span class="n">bmag</span>
+        <span class="n">nbmaxA</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi12</span><span class="p">))</span>
+        <span class="n">nbmaxA</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi12</span><span class="p">))</span>
+        <span class="n">nbmaxA</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sphi123</span><span class="p">)</span>
+        <span class="n">nbmaxA</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">phi13</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])</span><span class="o">/</span><span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">bmag</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">sphi123</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">/</span> \
+            <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])))</span>
+        <span class="n">nbmaxB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encut</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_C</span><span class="p">)</span> <span class="o">/</span> <span class="n">bmag</span>
+        <span class="n">nbmaxB</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi13</span><span class="p">))</span>
+        <span class="n">nbmaxB</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sphi123</span><span class="p">)</span>
+        <span class="n">nbmaxB</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi13</span><span class="p">))</span>
+        <span class="n">nbmaxB</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">phi23</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])</span><span class="o">/</span><span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">bmag</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">sphi123</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">/</span> \
+            <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])))</span>
+        <span class="n">nbmaxC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encut</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_C</span><span class="p">)</span> <span class="o">/</span> <span class="n">bmag</span>
+        <span class="n">nbmaxC</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sphi123</span><span class="p">)</span>
+        <span class="n">nbmaxC</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi23</span><span class="p">))</span>
+        <span class="n">nbmaxC</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi23</span><span class="p">))</span>
+        <span class="n">nbmaxC</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">nbmaxA</span><span class="p">,</span> <span class="n">nbmaxB</span><span class="p">,</span> <span class="n">nbmaxC</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> \
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_generate_G_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to generate G-points based on nbmax.</span>
+
+<span class="sd">        This function iterates over possible G-point values and determines</span>
+<span class="sd">        if the energy is less than G_{cut}. Valid values are appended to</span>
+<span class="sd">        the output array. This function should not be called outside of</span>
+<span class="sd">        initialization.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            kpoint (np.array): the array containing the current k-point value</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a list containing valid G-points</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gpoints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">i3</span> <span class="o">=</span> <span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">else</span> <span class="n">i</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">j2</span> <span class="o">=</span> <span class="n">j</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="n">j</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">k1</span> <span class="o">=</span> <span class="n">k</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="n">k</span>
+                    <span class="n">G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">k1</span><span class="p">,</span> <span class="n">j2</span><span class="p">,</span> <span class="n">i3</span><span class="p">])</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="n">kpoint</span> <span class="o">+</span> <span class="n">G</span>
+                    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">))</span>
+                    <span class="n">E</span> <span class="o">=</span> <span class="n">g</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_C</span>
+                    <span class="k">if</span> <span class="n">E</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">encut</span><span class="p">:</span>
+                        <span class="n">gpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gpoints</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Wavecar.evaluate_wavefunc"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_wavefunc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluates the wavefunction for a given position, r.</span>
+
+<span class="sd">        The wavefunction is given by the k-point and band. It is evaluated</span>
+<span class="sd">        at the given position by summing over the components. Formally,</span>
+
+<span class="sd">        \psi_n^k (r) = \sum_{i=1}^N c_i^{n,k} \exp (i (k + G_i^{n,k}) \cdot r)</span>
+
+<span class="sd">        where \psi_n^k is the wavefunction for the nth band at k-point k, N is</span>
+<span class="sd">        the number of plane waves, c_i^{n,k} is the ith coefficient that</span>
+<span class="sd">        corresponds to the nth band and k-point k, and G_i^{n,k} is the ith</span>
+<span class="sd">        G-point corresponding to k-point k.</span>
+
+<span class="sd">        NOTE: This function is very slow; a discrete fourier transform is the</span>
+<span class="sd">        preferred method of evaluation (see Wavecar.fft_mesh).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            kpoint (int): the index of the kpoint where the wavefunction</span>
+<span class="sd">                            will be evaluated</span>
+<span class="sd">            band (int): the index of the band where the wavefunction will be</span>
+<span class="sd">                            evaluated</span>
+<span class="sd">            r (np.array): the position where the wavefunction will be evaluated</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a complex value corresponding to the evaluation of the wavefunction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">kpoint</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">kpoint</span><span class="p">]</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">),</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">u</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)))</span> <span class="o">/</span> \
+            <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Wavecar.fft_mesh"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.fft_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">fft_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Places the coefficients of a wavefunction onto an fft mesh.</span>
+
+<span class="sd">        Once the mesh has been obtained, a discrete fourier transform can be</span>
+<span class="sd">        used to obtain real-space evaluation of the wavefunction. The output</span>
+<span class="sd">        of this function can be passed directly to numpy&#39;s fft function. For</span>
+<span class="sd">        example:</span>
+
+<span class="sd">            mesh = Wavecar().fft_mesh(kpoint, band)</span>
+<span class="sd">            evals = np.fft.fft(mesh)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            kpoint (int): the index of the kpoint where the wavefunction</span>
+<span class="sd">                            will be evaluated</span>
+<span class="sd">            band (int): the index of the band where the wavefunction will be</span>
+<span class="sd">                            evaluated</span>
+<span class="sd">            shift (bool): determines if the zero frequency coefficient is</span>
+<span class="sd">                            placed at index (0, 0, 0) or centered</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a numpy ndarray representing the 3D mesh of coefficients</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ng</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">gp</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">kpoint</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">]):</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">gp</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ng</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">))</span>
+            <span class="n">mesh</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">coeff</span>
+        <span class="k">if</span> <span class="n">shift</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mesh</span></div></div>
+
+
 <div class="viewcode-block" id="Wavederf"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavederf">[docs]</a><span class="k">class</span> <span class="nc">Wavederf</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object for reading a WAVEDERF file.</span>
@@ -3894,7 +4241,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -3902,7 +4249,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

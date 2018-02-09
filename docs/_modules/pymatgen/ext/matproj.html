@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.ext.matproj &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.ext.matproj &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -79,6 +79,8 @@
 <span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedEntry</span><span class="p">,</span> \
     <span class="n">ComputedStructureEntry</span>
 <span class="kn">from</span> <span class="nn">pymatgen.entries.exp_entries</span> <span class="k">import</span> <span class="n">ExpEntry</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -338,7 +340,8 @@
             <span class="k">raise</span> <span class="n">MPRestError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="MPRester.get_entries"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_entries">[docs]</a>    <span class="k">def</span> <span class="nf">get_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemsys_formula_id_criteria</span><span class="p">,</span> <span class="n">compatible_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="n">inc_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">property_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                    <span class="n">inc_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">property_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">conventional_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of ComputedEntries or ComputedStructureEntries corresponding</span>
 <span class="sd">        to a chemical system, formula, or materials_id or full criteria.</span>
@@ -361,6 +364,8 @@
 <span class="sd">            property_data (list): Specify additional properties to include in</span>
 <span class="sd">                entry.data. If None, no data. Should be a subset of</span>
 <span class="sd">                supported_properties.</span>
+<span class="sd">            conventional_unit_cell (bool): Whether to get the standard</span>
+<span class="sd">                conventional unit cell</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of ComputedEntry or ComputedStructureEntry objects.</span>
@@ -402,10 +407,16 @@
                                   <span class="n">entry_id</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">])</span>
 
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">s</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">inc_structure</span> <span class="o">==</span> <span class="s2">&quot;final&quot;</span> <span class="k">else</span> <span class="n">d</span><span class="p">[</span>
+                <span class="n">prim</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">inc_structure</span> <span class="o">==</span> <span class="s2">&quot;final&quot;</span> <span class="k">else</span> <span class="n">d</span><span class="p">[</span>
                     <span class="s2">&quot;initial_structure&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">conventional_unit_cell</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">prim</span><span class="p">)</span><span class="o">.</span><span class="n">get_conventional_standard_structure</span><span class="p">()</span>
+                    <span class="n">energy</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">prim</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">prim</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">energy</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
                 <span class="n">e</span> <span class="o">=</span> <span class="n">ComputedStructureEntry</span><span class="p">(</span>
-                    <span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">],</span>
+                    <span class="n">s</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span>
                     <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params</span><span class="p">},</span>
                     <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
                     <span class="n">entry_id</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">])</span>
@@ -468,7 +479,8 @@
                                              <span class="s1">&#39;ion-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">pbx_entries</span></div>
 
-<div class="viewcode-block" id="MPRester.get_structure_by_material_id"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_structure_by_material_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_structure_by_material_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="MPRester.get_structure_by_material_id"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_structure_by_material_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_structure_by_material_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">conventional_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a Structure corresponding to a material_id.</span>
 
@@ -477,16 +489,22 @@
 <span class="sd">                e.g., mp-1234).</span>
 <span class="sd">            final (bool): Whether to get the final structure, or the initial</span>
 <span class="sd">                (pre-relaxation) structure. Defaults to True.</span>
+<span class="sd">            conventional_unit_cell (bool): Whether to get the standard</span>
+<span class="sd">                conventional unit cell</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Structure object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">prop</span> <span class="o">=</span> <span class="s2">&quot;final_structure&quot;</span> <span class="k">if</span> <span class="n">final</span> <span class="k">else</span> <span class="s2">&quot;initial_structure&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">material_id</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="n">prop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">conventional_unit_cell</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">prop</span><span class="p">])</span><span class="o">.</span>\
+                <span class="n">get_conventional_standard_structure</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">prop</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="MPRester.get_entry_by_material_id"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_entry_by_material_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_entry_by_material_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">,</span> <span class="n">compatible_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                 <span class="n">inc_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">property_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                                 <span class="n">inc_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">property_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                 <span class="n">conventional_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a ComputedEntry corresponding to a material_id.</span>
 
@@ -507,13 +525,16 @@
 <span class="sd">            property_data (list): Specify additional properties to include in</span>
 <span class="sd">                entry.data. If None, no data. Should be a subset of</span>
 <span class="sd">                supported_properties.</span>
+<span class="sd">            conventional_unit_cell (bool): Whether to get the standard</span>
+<span class="sd">                conventional unit cell</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            ComputedEntry or ComputedStructureEntry object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_entries</span><span class="p">(</span><span class="n">material_id</span><span class="p">,</span> <span class="n">compatible_only</span><span class="o">=</span><span class="n">compatible_only</span><span class="p">,</span>
                                 <span class="n">inc_structure</span><span class="o">=</span><span class="n">inc_structure</span><span class="p">,</span>
-                                <span class="n">property_data</span><span class="o">=</span><span class="n">property_data</span><span class="p">)</span>
+                                <span class="n">property_data</span><span class="o">=</span><span class="n">property_data</span><span class="p">,</span>
+                                <span class="n">conventional_unit_cell</span><span class="o">=</span><span class="n">conventional_unit_cell</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="MPRester.get_dos_by_material_id"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_dos_by_material_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_dos_by_material_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">):</span>
@@ -544,7 +565,8 @@
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="MPRester.get_entries_in_chemsys"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_entries_in_chemsys">[docs]</a>    <span class="k">def</span> <span class="nf">get_entries_in_chemsys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">compatible_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                               <span class="n">inc_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">property_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                               <span class="n">inc_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">property_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">conventional_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Helper method to get a list of ComputedEntries in a chemical system.</span>
 <span class="sd">        For example, elements = [&quot;Li&quot;, &quot;Fe&quot;, &quot;O&quot;] will return a list of all</span>
@@ -569,6 +591,8 @@
 <span class="sd">            property_data (list): Specify additional properties to include in</span>
 <span class="sd">                entry.data. If None, no data. Should be a subset of</span>
 <span class="sd">                supported_properties.</span>
+<span class="sd">            conventional_unit_cell (bool): Whether to get the standard</span>
+<span class="sd">                conventional unit cell</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of ComputedEntries.</span>
@@ -580,7 +604,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">get_entries</span><span class="p">(</span>
                         <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">els</span><span class="p">),</span> <span class="n">compatible_only</span><span class="o">=</span><span class="n">compatible_only</span><span class="p">,</span>
                         <span class="n">inc_structure</span><span class="o">=</span><span class="n">inc_structure</span><span class="p">,</span>
-                        <span class="n">property_data</span><span class="o">=</span><span class="n">property_data</span><span class="p">))</span>
+                        <span class="n">property_data</span><span class="o">=</span><span class="n">property_data</span><span class="p">,</span>
+                        <span class="n">conventional_unit_cell</span><span class="o">=</span><span class="n">conventional_unit_cell</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">entries</span></div>
 
 <div class="viewcode-block" id="MPRester.get_exp_thermo_data"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_exp_thermo_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_exp_thermo_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formula</span><span class="p">):</span>
@@ -1162,7 +1187,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1170,7 +1195,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

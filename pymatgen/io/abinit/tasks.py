@@ -1102,6 +1102,7 @@ class AbinitBuild(object):
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
             print("stderr:", process.stderr.read())
+            #print("stdout:", process.stdout.read())
 
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
         process.stderr.close()
@@ -1162,8 +1163,8 @@ class AbinitBuild(object):
         self.has_mpi, self.has_mpiio = False, False
 
         def yesno2bool(line):
-            ans = line.split()[-1]
-            return dict(yes=True, no=False)[ans]
+            ans = line.split()[-1].lower()
+            return dict(yes=True, no=False, auto=True)[ans]
 
         # Parse info.
         for line in self.info.splitlines():
@@ -1733,6 +1734,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         self.set_status(self.S_INIT, msg="Reset on %s" % time.asctime())
         self.set_qjob(None)
+
+        # Reset finalized flags.
+        self.work.finalized = False
+        self.flow.finalized = False
 
         return 0
 
@@ -2722,6 +2727,7 @@ class AbinitTask(Task):
         retcode = process.wait()
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
         process.stderr.close()
+        #process.stdout.close()
 
         # Remove the variables added for the automatic parallelization
         self.input.remove_vars(list(autoparal_vars.keys()))
@@ -2733,8 +2739,15 @@ class AbinitTask(Task):
         try:
             pconfs = parser.parse(self.output_file.path)
         except parser.Error:
-            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
-            return 2
+            # In principle Abinit should have written a complete log file
+            # because we called .wait() but sometimes the Yaml doc is incomplete and
+            # the parser raises. Let's wait 5 secs and then try again.
+            time.sleep(5)
+            try:
+                pconfs = parser.parse(self.output_file.path)
+            except parser.Error:
+                logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
+                return 2
 
         ######################################################
         # Select the optimal configuration according to policy
@@ -3227,10 +3240,14 @@ class NscfTask(GsTask):
         (in principle, it's possible to interpolate inside Abinit but tests revealed some numerical noise
         Here we change the input file of the NSCF task to have the same FFT mesh.
         """
-        assert len(self.deps) == 1
-        dep = self.deps[0]
-        parent_task = dep.node
         # TODO: This won't work if parent_node is a file
+        for dep in self.deps:
+            if "DEN" in dep.exts:
+                parent_task = dep.node
+                break
+        else:
+            raise RuntimeError("Cannot find parent node producing DEN file")
+
         with parent_task.open_gsr() as gsr:
             den_mesh = 3 * [None]
             den_mesh[0] = gsr.reader.read_dimvalue("number_of_grid_points_vector1")
@@ -4344,6 +4361,7 @@ class OpticTask(Task):
         retcode = process.wait()
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
         process.stderr.close()
+        #process.stdout.close()
 
         # Remove the variables added for the automatic parallelization
         self.input.remove_vars(list(autoparal_vars.keys()))
@@ -4355,8 +4373,15 @@ class OpticTask(Task):
         try:
             pconfs = parser.parse(self.output_file.path)
         except parser.Error:
-            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
-            return 2
+            # In principle Abinit should have written a complete log file
+            # because we called .wait() but sometimes the Yaml doc is incomplete and
+            # the parser raises. Let's wait 5 secs and then try again.
+            time.sleep(5)
+            try:
+                pconfs = parser.parse(self.output_file.path)
+            except parser.Error:
+                logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
+                return 2
 
         ######################################################
         # Select the optimal configuration according to policy

@@ -46,7 +46,7 @@ Py3k-only with effect from 2019.1.1
 
 Pymatgen has supported both Python 2.7 as well as Python 3.x from version 3.0.
 With increasing support by most standard libraries for Py3k, it no longer makes
-sense to maintain this dual support going foward. Dual support imposes costs in
+sense to maintain this dual support going forward. Dual support imposes costs in
 terms of developmental effort, and also forces compromises in code quality and
 efficiency. Though some legacy clusters may only come with Py2k installed by
 default, the recommended approach in any case is to create an isolated Py3k
@@ -95,7 +95,8 @@ several advantages over other codes out there:
    `CircleCI <https://circleci.com>`_ and `Appveyor <https://www.appveyor.com/>`_
    for continuous integration on the Linux and Windows platforms,
    respectively, which ensures that every commit passes a comprehensive suite
-   of unittests. The coverage of the unittests can be seen at `here <coverage/index.html>`_.
+   of unittests. The coverage of the unittests can be seen on
+   `coveralls.io <https://coveralls.io/github/materialsproject/pymatgen>`_.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means
@@ -121,24 +122,29 @@ Please review the `coding guidelines </contributing>`_.
 Getting pymatgen
 ================
 
-Conda (recommended)
--------------------
+Via conda (recommended)
+~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are absolutely new to Python and/or are using Windows, the easiest
 installation process is using `conda <http://conda.pydata.org>`_. The
 `Materials Virtual Lab`_ has started `materials.sh <http://materials.sh>`_,
 a community initiative to build a comprehensive collection of materials science
 software, where pymatgen is available. If you already have conda installed,
-pymatgen can be installed from the `matsci channel on Anaconda cloud <https://anaconda
-.org/matsci>`_ using the following one line command::
+pymatgen can be installed from the `matsci channel on Anaconda cloud
+<https://anaconda.org/matsci>`_ using the following one line command::
 
    conda install --channel matsci pymatgen
+
+Pymatgen is under active development, and new features are added regularly. To
+upgrade pymatgen to the latest version, use the following command::
+
+   conda upgrade pymatgen
 
 Step-by-step instructions for all platforms are available at the
 :doc:`installation page </installation>`.
 
-Pip
----
+Via pip
+~~~~~~~
 
 .. note:: Preparation
 
@@ -162,7 +168,10 @@ any system is to use pip::
 
     pip install pymatgen
 
-Wheels for Mac and Windows have been built for convenience.
+Wheels for Mac and Windows have been built for convenience. To upgrade pymatgen
+via pip::
+
+    pip install --upgrade pymatgen
 
 The bleeding edge developmental version is at the pymatgen `Github repo
 <https://github.com/materialsproject/pymatgen>`_. The developmental
@@ -194,7 +203,7 @@ For an always up-to-date list of extras, consult the `setup.py's extras_require
    installation
 
 Shared cluster installation
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
 or NERSC resources in the US, the best way is to use conda to perform a local
@@ -210,7 +219,8 @@ install. This guarantees the right version of python and all dependencies::
     source $HOME/.bash_profile
 
     # Install numpy and other pydata stack packages via conda.
-    conda install --yes pymatgen
+    conda install --yes numpy scipy pandas
+    conda install --yes --channel matsci pymatgen
 
 Usage
 =====
@@ -232,7 +242,7 @@ manipulation or analyses.
 .. _quick_start:
 
 Quick start
------------
+~~~~~~~~~~~
 
 Useful aliases for commonly used objects are now provided. Supported objects
 include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
@@ -372,13 +382,13 @@ strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below)
    usage
 
 API documentation
------------------
+~~~~~~~~~~~~~~~~~
 
 For detailed documentation of all modules and classes, please refer to the
 :doc:`API docs </modules>`.
 
 More resources
---------------
+~~~~~~~~~~~~~~
 
 The founder and maintainer of pymatgen, Shyue Ping Ong, has conducted several
 workshops (together with Anubhav Jain) on how to effectively use pymatgen (as
@@ -387,7 +397,7 @@ workflow software. The slides for these workshops are available on the
 `Materials Virtual Lab`_.
 
 pmg - Command line tool
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
@@ -446,7 +456,7 @@ Here are a few examples of typical usages::
     pmg generate --potcar Li_sv O --functional PBE
 
 Add-ons
--------
+~~~~~~~
 
 Some add-ons are available for pymatgen today:
 

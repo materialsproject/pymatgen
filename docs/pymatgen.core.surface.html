@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.surface module &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.core.surface module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -275,7 +275,7 @@ point (frac coord): The fractional coordinate of the site</p>
 
 <dl class="class">
 <dt id="pymatgen.core.surface.Slab">
-<em class="property">class </em><code class="descname">Slab</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>coords</em>, <em>miller_index</em>, <em>oriented_unit_cell</em>, <em>shift</em>, <em>scale_factor</em>, <em>reorient_lattice=True</em>, <em>validate_proximity=False</em>, <em>to_unit_cell=False</em>, <em>coords_are_cartesian=False</em>, <em>site_properties=None</em>, <em>energy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Slab</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>coords</em>, <em>miller_index</em>, <em>oriented_unit_cell</em>, <em>shift</em>, <em>scale_factor</em>, <em>reorient_lattice=True</em>, <em>validate_proximity=False</em>, <em>to_unit_cell=False</em>, <em>reconstruction=None</em>, <em>coords_are_cartesian=False</em>, <em>site_properties=None</em>, <em>energy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
 <p>Subclass of Structure representing a Slab. Implements additional
 attributes pertaining to slabs, but the init method does not
@@ -346,6 +346,8 @@ that brings the parent cell to the surface cell.</li>
 the c direction is the third vector of the lattice matrix</li>
 <li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
+<li><strong>reconstruction</strong> (<em>str</em>) – Type of reconstruction. Defaultst to None if
+the slab is not reconstructed.</li>
 <li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
 <li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
@@ -478,10 +480,10 @@ as if each comparison were reversed.</li>
 <code class="descname">get_surface_sites</code><span class="sig-paren">(</span><em>tag=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_surface_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_surface_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the surface sites and their indices in a dictionary. The
 oriented unit cell of the slab will determine the coordination number
-of a typical site. We use VoronoiCoordFinder to determine the
+of a typical site. We use VoronoiNN to determine the
 coordination number of bulk sites and slab sites. Due to the
 pathological error resulting from some surface sites in the
-VoronoiCoordFinder, we assume any site that has this error is a surface
+VoronoiNN, we assume any site that has this error is a surface
 site as well. This will work for elemental systems only for now. Useful
 for analysis involving broken bonds and for finding adsorption sites.</p>
 <blockquote>
@@ -617,7 +619,7 @@ slabs with larger surface areas.</td>
 
 <dl class="class">
 <dt id="pymatgen.core.surface.SlabGenerator">
-<em class="property">class </em><code class="descname">SlabGenerator</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>miller_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>reorient_lattice=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SlabGenerator</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>miller_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>in_unit_planes=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>reorient_lattice=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class generates different slabs using shift values determined by where
 a unique termination can be found along with other criterias such as where a
@@ -690,12 +692,21 @@ unit cell structure.</li>
 surface. Note that this is referenced to the input structure. If
 you need this to be based on the conventional cell,
 you should supply the conventional structure.</li>
-<li><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms</li>
-<li><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms</li>
+<li><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms or number of hkl planes</li>
+<li><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms or number of hkl planes</li>
 <li><strong>lll_reduce</strong> (<em>bool</em>) – Whether to perform an LLL reduction on the
 eventual structure.</li>
 <li><strong>center_slab</strong> (<em>bool</em>) – Whether to center the slab in the cell with
 equal vacuum spacing from the top and bottom.</li>
+<li><strong>in_unit_planes</strong> (<em>bool</em>) – Whether to set min_slab_size and min_vac_size in
+units of hkl planes (True) or Angstrom (False/default). Setting in
+units of planes is useful for ensuring some slabs have a certain
+nlayer of atoms. e.g. for Cs (100), a 10 Ang slab will result in a
+slab with only 2 layer of atoms, whereas Fe (100) will have more layer
+of atoms. By using units of hkl planes instead, we ensure both slabs
+have the same number of atoms. The slab thickness will be in
+min_slab_size/math.ceil(self._proj_height/dhkl)
+multiples of oriented unit cells.</li>
 <li><strong>primitive</strong> (<em>bool</em>) – Whether to reduce any generated slabs to a
 primitive cell (this does <strong>not</strong> mean the slab is generated
 from a primitive cell, it simply means that after slab
@@ -813,7 +824,7 @@ index_of_sites (list of ints): The list of indices representing</p>
 
 <dl class="method">
 <dt id="pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab">
-<code class="descname">nonstoichiometric_symmetrized_slab</code><span class="sig-paren">(</span><em>slab</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.nonstoichiometric_symmetrized_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab" title="Permalink to this definition">¶</a></dt>
+<code class="descname">nonstoichiometric_symmetrized_slab</code><span class="sig-paren">(</span><em>init_slab</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.nonstoichiometric_symmetrized_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method checks whether or not the two surfaces of the slab are
 equivalent. If the point group of the slab has an inversion symmetry (
 ie. belong to one of the Laue groups), then it is assumed that the
@@ -823,7 +834,7 @@ can destroy the stoichiometry of the slab. For non-elemental
 structures, the chemical potential will be needed to calculate surface energy.</p>
 <dl class="docutils">
 <dt>Arg:</dt>
-<dd>slab (Structure): A single slab structure
+<dd>init_slab (Structure): A single slab structure
 tol (float): Tolerance for SpaceGroupanalyzer.</dd>
 </dl>
 <table class="docutils field-list" frame="void" rules="none">
@@ -870,7 +881,7 @@ defined as {(“P”, “O”): 3}.</div></blockquote>
 
 <dl class="function">
 <dt id="pymatgen.core.surface.generate_all_slabs">
-<code class="descname">generate_all_slabs</code><span class="sig-paren">(</span><em>structure</em>, <em>max_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>bonds=None</em>, <em>tol=0.001</em>, <em>max_broken_bonds=0</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>symmetrize=False</em>, <em>repair=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#generate_all_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.generate_all_slabs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_all_slabs</code><span class="sig-paren">(</span><em>structure</em>, <em>max_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>bonds=None</em>, <em>tol=0.001</em>, <em>max_broken_bonds=0</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>symmetrize=False</em>, <em>repair=False</em>, <em>include_reconstructions=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#generate_all_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.generate_all_slabs" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function that finds all different slabs up to a certain miller index.
 Slabs oriented under certain Miller indices that are equivalent to other
 slabs in other Miller indices are filtered out using symmetry operations
@@ -924,6 +935,8 @@ usually sufficient.</li>
 slabs are equivalent.</li>
 <li><strong>repair</strong> (<em>bool</em>) – Whether to repair terminations with broken bonds
 or just omit them</li>
+<li><strong>include_reconstructions</strong> (<em>bool</em>) – Whether to include reconstructed
+slabs available in the reconstructions_archive.json file.</li>
 </ul>
 </td>
 </tr>
@@ -1004,13 +1017,13 @@ structure. All other indices are equivalent to one of these.</div></blockquote>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

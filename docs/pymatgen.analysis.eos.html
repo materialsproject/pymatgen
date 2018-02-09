@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.eos module &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.analysis.eos module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -146,7 +146,7 @@ compatibility.</p>
 </div>
 <dl class="attribute">
 <dt id="pymatgen.analysis.eos.EOS.MODELS">
-<code class="descname">MODELS</code><em class="property"> = {'murnaghan': &lt;class 'pymatgen.analysis.eos.Murnaghan'&gt;, 'birch': &lt;class 'pymatgen.analysis.eos.Birch'&gt;, 'birch_murnaghan': &lt;class 'pymatgen.analysis.eos.BirchMurnaghan'&gt;, 'pourier_tarantola': &lt;class 'pymatgen.analysis.eos.PourierTarantola'&gt;, 'vinet': &lt;class 'pymatgen.analysis.eos.Vinet'&gt;, 'deltafactor': &lt;class 'pymatgen.analysis.eos.DeltaFactor'&gt;, 'numerical_eos': &lt;class 'pymatgen.analysis.eos.NumericalEOS'&gt;}</em><a class="headerlink" href="#pymatgen.analysis.eos.EOS.MODELS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">MODELS</code><em class="property"> = {'birch': &lt;class 'pymatgen.analysis.eos.Birch'&gt;, 'birch_murnaghan': &lt;class 'pymatgen.analysis.eos.BirchMurnaghan'&gt;, 'deltafactor': &lt;class 'pymatgen.analysis.eos.DeltaFactor'&gt;, 'murnaghan': &lt;class 'pymatgen.analysis.eos.Murnaghan'&gt;, 'numerical_eos': &lt;class 'pymatgen.analysis.eos.NumericalEOS'&gt;, 'pourier_tarantola': &lt;class 'pymatgen.analysis.eos.PourierTarantola'&gt;, 'vinet': &lt;class 'pymatgen.analysis.eos.Vinet'&gt;}</em><a class="headerlink" href="#pymatgen.analysis.eos.EOS.MODELS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -267,6 +267,60 @@ supported keys: style, color, text, label</li>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Matplotlib plot object.</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.eos.EOSBase.plot_ax">
+<code class="descname">plot_ax</code><span class="sig-paren">(</span><em>ax=None</em>, <em>fontsize=12</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#EOSBase.plot_ax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.plot_ax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the equation of state on axis <cite>ax</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>fontsize</strong> – Legend fontsize.</li>
+<li><strong>color</strong> (<em>str</em>) – plot color.</li>
+<li><strong>label</strong> (<em>str</em>) – Plot label</li>
+<li><strong>text</strong> (<em>str</em>) – Legend text (options)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Matplotlib figure object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>tight_layout</td>
+<td>True to call fig.tight_layout (default: False)</td>
 </tr>
 </tbody>
 </table>
@@ -477,13 +531,13 @@ this.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -146,7 +146,7 @@ types recognize following environments:</p>
 <blockquote>
 <div>(Zimmermann &amp; Jain, in progress, 2017);</div></blockquote>
 <p>”T”: T-shape coordinations;
-“see_saw”: see saw-like coordinations;
+“see_saw_rect”: see saw-like coordinations;
 “tet”: tetrahedra</p>
 <blockquote>
 <div>(Zimmermann et al., submitted, 2017);</div></blockquote>
@@ -213,7 +213,7 @@ fractions of 180 degrees to (“bent” and “tet” (15),
 “tri_plan” (13.5), “pent_plan” (18),
 “sq_pyr_legacy” (30)).</dd>
 <dt>”IGW_EP”: IGW for penalizing angles away from the</dt>
-<dd>equatorial plane (EP) at 90 degrees (“T”, “see_saw”,
+<dd>equatorial plane (EP) at 90 degrees (“T”, “see_saw_rect”,
 “oct”, “sq_plan”, “tri_pyr”, “sq_pyr”, “pent_pyr”,
 “hex_pyr”, “tri_bipyr”, “sq_bipyr”, “pent_bipyr”,
 “hex_bipyr”, and “oct_legacy” (18)).</dd>
@@ -230,16 +230,16 @@ and “pent_bipyr” (2.5), “hex_pyr” and
 and “oct_legacy” (2)).</dd>
 <dt>”min_SPP”: smallest angle (in radians) to consider</dt>
 <dd>a neighbor to be
-at South pole position (“see_saw”, “oct”, “bcc”,
+at South pole position (“see_saw_rect”, “oct”, “bcc”,
 “sq_plan”, “tri_bipyr”, “sq_bipyr”, “pent_bipyr”,
 “hex_bipyr”, “cuboct”, and “oct_legacy”
 (2.792526803190927)).</dd>
 <dt>”IGW_SPP”: IGW for penalizing angles away from South</dt>
-<dd>pole position (“see_saw”, “oct”, “bcc”, “sq_plan”,
+<dd>pole position (“see_saw_rect”, “oct”, “bcc”, “sq_plan”,
 “tri_bipyr”, “sq_bipyr”, “pent_bipyr”, “hex_bipyr”,
 “cuboct”, and “oct_legacy” (15)).</dd>
 <dt>”w_SPP”: weight for South pole position relative to</dt>
-<dd>equatorial positions (“see_saw” and “sq_plan” (1),
+<dd>equatorial positions (“see_saw_rect” and “sq_plan” (1),
 “cuboct” (1.8), “tri_bipyr” (2), “oct”,
 “sq_bipyr”, and “oct_legacy” (3), “pent_bipyr” (4),
 “hex_bipyr” (5), “bcc” (6)).</dd>
@@ -250,8 +250,8 @@ at South pole position (“see_saw”, “oct”, “bcc”,
 neighbors are supposed to contribute to the order
 parameters. If the value is negative the neighboring
 sites found by distance and cutoff radius are further
-pruned using the get_coordinated_sites method from the
-VoronoiCoordFinder class.</li>
+pruned using the get_nn method from the
+VoronoiNN class.</li>
 </ul>
 </td>
 </tr>
@@ -351,7 +351,8 @@ neighbors.</p>
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParas.get_parameters">
 <code class="descname">get_parameters</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParas.get_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParas.get_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list of floats that represents
-the parameters associated with calculation of the order
+the parameters associated
+with calculation of the order
 parameter that was defined at the index provided.
 Attention: the parameters do not need to equal those originally
 inputted because of processing out of efficiency reasons.</p>
@@ -1170,13 +1171,13 @@ center.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

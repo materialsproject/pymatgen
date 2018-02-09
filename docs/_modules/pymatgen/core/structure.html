@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.core.structure &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -416,7 +416,8 @@
 <span class="sd">                    disordered structures.</span>
 <span class="sd">            coords (Nx3 array): list of fractional/cartesian coordinates of</span>
 <span class="sd">                each species.</span>
-<span class="sd">            charge (int): overall charge of the structure. Defaults to behavior in SiteCollection where total charge is the sum of the oxidation states</span>
+<span class="sd">            charge (int): overall charge of the structure. Defaults to behavior</span>
+<span class="sd">                in SiteCollection where total charge is the sum of the oxidation states</span>
 <span class="sd">            validate_proximity (bool): Whether to check if there are sites</span>
 <span class="sd">                that are less than 0.01 Ang apart. Defaults to False.</span>
 <span class="sd">            coords_are_cartesian (bool): Set to True if you are providing</span>
@@ -1221,7 +1222,8 @@
                                           <span class="n">site_properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">structs</span></div>
 
-<div class="viewcode-block" id="IStructure.get_primitive_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_primitive_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_primitive_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">use_site_props</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_primitive_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_primitive_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_primitive_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">use_site_props</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">constrain_latt</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This finds a smaller unit cell than the input. Sometimes it doesn&quot;t</span>
 <span class="sd">        find the smallest possible one, so this method is recursively called</span>
@@ -1237,6 +1239,9 @@
 <span class="sd">                as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.</span>
 <span class="sd">            use_site_props (bool): Whether to account for site properties in</span>
 <span class="sd">                differntiating sites.</span>
+<span class="sd">            constrain_latt (list of bools): Determines which lattice constant</span>
+<span class="sd">                we want to preserve (True), if any. Order of bools in the list</span>
+<span class="sd">                corresponds to [a, b, c, alpha, beta, gamme].</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The most primitive structure found.</span>
@@ -1395,9 +1400,21 @@
                                   <span class="n">site_properties</span><span class="o">=</span><span class="n">new_props</span><span class="p">,</span>
                                   <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-                    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">(</span>
-                        <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span> <span class="n">use_site_props</span><span class="o">=</span><span class="n">use_site_props</span>
+                    <span class="c1"># Default behavior</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">(</span>
+                        <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span> <span class="n">use_site_props</span><span class="o">=</span><span class="n">use_site_props</span><span class="p">,</span>
+                        <span class="n">constrain_latt</span><span class="o">=</span><span class="n">constrain_latt</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">get_reduced_structure</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">constrain_latt</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">p</span>
+
+                    <span class="c1"># Only return primitive structures that</span>
+                    <span class="c1"># satisfy the restriction condition</span>
+                    <span class="n">p_l</span><span class="p">,</span> <span class="n">s_l</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span>
+                    <span class="n">p_latt</span> <span class="o">=</span> <span class="p">[</span><span class="n">p_l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">p_l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">p_l</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">p_l</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">p_l</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="n">p_l</span><span class="o">.</span><span class="n">gamma</span><span class="p">]</span>
+                    <span class="n">s_latt</span> <span class="o">=</span> <span class="p">[</span><span class="n">s_l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">s_l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">s_l</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">s_l</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">s_l</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="n">s_l</span><span class="o">.</span><span class="n">gamma</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">p_latt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">s_latt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">constrain_latt</span><span class="p">)</span> <span class="k">if</span> <span class="n">b</span><span class="p">]):</span>
+                        <span class="k">return</span> <span class="n">p</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
@@ -2847,15 +2864,15 @@
                                     <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span></div>
 
-<div class="viewcode-block" id="Structure.add_oxidation_state_by_guess"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.add_oxidation_state_by_guess">[docs]</a>    <span class="k">def</span> <span class="nf">add_oxidation_state_by_guess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.add_oxidation_state_by_guess"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.add_oxidation_state_by_guess">[docs]</a>    <span class="k">def</span> <span class="nf">add_oxidation_state_by_guess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decorates the structure with oxidation state, guessing</span>
 <span class="sd">        using Composition.oxi_state_guesses()</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            *kwargs: parameters to pass into oxi_state_guesses()</span>
+<span class="sd">            **kwargs: parameters to pass into oxi_state_guesses()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">oxid_guess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">oxi_state_guesses</span><span class="p">(</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">oxid_guess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">oxi_state_guesses</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">oxid_guess</span> <span class="o">=</span> <span class="n">oxid_guess</span> <span class="ow">or</span> \
                      <span class="p">[</span><span class="nb">dict</span><span class="p">([(</span><span class="n">e</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="p">])]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_oxidation_state_by_element</span><span class="p">(</span><span class="n">oxid_guess</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
@@ -3508,7 +3525,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -3516,7 +3533,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

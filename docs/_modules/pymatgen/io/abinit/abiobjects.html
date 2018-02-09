@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.abiobjects &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.io.abinit.abiobjects &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -220,11 +220,16 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Receives a structure and returns a dictionary with the ABINIT variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">Received disordered structure with partial occupancies that cannot be converted into an Abinit input</span>
+<span class="s2">Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation</span>
+<span class="s2">to build an appropriate supercell from partial occupancies or alternatively use the Virtual Crystal Approximation.&quot;&quot;&quot;</span><span class="p">)</span>
+
     <span class="n">types_of_specie</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">types_of_specie</span>
     <span class="n">natom</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
 
     <span class="n">znucl_type</span> <span class="o">=</span> <span class="p">[</span><span class="n">specie</span><span class="o">.</span><span class="n">number</span> <span class="k">for</span> <span class="n">specie</span> <span class="ow">in</span> <span class="n">types_of_specie</span><span class="p">]</span>
-
     <span class="n">znucl_atoms</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">atomic_numbers</span>
 
     <span class="n">typat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">natom</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
@@ -232,7 +237,8 @@
         <span class="n">typat</span><span class="p">[</span><span class="n">atm_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">types_of_specie</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
     <span class="n">rprim</span> <span class="o">=</span> <span class="n">ArrayWithUnit</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="s2">&quot;ang&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;bohr&quot;</span><span class="p">)</span>
-    <span class="n">xred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">],</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">angdeg</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
+    <span class="n">xred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">],</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
     <span class="c1"># Set small values to zero. This usually happens when the CIF file</span>
     <span class="c1"># does not give structure parameters with enough digits.</span>
@@ -251,17 +257,26 @@
     <span class="c1"># Add info on the lattice.</span>
     <span class="c1"># Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?</span>
     <span class="n">geomode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;geomode&quot;</span><span class="p">,</span> <span class="s2">&quot;rprim&quot;</span><span class="p">)</span>
-    <span class="c1">#latt_dict = structure.lattice.to_abivars(geomode=geomode)</span>
+    <span class="k">if</span> <span class="n">geomode</span> <span class="o">==</span> <span class="s2">&quot;automatic&quot;</span><span class="p">:</span>
+        <span class="n">geomode</span> <span class="o">=</span> <span class="s2">&quot;rprim&quot;</span>
+        <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">is_hexagonal</span><span class="p">:</span> <span class="c1"># or structure.lattice.is_rhombohedral</span>
+            <span class="n">geomode</span> <span class="o">=</span> <span class="s2">&quot;angdeg&quot;</span>
+            <span class="n">angdeg</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
+            <span class="c1"># Here one could polish a bit the numerical values if they are not exact.</span>
+            <span class="c1"># Note that in pmg the angles are 12, 20, 01 while in Abinit 12, 02, 01</span>
+            <span class="c1"># One should make sure that the orientation is preserved (see Curtarolo&#39;s settings)</span>
 
     <span class="k">if</span> <span class="n">geomode</span> <span class="o">==</span> <span class="s2">&quot;rprim&quot;</span><span class="p">:</span>
-        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="n">acell</span><span class="o">=</span><span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
-            <span class="n">rprim</span><span class="o">=</span><span class="n">rprim</span><span class="p">))</span>
+            <span class="n">rprim</span><span class="o">=</span><span class="n">rprim</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">geomode</span> <span class="o">==</span> <span class="s2">&quot;angdeg&quot;</span><span class="p">:</span>
-        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
-            <span class="n">acell</span><span class="o">=</span><span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
-            <span class="n">angdeg</span><span class="o">=</span><span class="n">angdeg</span><span class="p">))</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">acell</span><span class="o">=</span><span class="n">ArrayWithUnit</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">,</span> <span class="s2">&quot;ang&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;bohr&quot;</span><span class="p">),</span>
+            <span class="n">angdeg</span><span class="o">=</span><span class="n">angdeg</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong value for geomode: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">geomode</span><span class="p">)</span>
 
@@ -1542,7 +1557,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1550,7 +1565,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

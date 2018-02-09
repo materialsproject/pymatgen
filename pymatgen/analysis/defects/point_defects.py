@@ -16,40 +16,46 @@ __email__ = "mbkumar@gmail.com, n.zimmermann@tuhh.de"
 __status__ = "Production"
 __date__ = "Nov 28, 2016"
 
-
 import os
 import abc
 import json
+import itertools
 import numpy as np
-from bisect import bisect_left
-import time
-from math import sqrt, pow, fabs
 import warnings
+import logging
+from collections import defaultdict
+from scipy.spatial import Voronoi
+from scipy.spatial.distance import squareform
+from scipy.cluster.hierarchy import linkage, fcluster
+from bisect import bisect_left
 
-from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.core.periodic_table import Specie, Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.local_env import LocalStructOrderParas
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
-    SpacegroupOperations
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
-from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
-    RelaxationAnalyzer
-from pymatgen.analysis.structure_matcher import StructureMatcher, \
-    SpeciesComparator
+from pymatgen.analysis.local_env import LocalStructOrderParas, \
+    MinimumDistanceNN, VoronoiNN
+from pymatgen.analysis.structure_analyzer import RelaxationAnalyzer
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.util.coord import pbc_diff
+from pymatgen.vis.structure_vtk import StructureVis
 
 import six
 from six.moves import filter
 from six.moves import map
 from six.moves import zip
 
+logger = logging.getLogger(__name__)
+
 file_dir = os.path.dirname(__file__)
 rad_file = os.path.join(file_dir, 'ionic_radii.json')
+
 with open(rad_file, 'r') as fp:
     _ion_radii = json.load(fp)
 
@@ -77,7 +83,7 @@ class ValenceIonicRadiusEvaluator(object):
         """
         el = [site.species_string for site in self._structure.sites]
         radii_dict = dict(zip(el, self._ionic_radii))
-        #print radii_dict
+        # print radii_dict
         return radii_dict
 
     @property
@@ -96,14 +102,13 @@ class ValenceIonicRadiusEvaluator(object):
         """
         return self._structure.copy()
 
-
     def _get_ionic_radii(self):
         """
         Computes ionic radii of elements for all sites in the structure.
         If valence is zero, atomic radius is used.
         """
         radii = []
-        coord_finder = VoronoiCoordFinder(self._structure)
+        vnn = VoronoiNN()
 
         def nearest_key(sorted_vals, key):
             i = bisect_left(sorted_vals, key)
@@ -111,16 +116,16 @@ class ValenceIonicRadiusEvaluator(object):
                 return sorted_vals[-1]
             if i == 0:
                 return sorted_vals[0]
-            before = sorted_vals[i-1]
+            before = sorted_vals[i - 1]
             after = sorted_vals[i]
-            if after-key < key-before:
+            if after - key < key - before:
                 return after
             else:
                 return before
 
         for i in range(len(self._structure.sites)):
             site = self._structure.sites[i]
-            if isinstance(site.specie,Element):
+            if isinstance(site.specie, Element):
                 radius = site.specie.atomic_radius
                 # Handle elements with no atomic_radius
                 # by using calculated values instead.
@@ -128,20 +133,20 @@ class ValenceIonicRadiusEvaluator(object):
                     radius = site.specie.atomic_radius_calculated
                 if radius is None:
                     raise ValueError(
-                            "cannot assign radius to element {}".format(
+                        "cannot assign radius to element {}".format(
                             site.specie))
                 radii.append(radius)
                 continue
 
             el = site.specie.symbol
             oxi_state = int(round(site.specie.oxi_state))
-            coord_no = int(round(coord_finder.get_coordination_number(i)))
+            coord_no = int(round(vnn.get_cn(self._structure, i, use_weights=True)))
             try:
                 tab_oxi_states = sorted(map(int, _ion_radii[el].keys()))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
-                if coord_finder.get_coordination_number(i)-coord_no > 0:
+                if vnn.get_cn(self._structure, i, use_weights=True) - coord_no > 0:
                     new_coord_no = coord_no + 1
                 else:
                     new_coord_no = coord_no - 1
@@ -149,11 +154,12 @@ class ValenceIonicRadiusEvaluator(object):
                     radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
                 except:
-                    tab_coords = sorted(map(int, _ion_radii[el][str(oxi_state)].keys()))
+                    tab_coords = sorted(
+                        map(int, _ion_radii[el][str(oxi_state)].keys()))
                     new_coord_no = nearest_key(tab_coords, coord_no)
                     i = 0
                     for val in tab_coords:
-                        if  val > coord_no:
+                        if val > coord_no:
                             break
                         i = i + 1
                     if i == len(tab_coords):
@@ -163,13 +169,13 @@ class ValenceIonicRadiusEvaluator(object):
                         key = str(tab_coords[0])
                         radius = _ion_radii[el][str(oxi_state)][key]
                     else:
-                        key = str(tab_coords[i-1])
+                        key = str(tab_coords[i - 1])
                         radius1 = _ion_radii[el][str(oxi_state)][key]
                         key = str(tab_coords[i])
                         radius2 = _ion_radii[el][str(oxi_state)][key]
-                        radius = (radius1+radius2)/2
+                        radius = (radius1 + radius2) / 2
 
-            #implement complex checks later
+            # implement complex checks later
             radii.append(radius)
         return radii
 
@@ -179,12 +185,14 @@ class ValenceIonicRadiusEvaluator(object):
         """
         try:
             bv = BVAnalyzer()
-            self._structure = bv.get_oxi_state_decorated_structure(self._structure)
+            self._structure = bv.get_oxi_state_decorated_structure(
+                self._structure)
             valences = bv.get_valences(self._structure)
         except:
             try:
                 bv = BVAnalyzer(symm_tol=0.0)
-                self._structure = bv.get_oxi_state_decorated_structure(self._structure)
+                self._structure = bv.get_oxi_state_decorated_structure(
+                    self._structure)
                 valences = bv.get_valences(self._structure)
             except:
                 valences = []
@@ -196,16 +204,16 @@ class ValenceIonicRadiusEvaluator(object):
                     else:
                         valences.append(0)
                 if sum(valences):
-                    valences = [0]*self._structure.num_sites
+                    valences = [0] * self._structure.num_sites
                 else:
                     self._structure.add_oxidation_state_by_site(valences)
-                #raise
+                # raise
 
-        #el = [site.specie.symbol for site in self._structure.sites]
-        #el = [site.species_string for site in self._structure.sites]
-        #el = [site.specie for site in self._structure.sites]
-        #valence_dict = dict(zip(el, valences))
-        #print valence_dict
+        # el = [site.specie.symbol for site in self._structure.sites]
+        # el = [site.species_string for site in self._structure.sites]
+        # el = [site.specie for site in self._structure.sites]
+        # valence_dict = dict(zip(el, valences))
+        # print valence_dict
         return valences
 
 
@@ -333,16 +341,14 @@ class Vacancy(Defect):
                 if site == self._structure[i]:
                     self._vac_site_indices.append(i)
 
-        coord_finder = VoronoiCoordFinder(self._structure)
+        vnn = VoronoiNN()
         self._defectsite_coord_no = []
         self._defect_coord_sites = []
         for i in self._vac_site_indices:
             self._defectsite_coord_no.append(
-                coord_finder.get_coordination_number(i)
-            )
+                vnn.get_cn(self._structure, i, use_weights=True))
             self._defect_coord_sites.append(
-                coord_finder.get_coordinated_sites(i)
-            )
+                vnn.get_nn(self._structure, i))
 
         # Store the ionic radii for the elements in the structure
         # (Used to  computing the surface are and volume)
@@ -352,8 +358,8 @@ class Vacancy(Defect):
         self._vol = None
         self._sa = None
 
-    #@property
-    #def valence_dict(self):
+    # @property
+    # def valence_dict(self):
     #    return self._valence_dict
 
     def enumerate_defectsites(self):
@@ -395,12 +401,12 @@ class Vacancy(Defect):
 
         el = self.get_defectsite(n).species_string
         return -self._valence_dict[el]
-        #if not self._vac_eff_charges:
+        # if not self._vac_eff_charges:
         #    self._vac_eff_charges = []
         #    for site in self.enumerate_defectsites():
         #        specie = site.specie.symbol
         #        self._vac_eff_charges.append(-self._valence_dict[specie])
-        #return self._vac_eff_charges[n]
+        # return self._vac_eff_charges[n]
 
     def get_coordsites_min_max_charge(self, n):
         """
@@ -483,7 +489,7 @@ class Vacancy(Defect):
                                       sc.lattice,
                                       properties=defect_site.properties)
         for i in range(len(sc.sites)):
-            #if sc_defect_site == sc.sites[i]:
+            # if sc_defect_site == sc.sites[i]:
             if sc_defect_site.distance(sc.sites[i]) < 1e-3:
                 del sc[i]
                 return sc
@@ -516,9 +522,9 @@ class Vacancy(Defect):
             limit_return_structures = self.defectsite_count()
         for defect_site in self.enumerate_defectsites():
             if len(sc_with_vac) <= limit_return_structures:
-                if isinstance(defect_site.specie,Specie):
+                if isinstance(defect_site.specie, Specie):
                     site_specie = defect_site.specie.element.symbol
-                elif isinstance(defect_site.specie,Element):
+                elif isinstance(defect_site.specie, Element):
                     site_specie = defect_site.specie.symbol
                 else:
                     raise TypeError("site specie is neither Specie nor Element")
@@ -543,7 +549,7 @@ class VacancyFormationEnergy(object):
         """
         Formation Energy for nth symmetrically distinct vacancy.
         """
-        #generate defect free structure energy
+        # generate defect free structure energy
         if not self._energies:
             no_vac = self._vacancy.defectsite_count()
             prev_energies = [0.0] * no_vac
@@ -552,13 +558,13 @@ class VacancyFormationEnergy(object):
             val_dict = self._vacancy.struct_valences
             for sp in range(2, 6):
                 if not (False in tol_flg):
-                    #print sp
+                    # print sp
                     break
                 scale_mat = [[sp, 0, 0], [0, sp, 0], [0, 0, sp]]
                 sc = self._vacancy.make_supercells_with_defects(scale_mat)
                 blk_energy = get_energy_buckingham(sc[0])
                 no = len(sc[0].sites)
-                #print no
+                # print no
                 for i in range(1, no_vac + 1):
                     if not tol_flg[i - 1]:
                         vac_energy = get_energy_buckingham(
@@ -584,7 +590,7 @@ class Interstitial(Defect):
     """
 
     def __init__(self, structure, valences, radii, site_type='voronoi_vertex',
-                 accuracy='Normal', symmetry_flag=True, oxi_state = False):
+                 accuracy='Normal', symmetry_flag=True, oxi_state=False):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
         For a non-ionic structure, use oxi_state=True and give atomic radii.
@@ -631,15 +637,14 @@ class Interstitial(Defect):
             raise NotImplementedError("Accuracy setting not implemented.")
 
         if accuracy == "High":
-            if site_type in ('voronoi_facecenter','voronoi_edgecenter','all'): 
+            if site_type in ('voronoi_facecenter', 'voronoi_edgecenter', 'all'):
                 raise NotImplementedError(
-                        "Site type not implemented for the accuracy setting")
-
+                    "Site type not implemented for the accuracy setting")
 
         vor_node_sites, vor_edgecenter_sites, vor_facecenter_sites = \
             symmetry_reduced_voronoi_nodes(self._structure, self._rad_dict,
                                            high_accuracy_flag, symmetry_flag)
-        
+
         if site_type == 'voronoi_vertex':
             possible_interstitial_sites = vor_node_sites
         elif site_type == 'voronoi_facecenter':
@@ -648,12 +653,12 @@ class Interstitial(Defect):
             possible_interstitial_sites = vor_edgecenter_sites
         elif site_type == "all":
             possible_interstitial_sites = vor_node_sites + \
-                    vor_facecenter_sites + vor_edgecenter_sites
+                                          vor_facecenter_sites + vor_edgecenter_sites
         else:
             raise ValueError("Input site type not implemented")
 
-        #Do futher processing on possibleInterstitialSites to obtain
-        #interstitial sites
+        # Do futher processing on possibleInterstitialSites to obtain
+        # interstitial sites
         self._defect_sites = possible_interstitial_sites
         self._defectsite_coord_no = []
         self._defect_coord_sites = []
@@ -667,7 +672,7 @@ class Interstitial(Defect):
             self._defect_coord_charge.append(chrg)
 
         for site in self._defect_sites:
-            vor_radius = site.properties.get('voronoi_radius',None)
+            vor_radius = site.properties.get('voronoi_radius', None)
             if vor_radius:
                 vor_radius = float(vor_radius)
             self._radii.append(vor_radius)
@@ -682,21 +687,23 @@ class Interstitial(Defect):
         """
         struct = self._structure.copy()
         struct.append(site.specie.symbol, site.frac_coords)
-        coord_finder = VoronoiCoordFinder(struct)
-        coord_no = coord_finder.get_coordination_number(-1)
-        coord_sites = coord_finder.get_coordinated_sites(-1)
+        vnn = VoronoiNN()
+        coord_no = vnn.get_cn(struct, -1, use_weights=True)
+        coord_sites = vnn.get_nn(struct, -1)
 
         # In some cases coordination sites to interstitials include
         # interstitials also. Filtering them.
         def no_inter(site):
             return not site.specie.symbol == 'X'
+
         coord_sites = filter(no_inter, coord_sites)
 
         coord_chrg = 0
         if self._valence_dict:
-            for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
+            for site, weight in vnn.get_voronoi_polyhedra(struct, -1).items():
                 if not site.specie.symbol == 'X':
-                    coord_chrg += weight * self._valence_dict[site.species_string]
+                    coord_chrg += weight * self._valence_dict[
+                        site.species_string]
 
         return coord_no, coord_sites, coord_chrg
 
@@ -804,45 +811,45 @@ class Interstitial(Defect):
         """
         Prune the sites that are very close.
         """
-        #print self.defectsite_count()
+        # print self.defectsite_count()
         ind = 0
         while ind < self.defectsite_count():
-            #i = ind + 1
-            #while i < self.defectsite_count():
-            i = self.defectsite_count()-1
-            #print ind, i
-            while i > ind: 
+            # i = ind + 1
+            # while i < self.defectsite_count():
+            i = self.defectsite_count() - 1
+            # print ind, i
+            while i > ind:
                 d = self._defect_sites[ind].distance(self._defect_sites[i])
-                #print d, dist
+                # print d, dist
                 if d < dist:
                     self._defect_sites.pop(i)
-                    #self._defectsite_coord_no.pop(i)
-                    #self._defect_coord_sites.pop(i)
-                    #self._radii.pop(i)
-            #    i += 1
+                    # self._defectsite_coord_no.pop(i)
+                    # self._defect_coord_sites.pop(i)
+                    # self._radii.pop(i)
+                #    i += 1
                 i -= 1
             ind += 1
-        #print self.defectsite_count()
+        # print self.defectsite_count()
 
     def _supercell_with_defect(self, scaling_matrix, defect_site, element):
         sc = self._structure.copy()
         sc.make_supercell(scaling_matrix)
         oldf_coords = defect_site.frac_coords
         coords = defect_site.lattice.get_cartesian_coords(oldf_coords)
-        #print coords
+        # print coords
         newf_coords = sc.lattice.get_fractional_coords(coords)
         for i in range(3):
             coord = newf_coords[i]
             if coord < 0:
                 while (coord < 0):
-                    coord = coord+1
+                    coord = coord + 1
                 newf_coords[i] = coord
             elif coord > 1:
                 while (coord > 1):
-                    coord = coord-1
+                    coord = coord - 1
                 newf_coords[i] = coord
-        #print newf_coords
-        #sc_defect_site = PeriodicSite(element, newf_coords,
+        # print newf_coords
+        # sc_defect_site = PeriodicSite(element, newf_coords,
         #                              sc.lattice)
         try:
             sc.append(element, newf_coords, coords_are_cartesian=False,
@@ -882,6 +889,7 @@ class InterstitialAnalyzer(object):
         oxi_state: Oxidtation state
         scd: Super cell dimension as number. The scaling is equal along xyz.
     """
+
     def __init__(self, inter, el, oxi_state, scd=2):
         self._inter = inter
         self._el = el
@@ -998,7 +1006,7 @@ class InterstitialAnalyzer(object):
         blk_struct = self._relax_struct[0]
         def_struct = self._relax_struct[n + 1:n + 2][0]
         del def_struct.sites[-1]
-        #print def_struct
+        # print def_struct
         rv = RelaxationAnalyzer(blk_struct, def_struct)
         return rv.get_percentage_bond_dist_changes()
 
@@ -1172,7 +1180,7 @@ class InterstitialStructureRelaxer(object):
         distinct_energy_set = set(energies[1:])  # only interstitial energies
         if None in distinct_energy_set:
             distinct_energy_set.remove(None)
-        distinct_structs = [structs[0]]         # bulk
+        distinct_structs = [structs[0]]  # bulk
         distinct_energies = [energies[0]]
         for energy in distinct_energy_set:
             ind = energies.index(energy)
@@ -1349,19 +1357,18 @@ class RelaxedInterstitial(object):
             # How to compute the average?
         return dist_sum
 
-
     def _coord_find(self):
         """
-        calls VoronoiCoordFinder to compute the coordination number,
+        calls VoronoiNN to compute the coordination number,
         coordination charge
         """
         for i in range(self.defect_count()):
             struct = self._structs[i].copy()
-            coord_finder = VoronoiCoordFinder(struct)
-            self._coord_no.append(coord_finder.get_coordination_number(-1))
-            self._coord_sites.append(coord_finder.get_coordinated_sites(-1))
+            vnn = VoronoiNN()
+            self._coord_no.append(vnn.get_cn(struct, -1, use_weights=True))
+            self._coord_sites.append(vnn.get_nn(struct, -1))
             coord_chrg = 0
-            for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
+            for site, weight in vnn.get_voronoi_polyhedra(struct, -1).items():
                 coord_chrg += weight * self._valence_dict[site.species_string]
             self._coord_charge_no.append(coord_chrg)
 
@@ -1397,7 +1404,7 @@ def symmetry_reduced_voronoi_nodes(
             ind = avg_dists.index(min_avg_dist)
             dist_sites.append(equiv_sites[ind])
 
-    def cmp_memoize_last_site(f): #Compares and stores last site
+    def cmp_memoize_last_site(f):  # Compares and stores last site
         def not_duplicates(site1, site2):
             if site1.distance(site2) < 1e-5:
                 return False
@@ -1405,8 +1412,9 @@ def symmetry_reduced_voronoi_nodes(
                 return True
 
         cmp_memoize_last_site.cache = None
+
         def helper(x):
-            if not cmp_memoize_last_site.cache: 
+            if not cmp_memoize_last_site.cache:
                 cmp_memoize_last_site.cache = f(x)
                 return True
             y = f(x)
@@ -1415,12 +1423,12 @@ def symmetry_reduced_voronoi_nodes(
                 return True
             else:
                 return False
+
         return helper
 
     @cmp_memoize_last_site
     def check_not_duplicates(site):
         return site
-
 
     if not symm_flag:
         if not high_accuracy_flag:
@@ -1431,10 +1439,10 @@ def symmetry_reduced_voronoi_nodes(
         else:
             # Only the nodes are from high accuracy voronoi decomposition
             vor_node_struct = \
-                    get_high_accuracy_voronoi_nodes(structure, rad_dict)
+                get_high_accuracy_voronoi_nodes(structure, rad_dict)
             # Before getting the symmetry, remove the duplicates
-            vor_node_struct.sites.sort(key = lambda site: site.voronoi_radius)
-            #print type(vor_node_struct.sites[0])
+            vor_node_struct.sites.sort(key=lambda site: site.voronoi_radius)
+            # print type(vor_node_struct.sites[0])
             dist_sites = filter(check_not_duplicates, vor_node_struct.sites)
             return dist_sites, None, None
 
@@ -1469,20 +1477,20 @@ def symmetry_reduced_voronoi_nodes(
     else:
         # Only the nodes are from high accuracy voronoi decomposition
         vor_node_struct = \
-                get_high_accuracy_voronoi_nodes(structure, rad_dict)
+            get_high_accuracy_voronoi_nodes(structure, rad_dict)
 
         # Before getting the symmetry, remove the duplicates
-        vor_node_struct.sites.sort(key = lambda site: site.voronoi_radius)
-        #print type(vor_node_struct.sites[0])
+        vor_node_struct.sites.sort(key=lambda site: site.voronoi_radius)
+        # print type(vor_node_struct.sites[0])
         dist_sites = list(filter(check_not_duplicates, vor_node_struct.sites))
 
         # Ignore symmetry from ha voronoi nodes
         # Increase the symmetry precision to 0.25
-        #spg = SpacegroupAnalyzer(structure,symprec=1e-1).get_spacegroup()
-        
+        # spg = SpacegroupAnalyzer(structure,symprec=1e-1).get_spacegroup()
+
         # Remove symmetrically equivalent sites
-        #i = 0
-        #while (i < len(dist_sites)-1):
+        # i = 0
+        # while (i < len(dist_sites)-1):
         #    sites1 = [dist_sites[i]]
         #    sites2 = [dist_sites[i+1]]
         #    if spg.are_symmetrically_equivalent(sites1,sites2):
@@ -1493,33 +1501,32 @@ def symmetry_reduced_voronoi_nodes(
         node_dist_sites = dist_sites
         return (node_dist_sites, None, None)
 
-        #vor_edge_symmetry_finder = SpacegroupAnalyzer(
+        # vor_edge_symmetry_finder = SpacegroupAnalyzer(
         #    vor_edgecenter_struct, symprec=1e-1)
-        #vor_edge_symm_struct = vor_edge_symmetry_finder.get_symmetrized_structure()
-        #edgecenter_equiv_sites_list = vor_edge_symm_struct.equivalent_sites
+        # vor_edge_symm_struct = vor_edge_symmetry_finder.get_symmetrized_structure()
+        # edgecenter_equiv_sites_list = vor_edge_symm_struct.equivalent_sites
 
-        #edgecenter_dist_sites = []
-        #for equiv_sites in edgecenter_equiv_sites_list:
+        # edgecenter_dist_sites = []
+        # for equiv_sites in edgecenter_equiv_sites_list:
         #    add_closest_equiv_site(edgecenter_dist_sites, equiv_sites)
-        #if not edgecenter_equiv_sites_list:     
+        # if not edgecenter_equiv_sites_list:
         #    edgecenter_dist_sites = vor_edgecenter_struct.sites
 
-        #vor_fc_symmetry_finder = SpacegroupAnalyzer(
+        # vor_fc_symmetry_finder = SpacegroupAnalyzer(
         #                vor_facecenter_struct, symprec=1e-1)
-        #vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
-        #facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
+        # vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
+        # facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
 
-        #facecenter_dist_sites = []
-        #for equiv_sites in facecenter_equiv_sites_list:
+        # facecenter_dist_sites = []
+        # for equiv_sites in facecenter_equiv_sites_list:
         #    add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
-        #if not facecenter_equiv_sites_list:     
+        # if not facecenter_equiv_sites_list:
         #    facecenter_dist_sites = vor_facecenter_struct.sites
 
-        #return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
+        # return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
 
 
 class StructureMotifInterstitial(Defect):
-
     """
     Subclass of Defect to generate interstitial sites at positions
     where the interstitialcy is coordinated by nearest neighbors
@@ -1578,7 +1585,7 @@ class StructureMotifInterstitial(Defect):
         for imotif, motif in enumerate(self._motif_types):
             if motif not in self.__supported_types:
                 raise RuntimeError("unsupported motif type: {}.".format(
-                        motif))
+                    motif))
         self._dl = dl
         self._defect_sites = []
         self._defect_types = []
@@ -1587,13 +1594,13 @@ class StructureMotifInterstitial(Defect):
         self._defect_opvals = []
 
         rots, trans = SpacegroupAnalyzer(
-                struct)._get_symmetry()        
+            struct)._get_symmetry()
         nbins = [int(struct.lattice.a / dl), \
-                int(struct.lattice.b / dl), \
-                int(struct.lattice.c / dl)]
+                 int(struct.lattice.b / dl), \
+                 int(struct.lattice.c / dl)]
         dls = [struct.lattice.a / float(nbins[0]), \
-                struct.lattice.b / float(nbins[1]), \
-                struct.lattice.c / float(nbins[2])]
+               struct.lattice.b / float(nbins[1]), \
+               struct.lattice.c / float(nbins[2])]
         maxdl = max(dls)
         if verbose:
             print("Grid size: {} {} {}".format(nbins[0], nbins[1], nbins[2]))
@@ -1608,22 +1615,24 @@ class StructureMotifInterstitial(Defect):
         # grid in fractional coordinate space
         # within the unit cell.
         for ia in range(nbins[0]):
-            a = (float(ia)+0.5) / float(nbins[0])
+            a = (float(ia) + 0.5) / float(nbins[0])
             for ib in range(nbins[1]):
-                b = (float(ib)+0.5) / float(nbins[1])
+                b = (float(ib) + 0.5) / float(nbins[1])
                 for ic in range(nbins[2]):
-                    c = (float(ic)+0.5) / float(nbins[2])
+                    c = (float(ic) + 0.5) / float(nbins[2])
                     struct_w_inter.replace(
-                            natoms-1, inter_elem, coords=[a, b, c],
-                            coords_are_cartesian=False)
-                    if len(struct_w_inter.get_sites_in_sphere(struct_w_inter.sites[natoms-1].coords, doverlap)) == 1:
+                        natoms - 1, inter_elem, coords=[a, b, c],
+                        coords_are_cartesian=False)
+                    if len(struct_w_inter.get_sites_in_sphere(
+                            struct_w_inter.sites[natoms - 1].coords,
+                            doverlap)) == 1:
                         delta = 0.1
                         ddelta = 0.1
                         delta_end = 0.8
                         while delta < delta_end:
                             neighs = MinimumDistanceNN(
-                                    tol=delta, cutoff=6).get_nn(
-                                    struct_w_inter, natoms-1)
+                                tol=delta, cutoff=6).get_nn(
+                                struct_w_inter, natoms - 1)
                             nneighs = len(neighs)
                             if nneighs > 6:
                                 break
@@ -1633,10 +1642,10 @@ class StructureMotifInterstitial(Defect):
 
                             allsites = [s for s in neighs]
                             indices_neighs = [i for i in range(len(allsites))]
-                            allsites.append(struct_w_inter.sites[natoms-1])
+                            allsites.append(struct_w_inter.sites[natoms - 1])
                             opvals = ops.get_order_parameters(
-                                        allsites, len(allsites)-1,
-                                        indices_neighs=indices_neighs)
+                                allsites, len(allsites) - 1,
+                                indices_neighs=indices_neighs)
                             motif_type = "unrecognized"
                             if "tet" in motif_types:
                                 if nneighs == 4 and \
@@ -1663,12 +1672,13 @@ class StructureMotifInterstitial(Defect):
                                     else:
                                         cns[elem] = 1
                                 trialsites.append({
-                                        "mtype": motif_type,
-                                        "opval": this_op,
-                                        "delta": delta,
-                                        "coords": struct_w_inter.sites[natoms-1].coords[:],
-                                        "fracs": np.array([a, b, c]),
-                                        "cns": dict(cns)})
+                                    "mtype": motif_type,
+                                    "opval": this_op,
+                                    "delta": delta,
+                                    "coords": struct_w_inter.sites[
+                                                  natoms - 1].coords[:],
+                                    "fracs": np.array([a, b, c]),
+                                    "cns": dict(cns)})
                                 break
 
                             delta += ddelta
@@ -1686,9 +1696,10 @@ class StructureMotifInterstitial(Defect):
             connected.append([])
             for j in range(nintersites):
                 dist, image = struct_w_inter.lattice.get_distance_and_image(
-                        trialsites[i]["fracs"],
-                        trialsites[j]["fracs"])
-                connected[i].append(True if dist < (maxdl*facmaxdl) else False)
+                    trialsites[i]["fracs"],
+                    trialsites[j]["fracs"])
+                connected[i].append(
+                    True if dist < (maxdl * facmaxdl) else False)
         include = []
         for motif in unique_motifs:
             labels[motif] = []
@@ -1697,15 +1708,16 @@ class StructureMotifInterstitial(Defect):
             change = True
             while change:
                 change = False
-                for i in range(nintersites-1):
+                for i in range(nintersites - 1):
                     if change:
                         break
                     if labels[motif][i] == -1:
                         continue
-                    for j in range(i+1, nintersites):
+                    for j in range(i + 1, nintersites):
                         if labels[motif][j] == -1:
                             continue
-                        if connected[i][j] and labels[motif][i] != labels[motif][j]:
+                        if connected[i][j] and labels[motif][i] != \
+                                labels[motif][j]:
                             if labels[motif][i] < labels[motif][j]:
                                 labels[motif][j] = labels[motif][i]
                             else:
@@ -1739,17 +1751,17 @@ class StructureMotifInterstitial(Defect):
                     continue
                 multiplicity[i] = 1
                 symposlist = [trialsites[i]["fracs"].dot(
-                        np.array(m, dtype=float)) for m in rots]
+                    np.array(m, dtype=float)) for m in rots]
                 for t in trans:
-                    symposlist.append(trialsites[i]["fracs"]+np.array(t))
-                for indj in range(indi+1, len(include)):
+                    symposlist.append(trialsites[i]["fracs"] + np.array(t))
+                for indj in range(indi + 1, len(include)):
                     j = include[indj]
                     if trialsites[j]["mtype"] != motif or \
                             j in discard_motif:
                         continue
                     for sympos in symposlist:
                         dist, image = struct.lattice.get_distance_and_image(
-                                sympos, trialsites[j]["fracs"])
+                            sympos, trialsites[j]["fracs"])
                         if dist < maxdl * facmaxdl:
                             discard_motif.append(j)
                             multiplicity[i] += 1
@@ -1760,9 +1772,9 @@ class StructureMotifInterstitial(Defect):
 
         if verbose:
             print("Initial trial sites: {}\nAfter clustering: {}\n"
-                    "After symmetry pruning: {}".format(
-                    len(trialsites), len(include),
-                    len(include)-len(discard)))
+                  "After symmetry pruning: {}".format(
+                len(trialsites), len(include),
+                len(include) - len(discard)))
         c = 0
         for i in include:
             if i not in discard:
@@ -1779,7 +1791,6 @@ class StructureMotifInterstitial(Defect):
                 self._defect_site_multiplicity.append(multiplicity[i])
                 self._defect_opvals.append(trialsites[i]["opval"])
 
-
     def enumerate_defectsites(self):
         """
         Get all defect sites.
@@ -1790,7 +1801,6 @@ class StructureMotifInterstitial(Defect):
         """
         return self._defect_sites
 
-
     def get_motif_type(self, i):
         """
         Get the motif type of defect with index i (e.g., "tet").
@@ -1799,7 +1809,6 @@ class StructureMotifInterstitial(Defect):
             motif (string): motif type.
         """
         return self._defect_types[i]
-
 
     def get_coordinating_elements_cns(self, i):
         """
@@ -1812,7 +1821,6 @@ class StructureMotifInterstitial(Defect):
         """
         return self._defect_cns[i]
 
-
     def get_op_value(self, i):
         """
         Get order-parameter value of defect with index i.
@@ -1821,7 +1829,6 @@ class StructureMotifInterstitial(Defect):
             opval (float): OP value.
         """
         return self._defect_opvals[i]
-
 
     def make_supercells_with_defects(self, scaling_matrix):
         """
@@ -1844,14 +1851,384 @@ class StructureMotifInterstitial(Defect):
         for ids, defect_site in enumerate(self._defect_sites):
             sc_with_inter = sc.copy()
             sc_with_inter.append(defect_site.species_string,
-                    defect_site.frac_coords,
-                    coords_are_cartesian=False,
-                    validate_proximity=False,
-                    properties=None)
+                                 defect_site.frac_coords,
+                                 coords_are_cartesian=False,
+                                 validate_proximity=False,
+                                 properties=None)
             if not sc_with_inter:
                 raise RuntimeError("could not generate supercell with"
-                        " interstitial {}".format(ids+1))
+                                   " interstitial {}".format(ids + 1))
             scs.append(sc_with_inter.copy())
         return scs
 
 
+class TopographyAnalyzer(object):
+    """
+    This is a generalized module to perform topological analyses of a crystal
+    structure using Voronoi tessellations. It can be used for finding potential
+    interstitial sites. Applications including using these sites for
+    inserting additional atoms or for analyzing diffusion pathways.
+
+    Note that you typically want to do some preliminary postprocessing after
+    the initial construction. The initial construction will create a lot of
+    points, especially for determining potential insertion sites. Some helper
+    methods are available to perform aggregation and elimination of nodes. A
+    typical use is something like::
+
+        a = TopographyAnalyzer(structure, ["O"], ["P"])
+        a.cluster_nodes()
+        a.remove_collisions()
+    """
+
+    def __init__(self, structure, framework_ions, cations, tol=0.0001,
+                 max_cell_range=1, check_volume=True,
+                 constrained_c_frac=0.5, thickness=0.5):
+        """
+        Init.
+
+        Args:
+            structure (Structure): An initial structure.
+            framework_ions ([str]): A list of ions to be considered as a
+                framework. Typically, this would be all anion species. E.g.,
+                ["O", "S"].
+            cations ([str]): A list of ions to be considered as non-migrating
+                cations. E.g., if you are looking at Li3PS4 as a Li
+                conductor, Li is a mobile species. Your cations should be [
+                "P"]. The cations are used to exclude polyhedra from
+                diffusion analysis since those polyhedra are already occupied.
+            tol (float): A tolerance distance for the analysis, used to
+                determine if something are actually periodic boundary images of
+                each other. Default is usually fine.
+            max_cell_range (int): This is the range of periodic images to
+                construct the Voronoi tesselation. A value of 1 means that we
+                include all points from (x +- 1, y +- 1, z+- 1) in the
+                voronoi construction. This is because the Voronoi poly
+                extends beyond the standard unit cell because of PBC.
+                Typically, the default value of 1 works fine for most
+                structures and is fast. But for really small unit
+                cells with high symmetry, you may need to increase this to 2
+                or higher.
+            check_volume (bool): Set False when ValueError always happen after
+                tuning tolerance.
+            constrained_c_frac (float): Constraint the region where users want
+                to do Topology analysis the default value is 0.5, which is the
+                fractional coordinate of the cell
+            thickness (float): Along with constrained_c_frac, limit the
+                thickness of the regions where we want to explore. Default is
+                0.5, which is mapping all the site of the unit cell.
+
+        """
+        self.structure = structure
+        self.framework_ions = set([get_el_sp(sp) for sp in framework_ions])
+        self.cations = set([get_el_sp(sp) for sp in cations])
+
+        # Let us first map all sites to the standard unit cell, i.e.,
+        # 0 ≤ coordinates < 1.
+        # structure = Structure.from_sites(structure, to_unit_cell=True)
+        # lattice = structure.lattice
+
+        # We could constrain the region where we want to dope/explore by setting
+        # the value of constrained_c_frac and thickness. The default mode is
+        # mapping all sites to the standard unit cell
+        s = structure.copy()
+        constrained_sites = []
+        for i, site in enumerate(s):
+            if site.frac_coords[2] >= constrained_c_frac - thickness and \
+                            site.frac_coords[
+                                2] <= constrained_c_frac + thickness:
+                constrained_sites.append(site)
+        structure = Structure.from_sites(sites=constrained_sites)
+        lattice = structure.lattice
+
+        # Divide the sites into framework and non-framework sites.
+        framework = []
+        non_framework = []
+        for site in structure:
+            if self.framework_ions.intersection(site.species_and_occu.keys()):
+                framework.append(site)
+            else:
+                non_framework.append(site)
+
+        # We construct a supercell series of coords. This is because the
+        # Voronoi polyhedra can extend beyond the standard unit cell. Using a
+        # range of -2, -1, 0, 1 should be fine.
+        coords = []
+        cell_range = list(range(-max_cell_range, max_cell_range + 1))
+        for shift in itertools.product(cell_range, cell_range, cell_range):
+            for site in framework:
+                shifted = site.frac_coords + shift
+                coords.append(lattice.get_cartesian_coords(shifted))
+
+        # Perform the voronoi tessellation.
+        voro = Voronoi(coords)
+
+        # Store a mapping of each voronoi node to a set of points.
+        node_points_map = defaultdict(set)
+        for pts, vs in voro.ridge_dict.items():
+            for v in vs:
+                node_points_map[v].update(pts)
+
+        logger.debug("%d total Voronoi vertices" % len(voro.vertices))
+
+        # Vnodes store all the valid voronoi polyhedra. Cation vnodes store
+        # the voronoi polyhedra that are already occupied by existing cations.
+        vnodes = []
+        cation_vnodes = []
+
+        def get_mapping(poly):
+            """
+            Helper function to check if a vornoi poly is a periodic image
+            of one of the existing voronoi polys.
+            """
+            for v in vnodes:
+                if v.is_image(poly, tol):
+                    return v
+            return None
+
+        # Filter all the voronoi polyhedra so that we only consider those
+        # which are within the unit cell.
+        for i, vertex in enumerate(voro.vertices):
+            if i == 0:
+                continue
+            fcoord = lattice.get_fractional_coords(vertex)
+            poly = VoronoiPolyhedron(lattice, fcoord, node_points_map[i],
+                                     coords, i)
+            if np.all([-tol <= c < 1 + tol for c in fcoord]):
+                if len(vnodes) == 0:
+                    vnodes.append(poly)
+                else:
+                    ref = get_mapping(poly)
+                    if ref is None:
+                        vnodes.append(poly)
+
+        logger.debug("%d voronoi vertices in cell." % len(vnodes))
+
+        # Eliminate all voronoi nodes which are closest to existing cations.
+        if len(cations) > 0:
+            cation_coords = [
+                site.frac_coords for site in non_framework
+                if self.cations.intersection(site.species_and_occu.keys())]
+
+            vertex_fcoords = [v.frac_coords for v in vnodes]
+            dist_matrix = lattice.get_all_distances(cation_coords,
+                                                    vertex_fcoords)
+            indices = np.where(dist_matrix == np.min(dist_matrix, axis=1)[
+                                              :, None])[1]
+            cation_vnodes = [v for i, v in enumerate(vnodes) if i in indices]
+            vnodes = [v for i, v in enumerate(vnodes) if i not in indices]
+
+        logger.debug("%d vertices in cell not with cation." % len(
+            vnodes))
+        self.coords = coords
+        self.vnodes = vnodes
+        self.cation_vnodes = cation_vnodes
+        self.framework = framework
+        self.non_framework = non_framework
+        if check_volume:
+            self.check_volume()
+
+    def check_volume(self):
+        # Basic check for volume of all voronoi poly sum to unit cell volume
+        # Note that this does not apply after poly combination.
+        vol = sum((v.volume for v in self.vnodes)) + sum((v.volume for v in
+                                                          self.cation_vnodes))
+        if abs(vol - self.structure.volume) > 1e-8:
+            raise ValueError(
+                "Sum of voronoi volumes is not equal to original volume of "
+                "structure! This may lead to inaccurate results. You need to "
+                "tweak the tolerance and max_cell_range until you get a "
+                "correct mapping.")
+
+    def cluster_nodes(self, tol=0.2):
+        """
+        Cluster nodes that are too close together using a tol.
+
+        Args:
+            tol (float): A distance tolerance. PBC is taken into account.
+        """
+        lattice = self.structure.lattice
+
+        vfcoords = [v.frac_coords for v in self.vnodes]
+
+        # Manually generate the distance matrix (which needs to take into
+        # account PBC.
+        dist_matrix = np.array(lattice.get_all_distances(vfcoords, vfcoords))
+        dist_matrix = (dist_matrix + dist_matrix.T) / 2
+        for i in range(len(dist_matrix)):
+            dist_matrix[i, i] = 0
+        condensed_m = squareform(dist_matrix)
+        z = linkage(condensed_m)
+        cn = fcluster(z, tol, criterion="distance")
+        merged_vnodes = []
+        for n in set(cn):
+            poly_indices = set()
+            frac_coords = []
+            for i, j in enumerate(np.where(cn == n)[0]):
+                poly_indices.update(self.vnodes[j].polyhedron_indices)
+                if i == 0:
+                    frac_coords.append(self.vnodes[j].frac_coords)
+                else:
+                    fcoords = self.vnodes[j].frac_coords
+                    # We need the image to combine the frac_coords properly.
+                    d, image = lattice.get_distance_and_image(frac_coords[0],
+                                                              fcoords)
+                    frac_coords.append(fcoords + image)
+            merged_vnodes.append(VoronoiPolyhedron(
+                lattice,
+                np.average(frac_coords, axis=0),
+                poly_indices,
+                self.coords
+            ))
+        self.vnodes = merged_vnodes
+        logger.debug("%d vertices after combination." %
+                     len(self.vnodes))
+
+    def remove_collisions(self, min_dist=0.5):
+        """
+        Remove vnodes that are too close to existing atoms in the structure
+
+        Args:
+            min_dist(float): The minimum distance that a vertex needs to be
+                from existing atoms.
+        """
+        vfcoords = [v.frac_coords for v in self.vnodes]
+        sfcoords = self.structure.frac_coords
+        dist_matrix = self.structure.lattice.get_all_distances(vfcoords,
+                                                               sfcoords)
+        all_dist = np.min(dist_matrix, axis=1)
+        new_vnodes = []
+        for i, v in enumerate(self.vnodes):
+            if all_dist[i] > min_dist:
+                new_vnodes.append(v)
+        self.vnodes = new_vnodes
+
+    def get_structure_with_nodes(self):
+        """
+        Get the modified structure with the voronoi nodes inserted. The
+        species is set as a DummySpecie X.
+        """
+        new_s = Structure.from_sites(self.structure)
+        for v in self.vnodes:
+            new_s.append("X", v.frac_coords)
+        return new_s
+
+    def print_stats(self):
+
+        latt = self.structure.lattice
+
+        def get_min_dist(fcoords):
+            n = len(fcoords)
+            dist = latt.get_all_distances(fcoords, fcoords)
+            all_dist = [dist[i, j] for i in range(n) for j in range(i + 1, n)]
+            return min(all_dist)
+
+        voro = [s[1] for s in self.vertices]
+        print("Min dist between voronoi vertices centers = %.4f" %
+              get_min_dist(voro))
+
+        def get_non_framework_dist(fcoords):
+            cations = [site.frac_coords for site in self.non_framework]
+            dist_matrix = latt.get_all_distances(cations, fcoords)
+            min_dist = np.min(dist_matrix, axis=1)
+            assert len(cations) == len(min_dist)
+            return np.linalg.norm(min_dist), min(min_dist), max(min_dist)
+
+        print(len(self.non_framework))
+        print("MSE dist voro = %s" % str(get_non_framework_dist(voro)))
+
+    def write_topology(self, fname="Topo.cif"):
+        new_s = Structure.from_sites(self.structure)
+        for v in self.vnodes:
+            new_s.append("Mg", v.frac_coords)
+        new_s.to(filename=fname)
+
+    def analyze_symmetry(self, tol):
+        s = Structure.from_sites(self.framework)
+        site_to_vindex = {}
+        for i, v in enumerate(self.vnodes):
+            s.append("Li", v.frac_coords)
+            site_to_vindex[s[-1]] = i
+
+        print(len(s))
+        finder = SpacegroupAnalyzer(s, tol)
+        print(finder.get_space_group_operations())
+        symm_structure = finder.get_symmetrized_structure()
+        print(len(symm_structure.equivalent_sites))
+        return [[site_to_vindex[site] for site in sites]
+                for sites in symm_structure.equivalent_sites if sites[
+                    0].specie.symbol == "Li"]
+
+    def vtk(self):
+        if StructureVis is None:
+            raise NotImplementedError("vtk must be present to view.")
+        lattice = self.structure.lattice
+        vis = StructureVis()
+        vis.set_structure(Structure.from_sites(self.structure))
+        for v in self.vnodes:
+            vis.add_site(PeriodicSite("K", v.frac_coords, lattice))
+            vis.add_polyhedron(
+                [PeriodicSite("S", c, lattice, coords_are_cartesian=True)
+                 for c in v.polyhedron_coords],
+                PeriodicSite("Na", v.frac_coords, lattice),
+                color="element",
+                draw_edges=True,
+                edges_color=(0, 0, 0))
+        vis.show()
+
+
+class VoronoiPolyhedron(object):
+    """
+    Convenience container for a voronoi point in PBC and its associated polyhedron.
+    """
+
+    def __init__(self, lattice, frac_coords, polyhedron_indices, all_coords,
+                 name=None):
+        self.lattice = lattice
+        self.frac_coords = frac_coords
+        self.polyhedron_indices = polyhedron_indices
+        self.polyhedron_coords = np.array(all_coords)[list(polyhedron_indices),
+                                 :]
+        self.name = name
+
+    def is_image(self, poly, tol):
+        frac_diff = pbc_diff(poly.frac_coords, self.frac_coords)
+        if not np.allclose(frac_diff, [0, 0, 0], atol=tol):
+            return False
+        to_frac = lambda c: self.lattice.get_fractional_coords(c)
+        for c1 in self.polyhedron_coords:
+            found = False
+            for c2 in poly.polyhedron_coords:
+                d = pbc_diff(to_frac(c1), to_frac(c2))
+                if not np.allclose(d, [0, 0, 0], atol=tol):
+                    found = True
+                    break
+            if not found:
+                return False
+        return True
+
+    @property
+    def coordination(self):
+        return len(self.polyhedron_indices)
+
+    @property
+    def volume(self):
+        return calculate_vol(self.polyhedron_coords)
+
+    def __str__(self):
+        return "Voronoi polyhedron %s" % self.name
+
+
+def calculate_vol(coords):
+    if len(coords) == 4:
+        coords_affine = np.ones((4, 4))
+        coords_affine[:, 0:3] = np.array(coords)
+        return abs(np.linalg.det(coords_affine)) / 6
+    else:
+        simplices = get_facets(coords, joggle=True)
+        center = np.average(coords, axis=0)
+        vol = 0
+        for s in simplices:
+            c = list(s.coords)
+            c.append(center)
+            vol += calculate_vol(c)
+        return vol

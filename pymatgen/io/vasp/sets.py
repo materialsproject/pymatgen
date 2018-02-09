@@ -1262,7 +1262,7 @@ class MVLSlabSet(MPRelaxSet):
         self.auto_dipole = auto_dipole
         self.kwargs = kwargs
 
-        slab_incar = {"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
+        slab_incar = {"EDIFF": 1e-4, "EDIFFG": -0.02, "ENCUT": 400,
                       "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
         if not self.bulk:
             slab_incar["ISIF"] = 2

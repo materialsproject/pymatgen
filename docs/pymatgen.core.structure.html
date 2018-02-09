@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -484,7 +484,8 @@ disordered structures.</li>
 </li>
 <li><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
 each species.</li>
-<li><strong>charge</strong> (<em>int</em>) – overall charge of the structure. Defaults to behavior in SiteCollection where total charge is the sum of the oxidation states</li>
+<li><strong>charge</strong> (<em>int</em>) – overall charge of the structure. Defaults to behavior
+in SiteCollection where total charge is the sum of the oxidation states</li>
 <li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
 <li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
@@ -912,7 +913,7 @@ sites contribute to the ewald sum.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_primitive_structure">
-<code class="descname">get_primitive_structure</code><span class="sig-paren">(</span><em>tolerance=0.25</em>, <em>use_site_props=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_primitive_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_primitive_structure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_primitive_structure</code><span class="sig-paren">(</span><em>tolerance=0.25, use_site_props=False, constrain_latt=[False, False, False, False, False, False]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_primitive_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_primitive_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>This finds a smaller unit cell than the input. Sometimes it doesn”t
 find the smallest possible one, so this method is recursively called
 until it is unable to find a smaller cell.</p>
@@ -929,6 +930,9 @@ coordinates will be considered to be on the same coordinates
 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.</li>
 <li><strong>use_site_props</strong> (<em>bool</em>) – Whether to account for site properties in
 differntiating sites.</li>
+<li><strong>constrain_latt</strong> (<em>list of bools</em>) – Determines which lattice constant
+we want to preserve (True), if any. Order of bools in the list
+corresponds to [a, b, c, alpha, beta, gamme].</li>
 </ul>
 </td>
 </tr>
@@ -1764,14 +1768,14 @@ E.g., {“Li”:1, “Fe”:2, “P”:5, “O”:-2}</td>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.Structure.add_oxidation_state_by_guess">
-<code class="descname">add_oxidation_state_by_guess</code><span class="sig-paren">(</span><em>*kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.add_oxidation_state_by_guess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.add_oxidation_state_by_guess" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_oxidation_state_by_guess</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.add_oxidation_state_by_guess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.add_oxidation_state_by_guess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorates the structure with oxidation state, guessing
 using Composition.oxi_state_guesses()</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*kwargs</strong> – parameters to pass into oxi_state_guesses()</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> – parameters to pass into oxi_state_guesses()</td>
 </tr>
 </tbody>
 </table>
@@ -2240,13 +2244,13 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

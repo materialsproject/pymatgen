@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.flows module &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.io.abinit.flows module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -137,7 +137,7 @@ stderr_file: stderr file of the Abinit run. use stderr_file.read() to access its
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.flows.Flow.allocate">
-<code class="descname">allocate</code><span class="sig-paren">(</span><em>workdir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.allocate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.allocate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">allocate</code><span class="sig-paren">(</span><em>workdir=None</em>, <em>use_smartio=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.allocate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.allocate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allocate the <cite>Flow</cite> i.e. assign the <cite>workdir</cite> and (optionally)
 the <code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code> to the different tasks in the Flow.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -146,6 +146,8 @@ the <code class="xref py py-class docutils literal"><span class="pre">TaskManage
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>workdir</strong> – Working directory of the flow. Must be specified here
 if we haven’t initialized the workdir in the __init__.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">self</td>
 </tr>
 </tbody>
 </table>
@@ -238,7 +240,7 @@ nids is an optional list of node identifiers used to filter the tasks.</p>
 <dt id="pymatgen.io.abinit.flows.Flow.check_pid_file">
 <code class="descname">check_pid_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.check_pid_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.check_pid_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function checks if we are already running the <a class="reference internal" href="#pymatgen.io.abinit.flows.Flow" title="pymatgen.io.abinit.flows.Flow"><code class="xref py py-class docutils literal"><span class="pre">Flow</span></code></a> with a <code class="xref py py-class docutils literal"><span class="pre">PyFlowScheduler</span></code>.
-Raises: Flow.Error if the pif file of the scheduler exists.</p>
+Raises: Flow.Error if the pid file of the scheduler exists.</p>
 </dd></dl>
 
 <dl class="method">
@@ -361,7 +363,7 @@ Returns the number of tasks that have been fixed.</p>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.flows.Flow.from_inputs">
-<em class="property">classmethod </em><code class="descname">from_inputs</code><span class="sig-paren">(</span><em>workdir</em>, <em>inputs</em>, <em>manager=None</em>, <em>pickle_protocol=-1</em>, <em>task_class=&lt;class 'pymatgen.io.abinit.tasks.ScfTask'&gt;</em>, <em>work_class=&lt;class 'pymatgen.io.abinit.works.Work'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.from_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.from_inputs" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_inputs</code><span class="sig-paren">(</span><em>workdir</em>, <em>inputs</em>, <em>manager=None</em>, <em>pickle_protocol=-1</em>, <em>task_class=&lt;class 'pymatgen.io.abinit.tasks.ScfTask'&gt;</em>, <em>work_class=&lt;class 'pymatgen.io.abinit.works.Work'&gt;</em>, <em>remove=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.from_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.from_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a simple flow from a list of inputs. The flow contains a single Work with
 tasks whose class is given by task_class.</p>
 <div class="admonition warning">
@@ -382,6 +384,7 @@ located either in the working directory or in the user configuration dir.</li>
 -1 denotes the latest version supported by the python interpreter.</li>
 <li><strong>task_class</strong> – The class of the <code class="xref py py-class docutils literal"><span class="pre">Task</span></code>.</li>
 <li><strong>work_class</strong> – The class of the <code class="xref py py-class docutils literal"><span class="pre">Work</span></code>.</li>
+<li><strong>remove</strong> – attempt to remove working directory <cite>workdir</cite> if directory already exists.</li>
 </ul>
 </td>
 </tr>
@@ -425,6 +428,30 @@ The default implementation is empty. Subclasses must implement it</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.io.abinit.flows.Flow.get_task_scfcycles">
+<code class="descname">get_task_scfcycles</code><span class="sig-paren">(</span><em>nids=None</em>, <em>wslice=None</em>, <em>task_class=None</em>, <em>exclude_ok_tasks=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.get_task_scfcycles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.get_task_scfcycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of (taks, scfcycle) tuples for all the tasks in the flow with a SCF algorithm
+e.g. electronic GS-SCF iteration, DFPT-SCF iterations etc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nids</strong> – List of node identifiers.</li>
+<li><strong>wslice</strong> – Slice object used to select works.</li>
+<li><strong>task_class</strong> – String or class used to select tasks. Ignored if None.</li>
+<li><strong>exclude_ok_tasks</strong> – True if only running tasks should be considered.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List of <cite>ScfCycle</cite> subclass instances.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.io.abinit.flows.Flow.groupby_status">
 <code class="descname">groupby_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.groupby_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.groupby_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a ordered dictionary mapping the task status to
@@ -450,6 +477,12 @@ The string gives the previous workdir of the flow.</p>
 <dt id="pymatgen.io.abinit.flows.Flow.has_db">
 <code class="descname">has_db</code><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.has_db" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if flow uses <cite>MongoDB</cite> to store the results.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.flows.Flow.has_scheduler">
+<code class="descname">has_scheduler</code><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.has_scheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if there’s a scheduler running the flow.</p>
 </dd></dl>
 
 <dl class="method">
@@ -766,25 +799,31 @@ in read-only mode and we want to avoid callbacks that can change the flow.</li>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.flows.Flow.plot_networkx">
-<code class="descname">plot_networkx</code><span class="sig-paren">(</span><em>mode='network'</em>, <em>with_edge_labels=False</em>, <em>ax=None</em>, <em>node_size='num_cores'</em>, <em>node_label='name_class'</em>, <em>layout_type='spring'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.plot_networkx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.plot_networkx" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Use networkx to draw the flow with the connections among the nodes and
+<code class="descname">plot_networkx</code><span class="sig-paren">(</span><em>mode='network'</em>, <em>with_edge_labels=False</em>, <em>ax=None</em>, <em>arrows=False</em>, <em>node_size='num_cores'</em>, <em>node_label='name_class'</em>, <em>layout_type='spring'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.plot_networkx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.plot_networkx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use networkx to draw the flow with the connections among the nodes and
 the status of the tasks.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>mode: <cite>networkx</cite> to show connections, <cite>status</cite> to group tasks by status.
-with_edge_labels: True to draw edge labels.
-ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.
-node_size: By default, the size of the node is proportional to the number of cores used.
-node_label: By default, the task class is used to label node.
-layout_type: Get positions for all nodes using <cite>layout_type</cite>. e.g. pos = nx.spring_layout(g)</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>mode</strong> – <cite>networkx</cite> to show connections, <cite>status</cite> to group tasks by status.</li>
+<li><strong>with_edge_labels</strong> – True to draw edge labels.</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>arrows</strong> – if True draw arrowheads.</li>
+<li><strong>node_size</strong> – By default, the size of the node is proportional to the number of cores used.</li>
+<li><strong>node_label</strong> – By default, the task class is used to label node.</li>
+<li><strong>layout_type</strong> – Get positions for all nodes using <cite>layout_type</cite>. e.g. pos = nx.spring_layout(g)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">Requires networkx package.</p>
 </div>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -803,14 +842,14 @@ layout_type: Get positions for all nodes using <cite>layout_type</cite>. e.g. po
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
-<td>True if to call fig.tight_layout (default: False)</td>
+<td>True to call fig.tight_layout (default: False)</td>
 </tr>
 </tbody>
 </table>
@@ -824,14 +863,23 @@ example: size_kwargs=dict(w=3, h=4)</td>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.flows.Flow.rapidfire">
-<code class="descname">rapidfire</code><span class="sig-paren">(</span><em>check_status=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.rapidfire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.rapidfire" title="Permalink to this definition">¶</a></dt>
+<code class="descname">rapidfire</code><span class="sig-paren">(</span><em>check_status=True</em>, <em>max_nlaunch=-1</em>, <em>max_loops=1</em>, <em>sleep_time=5</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.rapidfire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.rapidfire" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use <code class="xref py py-class docutils literal"><span class="pre">PyLauncher</span></code> to submits tasks in rapidfire mode.
 kwargs contains the options passed to the launcher.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">number of tasks submitted.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>check_status</strong> – </li>
+<li><strong>max_nlaunch</strong> – Maximum number of launches. default: no limit.</li>
+<li><strong>max_loops</strong> – Maximum number of loops</li>
+<li><strong>sleep_time</strong> – seconds to sleep between rapidfire loop iterations</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Number of tasks submitted.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -934,7 +982,7 @@ by the scheduler and we have to reload the new flow in memory.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.flows.Flow.select_tasks">
-<code class="descname">select_tasks</code><span class="sig-paren">(</span><em>nids=None</em>, <em>wslice=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.select_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.select_tasks" title="Permalink to this definition">¶</a></dt>
+<code class="descname">select_tasks</code><span class="sig-paren">(</span><em>nids=None</em>, <em>wslice=None</em>, <em>task_class=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.select_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.select_tasks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list with a subset of tasks.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -943,6 +991,7 @@ by the scheduler and we have to reload the new flow in memory.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>nids</strong> – List of node identifiers.</li>
 <li><strong>wslice</strong> – Slice object used to select works.</li>
+<li><strong>task_class</strong> – String or class used to select tasks. Ignored if None.</li>
 </ul>
 </td>
 </tr>
@@ -1181,6 +1230,21 @@ Completed       10</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.io.abinit.flows.Flow.show_tricky_tasks">
+<code class="descname">show_tricky_tasks</code><span class="sig-paren">(</span><em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.show_tricky_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.show_tricky_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print list of tricky tasks i.e. tasks that have been restarted or
+launched more than once or tasks with corrections.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>verbose</strong> – Verbosity level. If &gt; 0, task history and corrections (if any) are printed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.io.abinit.flows.Flow.single_shot">
 <code class="descname">single_shot</code><span class="sig-paren">(</span><em>check_status=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.single_shot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.single_shot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use <code class="xref py py-class docutils literal"><span class="pre">PyLauncher</span></code> to submits one task.
@@ -1247,6 +1311,14 @@ capabilities for those files that are not needed by other nodes.
 Smart-io means that big files (e.g. WFK) are written only if the calculation
 is unconverged so that we can restart from it. No output is produced if
 convergence is achieved.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">self</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1424,13 +1496,13 @@ Initialized from manager.yml if manager is None.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -12,9 +12,6 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import symmetry_measure
-# from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
-# from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
-# from pymatgen.core.structure import Structure
 
 
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
@@ -210,6 +207,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             abc.minimum_geometries()
         self.assertAlmostEqual(se_hints.ce_list[0][13][0], se_nohints.ce_list[0][13][0])
         self.assertDictContainsSubset(se_nohints.ce_list[0], se_hints.ce_list[0])
+
 
 if __name__ == "__main__":
     unittest.main()

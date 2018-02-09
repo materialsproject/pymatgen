@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.transition_state module &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.analysis.transition_state module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -229,14 +229,17 @@ be zero.</td>
 <dt id="pymatgen.analysis.transition_state.combine_neb_plots">
 <code class="descname">combine_neb_plots</code><span class="sig-paren">(</span><em>neb_analyses</em>, <em>arranged_neb_analyses=False</em>, <em>reverse_plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/transition_state.html#combine_neb_plots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.combine_neb_plots" title="Permalink to this definition">¶</a></dt>
 <dd><p>neb_analyses: a list of NEBAnalysis objects</p>
-<p>arranged_neb_analyses: need to manually arrange neb_analyses to get the
-combined-barrier plot corresponding to the percolation path if the code
-gives a warning, which is due to similar structures of terminal relaxations.
-Or only the barrier value is correct!
-E.g., if there are two NEBAnalysis objects to combine, arrange in such a way
-that the end-point energy of the first NEBAnalysis object is the start-point
-energy of the second NEBAnalysis object.</p>
-<p>reverse_plot: reverse the plot or percolation direction.</p>
+<p>arranged_neb_analyses: The code connects two end points with the
+smallest-energy difference. If all end points have very close energies, it’s
+likely to result in an inaccurate connection. Manually arrange neb_analyses
+if the combined plot is not as expected compared with all individual plots.
+E.g., if there are two NEBAnalysis objects to combine, arrange in such a
+way that the end-point energy of the first NEBAnalysis object is the
+start-point energy of the second NEBAnalysis object.
+Note that the barrier labeled in y-axis in the combined plot might be
+different from that in the individual plot due to the reference energy used.
+reverse_plot: reverse the plot or percolation direction.
+return: a NEBAnalysis object</p>
 </dd></dl>
 
 </div>
@@ -277,13 +280,13 @@ energy of the second NEBAnalysis object.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

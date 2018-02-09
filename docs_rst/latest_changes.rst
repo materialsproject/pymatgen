@@ -1,7 +1,8 @@
 Change log
 ==========
 
-v2017.12.16
------------
-* Add optical absorption coefficient method
-* Improve plot_element_profile
+v2018.1.29
+----------
+* Improvements to local_env (Nils)
+* Term symbols for Element (Weike Ye).
+* Timeout for enumlib (Horton).

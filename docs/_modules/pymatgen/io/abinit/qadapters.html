@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.qadapters &#8212; pymatgen 2017.12.16 documentation</title>
+    <title>pymatgen.io.abinit.qadapters &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.16',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -129,11 +129,31 @@
 <span class="sd">    different syntax and options supported by the different mpirunners.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): Name of the mpirunner e.g. mpirun, mpiexec, srun ...</span>
+<span class="sd">            type: Type of the mpirunner (not used at present)</span>
+<span class="sd">            options (str): String with options passed to the mpi runner e.g. &quot;--bind-to None&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">string_to_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qad</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exec_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build and return a string with the command required to launch `executable` with the qadapter `qad`.</span>
+
+<span class="sd">        Args</span>
+<span class="sd">            qad: Qadapter instance.</span>
+<span class="sd">            executable (str): Executable name or path</span>
+<span class="sd">            stdin (str): Name of the file to be used as standard input. None means no redirection.</span>
+<span class="sd">            stdout (str): Name of the file to be used as standard output. None means no redirection.</span>
+<span class="sd">            stderr (str): Name of the file to be used as standard error. None means no redirection.</span>
+<span class="sd">            exec_args: Optional list of strings with options passed to `executable`.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            String with command to execute.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">stdin</span> <span class="o">=</span> <span class="s2">&quot;&lt; &quot;</span> <span class="o">+</span> <span class="n">stdin</span> <span class="k">if</span> <span class="n">stdin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">stdout</span> <span class="o">=</span> <span class="s2">&quot;&gt; &quot;</span> <span class="o">+</span> <span class="n">stdout</span> <span class="k">if</span> <span class="n">stdout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">stderr</span> <span class="o">=</span> <span class="s2">&quot;2&gt; &quot;</span> <span class="o">+</span> <span class="n">stderr</span> <span class="k">if</span> <span class="n">stderr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
@@ -144,9 +164,9 @@
         <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">basename</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mpirun&quot;</span><span class="p">,</span> <span class="s2">&quot;mpiexec&quot;</span><span class="p">,</span> <span class="s2">&quot;srun&quot;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1">#$MPIRUN -n $MPI_PROCS $EXECUTABLE &lt; $STDIN &gt; $STDOUT 2&gt; $STDERR</span>
+                <span class="c1"># $MPIRUN -n $MPI_PROCS $EXECUTABLE &lt; $STDIN &gt; $STDOUT 2&gt; $STDERR</span>
                 <span class="n">num_opt</span> <span class="o">=</span> <span class="s2">&quot;-n &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">qad</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">)</span>
-                <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">num_opt</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">])</span>
+                <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">num_opt</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;type </span><span class="si">%s</span><span class="s2"> is not supported!&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
@@ -157,7 +177,7 @@
             <span class="n">bg_size</span><span class="p">,</span> <span class="n">rpn</span> <span class="o">=</span> <span class="n">qad</span><span class="o">.</span><span class="n">bgsize_rankspernode</span><span class="p">()</span>
             <span class="c1">#num_opt = &quot;-n &quot; + str(qad.mpi_procs)</span>
             <span class="n">num_opt</span> <span class="o">=</span> <span class="s2">&quot;--ranks-per-node &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rpn</span><span class="p">)</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">num_opt</span><span class="p">,</span> <span class="s2">&quot;--exp-env OMP_NUM_THREADS&quot;</span><span class="p">,</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">num_opt</span><span class="p">,</span> <span class="s2">&quot;--exp-env OMP_NUM_THREADS&quot;</span><span class="p">,</span>
                            <span class="s2">&quot;--exe `which &quot;</span> <span class="o">+</span> <span class="n">executable</span> <span class="o">+</span> <span class="s2">&quot;` &quot;</span><span class="p">,</span> <span class="n">stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">qad</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -169,7 +189,7 @@
     <span class="c1">#@property</span>
     <span class="c1">#def has_mpirun(self):</span>
     <span class="c1">#    &quot;&quot;&quot;True if we are running via mpirun, mpiexec ...&quot;&quot;&quot;</span>
-    <span class="c1">#    return self.name in (&quot;mpirun&quot;, &quot;mpiexec&quot;)</span>
+    <span class="c1">#    return self.name in (&quot;mpirun&quot;, &quot;mpiexec&quot;, &quot;srun&quot;, &quot;runjob&quot;)</span>
 
 
 <span class="k">class</span> <span class="nc">OmpEnv</span><span class="p">(</span><span class="n">AttrDict</span><span class="p">):</span>
@@ -426,57 +446,59 @@
 
 <span class="s2"># Dictionary with the options used to prepare the enviroment before submitting the job</span>
 <span class="s2">job:</span>
-<span class="s2">    setup:            # List of commands (strings) executed before running (DEFAULT: empty)</span>
-<span class="s2">    omp_env:          # Dictionary with OpenMP environment variables (DEFAULT: empty i.e. no OpenMP)</span>
-<span class="s2">    modules:          # List of modules to be imported before running the code (DEFAULT: empty).</span>
-<span class="s2">                      # NB: Error messages produced by module load are redirected to mods.err</span>
-<span class="s2">    shell_env:        # Dictionary with shell environment variables.</span>
-<span class="s2">    mpi_runner:       # MPI runner. Possible values in [&quot;mpirun&quot;, &quot;mpiexec&quot;, &quot;srun&quot;, None]</span>
-<span class="s2">                      # DEFAULT: None i.e. no mpirunner is used.</span>
-<span class="s2">    shell_runner:     # Used for running small sequential jobs on the front-end. Set it to None</span>
-<span class="s2">                      # if mpirun or mpiexec are not available on the fron-end. If not</span>
-<span class="s2">                      # given, small sequential jobs are executed with `mpi_runner`.</span>
-<span class="s2">    pre_run:          # List of commands (strings) executed before the run (DEFAULT: empty)</span>
-<span class="s2">    post_run:         # List of commands (strings) executed after the run (DEFAULT: empty)</span>
+<span class="s2">    setup:                # List of commands (strings) executed before running (DEFAULT: empty)</span>
+<span class="s2">    omp_env:              # Dictionary with OpenMP environment variables (DEFAULT: empty i.e. no OpenMP)</span>
+<span class="s2">    modules:              # List of modules to be imported before running the code (DEFAULT: empty).</span>
+<span class="s2">                          # NB: Error messages produced by module load are redirected to mods.err</span>
+<span class="s2">    shell_env:            # Dictionary with shell environment variables.</span>
+<span class="s2">    mpi_runner:           # MPI runner. Possible values in [&quot;mpirun&quot;, &quot;mpiexec&quot;, &quot;srun&quot;, None]</span>
+<span class="s2">                          # DEFAULT: None i.e. no mpirunner is used.</span>
+<span class="s2">    mpi_runner_options    # String with optional options passed to the `mpi_runner` e.g. &quot;--bind-to None&quot;</span>
+<span class="s2">    shell_runner:         # Used for running small sequential jobs on the front-end. Set it to None</span>
+<span class="s2">                          # if mpirun or mpiexec are not available on the fron-end. If not</span>
+<span class="s2">                          # given, small sequential jobs are executed with `mpi_runner`.</span>
+<span class="s2">    shell_runner_options  # Similar to mpi_runner_options but for the runner used on the front-end.</span>
+<span class="s2">    pre_run:              # List of commands (strings) executed before the run (DEFAULT: empty)</span>
+<span class="s2">    post_run:             # List of commands (strings) executed after the run (DEFAULT: empty)</span>
 
 <span class="s2"># dictionary with the name of the queue and optional parameters</span>
 <span class="s2"># used to build/customize the header of the submission script.</span>
 <span class="s2">queue:</span>
-<span class="s2">    qtype:            # String defining the qapapter type e.g. slurm, shell ...</span>
-<span class="s2">    qname:            # Name of the submission queue (string, MANDATORY)</span>
-<span class="s2">    qparams:          # Dictionary with values used to generate the header of the job script</span>
-<span class="s2">                      # We use the *normalized* version of the options i.e dashes in the official name</span>
-<span class="s2">                      # are replaced by underscores e.g. ``--mail-type`` becomes ``mail_type``</span>
-<span class="s2">                      # See pymatgen.io.abinit.qadapters.py for the list of supported values.</span>
-<span class="s2">                      # Use ``qverbatim`` to pass additional options that are not included in the template.</span>
+<span class="s2">    qtype:                # String defining the qapapter type e.g. slurm, shell ...</span>
+<span class="s2">    qname:                # Name of the submission queue (string, MANDATORY)</span>
+<span class="s2">    qparams:              # Dictionary with values used to generate the header of the job script</span>
+<span class="s2">                          # We use the *normalized* version of the options i.e dashes in the official name</span>
+<span class="s2">                          # are replaced by underscores e.g. ``--mail-type`` becomes ``mail_type``</span>
+<span class="s2">                          # See pymatgen.io.abinit.qadapters.py for the list of supported values.</span>
+<span class="s2">                          # Use ``qverbatim`` to pass additional options that are not included in the template.</span>
 
 <span class="s2"># dictionary with the constraints that must be fulfilled in order to run on this queue.</span>
 <span class="s2">limits:</span>
-<span class="s2">    min_cores:         # Minimum number of cores (integer, DEFAULT: 1)</span>
-<span class="s2">    max_cores:         # Maximum number of cores (integer, MANDATORY). Hard limit to hint_cores:</span>
-<span class="s2">                       # it&#39;s the limit beyond which the scheduler will not accept the job (MANDATORY).</span>
-<span class="s2">    hint_cores:        # The limit used in the initial setup of jobs.</span>
-<span class="s2">                       # Fix_Critical method may increase this number until max_cores is reached</span>
-<span class="s2">    min_mem_per_proc:  # Minimum memory per MPI process in Mb, units can be specified e.g. 1.4 Gb</span>
-<span class="s2">                       # (DEFAULT: hardware.mem_per_core)</span>
-<span class="s2">    max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`</span>
-<span class="s2">                       # (DEFAULT: hardware.mem_per_node)</span>
-<span class="s2">    timelimit:         # Initial time-limit. Accepts time according to slurm-syntax i.e:</span>
-<span class="s2">                       # &quot;days-hours&quot; or &quot;days-hours:minutes&quot; or &quot;days-hours:minutes:seconds&quot; or</span>
-<span class="s2">                       # &quot;minutes&quot; or &quot;minutes:seconds&quot; or &quot;hours:minutes:seconds&quot;,</span>
-<span class="s2">    timelimit_hard:    # The hard time-limit for this queue. Same format as timelimit.</span>
-<span class="s2">                       # Error handlers could try to submit jobs with increased timelimit</span>
-<span class="s2">                       # up to timelimit_hard. If not specified, timelimit_hard == timelimit</span>
-<span class="s2">    condition:         # MongoDB-like condition (DEFAULT: empty, i.e. not used)</span>
-<span class="s2">    allocation:        # String defining the policy used to select the optimal number of CPUs.</span>
-<span class="s2">                       # possible values are in [&quot;nodes&quot;, &quot;force_nodes&quot;, &quot;shared&quot;]</span>
-<span class="s2">                       # &quot;nodes&quot; means that we should try to allocate entire nodes if possible.</span>
-<span class="s2">                       # This is a soft limit, in the sense that the qadapter may use a configuration</span>
-<span class="s2">                       # that does not fulfill this requirement. In case of failure, it will try to use the</span>
-<span class="s2">                       # smallest number of nodes compatible with the optimal configuration.</span>
-<span class="s2">                       # Use `force_nodes` to enfore entire nodes allocation.</span>
-<span class="s2">                       # `shared` mode does not enforce any constraint (DEFAULT: shared).</span>
-<span class="s2">    max_num_launches:  # Limit to the number of times a specific task can be restarted (integer, DEFAULT: 5)</span>
+<span class="s2">    min_cores:             # Minimum number of cores (integer, DEFAULT: 1)</span>
+<span class="s2">    max_cores:             # Maximum number of cores (integer, MANDATORY). Hard limit to hint_cores:</span>
+<span class="s2">                           # it&#39;s the limit beyond which the scheduler will not accept the job (MANDATORY).</span>
+<span class="s2">    hint_cores:            # The limit used in the initial setup of jobs.</span>
+<span class="s2">                           # Fix_Critical method may increase this number until max_cores is reached</span>
+<span class="s2">    min_mem_per_proc:      # Minimum memory per MPI process in Mb, units can be specified e.g. 1.4 Gb</span>
+<span class="s2">                           # (DEFAULT: hardware.mem_per_core)</span>
+<span class="s2">    max_mem_per_proc:      # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`</span>
+<span class="s2">                           # (DEFAULT: hardware.mem_per_node)</span>
+<span class="s2">    timelimit:             # Initial time-limit. Accepts time according to slurm-syntax i.e:</span>
+<span class="s2">                           # &quot;days-hours&quot; or &quot;days-hours:minutes&quot; or &quot;days-hours:minutes:seconds&quot; or</span>
+<span class="s2">                           # &quot;minutes&quot; or &quot;minutes:seconds&quot; or &quot;hours:minutes:seconds&quot;,</span>
+<span class="s2">    timelimit_hard:        # The hard time-limit for this queue. Same format as timelimit.</span>
+<span class="s2">                           # Error handlers could try to submit jobs with increased timelimit</span>
+<span class="s2">                           # up to timelimit_hard. If not specified, timelimit_hard == timelimit</span>
+<span class="s2">    condition:             # MongoDB-like condition (DEFAULT: empty, i.e. not used)</span>
+<span class="s2">    allocation:            # String defining the policy used to select the optimal number of CPUs.</span>
+<span class="s2">                           # possible values are in [&quot;nodes&quot;, &quot;force_nodes&quot;, &quot;shared&quot;]</span>
+<span class="s2">                           # &quot;nodes&quot; means that we should try to allocate entire nodes if possible.</span>
+<span class="s2">                           # This is a soft limit, in the sense that the qadapter may use a configuration</span>
+<span class="s2">                           # that does not fulfill this requirement. In case of failure, it will try to use the</span>
+<span class="s2">                           # smallest number of nodes compatible with the optimal configuration.</span>
+<span class="s2">                           # Use `force_nodes` to enfore entire nodes allocation.</span>
+<span class="s2">                           # `shared` mode does not enforce any constraint (DEFAULT: shared).</span>
+<span class="s2">    max_num_launches:      # Limit to the number of times a specific task can be restarted (integer, DEFAULT: 5)</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -491,10 +513,11 @@
 <span class="sd">            pre_run: String or list of commands to execute before launching the calculation.</span>
 <span class="sd">            post_run: String or list of commands to execute once the calculation is completed.</span>
 <span class="sd">            mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used</span>
+<span class="sd">            mpi_runner_options: Optional string with options passed to the mpi_runner.</span>
 <span class="sd">            max_num_launches: Maximum number of submissions that can be done for a specific task. Defaults to 5</span>
 <span class="sd">            qverbatim:</span>
 <span class="sd">            min_cores, max_cores, hint_cores: Minimum, maximum, and hint limits of number of cores that can be used</span>
-<span class="sd">            min_mem_per_proc=Minimun memory per process in megabytes.</span>
+<span class="sd">            min_mem_per_proc=Minimum memory per process in megabytes.</span>
 <span class="sd">            max_mem_per_proc=Maximum memory per process in megabytes.</span>
 <span class="sd">            timelimit: initial time limit in seconds</span>
 <span class="sd">            timelimit_hard: hard limelimit for this queue</span>
@@ -655,13 +678,15 @@
         <span class="n">shell_env</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;shell_env&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shell_env</span> <span class="o">=</span> <span class="n">shell_env</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">shell_env</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
 
+        <span class="n">mpi_options</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;mpi_runner_options&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mpi_runner</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;mpi_runner&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_runner</span><span class="p">,</span> <span class="n">MpiRunner</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mpi_runner</span> <span class="o">=</span> <span class="n">MpiRunner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_runner</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpi_runner</span> <span class="o">=</span> <span class="n">MpiRunner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_runner</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">mpi_options</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">shell_runner</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;shell_runner&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">shell_runner_options</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;shell_runner_options&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shell_runner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shell_runner</span> <span class="o">=</span> <span class="n">MpiRunner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shell_runner</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shell_runner</span> <span class="o">=</span> <span class="n">MpiRunner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shell_runner</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">shell_runner_options</span><span class="p">)</span>
 
         <span class="n">pre_run</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;pre_run&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">pre_run</span><span class="p">):</span> <span class="n">pre_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">pre_run</span><span class="p">]</span>
@@ -978,7 +1003,7 @@
 <span class="sd">        This method is called in get_subs_dict. Return a dict with parameters to be added to qparams</span>
 <span class="sd">        Subclasses may provide a specialized version.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;optimize_params of baseclass --&gt; no optimization available!!!&quot;</span><span class="p">)</span>
+        <span class="c1">#logger.debug(&quot;optimize_params of baseclass --&gt; no optimization available!!!&quot;)</span>
         <span class="k">return</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">get_subs_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1355,7 +1380,12 @@
 
     <span class="k">def</span> <span class="nf">_submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Submit a job script to the queue.&quot;&quot;&quot;</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;sbatch&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;sbatch&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need string not bytes so must use universal_newlines</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;sbatch&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
         <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
 
         <span class="c1"># grab the returncode. SLURM returns 0 if the job was successful</span>
@@ -1386,9 +1416,14 @@
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s1">&#39;qadapter failed to exclude nodes&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_njobs_in_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;squeue&#39;</span><span class="p">,</span> <span class="s1">&#39;-o &quot;</span><span class="si">%u</span><span class="s1">&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;squeue&#39;</span><span class="p">,</span> <span class="s1">&#39;-o &quot;</span><span class="si">%u</span><span class="s1">&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need string not bytes so must use universal_newlines</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;squeue&#39;</span><span class="p">,</span> <span class="s1">&#39;-o &quot;</span><span class="si">%u</span><span class="s1">&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span>
+                            <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="n">njobs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># parse the result. lines should have this form:</span>
@@ -1708,9 +1743,13 @@
 
     <span class="k">def</span> <span class="nf">_submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Submit a job script to the queue.&quot;&quot;&quot;</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need string not bytes so must use universal_newlines</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="c1"># grab the return code. PBS returns 0 if the job was successful</span>
         <span class="n">queue_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1723,9 +1762,13 @@
         <span class="k">return</span> <span class="n">SubmitResults</span><span class="p">(</span><span class="n">qid</span><span class="o">=</span><span class="n">queue_id</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">err</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_njobs_in_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qstat&#39;</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qstat&#39;</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need string not bytes so must use universal_newlines</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qstat&#39;</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="n">njobs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># parse the result</span>
@@ -1850,9 +1893,13 @@
 
     <span class="k">def</span> <span class="nf">_submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Submit a job script to the queue.&quot;&quot;&quot;</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need string not bytes so must use universal_newlines</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="c1"># grab the returncode. SGE returns 0 if the job was successful</span>
         <span class="n">queue_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1870,9 +1917,13 @@
         <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s1">&#39;qadapter failed to exclude nodes, not implemented yet in sge&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_njobs_in_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qstat&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qstat&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need string not bytes so must use universal_newlines</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;qstat&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="n">njobs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># parse the result</span>
@@ -1937,9 +1988,13 @@
 
     <span class="k">def</span> <span class="nf">_submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Submit a job script to the queue.&quot;&quot;&quot;</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;msub&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;msub&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need string not bytes so must use universal_newlines</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;msub&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="n">queue_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># grab the returncode. MOAB returns 0 if the job was successful</span>
@@ -1953,9 +2008,13 @@
         <span class="k">return</span> <span class="n">SubmitResults</span><span class="p">(</span><span class="n">qid</span><span class="o">=</span><span class="n">queue_id</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">err</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_njobs_in_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;showq&#39;</span><span class="p">,</span> <span class="s1">&#39;-s -u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;showq&#39;</span><span class="p">,</span> <span class="s1">&#39;-s -u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need string not bytes so must use universal_newlines</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;showq&#39;</span><span class="p">,</span> <span class="s1">&#39;-s -u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="n">njobs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># parse the result</span>
@@ -2046,9 +2105,13 @@
 
     <span class="k">def</span> <span class="nf">_submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Submit a job script to the queue.&quot;&quot;&quot;</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;llsubmit&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;llsubmit&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need string not bytes so must use universal_newlines</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;llsubmit&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="c1"># grab the return code. llsubmit returns 0 if the job was successful</span>
         <span class="n">queue_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2066,9 +2129,13 @@
         <span class="k">return</span> <span class="n">SubmitResults</span><span class="p">(</span><span class="n">qid</span><span class="o">=</span><span class="n">queue_id</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">err</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_njobs_in_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;llq&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;llq&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need string not bytes so must use universal_newlines</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;llq&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="n">njobs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># parse the result. lines should have this form:</span>
@@ -2116,7 +2183,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2124,7 +2191,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

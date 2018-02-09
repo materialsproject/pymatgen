@@ -163,7 +163,7 @@ class LammpsData(MSONable):
 
         """
         masses = self.masses
-        atoms = self.atoms
+        atoms = self.atoms.copy()
         atoms["molecule-ID"] = 1
         box_bounds = np.array(self.box_bounds)
         box_tilt = self.box_tilt if self.box_tilt else [0.0] * 3
