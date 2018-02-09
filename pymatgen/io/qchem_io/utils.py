@@ -7,7 +7,7 @@ from monty.json import MSONable
 from monty.re import regrep
 from collections import defaultdict
 
-def new_read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
+def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
 
     compiled = {key: re.compile(pattern, re.MULTILINE | re.DOTALL) for key, pattern in patterns.items()}
     matches = defaultdict(list)
@@ -18,7 +18,7 @@ def new_read_pattern(text_str, patterns, terminate_on_match=False, postprocess=s
                 break
     return matches
 
-def new_read_table_pattern(text_str,
+def read_table_pattern(text_str,
                        header_pattern,
                        row_pattern,
                        footer_pattern,
