@@ -29,6 +29,9 @@
     - "tri_plan_max"
   "trigonal non-coplanar":
     - "tet_max"
+    -
+      "TA": 0.6081734479693927
+      "IGW_TA": 18.33
   "T-shaped":
     - "T"
 4:
