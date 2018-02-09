@@ -20,10 +20,11 @@ __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 
 
-test_dir = os.path.join(os.path.dirname(__file__), "..","..", "..", "..",
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "molecules")
 
-property_list = {'GEN_SCFMAN','SCF','restricted_Mulliken','unrestricted_Mulliken','optimized_geometry','optimized_zmat','unrestricted','completion','using_GEN_SCFMAN','final_energy','optimization','energy_trajectory','frequency_job','frequencies','enthalpy','entropy'}
+property_list = {'GEN_SCFMAN', 'SCF', 'restricted_Mulliken', 'unrestricted_Mulliken', 'optimized_geometry', 'optimized_zmat', 'unrestricted',
+                 'completion', 'using_GEN_SCFMAN', 'final_energy', 'optimization', 'energy_trajectory', 'frequency_job', 'frequencies', 'enthalpy', 'entropy'}
 
 single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "thiophene_wfs_5_carboxyl.qcout",
@@ -64,8 +65,8 @@ single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "new_qchem_files/pt_n2_trip_wb_90.0.qcout",
                         "new_qchem_files/pt_n2_gs_rimp2_pvqz_90.0.qcout",
                         "new_qchem_files/VC_solv_eps10.2.qcout",
-                        "crazy_scf_values.qcout",                   
-                        "new_qchem_files/N2.qcout", 
+                        "crazy_scf_values.qcout",
+                        "new_qchem_files/N2.qcout",
                         "new_qchem_files/julian.qcout"}
 
 multi_job_out_names = {"not_enough_total_memory.qcout",
@@ -82,34 +83,34 @@ multi_job_out_names = {"not_enough_total_memory.qcout",
 
 class TestQCOutput(PymatgenTest):
 
-  def generate_single_job_dict(self):
-    single_job_dict = {}
-    for file in single_job_out_names:
-      single_job_dict[file]=QCOutput(os.path.join(test_dir,file)).data
-    print(single_job_dict)
+    def generate_single_job_dict(self):
+        single_job_dict = {}
+        for file in single_job_out_names:
+            single_job_dict[file] = QCOutput(os.path.join(test_dir, file)).data
+        print(single_job_dict)
 
-  def generate_multi_job_dict(self):
-    multi_job_dict = {}
-    for file in multi_job_out_names:
-      temp = QCOutput.multiple_outputs_from_file(QCOutput,os.path.join(test_dir,file),keep_sub_files=False)
-      data = []
-      for ii in range(len(temp)):
-        data.append(temp[ii].data)
-      multi_job_dict[file] = data
-    print(multi_job_dict)
+    def generate_multi_job_dict(self):
+        multi_job_dict = {}
+        for file in multi_job_out_names:
+            temp = QCOutput.multiple_outputs_from_file(QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
+            data = []
+            for ii in range(len(temp)):
+                data.append(temp[ii].data)
+            multi_job_dict[file] = data
+        print(multi_job_dict)
 
-  def _test_property(self, key):
-    for file in single_job_out_names:
-      self.assertEqual(QCOutput(os.path.join(test_dir,file)).data.get(key),single_job_dict[file].get(key))
-    for file in multi_job_out_names:
-      temp = QCOutput.multiple_outputs_from_file(QCOutput,os.path.join(test_dir,file),keep_sub_files=False)
-      for ii in range(len(temp)):
-        self.assertEqual(temp[ii].data.get(key),multi_job_dict[file][ii].get(key))
+    def _test_property(self, key):
+        for file in single_job_out_names:
+            self.assertEqual(QCOutput(os.path.join(test_dir, file)).data.get(key), single_job_dict[file].get(key))
+        for file in multi_job_out_names:
+            temp = QCOutput.multiple_outputs_from_file(QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
+            for ii in range(len(temp)):
+                self.assertEqual(temp[ii].data.get(key), multi_job_dict[file][ii].get(key))
 
-  def test_all(self):
-    for key in property_list:
-      print('Testing ',key)
-      self._test_property(key)
+    def test_all(self):
+        for key in property_list:
+            print('Testing ', key)
+            self._test_property(key)
 
 if __name__ == "__main__":
     unittest.main()
