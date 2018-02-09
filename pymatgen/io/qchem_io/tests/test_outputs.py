@@ -11,7 +11,7 @@ import os
 import unittest
 
 import sys
-from monty.serialization import loadfn
+from monty.serialization import loadfn, dumpfn
 from pymatgen import Molecule
 from pymatgen.io.qchem_io.outputs import QCOutput
 from pymatgen.util.testing import PymatgenTest
@@ -85,13 +85,21 @@ multi_job_out_names = {"not_enough_total_memory.qcout",
 
 class TestQCOutput(PymatgenTest):
 
-    def generate_single_job_dict(self):
+    @staticmethod
+    def generate_single_job_dict():
+        """
+        Used to generate test dictionary for single jobs 
+        """
         single_job_dict = {}
         for file in single_job_out_names:
             single_job_dict[file] = QCOutput(os.path.join(test_dir, file)).data
-        print(single_job_dict)
+        dumpfn(single_job_dict, "single_job.json")
 
-    def generate_multi_job_dict(self):
+    @staticmethod
+    def generate_multi_job_dict():
+        """
+        Used to generate test dictionary for multiple jobs
+        """
         multi_job_dict = {}
         for file in multi_job_out_names:
             temp = QCOutput.multiple_outputs_from_file(QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
@@ -99,7 +107,7 @@ class TestQCOutput(PymatgenTest):
             for ii in range(len(temp)):
                 data.append(temp[ii].data)
             multi_job_dict[file] = data
-        print(multi_job_dict)
+        dumpfn(multi_job_dict, "multi_job.json")
 
     def _test_property(self, key):
         for file in single_job_out_names:
