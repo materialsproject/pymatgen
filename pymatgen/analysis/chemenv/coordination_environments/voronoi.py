@@ -85,19 +85,16 @@ class DetailedVoronoiContainer(MSONable):
     default_normalized_angle_tolerance = 1e-3
 
     def __init__(self, structure=None, voronoi_list=None, voronoi_list2=None,
-                 # neighbors_lists=None,
                  voronoi_cutoff=default_voronoi_cutoff, isites=None,
                  normalized_distance_tolerance=default_normalized_distance_tolerance,
                  normalized_angle_tolerance=default_normalized_angle_tolerance,
                  additional_conditions=None, valences=None,
-                 maximum_distance_factor=None, minimum_angle_factor=None,
-                 optimization=None):
+                 maximum_distance_factor=None, minimum_angle_factor=None):
         """
         Constructor for the VoronoiContainer object. Either a structure is given, in which case the Voronoi is
         computed, or the different components of the VoronoiContainer are given (used in the from_dict method)
         :param structure: Structure for which the Voronoi is computed
         :param voronoi_list: List of voronoi polyhedrons for each site
-        :param neighbors_list: list of neighbors for each site
         :param voronoi_cutoff: cutoff used for the voronoi
         :param isites: indices of sites for which the Voronoi has to be computed
         :raise: RuntimeError if the Voronoi cannot be constructed
@@ -120,14 +117,14 @@ class DetailedVoronoiContainer(MSONable):
         if voronoi_list2 is not None:
             self.voronoi_list2 = voronoi_list2
         else:
-            self.setup_voronoi_list(indices=indices, voronoi_cutoff=voronoi_cutoff, optimization=optimization)
+            self.setup_voronoi_list(indices=indices, voronoi_cutoff=voronoi_cutoff)
         logging.info('Setting neighbors distances and angles')
         t1 = time.clock()
         self.setup_neighbors_distances_and_angles(indices=indices)
         t2 = time.clock()
         logging.info('Neighbors distances and angles set up in {:.2f} seconds'.format(t2-t1))
 
-    def setup_voronoi_list(self, indices, voronoi_cutoff, optimization=2):
+    def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
         Set up of the voronoi list of neighbours by calling qhull
         :param indices: indices of the sites for which the Voronoi is needed
@@ -135,8 +132,7 @@ class DetailedVoronoiContainer(MSONable):
         :raise RuntimeError: If an infinite vertex is found in the voronoi construction
         """
         self.voronoi_list2 = [None] * len(self.structure)
-        if optimization == 2:
-            self.voronoi_list_coords = [None] * len(self.structure)
+        self.voronoi_list_coords = [None] * len(self.structure)
         logging.info('Getting all neighbors in structure')
         struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
         t1 = time.clock()
@@ -182,8 +178,7 @@ class DetailedVoronoiContainer(MSONable):
                 dd['normalized_angle'] = dd['angle'] / maxangle
                 dd['normalized_distance'] = dd['distance'] / mindist
             self.voronoi_list2[isite] = results2
-            if optimization == 2:
-                self.voronoi_list_coords[isite] = np.array([dd['site'].coords for dd in results2])
+            self.voronoi_list_coords[isite] = np.array([dd['site'].coords for dd in results2])
         t2 = time.clock()
         logging.info('Voronoi list set up in {:.2f} seconds'.format(t2-t1))
 

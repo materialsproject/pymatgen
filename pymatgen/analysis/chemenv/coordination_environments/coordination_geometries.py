@@ -277,23 +277,26 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                 "point_groups": self.point_groups,
                 "ordered_point_groups": self.ordered_point_groups,
                 "point_groups_permutations": self._point_groups_permutations,
-                "explicit_permutations": self.explicit_permutations,
-                "explicit_optimized_permutations": self.explicit_optimized_permutations,
+                "explicit_permutations": [eperm.tolist() for eperm in self.explicit_permutations]
+                if self.explicit_permutations is not None else None,
+                "explicit_optimized_permutations": [eoperm.tolist()
+                                                    for eoperm in self.explicit_optimized_permutations]
+                if self.explicit_optimized_permutations is not None else None,
                 "multiplicity": self.multiplicity,
                 "other_plane_points": self.other_plane_points,
                 "minimum_number_of_points": self.minimum_number_of_points}
 
     @classmethod
     def from_dict(cls, dd):
-        eop = dd[
-            'explicit_optimized_permutations'] if 'explicit_optimized_permutations' in dd else None
+        eop = [np.array(eoperm) for eoperm in dd[
+            'explicit_optimized_permutations']] if 'explicit_optimized_permutations' in dd else None
         return cls(plane_points=dd['plane_points'],
                    mirror_plane=dd['mirror_plane'],
                    ordered_plane=dd['ordered_plane'],
                    point_groups=dd['point_groups'],
                    ordered_point_groups=dd['ordered_point_groups'],
                    point_groups_permutations=dd['point_groups_permutations'],
-                   explicit_permutations=dd['explicit_permutations'],
+                   explicit_permutations=[np.array(eperm) for eperm in dd['explicit_permutations']],
                    explicit_optimized_permutations=eop,
                    multiplicity=dd[
                        'multiplicity'] if 'multiplicity' in dd else None,

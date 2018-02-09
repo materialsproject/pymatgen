@@ -413,18 +413,14 @@ def rotateCoords(coords, R):
     return newlist
 
 
-def matrixMultiplication(AA, BB):
+def rotateCoordsOpt(coords, R):
     """
-    Performs the multiplication of two matrix of size 3x3
-    :param AA: One matrix of size 3x3
-    :param BB: Another matrix of size 3x3
-    :return: A matrix of size 3x3
+    Rotate the list of points using rotation matrix R
+    :param coords: List of points to be rotated
+    :param R: Rotation matrix
+    :return: List of rotated points
     """
-    MM = np.zeros([3, 3], np.float)
-    for ii in range(3):
-        for jj in range(3):
-            MM[ii, jj] = np.sum(AA[ii, :] * BB[:, jj])
-    return MM
+    return [np.dot(R, pp) for pp in coords]
 
 
 def changebasis(uu, vv, nn, pps):
@@ -587,9 +583,9 @@ class Plane(object):
         else:
             dd = np.float(coefficients[3]) / normv
         self._coefficients = np.array([self.normal_vector[0],
-                                      self.normal_vector[1],
-                                      self.normal_vector[2],
-                                      dd], np.float)
+                                       self.normal_vector[1],
+                                       self.normal_vector[2],
+                                       dd], np.float)
         self._crosses_origin = np.isclose(dd, 0.0, atol=1e-7, rtol=0.0)
         self.p1 = p1
         self.p2 = p2
@@ -598,6 +594,9 @@ class Plane(object):
         if self.p1 is None:
             self.init_3points(nonzeros, zeros)
         self.vector_to_origin = dd * self.normal_vector
+        self.e1 = None
+        self.e2 = None
+        self.e3 = self.normal_vector
 
     def init_3points(self, nonzeros, zeros):
         if len(nonzeros) == 3:
@@ -765,9 +764,32 @@ class Plane(object):
         :return: List of orthogonal vectors
         :raise: ValueError if all the coefficients are zero or if there is some other strange error
         """
-        e1 = np.array((self.p2 - self.p1) / norm(self.p2 - self.p1))
-        e2 = np.cross(self.normal_vector, e1)
-        return [e1, e2, np.array(self.normal_vector)]
+        if self.e1 is None:
+            diff = self.p2 - self.p1
+            self.e1 = diff / norm(diff)
+            self.e2 = np.cross(self.e3, self.e1)
+        return [self.e1, self.e2, self.e3]
+
+    def orthonormal_vectors_old(self):
+        """
+        Returns a list of three orthogonal vectors, the two first being parallel to the plane and the
+        third one is the normal vector of the plane
+        :return: List of orthogonal vectors
+        :raise: ValueError if all the coefficients are zero or if there is some other strange error
+        """
+        if self.e1 is None:
+            imax = np.argmax(np.abs(self.normal_vector))
+            if imax == 0:
+                self.e1 = np.array([self.e3[1], -self.e3[0], 0.0]) / np.sqrt(self.e3[0] ** 2 + self.e3[1] ** 2)
+            elif imax == 1:
+                self.e1 = np.array([0.0, self.e3[2], -self.e3[1]]) / np.sqrt(self.e3[1] ** 2 + self.e3[2] ** 2)
+            elif imax == 2:
+                self.e1 = np.array([-self.e3[2], 0.0, self.e3[0]]) / np.sqrt(self.e3[0] ** 2 + self.e3[2] ** 2)
+            else:
+                raise ValueError('Only three values in the normal vector, should not be here ...')
+            self.e2 = np.cross(self.e3, self.e1)
+        return [self.e1, self.e2, self.e3]
+
 
     def project_and_to2dim_ordered_indices(self, pps, plane_center='mean'):
         """

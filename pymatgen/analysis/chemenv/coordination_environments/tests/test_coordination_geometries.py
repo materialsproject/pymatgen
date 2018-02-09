@@ -4,6 +4,7 @@
 __author__ = 'waroquiers'
 
 import unittest
+import numpy as np
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import ExplicitPermutationsAlgorithm
@@ -38,8 +39,8 @@ class CoordinationGeometriesTest(PymatgenTest):
         self.assertEqual(sepplane_algos_oct[0].ordered_plane, sepplane_algos_oct_0.ordered_plane)
         self.assertEqual(sepplane_algos_oct[0].point_groups, sepplane_algos_oct_0.point_groups)
         self.assertEqual(sepplane_algos_oct[0].ordered_point_groups, sepplane_algos_oct_0.ordered_point_groups)
-        self.assertEqual(sepplane_algos_oct[0].explicit_optimized_permutations,
-                         sepplane_algos_oct_0.explicit_optimized_permutations)
+        self.assertTrue(all([np.array_equal(perm, sepplane_algos_oct_0.explicit_optimized_permutations[iperm])
+                             for iperm, perm in enumerate(sepplane_algos_oct[0].explicit_optimized_permutations)]))
 
         self.assertEqual(sepplane_algos_oct[0].__str__(),
                          'Separation plane algorithm with the following reference separation :\n'
