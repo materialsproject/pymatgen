@@ -4,10 +4,15 @@
 
 import re
 import logging
+import os
 
 from monty.io import zopen
 from monty.json import MSONable
 from monty.re import regrep
+
+from .temp_utils import new_read_table_pattern
+from .temp_utils import new_read_pattern
+
 """
 Classes for reading/manipulating/writing QChem ouput files.
 """
@@ -19,7 +24,7 @@ __version__ = "0.1"
 logger = logging.getLogger(__name__)
 
 
-class QCCalc(MSONable):
+class QCOutput(MSONable):
     """
     Data in a single QChem Calculations
 
@@ -30,12 +35,27 @@ class QCCalc(MSONable):
     def __init__(self, filename):
         self.filename = filename
         self.data = {}
+        self.text=""
+        with zopen(filename, 'rt') as f:
+            self.text = f.read()
+
+        # Check if output file contains multiple output files. If so, print an error message and exit
+        self.data["multiple_outputs"] = new_read_pattern(self.text,{"key": r"Job\s+\d+\s+of\s+(\d+)\s+"}, terminate_on_match=True).get('key')
+        if not (self.data.get('multiple_outputs') == None or self.data.get('multiple_outputs') == [['1']]):
+            print("ERROR: multiple calculation outputs found in file "+filename+". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"+filename+"')")
+            print("Exiting...")
+            exit()
+
+        # Check if calculation finished. If not, proceed with caution
+        self.data["completion"] = new_read_pattern(self.text,{"key": r"Thank you very much for using Q-Chem.\s+Have a nice day."}).get('key')
+        # if not self.data.get('completion'):
+        #     print("WARNING: calculation did not reach successful completion")
 
         # Check if calculation is unrestricted
-        self.read_pattern({"unrestricted": r"A\sunrestricted\sSCF\scalculation\swill\sbe"}, terminate_on_match=True)
+        self.data["unrestricted"] = new_read_pattern(self.text,{"key": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"}, terminate_on_match=True).get('key')
 
         # Check if calculation uses GEN_SCFMAN
-        self.read_pattern({"using_GEN_SCFMAN": r"\s+GEN_SCFMAN: A general SCF calculation manager"}, terminate_on_match=True)
+        self.data["using_GEN_SCFMAN"] = new_read_pattern(self.text,{"key": r"\s+GEN_SCFMAN: A general SCF calculation manager"}, terminate_on_match=True).get('key')
 
         # Parse the SCF
         if self.data.get('using_GEN_SCFMAN',[]):
@@ -50,13 +70,26 @@ class QCCalc(MSONable):
             self._read_restricted_mulliken()
 
         # Parse the final energy
-        self.read_pattern({"final_energy": r"Final\senergy\sis\s+([\d\-\.]+)"})
+        self.data["final_energy"] = new_read_pattern(self.text,{"key": r"Final\senergy\sis\s+([\d\-\.]+)"}).get('key')
 
         # Parse the S2 values in the case of an unrestricted calculation
         if self.data.get('unrestricted',[]):
-            self.read_pattern({"S2": r"<S\^2>\s=\s+([\d\-\.]+)"})
+            self.data["S2"] = new_read_pattern(self.text,{"key": r"<S\^2>\s=\s+([\d\-\.]+)"}).get('key')
 
+        # Check if the calculation is a geometry optimization. If so, parse the relevant output
+        self.data["optimization"] = new_read_pattern(self.text,{"key": r"(?i)\s*job(?:_)*type\s+=\s+opt"}).get('key')
+        if self.data.get('optimization',[]):
+            self.data["energy_trajectory"] = new_read_pattern(self.text,{"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get('key')
+            self._read_optimized_geometry()
 
+        # Check if the calculation is a frequency analysis. If so, parse the relevant output
+        self.data["frequency_job"] = new_read_pattern(self.text,{"key": r"(?i)\s*job(?:_)*type\s+=\s+freq"}, terminate_on_match=True).get('key')
+        if self.data.get('frequency_job',[]):
+            temp_dict = new_read_pattern(self.text,{"frequencies": r"\s*Frequency:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
+                                                    "enthalpy": r"\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
+                                                    "entropy": r"\s*Total Entropy:\s+([\d\-\.]+)\s+cal/mol\.K"})
+            for key in temp_dict:
+                self.data[key] = temp_dict.get(key)
 
 
     @staticmethod
@@ -69,150 +102,84 @@ class QCCalc(MSONable):
                 b.) Make seperate output sub-files
             2.) Creates seperate QCCalcs for each one from the sub-files
         """
-        pass
-
+        to_return = []
+        with zopen(filename, 'rt') as f:
+            text = re.split('\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+',f.read())
+        if text[0] == '':
+            text = text[1:]
+        for ii in range(len(text)):
+            temp = open(filename+'.'+str(ii), 'w')
+            temp.write(text[ii])
+            temp.close()
+            tempOutput = cls(filename+'.'+str(ii))
+            to_return.append(tempOutput)
+            if not keep_sub_files:
+                os.remove(filename+'.'+str(ii))
+        return to_return
+        
 
     def _read_GEN_SCFMAN(self):
         """
         Parses all GEN_SCFMANs
         """
-        header_pattern = r"\s*\-+\s+Cycle\s+Energy\s+Error\s+\-+\s+\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+\-+\s+\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+\-+"
-        table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+BFGS Step)*(?:\s+LineSearch Step)*"
-        footer_pattern = r"\-+\n\sSCF\stime:\s+CPU\s[\d\-\.]+s\s+wall\s+[\d\-\.]+s"
+        header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
+        table_pattern = r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Descent step)*" 
+        footer_pattern = r"^\s*\-+\n"
 
-        self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="GEN_SCFMAN")
-        return self.data["GEN_SCFMAN"]
+        self.data["GEN_SCFMAN"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
 
     def _read_SCF(self):
         """
-        Parses all old-style SCFs
+        Parses all old-style SCFs. Starts by checking if the SCF failed to converge and setting the footer accordingly.
         """
-        header_pattern = r"\-+\s+Cycle\s+Energy\s+DIIS Error\s+\-+"
-        table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.]+)(?:\sConvergence criterion met)*"
-        footer_pattern = r"\-+\n\sSCF\stime:\s+CPU [\d\-\.]+ s\s+wall\s+[\d\-\.]+ s"
-
-        self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="SCF")
-        return self.data["SCF"]
+        self.data["SCF_failed_to_converge"] = new_read_pattern(self.text,{"key": r"SCF failed to converge"}, terminate_on_match=True).get('key')
+        if self.data.get("SCF_failed_to_converge",[]):
+            footer_pattern = r"^\s*\d+\s*[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
+        else:
+            footer_pattern = r"^\s*\-+\n"
+        header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+DIIS Error\s+\-+\n"
+        table_pattern = r"\s*\d+\s*([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.\+]+)(?:\s*\n\s*cpu\s+[\d\-\.]+\swall\s+[\d\-\.]+)*(?:\nin dftxc\.C, eleTot sum is:[\d\-\.]+, tauTot is\:[\d\-\.]+)*(?:\s+Convergence criterion met)*(?:\s+Done RCA\. Switching to DIIS)*(?:\n\s*Warning: not using a symmetric Q)*(?:\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+(?:\s*\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+)*)*"
+        
+        self.data["SCF"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
 
     def _read_restricted_mulliken(self):
         """
         Parses Mulliken charges given a restricted SCF.
         """
-        header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a.u.\)\s+\-+"
+        header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+\-+"
         table_pattern = r"\s+\d+\s(\w+)\s+([\d\-\.]+)"
         footer_pattern = r"\s\s\-+\s+Sum of atomic charges"
 
-        self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="restricted_Mulliken")
-        return self.data["restricted_Mulliken"]
+        self.data["restricted_Mulliken"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
 
     def _read_unrestricted_mulliken(self):
         """
         Parses Mulliken charges and spins given an unrestricted SCF. 
         """
-        header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a.u.\)\s+Spin\s\(a.u.\)\s+\-+"
+        header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+Spin\s\(a\.u\.\)\s+\-+"
         table_pattern = r"\s+\d+\s(\w+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer_pattern = r"\s\s\-+\s+Sum of atomic charges"
 
-        self.read_table_pattern(header_pattern,table_pattern,footer_pattern,attribute_name="unrestricted_Mulliken")
-        return self.data["unrestricted_Mulliken"]
+        self.data["unrestricted_Mulliken"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
 
-    def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
+    def _read_optimized_geometry(self):
         """
-        General pattern reading. Uses monty's regrep method. Takes the same
-        arguments.
-
-        Args:
-            patterns (dict): A dict of patterns, e.g.,
-                {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
-            reverse (bool): Read files in reverse. Defaults to false. Useful for
-                large files, esp OUTCARs, especially when used with
-                terminate_on_match.
-            terminate_on_match (bool): Whether to terminate when there is at
-                least one match in each key in pattern.
-            postprocess (callable): A post processing function to convert all
-                matches. Defaults to str, i.e., no change.
-
-        Renders accessible:
-            Any attribute in patterns. For example,
-            {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"} will set the
-            value of self.data["energy"] = [[-1234], [-3453], ...], to the
-            results from regex and postprocess. Note that the returned values
-            are lists of lists, because you can grep multiple items on one line.
+        Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
         """
-        matches = regrep(self.filename, patterns, reverse=reverse, terminate_on_match=terminate_on_match, postprocess=postprocess)
-        # print matches
-        for k in patterns.keys():
-            self.data[k] = [i[0] for i in matches.get(k, [])]
+        header_pattern = r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+        table_pattern = r"\s+\d+\s+(\w+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+        footer_pattern = r"\s+Z-matrix Print:"
 
+        self.data["optimized_geometry"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
-    def read_table_pattern(self,
-                           header_pattern,
-                           row_pattern,
-                           footer_pattern,
-                           postprocess=str,
-                           attribute_name=None,
-                           last_one_only=False):
-        """
-        Parse table-like data. A table composes of three parts: header,
-        main body, footer. All the data matches "row pattern" in the main body
-        will be returned.
+        if self.data.get('optimized_geometry') == []:
+            header_pattern = r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
+            table_pattern = r"\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*"
+            footer_pattern = r"^\$end\n"
 
-        Args:
-            header_pattern (str): The regular expression pattern matches the
-                table header. This pattern should match all the text
-                immediately before the main body of the table. For multiple
-                sections table match the text until the section of
-                interest. MULTILINE and DOTALL options are enforced, as a
-                result, the "." meta-character will also match "\n" in this
-                section.
-            row_pattern (str): The regular expression matches a single line in
-                the table. Capture interested field using regular expression
-                groups.
-            footer_pattern (str): The regular expression matches the end of the
-                table. E.g. a long dash line.
-            postprocess (callable): A post processing function to convert all
-                matches. Defaults to str, i.e., no change.
-            attribute_name (str): Name of this table. If present the parsed data
-                will be attached to "data. e.g. self.data["efg"] = [...]
-            last_one_only (bool): All the tables will be parsed, if this option
-                is set to True, only the last table will be returned. The
-                enclosing list will be removed. i.e. Only a single table will
-                be returned. Default to be True.
+            self.data["optimized_zmat"] = new_read_table_pattern(self.text,header_pattern,table_pattern,footer_pattern)
 
-        Returns:
-            List of tables. 1) A table is a list of rows. 2) A row if either a list of
-            attribute values in case the the capturing group is defined without name in
-            row_pattern, or a dict in case that named capturing groups are defined by
-            row_pattern.
-        """
-        with zopen(self.filename, 'rt') as f:
-            text = f.read()
-
-        table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
-        table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
-        rp = re.compile(row_pattern)
-        tables = []
-        for mt in table_pattern.finditer(text):
-            table_body_text = mt.group("table_body")
-            table_contents = []
-            for line in table_body_text.split("\n"):
-                # print line
-                ml = rp.search(line)
-                d = ml.groupdict()
-                if len(d) > 0:
-                    processed_line = {k: postprocess(v) for k, v in d.items()}
-                else:
-                    processed_line = [postprocess(v) for v in ml.groups()]
-                table_contents.append(processed_line)
-            tables.append(table_contents)
-        if last_one_only:
-            retained_data = tables[-1]
-        else:
-            retained_data = tables
-        if attribute_name is not None:
-            self.data[attribute_name] = retained_data
-        return retained_data
