@@ -7,7 +7,27 @@ from monty.json import MSONable
 from monty.re import regrep
 from collections import defaultdict
 
+
 def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
+    """
+        General pattern reading on an input string
+
+        Args:
+            text_str (str): the input string to search for patterns
+            patterns (dict): A dict of patterns, e.g.,
+                {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
+            terminate_on_match (bool): Whether to terminate when there is at
+                least one match in each key in pattern.
+            postprocess (callable): A post processing function to convert all
+                matches. Defaults to str, i.e., no change.
+
+        Renders accessible:
+            Any attribute in patterns. For example,
+            {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"} will set the
+            value of matches["energy"] = [[-1234], [-3453], ...], to the
+            results from regex and postprocess. Note that the returned values
+            are lists of lists, because you can grep multiple items on one line.
+    """
 
     compiled = {key: re.compile(pattern, re.MULTILINE | re.DOTALL) for key, pattern in patterns.items()}
     matches = defaultdict(list)
@@ -17,6 +37,7 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
             if terminate_on_match:
                 break
     return matches
+
 
 def read_table_pattern(text_str,
                        header_pattern,
@@ -31,6 +52,7 @@ def read_table_pattern(text_str,
     will be returned.
 
     Args:
+        text_str (str): the input string to search for patterns
         header_pattern (str): The regular expression pattern matches the
             table header. This pattern should match all the text
             immediately before the main body of the table. For multiple
