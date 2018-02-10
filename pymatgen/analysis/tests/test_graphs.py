@@ -110,11 +110,11 @@ class StructureGraphTest(unittest.TestCase):
         sg = StructureGraph.with_empty_graph(self.structure)
         sg.add_edge(0, 0)
 
-        ref_edges = [(0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (-1, -1, 0)}),
-                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (-1, 0, 0)}),
-                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (0, -1, 0)}),
-                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (0, 0, 0)}),
-                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (1, 0, 0)})]
+        ref_edges = [(0, 0, {'to_jimage': (-1, -1, 0)}),
+                     (0, 0, {'to_jimage': (-1, 0, 0)}),
+                     (0, 0, {'to_jimage': (0, -1, 0)}),
+                     (0, 0, {'to_jimage': (0, 0, 0)}),
+                     (0, 0, {'to_jimage': (1, 0, 0)})]
 
         self.assertEqual(list(sg.graph.edges(data=True)), ref_edges)
 
