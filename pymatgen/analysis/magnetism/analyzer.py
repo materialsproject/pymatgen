@@ -322,8 +322,11 @@ class CollinearMagneticStructureAnalyzer:
         magnetic species.
         :return: types of Specie
         """
-        structure = self.get_structure_with_only_magnetic_atoms()
-        return structure.types_of_specie
+        if self.number_of_magnetic_sites > 0:
+            structure = self.get_structure_with_only_magnetic_atoms()
+            return structure.types_of_specie
+        else:
+            return []
 
     @property
     def magnetic_species_and_magmoms(self):
