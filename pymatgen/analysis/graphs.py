@@ -341,7 +341,8 @@ class StructureGraph(MSONable):
         :param n: index of site
         :return (int):
         """
-        return self.graph.degree(n)
+        number_of_self_loops = sum([1 for n, v in self.graph.edges(n) if n == v])
+        return self.graph.degree(n) - number_of_self_loops
 
     def get_local_order_parameters(self, n):
         """
