@@ -154,6 +154,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         self._ref_separation_perm.extend(list(self.point_groups[1]))
         self._argsorted_ref_separation_perm = list(
             np.argsort(self._ref_separation_perm))
+        self.separation = (len(point_groups[0]), len(plane_points), len(point_groups[1]))
 
     @property
     def ordered_indices(self):
@@ -276,23 +277,26 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                 "point_groups": self.point_groups,
                 "ordered_point_groups": self.ordered_point_groups,
                 "point_groups_permutations": self._point_groups_permutations,
-                "explicit_permutations": self.explicit_permutations,
-                "explicit_optimized_permutations": self.explicit_optimized_permutations,
+                "explicit_permutations": [eperm.tolist() for eperm in self.explicit_permutations]
+                if self.explicit_permutations is not None else None,
+                "explicit_optimized_permutations": [eoperm.tolist()
+                                                    for eoperm in self.explicit_optimized_permutations]
+                if self.explicit_optimized_permutations is not None else None,
                 "multiplicity": self.multiplicity,
                 "other_plane_points": self.other_plane_points,
                 "minimum_number_of_points": self.minimum_number_of_points}
 
     @classmethod
     def from_dict(cls, dd):
-        eop = dd[
-            'explicit_optimized_permutations'] if 'explicit_optimized_permutations' in dd else None
+        eop = [np.array(eoperm) for eoperm in dd[
+            'explicit_optimized_permutations']] if 'explicit_optimized_permutations' in dd else None
         return cls(plane_points=dd['plane_points'],
                    mirror_plane=dd['mirror_plane'],
                    ordered_plane=dd['ordered_plane'],
                    point_groups=dd['point_groups'],
                    ordered_point_groups=dd['ordered_point_groups'],
                    point_groups_permutations=dd['point_groups_permutations'],
-                   explicit_permutations=dd['explicit_permutations'],
+                   explicit_permutations=[np.array(eperm) for eperm in dd['explicit_permutations']],
                    explicit_optimized_permutations=eop,
                    multiplicity=dd[
                        'multiplicity'] if 'multiplicity' in dd else None,
@@ -314,6 +318,8 @@ class CoordinationGeometry(object):
     """
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
+    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0 # Default value of continuous symmetry measure below which no further
+                                        #  search is performed for the separation plane algorithms
 
     class NeighborsSetsHints(object):
 
@@ -549,6 +555,10 @@ class CoordinationGeometry(object):
     def set_permutations_safe_override(self, permutations_safe_override):
         self.permutations_safe_override = permutations_safe_override
         # self.setup_permutations()
+
+    @property
+    def csm_skip_algo(self):
+        return self.CSM_SKIP_SEPARATION_PLANE_ALGO
 
     @property
     def distfactor_max(self):
@@ -807,6 +817,28 @@ class AllCoordinationGeometries(dict):
         if permutations_safe_override:
             for cg in self.cg_list:
                 cg.set_permutations_safe_override(True)
+
+        self.minpoints = {}
+        self.maxpoints = {}
+        self.separations_cg = {}
+        for cn in range(6, 14):
+            for cg in self.get_implemented_geometries(coordination=cn):
+                if only_symbols is not None and cg.ce_symbol not in only_symbols:
+                    continue
+                if cn not in self.separations_cg:
+                    self.minpoints[cn] = 1000
+                    self.maxpoints[cn] = 0
+                    self.separations_cg[cn] = {}
+                for algo in cg.algorithms:
+                    sep = (len(algo.point_groups[0]),
+                           len(algo.plane_points),
+                           len(algo.point_groups[1]))
+                    if sep not in self.separations_cg[cn]:
+                        self.separations_cg[cn][sep] = []
+                    self.separations_cg[cn][sep].append(cg.mp_symbol)
+                    self.minpoints[cn] = min(self.minpoints[cn], algo.minimum_number_of_points)
+                    self.maxpoints[cn] = max(self.maxpoints[cn], algo.maximum_number_of_points)
+        self.maxpoints_inplane = {cn: max([sep[1] for sep in seps.keys()]) for cn, seps in self.separations_cg.items()}
 
     def __getitem__(self, key):
         return self.get_geometry_from_mp_symbol(key)
