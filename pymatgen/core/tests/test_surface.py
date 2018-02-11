@@ -11,7 +11,8 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
-    get_symmetrically_distinct_miller_indices, ReconstructionGenerator
+    get_symmetrically_distinct_miller_indices, ReconstructionGenerator, \
+    miller_index_from_sites
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -628,6 +629,27 @@ class MillerIndexFinderTests(PymatgenTest):
         # check if we were able to produce at least one
         # termination for each distinct Miller _index
         self.assertEqual(len(miller_list), len(all_miller_list))
+
+    def test_miller_index_from_sites(self):
+        # test on a cubic system
+        m = Lattice.cubic(1).matrix
+        s1 = np.array([0.5, -1.5, 3])
+        s2 = np.array([0.5, 3.,-1.5])
+        s3 = np.array([2.5, 1.5,-4.])
+        self.assertEqual(tuple(miller_index_from_sites(m, [s1, s2, s3])),
+                         (-2,-1,-1))
+
+        # test on a hexagonal system
+        m = np.array([[2.319, -4.01662582, 0.],
+                      [2.319, 4.01662582, 0.],
+                      [0., 0., 7.252]])
+
+        s1 = np.array([2.319, 1.33887527, 6.3455])
+        s2 = np.array([1.1595, 0.66943764, 4.5325])
+        s3 = np.array([1.1595, 0.66943764, 0.9065])
+        hkl = [np.round(i, 6) for i in miller_index_from_sites(m, [s1, s2, s3])]
+        self.assertEqual(tuple(hkl), (2, -1, 0))
+
 
 if __name__ == "__main__":
     unittest.main()

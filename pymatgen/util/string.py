@@ -90,6 +90,7 @@ def unicodeify(formula):
     """
     Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
     to Fe₂O₃. Does not support formulae with decimal points.
+
     :param formula:
     :return:
     """

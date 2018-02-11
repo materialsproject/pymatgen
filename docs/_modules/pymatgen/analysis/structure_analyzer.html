@@ -111,8 +111,8 @@
 <span class="sd">        Dictionary of elements as keys and average coordination numbers as values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">coordination_numbers</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
-        <span class="n">coordination_numbers</span><span class="p">[</span><span class="n">el</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">coordination_numbers</span><span class="p">[</span><span class="n">spec</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structures</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">t</span> <span class="o">%</span> <span class="n">freq</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
