@@ -1684,7 +1684,7 @@ class Flow(Node, NodeContainer, MSONable):
                         else protocol)
         return strio.getvalue()
 
-    def register_task(self, input, deps=None, manager=None, task_class=None):
+    def register_task(self, input, deps=None, manager=None, task_class=None, append=False):
         """
         Utility function that generates a `Work` made of a single task
 
@@ -1695,13 +1695,24 @@ class Flow(Node, NodeContainer, MSONable):
             manager: The :class:`TaskManager` responsible for the submission of the task.
                      If manager is None, we use the :class:`TaskManager` specified during the creation of the work.
             task_class: Task subclass to instantiate. Default: :class:`AbinitTask`
+            append: If true, the task is added to the last work (a new Work is created if flow is empty)
 
         Returns:
             The generated :class:`Work` for the task, work[0] is the actual task.
         """
-        work = Work(manager=manager)
+        # append True is much easier to use. In principle should be the default behaviour
+        # but this would break the previous API so ...
+        if not append:
+            work = Work(manager=manager)
+        else:
+            if not self.works:
+                work = Work(manager=manager)
+                append = False
+            else:
+                work = self.works[-1]
+
         task = work.register(input, deps=deps, task_class=task_class)
-        self.register_work(work)
+        if not append: self.register_work(work)
 
         return work
 
@@ -2223,6 +2234,109 @@ class Flow(Node, NodeContainer, MSONable):
     #    if check_status: self.check_status()
     #    return abirobot(flow=self, ext=ext, nids=nids):
 
+    def get_graphviz(self, engine="automatic", graph_attr=None, node_attr=None, edge_attr=None):
+        """
+        Generate flow graph in the DOT language.
+
+        Args:
+            engine: Layout command used. ['dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage']
+            graph_attr: Mapping of (attribute, value) pairs for the graph.
+            node_attr: Mapping of (attribute, value) pairs set for all nodes.
+            edge_attr: Mapping of (attribute, value) pairs set for all edges.
+
+        Returns: graphviz.Digraph <https://graphviz.readthedocs.io/en/stable/api.html#digraph>
+        """
+        self.allocate()
+
+        from graphviz import Digraph
+        fg = Digraph("flow", #filename="flow_%s.gv" % os.path.basename(self.relworkdir),
+            engine="fdp" if engine == "automatic" else engine)
+
+        # Set graph attributes.
+        # https://www.graphviz.org/doc/info/
+        #fg.attr(label="%s@%s" % (self.__class__.__name__, self.relworkdir))
+        fg.attr(label=repr(self))
+        #fg.attr(fontcolor="white", bgcolor='purple:pink')
+        fg.attr(rankdir="LR", pagedir="BL")
+        #fg.attr(constraint="false", pack="true", packMode="clust")
+        fg.node_attr.update(color='lightblue2', style='filled')
+        #fg.node_attr.update(ranksep='equally')
+
+        # Add input attributes.
+        if graph_attr is not None:
+            fg.graph_attr.update(**graph_attr)
+        if node_attr is not None:
+            fg.node_attr.update(**node_attr)
+        if edge_attr is not None:
+            fg.edge_attr.update(**edge_attr)
+
+        def node_kwargs(node):
+            return dict(
+                #shape="circle",
+                color=node.color_hex,
+                fontsize="8.0",
+                label=(str(node) if not hasattr(node, "pos_str") else
+                    node.pos_str + "\n" + node.__class__.__name__),
+            )
+
+        edge_kwargs = dict(arrowType="vee", style="solid")
+        cluster_kwargs = dict(rankdir="LR", pagedir="BL", style="rounded", bgcolor="azure2")
+
+        for work in self:
+            # Build cluster with tasks.
+            cluster_name = "cluster%s" % work.name
+            with fg.subgraph(name=cluster_name) as wg:
+                wg.attr(**cluster_kwargs)
+                wg.attr(label="%s (%s)" % (work.__class__.__name__, work.name))
+                #wg.attr(label=repr(work))
+                #wg.attr(label="%s (%s)\n%s (%s)" % (
+                #    work.__class__.__name__, work.name, work.relworkdir, work.node_id))
+                for task in work:
+                    wg.node(task.name, **node_kwargs(task))
+                    # Connect children to task.
+                    for child in task.get_children():
+                        # Find file extensions required by this task
+                        i = [dep.node for dep in child.deps].index(task)
+                        edge_label = "+".join(child.deps[i].exts)
+                        fg.edge(task.name, child.name, label=edge_label, color=task.color_hex,
+                                **edge_kwargs)
+
+        # Treat the case in which we have a work producing output for other tasks.
+        for work in self:
+            children = work.get_children()
+            if not children: continue
+            cluster_name = "cluster%s" % work.name
+            seen = set()
+            for child in children:
+                # This is not needed, too much confusing
+                #fg.edge(cluster_name, child.name, color=work.color_hex, **edge_kwargs)
+                # Find file extensions required by work
+                i = [dep.node for dep in child.deps].index(work)
+                for ext in child.deps[i].exts:
+                    out = "%s (%s)" % (ext, work.name)
+                    fg.node(out)
+                    fg.edge(out, child.name, **edge_kwargs)
+                    key = (cluster_name, out)
+                    if key not in seen:
+                        seen.add(key)
+                        fg.edge(cluster_name, out, color=work.color_hex, **edge_kwargs)
+
+        # Treat the case in which we have a task that depends on external files.
+        seen = set()
+        for task in self.iflat_tasks():
+            #print(task.get_parents())
+            for node in (p for p in task.get_parents() if p.is_file):
+                #print("parent file node", node)
+                #infile = "%s (%s)" % (ext, work.name)
+                infile = node.filepath
+                if infile not in seen:
+                    seen.add(infile)
+                    fg.node(infile, **node_kwargs(node))
+
+                fg.edge(infile, task.name, color=node.color_hex, **edge_kwargs)
+
+        return fg
+
     @add_fig_kwargs
     def plot_networkx(self, mode="network", with_edge_labels=False, ax=None, arrows=False,
                       node_size="num_cores", node_label="name_class", layout_type="spring", **kwargs):
@@ -2243,11 +2357,10 @@ class Flow(Node, NodeContainer, MSONable):
 
             Requires networkx package.
         """
-        if not self.allocated: self.allocate()
-
-        import networkx as nx
+        self.allocate()
 
         # Build the graph
+        import networkx as nx
         g = nx.Graph() if not arrows else nx.DiGraph()
         edge_labels = {}
         tasks = list(self.iflat_tasks())
@@ -2259,15 +2372,39 @@ class Flow(Node, NodeContainer, MSONable):
                 i = [dep.node for dep in child.deps].index(task)
                 edge_labels[(task, child)] = " ".join(child.deps[i].exts)
 
+        # This part is needed if we have a work that produces output used by other nodes.
+        for work in self:
+            children = work.get_children()
+            if not children:
+                continue
+            g.add_node(work, name=work.name)
+            for task in work:
+                g.add_edge(task, work)
+                edge_labels[(task, work)] = "all_ok "
+            for child in children:
+                #print(child)
+                g.add_edge(work, child)
+                i = [dep.node for dep in child.deps].index(work)
+                edge_labels[(work, child)] = "+".join(child.deps[i].exts)
+
         # Get positions for all nodes using layout_type.
         # e.g. pos = nx.spring_layout(g)
         pos = getattr(nx, layout_type + "_layout")(g)
 
         # Select function used to compute the size of the node
-        make_node_size = dict(num_cores=lambda task: 300 * task.manager.num_cores)[node_size]
+        def make_node_size(node):
+            if node.is_task:
+                return 300 * node.manager.num_cores
+            else:
+                return 600
 
-        # Select function used to build the label
-        make_node_label = dict(name_class=lambda task: task.pos_str + "\n" + task.__class__.__name__,)[node_label]
+        # Function used to build the label
+        def make_node_label(node):
+            if node_label == "name_class":
+                return (node.pos_str + "\n" + node.__class__.__name__ if hasattr(node, "pos_str")
+                        else str(node))
+            else:
+                raise NotImplementedError("node_label: %s" % str(node_label))
 
         labels = {task: make_node_label(task) for task in g.nodes()}
         ax, fig, plt = get_ax_fig_plt(ax=ax)

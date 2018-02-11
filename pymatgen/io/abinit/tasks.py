@@ -2481,6 +2481,95 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         retcode = self.wait()
         return retcode
 
+    def get_graphviz(self, engine="automatic", graph_attr=None, node_attr=None):
+        """
+
+        Args:
+            engine: ['dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage']
+
+        Returns:
+        """
+        # https://www.graphviz.org/doc/info/
+        from graphviz import Digraph
+        fg = Digraph("task", filename="task_%s.gv" % os.path.basename(self.workdir),
+            engine="dot" if engine == "automatic" else engine)
+
+        # Set graph attributes.
+        #fg.attr(label="%s@%s" % (self.__class__.__name__, self.relworkdir))
+        fg.attr(label=repr(self))
+        #fg.attr(fontcolor="white", bgcolor='purple:pink')
+        #fg.attr(rankdir="LR", pagedir="BL")
+        #fg.attr(constraint="false", pack="true", packMode="clust")
+        fg.node_attr.update(color='lightblue2', style='filled')
+
+        # Add input attributes.
+        if graph_attr is not None:
+            fg.graph_attr.update(**graph_attr)
+        if node_attr is not None:
+            fg.node_attr.update(**node_attr)
+
+        def node_kwargs(node):
+            return dict(
+                #shape="circle",
+                color=node.color_hex,
+                label=(str(node) if not hasattr(node, "pos_str") else
+                    node.pos_str + "\n" + node.__class__.__name__),
+            )
+
+        edge_kwargs = dict(arrowType="vee", style="solid")
+        cluster_kwargs = dict(rankdir="LR", pagedir="BL", style="rounded", bgcolor="azure2")
+
+        # Build cluster with tasks.
+        cluster_name = "cluster%s" % self.work.name
+        with fg.subgraph(name=cluster_name) as wg:
+            wg.attr(**cluster_kwargs)
+            wg.attr(label="%s (%s)" % (self.__class__.__name__, self.name))
+            wg.node(self.name, **node_kwargs(self))
+
+            # Connect task to children.
+            for child in self.get_children():
+                # Test if child is in the same work.
+                myg = wg if child in self.work else fg
+                myg.node(child.name, **node_kwargs(child))
+                # Find file extensions required by this task
+                i = [dep.node for dep in child.deps].index(self)
+                edge_label = "+".join(child.deps[i].exts)
+                myg.edge(self.name, child.name, label=edge_label, color=self.color_hex,
+                         **edge_kwargs)
+
+            # Connect task to parents
+            for parent in self.get_parents():
+                # Test if parent is in the same work.
+                myg = wg if parent in self.work else fg
+                myg.node(parent.name, **node_kwargs(parent))
+                # Find file extensions required by self (task)
+                i = [dep.node for dep in self.deps].index(parent)
+                edge_label = "+".join(self.deps[i].exts)
+                myg.edge(parent.name, self.name, label=edge_label, color=parent.color_hex,
+                         **edge_kwargs)
+
+        # Treat the case in which we have a work producing output for other tasks.
+        #for work in self:
+        #    children = work.get_children()
+        #    if not children: continue
+        #    cluster_name = "cluster%s" % work.name
+        #    seen = set()
+        #    for child in children:
+        #        # This is not needed, too much confusing
+        #        #fg.edge(cluster_name, child.name, color=work.color_hex, **edge_kwargs)
+        #        # Find file extensions required by work
+        #        i = [dep.node for dep in child.deps].index(work)
+        #        for ext in child.deps[i].exts:
+        #            out = "%s (%s)" % (ext, work.name)
+        #            fg.node(out)
+        #            fg.edge(out, child.name, **edge_kwargs)
+        #            key = (cluster_name, out)
+        #            if key not in seen:
+        #                fg.edge(cluster_name, out, color=work.color_hex, **edge_kwargs)
+        #                seen.add(key)
+
+        return fg
+
 
 class DecreaseDemandsError(Exception):
     """
@@ -3232,7 +3321,7 @@ class NscfTask(GsTask):
         events.NscfConvergenceWarning,
     ]
 
-    color_rgb = np.array((160, 82, 45)) / 255
+    color_rgb = np.array((200, 80, 100)) / 255
 
     def setup(self):
         """
@@ -3240,13 +3329,14 @@ class NscfTask(GsTask):
         (in principle, it's possible to interpolate inside Abinit but tests revealed some numerical noise
         Here we change the input file of the NSCF task to have the same FFT mesh.
         """
-        # TODO: This won't work if parent_node is a file
         for dep in self.deps:
             if "DEN" in dep.exts:
                 parent_task = dep.node
                 break
         else:
             raise RuntimeError("Cannot find parent node producing DEN file")
+        # TODO: This won't work if parent_node is a file
+        #print("parent", parent_task)
 
         with parent_task.open_gsr() as gsr:
             den_mesh = 3 * [None]
@@ -3693,7 +3783,7 @@ class PhononTask(DfptTask):
         events.ScfConvergenceWarning,
     ]
 
-    color_rgb = np.array((0, 0, 255)) / 255
+    color_rgb = np.array((0, 150, 250)) / 255
 
     def restart(self):
         """
