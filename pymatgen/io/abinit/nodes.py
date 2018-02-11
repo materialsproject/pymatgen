@@ -720,6 +720,11 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
             for task in self:
                 task.add_deps(deps)
 
+        # If we have a FileNode as dependency, add self to its children
+        # Node.get_parents will use this list if node.is_isfile.
+        for dep in (d for d in deps if d.node.is_file):
+            dep.node.add_filechild(self)
+
     @check_spectator
     def remove_deps(self, deps):
         """
@@ -769,6 +774,11 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
             This routine assumes the entire flow has been allocated.
         """
+        # Specialized branch for FileNode.
+        if self.is_file:
+            return self.filechildren
+
+        # Inspect the entire flow to get children.
         children = []
         for work in self.flow:
             if work.depends_on(self): children.append(work)
@@ -788,9 +798,8 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         return "\n".join(lines)
 
     def get_graphviz_dirtree(self, engine="automatic", **kwargs):
-        if self.is_file:
-            raise TypeError("Cannot produce graph of `%s`" % repr(self))
-
+        #if self.is_file:
+        #    raise TypeError("Cannot produce graph of `%s`" % repr(self))
         if engine == "automatic":
             engine = "fdp"
 
@@ -924,6 +933,8 @@ class FileNode(Node):
         self.outdir = Directory(self.workdir)
         self.tmpdir = Directory(self.workdir)
 
+        self._filechildren = []
+
     def __repr__(self):
         try:
             return "<%s, node_id=%s, rpath=%s>" % (
@@ -950,6 +961,15 @@ class FileNode(Node):
         results = super(FileNode, self).get_results(**kwargs)
         #results.register_gridfs_files(filepath=self.filepath)
         return results
+
+    def add_filechild(self, node):
+        """Add a node (usually Task) to the children of this FileNode."""
+        self._filechildren.append(node)
+
+    @property
+    def filechildren(self):
+        """List with the children (nodes) of this FileNode."""
+        return self._filechildren
 
     # This part provides IO capabilities to FileNode with API similar to the one implemented in Task.
     # We may need it at runtime to extract information from netcdf files e.g.
