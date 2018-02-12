@@ -222,7 +222,7 @@ class Site(collections.Hashable, MSONable):
         return el in self._species
 
     def __repr__(self):
-        return "Site: {} ({:.10f}, {:.10f}, {:.10f})".format(
+        return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
             self.species_string, *self._coords)
 
     def __lt__(self, other):
@@ -471,8 +471,8 @@ class PeriodicSite(Site, MSONable):
         return self.distance_and_image(other, jimage)[0]
 
     def __repr__(self):
-        return "PeriodicSite: {} ({:.10f}, {:.10f}, {:.10f}) [{:.10f}, {:.10f}, " \
-               "{:.10f}]".format(self.species_string, self._coords[0],
+        return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, " \
+               "{:.4f}]".format(self.species_string, self._coords[0],
                                 self._coords[1], self._coords[2],
                                 self._fcoords[0], self._fcoords[1],
                                 self._fcoords[2])
