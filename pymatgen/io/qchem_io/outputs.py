@@ -26,7 +26,7 @@ class QCOutput(MSONable):
     Data in a single QChem Calculations
 
     Args:
-        filename (str): OUTCAR filename to parse.  
+        filename (str): OUTCAR filename to parse.
     """
 
     def __init__(self, filename):
@@ -121,14 +121,14 @@ class QCOutput(MSONable):
             text = re.split('\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+', f.read())
         if text[0] == '':
             text = text[1:]
-        for ii in range(len(text)):
-            temp = open(filename + '.' + str(ii), 'w')
-            temp.write(text[ii])
+        for i, sub_text in enumerate(text):
+            temp = open(filename + '.' + str(i), 'w')
+            temp.write(sub_text)
             temp.close()
-            tempOutput = cls(filename + '.' + str(ii))
+            tempOutput = cls(filename + '.' + str(i))
             to_return.append(tempOutput)
             if not keep_sub_files:
-                os.remove(filename + '.' + str(ii))
+                os.remove(filename + '.' + str(i))
         return to_return
 
     def _read_GEN_SCFMAN(self):
@@ -170,7 +170,7 @@ class QCOutput(MSONable):
 
     def _read_unrestricted_mulliken(self):
         """
-        Parses Mulliken charges and spins given an unrestricted SCF. 
+        Parses Mulliken charges and spins given an unrestricted SCF.
         """
         header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+Spin\s\(a\.u\.\)\s+\-+"
         table_pattern = r"\s+\d+\s(\w+)\s+([\d\-\.]+)\s+([\d\-\.]+)"

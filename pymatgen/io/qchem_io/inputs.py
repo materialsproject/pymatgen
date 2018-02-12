@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import re
-from collections import defaultdict
 from collections import OrderedDict
 import logging
 from monty.json import MSONable

@@ -4,15 +4,10 @@
 
 from __future__ import unicode_literals
 
-import copy
-import glob
-import json
 import os
 import unittest
 
-import sys
 from monty.serialization import loadfn, dumpfn
-from pymatgen import Molecule
 from pymatgen.io.qchem_io.outputs import QCOutput
 from pymatgen.util.testing import PymatgenTest
 
@@ -88,7 +83,7 @@ class TestQCOutput(PymatgenTest):
     @staticmethod
     def generate_single_job_dict():
         """
-        Used to generate test dictionary for single jobs 
+        Used to generate test dictionary for single jobs
         """
         single_job_dict = {}
         for file in single_job_out_names:
@@ -113,9 +108,9 @@ class TestQCOutput(PymatgenTest):
         for file in single_job_out_names:
             self.assertEqual(QCOutput(os.path.join(test_dir, file)).data.get(key), single_job_dict[file].get(key))
         for file in multi_job_out_names:
-            temp = QCOutput.multiple_outputs_from_file(QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
-            for ii in range(len(temp)):
-                self.assertEqual(temp[ii].data.get(key), multi_job_dict[file][ii].get(key))
+            outputs = QCOutput.multiple_outputs_from_file(QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
+            for i, sub_output in enumerate(outputs):
+                self.assertEqual(sub_output.data.get(key), multi_job_dict[file][i].get(key))
 
     def test_all(self):
         for key in property_list:
