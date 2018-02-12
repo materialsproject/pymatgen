@@ -15,8 +15,8 @@ __author__ = "Samuel Blau, Brandon Woods, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 
-single_job_dict = loadfn("single_job.json")
-multi_job_dict = loadfn("multi_job.json")
+single_job_dict = loadfn(os.path.join(os.path.dirname(__file__),"single_job.json"))
+multi_job_dict = loadfn(os.path.join(os.path.dirname(__file__),"multi_job.json"))
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "molecules")
 
