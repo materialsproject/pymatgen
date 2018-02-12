@@ -12,7 +12,6 @@ from pymatgen.util.testing import PymatgenTest
 from collections import OrderedDict
 from pymatgen.io.qchem_io.inputs import QCInput
 
-
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
@@ -26,13 +25,12 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test
 
 class TestQCInput(PymatgenTest):
 
-    #ef setUpClass(cls):
-        # add things that show up over and over again
+    # ef setUpClass(cls):
+    # add things that show up over and over again
 
     def test_molecule_template(self):
         species = ["C", "O"]
-        coords = [[-9.5782000000, 0.6241500000, 0.0000000000],
-                  [-7.5827400000, 0.5127000000, -0.0000000000]]
+        coords = [[-9.5782000000, 0.6241500000, 0.0000000000], [-7.5827400000, 0.5127000000, -0.0000000000]]
         mol = Molecule(species=species, coords=coords)
         molecule_test = QCInput.molecule_template(mol)
         molecule_actual = """$molecule
@@ -44,8 +42,13 @@ $end"""
         self.assertEqual(molecule_actual, molecule_test)
 
     def test_rem_template(self):
-        rem_params = {"jobtype": "opt", "method": "wB97M-V", "basis": "def2-QZVPPD",
-                     "max_scf_cycles": 300, "gen_scfman": "true"}
+        rem_params = {
+            "jobtype": "opt",
+            "method": "wB97M-V",
+            "basis": "def2-QZVPPD",
+            "max_scf_cycles": 300,
+            "gen_scfman": "true"
+        }
         rem_test = QCInput.rem_template(rem_params)
         rem_actual = """$rem
    jobtype = opt
@@ -58,10 +61,12 @@ $end"""
         self.assertEqual(rem_actual, rem_test)
 
     def test_opt_template(self):
-        opt_params = OrderedDict({"CONSTRAINT": ["tors 2 3 4 5 25.0", "bend 2 1 4 110.0"],
-                                  "FIXED": ["x y 2 4 5"],
-                                  "DUMMY": ["M 2 3 4 5"],
-                                  "CONNECT": ["4 3 2 3 5 6"]})
+        opt_params = OrderedDict({
+            "CONSTRAINT": ["tors 2 3 4 5 25.0", "bend 2 1 4 110.0"],
+            "FIXED": ["x y 2 4 5"],
+            "DUMMY": ["M 2 3 4 5"],
+            "CONNECT": ["4 3 2 3 5 6"]
+        })
         opt_test = QCInput.opt_template(opt_params)
         opt_actual = """$opt
 CONSTRAINT
@@ -154,8 +159,13 @@ $rem
   gen_scfman = true
 $end"""
         rem_test = QCInput.read_rem(str_rem)
-        rem_actual = OrderedDict({"jobtype": "opt", "method": "wB97M-V", "basis": "def2-QZVPPD",
-                                  "max_scf_cycles": "300", "gen_scfman": "true"})
+        rem_actual = OrderedDict({
+            "jobtype": "opt",
+            "method": "wB97M-V",
+            "basis": "def2-QZVPPD",
+            "max_scf_cycles": "300",
+            "gen_scfman": "true"
+        })
         self.assertDictEqual(rem_actual, rem_test)
 
     def test_read_opt(self):
@@ -178,10 +188,12 @@ CONNECT
 ENDCONNECT
 $end"""
         opt_test = QCInput.read_opt(str_opt)
-        opt_actual = OrderedDict({"CONSTRAINT": ["tors 2 3 4 5 25.0", "bend 2 1 4 110.0"],
-                                  "FIXED": ["x y 2 4 5"],
-                                  "DUMMY": ["M 2 3 4 5"],
-                                  "CONNECT": ["4 3 2 3 5 6"]})
+        opt_actual = OrderedDict({
+            "CONSTRAINT": ["tors 2 3 4 5 25.0", "bend 2 1 4 110.0"],
+            "FIXED": ["x y 2 4 5"],
+            "DUMMY": ["M 2 3 4 5"],
+            "CONNECT": ["4 3 2 3 5 6"]
+        })
         self.assertDictEqual(opt_actual, opt_test)
 
     def test__str__(self):
@@ -189,8 +201,13 @@ $end"""
         coords = [[-9.5782000000, 0.6241500000, 0.0000000000],
                   [-7.5827400000, 0.5127000000, -0.0000000000]]
         molecule = Molecule(species=species, coords=coords)
-        rem = OrderedDict({"jobtype": "opt", "method": "wB97M-V", "basis": "def2-QZVPPD",
-                           "max_scf_cycles": "300", "gen_scfman": "true"})
+        rem = OrderedDict({
+            "jobtype": "opt",
+            "method": "wB97M-V",
+            "basis": "def2-QZVPPD",
+            "max_scf_cycles": "300",
+            "gen_scfman": "true"
+        })
         str_test = QCInput(molecule=molecule, rem=rem).__str__()
         str_actual = """$molecule
  0 1
@@ -253,43 +270,89 @@ $end
 """
         qcinput_test = QCInput.from_string(string)
         species = ["S", "C", "H", "C", "H", "C", "H", "C", "C", "C", "H", "C", "H", "C", "H", "S"]
-        coords = [[-0.00250959, -0.05817469, -0.02921636], [1.70755408, -0.03033788, -0.01382912],
-                   [2.24317221, -0.05215019, 0.92026728], [2.21976393, 0.01718014, -1.27293235],
-                   [3.27786220, 0.04082146, -1.48539646], [1.20867399, 0.04478540, -2.27007793],
-                   [1.40292257, 0.10591684, -3.33110912], [-0.05341046, 0.01577217, -1.74839343],
-                   [-1.32843436, 0.03545064, -2.45531187], [-1.55195156, 0.08743920, -3.80184635],
-                   [-0.75245172, 0.10267657, -4.52817967], [-2.93293778, 0.08408786, -4.13352169],
-                   [-3.31125108, 0.11340328, -5.14405819], [-3.73173288, 0.02741365, -3.03412864],
-                   [-4.80776535, 0.00535688, -2.99564645], [-2.81590978, -0.00516172, -1.58990580]]
+        coords = [[-0.00250959, -0.05817469, -0.02921636],
+                  [1.70755408, -0.03033788, -0.01382912],
+                  [2.24317221, -0.05215019, 0.92026728],
+                  [2.21976393, 0.01718014, -1.27293235],
+                  [3.27786220, 0.04082146, -1.48539646],
+                  [1.20867399, 0.04478540, -2.27007793],
+                  [1.40292257, 0.10591684, -3.33110912],
+                  [-0.05341046, 0.01577217, -1.74839343],
+                  [-1.32843436, 0.03545064, -2.45531187],
+                  [-1.55195156, 0.08743920, -3.80184635],
+                  [-0.75245172, 0.10267657, -4.52817967],
+                  [-2.93293778, 0.08408786, -4.13352169],
+                  [-3.31125108, 0.11340328, -5.14405819],
+                  [-3.73173288, 0.02741365, -3.03412864],
+                  [-4.80776535, 0.00535688, -2.99564645],
+                  [-2.81590978, -0.00516172, -1.58990580]]
         molecule_actual = Molecule(species, coords)
         self.assertEqual(molecule_actual, qcinput_test.molecule)
-        rem_actual = OrderedDict({"jobtype": "opt", "method": "wb97m-v", "basis": "def2-tzvppd", "gen_scfman": "true",
-                           "geom_opt_max_cycles": "75", "max_scf_cycles": "300", "scf_algorithm": "diis",
-                           "scf_guess": "sad", "sym_ignore": "true", "symmetry": "false", "thresh": "14"})
+        rem_actual = OrderedDict({
+            "jobtype": "opt",
+            "method": "wb97m-v",
+            "basis": "def2-tzvppd",
+            "gen_scfman": "true",
+            "geom_opt_max_cycles": "75",
+            "max_scf_cycles": "300",
+            "scf_algorithm": "diis",
+            "scf_guess": "sad",
+            "sym_ignore": "true",
+            "symmetry": "false",
+            "thresh": "14"
+        })
         self.assertDictEqual(rem_actual, qcinput_test.rem)
         opt_actual = OrderedDict({"CONSTRAINT": ["tors 6 8 9 10 0.0"]})
         self.assertDictEqual(opt_actual, qcinput_test.opt)
 
     def test_multi_job_string(self):
         species = ["S", "C", "H", "C", "H", "C", "H", "C", "C", "C", "H", "C", "H", "C", "H", "S"]
-        coords = [[-0.00250959, -0.05817469, -0.02921636], [1.70755408, -0.03033788, -0.01382912],
-                   [2.24317221, -0.05215019, 0.92026728], [2.21976393, 0.01718014, -1.27293235],
-                   [3.27786220, 0.04082146, -1.48539646], [1.20867399, 0.04478540, -2.27007793],
-                   [1.40292257, 0.10591684, -3.33110912], [-0.05341046, 0.01577217, -1.74839343],
-                   [-1.32843436, 0.03545064, -2.45531187], [-1.55195156, 0.08743920, -3.80184635],
-                   [-0.75245172, 0.10267657, -4.52817967], [-2.93293778, 0.08408786, -4.13352169],
-                   [-3.31125108, 0.11340328, -5.14405819], [-3.73173288, 0.02741365, -3.03412864],
-                   [-4.80776535, 0.00535688, -2.99564645], [-2.81590978, -0.00516172, -1.58990580]]
+        coords = [[-0.00250959, -0.05817469, -0.02921636],
+                  [1.70755408, -0.03033788, -0.01382912],
+                  [2.24317221, -0.05215019, 0.92026728],
+                  [2.21976393, 0.01718014, -1.27293235],
+                  [3.27786220, 0.04082146, -1.48539646],
+                  [1.20867399, 0.04478540, -2.27007793],
+                  [1.40292257, 0.10591684, -3.33110912],
+                  [-0.05341046, 0.01577217, -1.74839343],
+                  [-1.32843436, 0.03545064, -2.45531187],
+                  [-1.55195156, 0.08743920, -3.80184635],
+                  [-0.75245172, 0.10267657, -4.52817967],
+                  [-2.93293778, 0.08408786, -4.13352169],
+                  [-3.31125108, 0.11340328, -5.14405819],
+                  [-3.73173288, 0.02741365, -3.03412864],
+                  [-4.80776535, 0.00535688, -2.99564645],
+                  [-2.81590978, -0.00516172, -1.58990580]]
         molecule_1 = Molecule(species, coords)
-        rem_1 = OrderedDict({"jobtype": "opt", "method": "wb97m-v", "basis": "def2-tzvppd", "gen_scfman": "true",
-                           "geom_opt_max_cycles": "75", "max_scf_cycles": "300", "scf_algorithm": "diis",
-                           "scf_guess": "sad", "sym_ignore": "true", "symmetry": "false", "thresh": "14"})
+        rem_1 = OrderedDict({
+            "jobtype": "opt",
+            "method": "wb97m-v",
+            "basis": "def2-tzvppd",
+            "gen_scfman": "true",
+            "geom_opt_max_cycles": "75",
+            "max_scf_cycles": "300",
+            "scf_algorithm": "diis",
+            "scf_guess": "sad",
+            "sym_ignore": "true",
+            "symmetry": "false",
+            "thresh": "14"
+        })
         opt_1 = OrderedDict({"CONSTRAINT": ["tors 6 8 9 10 0.0"]})
         job_1 = QCInput(molecule=molecule_1, rem=rem_1, opt=opt_1)
         molecule_2 = "read"
-        rem_2 = OrderedDict({"jobtype": "sp", "method": "wb97m-v", "basis": "def2-tzvppd", "gen_scfman": "true",
-                           "geom_opt_max_cycles": "75", "max_scf_cycles": "300", "scf_algorithm": "diis",
-                           "scf_guess": "read", "sym_ignore": "true", "symmetry": "false", "thresh": "14"})
+        rem_2 = OrderedDict({
+            "jobtype": "sp",
+            "method": "wb97m-v",
+            "basis": "def2-tzvppd",
+            "gen_scfman": "true",
+            "geom_opt_max_cycles": "75",
+            "max_scf_cycles": "300",
+            "scf_algorithm": "diis",
+            "scf_guess": "read",
+            "sym_ignore": "true",
+            "symmetry": "false",
+            "thresh": "14"
+        })
         job_2 = QCInput(molecule=molecule_2, rem=rem_2)
         job_list = [job_1, job_2]
         multi_job_str_test = QCInput.multi_job_string(job_list=job_list)
@@ -358,29 +421,58 @@ $end
     def test_from_multi_jobs_file(self):
         job_list_test = QCInput.from_multi_jobs_file(os.path.join(test_dir, "pt_n2_wb97mv_0.0.in"))
         species = ["S", "C", "H", "C", "H", "C", "H", "C", "C", "C", "H", "C", "H", "C", "H", "S"]
-        coords = [[-0.00250959, -0.05817469, -0.02921636], [1.70755408, -0.03033788, -0.01382912],
-                  [2.24317221, -0.05215019, 0.92026728], [2.21976393, 0.01718014, -1.27293235],
-                  [3.27786220, 0.04082146, -1.48539646], [1.20867399, 0.04478540, -2.27007793],
-                  [1.40292257, 0.10591684, -3.33110912], [-0.05341046, 0.01577217, -1.74839343],
-                  [-1.32843436, 0.03545064, -2.45531187], [-1.55195156, 0.08743920, -3.80184635],
-                  [-0.75245172, 0.10267657, -4.52817967], [-2.93293778, 0.08408786, -4.13352169],
-                  [-3.31125108, 0.11340328, -5.14405819], [-3.73173288, 0.02741365, -3.03412864],
-                  [-4.80776535, 0.00535688, -2.99564645], [-2.81590978, -0.00516172, -1.58990580]]
+        coords = [[-0.00250959, -0.05817469, -0.02921636],
+                  [1.70755408, -0.03033788, -0.01382912],
+                  [2.24317221, -0.05215019, 0.92026728],
+                  [2.21976393, 0.01718014, -1.27293235],
+                  [3.27786220, 0.04082146, -1.48539646],
+                  [1.20867399, 0.04478540, -2.27007793],
+                  [1.40292257, 0.10591684, -3.33110912],
+                  [-0.05341046, 0.01577217, -1.74839343],
+                  [-1.32843436, 0.03545064, -2.45531187],
+                  [-1.55195156, 0.08743920, -3.80184635],
+                  [-0.75245172, 0.10267657, -4.52817967],
+                  [-2.93293778, 0.08408786, -4.13352169],
+                  [-3.31125108, 0.11340328, -5.14405819],
+                  [-3.73173288, 0.02741365, -3.03412864],
+                  [-4.80776535, 0.00535688, -2.99564645],
+                  [-2.81590978, -0.00516172, -1.58990580]]
         molecule_1_actual = Molecule(species, coords)
-        rem_1_actual = OrderedDict({"jobtype": "opt", "method": "wb97m-v", "basis": "def2-tzvppd", "gen_scfman": "true",
-                             "geom_opt_max_cycles": "75", "max_scf_cycles": "300", "scf_algorithm": "diis",
-                             "scf_guess": "sad", "sym_ignore": "true", "symmetry": "false", "thresh": "14"})
+        rem_1_actual = OrderedDict({
+            "jobtype": "opt",
+            "method": "wb97m-v",
+            "basis": "def2-tzvppd",
+            "gen_scfman": "true",
+            "geom_opt_max_cycles": "75",
+            "max_scf_cycles": "300",
+            "scf_algorithm": "diis",
+            "scf_guess": "sad",
+            "sym_ignore": "true",
+            "symmetry": "false",
+            "thresh": "14"
+        })
         opt_1_actual = OrderedDict({"CONSTRAINT": ["tors 6 8 9 10 0.0"]})
         self.assertEqual(molecule_1_actual, job_list_test[0].molecule)
         self.assertEqual(rem_1_actual, job_list_test[0].rem)
         self.assertEqual(opt_1_actual, job_list_test[0].opt)
 
         molecule_2_actual = "read"
-        rem_2_actual = OrderedDict({"jobtype": "sp", "method": "wb97m-v", "basis": "def2-tzvppd", "gen_scfman": "true",
-                             "geom_opt_max_cycles": "75", "max_scf_cycles": "300", "scf_algorithm": "diis",
-                             "scf_guess": "read", "sym_ignore": "true", "symmetry": "false", "thresh": "14"})
+        rem_2_actual = OrderedDict({
+            "jobtype": "sp",
+            "method": "wb97m-v",
+            "basis": "def2-tzvppd",
+            "gen_scfman": "true",
+            "geom_opt_max_cycles": "75",
+            "max_scf_cycles": "300",
+            "scf_algorithm": "diis",
+            "scf_guess": "read",
+            "sym_ignore": "true",
+            "symmetry": "false",
+            "thresh": "14"
+        })
         self.assertEqual(molecule_2_actual, job_list_test[1].molecule)
         self.assertEqual(rem_2_actual, job_list_test[1].rem)
+
 
 if __name__ == "__main__":
     unittest.main()

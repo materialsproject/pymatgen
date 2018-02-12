@@ -9,7 +9,6 @@ import logging
 from monty.json import MSONable
 from pymatgen.core import Molecule
 from .utils import read_table_pattern, read_pattern
-
 """
 Classes for reading/manipulating/writing QChem ouput files.
 """
@@ -96,7 +95,7 @@ class QCInput(MSONable):
     def write_multi_job_file(job_list, filename):
         with open(filename, 'w') as f:
             f.write(QCInput.multi_job_string(job_list))
-                                                  
+
     @staticmethod
     def from_file(filename):
         with open(filename, 'r') as f:
@@ -120,13 +119,11 @@ class QCInput(MSONable):
         if molecule == "read":
             mol_list.append(" read")
         else:
-            mol_list.append(" {charge} {spin_mult}".format(charge=int(molecule.charge),
-                                                           spin_mult=molecule.spin_multiplicity))
+            mol_list.append(" {charge} {spin_mult}".format(
+                charge=int(molecule.charge), spin_mult=molecule.spin_multiplicity))
             for site in molecule.sites:
-                mol_list.append(" {atom}     {x: .10f}     {y: .10f}     {z: .10f}".format(atom=site.species_string,
-                                                                                           x=site.x,
-                                                                                           y=site.y,
-                                                                                           z=site.z))
+                mol_list.append(" {atom}     {x: .10f}     {y: .10f}     {z: .10f}".format(
+                    atom=site.species_string, x=site.x, y=site.y, z=site.z))
         mol_list.append("$end")
         return '\n'.join(mol_list)
 
@@ -177,9 +174,11 @@ class QCInput(MSONable):
     def read_molecule(string):
         charge = None
         spin_mult = None
-        patterns = {"read": r"^\s*\$molecule\n\s*(read)",
-                    "charge": r"^\s*\$molecule\n\s*(\d+)\s+\d",
-                    "spin_mult": r"^\s*\$molecule\n\s*\d+\s*(\d)"}
+        patterns = {
+            "read": r"^\s*\$molecule\n\s*(read)",
+            "charge": r"^\s*\$molecule\n\s*(\d+)\s+\d",
+            "spin_mult": r"^\s*\$molecule\n\s*\d+\s*(\d)"
+        }
         matches = read_pattern(string, patterns)
         if "read" in matches.keys():
             return "read"
@@ -207,10 +206,12 @@ class QCInput(MSONable):
 
     @staticmethod
     def read_opt(string):
-        patterns = {"CONSTRAINT": r"^\s*CONSTRAINT",
-                    "FIXED": r"^\s*FIXED",
-                    "DUMMY": r"^\s*DUMMY",
-                    "CONNECT": r"^\s*CONNECT"}
+        patterns = {
+            "CONSTRAINT": r"^\s*CONSTRAINT",
+            "FIXED": r"^\s*FIXED",
+            "DUMMY": r"^\s*DUMMY",
+            "CONNECT": r"^\s*CONNECT"
+        }
         opt_matches = read_pattern(string, patterns)
         opt_sections = [key for key in opt_matches.keys()]
         opt = OrderedDict({})
@@ -218,28 +219,25 @@ class QCInput(MSONable):
             c_header = r"^\s*CONSTRAINT\n"
             c_row = r"(\w.*)\n"
             c_footer = r"^\s*ENDCONSTRAINT\n"
-            c_table = read_table_pattern(string, header_pattern=c_header, row_pattern=c_row,
-                                                 footer_pattern=c_footer)
+            c_table = read_table_pattern(string, header_pattern=c_header, row_pattern=c_row, footer_pattern=c_footer)
             opt.update({"CONSTRAINT": [val[0] for val in c_table[0]]})
         if "FIXED" in opt_sections:
             f_header = r"^\s*FIXED\n"
             f_row = r"(\w.*)\n"
             f_footer = r"^\s*ENDFIXED\n"
-            f_table = read_table_pattern(string, header_pattern=f_header, row_pattern=f_row,
-                                                 footer_pattern=f_footer)
+            f_table = read_table_pattern(string, header_pattern=f_header, row_pattern=f_row, footer_pattern=f_footer)
             opt.update({"FIXED": [val[0] for val in f_table[0]]})
         if "DUMMY" in opt_sections:
             d_header = r"^\s*DUMMY\n"
             d_row = r"(\w.*)\n"
             d_footer = r"^\s*ENDDUMMY\n"
-            d_table = read_table_pattern(string, header_pattern=d_header, row_pattern=d_row,
-                                                 footer_pattern=d_footer)
+            d_table = read_table_pattern(string, header_pattern=d_header, row_pattern=d_row, footer_pattern=d_footer)
             opt.update({"DUMMY": [val[0] for val in d_table[0]]})
         if "CONNECT" in opt_sections:
             cc_header = r"^\s*CONNECT\n"
             cc_row = r"(\w.*)\n"
             cc_footer = r"^\s*ENDCONNECT\n"
-            cc_table = read_table_pattern(string, header_pattern=cc_header, row_pattern=cc_row,
-                                                  footer_pattern=cc_footer)
+            cc_table = read_table_pattern(
+                string, header_pattern=cc_header, row_pattern=cc_row, footer_pattern=cc_footer)
             opt.update({"CONNECT": [val[0] for val in cc_table[0]]})
         return opt
