@@ -2363,14 +2363,20 @@ class Flow(Node, NodeContainer, MSONable):
         import networkx as nx
         g = nx.Graph() if not arrows else nx.DiGraph()
         edge_labels = {}
-        tasks = list(self.iflat_tasks())
-        for task in tasks:
+        for task in self.iflat_tasks():
             g.add_node(task, name=task.name)
             for child in task.get_children():
                 g.add_edge(task, child)
                 # TODO: Add getters! What about locked nodes!
                 i = [dep.node for dep in child.deps].index(task)
                 edge_labels[(task, child)] = " ".join(child.deps[i].exts)
+
+            filedeps = [d for d in task.deps if d.node.is_file]
+            for d in filedeps:
+                #print(d.node, d.exts)
+                g.add_node(d.node, name="%s (%s)" % (d.node.basename, d.node.node_id))
+                g.add_edge(d.node, task)
+                edge_labels[(d.node, task)] = "+".join(d.exts)
 
         # This part is needed if we have a work that produces output used by other nodes.
         for work in self:
@@ -2401,19 +2407,22 @@ class Flow(Node, NodeContainer, MSONable):
         # Function used to build the label
         def make_node_label(node):
             if node_label == "name_class":
-                return (node.pos_str + "\n" + node.__class__.__name__ if hasattr(node, "pos_str")
-                        else str(node))
+                if node.is_file:
+                    return "%s\n(%s)" % (node.basename, node.node_id)
+                else:
+                    return (node.pos_str + "\n" + node.__class__.__name__
+                            if hasattr(node, "pos_str") else str(node))
             else:
                 raise NotImplementedError("node_label: %s" % str(node_label))
 
-        labels = {task: make_node_label(task) for task in g.nodes()}
+        labels = {node: make_node_label(node) for node in g.nodes()}
         ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         # Select plot type.
         if mode == "network":
             nx.draw_networkx(g, pos, labels=labels,
-                             node_color=[task.color_rgb for task in g.nodes()],
-                             node_size=[make_node_size(task) for task in g.nodes()],
+                             node_color=[node.color_rgb for node in g.nodes()],
+                             node_size=[make_node_size(node) for node in g.nodes()],
                              width=1, style="dotted", with_labels=True, arrows=arrows, ax=ax)
 
             # Draw edge labels
@@ -2421,7 +2430,7 @@ class Flow(Node, NodeContainer, MSONable):
                 nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, ax=ax)
 
         elif mode == "status":
-            # Group tasks by status.
+            # Group tasks by status (only tasks are show here).
             for status in self.ALL_STATUS:
                 tasks = list(self.iflat_tasks(status=status))
 
@@ -2437,7 +2446,6 @@ class Flow(Node, NodeContainer, MSONable):
                                        alpha=0.5, ax=ax
                                        #label=str(status),
                                        )
-
             # Draw edges.
             nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=arrows, ax=ax) # edge_color='r')
 

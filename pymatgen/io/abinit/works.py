@@ -256,7 +256,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         results = self.Results.from_node(self)
         return results
 
-    def get_graphviz(self, engine="automatic", graph_attr=None, node_attr=None):
+    def get_graphviz(self, engine="automatic", graph_attr=None, node_attr=None, edge_attr=None):
         """
         Generate work graph in the DOT language.
 
@@ -268,7 +268,6 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
 
         Returns: graphviz.Digraph <https://graphviz.readthedocs.io/en/stable/api.html#digraph>
         """
-
         from graphviz import Digraph
         fg = Digraph("work", #filename="work_%s.gv" % os.path.basename(self.workdir),
             engine="fdp" if engine == "automatic" else engine)

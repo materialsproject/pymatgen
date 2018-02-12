@@ -798,8 +798,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         return "\n".join(lines)
 
     def get_graphviz_dirtree(self, engine="automatic", **kwargs):
-        #if self.is_file:
-        #    raise TypeError("Cannot produce graph of `%s`" % repr(self))
         if engine == "automatic":
             engine = "fdp"
 
@@ -942,6 +940,11 @@ class FileNode(Node):
         except AttributeError:
             # this usually happens when workdir has not been initialized
             return "<%s, node_id=%s, path=%s>" % (self.__class__.__name__, self.node_id, self.filepath)
+
+    @lazy_property
+    def basename(self):
+        """Basename of the file."""
+        return os.path.basename(self.filepath)
 
     @property
     def products(self):
