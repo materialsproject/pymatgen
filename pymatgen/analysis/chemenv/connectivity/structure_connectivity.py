@@ -107,7 +107,7 @@ class StructureConnectivity():
                                 self._environment_subgraph.add_node(env_node)
                                 break
         #Find the connections between the environments
-        nodes = self._environment_subgraph.nodes()
+        nodes = list(self._environment_subgraph.nodes())
         for inode1, node1 in enumerate(nodes):
             isite1 = node1.isite
             links_node1 = self._graph.edges(isite1, data=True)
