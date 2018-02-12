@@ -1249,12 +1249,14 @@ class MVLSlabSet(MPRelaxSet):
         k_product: default to 50, kpoint number * length for a & b directions,
             also for c direction in bulk calculations
         bulk (bool): Set to True for bulk calculation. Defaults to False.
+        get_wf (bool): For calculating the electrostatic potential across the
+            slab. Will set if slab calculation only.
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, k_product=50, bulk=False,
-                 auto_dipole=False, **kwargs):
+                 auto_dipole=False, get_wf=False, **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
         self.structure = structure
         self.k_product = k_product
@@ -1274,7 +1276,8 @@ class MVLSlabSet(MPRelaxSet):
                 slab_incar["IDIPOL"] = 3
                 slab_incar["LDIPOL"] = True
                 slab_incar["DIPOL"] = structure.center_of_mass
-
+            if get_wf:
+                slab_incar["LVTOT"] = True
         self._config_dict["INCAR"].update(slab_incar)
 
     @property
